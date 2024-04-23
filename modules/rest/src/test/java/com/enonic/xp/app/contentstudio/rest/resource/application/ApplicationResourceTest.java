@@ -3,6 +3,7 @@ package com.enonic.xp.app.contentstudio.rest.resource.application;
 import java.time.Instant;
 import java.util.Arrays;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Assertions;
@@ -73,6 +74,29 @@ public class ApplicationResourceTest
     }
 
     @Test
+    public void get_by_keys()
+        throws Exception
+    {
+        final Application application = createApplication();
+        when( this.applicationService.get( isA( ApplicationKey.class ) ) ).thenReturn( application );
+        final SiteDescriptor siteDescriptor = createSiteDescriptor();
+        when( this.siteService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
+        final IdProviderDescriptor idProviderDescriptor = createIdProviderDescriptor();
+        when( this.idProviderDescriptorService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( idProviderDescriptor );
+        final ApplicationDescriptor appDescriptor = createApplicationDescriptor();
+        when( this.applicationDescriptorService.get( isA( ApplicationKey.class ) ) ).thenReturn( appDescriptor );
+
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+
+        String response = request().path( "application/getApplicationsByKeys" )
+            .entity( "{\"applicationKeys\":[\"project1\"]}", MediaType.APPLICATION_JSON_TYPE )
+            .post()
+            .getAsString();
+
+        assertJson( "get_applications_by_keys_success.json", response );
+    }
+
+    @Test
     public void get_application_i18n()
         throws Exception
     {
@@ -109,7 +133,7 @@ public class ApplicationResourceTest
     {
         final Application application = createApplication();
         final Applications applications = Applications.from( application );
-        when( this.applicationService.getInstalledApplications() ).thenReturn( applications );
+        when( this.applicationService.list() ).thenReturn( applications );
 
         final SiteDescriptor siteDescriptor = createSiteDescriptor();
         when( this.siteService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
@@ -132,7 +156,7 @@ public class ApplicationResourceTest
     {
         final Application application = createApplication();
         final Applications applications = Applications.from( application );
-        when( this.applicationService.getInstalledApplications() ).thenReturn( applications );
+        when( this.applicationService.list() ).thenReturn( applications );
 
         String response = request().
             path( "application/getSiteApplications" ).
