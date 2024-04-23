@@ -13,13 +13,10 @@ export class ApplyContentPermissionsRequest
 
     private permissions: AccessControlList;
 
-    private inheritPermissions: boolean;
-
     private overwriteChildPermissions: boolean;
 
     constructor() {
         super();
-        this.inheritPermissions = true;
         this.overwriteChildPermissions = false;
         this.setMethod(HttpMethod.POST);
         this.addRequestPathElements('applyPermissions');
@@ -35,11 +32,16 @@ export class ApplyContentPermissionsRequest
         return this;
     }
 
+    /*
+    * @deprecated Use new API instead
+    * */
     setInheritPermissions(inheritPermissions: boolean): ApplyContentPermissionsRequest {
-        this.inheritPermissions = inheritPermissions;
         return this;
     }
 
+    /*
+    * @deprecated Use new API instead
+    * */
     setOverwriteChildPermissions(overwriteChildPermissions: boolean): ApplyContentPermissionsRequest {
         this.overwriteChildPermissions = overwriteChildPermissions;
         return this;
@@ -49,8 +51,7 @@ export class ApplyContentPermissionsRequest
         return {
             contentId: this.id.toString(),
             permissions: this.permissions ? this.permissions.toJson() : undefined,
-            inheritPermissions: this.inheritPermissions,
-            overwriteChildPermissions: this.overwriteChildPermissions
+            scope: this.overwriteChildPermissions ? 'TREE' : 'SINGLE'
         };
     }
 
