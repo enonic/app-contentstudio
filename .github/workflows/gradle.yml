@@ -56,7 +56,9 @@ jobs:
                     name: contentstudio
                     path: modules/app/build/libs/contentstudio.jar
 
-            -   uses: codecov/codecov-action@v4
+            - uses: codecov/codecov-action@v4
+              with:
+                    token: ${{ secrets.CODECOV_TOKEN }}
 
             -   name: Publish
                 if: needs.publish_vars.outputs.publish == 'true'
