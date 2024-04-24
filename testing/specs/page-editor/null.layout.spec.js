@@ -45,7 +45,7 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             await contentWizard.waitForNotificationMessage();
             // 4. Verify the text in the Live Edit:
             let text = await liveFormPanel.getTextFromEmptyLayout();
-            assert.ok(text[0].includes('is empty', `'layout is empty' - this text should be displayed in the LiveEdit`));
+            assert.ok(text[0].includes(`Layout "${LAYOUT_NULL}"`, `'layout is empty' - this text should be displayed in the LiveEdit`));
             let isDisplayed = await liveFormPanel.isOptionsFilterInputInLayoutComponentNotDisplayed(0);
             assert.ok(isDisplayed === false, "Options filter should not be displayed for null-layout");
         });
