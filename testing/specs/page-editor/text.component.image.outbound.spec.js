@@ -50,6 +50,7 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             await textComponent.clickOnInsertImageButton();
             // 4. Insert an image in the text component:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             await insertImageDialog.waitForDialogClosed();
             await contentWizard.waitAndClickOnSave();

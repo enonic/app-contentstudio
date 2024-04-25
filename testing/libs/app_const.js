@@ -19,10 +19,10 @@ module.exports = Object.freeze({
     itemPublishedNotificationMessage: (name) => {
         return `Item \"${name}\" is published.`
     },
-    issueClosedNotificationMessage (name) {
+    issueClosedNotificationMessage(name) {
         return `Issue \"${name}\" is closed.`
     },
-    sortOrderTitle (by, order) {
+    sortOrderTitle(by, order) {
         return `Sorted by \"${by}\" in ${order} order`
     },
     permissionsAppliedNotificationMessage: (name) => {
@@ -245,7 +245,8 @@ module.exports = Object.freeze({
         ELEPHANT: 'elephant',
         ENTERPRISE: 'enterprise',
         GEEK: 'geek',
-        TELK: 'telk'
+        TELK: 'telk',
+        MONET_004: 'monet-004',
     },
     COMPONENT_VIEW_MENU_ITEMS: {
         INSERT: 'Insert',

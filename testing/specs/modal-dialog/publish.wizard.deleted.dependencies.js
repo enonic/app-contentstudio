@@ -68,6 +68,7 @@ describe('publish.dialog.dependant.items.spec: tests for dependant items', funct
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
             await textComponentCke.clickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImageByPath(TEST_IMAGE_NAME);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             await insertImageDialog.waitForDialogClosed();
             await contentWizard.clickOnMarkAsReadyButton();

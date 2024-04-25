@@ -82,6 +82,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             await insertImageDialog.waitForDialogVisible();
             //2. Select the image in the modal dialog:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             //3. 'Custom Width' has been checked:
             await insertImageDialog.clickOnCustomWidthCheckBox();
             //4. Click on Insert and save buttons:

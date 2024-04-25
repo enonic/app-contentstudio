@@ -49,15 +49,15 @@ describe('Content with image-selector, select images and verify that Outbound de
                 await insertImageDialog.waitForDialogVisible();
                 // 3. Insert an image:
                 await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME1);
+                await insertImageDialog.clickOnDecorativeImageRadioButton();
                 await insertImageDialog.clickOnInsertButton();
-                // site should be saved automatically!!!
+                // the site should be saved automatically after the inserting!
                 await siteConfiguratorDialog.clickOnApplyButton();
                 await openWizardDependencyWidget();
                 await studioUtils.saveScreenshot('site_configurator_wizard_dependencies');
                 await contentWizard.waitForSaveButtonDisabled();
                 // 4. Verify that 'Show outbound' button should be present on the widget, because the image was inserted in site configurator
                 await wizardDependenciesWidget.waitForOutboundButtonVisible();
-
             });
 
         it(`GIVEN wizard for new content with image selector is opened WHEN 2 images has been selected THEN 2 outbound dependencies should be present on the widget`,
