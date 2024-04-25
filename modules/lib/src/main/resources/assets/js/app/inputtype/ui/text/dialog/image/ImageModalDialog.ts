@@ -51,14 +51,27 @@ import {Project} from '../../../../../settings/data/project/Project';
 import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import eventInfo = CKEDITOR.eventInfo;
 import {ContentPath} from '../../../../../content/ContentPath';
-import {ContentTreeSelectorItem} from '../../../../../item/ContentTreeSelectorItem';
+import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
+import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
+import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+
+enum ImageAccessibilityType {
+    DECORATIVE = 'decorative',
+    INFORMATIVE = 'informative',
+}
 
 export class ImageModalDialog
     extends OverrideNativeDialog {
 
     private imagePreviewContainer: DivEl;
     private imageCaptionField: FormItem;
-    private imageAltTextField: FormItem;
+    private imageAltTextInput: TextInput;
+    private imageAltTextRadioFormItem: FormItem;
     private imageUploaderEl: ImageUploaderEl;
     private presetImageEl: HTMLElement;
     private content?: ContentSummary;
@@ -72,6 +85,7 @@ export class ImageModalDialog
     private imageSelectorFormItem: FormItem;
     private previewFrame: IFrameEl;
     private editorWidth: number;
+    protected secondaryForm: Form;
     protected config: ImageModalDialogConfig;
 
     static readonly defaultStyles: string[] = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS];
@@ -99,6 +113,8 @@ export class ImageModalDialog
     protected initElements() {
         super.initElements();
 
+        this.secondaryForm = this.createSecondaryForm();
+        this.secondaryForm.hide();
         this.editorWidth = this.config.editorWidth;
         this.content = this.config.content;
         this.figure = new FigureEl();
@@ -120,6 +136,7 @@ export class ImageModalDialog
 
         this.submitAction.onExecuted(() => {
             this.displayValidationErrors(true);
+
             if (this.validate()) {
                 this.updateOriginalDialogInputValues();
                 this.ckeOriginalDialog.getButton('ok').click();
@@ -132,15 +149,34 @@ export class ImageModalDialog
             this.addUploaderAndPreviewControls();
             this.setElementToFocusOnShow(this.imageSelectorFormItem.getInput());
         });
+
+        this.getImageAltTextRadioInput().onValueChanged(() => {
+            this.imageAltTextRadioFormItem.validate(new ValidationResult(), true);
+        });
+
+        this.imageAltTextInput.onValueChanged(() => {
+            this.imageAltTextRadioFormItem.validate(new ValidationResult(), true);
+        });
+    }
+
+    protected validate(): boolean {
+        return super.validate() && this.secondaryForm.validate(true).isValid();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
+            this.prependChildToFooter(this.secondaryForm);
             this.addAction(this.submitAction);
             this.addCancelButtonToBottom();
 
             return rendered;
         });
+    }
+
+    protected displayValidationErrors(value: boolean): void {
+        super.displayValidationErrors(value);
+
+        this.secondaryForm.toggleClass(FormView.VALIDATION_CLASS, value);
     }
 
     private initPresetImage() {
@@ -169,10 +205,18 @@ export class ImageModalDialog
                                 ? this.ckeOriginalDialog.getSelectedElement().getText()
                                 : '';
         (this.imageCaptionField.getInput() as InputEl).setValue(caption);
-        (this.imageAltTextField.getInput() as InputEl).setValue(this.getOriginalAltTextElem().getValue());
     }
 
     private presetImage(presetStyles: string) {
+        const altTextValue = this.getOriginalAltTextElem().getValue();
+
+        if (StringHelper.isBlank(altTextValue)) {
+            this.getImageAltTextRadioInput().setValue(ImageAccessibilityType.DECORATIVE);
+        } else {
+            this.imageAltTextInput.setValue(this.getOriginalAltTextElem().getValue());
+            this.getImageAltTextRadioInput().setValue(ImageAccessibilityType.INFORMATIVE);
+        }
+
         const imageId: string = this.extractImageId();
 
         new GetContentByIdRequest(new ContentId(imageId)).setRequestProject(this.config.project).sendAndParse().then(
@@ -210,23 +254,28 @@ export class ImageModalDialog
 
     protected getMainFormItems(): FormItem[] {
         this.imageSelectorFormItem = this.createImageSelector('imageId');
+
         if (this.presetImageEl) {
             this.imageSelector.hide();
             this.imageUploaderEl.hide();
         }
 
-        this.imageCaptionField = this.createFormItem(new ModalDialogFormItemBuilder('caption', i18n('dialog.image.formitem.caption')));
-        this.imageAltTextField = this.createFormItem(new ModalDialogFormItemBuilder('altText', i18n('dialog.image.formitem.alttext')));
-
-        this.imageCaptionField.addClass('caption').hide();
-        this.imageAltTextField.addClass('alttext').hide();
-
-        this.appendChildToFooter(this.imageCaptionField);
-        this.appendChildToFooter(this.imageAltTextField);
-
         return [
             this.imageSelectorFormItem
         ];
+    }
+
+    private createSecondaryForm(): Form {
+        this.imageCaptionField = this.createFormItem(new ModalDialogFormItemBuilder('caption', i18n('dialog.image.formitem.caption')));
+        this.imageAltTextRadioFormItem = this.createAltTextOptionRadio('altTextRadio');
+
+        this.imageCaptionField.addClass('caption');
+        this.imageAltTextRadioFormItem.addClass('image-accessibility');
+
+        return this.createForm([
+            this.imageCaptionField,
+            this.imageAltTextRadioFormItem,
+        ]);
     }
 
     private createImageSelector(id: string): FormItem {
@@ -260,7 +309,13 @@ export class ImageModalDialog
 
             new GetContentByIdRequest(imageSelectorItem.getContent().getContentId()).setRequestProject(
                 this.config.project).sendAndParse().then((content: Content) => {
-                this.setAltTextFieldValue(ImageHelper.getImageAltText(content));
+
+                const altTextValue = ImageHelper.getImageAltText(content);
+
+                if (!StringHelper.isBlank(altTextValue)) {
+                    this.imageAltTextInput.setValue(altTextValue, true);
+                }
+
                 this.setCaptionFieldValue(ImageHelper.getImageCaption(content));
             }).catch(DefaultErrorHandler.handle).done();
         });
@@ -272,14 +327,61 @@ export class ImageModalDialog
             this.imageToolbar.unStylesChanged();
             this.imageToolbar.unPreviewSizeChanged();
             this.imageToolbar.remove();
-            this.imageCaptionField.hide();
-            this.imageAltTextField.hide();
+            this.imageAltTextInput.setValue('');
+            this.secondaryForm.hide();
+            this.getImageAltTextRadioInput().setValue('');
             this.imageUploaderEl.show();
             this.figure.getEl().removeAttribute('style');
             ResponsiveManager.fireResizeEvent();
         });
 
         return formItem;
+    }
+
+    private createAltTextOptionRadio(id: string): FormItem {
+        const imageAccessibilityRadio = new RadioGroup('radio');
+        imageAccessibilityRadio.addClass('image-accessibility-radio');
+
+        imageAccessibilityRadio.addOption(ImageAccessibilityType.DECORATIVE, i18n('dialog.image.accessibility.decorative'));
+        imageAccessibilityRadio.addOption(ImageAccessibilityType.INFORMATIVE, i18n('dialog.image.accessibility.informative'));
+
+        imageAccessibilityRadio.onValueChanged((event: ValueChangedEvent) => {
+            this.imageAltTextInput.setEnabled(event.getNewValue() === ImageAccessibilityType.INFORMATIVE.toString());
+        });
+
+        this.imageAltTextInput =
+            new TextInput('altText').setPlaceholder(i18n('dialog.image.accessibility.informative.placeholder')) as TextInput;
+        this.imageAltTextInput.setEnabled(false);
+
+        imageAccessibilityRadio.appendChild(this.imageAltTextInput);
+
+        const formItemBuilder =
+            new ModalDialogFormItemBuilder(id, i18n('dialog.image.accessibility.title'))
+                .setInputEl(imageAccessibilityRadio)
+                .setValidator(this.validateImageAccessibility.bind(this));
+
+        const imageAltTextRadioFormItem = this.createFormItem(formItemBuilder);
+        imageAltTextRadioFormItem.getLabel().addClass('required');
+
+        return imageAltTextRadioFormItem;
+    }
+
+    private validateImageAccessibility(input: RadioGroup): string {
+        const value = input.getValue();
+
+        if (StringHelper.isBlank(value)) {
+            return i18n('field.value.required');
+        }
+
+        if (value === ImageAccessibilityType.INFORMATIVE.toString()) {
+            const altText = this.imageAltTextInput.getValue();
+
+            if (StringHelper.isBlank(altText)) {
+                return i18n('dialog.image.accessibility.alttext.empty');
+            }
+        }
+
+        return undefined;
     }
 
     private addUploaderAndPreviewControls() {
@@ -372,8 +474,7 @@ export class ImageModalDialog
         this.figure.setImage(image);
 
         this.hideUploadMasks();
-        this.imageCaptionField.show();
-        this.imageAltTextField.show();
+        this.secondaryForm.show();
         this.imageUploaderEl.hide();
 
         if (!image.isLoaded()) {
@@ -576,11 +677,11 @@ export class ImageModalDialog
     }
 
     private getAltTextFieldValue() {
-        return (this.imageAltTextField.getInput() as InputEl).getValue().trim();
+        return this.getImageAltTextRadioInput().getValue() === ImageAccessibilityType.INFORMATIVE.toString() ? this.imageAltTextInput.getValue() : '';
     }
 
-    private setAltTextFieldValue(value: string) {
-        (this.imageAltTextField.getInput() as InputEl).setValue(value);
+    private getImageAltTextRadioInput(): RadioGroup {
+        return this.imageAltTextRadioFormItem.getInput() as RadioGroup;
     }
 
     private getOriginalUrlElem(): CKEDITOR.ui.dialog.uiElement {
