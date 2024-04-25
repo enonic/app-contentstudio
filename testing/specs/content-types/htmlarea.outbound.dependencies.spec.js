@@ -41,6 +41,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             // 2. Insert an image and save:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             await contentWizard.waitAndClickOnSave();
             let actualMessage = await contentWizard.waitForNotificationMessage();

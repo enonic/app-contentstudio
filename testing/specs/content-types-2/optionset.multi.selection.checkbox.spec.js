@@ -43,6 +43,7 @@ describe('optionset.multi.selection.checkbox.spec: tests for option set with mul
             await insertImageDialog.waitForDialogVisible();
             // 4. Select an image:
             await insertImageDialog.filterAndSelectImage(appConst.TEST_IMAGES.BOOK);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             // 5. Click on 'Insert' button in the dialog:
             await insertImageDialog.clickOnInsertButton();
             // 6. Verify that the dialog closes:

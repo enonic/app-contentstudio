@@ -57,6 +57,7 @@ describe('layot.insert.save.as.fragment.spec - tests for inserting a fragment wi
             await textComponentCke.clickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             // 6. Save the layout-component as fragment:
             await pageComponentView.openMenu(LAYOUT_NAME);
@@ -94,6 +95,7 @@ describe('layot.insert.save.as.fragment.spec - tests for inserting a fragment wi
             await textComponentCke.clickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_2);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             // 6. Save the fragment-content:
             await contentWizard.waitAndClickOnSave();

@@ -71,6 +71,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await contentWizard.switchToLiveEditFrame();
             await textComponentCke.clickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             await insertImageDialog.waitForDialogClosed();
             await contentWizard.waitAndClickOnSave();

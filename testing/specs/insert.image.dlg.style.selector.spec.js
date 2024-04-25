@@ -55,7 +55,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
             // 3. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             // 4. Type the text in 'filter input' and click on the option
-            await insertImageDialog.doFilterStyleAndClickOnOption("Original");
+            await insertImageDialog.doFilterStyleAndClickOnOption('Original');
             // 5. Verify that 'Custom Width' checkbox gets disabled:
             await insertImageDialog.waitForCustomWidthCheckBoxDisabled();
             // 6. 'Custom Width' checkbox should be unchecked:

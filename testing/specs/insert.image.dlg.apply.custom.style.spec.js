@@ -58,6 +58,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             await insertImageDialog.waitForDialogVisible();
             // 3. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             // 4. Type the 'Cinema' in filter input and click on the option:
             await insertImageDialog.doFilterStyleAndClickOnOption('Cinema');
             // 5. Verify that 'Custom Width' checkbox is enabled

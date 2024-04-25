@@ -48,6 +48,7 @@ describe('image.text.component.as.fragment.spec - tests for saving an image as f
             await textComponentCke.clickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             // 5. Save the text-component as fragment:
             await pageComponentView.openMenu('Text');

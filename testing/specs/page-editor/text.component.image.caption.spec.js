@@ -49,6 +49,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await textComponent.clickOnInsertImageButton();
             // 4. Insert an image in the text component:
             await insertImageDialog.filterAndSelectImage(appConst.TEST_IMAGES.SENG);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             // 5. Fill in the Caption input an insert the image:
             await insertImageDialog.typeCaption(CAPTION);
             await insertImageDialog.clickOnInsertButton();
@@ -110,6 +111,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
             await textComponentCke.clickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             // 5. Save the text-component as fragment:
             await pageComponentView.openMenu('Text');

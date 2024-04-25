@@ -19,14 +19,35 @@ const XPATH = {
     imageRangeValue: "//div[contains(@class,'custom-width-range-container')]//span[contains(@class,'custom-width-board')]",
     selectedOptionView: "//div[contains(@id,'ImageStyleSelector')]//div[contains(@id,'SelectedOptionView')]",
     captionInput: "//div[contains(@id,'FormItem') and contains(@class,'caption')]//input",
-
     defaultActionByName: name => `//button[contains(@id, 'ActionButton') and child::span[contains(.,'${name}')]]`,
+    accessibilityForm: "//div[contains(@class,'input-view image-accessibility')]",
+    contentSelectedOptionDiv: "//div[contains(@id,'ContentSelectedOptionView')]",
 };
 
 class InsertImageDialog extends Page {
 
+    get removeContentSelectedOptionIcon() {
+        return XPATH.container + XPATH.contentSelectedOptionDiv + lib.REMOVE_ICON;
+    }
+
+    get editContentSelectedOptionIcon() {
+        return XPATH.container + XPATH.contentSelectedOptionDiv + lib.EDIT_ICON;
+    }
+
     get styleOptionsFilterInput() {
         return XPATH.container + XPATH.styleSelector + lib.DROPDOWN_OPTION_FILTER_INPUT;
+    }
+
+    get accessibilityDecorativeImageRadioButton() {
+        return XPATH.container + XPATH.accessibilityForm + lib.radioButtonByLabel('Decorative image');
+    }
+
+    get accessibilityAlternativeTextRadioButton() {
+        return XPATH.container + XPATH.accessibilityForm + lib.radioButtonByLabel('Alternative text');
+    }
+
+    get accessibilityAlternativeTextInput() {
+        return XPATH.container + XPATH.accessibilityForm + lib.TEXT_INPUT;
     }
 
     get imageOptionsFilterInput() {
@@ -69,20 +90,115 @@ class InsertImageDialog extends Page {
         return XPATH.container + XPATH.updateButton;
     }
 
+    async waitForAlternativeTextRadioButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.accessibilityAlternativeTextRadioButton, appConst.shortTimeout);
+    }
+
+    async waitForDecorativeImageRadioButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.accessibilityDecorativeImageRadioButton, appConst.shortTimeout);
+    }
+
+    async clickOnDecorativeImageRadioButton() {
+        try {
+            await this.waitForDecorativeImageRadioButtonDisplayed();
+            await this.clickOnElement(this.accessibilityDecorativeImageRadioButton);
+            return await this.pause(200);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_clicking_on_decorative_radio');
+            throw new Error(`Error occurred after clicking on Decorative Image Radio Button! screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async clickOnAlternativeTextRadioButton() {
+        try {
+            await this.waitForElementDisplayed(this.accessibilityAlternativeTextRadioButton, appConst.shortTimeout);
+            await this.clickOnElement(this.accessibilityAlternativeTextRadioButton);
+            return await this.pause(200);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_clicking_on_decorative_radio');
+            throw new Error(`Error occurred after clicking on Alternative Text Radio Button! screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async clickOnRemoveImageIcon() {
+        try {
+            await this.waitForElementDisplayed(this.removeContentSelectedOptionIcon, appConst.shortTimeout);
+            await this.clickOnElement(this.removeContentSelectedOptionIcon);
+            return await this.pause(300);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_clicking_on_remove_img_icon');
+            throw new Error(`Error occurred after clicking on Remove selected option icon! screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async isDecorativeImageRadioSelected() {
+        await this.waitForDecorativeImageRadioButtonDisplayed();
+        return await this.isSelected(this.accessibilityDecorativeImageRadioButton);
+    }
+
+    async isAlternativeTextRadioSelected() {
+        await this.waitForAlternativeTextRadioButtonDisplayed();
+        return await this.isSelected(this.accessibilityAlternativeTextRadioButton);
+    }
+
+    async waitForAlternativeTextInputEnabled() {
+        await this.waitForElementEnabled(this.accessibilityAlternativeTextInput, appConst.shortTimeout);
+    }
+
+    async waitForAlternativeTextInputDisabled() {
+        await this.waitForElementDisabled(this.accessibilityAlternativeTextInput, appConst.shortTimeout);
+    }
+
+    async waitForAccessibilityFormInvalid() {
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(XPATH.container + XPATH.accessibilityForm, 'class');
+            return text.includes('invalid');
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Accessibility Form should be displayed with error"});
+    }
+
+    async waitForAccessibilityFormValid() {
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(XPATH.container + XPATH.accessibilityForm, 'class');
+            return !text.includes('invalid');
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Accessibility Form should be valid"});
+    }
+
+    async getValidationMessageInAccessibilityForm() {
+        await this.waitForAccessibilityFormInvalid();
+        let locator = XPATH.accessibilityForm + lib.VALIDATION_RECORDING_VIEWER;
+        return await this.getText(locator);
+
+    }
+
+    async typeInAlternativeTextInput(text) {
+        try {
+            await this.waitForAlternativeTextInputEnabled();
+            await this.typeTextInInput(this.accessibilityAlternativeTextInput, text);
+            return await this.pause(200);
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_clicking_on_decorative_radio');
+            throw new Error(`Error occurred after inserting a text in Alternative Text Input! screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async getTextInAlternativeTextInput() {
+        return await this.getTextInInput(this.accessibilityAlternativeTextInput);
+    }
+
     async typeCaption(text) {
         await this.waitForElementDisplayed(this.captionInput, appConst.mediumTimeout);
         return await this.typeTextInInput(this.captionInput, text);
     }
 
-    clickOnCustomWidthCheckBox() {
-        return this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout).then(() => {
-            return this.clickOnElement(this.customWidthCheckbox);
-        }).then(() => {
-            return this.pause(400);
-        }).catch(err => {
-            this.saveScreenshot("err_clicking_on_custom_width_checkbox");
+    async clickOnCustomWidthCheckBox() {
+        try {
+            await this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout);
+            await this.clickOnElement(this.customWidthCheckbox);
+            return await this.pause(200);
+        } catch (err) {
+            await this.saveScreenshotUniqueName("err_clicking_on_custom_width_checkbox");
             throw new Error('Error when clicking on custom width checkbox! ' + err);
-        });
+        }
     }
 
     isCustomWidthCheckBoxSelected() {
@@ -102,8 +218,7 @@ class InsertImageDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.uploadButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshotName = appConst.generateRandomName("err_upload_btn");
-            await this.saveScreenshot(screenshotName);
+            let screenshotName = await this.saveScreenshotUniqueName('err_upload_btn');
             throw new Error("Insert Image Dialog, upload button is not visible, screenshot: " + screenshotName + "  " + err);
         }
     }
@@ -112,7 +227,7 @@ class InsertImageDialog extends Page {
         return this.waitForElementEnabled(this.customWidthCheckbox + lib.CHECKBOX_INPUT, appConst.shortTimeout);
     }
 
-    //Click on dropdown handle in Image style selector:
+    // Click on dropdown handle in Image style selector:
     clickOnStyleSelectorDropDownHandle() {
         return this.clickOnElement(this.styleSelectorDropDownHandle).catch(err => {
             this.saveScreenshot("err_style_selector_drop_down_handle");
@@ -120,7 +235,7 @@ class InsertImageDialog extends Page {
         })
     }
 
-    //Image style selector:
+    // Image style selector:
     async doFilterStyleAndClickOnOption(styleOption) {
         let optionSelector = lib.slickRowByDisplayName(XPATH.container, styleOption);
         try {
@@ -130,8 +245,8 @@ class InsertImageDialog extends Page {
             await this.clickOnElement(optionSelector);
             return await this.pause(400);
         } catch (err) {
-            await this.saveScreenshot('err_select_option');
-            throw new Error('Insert Image Dialog, Style selector ' + styleOption + ' ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_select_option');
+            throw new Error(`Insert Image Dialog, Style selector , screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -166,7 +281,7 @@ class InsertImageDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.cancelButton, appConst.mediumTimeout)
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_insert_image_dialog'));
+            await this.saveScreenshotUniqueName('err_insert_image_dialog');
             throw new Error('Insert Image Dialog should be opened!' + err);
         }
     }
