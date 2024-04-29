@@ -362,6 +362,8 @@ export class ContentSelectedOptionView
 
     private project?: Project;
 
+    private readonly statusEl: SpanEl;
+
     constructor(option: Option<ContentTreeSelectorItem>, project?: Project) {
         super(new RichSelectedOptionViewBuilder<ContentTreeSelectorItem>()
             .setDraggable(true)
@@ -370,6 +372,7 @@ export class ContentSelectedOptionView
         );
 
         this.project = project;
+        this.statusEl = new SpanEl();
         this.addClass('content-selected-option-view');
     }
 
@@ -395,22 +398,28 @@ export class ContentSelectedOptionView
         return super.onEditButtonClicked(e);
     }
 
+    setOption(option: Option<ContentTreeSelectorItem>): void {
+        super.setOption(option);
+        this.setStatus(this.getOptionDisplayValue());
+    }
+
+    private setStatus(item: ContentTreeSelectorItem): void {
+        if (item instanceof ContentAndStatusTreeSelectorItem) {
+            const content = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(item.getContent(),
+                item.getCompareStatus(),
+                item.getPublishStatus());
+
+            this.statusEl.addClass(content.getStatusClass());
+            this.statusEl.setHtml(content.getStatusText());
+        }
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             const item = this.getOptionDisplayValue();
-
-            if (item instanceof ContentAndStatusTreeSelectorItem) {
-                const content = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(item.getContent(),
-                    item.getCompareStatus(),
-                    item.getPublishStatus());
-
-                const status = new SpanEl('status');
-                const statusTextEl = new SpanEl();
-                statusTextEl.addClass(content.getStatusClass());
-                statusTextEl.setHtml(content.getStatusText());
-                status.appendChild(statusTextEl);
-                this.appendChild(status);
-            }
+            const status = new SpanEl('status').appendChild(this.statusEl);
+            this.setStatus(item);
+            this.appendChild(status);
 
             this.toggleClass('no-icon', item.getPath().equals(ContentPath.getRoot()));
 

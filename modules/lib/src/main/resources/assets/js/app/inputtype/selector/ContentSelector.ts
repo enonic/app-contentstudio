@@ -104,15 +104,15 @@ export class ContentSelector
             }
 
             statuses.forEach((status: ContentSummaryAndCompareStatus, index: number) => {
-                let selectedOption: SelectedOption<ContentTreeSelectorItem>;
+                const selectedOption = oldPaths ? this.findSelectedOptionByContentPath(oldPaths[index]) :
+                                       this.getSelectedOptionsView().getById(status.getContentId().toString());
 
-                if (oldPaths) {
-                    selectedOption = this.findSelectedOptionByContentPath(oldPaths[index]);
-                } else {
-                    selectedOption = this.getSelectedOptionsView().getById(status.getContentId().toString());
-                }
                 if (selectedOption) {
-                    this.getContentComboBox().updateOption(selectedOption.getOption(), status);
+                    const option = selectedOption.getOption();
+                    const oldValue = option.getDisplayValue();
+                    const newValue = this.createSelectorItem(status, oldValue.isSelectable(), oldValue.isExpandable());
+                    option.setDisplayValue(newValue);
+                    selectedOption.getOptionView().setOption(option);
                 }
             });
         };
@@ -183,12 +183,13 @@ export class ContentSelector
         });
     }
 
-    protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus): ContentTreeSelectorItem {
-        if (content instanceof  ContentSummaryAndCompareStatus) {
-            return new ContentAndStatusTreeSelectorItem(content);
+    protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus, selectable: boolean = true,
+                                 expandable: boolean = true): ContentTreeSelectorItem {
+        if (content instanceof ContentSummaryAndCompareStatus) {
+            return new ContentAndStatusTreeSelectorItem(content, selectable, expandable);
         }
 
-        return new ContentTreeSelectorItem(content);
+        return new ContentTreeSelectorItem(content, selectable, expandable);
     }
 
     protected readInputConfig(): void {
@@ -277,7 +278,7 @@ export class ContentSelector
         this.newContentButton = new NewContentButton(
             {content: this.context.content, allowedContentTypes: this.allowedContentTypes, project: this.context.project});
         this.newContentButton.setTitle(i18n('action.addNew'));
-        this.newContentButton.onContentAdded((content: ContentSummary) =>  {
+        this.newContentButton.onContentAdded((content: ContentSummary) => {
             const item = ContentSummaryAndCompareStatus.fromContentAndCompareStatus(content, CompareStatus.NEW);
             this.contentComboBox.select(this.createSelectorItem(item));
         });
