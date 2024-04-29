@@ -39,11 +39,11 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await contentWizard.typeDisplayName(appConst.generateRandomName('selector'));
             await imageSelectorForm.waitForOptionsFilterInputDisplayed();
             // 2. Expand th selector and click on an image-item
-            await imageSelectorForm.expandDropdownClickOnImage(appConst.TEST_IMAGES.GEEK);
+            await imageSelectorForm.expandDropdownClickOnImage(appConst.TEST_IMAGES.TELK);
             await contentWizard.pause(1000);
             // 3. Verify the selected image
             let result = await imageSelectorForm.getSelectedImages();
-            assert.equal(result[0], appConst.TEST_IMAGES.GEEK, "Expected image should be displayed in selected options");
+            assert.equal(result[0], appConst.TEST_IMAGES.TELK, "Expected image should be displayed in selected options");
             // 4. Click on Mark as ready button in the wizard toolbar:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.waitForOpened();
@@ -52,7 +52,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
             // 6. Verify that the selected image is displayed in the dependent items block:
             let dependantItems = await contentPublishDialog.getDisplayNameInDependentItems();
-            let expectedItem = '/imagearchive/' + appConst.TEST_IMAGES.GEEK + '.png'
+            let expectedItem = '/imagearchive/' + appConst.TEST_IMAGES.TELK + '.png'
             assert.ok(dependantItems.includes(expectedItem),
                 "Publish Wizard - The selected image should be displayed in Dependent Items block")
         });
