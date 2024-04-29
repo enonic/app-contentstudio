@@ -226,12 +226,13 @@ export class ImageSelector
         }
     }
 
-    protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus): MediaTreeSelectorItem {
+    protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus, selectable: boolean = true,
+                                 expandable: boolean = true): MediaTreeSelectorItem {
         if (content instanceof ContentSummaryAndCompareStatus) {
-            return new MediaTreeSelectorItem(content.getContentSummary());
+            return new MediaTreeSelectorItem(content.getContentSummary(), selectable, expandable);
         }
 
-        return new MediaTreeSelectorItem(content);
+        return new MediaTreeSelectorItem(content, selectable, expandable);
     }
 }
 
