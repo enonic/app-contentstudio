@@ -960,7 +960,7 @@ export class LiveFormPanel
 
     handle(event: PageNavigationEvent): void {
         if (event.getType() === PageNavigationEventType.DESELECT) {
-            this.clearSelection();
+            this.contextWindow.clearSelection(true);
             return;
         }
 
