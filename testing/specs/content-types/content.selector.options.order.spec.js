@@ -15,6 +15,9 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
         webDriverHelper.setupBrowser();
     }
     let SITE;
+    let FOLDER_1;
+    const FOLDER_NEW_DISPLAY_NAME = appConst.generateRandomName('folder');
+    const CONTENT_NAME_1 = contentBuilder.generateRandomName('selector');
     const CONTENT_NAME = contentBuilder.generateRandomName('selector');
     const CONTENT_NAME_SEL_1_2 = appConst.generateRandomName('cs');
     const OPTION_1 = appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME; // All Content types images
@@ -26,6 +29,35 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
+            FOLDER_1 = contentBuilder.buildFolder(contentBuilder.generateRandomName('folder'));
+            await studioUtils.doAddFolder(FOLDER_1);
+        });
+
+    // Content selector dropdown - broken layout after updating selected options #7479
+    // Verify the bug -  https://github.com/enonic/app-contentstudio/issues/7479
+    it(`GIVEN edit-icon has been clicked in a selected option WHEN the display-name has been updated in the next browser-tab THEN new display name should be searchable in the content selector dropdown`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let contentSelectorForm = new ContentSelectorForm();
+            // 1. Wizard for Custom-Selector content is opened:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_2_8);
+            await contentWizard.typeDisplayName(CONTENT_NAME_1);
+            // 2. one option has been selected:
+            await contentSelectorForm.selectOption(FOLDER_1.displayName);
+            // 3. Click on Edit-icon then switch to the new browser tab:
+            await contentSelectorForm.clickOnEditSelectedOption(FOLDER_1.displayName);
+            await studioUtils.doSwitchToNextTab();
+            // 4. Update the display-name of the selected option:
+            await contentWizard.typeDisplayName(FOLDER_NEW_DISPLAY_NAME);
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+            // 5. Switch to the content with selector dropdown:
+            await studioUtils.switchToContentTabWindow(CONTENT_NAME_1);
+            // 6. Type the new display-name of the selected option in Options Filter Input:
+            await contentSelectorForm.typeTextInOptionsFilterInput(FOLDER_NEW_DISPLAY_NAME);
+            // 7. Verify that the option with updated display name is present in the filtered input:
+            let result = await contentSelectorForm.getOptionsDisplayName();
+            assert.ok(result[0] === FOLDER_NEW_DISPLAY_NAME, 'New display name should be present in the filtered options');
         });
 
     it(`GIVEN content selector (1-2), dropdown has been expanded WHEN 2 options have been selected AND 'Apply' button has been pressed THEN 'Add new' button gets not visible`,
