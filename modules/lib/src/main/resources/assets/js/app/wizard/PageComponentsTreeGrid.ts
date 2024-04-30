@@ -171,7 +171,6 @@ export class PageComponentsTreeGrid
         const fullComponent: TreeComponent = TreeComponent.create()
             .setDisplayName(region.getName())
             .setDescription(RegionItemType.get().getShortName())
-            .setIconClass(ItemViewIconClassResolver.resolveByType(RegionItemType.get().getShortName()))
             .setHasChildren(this.hasComponentChildren(region))
             .setType('region')
             .build();

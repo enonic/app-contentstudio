@@ -60,10 +60,14 @@ export class PageComponentsTreeGridHelper {
         return wrapper.toString();
     }
 
-
     // Type guard function
     private static isPageOrRegion(componentType: PageItemType): componentType is 'page' | 'region' {
-        return componentType === 'page' || componentType === 'region';
+        return componentType === 'page' || PageComponentsTreeGridHelper.isRegion(componentType);
+    }
+
+    // Type guard function
+    private static isRegion(componentType: PageItemType): componentType is 'region' {
+        return componentType === 'region';
     }
 
     private static nameFormatter(row: number, cell: number, value: unknown, columnDef: unknown,
@@ -74,6 +78,11 @@ export class PageComponentsTreeGridHelper {
         viewer.setObject(itemWrapper);
         if (!PageComponentsTreeGridHelper.isPageOrRegion(itemWrapper.getType())) {
             viewer.addClass('draggable');
+        } else {
+            viewer.addClass((itemWrapper.getType() as 'page' | 'region').toString());
+            if (PageComponentsTreeGridHelper.isRegion(itemWrapper.getType()) && !node.isExpandable()) {
+                viewer.addClass('empty icon-arrow_drop_up');
+            }
         }
 
         return viewer.toString();
