@@ -7,14 +7,18 @@ import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSiz
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {TextComponentType} from '../../../../../page/region/TextComponentType';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ComponentInspectionPanel} from './ComponentInspectionPanel';
+import {LayoutComponentType} from '../../../../../page/region/LayoutComponentType';
 
 export class TextInspectionPanel
-    extends BaseInspectionPanel {
+    extends ComponentInspectionPanel<TextComponent> {
 
-    private namesAndIcon: NamesAndIconView;
+    private readonly namesAndIcon: NamesAndIconView;
 
     constructor() {
-        super();
+        super({
+            iconClass: ItemViewIconClassResolver.resolveByType(TextComponentType.get().getShortName(), 'icon-xlarge'),
+        });
 
         this.namesAndIcon =
             new NamesAndIconView(new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.medium)).setIconClass(
@@ -23,7 +27,7 @@ export class TextInspectionPanel
         this.appendChild(this.namesAndIcon);
     }
 
-    setTextComponent(textComponent: TextComponent) {
+    setComponent(textComponent: TextComponent) {
         if (textComponent) {
             const text = StringHelper.htmlToString(textComponent.getText()?.trim()).trim() || textComponent.getName().toString();
             const path = textComponent.getPath();
