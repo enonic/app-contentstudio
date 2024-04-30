@@ -3,7 +3,6 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {showError, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
@@ -12,14 +11,13 @@ import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DefaultModels} from './DefaultModels';
 import {LiveEditPageProxy} from './LiveEditPageProxy';
 import {TextInspectionPanel} from './contextwindow/inspect/region/TextInspectionPanel';
-import {ContentInspectionPanel} from './contextwindow/inspect/ContentInspectionPanel';
 import {RegionInspectionPanel} from './contextwindow/inspect/region/RegionInspectionPanel';
 import {ImageInspectionPanel} from './contextwindow/inspect/region/ImageInspectionPanel';
 import {LayoutInspectionPanel} from './contextwindow/inspect/region/LayoutInspectionPanel';
 import {FragmentInspectionPanel} from './contextwindow/inspect/region/FragmentInspectionPanel';
 import {PartInspectionPanel} from './contextwindow/inspect/region/PartInspectionPanel';
 import {PageInspectionPanel} from './contextwindow/inspect/page/PageInspectionPanel';
-import {InspectionsPanel, InspectionsPanelConfig} from './contextwindow/inspect/InspectionsPanel';
+import {InspectionsPanel} from './contextwindow/inspect/InspectionsPanel';
 import {InsertablesPanel} from './contextwindow/insert/InsertablesPanel';
 import {ContextWindow, ContextWindowConfig, getInspectParameters} from './contextwindow/ContextWindow';
 import {ShowContentFormEvent} from '../ShowContentFormEvent';
@@ -44,8 +42,6 @@ import {Component} from '../../page/region/Component';
 import {Page} from '../../page/Page';
 import {PartComponent} from '../../page/region/PartComponent';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
-import {ImageComponent} from '../../page/region/ImageComponent';
-import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
@@ -87,6 +83,14 @@ import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedE
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {PageHelper} from '../../util/PageHelper';
 import {ContextPanelState} from '../../view/context/ContextPanelState';
+import {PageItemType} from '../../page/region/PageItemType';
+import {DescriptorBasedComponentInspectionPanel} from './contextwindow/inspect/region/DescriptorBasedComponentInspectionPanel';
+import {ImageComponentType} from '../../page/region/ImageComponentType';
+import {TextComponentType} from '../../page/region/TextComponentType';
+import {PartComponentType} from '../../page/region/PartComponentType';
+import {LayoutComponentType} from '../../page/region/LayoutComponentType';
+import {FragmentComponentType} from '../../page/region/FragmentComponentType';
+import {ComponentInspectionPanel} from './contextwindow/inspect/region/ComponentInspectionPanel';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export interface LiveFormPanelConfig {
@@ -111,7 +115,6 @@ export interface InspectPageParams {
 
 enum ErrorType {
     APP_MISSING = 0,
-    RENDER_ERROR = 1
 }
 
 export class LiveFormPanel
@@ -149,17 +152,10 @@ export class LiveFormPanel
     private componentToInspectOnContextPanelExpand: Component;
 
     private placeholder?: LiveEditPagePlaceholder;
-    private insertablesPanel: InsertablesPanel;
+    private insertablesPanel?: InsertablesPanel;
     private inspectionsPanel: InspectionsPanel;
-    private contentInspectionPanel: ContentInspectionPanel;
-    private pageInspectionPanel: PageInspectionPanel;
-    private regionInspectionPanel: RegionInspectionPanel;
-    private imageInspectionPanel: ImageInspectionPanel;
-    private partInspectionPanel: PartInspectionPanel;
-    private layoutInspectionPanel: LayoutInspectionPanel;
-    private fragmentInspectionPanel: FragmentInspectionPanel;
-    private textInspectionPanel: TextInspectionPanel;
-
+    private defaultPanelToShow: BaseInspectionPanel;
+    private availableInspectPanels: Map<PageItemType, BaseInspectionPanel> = new Map<PageItemType, BaseInspectionPanel>();
     private contentWizardPanel: ContentWizardPanel;
 
     private liveEditPageProxy?: LiveEditPageProxy;
@@ -277,6 +273,10 @@ export class LiveFormPanel
         this.contentEventListener = (event) => {
             this.propagateEvent(event);
         };
+
+        const descriptorLoadedHandler = (descriptor: Descriptor) => this.inspectionsPanel.updateButtonsVisibility(descriptor);
+        this.availableInspectPanels.forEach(
+            (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.onDescriptorLoaded(descriptorLoadedHandler));
     }
 
     private initMaskHandlers() {
@@ -413,20 +413,27 @@ export class LiveFormPanel
                 this.lockPageAfterProxyLoad = false;
             }
 
-            this.imageInspectionPanel.refresh();
+            (this.availableInspectPanels.get(ImageComponentType.get()) as ImageInspectionPanel)?.refresh();
         });
     }
 
     private createContextWindow(): ContextWindow {
-        this.inspectionsPanel = this.createInspectionsPanel();
+        this.saveAction = this.initSaveAction();
+        this.initAvailablePanels();
 
-        this.insertablesPanel = new InsertablesPanel({
+        this.inspectionsPanel = new InspectionsPanel({
+            inspectionPanels: Array.from(this.availableInspectPanels.values()),
+            defaultPanelToShow: this.defaultPanelToShow,
+            saveAction: this.saveAction
+        });
+
+        this.insertablesPanel = this.isNotPartOrTextFragment() ? new InsertablesPanel({
             liveEditPage: this.liveEditPageProxy,
             contentWizardPanel: this.contentWizardPanel,
             saveAsTemplateAction: SaveAsTemplateAction.get()
-        });
+        }) : null;
 
-        this.insertablesPanel.setModifyPermissions(this.modifyPermissions);
+        this.insertablesPanel?.setModifyPermissions(this.modifyPermissions);
 
         return new ContextWindow({
             liveFormPanel: this,
@@ -435,10 +442,72 @@ export class LiveFormPanel
         } as ContextWindowConfig);
     }
 
-    private createInspectionsPanel(): InspectionsPanel {
-        this.saveAction = new Action(i18n('action.apply')).setEnabled(false);
+    private initAvailablePanels(): void {
+        if (this.content.getPage()?.isFragment()) {
+            this.initPanelsForFragment();
+        } else {
+            this.initPagePanels();
+        }
+    }
 
-        this.saveAction.onExecuted(() => {
+    private initPanelsForFragment(): void {
+        // fragment content doesn't have a top level page inspection panel, we can't change tempate or controller etc.
+        const fragment = this.content.getPage().getFragment();
+
+        if (fragment instanceof TextComponent) {
+            this.initTextComponentFragmentPanels();
+        } else if (fragment instanceof PartComponent) {
+            this.initPartComponentFragmentPanels();
+        } else if (fragment instanceof LayoutComponent) {
+            this.initLayoutComponentFragmentPanels();
+        } else {
+            console.warn('Fragment type not supported for inspection: ' + fragment.getType().getShortName());
+        }
+    }
+
+    private initTextComponentFragmentPanels(): void {
+        // text fragment doesn't have any other components except itself
+        const textInspectionPanel = new TextInspectionPanel();
+        this.availableInspectPanels.set(TextComponentType.get(), textInspectionPanel);
+        this.defaultPanelToShow = textInspectionPanel;
+    }
+
+    private initPartComponentFragmentPanels(): void {
+        // part fragment doesn't have any other components except itself
+        const partInspectionPanel = new PartInspectionPanel();
+        this.availableInspectPanels.set(PartComponentType.get(), partInspectionPanel);
+        this.defaultPanelToShow = partInspectionPanel;
+    }
+
+    private initLayoutComponentFragmentPanels(): void {
+        // layout fragment might have any components to inspect, except top level page
+        const layoutInspectionPanel = new LayoutInspectionPanel();
+        this.availableInspectPanels.set(LayoutComponentType.get(), layoutInspectionPanel);
+        this.availableInspectPanels.set(PartComponentType.get(), new PartInspectionPanel());
+        this.availableInspectPanels.set(ImageComponentType.get(), new ImageInspectionPanel());
+        this.availableInspectPanels.set(FragmentComponentType.get(), new FragmentInspectionPanel());
+        this.availableInspectPanels.set(TextComponentType.get(), new TextInspectionPanel());
+        this.availableInspectPanels.set('region', new RegionInspectionPanel());
+        this.defaultPanelToShow = layoutInspectionPanel;
+    }
+
+    private initPagePanels(): void {
+        const pageInspectionPanel = new PageInspectionPanel(SaveAsTemplateAction.get());
+
+        this.availableInspectPanels.set('page', pageInspectionPanel);
+        this.availableInspectPanels.set(LayoutComponentType.get(), new LayoutInspectionPanel());
+        this.availableInspectPanels.set(PartComponentType.get(), new PartInspectionPanel());
+        this.availableInspectPanels.set(ImageComponentType.get(), new ImageInspectionPanel());
+        this.availableInspectPanels.set(FragmentComponentType.get(), new FragmentInspectionPanel());
+        this.availableInspectPanels.set(TextComponentType.get(), new TextInspectionPanel());
+        this.availableInspectPanels.set('region', new RegionInspectionPanel());
+        this.defaultPanelToShow = pageInspectionPanel;
+    }
+
+    private initSaveAction(): Action {
+        const saveAction = new Action(i18n('action.apply')).setEnabled(false);
+
+        saveAction.onExecuted(() => {
             const selectedItem = this.lastInspectedItemPath ? PageState.getComponentByPath(this.lastInspectedItemPath) : null;
 
             if (selectedItem instanceof Component) {
@@ -452,28 +521,11 @@ export class LiveFormPanel
             this.contentWizardPanel.saveChanges().then(() => this.saveAction.setEnabled(false)).catch(DefaultErrorHandler.handle);
         });
 
-        this.contentInspectionPanel = new ContentInspectionPanel();
+        return saveAction;
+    }
 
-        this.pageInspectionPanel = new PageInspectionPanel(SaveAsTemplateAction.get());
-        this.partInspectionPanel = new PartInspectionPanel();
-        this.layoutInspectionPanel = new LayoutInspectionPanel();
-        this.imageInspectionPanel = new ImageInspectionPanel();
-        this.fragmentInspectionPanel = new FragmentInspectionPanel();
-
-        this.textInspectionPanel = new TextInspectionPanel();
-        this.regionInspectionPanel = new RegionInspectionPanel();
-
-        return new InspectionsPanel({
-            contentInspectionPanel: this.contentInspectionPanel,
-            pageInspectionPanel: this.pageInspectionPanel,
-            regionInspectionPanel: this.regionInspectionPanel,
-            imageInspectionPanel: this.imageInspectionPanel,
-            partInspectionPanel: this.partInspectionPanel,
-            layoutInspectionPanel: this.layoutInspectionPanel,
-            fragmentInspectionPanel: this.fragmentInspectionPanel,
-            textInspectionPanel: this.textInspectionPanel,
-            saveAction: this.saveAction
-        } as InspectionsPanelConfig);
+    private isNotPartOrTextFragment(): boolean {
+        return !this.content.getPage()?.getFragment() || this.content.getPage().getFragment() instanceof LayoutComponent;
     }
 
     doRender(): Q.Promise<boolean> {
@@ -569,11 +621,7 @@ export class LiveFormPanel
             .setSite(site);
 
         this.liveEditPageProxy.setModel(liveEditModel);
-        this.pageInspectionPanel.setModel(liveEditModel);
-        this.partInspectionPanel.setModel(liveEditModel);
-        this.layoutInspectionPanel.setModel(liveEditModel);
-        this.imageInspectionPanel.setModel(liveEditModel);
-        this.fragmentInspectionPanel.setModel(liveEditModel);
+        this.availableInspectPanels.forEach((panel) => panel.setModel(liveEditModel));
 
         this.handleContentUpdatedEvent();
     }
@@ -676,14 +724,27 @@ export class LiveFormPanel
             this.inspectPage({showPanel: false, showWidget: true});
         });
 
-        eventsManager.onLiveEditPageViewReady(() => {
-            // disable insert tab if there is no page for some reason (i.e. error occurred)
-            // or there is no controller or template set or no automatic template
-            const page = PageState.getState();
-            const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
-            const hasDefaultTemplate = this.liveEditModel?.getDefaultModels().hasDefaultPageTemplate();
-            this.contextWindow.setItemVisible(this.insertablesPanel, isPageRenderable || hasDefaultTemplate);
-        });
+
+            eventsManager.onLiveEditPageViewReady(() => {
+                if (this.insertablesPanel) {
+                    // disable insert tab if there is no page for some reason (i.e. error occurred)
+                    // or there is no controller or template set or no automatic template
+                    const page = PageState.getState();
+                    const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
+                    const hasDefaultTemplate = this.liveEditModel?.getDefaultModels().hasDefaultPageTemplate();
+                    this.contextWindow.setItemVisible(this.insertablesPanel, isPageRenderable || hasDefaultTemplate);
+                }
+
+                if (this.content.getPage()?.isFragment()) { // preselection selector's value to make it not empty
+                    const component = this.content.getPage().getFragment();
+                    const inspectionPanel = this.availableInspectPanels.get(component.getType());
+
+                    if (inspectionPanel instanceof ComponentInspectionPanel) {
+                        inspectionPanel.setComponent(component);
+                    }
+                }
+            });
+
 
         eventsManager.onPageSaveAsTemplate(() => {
             SaveAsTemplateAction.get().execute();
@@ -704,7 +765,10 @@ export class LiveFormPanel
         eventsManager.onLiveEditPageInitializationError((event: LiveEditPageInitializationErrorEvent) => {
             showError(event.getMessage(), false);
             this.contentWizardPanel.showForm();
-            this.contextWindow.setItemVisible(this.insertablesPanel, false);
+
+            if (this.insertablesPanel) {
+                this.contextWindow.setItemVisible(this.insertablesPanel, false);
+            }
         });
 
         eventsManager.onLiveEditPageDialogCreate((event: CreateHtmlAreaDialogEvent) => {
@@ -761,7 +825,7 @@ export class LiveFormPanel
         const canShowPanel = unlocked && params.showPanel;
         this.contextWindow?.showInspectionPanel(
             getInspectParameters({
-                panel: this.pageInspectionPanel,
+                panel: this.availableInspectPanels.get('page'),
                 showWidget: canShowWidget,
                 showPanel: canShowPanel,
                 source: params.source,
@@ -793,11 +857,12 @@ export class LiveFormPanel
 
     private inspectRegion(regionPath: ComponentPath, source?: PageNavigationEventSource): void {
         const region: Region = PageState.getState().getComponentByPath(regionPath) as Region;
+        const regionInspectionPanel = this.availableInspectPanels.get('region') as RegionInspectionPanel;
+        regionInspectionPanel?.setRegion(region);
 
-        this.regionInspectionPanel.setRegion(region);
         this.contextWindow.showInspectionPanel(
             getInspectParameters({
-                panel: this.regionInspectionPanel,
+                panel: regionInspectionPanel,
                 showWidget: true,
                 showPanel: true,
                 source: source,
@@ -816,23 +881,12 @@ export class LiveFormPanel
                     silent: true
                 })
             );
-        if (component instanceof ImageComponent) {
-            showInspectionPanel(this.imageInspectionPanel);
-            this.imageInspectionPanel.setImageComponent(component);
-        } else if (component instanceof PartComponent) {
-            showInspectionPanel(this.partInspectionPanel);
-            this.partInspectionPanel.setDescriptorBasedComponent(component);
-        } else if (component instanceof LayoutComponent) {
-            showInspectionPanel(this.layoutInspectionPanel);
-            this.layoutInspectionPanel.setDescriptorBasedComponent(component);
-        } else if (component instanceof TextComponent) {
-            showInspectionPanel(this.textInspectionPanel);
-            this.textInspectionPanel.setTextComponent(component);
-        } else if (component instanceof FragmentComponent) {
-            showInspectionPanel(this.fragmentInspectionPanel);
-            this.fragmentInspectionPanel.setFragmentComponent(component);
-        } else {
-            throw new Error('Component cannot be selected: ' + ClassHelper.getClassName(component));
+
+        const inspectionPanel = this.availableInspectPanels.get(component.getType());
+
+        if (inspectionPanel instanceof ComponentInspectionPanel) {
+            showInspectionPanel(inspectionPanel);
+            inspectionPanel.setComponent(component);
         }
     }
 
@@ -907,8 +961,8 @@ export class LiveFormPanel
     unloadPage(): void {
         this.liveEditPageProxy?.unload();
         this.frameContainer?.hide();
-        this.partInspectionPanel?.unbindSiteModelListeners();
-        this.layoutInspectionPanel?.unbindSiteModelListeners();
+        this.availableInspectPanels.forEach(
+            (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.unbindSiteModelListeners());
         this.liveEditModel = null;
 
         if (this.placeholder) {

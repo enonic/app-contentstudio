@@ -45,7 +45,7 @@ export const getInspectParameters = function (params: InspectParameters): Inspec
 export class ContextWindow
     extends DockedPanel {
 
-    private insertablesPanel: InsertablesPanel;
+    private insertablesPanel?: InsertablesPanel;
 
     private inspectionsPanel: InspectionsPanel;
 
@@ -63,13 +63,15 @@ export class ContextWindow
     }
 
     protected initListeners(): void {
-        this.liveFormPanel.onHidden((): void => {
-            this.setItemVisible(this.insertablesPanel, false);
-        });
+        if (this.insertablesPanel) {
+            this.liveFormPanel.onHidden((): void => {
+                this.setItemVisible(this.insertablesPanel, false);
+            });
 
-        this.liveFormPanel.onShown((): void => {
-            this.setItemVisible(this.insertablesPanel, true);
-        });
+            this.liveFormPanel.onShown((): void => {
+                this.setItemVisible(this.insertablesPanel, true);
+            });
+        }
     }
 
     getDeck(): NavigatedDeckPanel {
@@ -81,7 +83,10 @@ export class ContextWindow
 
             this.addClass('context-window');
 
-            this.addItem(i18n('action.insert'), false, this.insertablesPanel);
+            if (this.insertablesPanel) {
+                this.addItem(i18n('action.insert'), false, this.insertablesPanel);
+            }
+
             this.addItem(this.getShownPanelName(), false, this.inspectionsPanel);
             const tabItems = this.getItems();
             this.inspectTab = tabItems[tabItems.length - 1];
@@ -127,7 +132,7 @@ export class ContextWindow
             this.inspectTab.setLabel(this.getShownPanelName());
 
             const selectDefault = !isPageInspectionPanelSelectable && this.inspectTab.isActive();
-            if (showInsertables || selectDefault) {
+            if (this.insertablesPanel && (showInsertables || selectDefault)) {
                 this.selectPanel(this.insertablesPanel);
             }
         }

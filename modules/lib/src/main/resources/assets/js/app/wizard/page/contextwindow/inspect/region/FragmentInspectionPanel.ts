@@ -160,8 +160,8 @@ export class FragmentInspectionPanel
         }
     }
 
-    setFragmentComponent(fragment: FragmentComponent) {
-        this.setComponent(fragment);
+    setComponent(fragment: FragmentComponent) {
+        super.setComponent(fragment);
         this.updateSelectorValue();
     }
 

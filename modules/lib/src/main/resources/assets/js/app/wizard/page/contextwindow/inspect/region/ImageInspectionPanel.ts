@@ -65,10 +65,10 @@ export class ImageInspectionPanel
         this.appendChild(this.imageSelectorForm);
     }
 
-    setImageComponent(component: ImageComponent) {
+    setComponent(component: ImageComponent): void {
         this.unregisterComponentListeners();
 
-        this.setComponent(component);
+        super.setComponent(component);
         this.updateImage();
 
         this.registerComponentListeners();
