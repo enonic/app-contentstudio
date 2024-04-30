@@ -20,4 +20,33 @@
       }
     }
   }
+
+  .page-components-item-viewer {
+    &.region {
+      &.empty {
+        overflow: visible;
+
+        &::before {
+          margin-left: -29px;
+          transform: rotate(135deg);
+          font-size: 24px;
+        }
+      }
+
+      .names-and-icon-view {
+        .@{_COMMON_PREFIX}wrapper,
+        .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}sub-name{
+          display: none;
+        }
+
+        .@{_COMMON_PREFIX}names-view {
+          margin-bottom: 3px;
+
+          .@{_COMMON_PREFIX}main-name{
+            text-transform: capitalize;
+          }
+        }
+      }
+    }
+  }
 }

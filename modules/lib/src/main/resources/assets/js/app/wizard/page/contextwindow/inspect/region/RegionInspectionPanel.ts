@@ -4,13 +4,12 @@ import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSiz
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
 import {Region} from '../../../../../page/region/Region';
+import * as _ from 'lodash';
 
 export class RegionInspectionPanel
     extends BaseInspectionPanel {
 
-    private region: Region;
-
-    private namesAndIcon: NamesAndIconView;
+    private readonly namesAndIcon: NamesAndIconView;
 
     constructor() {
         super();
@@ -23,11 +22,8 @@ export class RegionInspectionPanel
     }
 
     setRegion(region: Region) {
-
-        this.region = region;
-
         if (region) {
-            this.namesAndIcon.setMainName(region.getName());
+            this.namesAndIcon.setMainName(_.capitalize(region.getName()));
             this.namesAndIcon.setSubName(region.getPath().toString());
         } else {
             this.namesAndIcon.setMainName(i18n('field.region'));
