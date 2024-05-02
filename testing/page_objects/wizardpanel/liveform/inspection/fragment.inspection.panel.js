@@ -10,7 +10,7 @@ const xpath = {
     editFragmentButton: "//button[child::span[contains(.,'Edit Fragment')]]"
 };
 
-//Context Window, Inspect tab for Fragment Component
+//Content Wizard,Context Window, Inspect tab for Fragment Component
 class FragmentInspectionPanel extends BaseComponentInspectionPanel {
 
     get fragmentDropdown() {
