@@ -350,7 +350,7 @@ export class ImageModalDialog
         });
 
         this.imageAltTextInput =
-            new TextInput('altText').setPlaceholder(i18n('dialog.image.accessibility.informative.placeholder')) as TextInput;
+            new TextInput('alt-text').setPlaceholder(i18n('dialog.image.accessibility.informative.placeholder')) as TextInput;
         this.imageAltTextInput.setEnabled(false);
 
         imageAccessibilityRadio.appendChild(this.imageAltTextInput);
