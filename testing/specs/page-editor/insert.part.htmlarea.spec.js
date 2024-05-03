@@ -13,6 +13,7 @@ const TextComponentCke = require('../../page_objects/components/text.component')
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const PartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/part.inspection.panel');
+const InsertablesPanel = require('../../page_objects/wizardpanel/liveform/insertables.panel');
 
 describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -182,6 +183,33 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             assert.ok(isDefaultIcon === false, 'The part should be displayed with the custom icon');
             isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 1);
             assert.ok(isDefaultIcon === false, 'The part should be displayed with the custom icon');
+        });
+
+    // Verify the issue - Part Inspection panel remains visible after removing a part #7523
+    it(`GIVEN a part has been selected in PCV WHEN the part has been removed THEN 'Insert panel' should be loaded in Context Window`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            let partInspectionPanel = new PartInspectionPanel();
+            let insertablesPanel = new InsertablesPanel();
+            // 1. Open the content:
+            await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
+            // 2. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Select the 'Html area' part:
+            await pageComponentView.clickOnComponent(PART_DESCRIPTION);
+            // 4. Verify that 'Part Inspection Panel' is loaded:
+            await partInspectionPanel.waitForOpened();
+            // 5. Expand the menu and click on "Remove" menu item in PCV:
+            await pageComponentView.openMenu(PART_DESCRIPTION);
+            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE);
+            // 6. Verify that 'Insert panel' is loaded after removing a selected part:
+            await insertablesPanel.waitForOpened();
+            // 7. Verify that 'Save' button is enabled
+            await contentWizard.waitForSaveButtonEnabled();
+            let items = await insertablesPanel.getItems();
+            assert.equal(items.length, 4, 'Four items should be present in Insert panel');
+
         });
 
     it(`GIVEN new page template with a text component is saved WHEN text component context menu has been opened THEN 'Save as fragment' menu item should not be present in the menu`,
