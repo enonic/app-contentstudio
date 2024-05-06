@@ -21,11 +21,11 @@ export class ContentTreeSelectorItemJson {
 export class ContentTreeSelectorItem
     implements Equitable {
 
-    private content: ContentSummary;
+    private readonly content: ContentSummary;
 
-    private selectable: boolean;
+    private readonly selectable: boolean;
 
-    private expandable: boolean;
+    private readonly expandable: boolean;
 
     constructor(content: ContentSummary, selectable: boolean = true, expandable: boolean = true) {
         this.content = content;

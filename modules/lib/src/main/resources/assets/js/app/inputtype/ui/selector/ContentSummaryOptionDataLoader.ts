@@ -94,7 +94,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     protected sendPreLoadRequest(ids: string): Q.Promise<DATA[]> {
         const contentIds = ids.split(';').map((id) => new ContentId(id));
         return new GetContentSummaryByIds(contentIds).setRequestProject(this.project).sendAndParse().then(((contents: ContentSummary[]) => {
-            return contents.map(content => new ContentTreeSelectorItem(content)) as DATA[];
+            return this.loadStatuses(contents.map(content => new ContentTreeSelectorItem(content)) as DATA[]);
         }));
     }
 
