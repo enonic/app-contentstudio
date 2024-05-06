@@ -47,13 +47,46 @@
     padding-left: 50px !important;
   }
 
-  .selected-option {
-    .status {
-      padding: 0 10px;
-      text-align: center;
-      flex-basis: 80px;
-      flex-shrink: 0;
-      .content-status-mixin();
+
+  .selected-options {
+    .selected-option {
+      .status {
+        padding: 0 10px;
+        text-align: center;
+        flex-basis: 80px;
+        flex-shrink: 0;
+        .content-status-mixin();
+      }
+
+      &.content-not-found {
+        .edit {
+          display: none;
+        }
+
+        .status {
+          display: none;
+        }
+
+        .names-and-icon-view {
+          .@{_COMMON_PREFIX}wrapper {
+            img.font-icon-default {
+              display: none;
+            }
+
+            div.font-icon-default {
+              display: flex !important;
+              align-items: center;
+              justify-content: center;
+              .icon-alert();
+            }
+          }
+
+          .@{_COMMON_PREFIX}sub-name {
+            color: @input-red-text;
+          }
+        }
+      }
     }
   }
+
 }

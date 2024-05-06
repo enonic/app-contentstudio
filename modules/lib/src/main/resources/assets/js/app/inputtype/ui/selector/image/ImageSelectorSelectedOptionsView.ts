@@ -207,7 +207,7 @@ export class ImageSelectorSelectedOptionsView
         this.setOutsideClickListener();
     }
 
-    private updateSelectionToolbarLayout() {
+    updateSelectionToolbarLayout() {
         let showToolbar = this.selection.length > 0;
         this.toolbar.setVisible(showToolbar);
         if (showToolbar) {
@@ -258,7 +258,7 @@ export class ImageSelectorSelectedOptionsView
 
         if (option.getOption().getDisplayValue().isEmptyContent()) {
             const missingItemId: string = option.getOption().getDisplayValue().getMissingItemId();
-            optionView.showError(!!missingItemId ? i18n('text.image.id.notavailable', missingItemId) : i18n('text.image.notavailable'));
+            optionView.showImageNotAvailable(missingItemId);
         }
     }
 

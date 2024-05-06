@@ -1,5 +1,4 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Grid} from '@enonic/lib-admin-ui/ui/grid/Grid';
@@ -7,7 +6,6 @@ import {GridColumn, GridColumnBuilder} from '@enonic/lib-admin-ui/ui/grid/GridCo
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {ComboBox, ComboBoxConfig} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
 import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
@@ -26,7 +24,7 @@ import * as Q from 'q';
 import {ContentRowFormatter} from '../../../browse/ContentRowFormatter';
 import {ContentId} from '../../../content/ContentId';
 import {ContentPath} from '../../../content/ContentPath';
-import {ContentSummary} from '../../../content/ContentSummary';
+import {ContentSummary, ContentSummaryBuilder} from '../../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../event/EditContentEvent';
 import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
@@ -41,6 +39,8 @@ import {ModeTogglerButton} from './ModeTogglerButton';
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     extends RichComboBox<ContentTreeSelectorItem> {
+
+    public static NOT_FOUND_CLASS = 'content-not-found';
 
     protected optionsFactory: OptionsFactory<ITEM_TYPE>;
 
@@ -324,9 +324,7 @@ export class ContentSelectedOptionsView
     private project?: Project;
 
     createSelectedOption(option: Option<ContentTreeSelectorItem>): SelectedOption<ContentTreeSelectorItem> {
-        const optionView = !!option.getDisplayValue() ?
-                         new ContentSelectedOptionView(option, this.project) :
-                         new MissingContentSelectedOptionView(option);
+        const optionView =  new ContentSelectedOptionView(option, this.project);
         return new SelectedOption<ContentTreeSelectorItem>(optionView, this.count());
     }
 
@@ -334,26 +332,10 @@ export class ContentSelectedOptionsView
         this.project = value;
         return this;
     }
-}
 
-export class MissingContentSelectedOptionView
-    extends BaseSelectedOptionView<ContentTreeSelectorItem> {
-
-    private id: string;
-
-    constructor(option: Option<ContentTreeSelectorItem>) {
-        super(new BaseSelectedOptionViewBuilder<ContentTreeSelectorItem>().setOption(option));
-        this.id = option.getValue();
-        this.setEditable(false);
-    }
-
-    protected appendActionButtons() {
-        super.appendActionButtons();
-
-        let message = new H6El('missing-content');
-        message.setHtml(i18n('field.content.noaccess', this.id));
-
-        this.appendChild(message);
+    protected getEmptyDisplayValue(id: string): ContentTreeSelectorItem {
+        const content = new ContentSummary(new ContentSummaryBuilder().setId(id).setContentId(new ContentId(id)));
+        return new ContentTreeSelectorItem(content);
     }
 }
 
@@ -364,6 +346,8 @@ export class ContentSelectedOptionView
 
     private readonly statusEl: SpanEl;
 
+    private isMissing: boolean;
+
     constructor(option: Option<ContentTreeSelectorItem>, project?: Project) {
         super(new RichSelectedOptionViewBuilder<ContentTreeSelectorItem>()
             .setDraggable(true)
@@ -371,21 +355,29 @@ export class ContentSelectedOptionView
             .setOption(option) as RichSelectedOptionViewBuilder<ContentTreeSelectorItem>
         );
 
+        this.updateMissingStatus(option);
         this.project = project;
         this.statusEl = new SpanEl();
-        this.addClass('content-selected-option-view');
     }
 
     resolveIconUrl(content: ContentTreeSelectorItem): string {
-        return content.getIconUrl();
+        return this.isMissing ? '' : content.getIconUrl();
     }
 
     resolveTitle(content: ContentTreeSelectorItem): string {
+        if (this.isMissing) {
+            return content.getId();
+        }
+
         const isRoot = content.getPath().equals(ContentPath.getRoot());
         return (isRoot ? '/ ' : '') + content.getDisplayName().toString();
     }
 
     resolveSubTitle(content: ContentTreeSelectorItem): string {
+        if (this.isMissing) {
+            return i18n('text.content.not.found');
+        }
+
         const isRoot = content.getPath().equals(ContentPath.getRoot());
         return !isRoot ? content.getPath().toString() : undefined;
     }
@@ -399,6 +391,7 @@ export class ContentSelectedOptionView
     }
 
     setOption(option: Option<ContentTreeSelectorItem>): void {
+        this.updateMissingStatus(option);
         super.setOption(option);
         this.setStatus(this.getOptionDisplayValue());
     }
@@ -414,6 +407,12 @@ export class ContentSelectedOptionView
         }
     }
 
+    private updateMissingStatus(option: Option<ContentTreeSelectorItem>): void {
+        this.isMissing = option.getDisplayValue() && !option.getDisplayValue().getPath();
+        this.setEditable(!this.isMissing);
+        this.toggleClass(ContentComboBox.NOT_FOUND_CLASS, this.isMissing);
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             const item = this.getOptionDisplayValue();
@@ -421,7 +420,9 @@ export class ContentSelectedOptionView
             this.setStatus(item);
             this.appendChild(status);
 
-            this.toggleClass('no-icon', item.getPath().equals(ContentPath.getRoot()));
+            this.addClass('content-selected-option-view');
+            this.toggleClass('no-icon', !!item.getPath()?.equals(ContentPath.getRoot()));
+            this.removeClass('not-found');
 
             return rendered;
         });

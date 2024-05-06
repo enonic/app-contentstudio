@@ -1,5 +1,4 @@
 import * as Q from 'q';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {Input} from '@enonic/lib-admin-ui/form/Input';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
@@ -28,11 +27,10 @@ import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentPath} from '../../content/ContentPath';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ContentSummary} from '../../content/ContentSummary';
+import {ContentId} from '../../content/ContentId';
 
 export class ImageSelector
     extends MediaSelector {
-
-    private isPendingPreload: boolean = true;
 
     constructor(context: ContentInputTypeViewContext) {
         super(context);
@@ -50,7 +48,7 @@ export class ImageSelector
     }
 
     protected getContentPath(raw: MediaTreeSelectorItem): ContentPath {
-        return raw.getContentSummary().getPath();
+        return raw.getContentSummary()?.getPath();
     }
 
     getSelectedOptionsView(): ImageSelectorSelectedOptionsView {
@@ -102,22 +100,7 @@ export class ImageSelector
     }
 
     protected initEvents(contentComboBox: ImageContentComboBox) {
-
         const comboBox: ComboBox<MediaTreeSelectorItem> = contentComboBox.getComboBox();
-        const loader = contentComboBox.getLoader();
-
-        const onPreloadedData = (data: MediaTreeSelectorItem[]) => {
-            data.forEach((item: MediaTreeSelectorItem) => {
-                this.contentComboBox.select(item);
-            });
-            this.isPendingPreload = false;
-            if (data.length > 0) {
-                this.handleValueChanged(false);
-            }
-            loader.unPreloadedData(onPreloadedData);
-        };
-
-        loader.onPreloadedData(onPreloadedData);
 
         comboBox.onOptionDeselected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
             // property not found.
@@ -148,23 +131,10 @@ export class ImageSelector
         });
     }
 
-    protected createContentComboBox(input: Input, propertyArray: PropertyArray): ImageContentComboBox {
-
-        const contentComboBox: ImageContentComboBox = super.createContentComboBox(input, propertyArray) as ImageContentComboBox;
-
-        this.isPendingPreload = !StringHelper.isBlank(this.getValueFromPropertyArray(propertyArray));
-
-        return contentComboBox;
-    }
-
     layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
         return super.layout(input, propertyArray).then(() => {
             this.setLayoutInProgress(false);
         });
-    }
-
-    protected doLayout(_propertyArray: PropertyArray): Q.Promise<void> {
-        return Q(null);
     }
 
     protected createUploader(): Q.Promise<ImageUploaderEl> {
@@ -220,12 +190,6 @@ export class ImageSelector
         });
     }
 
-    validate(silent: boolean = true) {
-        if (!this.isPendingPreload) {
-            super.validate(silent);
-        }
-    }
-
     protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus, selectable: boolean = true,
                                  expandable: boolean = true): MediaTreeSelectorItem {
         if (content instanceof ContentSummaryAndCompareStatus) {
@@ -233,6 +197,20 @@ export class ImageSelector
         }
 
         return new MediaTreeSelectorItem(content, selectable, expandable);
+    }
+
+    protected createMissingContentItem(id: ContentId): MediaTreeSelectorItem {
+        return new MediaTreeSelectorItem().setMissingItemId(id.toString());
+    }
+
+    protected updateSelectedOptionIsEditable(selectedOption: SelectedOption<ContentTreeSelectorItem>) {
+        // different behavior for image selector
+    }
+
+    protected handleOptionUpdated(optionsUpdated: SelectedOption<ContentTreeSelectorItem>[]) {
+        super.handleOptionUpdated(optionsUpdated);
+
+        this.getSelectedOptionsView().updateSelectionToolbarLayout();
     }
 }
 
