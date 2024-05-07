@@ -9,7 +9,7 @@ const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog'
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const appConst = require('../../libs/app_const');
 
-describe('close.task.without.items.spec: create task without items, close the task and reopen it again', function () {
+describe('close.issue.without.items.spec: create an issue without items, close the issue and reopen it again', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
