@@ -2,15 +2,15 @@
  * Created on 02.01.2019.
  */
 const assert = require('node:assert');
-const webDriverHelper = require('../libs/WebDriverHelper');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const HtmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
-const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
-const InsertImageDialog = require('../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
-const DetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
-const VersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
-const appConst = require('../libs/app_const');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
+const DetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const appConst = require('../../libs/app_const');
 
 describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkbox and check `image range value`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

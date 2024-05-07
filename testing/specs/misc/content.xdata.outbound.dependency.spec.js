@@ -2,15 +2,15 @@
  * Created on 20.11.2018.
  */
 const assert = require('node:assert');
-const webDriverHelper = require('../libs/WebDriverHelper');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const XDataImageSelector = require('../page_objects/wizardpanel/wizard-step-form/xdata.image.selector.wizard.step.form');
-const XDataContentSelector = require('../page_objects/wizardpanel/wizard-step-form/xdata.content.selector');
-const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
-const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
-const appConst = require('../libs/app_const');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const XDataImageSelector = require('../../page_objects/wizardpanel/wizard-step-form/xdata.image.selector.wizard.step.form');
+const XDataContentSelector = require('../../page_objects/wizardpanel/wizard-step-form/xdata.content.selector');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
+const appConst = require('../../libs/app_const');
 
 describe('content.xdata.outbound.dependency.spec: checks outbound dependency for a content with x-data(image)', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

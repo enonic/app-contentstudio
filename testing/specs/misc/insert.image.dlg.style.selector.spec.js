@@ -2,12 +2,12 @@
  * Created on 08.01.2019.
  */
 const assert = require('node:assert');
-const webDriverHelper = require('../libs/WebDriverHelper');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const HtmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
-const InsertImageDialog = require('../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
-const appConst = require('../libs/app_const');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
+const appConst = require('../../libs/app_const');
 
 describe('insert.image.dlg.style.selector.spec: style selector, select Original option', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

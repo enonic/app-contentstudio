@@ -2,15 +2,15 @@
  * Created on 20.10.2022
  */
 const assert = require('node:assert');
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConst = require('../libs/app_const');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
-const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
-const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
-const BrowseVersionsWidget = require('../page_objects/browsepanel/detailspanel/browse.versions.widget');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConst = require('../../libs/app_const');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
+const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 
 describe('rename.content.spec - tests for Renamed version item', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

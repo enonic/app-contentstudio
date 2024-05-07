@@ -2,11 +2,11 @@
  * Created on 27.04.2022
  */
 const assert = require('node:assert');
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConst = require('../libs/app_const');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const FilterPanel = require("../page_objects/browsepanel/content.filter.panel");
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConst = require('../../libs/app_const');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const FilterPanel = require("../../page_objects/browsepanel/content.filter.panel");
 
 describe('filter.by.modifier.spec: tests for filter panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
