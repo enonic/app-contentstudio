@@ -13,7 +13,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const appConst = require('../../libs/app_const');
 
-describe('publish.close.task.spec: publish a content and close the task.', function () {
+describe('publish.close.issue.spec: publish a content and close the issue.', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

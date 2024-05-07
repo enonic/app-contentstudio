@@ -159,7 +159,7 @@ module.exports = Object.freeze({
     VERSIONS_SHOW_CHANGES_BUTTON: `//button[contains(@id,'ActionButton') and @title='Show changes']`,
     LIVE_EDIT_FRAME: "//iframe[contains(@class,'live-edit-frame')]",
     APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
-    SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Settings']",
+    SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and child::span[text()='Settings']]",
     MODE_CONTENT_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Content']",
     IMAGE_CONTENT_COMBOBOX:{
         DIV: "//div[contains(@id,'ImageContentComboBox')]",
