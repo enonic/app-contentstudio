@@ -1,12 +1,12 @@
 /**
  * Created on 11.11.2020.
  */
-const webDriverHelper = require('../libs/WebDriverHelper');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
-const appConst = require('../libs/app_const');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('update.path.spec: tests for updating a content path', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

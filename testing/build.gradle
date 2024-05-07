@@ -252,6 +252,12 @@ tasks.register( 'w_testProjects', NpmTask ) {
     finalizedBy generateReportAndStopServer
 }
 
+tasks.register( 'w_miscTests', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
+    args = ['run-script', 'test_misc:wdio_chrome']
+    finalizedBy generateReportAndStopServer
+}
+
 tasks.register( 'w_testProjects_2', NpmTask ) {
     dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_project_2:wdio_chrome']

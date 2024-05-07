@@ -2,13 +2,13 @@
  * Created on 24.05.2022
  */
 const assert = require('node:assert');
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConst = require('../libs/app_const');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const FilterPanel = require('../page_objects/browsepanel/content.filter.panel');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConst = require('../../libs/app_const');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('filter.by.owner.spec: tests for filtering by', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

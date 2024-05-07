@@ -2,15 +2,15 @@
  * Created on 04.10.2018.
  */
 const assert = require('node:assert');
-const webDriverHelper = require('../libs/WebDriverHelper');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const XDataHtmlArea = require('../page_objects/wizardpanel/wizard-step-form/xdata.htmlarea.wizard.step.form');
-const XDataTextArea = require('../page_objects/wizardpanel/wizard-step-form/xdata.textarea.wizard.step.form');
-const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
-const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
-const appConst = require('../libs/app_const');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const XDataHtmlArea = require('../../page_objects/wizardpanel/wizard-step-form/xdata.htmlarea.wizard.step.form');
+const XDataTextArea = require('../../page_objects/wizardpanel/wizard-step-form/xdata.textarea.wizard.step.form');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const appConst = require('../../libs/app_const');
 
 describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(htmlarea), type a text in the textarea`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
