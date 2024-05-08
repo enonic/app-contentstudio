@@ -393,6 +393,9 @@ class Page {
 
     async doTouchAction(selector) {
         let el = await this.findElement(selector);
+        return await this.doTouchActionOnElement(el);
+    }
+    async doTouchActionOnElement(el) {
         await el.moveTo();
         let x = await el.getLocation('x');
         let y = await el.getLocation('y');
