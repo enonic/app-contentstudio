@@ -65,6 +65,8 @@ export class HtmlEditor {
     static SPECIAL_CHAR_NBSP= '(_)';
     static SPECIAL_CHAR_SHY= '(-)';
 
+    private isSaveSnapshotAllowed: boolean;
+
     private constructor(config: CKEDITOR.config, htmlEditorParams: HtmlEditorParams) {
         this.editorParams = htmlEditorParams;
 
@@ -181,6 +183,12 @@ export class HtmlEditor {
 
         });
 
+        this.editor.on('saveSnapshot', (evt: CKEDITOR.eventInfo) => {
+            if (!this.isSaveSnapshotAllowed) {
+                evt.cancel();
+            }
+        });
+
         this.handlePasteFromGoogleDoc();
         this.handleFullScreenModeToggled();
         this.handleMouseEvents();
@@ -218,6 +226,10 @@ export class HtmlEditor {
         }, 200);
 
         this.editor.on('instanceReady', () => {
+            setTimeout(() => {
+                this.isSaveSnapshotAllowed = true;
+            }, 500);
+
             try {
                 tooltipElem = this.getTooltipContainer();
             } catch (e) {
