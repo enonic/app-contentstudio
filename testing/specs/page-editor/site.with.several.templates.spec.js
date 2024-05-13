@@ -125,7 +125,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 3. Check the items in PCV:
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.ok(result.includes('main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes('Main'), 'Main item should be displayed in the modal dialog');
             // 4. Select another template:
             await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE2.displayName);
             // 5. Confirmation dialog appears:
@@ -140,7 +140,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 9. Verify that items in PCV are updated after switching a template:
             result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes('default'), 'default item should be displayed in the modal dialog');
-            assert.ok(result.includes('main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes('Main'), 'Main item should be displayed in the modal dialog');
         });
 
     it(`GIVEN Inspection Panel is loaded WHEN 'main region' controller has been selected in Inspect Panel THEN PCV should be unlocked in wizard step`,

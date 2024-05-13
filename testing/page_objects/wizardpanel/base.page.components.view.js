@@ -97,7 +97,7 @@ class BasePageComponentView extends Page {
 
     async openMenu(componentName) {
         try {
-            let menuButton = this.container + xpath.componentByName(componentName) + "/../..//div[contains(@class,'menu-icon')]";
+            let menuButton = this.container + xpath.componentByName(componentName) + "/../..//div[contains(@id,'PageComponentsMenuIcon')]";
             await this.waitForElementDisplayed(menuButton, appConst.shortTimeout);
             await this.pause(300);
             await this.clickOnElement(menuButton);
