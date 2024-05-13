@@ -40,7 +40,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 3.Click on the 'main' item and open Context Menu:
+            // 3.Click on the 'Main' region-item and open Context Menu:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Part']);
             // 4. Select the part with a config
@@ -106,7 +106,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 3.Click on the 'main' item and open Context Menu:
+            // 3.Click on the 'Main' item and open Context Menu:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Part']);
             // 4. Select the part with image-selector in config

@@ -40,7 +40,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await pageComponentView.waitForLoaded();
             let result = await pageComponentView.getPageComponentsDisplayName();
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.ok(result.includes('main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes(appConst.LIVE_EDIT.REGION_MAIN_DISPLAY_NAME), 'Main item should be displayed in the modal dialog');
         });
 
     it(`GIVEN existing site has been opened WHEN 'Save as Template' menu item has been clicked THEN new template page with 'Page Component View' step should be loaded `,
@@ -62,7 +62,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await contentWizardPanel.waitForOpened();
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.ok(result.includes('main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes('Main'), 'Main item should be displayed in the modal dialog');
         });
 
     // Verify issue https://github.com/enonic/app-contentstudio/issues/6486

@@ -151,6 +151,9 @@ module.exports = Object.freeze({
         TEL: 'Tel',
         RELATIVE: 'Relative'
     },
+    LIVE_EDIT:{
+        REGION_MAIN_DISPLAY_NAME:'Main'
+    },
 
     VALIDATION_MESSAGE: {
         TEXT_IS_TOO_LONG: 'Text is too long',

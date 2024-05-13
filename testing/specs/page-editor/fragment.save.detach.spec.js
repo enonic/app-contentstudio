@@ -43,7 +43,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             // 4. Verify that 2 items are displayed in the modal dialog:
             let result = await pageComponentView.getPageComponentsDisplayName();
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.ok(result.includes('main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes(appConst.LIVE_EDIT.REGION_MAIN_DISPLAY_NAME), 'Main item should be displayed in the modal dialog');
         });
 
     it(`GIVEN 'Live Edit' has been maximized WHEN Hide Page Component view has been clicked THEN 'Page Component View' should be collapsed`,

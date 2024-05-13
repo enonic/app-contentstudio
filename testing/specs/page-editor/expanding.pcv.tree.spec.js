@@ -139,7 +139,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await pageComponentView.getPageComponentsDisplayName();
             let result = await pageComponentView.getPageComponentsDisplayName();
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.ok(result.includes('main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes('Main'), 'main item should be displayed in the modal dialog');
             assert.ok(result.includes('text1'), 'text component should be displayed in the modal dialog');
             assert.ok(result.includes('text2'), 'the second text component should be displayed in the modal dialog');
             assert.equal(result.length, 4, "4 items should be displayed in PCV after deleting the layout item")
