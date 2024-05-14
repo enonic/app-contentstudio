@@ -49,15 +49,23 @@ This button opens a menu with special characters. Selecting one will insert it a
 
 === Anchor
 
-Anchors enable pointing to a specfic position on a page via context link. If a link references an anchor on the same page then the page will scroll up or down to the location of the anchor. The anchor button in the toolbar opens the Insert Anchor dialog where the name of the anchor is entered. The anchor name will be used as the value of the “id” attribute, so it should be lower case without spaces.
+Anchors enable pointing to a specific position on a page via context link. If a link references an anchor on the same page then the page will scroll up or down to the location of the anchor. The anchor button in the toolbar opens the Insert Anchor dialog where the name of the anchor is entered. The anchor name will be used as the value of the “id” attribute, so it should be lower case without spaces.
 
 === Insert/Edit image
 
-This button opens the Insert Image dialog. An existing image content can be selected from the “Image” selector, or a new image can be uploaded using the upload button.
+This button (or a double click on the image) opens the Insert Image dialog. An existing image content can be selected from the “Image” selector, or a new image can be uploaded using the upload button.
+
 Once an image is selected, additional formatting options will appear. The image can be floated to the left or right so that text wraps around it.
 The image can also be centered or set to full width. By checking off “Custom width” you will have an option to set relative width of the image.
+
 Additionally, there's an option to apply <<rich-text-editor#custom_image_styles,custom image styles>>.
-A caption and alt text can be entered at the bottom of the modal dialog. A double click on an image inside the Editor will open the modal dialog for editing properties of the image.
+
+"Caption" field allows to enter a caption/title for the image and will be displayed under the image as a part of the `figure` element.
+
+"Accessibility" section at the bottom allows to either set the image as decorative (meant to be discoverable only by screen readers, not actual users), or apply an alternative text for the image.
+
+image::rich-text-editor-image-dialog.png[Insert Image dialog, 75%]
+
 
 === Insert macro
 

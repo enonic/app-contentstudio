@@ -47,8 +47,8 @@ in the <<page-editor#editing-page,Page Editor>>.
 
 Components can be rearranged directly in the tree with drag’n’drop function.
 
-In the image below, a part named *Post single* is selected in the Components view and the part is highlighted with a blue mask at the center of the page editor. The *Post single*’s configuration is visible in the components widget on the right.
+In the image below, a part called *Latest comments* is selected in the Page Components view and highlighted with a blue border/mask in the Page Editor. The selected part's configuration form is displayed in the Components widget on the right.
 
-image::wizard-component-view-docked.png[Page Components docked, 75%]
+image::page-editor-components-docked.png[Page Components, 75%]
 
 NOTE: For fragments and page templates the Page Components tree will be inside the first form step.

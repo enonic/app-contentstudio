@@ -1,8 +1,97 @@
 = Release Notes
 
+:imagesdir: release/images
+
 :toc: right
 
 TIP: Release Notes for Content Studio 4.x can be found https://developer.enonic.com/docs/content-studio/4.x/release[here]
+
+
+== Content Studio 5 Update 2
+
+IMPORTANT: Content Studio 5.2 requires XP 7.14.1 or higher.
+
+:imagesdir: settings/images
+
+=== Project graph
+
+By selecting "Projects" in the Content Studio's "Settings" module it's now possible to see visualised graph of existing content projects and their relations.
+
+image::settings-grid.png[Project graph, 75%]
+
+=== Project Wizard improvements
+
+==== Preset parent project
+
+If an existing project was selected in the Project tree when "New" button is clicked, the Project Wizard will create a layer of the selected project and set up synhronisation of data in the layer with its parent project.
+
+==== Removed type selection
+
+Before this release users had to explicitly select whether they are about to create a project or a layer. This requirement has been removed. If a parent project is selected on the first step of the Wizard, a layer will be created and set up to inherit data from the selected project. Otherwise, a regular project will be created.
+
+image::new-project-dialog-1.png[Select parent project, 75%]
+
+==== Parent project apps
+
+A layer will always inherit applications from its parent project, even though it was not obvious from the UI before this release. "Applications" step of the "Project Wizard" has been changed to automatically display applications inherited from the parent project (if any), with no option to remove them. Other applications can be added to the layer in addition to the inherited ones.
+
+Settings form of an existing layer has also been fixed accordingly.
+
+In the screenshot below, the top two applications were inherited from the parent project, while the bottom one was added manually.
+
+image::new-project-dialog-5.png[Apps inherited from parent project, 75%]
+
+=== Reference check in the Unpublish Wizard
+
+The Unpublish Wizard will now check if any of the content items to be unpublished are referenced by other _published_ content items. If there are inbound references, the user will be warned and asked to confirm the unpublish operation.
+
+:imagesdir: actions/images
+
+image::dialog-unpublish-references.png[Reference check in the Unpublish Wizard, 75%]
+
+=== Decorative images
+
+New "Accessibility" section in the <<editor/rich-text-editor#insertedit_image,Insert/Edit Image dialog>> of Rich Text editor allows to set decorative images as such. Decorative images are used for styling purposes only and meant to be skipped by screen readers, as opposed to images with meaningful alt text.
+
+:imagesdir: editor/images
+
+image::rich-text-editor-image-dialog.png[Insert Image dialog, 75%]
+
+=== Default Online From time
+
+:imagesdir: config/images
+
+image::pubwiz-online-from.png[Default Online From time in the Publishing Wizard, 75%]
+
+Default Online From time in the Publishing Wizard can now be configured in Content Studio's <<config#default_online_from_time,config file>>. If no config is set, the default time will be set to 12:00.
+
+=== Page Components view
+
+Styling of regions inside the Page Components view has been changed to make regions take less space and attention away from the main page components. Region names are now capitalized.
+
+:imagesdir: release/images
+
+image::cs52-pcv-regions.png[Regions in the Page Components view, 75%]
+
+=== Other improvements
+
+==== Performance
+
+Preview and Page Editor panels will no longer be refreshed whenever content is published or unpublished.
+
+==== Soft-hyphen in the Rich Text Editor
+
+Soft-hyphen character `\&shy;` added to Rich Text Editor's "Special chars" dialog.
+
+==== Email sender
+
+Before this release, email notifications for <<issues#,issues>> created in Content Studio used current user's email address in the sender field. A new https://developer.enonic.com/docs/xp/stable/deployment/config#mail[config property^] was implemented in XP 7.14.1 which can be used to configure default email sender for emails sent by XP. If properly configured, the sender field in the email notifications sent for issues in Content Studio will be set to the configured email address.
+
+==== eXtra Data
+
+Layout and behaviour of optional X-Data sections in the Content Form have been changed. `+` icon is now right-aligned and transforms to `x` icon whenever the X-Data is active.
+
+image::cs52-x-data.png[x-data in the Content Editor form, 75%]
 
 == Content Studio 5 Update 1
 
@@ -35,7 +124,7 @@ Search results produced by Content Navigator's <<navigator#search_panel,Search P
 
 :imagesdir: release/images
 
-image::cs51-search-export.png[Search export, 25%]
+image::cs51-search-export.png[Search export, 75%]
 
 === New Find/Replace dialog in Rich Text Editor
 
@@ -43,7 +132,7 @@ The old <<editor/rich-text-editor#findreplace,Find/Replace dialog>> in the Rich 
 
 :imagesdir: editor/images
 
-image::rich-text-editor-find-replace.png[470, Insert Link dialog]
+image::rich-text-editor-find-replace.png[Insert Link dialog, 75%]
 
 === Locked path for published content
 
