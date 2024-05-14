@@ -9,8 +9,8 @@ the left-side menu.
 
 image::top-level-menu.png[Top Level Menu, 642]
 
-The Settings section lists all Content Projects that current user has permissions for. Users with roles
-_Content Manager Administrator_ and _System Administrator_ will always have full access to all projects.
+The Settings section displays all Content Projects that current user has permissions for in the form of a tree. Users with roles
+_Content Manager Administrator_ and _System Administrator_ will always have full access to all projects. By selecting the top node called "Projects" you will display a graph of all content projects and their relations in the panel on the right.
 
 image::settings-grid.png[Settings section, 600]
 
@@ -32,17 +32,13 @@ CAUTION: Deleting a project will delete its repository and all the data inside. 
 
 == New Project wizard
 
-Project setup in Content Studio is done from the "_Settings_" section, which can be accessed by clicking the cog icon in the left-side menu.
-
-Click "_New_" button in the toolbar to start the multistep New Project wizard dialog.
+Click "_New_" button in the toolbar to start the multi-step New Project wizard dialog.
 
 NOTE: Upload of project icon is not possible until after the project is created.
 
-=== Project Type
+=== Parent Project
 
-On the first step of the Wizard select what type of project you want to create. Select "_Project_" for a top-level Content Project, or
-"_Layer_" if you want to set up a localised project which will synchronise its contents with an upstream project/layer. In the latter case
-you will also be asked to select the upstream project.
+The first step of the Wizard determines whether you want to create a regular content project or a layer - a special kind of project which will inherit its data from the parent project. If you want to select a layer, select one of the existing projects from the dropdown list to be a parent of the new layer.
 
 image::new-project-dialog-1.png[Project type, 470]
 
@@ -93,11 +89,14 @@ as opposed to site-oriented approach.
 
 NOTE: Only applications containing `site.xml` can be assigned to content projects.
 
+A layer will always inherit applications from its parent project. Apps inherited from the parent cannot be unselected, but other apps can be added to the layer in addition to the inherited ones.
+
+In the screenshot below, the top two applications were inherited from the parent project, while the bottom one was added manually.
 
 image::new-project-dialog-5.png[Applications, 470]
 
 IMPORTANT: Applications assigned to projects will not work for a site or content items inside a site. Assign applications
-directly to the site if you want to use them for site contents.
+directly to the site if you want to use them for contents of a site.
 
 === Base Properties
 
