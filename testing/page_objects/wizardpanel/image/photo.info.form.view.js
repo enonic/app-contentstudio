@@ -112,7 +112,7 @@ class ImagePhotoInfoForm extends Page {
     }
 
     get focusDistance() {
-        return XPATH.container + XPATH.focudistanceInput;
+        return XPATH.container + XPATH.focusDistanceInput;
     }
 
     waitForShutterTimeInputDisplayed() {

@@ -1,8 +1,7 @@
 /**
  * Created on 29.06.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -56,11 +55,11 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await studioUtils.saveScreenshot('insert_url_opts');
             // 5. Verify that required types are present in the selector:
             let result = await insertLinkDialogUrlPanel.getUrlTypeMenuOptions();
-            assert.isTrue(result.includes(appConst.URL_TYPE_OPTION.HTTPS), "Https option should be present in the selector");
-            assert.isTrue(result.includes(appConst.URL_TYPE_OPTION.HTTP), "Http option should be present in the selector");
-            assert.isTrue(result.includes(appConst.URL_TYPE_OPTION.FTP), "Ftp option should be present in the selector");
-            assert.isTrue(result.includes(appConst.URL_TYPE_OPTION.RELATIVE), "Relative option should be present in the selector");
-            assert.isTrue(result.includes(appConst.URL_TYPE_OPTION.TEL), "Tel option should be present in the selector");
+            assert.ok(result.includes(appConst.URL_TYPE_OPTION.HTTPS), "Https option should be present in the selector");
+            assert.ok(result.includes(appConst.URL_TYPE_OPTION.HTTP), "Http option should be present in the selector");
+            assert.ok(result.includes(appConst.URL_TYPE_OPTION.FTP), "Ftp option should be present in the selector");
+            assert.ok(result.includes(appConst.URL_TYPE_OPTION.RELATIVE), "Relative option should be present in the selector");
+            assert.ok(result.includes(appConst.URL_TYPE_OPTION.TEL), "Tel option should be present in the selector");
             assert.equal(result.length, 5, "5 options should be present in the selector");
         });
 
@@ -81,7 +80,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             // 5. Expand the dropdown options:
             await insertLinkDialogUrlPanel.clickOnUrlTypeButton();
             let result = await insertLinkDialogUrlPanel.isUrlTypeOptionSelected("Https");
-            assert.isTrue(result, "Https option should be selected in the dropdown selector by default");
+            assert.ok(result, "Https option should be selected in the dropdown selector by default");
         });
 
     it("GIVEN URL tab is open WHEN 'Http' menu option has been selected THEN Http part of url should be present in the url input",
@@ -104,7 +103,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await insertLinkDialogUrlPanel.clickOnUrlTypeButton();
             // 7. Https menu option should be selected in the dropdown selector:
             let result = await insertLinkDialogUrlPanel.isUrlTypeOptionSelected(appConst.URL_TYPE_OPTION.HTTP);
-            assert.isTrue(result, "'Http' option should be selected in the dropdown selector");
+            assert.ok(result, "'Http' option should be selected in the dropdown selector");
         });
 
     it("GIVEN URL tab is open WHEN 'Tel' menu option has been selected THEN Tel-part of url should be present in the url input in the modal dialog",
@@ -127,7 +126,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await insertLinkDialogUrlPanel.clickOnUrlTypeButton();
             // 7. 'Tel' menu option should be selected in the dropdown selector:
             let result = await insertLinkDialogUrlPanel.isUrlTypeOptionSelected(appConst.URL_TYPE_OPTION.TEL);
-            assert.isTrue(result, "'Tel' option should be selected in the dropdown selector");
+            assert.ok(result, "'Tel' option should be selected in the dropdown selector");
         });
 
     it("GIVEN URL tab is open WHEN valid value for 'Tel' url has been inserted THEN expected text should be present in the HtmlArea",
@@ -152,7 +151,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await insertLinkDialog.waitForDialogClosed();
             // 7. Get and verify the text in html area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result[0].includes(EXPECTED_TEL_TEXT), 'Expected link should be present in HtmlArea');
+            assert.ok(result[0].includes(EXPECTED_TEL_TEXT), 'Expected link should be present in HtmlArea');
         });
 
     it("GIVEN invalid value for 'Tel' url has been inserted WHEN 'Insert' button has been pressed THEN 'Invalid value entered' message gets visible",
@@ -200,7 +199,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await insertLinkDialog.waitForDialogClosed();
             // 6. Get and verify the text in html area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result[0].includes(EXPECTED_HTTPS_PART), "Expected text should be present in HtmlArea");
+            assert.ok(result[0].includes(EXPECTED_HTTPS_PART), "Expected text should be present in HtmlArea");
         });
 
     it("GIVEN URL tab is open WHEN 'Https' url with parameters has been inserted THEN expected text should be present in the HtmlArea",
@@ -224,7 +223,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await insertLinkDialog.waitForDialogClosed();
             // 6. Verify the text in html area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result[0].includes(EXPECTED_HTTPS_PART_WITH_PARAMS), "Expected text should be present in HtmlArea");
+            assert.ok(result[0].includes(EXPECTED_HTTPS_PART_WITH_PARAMS), "Expected text should be present in HtmlArea");
         });
 
     it("GIVEN URL tab is open WHEN 'Https' url (ends with slash) has been inserted THEN expected text should be present in the HtmlArea",
@@ -248,7 +247,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await insertLinkDialog.waitForDialogClosed();
             // 6. Get and verify the text in html area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result[0].includes(HTTP_URL_ENDS_WITH_SLASH), "Expected text should be present in HtmlArea");
+            assert.ok(result[0].includes(HTTP_URL_ENDS_WITH_SLASH), "Expected text should be present in HtmlArea");
         });
 
     it("GIVEN Insert Link dialog, URL tab is open WHEN invalid url (with spaces) has been inserted THEN expected validation recording gets visible",
@@ -318,8 +317,8 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await insertLinkDialog.waitForDialogClosed();
             // 7. Verify the text in html area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result[0].includes(EXPECTED_FTP_PART), "Expected text should be present in HtmlArea");
-            assert.isTrue(result[0].includes(FTP_URL), "Expected text should be present in HtmlArea");
+            assert.ok(result[0].includes(EXPECTED_FTP_PART), "Expected text should be present in HtmlArea");
+            assert.ok(result[0].includes(FTP_URL), "Expected text should be present in HtmlArea");
         });
 
     it("GIVEN URL tab is open WHEN valid ftp url with IP address has been inserted THEN expected text should be present in htmlArea",
@@ -345,8 +344,8 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await insertLinkDialog.waitForDialogClosed();
             // 7. Verify the text in html area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result[0].includes(EXPECTED_FTP_PART), "Expected text should be present in HtmlArea");
-            assert.isTrue(result[0].includes(FTP_URL_WITH_PASSWORD),
+            assert.ok(result[0].includes(EXPECTED_FTP_PART), "Expected text should be present in HtmlArea");
+            assert.ok(result[0].includes(FTP_URL_WITH_PASSWORD),
                 "Expected user name, password and ip-address should be present in HtmlArea");
         });
 

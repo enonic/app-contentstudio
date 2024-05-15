@@ -1,8 +1,7 @@
 /**
  * Created on 01.02.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
@@ -28,11 +27,11 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test preview site', [appConst.APP_CONTENT_TYPES]);
-            //1. Open new site-wizard:
+            // 1. Open new site-wizard:
             await studioUtils.doOpenSiteWizard();
-            //2. Controller is not selected in the wizard
+            // 2. Controller is not selected in the wizard
             await contentWizard.typeData(SITE);
-            //3. Verify that 'Preview' button is not displayed:
+            // 3. Verify that 'Preview' button is not displayed:
             await contentWizard.waitForPreviewButtonNotDisplayed();
         });
 
@@ -47,9 +46,9 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             //4. Verify that 'Failed to render content preview' is displayed in Content Item Preview panel:
             await studioUtils.saveScreenshot('site_preview_not_available');
             let text = await contentItemPreviewPanel.getNoPreviewMessage();
-            assert.isTrue(text.includes('Unable to render'),
+            assert.ok(text.includes('Unable to render'),
                 "Expected text should be displayed in Content Item Preview panel");
-            assert.isTrue(text.includes("No template or page configured"), "Expected text should be displayed");
+            assert.ok(text.includes("No template or page configured"), "Expected text should be displayed");
         });
 
     it(`GIVEN existing site is opened WHEN page controller has been selected THEN required options should be present in Inspection Panel`,

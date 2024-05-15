@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentQueryJson;
 import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPath;
@@ -50,7 +51,8 @@ public class ContentQueryJsonToContentQueryConverterTest
         contentTypeNames.add( "myApplication:site" );
 
         final ContentQueryJson contentQueryJson =
-            new ContentQueryJson( "", 0, 100, contentTypeNames, null, "summary", null, null, new HashMap<>(), new ArrayList<>() );
+            new ContentQueryJson( "", 0, 100, contentTypeNames, null, "summary", null, null, new HashMap<>(), new ArrayList<>(),
+                                  ContentConstants.BRANCH_DRAFT.getValue() );
         final ContentQueryJsonToContentQueryConverter processor =
             ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
 
@@ -81,7 +83,7 @@ public class ContentQueryJsonToContentQueryConverterTest
 
         final ContentQueryJson contentQueryJson =
             new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null, new HashMap<>(),
-                                  new ArrayList<>() );
+                                  new ArrayList<>(), ContentConstants.BRANCH_DRAFT.getValue() );
 
         ContentQueryJsonToContentQueryConverter processor =
             ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
@@ -102,7 +104,7 @@ public class ContentQueryJsonToContentQueryConverterTest
 
         final ContentQueryJson contentQueryJson =
             new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null, new HashMap<>(),
-                                  new ArrayList<>() );
+                                  new ArrayList<>(), ContentConstants.BRANCH_DRAFT.getValue() );
 
         Mockito.when( contentService.getById( content.getId() ) ).thenReturn( content );
         Mockito.when( contentService.getByIds( new GetContentByIdsParams( ContentIds.empty() ) ) ).thenReturn( Contents.empty() );
@@ -120,7 +122,7 @@ public class ContentQueryJsonToContentQueryConverterTest
     {
         final ContentQueryJson contentQueryJson = new ContentQueryJson(
             "((fulltext('displayName^5,_name^3,_alltext', '', 'AND') OR ngram('displayName^5,_name^3,_alltext', '', 'AND')) AND inboundDependencies('_references', 'test-content-id'))",
-            0, 100, new ArrayList(), null, "summary", null, null, null, null );
+            0, 100, new ArrayList(), null, "summary", null, null, null, null, ContentConstants.BRANCH_DRAFT.getValue() );
 
         final ContentQueryJsonToContentQueryConverter processor = getProcessor( contentQueryJson );
 
@@ -146,7 +148,8 @@ public class ContentQueryJsonToContentQueryConverterTest
 
         ContentQueryJson contentQueryJson = new ContentQueryJson(
             "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) " +
-                "ORDER BY _modifiedTime DESC", 0, 100, contentTypeNames, null, "summary", null, null, null, null );
+                "ORDER BY _modifiedTime DESC", 0, 100, contentTypeNames, null, "summary", null, null, null, null,
+            ContentConstants.BRANCH_DRAFT.getValue() );
 
         ContentQueryJsonToContentQueryConverter processor =
             ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
@@ -173,7 +176,8 @@ public class ContentQueryJsonToContentQueryConverterTest
         sortQueryList.add( dslSortQueryMap );
 
         ContentQueryJson contentQueryJson =
-            new ContentQueryJson( null, 0, 100, new ArrayList<>(), null, "summary", null, null, dslQueryMap, sortQueryList );
+            new ContentQueryJson( null, 0, 100, new ArrayList<>(), null, "summary", null, null, dslQueryMap, sortQueryList,
+                                  ContentConstants.BRANCH_DRAFT.getValue() );
 
         ContentQueryJsonToContentQueryConverter processor =
             ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
@@ -192,7 +196,8 @@ public class ContentQueryJsonToContentQueryConverterTest
         dslQueryMap.put( "matchAll", new Object() );
 
         ContentQueryJson contentQueryJson =
-            new ContentQueryJson( null, 0, 100, new ArrayList<>(), null, "summary", null, null, dslQueryMap, null );
+            new ContentQueryJson( null, 0, 100, new ArrayList<>(), null, "summary", null, null, dslQueryMap, null,
+                                  ContentConstants.BRANCH_DRAFT.getValue() );
 
         ContentQueryJsonToContentQueryConverter processor =
             ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();

@@ -48,11 +48,13 @@ class BaseDependenciesWidget extends Page {
         return text.substring(startIndex + 1, endIndex);
     }
 
-    waitForOutboundButtonNotVisible() {
-        return this.waitForElementNotDisplayed(this.showOutboundButton, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_outbound_button_should_be_hidden');
-            throw new Error('showOutboundButton still visible in ' + err);
-        });
+    async waitForOutboundButtonNotVisible() {
+        try {
+            await this.waitForElementNotDisplayed(this.showOutboundButton, appConst.shortTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_outbound_button_should_be_hidden');
+            throw new Error('show Outbound Button is visible, screenshot' + screenshot + ' ' + err);
+        }
     }
 
     isInboundButtonVisible() {

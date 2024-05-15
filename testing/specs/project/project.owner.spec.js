@@ -1,8 +1,7 @@
 /**
  * Created on 18.06.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const contentBuilder = require("../../libs/content.builder");
 const studioUtils = require('../../libs/studio.utils.js');
@@ -62,9 +61,8 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.openSettingsPanel();
             // 2.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            // 3. Select Project-radio then click on Next button:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+            // 3.  click on Skip button:
+            await parentProjectStep.clickOnSkipButton();
             // 4. Skip the language step:
             await languageStep.clickOnSkipButton();
             // 5. Select 'Private' access mode in the fours step:
@@ -94,7 +92,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             // 12. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, 'expected user should be selected in Project Roles form');
-            // 5. Verify that expected role is assigned to the user
+            // 5. Verify that 'Owner' role is assigned to the user
             let role = await projectWizard.getSelectedProjectAccessRole(USER.displayName);
             assert.equal(role[0], appConst.PROJECT_ROLES.OWNER, 'Owner role should be assigned to the user');
         });
@@ -156,13 +154,13 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await projectWizard.waitForLoaded();
             // 4. Verify that all inputs in the project page are enabled for owner:
             let isPageDisabled = await projectWizard.isNoModify();
-            assert.isFalse(isPageDisabled, "Wizard page should be enabled for 'Owner' role");
+            assert.ok(isPageDisabled === false, "Wizard page should be enabled for 'Owner' role");
             let result = await projectWizard.isDescriptionInputClickable();
-            assert.isTrue(result, 'Description input should be clickable');
+            assert.ok(result, 'Description input should be clickable');
             result = await projectWizard.isLocaleOptionsFilterInputClickable();
-            assert.isTrue(result, 'Locale input should  be clickable');
+            assert.ok(result, 'Locale input should  be clickable');
             result = await projectWizard.isDisplayNameInputClickable();
-            assert.isTrue(result, 'Display Name input should be clickable');
+            assert.ok(result, 'Display Name input should be clickable');
         });
 
     it("GIVEN user with 'Owner' role is logged in WHEN existing project has been selected THEN New..., Delete buttons should be disabled Edit should be enabled",
@@ -196,28 +194,28 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.saveScreenshot('project_owner_3');
             //3. Verify that only 'Folders', 'Shortcut' 'Sites' are allowed for Owner role
             assert.equal(items.length, 3, 'Three items should be available for Owner');
-            assert.isTrue(items.includes("Folder"), 'Folder is allowed for creating');
-            assert.isTrue(items.includes("Shortcut"), 'Shortcut is allowed for creating');
-            assert.isTrue(items.includes('Site'), 'Site is allowed for creating');
+            assert.ok(items.includes("Folder"), 'Folder is allowed for creating');
+            assert.ok(items.includes("Shortcut"), 'Shortcut is allowed for creating');
+            assert.ok(items.includes('Site'), 'Site is allowed for creating');
         });
 
     // Verify that user with Owner role can not select a language or owner in Wizard, but can make a content ready for publishing( Mark as Ready)
     it("GIVEN user with 'Owner' role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
-            //1. Do log in with the user-owner and navigate to Content Browse Panel:
+            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            //2. Open folder-wizard and save new folder:
+            // 2. Open folder-wizard and save new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
             await studioUtils.saveScreenshot('project_owner_4');
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('project_owner_5');
-            //3. Verify that 'Mark as Ready' button is available in the wizard:
+            // 3. Verify that 'Mark as Ready' button is available in the wizard:
             await contentWizard.waitForMarkAsReadyButtonVisible();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             let isVisible = await editSettingsDialog.isLanguageOptionsFilterVisible();
-            assert.isTrue(isVisible, 'Language comboBox should be visible for Owner role');
+            assert.ok(isVisible, 'Language comboBox should be visible for Owner role');
             let actualOwner = await editSettingsDialog.getSelectedOwner();
             assert.equal(actualOwner, USER.displayName, 'Expected Owner should be selected in Settings form');
         });
@@ -307,7 +305,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
-        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
+        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes('Users') || title.includes(appConst.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });

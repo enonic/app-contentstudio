@@ -6,31 +6,30 @@ import * as Q from 'q';
 import {ProjectAccessDialogStepData} from '../data/ProjectAccessDialogStepData';
 import {ProjectReadAccessType} from '../../../../data/project/ProjectReadAccessType';
 import {ProjectReadAccessFormItem} from '../../../../wizard/panel/form/element/ProjectReadAccessFormItem';
-import {Project} from '../../../../data/project/Project';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export class ProjectAccessDialogStep
     extends ProjectDialogStep {
 
-    protected createFormItems(): FormItem[] {
-        return [new ProjectReadAccessFormItem()];
+    private readAccessFormItem: ProjectReadAccessFormItem;
+
+    createFormItems(): FormItem[] {
+        this.readAccessFormItem = new ProjectReadAccessFormItem();
+        this.hasParentProjects() && this.readAccessFormItem.setParentProjects(this.getParentProjects());
+        return [this.readAccessFormItem];
     }
 
     protected initEventListeners(): void {
         super.initEventListeners();
 
-        this.getFormItem().getRadioGroup().onValueChanged(() => {
-            this.notifyDataChanged();
-        });
+        this.readAccessFormItem.getRadioGroup().onValueChanged(() => this.notifyDataChanged());
 
-        this.getFormItem().getPrincipalComboBox().onValueChanged(() => {
-            this.notifyDataChanged();
-        });
+        this.readAccessFormItem.getPrincipalComboBox().onValueChanged(() =>  this.notifyDataChanged());
     }
 
     getData(): ProjectAccessDialogStepData {
         const data: ProjectAccessDialogStepData = new ProjectAccessDialogStepData();
-        const readAccessString: string = this.getFormItem()?.getRadioGroup().getValue();
+        const readAccessString: string = this.readAccessFormItem?.getRadioGroup().getValue();
 
         if (StringHelper.isBlank(readAccessString)) {
             return data;
@@ -42,7 +41,7 @@ export class ProjectAccessDialogStep
 
         if (readAccessString === ProjectReadAccessType.CUSTOM.toString()) {
             const principals: Principal[] =
-                this.getFormItem().getPrincipalComboBox().getSelectedDisplayValues();
+                this.readAccessFormItem.getPrincipalComboBox().getSelectedDisplayValues();
 
             if (principals.length === 0) {
                 return data.setAccess(ProjectReadAccessType.PRIVATE);
@@ -58,12 +57,8 @@ export class ProjectAccessDialogStep
         return 'project-read-access-step';
     }
 
-    setParentProject(value: Project) {
-        this.getFormItem().setParentProject(value);
-    }
-
     hasData(): boolean {
-        return !!this.getFormItem()?.getRadioGroup().getValue();
+        return !!this.readAccessFormItem?.getRadioGroup().getValue();
     }
 
     isValid(): Q.Promise<boolean> {
@@ -80,9 +75,5 @@ export class ProjectAccessDialogStep
 
     getDescription(): string {
         return i18n('dialog.project.wizard.access.description');
-    }
-
-    private getFormItem(): ProjectReadAccessFormItem {
-        return this.formItems && this.formItems[0] as ProjectReadAccessFormItem;
     }
 }

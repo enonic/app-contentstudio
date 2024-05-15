@@ -1,8 +1,7 @@
 /**
  * Created on 04.10.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -76,13 +75,13 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             assert.equal(status, "New", 'New status should be displayed');
 
             let isCancelButtonDisplayed = await deleteContentDialog.isCancelButtonDisplayed();
-            assert.isTrue(isCancelButtonDisplayed, 'Cancel button should be displayed');
+            assert.ok(isCancelButtonDisplayed, 'Cancel button should be displayed');
 
             let isArchiveButtonDisplayed = await deleteContentDialog.isArchiveButtonDisplayed();
-            assert.isTrue(isArchiveButtonDisplayed, "'Archive...' button should be displayed");
+            assert.ok(isArchiveButtonDisplayed, "'Archive...' button should be displayed");
 
             let isCancelTopButtonDisplayed = await deleteContentDialog.isCancelTopButtonDisplayed();
-            assert.isTrue(isCancelTopButtonDisplayed, 'Cancel top button should be displayed');
+            assert.ok(isCancelTopButtonDisplayed, 'Cancel top button should be displayed');
             //'Delete Menu should be displayed
             await deleteContentDialog.waitForArchiveMenuDropDownHandleDisplayed();
 
@@ -128,10 +127,10 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             await deleteContentDialog.waitForDialogOpened();
 
             let isDisplayed = await deleteContentDialog.isArchiveButtonDisplayed();
-            assert.isTrue(isDisplayed, "'Archive' button should be present");
+            assert.ok(isDisplayed, "'Archive' button should be present");
             // 3. Delete menu should be displayed in the dialog:
             let isDropdownHandleDisplayed = await deleteContentDialog.isArchiveMenuDropDownHandleDisplayed();
-            assert.isTrue(isDropdownHandleDisplayed, "Delete menu should appear in the dialog");
+            assert.ok(isDropdownHandleDisplayed, "Delete menu should appear in the dialog");
 
             let status = await deleteContentDialog.getContentStatus(FOLDER1.displayName);
             assert.equal(status, 'Published', 'Published status should be displayed');

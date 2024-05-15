@@ -1,8 +1,7 @@
 /**
  * Created on 12.04.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -49,7 +48,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             await studioUtils.saveScreenshot('nested_sets_remains_invalid_1');
             // 5. Verify that the content remains invalid, because the  'element type' dropdown in the second added occurrence block is not selected yet.
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, 'The content should be invalid');
+            assert.ok(isInvalid, 'The content should be invalid');
             // 6. Scroll the wizard page and select 'Button' option in the second occurrence block:
             await contentWizard.scrollPanel(600);
             await freeFormNestedSet.expandOptionsAndSelectElementType('Button', 0);
@@ -60,7 +59,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             await studioUtils.saveScreenshot('nested_sets_gets_valid_1');
             // 8. Verify that the content gets valid, because options are selected in the both required selectors:
             isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, 'The content should be valid')
+            assert.ok(isInvalid === false, 'The content should be valid')
         });
 
     it("GIVEN wizard for new content with 'nested set' is opened AND name has been saved WHEN element type and input type have been selected THEN 'Save' button gets enabled in the wizard-toolbar",
@@ -105,7 +104,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             await contentWizard.waitAndClickOnSave();
             // 4. Verify that the content gets valid now:
             let result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "Red icon should not be displayed, because required options are selected");
+            assert.ok(result === false, "Red icon should not be displayed, because required options are selected");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

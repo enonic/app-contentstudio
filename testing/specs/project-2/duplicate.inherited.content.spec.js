@@ -1,8 +1,7 @@
 /**
  * Created on 09.10.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -27,7 +26,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //1.Select 'Default' project and open wizard for new layer:
-            await settingsBrowsePanel.openProjectWizardDialog();
+            await projectUtils.selectParentAndOpenProjectWizardDialog('Default');
             let layer = projectUtils.buildLayer("Default", null, appConst.PROJECT_ACCESS_MODE.PUBLIC, null, appConst.APP_CONTENT_TYPES,
                 LAYER_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
@@ -54,7 +53,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await studioUtils.findAndSelectItem(SITE_NAME + "-copy");
             await studioUtils.saveScreenshot('inherited_site_copy');
             let isInherited = await contentBrowsePanel.isContentInherited(SITE_NAME + '-copy');
-            assert.isFalse(isInherited, 'Copy of inherited site should not be with gray mask');
+            assert.ok(isInherited === false, 'Copy of inherited site should not be with gray mask');
         });
 
     // Verifies #2576 'Inherited icon and Reset button should not be displayed in duplicated content'

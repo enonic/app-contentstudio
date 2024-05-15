@@ -1,8 +1,7 @@
 /**
  * Created on 24.01.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ConfirmationMask = require('../../page_objects/confirmation.mask');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -42,13 +41,13 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             // 3. Verify the menu items in the selected option:
             await singleSelectionOptionSet.expandMoreMenuInSingleSelectionOptionSet(0)
             let isDeleteDisabled = await singleSelectionOptionSet.isDeleteMenuItemInSingleSelectedOptionDisabled();
-            assert.isTrue(isDeleteDisabled, "'Delete' menu item should be disabled");
+            assert.ok(isDeleteDisabled, "'Delete' menu item should be disabled");
             let isResetDisabled = await singleSelectionOptionSet.isResetMenuItemInSingleSelectedOptionDisabled();
             // 4.  Only 'Reset' menu item is enabled due to the config: <occurrences minimum="1" maximum="1"/>
-            assert.isFalse(isResetDisabled, "'Reset' menu item should be enabled");
+            assert.ok(isResetDisabled === false, "'Reset' menu item should be enabled");
             // 5. 'Add above' menu item is disabled due to the config: <occurrences minimum="1" maximum="1"/>
             let isAddAboveDisabled = await singleSelectionOptionSet.isAddAboveMenuItemInSingleSelectedOptionDisabled();
-            assert.isTrue(isAddAboveDisabled, "'Add above' menu item should be disable");
+            assert.ok(isAddAboveDisabled, "'Add above' menu item should be disable");
         });
 
     it(`GIVEN wizard for new content with Option Set is opened WHEN name input has been filled AND Save button pressed THEN validation recording should appear`,
@@ -62,7 +61,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await contentWizard.pause(1000);
             // 3. Verify that the content is invalid:
             let result = await contentWizard.isContentInvalid();
-            assert.isTrue(result, "The Content should be invalid, because the required option is not selected in 'single selection'");
+            assert.ok(result, "The Content should be invalid, because the required option is not selected in 'single selection'");
             // 4. Click on 'Save' button:
             await contentWizard.waitAndClickOnSave();
             // 5. Verify the validation message:
@@ -108,7 +107,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await contentWizard.pause(1000);
             // 3. The content should be valid:
             let result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "The Content should be valid, because an option is selected in the required 'single selection'");
+            assert.ok(result === false, "The Content should be valid, because an option is selected in the required 'single selection'");
             await contentWizard.waitAndClickOnSave();
             // 4. Validation recording should not be displayed:
             await singleSelectionOptionSet.waitForValidationRecordingNotDisplayed();
@@ -128,7 +127,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             assert.equal(recording, appConst.VALIDATION_MESSAGE.SINGLE_SELECTION_OPTION_SET, "Expected message should be visible");
             // 4. The content should be invalid:
             let result = await contentWizard.isContentInvalid();
-            assert.isTrue(result, "The content should be invalid, because an option must be selected in the Multi Selection");
+            assert.ok(result, "The content should be invalid, because an option must be selected in the Multi Selection");
         });
 
     // Verifies: No confirmation given on deletion of a non-empty option-set occurrence #1655
@@ -168,11 +167,11 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await studioUtils.saveScreenshot('single_item_set_menu_expanded');
             // 5. Verify that 'Delete' menu item is disabled, 'Add below' and 'Add above' are enabled
             let isDeleteDisabled = await singleSelectionOptionSet.isDeleteSetMenuItemDisabled();
-            assert.isTrue(isDeleteDisabled, "Delete menu item should be disabled");
+            assert.ok(isDeleteDisabled, "Delete menu item should be disabled");
             let isAddAboveDisabled = await singleSelectionOptionSet.isAddAboveSetMenuItemDisabled();
-            assert.isFalse(isAddAboveDisabled, "'Add above' menu item should be enabled");
+            assert.ok(isAddAboveDisabled === false, "'Add above' menu item should be enabled");
             let isAddBelowDisabled = await singleSelectionOptionSet.isAddBelowSetMenuItemDisabled();
-            assert.isFalse(isAddBelowDisabled, "'Add below' menu item should be enabled");
+            assert.ok(isAddBelowDisabled === false, "'Add below' menu item should be enabled");
         });
 
     // New set with dirty fields: confirmation should appear
@@ -212,7 +211,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await singleSelectionOptionSet.expandMenuClickOnDelete(1);
             await studioUtils.saveScreenshot('item_set_no_confirmation_dialog');
             let result = await confirmationMask.isDialogVisible();
-            assert.isFalse(result, 'Confirmation mask Dialog should not be loaded, because new item-set has no dirty fields');
+            assert.ok(result === false, 'Confirmation mask Dialog should not be loaded, because new item-set has no dirty fields');
         });
 
     it(`GIVEN Confirmation mask Dialog is opened WHEN 'Esc' key has been pressed THEN 'Confirmation mask Dialog' closes`,
@@ -275,9 +274,9 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await studioUtils.saveScreenshot('item_set_saved_button_wizard');
             // 3. Verify - "Saved" button should appear in the wizard-toolbar
             await contentWizard.waitForSavedButtonVisible();
-            // 4. The contrnt should be invalid
-            let result = await contentWizard.isContentInvalid();
-            assert.isTrue(result, "The content should be invalid because required option is not selected");
+            // 4. The content should be invalid
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid, "The content should be invalid because required option is not selected");
         });
 
     // Verifies: Incorrect behaviour of validation when two required text inputs/ text area/ text line are present in the wizard #2616
@@ -296,7 +295,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             // 3. Verify that content is invalid, because the second required input is empty:
             let result = await contentWizard.isContentInvalid();
             await studioUtils.saveScreenshot('article_wizard_1');
-            assert.isTrue(result, "Article content should be invalid because required body text area is empty");
+            assert.ok(result, "Article content should be invalid because required body text area is empty");
         });
 
     // Verifies: Incorrect behaviour of validation when two required text inputs/ text area/ text line are present in the wizard #2616
@@ -317,7 +316,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             // 4. Verify that content is invalid, because the second required input is empty:
             let result = await contentWizard.isContentInvalid();
             await studioUtils.saveScreenshot('article_wizard_2');
-            assert.isTrue(result, "Article content should be invalid because required body text area is empty");
+            assert.ok(result, "Article content should be invalid because required body text area is empty");
         });
 
     // Verifies: Incorrect behaviour of validation when two required text inputs/ text area/ text line are present in the wizard #2616
@@ -338,9 +337,9 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(2000);
             // 4. Verify that content is not valid, because the second required input is empty:
-            let result = await contentWizard.isContentInvalid();
+            let isInvalid = await contentWizard.isContentInvalid();
             await studioUtils.saveScreenshot('article_wizard_3');
-            assert.isFalse(result, 'Article content should be valid because required inputs are filled');
+            assert.ok(isInvalid === false, 'Article content should be valid because required inputs are filled');
         });
 
     it(`GIVEN 'option 1' is selected in the single selector WHEN help text icon has been clicked THEN expected help text get visible`,

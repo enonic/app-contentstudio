@@ -1,8 +1,7 @@
 /**
  * Created on 05.08.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -11,6 +10,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const DateRangeInput = require('../../page_objects/components/datetime.range');
+const DateTimePickerPopup = require('../../page_objects/wizardpanel/time/date.time.picker.popup');
 
 describe('refresh.publish.dialog.spec - opens publish content modal dialog and checks control elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -18,6 +18,8 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
         webDriverHelper.setupBrowser();
     }
     let FOLDER;
+    const DEFAULT_TIME_POPUP = '12:00';
+    const DATE_TIME_IN_PAST = '2022-01-10 00:00';
 
     // verifies https://github.com/enonic/app-contentstudio/issues/697
     //         https://github.com/enonic/lib-admin-ui/issues/1061
@@ -58,6 +60,7 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
+            let dateTimePickerPopup = new DateTimePickerPopup();
             let dateRangeInput = new DateRangeInput();
             // 1. Select existing 'work in progress' folder and open Publish Dialog
             await studioUtils.findAndSelectItem(FOLDER.displayName);
@@ -68,20 +71,37 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             // 3. Verify that icon-calendar gets visible now. Click on this icon:
             await contentPublishDialog.clickOnAddScheduleIcon();
             // 4. Open date time picker popup:
-            await dateRangeInput.doOpenOnlineFromPickerPopup();
+            await contentPublishDialog.showOnlineToPickerPopup();
             await studioUtils.saveScreenshot('schedule_picker_popup1');
             // Click on hours-arrow:
-            await dateRangeInput.clickOnHoursArrowOnlineFrom();
+            await dateTimePickerPopup.clickOnHoursArrowOnlineFrom();
             await studioUtils.saveScreenshot('schedule_picker_popup2');
             await dateRangeInput.pause(1000);
-            await dateRangeInput.waitForOnlineFromPickerDisplayed();
+            await dateRangeInput.waitForOnlineToPickerDisplayed();
+        });
+
+    it(`GIVEN schedule form has been added in Publish Wizard modal dialog WHEN DatePicker popup has been opened THEN the 'online from' time is set to '12:00' by default`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
+            let dateTimePickerPopup = new DateTimePickerPopup();
+            // 1. Select existing 'ready' folder and open Publish Dialog
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+            await contentPublishDialog.waitForDialogOpened();
+            // 2. Click on 'Add schedule' button:
+            await contentPublishDialog.clickOnAddScheduleIcon();
+            // 3. Open Oline from Picker popup:
+            await contentPublishDialog.showOnlineFormPickerPopup();
+            // 4. Verify that without publishingWizard.defaultPublishFromTime config default time is set to "12:00"
+            let actualTime = await dateTimePickerPopup.getTimeInOnlineFrom();
+            assert.equal(actualTime, DEFAULT_TIME_POPUP, 'The default time should be displayed in the online from Picker Popup');
         });
 
     it(`WHEN schedule form has been added in the modal dialog THEN 'Schedule' button should be disabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            let dateRangeInput = new DateRangeInput();
             // 1. Select existing 'ready' folder and open Publish Dialog
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
@@ -90,8 +110,8 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             await contentPublishDialog.clickOnAddScheduleIcon();
             // 3. Verify that 'Schedule' button is disabled (online form is not filled)
             await contentPublishDialog.waitForScheduleButtonDisabled();
-            // 4. Fill in the 'online form'
-            await dateRangeInput.typeOnlineFrom('2022-01-10 00:00');
+            // 4. Fill in the 'online from' input
+            await contentPublishDialog.typeInOnlineFrom(DATE_TIME_IN_PAST);
             // 5. Verify that 'Schedule' button gets enabled in the modal dialog
             await contentPublishDialog.waitForScheduleButtonEnabled();
         });

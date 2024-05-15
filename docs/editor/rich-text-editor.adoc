@@ -2,7 +2,7 @@
 :toc: right
 :imagesdir: images
 
-Rich Text Editor is used by https://developer.enonic.com/docs/xp/stable/cms/input-types#htmlarea[HTMLArea input type]
+Rich Text Editor is used by https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/htmlarea[HTMLArea input type]
 and for editing <<component-types#text_component,text component>> inside the Page Editor.
 It's capable of formatting the text in many ways, pasting from Word and Google Docs, using macros to insert code snippets
 and iFrames, inserting tables, images and content links etc.
@@ -56,7 +56,7 @@ Anchors enable pointing to a specfic position on a page via context link. If a l
 This button opens the Insert Image dialog. An existing image content can be selected from the “Image” selector, or a new image can be uploaded using the upload button.
 Once an image is selected, additional formatting options will appear. The image can be floated to the left or right so that text wraps around it.
 The image can also be centered or set to full width. By checking off “Custom width” you will have an option to set relative width of the image.
-Additionally, there's an option to apply <<editor/rich-text-editor#custom_image_styles,custom image styles>>.
+Additionally, there's an option to apply <<rich-text-editor#custom_image_styles,custom image styles>>.
 A caption and alt text can be entered at the bottom of the modal dialog. A double click on an image inside the Editor will open the modal dialog for editing properties of the image.
 
 === Insert macro

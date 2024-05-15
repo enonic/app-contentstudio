@@ -1,8 +1,7 @@
 /**
  * Created on 14.08.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -14,6 +13,10 @@ const appConst = require('../../libs/app_const');
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
+const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
+const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
+const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
 
 describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -65,19 +68,22 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let applicationsStep = new ProjectWizardDialogApplicationsStep();
+            let parentStep =  new ProjectWizardDialogParentProjectStep();
             // 1. Do Log in with 'SU':
             await studioUtils.navigateToContentStudioApp();
             await studioUtils.openSettingsPanel();
             // 2. Open Project Wizard Dialog:
-            await settingsBrowsePanel.openProjectWizardDialog();
-            // 3. Select the parent project in the first step:
-            let projectWizardDialogStep2 = await projectUtils.fillParentNameStep(PROJECT_DISPLAY_NAME);
-            await projectWizardDialogStep2.waitForLoaded();
-            // 4. Click on Skip button in the second step:
-            let accessModeStep = await projectUtils.fillLanguageStep(null);
-            await accessModeStep.waitForLoaded();
-            // 5. Select 'Private' access mode in the fours step:
-            let permissionsStep = await projectUtils.fillAccessModeStep(appConst.PROJECT_ACCESS_MODE.PRIVATE);
+            await projectUtils.selectParentAndOpenProjectWizardDialog(PROJECT_DISPLAY_NAME);
+            await parentStep.clickOnNextButton();
+            // 3. Click on Skip button in language step:
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            await languageStep.waitForLoaded();
+            await languageStep.clickOnSkipButton();
+            let accessModeStep = new ProjectWizardDialogAccessModeStep();
+            // 4. Select 'Private' access mode in the fours step:
+            await accessModeStep.clickOnAccessModeRadio("Private");
+            await accessModeStep.clickOnNextButton();
+            let permissionsStep = new ProjectWizardDialogPermissionsStep();
             await permissionsStep.waitForLoaded();
             // 6. Select the user with default role:
             await permissionsStep.selectProjectAccessRole(USER.displayName);

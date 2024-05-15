@@ -1,8 +1,7 @@
 /**
  * Created on 15.03.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
@@ -12,34 +11,35 @@ const projectUtils = require('../../libs/project.utils.js');
 
 describe('project.wizard.panel.spec - ui-tests for project wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
-    let PROJECT_DISPLAY_NAME = appConst.generateRandomName("Project1");
+    const PROJECT_DISPLAY_NAME = appConst.generateRandomName('Project1');
 
     it(`WHEN new project wizard is opened THEN required elements should be present in the wizard page`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.'New...' button has been clicked and new project has been created:
+            // 1.'New...' button has been clicked and new project has been created:
             await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME);
-            //2. open just created project:
+            // 2. open just created project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
             await projectWizard.waitForDescriptionInputDisplayed();
-            //3. Verify that Identifier input is disabled:
+            // 3. Verify that Identifier input is disabled:
             await projectWizard.waitForProjectIdentifierInputDisabled()
             await projectWizard.waitForRolesComboboxDisplayed();
-            //4. Verify access mode: all radio button should not be selected:
+            // 4. Verify access mode: all radio button should not be selected:
             let isSelected = await projectWizard.isAccessModeRadioSelected("Custom");
-            assert.isFalse(isSelected, "'Custom' radio button should not be selected");
-            //5. Verify that Private radio is selected:
+            assert.ok(isSelected === false, "'Custom' radio button should not be selected");
+            // 5. Verify that Private radio is selected:
             isSelected = await projectWizard.isAccessModeRadioSelected("Private");
-            assert.isTrue(isSelected, "'Private' radio button should not be selected");
+            assert.ok(isSelected, "'Private' radio button should be selected");
+            // 6. Public radio button should not be selected:
             isSelected = await projectWizard.isAccessModeRadioSelected("Public");
-            assert.isFalse(isSelected, "'Public' radio button should not be selected");
+            assert.ok(isSelected === false, "'Public' radio button should not be selected");
         });
 
     it("Deleting a project whose name contains uppercase letters",
@@ -53,7 +53,7 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

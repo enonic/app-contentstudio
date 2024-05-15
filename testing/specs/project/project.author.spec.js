@@ -1,8 +1,7 @@
 /**
  * Created on 11.06.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
@@ -21,6 +20,8 @@ const projectUtils = require('../../libs/project.utils');
 const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
+const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
+const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 
 describe('project.author.spec - ui-tests for user with Author role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -59,9 +60,8 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await studioUtils.openSettingsPanel();
             // 2.Open new project wizard dialog:
             await settingsBrowsePanel.openProjectWizardDialog();
-            // 3. Click on Project radio:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+            // 3. Click on Skip in the parent step:
+            await parentProjectStep.clickOnSkipButton();
             // 4. Skip the language step:
             await languageStep.clickOnSkipButton();
             // 5. Select 'Private' access mode in the fours step:
@@ -88,7 +88,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
             await studioUtils.saveScreenshot('project_author_1');
-            // 12. Verify that expected user is present in selected options:
+            // 12. Verify that expected user is present in selected options (Roles dropdown selector):
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
             // Do log out:
@@ -137,22 +137,38 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
         });
 
+    it("WHEN user with 'Author' role opened the site THEN applications selector should be disabled, PCV should not be locked",
+        async () => {
+            let siteFormPanel = new SiteFormPanel();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            // 1. Do log in with the user-author and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            // 2. Select the site and click on 'Edit' button
+            await studioUtils.selectAndOpenContentInWizard(SITE_NAME);
+            // 3. Verify that Site Configurator combobox is disabled
+            await siteFormPanel.waitForSiteConfiguratorSelectorDisabled();
+            await siteFormPanel.waitForSiteConfiguratorSelectorDisabled();
+            await siteFormPanel.waitForEditApplicationIconNotDisplayed(appConst.APP_CONTENT_TYPES);
+            // 4. PCV is not locked in the wizard step form:
+            await pageComponentsWizardStepForm.waitForNotLocked();
+        });
+
     it("GIVEN user with Author role is logged in WHEN New Content dialog is opened THEN creating of Folder and Shortcut are allowed for Author role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
-            //1. Do log in with the user-author and navigate to Content Browse Panel:
+            // 1. Do log in with the user-author and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await contentBrowsePanel.waitForNewButtonEnabled();
-            //2. Click on 'New...' button
+            // 2. Click on 'New...' button
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
             let items = await newContentDialog.getItems();
             await studioUtils.saveScreenshot('project_author_3');
-            //3. Verify that only 'Folders' and 'Shortcut' are allowed for Author role
+            // 3. Verify that only 'Folders' and 'Shortcut' are allowed for Author role
             assert.equal(items.length, 2, 'Two items should be available for Author');
-            assert.isTrue(items.includes('Folder'), 'Folder is allowed for creating');
-            assert.isTrue(items.includes('Shortcut'), 'Shortcut is allowed for creating');
+            assert.ok(items.includes('Folder'), 'Folder is allowed for creating');
+            assert.ok(items.includes('Shortcut'), 'Shortcut is allowed for creating');
         });
 
     // Verify that user with Author role can not select a language or owner in Wizard, but can make a content ready for publishing( Mark as Ready)
@@ -172,7 +188,6 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await contentWizard.waitForMarkAsReadyButtonVisible();
             // Verify that 'Edit Settings' button is not visible for users with 'Author' role:
             await propertiesWidgetItemView.waitForEditSettingsButtonNotDisplayed();
-
         });
 
     // Verify that 'Author' can not publish content:
@@ -220,7 +235,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             // 6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
             // 7. Verify that 'Publish Now' button is disabled:
-            await studioUtils.saveScreenshot("project_author_8");
+            await studioUtils.saveScreenshot('project_author_8');
             await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
         });
 

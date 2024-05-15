@@ -1,8 +1,7 @@
 /**
  * Created on 29.07.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -17,7 +16,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
         webDriverHelper.setupBrowser();
     }
     let TEST_FOLDER;
-    let NEW_DISPLAY_NAME = appConst.generateRandomName('newName');
+    const NEW_DISPLAY_NAME = appConst.generateRandomName('newName');
 
     it(`GIVEN name input is filled in WHEN display name input is empty THEN only 'Create Task' menu item should be enabled`,
         async () => {
@@ -40,7 +39,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
             //5. The content should be invalid:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, "The content should be invalid");
+            assert.ok(isInvalid, "The content should be invalid");
         });
 
     it(`GIVEN 'Marked as Ready' folder is opened WHEN 'Publish...' button has been pressed AND the folder has been published THEN 'UNPUBLISH' button gets visible on the toolbar`,
@@ -69,7 +68,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             // 3. Verify that actual dateTime is correct in Online From input
             let fromActual = await editScheduleDialog.getOnlineFrom();
             let expectedDate = new Date().toISOString().substring(0, 10);
-            assert.isTrue(fromActual.includes(expectedDate), "Expected date time should be displayed");
+            assert.ok(fromActual.includes(expectedDate), "Expected date time should be displayed");
             // 4. Verify that 'Online to' input is empty
             let to = await editScheduleDialog.getOnlineTo();
             assert.equal(to, '', "'Online to' should be empty");
@@ -108,7 +107,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             let editScheduleDialog = await studioUtils.openEditScheduleDialog();
             // 6. Verify that actual dateTime is correct in 'Online From' input
             let onlineFrom = await editScheduleDialog.getOnlineFrom();
-            assert.isFalse(studioUtils.isStringEmpty(onlineFrom), 'Online from input should not be empty');
+            assert.ok(studioUtils.isStringEmpty(onlineFrom) === false, 'Online from input should not be empty');
             // 7. Verify that workflow state is Work in progress:
             let workflow = await contentWizard.getContentWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);

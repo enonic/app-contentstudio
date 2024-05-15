@@ -99,7 +99,7 @@ class Page {
         for (const item of elements) {
             results.push(await item.getText());
         }
-        return results
+        return results;
     }
 
     async clearTextInput(locator) {
@@ -113,7 +113,7 @@ class Page {
             await inputElement.setValue(text);
             let value = await inputElement.getValue();
             // workaround for issue in WebdriverIO
-            if (value == "") {
+            if (value === "") {
                 await inputElement.setValue(text);
             }
             return await this.pause(200);
@@ -302,7 +302,7 @@ class Page {
 
     isElementNotDisplayed(selector) {
         return this.getDisplayedElements(selector).then(result => {
-            return result.length == 0;
+            return result.length === 0;
         })
     }
 
@@ -317,8 +317,7 @@ class Page {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_remove_notif_msg');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_remove_notif_msg');
             throw new Error('Error after removing the notification message, screenshot: ' + screenshot + '  ' + err);
         }
     }
@@ -394,6 +393,9 @@ class Page {
 
     async doTouchAction(selector) {
         let el = await this.findElement(selector);
+        return await this.doTouchActionOnElement(el);
+    }
+    async doTouchActionOnElement(el) {
         await el.moveTo();
         let x = await el.getLocation('x');
         let y = await el.getLocation('y');

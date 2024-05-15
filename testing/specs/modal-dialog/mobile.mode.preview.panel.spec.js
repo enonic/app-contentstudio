@@ -1,8 +1,7 @@
 /**
  * Created on 25.02.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -32,12 +31,12 @@ describe('Tests for preview panel in mobile mode', function () {
             await studioUtils.saveScreenshot("mobile_res_414_736_1");
             // 2. Verify that 'down' should not be present in class selector :
             let isDown = await contentWizard.isPublishMenuDropdownIconDown();
-            assert.isFalse(isDown, "'down' should not be present in the class selector");
+            assert.ok(isDown === false, "'down' should not be present in the class selector");
             // 3. click on the dropdown handle
             await contentWizard.clickOnPublishMenuDropdownHandle();
             isDown = await contentWizard.isPublishMenuDropdownIconDown();
             // 4. Verify that 'down' has been added in the class selector
-            assert.isTrue(isDown, "'down' should be added in the class selector");
+            assert.ok(isDown, "'down' should be added in the class selector");
         });
 
     // Verify - Incorrect default state of the publish menu's dropdown icon #5355
@@ -87,7 +86,7 @@ describe('Tests for preview panel in mobile mode', function () {
             await mobileContentBrowsePanel.pause(1000);
             // 3. Verify that 'Details Panel' is hidden now:
             let isDetailsPanelDisplayed = await browseDetailsPanel.isPanelVisible();
-            assert.isFalse(isDetailsPanelDisplayed, "Details panel should not be visible");
+            assert.ok(isDetailsPanelDisplayed === false, "Details panel should not be visible");
             // 4. Click on the folder:
             await mobileContentBrowsePanel.clickOnRowByName(FOLDER.displayName);
             await studioUtils.saveScreenshot("mobile_mode_folder_clicked");
@@ -112,7 +111,7 @@ describe('Tests for preview panel in mobile mode', function () {
             await studioUtils.saveScreenshot("mobile_mode_folder_details_panel");
             // 5. Verify that 'Details Panel' is loaded:
             let isDetailsPanelDisplayed = await browseDetailsPanel.isPanelVisible();
-            assert.isTrue(isDetailsPanelDisplayed, "Details panel should be loaded");
+            assert.ok(isDetailsPanelDisplayed, "Details panel should be loaded");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioAppMobile());

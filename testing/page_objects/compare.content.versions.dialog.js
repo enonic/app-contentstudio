@@ -68,7 +68,13 @@ class CompareContentVersionsDialog extends Page {
     }
 
     async waitForLeftRevertMenuItemDisplayed() {
-        let selector = XPATH.container + XPATH.containerRight + XPATH.revertMenuItem;
+        try {
+            let selector = XPATH.container + XPATH.containerLeft + XPATH.revertMenuItem;
+            return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_left_revert_menu_item');
+            throw new Error("Compare content versions dialog, menu item is not displayed, screenshot:" + screenshot + ' ' + err);
+        }
     }
 
     async waitForLeftRevertButtonDisplayed() {

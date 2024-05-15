@@ -74,8 +74,9 @@ export class PublishDialogDependantList
 
         const serverEvents = ContentServerEventsHandler.getInstance();
 
-        const permissionsUpdatedHandler = (updatedIds: ContentIds): void => {
-            const isItemsPermissionsUpdated = this.getItems().some(item => updatedIds.contains(item.getContentId()));
+        const permissionsUpdatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]): void => {
+            const updatedIds = updatedItems.map(item => item.getId());
+            const isItemsPermissionsUpdated = this.getItems().some(item => updatedIds.findIndex(updatedId => updatedId === item.getId()) > -1);
             if (isItemsPermissionsUpdated) {
                 this.notifyListChanged();
             }
@@ -92,7 +93,7 @@ export class PublishDialogDependantList
         };
 
         const updatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]) => {
-            permissionsUpdatedHandler(ContentIds.from(updatedItems.map(item => item.getContentId())));
+            permissionsUpdatedHandler(updatedItems);
         };
 
         this.onAdded(() => {

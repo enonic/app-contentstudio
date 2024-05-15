@@ -1,8 +1,7 @@
 /**
  * Created on 13.07.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -57,8 +56,8 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             await insertLinkDialog.waitForDialogClosed();
             // 7. Verify the text in htmlArea:
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result[0].includes(EXPECTED_PART_1), "Expected text should be present in the htmlArea");
-            assert.isTrue(result[0].includes(EXPECTED_ANCHOR_PART), "Expected text should be present in the htmlArea");
+            assert.ok(result[0].includes(EXPECTED_PART_1), "Expected text should be present in the htmlArea");
+            assert.ok(result[0].includes(EXPECTED_ANCHOR_PART), "Expected text should be present in the htmlArea");
         });
 
     it("GIVEN 'Insert Content link' dialog is reopened WHEN 'Anchor' input has been cleared THEN 'This field is required' - message should be displayed in the modal dialog",
@@ -115,8 +114,8 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             await insertLinkDialog.waitForDialogClosed();
             // 8. Verify the text in htmlArea:
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result[0].includes(EXPECTED_PARAMETERS_PART), 'Expected text should be present in the htmlArea');
-            assert.isTrue(result[0].includes(PARAMETER_VALUE), 'Expected text should be present in the htmlArea');
+            assert.ok(result[0].includes(EXPECTED_PARAMETERS_PART), 'Expected text should be present in the htmlArea');
+            assert.ok(result[0].includes(PARAMETER_VALUE), 'Expected text should be present in the htmlArea');
         });
 
     it("WHEN Anchor with a parameter has been inserted THEN expected text should be present in htmlArea",
@@ -147,9 +146,9 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             await insertLinkDialog.waitForDialogClosed();
             // 9. Verify the text in htmlArea:
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result[0].includes(EXPECTED_PARAMETERS_PART), 'Expected text should be present in the htmlArea');
-            assert.isTrue(result[0].includes(PARAMETER_VALUE), 'Expected text should be present in the htmlArea');
-            assert.isTrue(result[0].includes(EXPECTED_ANCHOR_PART), "Expected text should be present in the htmlArea");
+            assert.ok(result[0].includes(EXPECTED_PARAMETERS_PART), 'Expected text should be present in the htmlArea');
+            assert.ok(result[0].includes(PARAMETER_VALUE), 'Expected text should be present in the htmlArea');
+            assert.ok(result[0].includes(EXPECTED_ANCHOR_PART), "Expected text should be present in the htmlArea");
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/4856

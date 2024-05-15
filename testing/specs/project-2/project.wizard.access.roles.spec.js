@@ -1,8 +1,7 @@
 /**
  * Created on 30.04.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils');
@@ -12,13 +11,13 @@ const appConst = require('../../libs/app_const');
 
 describe('project.wizard.access.roles.spec - tests for giving access to manage project and content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    let TEST_DESCRIPTION = "test description";
-    let PRINCIPALS = [appConst.systemUsersDisplayName.SUPER_USER];
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const TEST_DESCRIPTION = "test description";
+    const PRINCIPALS = [appConst.systemUsersDisplayName.SUPER_USER];
 
     it(`Preconditions: new project should be added. SU should be assigned as Contributor`,
         async () => {
@@ -32,11 +31,11 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.Click on the project and press 'Edit' button:
+            // 1.Click on the project and press 'Edit' button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            //2. Verify that expected role is displayed in Roles step: SU should be with Contributor role by default
+            // 2. Verify that expected role is displayed in Roles step: SU should be with Contributor role by default
             let actualRole = await projectWizard.getSelectedRoleInProjectAccessControlEntry("su");
             assert.equal(actualRole, appConst.PROJECT_ROLES.CONTRIBUTOR, "Contributor role should be set by default");
         });
@@ -45,12 +44,12 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.Click on the project and press 'Edit' button:
+            // 1.Click on the project and press 'Edit' button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            let result = await projectWizard.getAvailableProjectAccessRoles("su");
-            //2. Verify that expected roles are displayed in the menu:
+            let result = await projectWizard.getAvailableProjectAccessRoles('su');
+            // 2. Verify that expected roles are displayed in the menu:
             assert.equal(result[0], appConst.PROJECT_ROLES.CONTRIBUTOR, "'Contributor' role should be in the options");
             assert.equal(result[1], appConst.PROJECT_ROLES.AUTHOR, "'Author' role should be in the options");
             assert.equal(result[2], appConst.PROJECT_ROLES.EDITOR, "'Editor' role should be in the options");
@@ -97,7 +96,7 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -1,8 +1,7 @@
 /**
  * Created on 06.03.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -71,7 +70,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await contentWizard.pause(1000);
             // 3. Verify that LiveEdit is locked:
             let isLocked = await contentWizard.isLiveEditLocked();
-            assert.isTrue(isLocked, 'Page editor should be locked');
+            assert.ok(isLocked, 'Page editor should be locked');
             // PCV should be hidden in locked LiveEdit:
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             await contentWizard.switchToParentFrame();
@@ -80,7 +79,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 5. Verify that LiveEdit is unlocked:
             await contentWizard.switchToParentFrame();
             isLocked = await contentWizard.isLiveEditLocked();
-            assert.isFalse(isLocked, 'Page editor should not be locked');
+            assert.ok(isLocked === false, 'Page editor should not be locked');
             // switch from LiveEdit to parent frame:
             await contentWizard.switchToParentFrame();
             // 6. Verify that PCV gets visible now:
@@ -125,8 +124,8 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await contentWizard.switchToParentFrame();
             // 3. Check the items in PCV:
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
-            assert.isTrue(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.isTrue(result.includes('main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
+            assert.ok(result.includes('Main'), 'Main item should be displayed in the modal dialog');
             // 4. Select another template:
             await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE2.displayName);
             // 5. Confirmation dialog appears:
@@ -140,8 +139,8 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await contentWizard.switchToParentFrame();
             // 9. Verify that items in PCV are updated after switching a template:
             result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
-            assert.isTrue(result.includes('default'), 'default item should be displayed in the modal dialog');
-            assert.isTrue(result.includes('main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes('default'), 'default item should be displayed in the modal dialog');
+            assert.ok(result.includes('Main'), 'Main item should be displayed in the modal dialog');
         });
 
     it(`GIVEN Inspection Panel is loaded WHEN 'main region' controller has been selected in Inspect Panel THEN PCV should be unlocked in wizard step`,

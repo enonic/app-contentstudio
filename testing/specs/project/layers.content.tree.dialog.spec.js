@@ -12,13 +12,13 @@ const appConst = require('../../libs/app_const');
 
 describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const TEST_FOLDER_DISPLAY_NAME = studioUtils.generateRandomName("folder");
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    const LAYER1_DISPLAY_NAME = studioUtils.generateRandomName("layer");
-    const LAYER2_DISPLAY_NAME = studioUtils.generateRandomName("layer");
+    const TEST_FOLDER_DISPLAY_NAME = studioUtils.generateRandomName('folder');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const LAYER1_DISPLAY_NAME = studioUtils.generateRandomName('layer');
+    const LAYER2_DISPLAY_NAME = studioUtils.generateRandomName('layer');
 
     it("Preconditions: new project with folder should be added",
         async () => {
@@ -35,7 +35,7 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1. Select 'Default' project and open wizard for new layer:
-            await settingsBrowsePanel.openProjectWizardDialog();
+            await projectUtils.selectParentAndOpenProjectWizardDialog(PROJECT_DISPLAY_NAME);
             let layer = projectUtils.buildLayer(PROJECT_DISPLAY_NAME, appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
                 null, LAYER1_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
@@ -47,11 +47,10 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1.Select the just created layer and create one more layer:
             // let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(LAYER1_DISPLAY_NAME);
-            await settingsBrowsePanel.openProjectWizardDialog();
+            await projectUtils.selectParentAndOpenProjectWizardDialog(LAYER1_DISPLAY_NAME);
             let layer = projectUtils.buildLayer(LAYER1_DISPLAY_NAME, appConst.LANGUAGES.NORSK_NO, appConst.PROJECT_ACCESS_MODE.PUBLIC,
                 null, null, LAYER2_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
-
             await settingsBrowsePanel.waitForNotificationMessage();
         });
 
@@ -98,7 +97,7 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

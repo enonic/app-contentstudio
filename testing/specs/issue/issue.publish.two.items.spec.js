@@ -1,8 +1,7 @@
 /**
  * Created on 10.07.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
@@ -56,15 +55,15 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await contentPublishDialog.waitForDialogClosed();
             // Verify that 'Publish' button is default action now:
             await contentBrowsePanel.waitForPublishButtonVisible();
-            //2. Open 'Create Issue' dialog and create new task:
+            // 2. Open 'Create Issue' dialog and create new task:
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             await createIssueDialog.typeTitle(ISSUE_TITLE);
             await createIssueDialog.clickOnCreateIssueButton();
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // 3. Verify the items to publish:
             let result = await issueDetailsDialogItemsTab.getItemDisplayNames();
-            assert.isTrue(result.includes(folder1.displayName));
-            assert.isTrue(result.includes(folder2.displayName));
+            assert.ok(result.includes(folder1.displayName));
+            assert.ok(result.includes(folder2.displayName));
             let actualNumber = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(actualNumber, '2', '2 items to publish should be present in the dialog');
             let status = await issueDetailsDialogItemsTab.getContentStatus(folder1.displayName)
@@ -96,12 +95,12 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
     it(`GIVEN two items are published WHEN both items has been selected THEN issue-menu button should be visible in the toolbar because the issue was not closed`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            //1. Select checkboxes:
+            // 1. Select checkboxes:
             await studioUtils.findContentAndClickCheckBox(folder1.displayName);
             await studioUtils.findContentAndClickCheckBox(folder2.displayName);
             await contentItemPreviewPanel.pause(1000);
             await studioUtils.saveScreenshot("issue_menu_should_be_displayed");
-            //2. 'Issue Menu button should be visible, because the task is closed'
+            // 2. 'Issue Menu button should be visible, because the task is closed'
             await contentItemPreviewPanel.waitForIssueMenuButtonNotVisible();
         });
 

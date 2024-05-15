@@ -1,8 +1,7 @@
 /**
  * Created on 27.07.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -77,7 +76,7 @@ describe('tests for Sorted versions item', function () {
             await studioUtils.saveScreenshot('compare_versions_dlg_sorted_1');
             // 5. Verify that 'childOrder' property is displayed in the modal dialog:
             let result = await compareContentVersionsDialog.getChildOrderProperty();
-            assert.isTrue(result.includes("\"displayname ASC\""),
+            assert.ok(result.includes("\"displayname ASC\""),
                 "Expected current order should be displayed in the dialog -  'displayname ASC'");
         });
 
@@ -109,7 +108,7 @@ describe('tests for Sorted versions item', function () {
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             // 2. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            // 3. Expand and revert the second 'Sorted' version item - displayname ASC:
+            // 3. Expand and revert the second 'Sorted' version item - display name ASC:
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 1);
             await browseVersionsWidget.clickOnRevertButton();
             await browseVersionsWidget.waitForNotificationMessage();

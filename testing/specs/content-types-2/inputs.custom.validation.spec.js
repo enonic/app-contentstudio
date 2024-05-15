@@ -1,8 +1,7 @@
 /**
  * Created on 18.08.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -47,7 +46,7 @@ describe('inputs.custom.validation.spec: tests for content with custom validatio
             assert.equal(actualMessage, 'Invalid value selected', "Expected validation message should be displayed");
             // 6. Verify that the content remains invalid
             let isInValid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInValid, 'the content should be invalid, this value is invalid');
+            assert.ok(isInValid, 'the content should be invalid, this value is invalid');
         });
 
     it(`GIVEN existing content with custom validation is opened WHEN valid option has been selected in the combobox AND saved THEN the content gets valid`,
@@ -66,7 +65,7 @@ describe('inputs.custom.validation.spec: tests for content with custom validatio
             await studioUtils.saveScreenshot('custom_validation_allowed_option');
             // 4. Verify that the content gets valid
             let isInValid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInValid, 'the content should be valid');
+            assert.ok(isInValid === false, 'the content should be valid');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -1,8 +1,7 @@
 /**
  * Created on 08.10.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
@@ -14,7 +13,7 @@ const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/prope
 
 describe('content.wizard.owner.spec - ui-tests for owner', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const OWNER_REMOVED = 'This user is deleted';
@@ -59,7 +58,7 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
 
     it("GIVEN Users app is opened WHEN the user has been removed THEN the user should not be displayed in browse panel",
         async () => {
-            //1. navigate to 'Users' and delete the user
+            // 1. navigate to 'Users' and delete the user
             await studioUtils.navigateToUsersApp();
             let userBrowsePanel = new UserBrowsePanel();
             await userBrowsePanel.selectAndDeleteItem(USER.displayName);
@@ -69,7 +68,7 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
     it("GIVEN user owner was deleted WHEN the folder is reopened THEN the user should be displayed as 'removed' in the wizard form",
         async () => {
             await studioUtils.navigateToContentStudioApp();
-            //1. Open the folder
+            // 1. Open the folder
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
             // 2. Click on 'Edit Setting':
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
@@ -84,10 +83,10 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
         async () => {
             let contentWizard = new ContentWizardPanel();
             await studioUtils.navigateToContentStudioApp();
-            //1. Open wizard for new folder:
+            // 1. Open wizard for new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await studioUtils.saveScreenshot('collaboration_wizard');
-            //2. Verify that collaboration icon is displayed:
+            // 2. Verify that collaboration icon is displayed:
             let compactNames = await contentWizard.getCollaborationUserCompactName();
             assert.equal(compactNames[0], 'SU', 'SU user should be displayed in the toolbar');
             assert.equal(compactNames.length, 1, 'One compact name should be displayed');

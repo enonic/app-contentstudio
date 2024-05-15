@@ -12,6 +12,8 @@ import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
 import {ContentInheritType} from './ContentInheritType';
 import {ContentId} from './ContentId';
 import {ContentPath} from './ContentPath';
+import {ContentSummaryAndCompareStatusHelper} from './ContentSummaryAndCompareStatusHelper';
+import {isEqual} from '../Diff';
 
 export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
 
@@ -22,8 +24,6 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     private compareStatus: CompareStatus;
 
     private publishStatus: PublishStatus;
-
-    private readOnly: boolean;
 
     private renderable: boolean = false;
 
@@ -49,6 +49,10 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
 
     public static fromUploadItem(item: UploadItem<ContentSummary>): ContentSummaryAndCompareStatus {
         return new ContentSummaryAndCompareStatus().setUploadItem(item);
+    }
+
+    public static isInArray(contentId: ContentId, array: ContentSummaryAndCompareStatus[]): boolean {
+        return array.some((c) => c.getContentId().equals(contentId));
     }
 
     hasContentSummary(): boolean {
@@ -253,34 +257,21 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, ContentSummaryAndCompareStatus)) {
             return false;
         }
 
-        let other = o as ContentSummaryAndCompareStatus;
-
-        if (!ObjectHelper.equals(this.uploadItem, other.getUploadItem())) {
-            return false;
-        }
-
-        if (!ObjectHelper.equals(this.contentSummary, other.getContentSummary())) {
-            return false;
-        }
-
-        if (this.compareStatus !== other.getCompareStatus()) {
-            return false;
-        }
-
-        return this.renderable === other.isRenderable();
+        const other = o as ContentSummaryAndCompareStatus;
+        const diff = ContentSummaryAndCompareStatusHelper.diff(this, other);
+        return isEqual(diff);
     }
 
     setReadOnly(value: boolean) {
-        this.readOnly = value;
+        this.contentSummary?.setReadOnly(value);
     }
 
     isReadOnly(): boolean {
-        return !!this.readOnly;
+        return !!this.contentSummary ? this.contentSummary.isReadOnly() : false;
     }
 
     isPendingDelete(): boolean {
@@ -326,7 +317,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     canBeMarkedAsReady(): boolean {
         const contentSummary = this.getContentSummary();
 
-        return !this.isOnline() && !this.isPendingDelete() && contentSummary.isValid() && !contentSummary.isReady();
+        return !this.isOnline() && contentSummary.isValid() && !contentSummary.isReady();
     }
 
     clone(): ContentSummaryAndCompareStatus {
@@ -336,7 +327,6 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
             this.compareStatus,
             this.publishStatus
         );
-        clone.setReadOnly(this.readOnly);
         clone.setRenderable(this.renderable);
         return clone;
     }

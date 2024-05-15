@@ -12,6 +12,7 @@ function handleGet() {
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
     const hideDefaultProject = app.config['settings.hideDefaultProject'] !== 'false';
+    const defaultPublishFromTime = parseTime(app.config['publishingWizard.defaultPublishFromTime']);
 
     return {
         status: 200,
@@ -33,6 +34,7 @@ function handleGet() {
             branch,
             hideDefaultProject,
             enableCollaboration,
+            defaultPublishFromTime,
             locale: admin.getLocale(),
             services: {
                 contentUrl: portal.serviceUrl({service: 'content'}),
@@ -51,6 +53,11 @@ function handleGet() {
             }
         }
     };
+}
+
+function parseTime(value) {
+    const timeRegex = /^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/;
+    return timeRegex.test(value) ? value : null;
 }
 
 exports.get = handleGet;

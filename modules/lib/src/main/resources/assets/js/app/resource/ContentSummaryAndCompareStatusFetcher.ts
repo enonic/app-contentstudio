@@ -11,13 +11,11 @@ import {CompareContentResult} from './CompareContentResult';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryRequest} from './ContentSummaryRequest';
-import {IsRenderableRequest} from './IsRenderableRequest';
 import {ContentSummary} from '../content/ContentSummary';
 import {ChildOrder} from './order/ChildOrder';
 import {ContentId} from '../content/ContentId';
 import {FieldOrderExpr, FieldOrderExprBuilder} from './order/FieldOrderExpr';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 
 export class ContentSummaryAndCompareStatusFetcher {
 
@@ -51,22 +49,12 @@ export class ContentSummaryAndCompareStatusFetcher {
             .setOrder(childOrder)
             .setContentRootPath(this.contentRootPath)
             .sendAndParse()
-            .then((response: ContentResponse<ContentSummary>) => {
-                return CompareContentRequest.fromContentSummaries(response.getContents(), null, this.contentRootPath).sendAndParse().then(
-                    (compareResults: CompareContentResults) => {
-                        const contents: ContentSummaryAndCompareStatus[] = this.updateCompareStatus(response.getContents(), compareResults);
-
-                        const promises: Q.Promise<boolean>[] = [];
-                        promises.push(this.updateReadOnly(contents));
-
-                        return Q.all([promises]).then(() => {
-                            return new ContentResponse<ContentSummaryAndCompareStatus>(
-                                contents,
-                                response.getMetadata()
-                            );
-                        });
-                    });
-            });
+            .then((response: ContentResponse<ContentSummary>) =>
+                this.updateReadonlyAndCompareStatus(response.getContents())
+                    .then((contents: ContentSummaryAndCompareStatus[]) =>
+                        new ContentResponse<ContentSummaryAndCompareStatus>(contents, response.getMetadata())
+                    )
+            );
     }
 
     fetch(contentId: ContentId, projectName?: string): Q.Promise<ContentSummaryAndCompareStatus> {
@@ -74,58 +62,34 @@ export class ContentSummaryAndCompareStatusFetcher {
             .setRequestProjectName(projectName)
             .setContentRootPath(this.contentRootPath)
             .sendAndParse()
-            .then((content: Content) => {
-                return CompareContentRequest.fromContentSummaries([content], projectName, this.contentRootPath).sendAndParse()
-                    .then((compareResults: CompareContentResults) => {
-                        const result: ContentSummaryAndCompareStatus = this.updateCompareStatus([content],
-                            compareResults)[0];
-
-                        const promises: Q.Promise<boolean>[] = [];
-                        promises.push(this.updateReadOnly([result], projectName));
-
-                        return Q.all(promises).then(() => {
-                            return result;
-                        });
-                    });
-            });
-
+            .then((content: Content) => this.fetchByContent(content));
     }
 
     fetchByContent(content: Content): Q.Promise<ContentSummaryAndCompareStatus> {
-        return CompareContentRequest.fromContentSummaries([content], null, this.contentRootPath).sendAndParse().then(
-            (compareResults: CompareContentResults) => {
-                const result: ContentSummaryAndCompareStatus = this.updateCompareStatus([content], compareResults)[0];
-
-                return this.updateReadOnly([result]).then(() => result);
-            });
+        return this.updateReadonlyAndCompareStatus([content])
+                    .then((contents: ContentSummaryAndCompareStatus[]) => contents[0]);
     }
 
-    fetchByIds(ids: ContentId[]): Q.Promise<ContentSummaryAndCompareStatus[]> {
+    fetchByIds(ids: ContentId[]): Q.Promise<ContentSummary[]> {
         if (ids.length === 0) {
             return Q([]);
         }
 
-        return new GetContentSummaryByIds(ids).setContentRootPath(this.contentRootPath).sendAndParse().then(
-            (contentSummaries: ContentSummary[]) => {
-
-                return CompareContentRequest.fromContentSummaries(contentSummaries, null, this.contentRootPath).sendAndParse().then(
-                    (compareResults: CompareContentResults) => {
-                        const contents: ContentSummaryAndCompareStatus[] = this.updateCompareStatus(contentSummaries, compareResults);
-                        const promises: Q.Promise<boolean>[] = [];
-                        promises.push(this.updateReadOnly(contents));
-
-                        return Q.all(promises).then(() => {
-                            return contents;
-                        });
-                    });
-            });
+        return new GetContentSummaryByIds(ids)
+            .setContentRootPath(this.contentRootPath)
+            .sendAndParse()
+            .then((contentSummaries: ContentSummary[]) => contentSummaries);
     }
 
-    fetchStatus(contentSummaries: ContentSummary[]): Q.Promise<ContentSummaryAndCompareStatus[]> {
-        return CompareContentRequest.fromContentSummaries(contentSummaries, null, this.contentRootPath).sendAndParse()
-            .then((compareResults: CompareContentResults) => {
-                return this.updateCompareStatus(contentSummaries, compareResults);
-            });
+    fetchAndUpdateReadonly(ids: ContentId[]): Q.Promise<ContentSummaryAndCompareStatus[]> {
+        return this.fetchByIds(ids)
+            .then((summaries: ContentSummary[]) => this.updateReadOnly(summaries))
+            .then((updatedSummaries: ContentSummary[]) => updatedSummaries.map((summary: ContentSummary) => ContentSummaryAndCompareStatus.fromContentSummary(summary)));
+    }
+
+    fetchAndCompareStatus(ids: ContentId[], projectName?: string): Q.Promise<ContentSummaryAndCompareStatus[]> {
+        return this.fetchByIds(ids)
+            .then((summaries: ContentSummary[]) => this.compareAndUpdateStatus(summaries, projectName));
     }
 
     fetchChildrenIds(parentContentId: ContentId, order?: ChildOrder): Q.Promise<ContentId[]> {
@@ -133,10 +97,8 @@ export class ContentSummaryAndCompareStatusFetcher {
             .setContentRootPath(this.contentRootPath)
             .setParentId(parentContentId)
             .setOrder(order)
-            .sendAndParse().then(
-                (response: ContentId[]) => {
-                    return response;
-                });
+            .sendAndParse()
+            .then((response: ContentId[]) => response);
     }
 
     updateCompareStatus(contentSummaries: ContentSummary[], compareResults: CompareContentResults): ContentSummaryAndCompareStatus[] {
@@ -151,40 +113,29 @@ export class ContentSummaryAndCompareStatusFetcher {
         return list;
     }
 
-    updateReadOnly(contents: ContentSummaryAndCompareStatus[], projectName?: string): Q.Promise<boolean> {
-        return new IsContentReadOnlyRequest(contents.map(content => content.getContentId()))
+    updateReadOnly(contentSummaries: ContentSummary[], projectName?: string): Q.Promise<ContentSummary[]> {
+        return new IsContentReadOnlyRequest(contentSummaries.map(content => content.getContentId()))
             .setRequestProjectName(projectName)
             .setContentRootPath(this.contentRootPath)
             .sendAndParse().then((readOnlyContentIds: string[]) => {
                 readOnlyContentIds.forEach((id: string) => {
-                    contents.some(content => {
-                        if (content.getId() === id) {
-                            content.setReadOnly(true);
-                            return true;
-                        }
-                    });
+                    const contentSummaryToUpdate = contentSummaries.find((content: ContentSummary) => content.getId() === id);
+                    contentSummaryToUpdate.setReadOnly(true);
                 });
 
-                return true;
+                return contentSummaries;
             });
     }
 
-    updateRenderableContents(contents: ContentSummaryAndCompareStatus[], projectName?: string): Q.Promise<void[]> {
-        const isRenderablePromises: Q.Promise<void>[] = [];
-
-        contents.forEach((content: ContentSummaryAndCompareStatus) => {
-            isRenderablePromises.push(this.updateRenderableContent(content, projectName));
-        });
-
-        return Q.all(isRenderablePromises);
+    updateReadonlyAndCompareStatus(contentSummaries: ContentSummary[], projectName?: string): Q.Promise<ContentSummaryAndCompareStatus[]> {
+        return this.updateReadOnly(contentSummaries, projectName)
+            .then(() => this.compareAndUpdateStatus(contentSummaries, projectName));
     }
 
-    updateRenderableContent(content: ContentSummaryAndCompareStatus, projectName?: string): Q.Promise<void> {
-        return new IsRenderableRequest(content.getContentSummary())
+    private compareAndUpdateStatus(contentSummaries: ContentSummary[], projectName?: string): Q.Promise<ContentSummaryAndCompareStatus[]> {
+        return CompareContentRequest
+            .fromContentSummaries(contentSummaries, projectName, this.contentRootPath)
             .sendAndParse()
-            .then((statusCode: number) => {
-                content.setRenderable(statusCode === StatusCode.OK);
-                return Q(null);
-            });
+            .then((compareResults: CompareContentResults) => this.updateCompareStatus(contentSummaries, compareResults));
     }
 }

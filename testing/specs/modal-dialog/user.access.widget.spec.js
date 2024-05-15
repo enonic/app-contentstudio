@@ -1,8 +1,7 @@
 /**
  * Created on 02.02.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -35,6 +34,7 @@ describe("user.access.widget.spec:  test for user access widget and Edit Permiss
             assert.equal(access, "Full Access");
             //3. SU compact name should be displayed in the widget:
             let names = await userAccessWidget.getPrincipalsCompactName();
+            await studioUtils.saveScreenshot('user_access_widget');
             assert.equal(names.length, 1, "one acl entry should be displayed in the widget");
             assert.equal(names[0], "SU", "SU user should be displayed in the access widget");
 
@@ -46,20 +46,21 @@ describe("user.access.widget.spec:  test for user access widget and Edit Permiss
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             let userAccessWidget = new UserAccessWidget();
-            //1. Select the folder:
+            // 1. Select the folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            //2. Open Edit Permissions dialog:
+            // 2. Open Edit Permissions dialog:
             await userAccessWidget.clickOnEditPermissionsLink();
             await editPermissionsDialog.waitForDialogLoaded();
             await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
-            //3. Select 'Anonymous User' with the default operation:
+            // 3. Select 'Anonymous User' with the default operation:
             await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
-            //4. Click on Apply button and close the dialog:
+            // 4. Click on Apply button and close the dialog:
             await editPermissionsDialog.clickOnApplyButton();
-            //5. Verify that 'Can Read' access is displayed for Anonymous User :
+            // 5. Verify that 'Can Read' access is displayed for Anonymous User :
             let access = await userAccessWidget.getPrincipalAccess("AU");
             assert.equal(access, "Can Read", "Expected access should be displayed for AU");
-            //6. Two entries should be displayed in the widget:
+            await studioUtils.saveScreenshot('user_access_widget_2');
+            // 6. Two entries should be displayed in the widget:
             let names = await userAccessWidget.getPrincipalsCompactName();
             assert.equal(names.length, 2, "Two principals should be present in the widget");
         });

@@ -1,8 +1,7 @@
 /**
  * Created on 05.07.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
@@ -14,7 +13,6 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
 const PublishContentDialog = require('../page_objects/content.publish.dialog');
 const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
-const EditSettingsDialog = require('../page_objects/details_panel/edit.settings.dialog');
 
 describe('Browse panel, properties widget, language spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -91,7 +89,7 @@ describe('Browse panel, properties widget, language spec', function () {
             await studioUtils.saveScreenshot('details_panel_hidden');
             // 2. Verify that the panel is not visible now:
             let isVisible = await browseDetailsPanel.isPanelVisible();
-            assert.isFalse(isVisible, 'Details panel should be hidden');
+            assert.ok(isVisible === false, 'Details panel should be hidden');
         });
 
     it(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,
@@ -101,9 +99,10 @@ describe('Browse panel, properties widget, language spec', function () {
             await browseDetailsPanel.clickOnWidgetSelectorDropdownHandle();
             let actualOptions = await browseDetailsPanel.getWidgetSelectorDropdownOptions();
             await studioUtils.saveScreenshot('details_panel_widget_options');
-            assert.isTrue(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DEPENDENCIES));
-            assert.isTrue(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY));
-            assert.isTrue(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS));
+            assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DEPENDENCIES), 'Dependencies option should be displayed');
+            assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY),
+                "'Version history' option should be displayed");
+            assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS), "'Details' option should be displayed");
             assert.equal(actualOptions.length, 4, 'Four options should be in the selector');
         });
 

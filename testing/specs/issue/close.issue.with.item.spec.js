@@ -12,7 +12,7 @@ const appConst = require('../../libs/app_const');
 
 describe('close.issue.with.item.spec: close an issue and verify control elements on the ItemPreview Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let issueTitle = appConst.generateRandomName('issue');
@@ -36,14 +36,14 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             let issueDetailsDialog = new IssueDetailsDialog();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
-            //1.Add new folder:
+            // 1.Add new folder:
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await contentBrowsePanel.waitForPublishButtonVisible();
-            //2.expand the menu and open 'Create Issue' dialog
+            // 2.expand the menu and open 'Create Issue' dialog
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             await createIssueDialog.typeTitle(issueTitle);
-            //3. Save the issue:
+            // 3. Save the issue:
             await createIssueDialog.clickOnCreateIssueButton();
             await issueDetailsDialog.waitForDialogLoaded();
         });
@@ -66,7 +66,7 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

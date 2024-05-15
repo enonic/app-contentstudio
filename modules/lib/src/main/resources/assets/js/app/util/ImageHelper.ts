@@ -50,16 +50,6 @@ export class ImageHelper {
             }
         }
 
-        return ImageHelper.getImageAttachmentName(imageContent);
-    }
-
-    static getImageAttachmentName(imageContent: Content): string {
-        const attachments: Attachments = imageContent.getAttachments();
-
-        if (attachments.getSize() > 0) {
-            return attachments.getAttachment(0).getName().toString();
-        }
-
-        return null;
+        return '';
     }
 }

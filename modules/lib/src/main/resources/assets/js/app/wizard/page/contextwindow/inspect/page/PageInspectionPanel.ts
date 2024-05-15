@@ -19,8 +19,6 @@ import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponen
 export class PageInspectionPanel
     extends BaseInspectionPanel {
 
-    private liveEditModel: LiveEditModel;
-
     private pageTemplateAndControllerSelector: PageTemplateAndControllerSelector;
 
     private pageTemplateAndControllerForm: PageTemplateAndControllerForm;

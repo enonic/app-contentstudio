@@ -1,8 +1,7 @@
 /**
  * Created on 21.10.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
 const LauncherPanel = require('../page_objects/launcher.panel');
@@ -48,7 +47,7 @@ describe('launcher.panel.spec: tests for Launcher Panel', function () {
             await studioUtils.doSwitchToContentBrowsePanel();
             await launcherPanel.clickOnLauncherToggler();
             let id = await launcherPanel.getActiveRowId();
-            assert.isTrue(id.includes('contentstudio'), 'contentstudio link should be active');
+            assert.ok(id.includes('contentstudio'), 'contentstudio link should be active');
         });
 
     it("GIVEN su is logged in WHEN 'Log out' link has been clicked THEN login page should be loaded",

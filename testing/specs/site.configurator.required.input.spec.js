@@ -1,8 +1,7 @@
 /**
  * Created on 01.02.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
@@ -35,7 +34,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             await studioUtils.saveScreenshot('site_configurator_1');
             // 3. Verify that this input is focused by default( issue#427)
             let isElementFocused = await siteConfiguratorDialog.isFocused(`//input[contains(@name,'trackingId')]`);
-            assert.isTrue(isElementFocused, "Tracking ID input should be focused");
+            assert.ok(isElementFocused, "Tracking ID input should be focused");
         });
 
     it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN red icon should be displayed near the content`,
@@ -45,7 +44,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             // Verify that red icon is displayed in Browse Panel:
             let isDisplayed = await contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
             await studioUtils.saveScreenshot('site_conf_required_empty');
-            assert.isTrue(isDisplayed, 'red icon should be present near the content!');
+            assert.ok(isDisplayed, 'red icon should be present near the content!');
         });
 
     it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN red icon should be displayed in the wizard`,
@@ -54,7 +53,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             let isRedIconDisplayed = await contentWizard.isContentInvalid();
             await studioUtils.saveScreenshot('site_conf_required_empty_validation');
-            assert.isTrue(isRedIconDisplayed, 'red icon should be present in the wizard!');
+            assert.ok(isRedIconDisplayed, 'red icon should be present in the wizard!');
         });
 
     it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN the selected application-configurator option-view should be red`,
@@ -62,7 +61,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             let siteFormPanel = new SiteFormPanel();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             let isInvalid = await siteFormPanel.isSiteConfiguratorViewInvalid(appConst.APP_WITH_CONFIGURATOR);
-            assert.isTrue(isInvalid, 'Selected option view should be red colour because, the required input is empty');
+            assert.ok(isInvalid, 'Selected option view should be red colour because, the required input is empty');
         });
 
     it(`GIVEN existing site with the configurator is opened WHEN required input has been filled THEN the content is getting valid`,
@@ -82,7 +81,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             await studioUtils.saveScreenshot('site_conf_gets_valid');
             // 5. Verify that red icon gets not visible:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, "red icon should be not visible");
+            assert.ok(isInvalid === false, "red icon should be not visible");
         });
 
     // Verifies: Site/Provider configurator -Apply button should not submit invalid config form (#3097).
@@ -105,7 +104,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             await studioUtils.findAndSelectItem(SITE.displayName);
             let isDisplayed = await contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
             await studioUtils.saveScreenshot('site_conf_required_input_filled');
-            assert.isFalse(isDisplayed, 'red icon should not be present near the content!');
+            assert.ok(isDisplayed === false, 'red icon should not be present near the content!');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

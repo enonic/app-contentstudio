@@ -1,8 +1,7 @@
 /**
  * Created on 13.02.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const studioUtils = require('../../libs/studio.utils.js');
@@ -78,9 +77,12 @@ describe('Test for updating text in fragment', function () {
             await studioUtils.saveScreenshot('fragment_txt_context_menu');
             // 3. Verify the menu items:
             let menuItems = await pageComponentsWizardStepForm.getContextMenuItems();
-            assert.isTrue(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET), "'Reset' menu item should be present in the context menu");
-            assert.isTrue(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT), "'Edit' menu item should be present in the context menu");
-            assert.isTrue(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT), "'Inspect' menu item should be present in the context menu");
+            assert.ok(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET),
+                "'Reset' menu item should be present in the context menu");
+            assert.ok(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT),
+                "'Edit' menu item should be present in the context menu");
+            assert.ok(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT),
+                "'Inspect' menu item should be present in the context menu");
             assert.equal(menuItems.length, 3, "The only three menu items should be present in the Context Menu");
         });
 

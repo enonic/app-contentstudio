@@ -1,8 +1,7 @@
 /**
  * Created on 11.10.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
@@ -14,6 +13,8 @@ const PublishContentDialog = require('../../page_objects/content.publish.dialog'
 const CompareWithPublishedVersionDialog = require('../../page_objects/compare.with.published.version.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
+const contentBuilder = require('../../libs/content.builder');
 
 describe('version.items.after.publishing.spec tests for version items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -21,18 +22,36 @@ describe('version.items.after.publishing.spec tests for version items', function
         webDriverHelper.setupBrowser();
     }
 
-    let FOLDER_NAME = appConst.generateRandomName('folder');
+    const FOLDER_NAME = appConst.generateRandomName('folder');
+    const PUBLISH_MSG = 'publish message';
 
-    it('Preconditions- published folder should be added',
+    it('Preconditions- ready for publishing folder should be added',
         async () => {
+            let folder = contentBuilder.buildFolder(FOLDER_NAME);
+            await studioUtils.doAddReadyFolder(folder);
+        });
+
+    it('GIVEN Publish Wizard is opened WHEN publish message has been inserted AND the content has been published THEN publish message should appear in Version Item',
+        async () => {
+            let wizardVersionsWidget = new WizardVersionsWidget();
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            let contentPublishDialog = new ContentPublishDialog();
             let contentWizard = new ContentWizard();
-            // 1. Open new wizard for folder
-            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            // 2. Fill in the name input
-            await contentWizard.typeDisplayName(FOLDER_NAME);
-            // 3. Publish this folder:
-            await contentWizard.clickOnMarkAsReadyButton();
-            await studioUtils.doPublish();
+            // 1. Open an existing folder
+            await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
+            // 2. Open Version widget:
+            await wizardDetailsPanel.openVersionHistory();
+            // 3. Open Publish wizard and insert a publish-message:
+            await contentWizard.clickOnPublishButton();
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnLogMessageLink();
+            await contentPublishDialog.typeTextInLogMessageInput(PUBLISH_MSG);
+            // 4. Publish the folder:
+            await contentPublishDialog.clickOnPublishNowButton();
+            await contentPublishDialog.waitForNotificationMessage();
+            // 5. Verify the text in the Published version item:
+            let actualResult = await wizardVersionsWidget.getPublishMessagesFromPublishedItems();
+            assert.ok(actualResult[0] === PUBLISH_MSG, 'Expected publish mesage should be displayed in Published version item');
         });
 
     it(`GIVEN existing published folder is opened WHEN permissions have been updated THEN 'Permissions updated' item should appear in Versions Widget, the content gets Modified`,

@@ -1,15 +1,14 @@
 /**
  * Created on 30.12.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 
 describe('response.headers.spec - Send a request and verify headers in response', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -18,9 +17,9 @@ describe('response.headers.spec - Send a request and verify headers in response'
             let reqHeaders = await studioUtils.sendRequestGetHeaders();
             let headers = reqHeaders.toLowerCase();
 
-            assert.isTrue(headers.includes('X-Frame-Options: SAMEORIGIN'.toLowerCase()),
+            assert.ok(headers.includes('X-Frame-Options: SAMEORIGIN'.toLowerCase()),
                 "'X-Frame-Options: SAMEORIGIN' header should be present in the response");
-            assert.isTrue(headers.includes('X-Content-Type-Options: nosniff'.toLowerCase()),
+            assert.ok(headers.includes('X-Content-Type-Options: nosniff'.toLowerCase()),
                 "'X-Content-Type-Options: nosniff' header should be present in the response")
         });
 

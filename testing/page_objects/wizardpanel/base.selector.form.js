@@ -38,6 +38,11 @@ class BaseSelectorForm extends Page {
         }
     }
 
+    async clearOptionsFilterInput(){
+        await this.clearTextInput(this.optionsFilterInput);
+        await this.pause(1000);
+    }
+
     async typeTextInOptionsFilterInput(text) {
         await this.typeTextInInput(this.optionsFilterInput, text);
         return await this.pause(500);
@@ -74,10 +79,16 @@ class BaseSelectorForm extends Page {
     }
 
     async getOptionsDisplayName() {
-        let loaderComboBox = new LoaderComboBox();
-        let optionsLocator = "//div[contains(@id,'Grid') and contains(@class,'options-container')]" + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
-        await loaderComboBox.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
-        return await loaderComboBox.getOptionDisplayNames();
+        try {
+            let loaderComboBox = new LoaderComboBox();
+            let optionsLocator = "//div[contains(@id,'Grid') and contains(@class,'options-container')]" + lib.SLICK_ROW +
+                                 lib.H6_DISPLAY_NAME;
+            await loaderComboBox.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
+            return await loaderComboBox.getOptionDisplayNames();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
+            throw new Error("Error occurred in the dropdown selector, screenshot: " + screenshot + ' ' + err);
+        }
     }
 
     async clickOnApplyButton() {
@@ -86,8 +97,15 @@ class BaseSelectorForm extends Page {
             await loaderComboBox.clickOnApplyButton();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-            throw new Error("Loader combobobox, Apply button, screenshot: " + screenshot + ' ' + err);
+            throw new Error("Loader combobox, Apply button, screenshot: " + screenshot + ' ' + err);
         }
+    }
+
+    async clickOnEditSelectedOption(optionDisplayName) {
+        let locator = `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${optionDisplayName}']]` +
+                      lib.EDIT_ICON;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
     }
 }
 

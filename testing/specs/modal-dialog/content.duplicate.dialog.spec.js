@@ -1,8 +1,7 @@
 /**
  * Created on 29.05.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -25,13 +24,13 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             // 2. Open Duplicate dialog:
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             let result = await contentDuplicateDialog.isIncludeChildTogglerDisplayed();
-            assert.isTrue(result, 'Include Child toggler should be displayed');
+            assert.ok(result, 'Include Child toggler should be displayed');
             let header = await contentDuplicateDialog.getDependantsHeader();
             assert.equal(header, DEPENDANTS_HEADER, 'Expected header should be displayed');
             result = await contentDuplicateDialog.isDuplicateButtonDisplayed();
-            assert.isTrue(result, 'Duplicate button should be displayed');
+            assert.ok(result, 'Duplicate button should be displayed');
             result = await contentDuplicateDialog.isCancelButtonDisplayed();
-            assert.isTrue(result, 'Cancel button should be displayed');
+            assert.ok(result, 'Cancel button should be displayed');
 
             // 3. Verify the Number in 'Duplicate' button
             let totalNumber = await contentDuplicateDialog.getNumberItemsInDuplicateButton();
@@ -78,7 +77,7 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             // 2. Click on the 'Include child toggler' and exclude children items
             await contentDuplicateDialog.clickOnIncludeChildToggler();
             let isDisplayed = await contentDuplicateDialog.isIncludeChildTogglerDisplayed();
-            assert.isTrue(isDisplayed, 'Include Child toggler should be displayed');
+            assert.ok(isDisplayed, 'Include Child toggler should be displayed');
             await studioUtils.saveScreenshot("duplicate_dialog_child_excluded");
             // 3. Verify that 'Dependant' block gets hidden:
             await contentDuplicateDialog.waitForDependantsHeaderNotDisplayed();

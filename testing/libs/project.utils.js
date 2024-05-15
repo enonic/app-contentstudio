@@ -36,22 +36,25 @@ module.exports = {
         await summaryStep.waitForDialogClosed();
         return await settingsBrowsePanel.pause(500);
     },
-    async fillParentNameStep(parentName) {
+    async fillParentNameStep(parents) {
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-        //check if parent project was selected in Grid:
-        if (await parentProjectStep.isSelectedParentProjectDisplayed()) {
-            await parentProjectStep.clickOnNextButton();
-        } else if (parentName) {
-            //click on 'Layer' radio, select a parent project then click on Next button:
-            await parentProjectStep.clickOnLayerRadioButton();
-            await parentProjectStep.selectParentProject(parentName);
-            await parentProjectStep.clickOnNextButton();
-        } else {
-            //click on 'Project' radio, select a parent project then click on Next button:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+        parents = [].concat(parents);
+        let selectedItems = await parentProjectStep.getSelectedProjects();
+        for (let name of parents) {
+            if (selectedItems.length === 0 || this.isProjectSelected(selectedItems, name)) {
+                await parentProjectStep.selectParentProject(name);
+            }
         }
+        await parentProjectStep.clickOnNextButton();
         return new ProjectWizardDialogLanguageStep();
+    },
+    isProjectSelected(arr, text) {
+         arr.find((item) => {
+            if (item.includes(text)){
+                return true;
+            }
+        });
+         return false;
     },
     async fillLanguageStep(language) {
         let languageStep = new ProjectWizardDialogLanguageStep();
@@ -119,8 +122,13 @@ module.exports = {
     },
     async fillFormsWizard(project) {
         try {
-            let languageStep = await this.fillParentNameStep(project.parentName);
-            await languageStep.waitForLoaded();
+            if (!project.parents) {
+                let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+                await parentProjectStep.clickOnSkipButton();
+            } else {
+                let languageStep = await this.fillParentNameStep(project.parents);
+                await languageStep.waitForLoaded();
+            }
             let accessModeStep = await this.fillLanguageStep(project.language);
             await accessModeStep.waitForLoaded();
             let permissionsStep = await this.fillAccessModeStep(project.accessMode);
@@ -178,6 +186,23 @@ module.exports = {
         await confirmValueDialog.waitForDialogClosed();
         return await settingsBrowsePanel.waitForNotificationMessage();
     },
+    async selectParentAndOpenProjectWizardDialog(parentName) {
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        await settingsBrowsePanel.clickOnRowByDisplayName(parentName);
+        await settingsBrowsePanel.clickOnNewButton();
+        let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+        await parentProjectStep.waitForLoaded();
+        return parentProjectStep;
+    },
+
+    async clickOnNewAndOpenProjectWizardDialog() {
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        await settingsBrowsePanel.clickOnNewButton();
+        let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+        await parentProjectStep.waitForLoaded();
+        return parentProjectStep;
+    },
+
     saveScreenshot(name, that) {
         let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');
         if (!fs.existsSync(screenshotsDir)) {
@@ -200,10 +225,10 @@ module.exports = {
             principalsToAccess: principalsToAccess
         };
     },
-    buildLayer(parentName, language, accessMode, principalsToAccess, applications, name, identifier, description) {
+    buildLayer(parents, language, accessMode, principalsToAccess, applications, name, identifier, description) {
         return {
             language: language,
-            parentName: parentName,
+            parents: parents,
             accessMode: accessMode,
             applications: applications,
             name: name,

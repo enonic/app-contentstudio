@@ -1,8 +1,7 @@
 /**
  * Created on 15.06.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
@@ -22,14 +21,14 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let FOLDER_NAME = studioUtils.generateRandomName('folder');
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const FOLDER_NAME = studioUtils.generateRandomName('folder');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
     let USER;
-    let PASSWORD = appConst.PASSWORD.MEDIUM;
+    const PASSWORD = appConst.PASSWORD.MEDIUM;
 
     it(`Preconditions: new system user should be created`,
         async () => {
-            //Do Log in with 'SU', navigate to 'Users' and create new user:
+            // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName("editor");
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
@@ -48,11 +47,10 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             // 1. Do Log in with 'SU' and navigate to 'Settings':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            // 2.Open new project wizard:
+            // 2. Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            // 3. Select Project-radio then click on Next button:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+            // 3. click on Skip button:
+            await parentProjectStep.clickOnSkipButton();
             // 4. Skip the language step:
             await languageStep.clickOnSkipButton();
             // 5. Select 'Private' access mode in the fours step:
@@ -87,27 +85,27 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await studioUtils.doLogout();
         });
 
-    //Verifies Project selector button should not be clickable if current user has access to only one project #2089
+    // Verifies Project selector button should not be clickable if current user has access to only one project #2089
     it("WHEN current user has access to only one project THEN ProjectViewer button should not be clickable",
         async () => {
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.pause(500);
             await studioUtils.saveScreenshot('select_project_button_not_clickable');
-            //Verify that 'Select project' button is not clickable on the browse toolbar:
+            // Verify that 'Select project' button is not clickable on the browse toolbar:
             let isClickable = await contentBrowsePanel.isProjectViewerClickable();
-            assert.isFalse(isClickable, 'ProjectViewer button should not be clickable');
+            assert.ok(isClickable === false, 'ProjectViewer button should not be clickable');
         });
 
     it("GIVEN user with Editor role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
         async () => {
-            //1. Do log in with the user and navigate to 'Settings':
+            // 1. Do log in with the user and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //2.Click(select) on existing project:
+            // 2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //3. Verify that all button are disabled in the toolbar:
+            // 3. Verify that all button are disabled in the toolbar:
             await settingsBrowsePanel.waitForNewButtonDisabled();
             await settingsBrowsePanel.waitForEditButtonDisabled();
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
@@ -118,27 +116,27 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
-            //1. Do log in with the user-editor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-editor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await contentBrowsePanel.waitForNewButtonEnabled();
-            //2. Click on New... button
+            // 2. Click on New... button
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
             let items = await newContentDialog.getItems();
             await studioUtils.saveScreenshot('project_editor_3');
-            //3. Verify that only 'Folders' and 'Shortcut' are allowed for Editor role
+            // 3. Verify that only 'Folders' and 'Shortcut' are allowed for Editor role
             assert.equal(items.length, 2, 'Two items should be available for Editor');
-            assert.isTrue(items.includes('Folder'), 'Folder is allowed for creating');
-            assert.isTrue(items.includes('Shortcut'), 'Shortcut is allowed for creating');
+            assert.ok(items.includes('Folder'), 'Folder is allowed for creating');
+            assert.ok(items.includes('Shortcut'), 'Shortcut is allowed for creating');
         });
 
     // Verify that user-editor can select a language:
     it("GIVEN user with Editor role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
-            //1. Do log in with the user-editor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-editor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            //2. Open folder-wizard and save new folder:
+            // 2. Open folder-wizard and save new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
             await studioUtils.saveScreenshot('project_editor_4');
@@ -148,7 +146,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await editSettingsDialog.waitForClosed();
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('project_editor_5');
-            //3. Verify that 'Mark as Ready' button is available in the wizard:
+            // 3. Verify that 'Mark as Ready' button is available in the wizard:
             await contentWizard.waitForMarkAsReadyButtonVisible();
         });
 

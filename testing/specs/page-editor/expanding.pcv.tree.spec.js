@@ -1,8 +1,7 @@
 /**
  * Created on 10.07.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -61,7 +60,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await contentWizard.switchToMainFrame();
             // 5. Verify that the first text-component gets selected in PCV
             let isSelected = await pageComponentsWizardStepForm.isComponentSelected(TEXT_COMPONENT_1);
-            assert.isTrue(isSelected, 'The first text component should be selected in PCV');
+            assert.ok(isSelected, 'The first text component should be selected in PCV');
             await contentWizard.switchToLiveEditFrame();
             // 6. Select the second component in Live Edit
             await liveFormPanel.doClickOnTextComponent(TEXT_COMPONENT_2);
@@ -69,9 +68,9 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await contentWizard.switchToMainFrame();
             // 7. Verify that the second text-component gets selected in PCV
             isSelected = await pageComponentsWizardStepForm.isComponentSelected(TEXT_COMPONENT_2);
-            assert.isTrue(isSelected, 'The second text component should be selected in PCV')
+            assert.ok(isSelected, 'The second text component should be selected in PCV')
             isSelected = await pageComponentsWizardStepForm.isComponentSelected(TEXT_COMPONENT_1);
-            assert.isFalse(isSelected, 'The first text component is not selected now');
+            assert.ok(isSelected === false, 'The first text component is not selected now');
         });
 
     it(`WHEN 3-col layout with text components has been inserted THEN layout component should be expanded`,
@@ -115,7 +114,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await studioUtils.saveScreenshot('left_region_selected_1');
             // 6. Verify that the layout item is gets expanded in PCV:
             let isSelected = await pageComponentView.isComponentSelected(TEXT_LEFT_REGION);
-            assert.isTrue(isSelected, 'The text in left region should be selected in PCV');
+            assert.ok(isSelected, 'The text in left region should be selected in PCV');
             await pageComponentView.waitForItemDisplayed('left');
             await pageComponentView.waitForItemDisplayed('center');
             await pageComponentView.waitForItemDisplayed('right');
@@ -139,10 +138,10 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             // 6. Verify that the layout item is gets expanded in PCV:
             await pageComponentView.getPageComponentsDisplayName();
             let result = await pageComponentView.getPageComponentsDisplayName();
-            assert.isTrue(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.isTrue(result.includes('main'), 'main item should be displayed in the modal dialog');
-            assert.isTrue(result.includes('text1'), 'text component should be displayed in the modal dialog');
-            assert.isTrue(result.includes('text2'), 'the second text component should be displayed in the modal dialog');
+            assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
+            assert.ok(result.includes('Main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes('text1'), 'text component should be displayed in the modal dialog');
+            assert.ok(result.includes('text2'), 'the second text component should be displayed in the modal dialog');
             assert.equal(result.length, 4, "4 items should be displayed in PCV after deleting the layout item")
         });
 

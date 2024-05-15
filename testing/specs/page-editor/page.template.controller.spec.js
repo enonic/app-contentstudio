@@ -1,8 +1,7 @@
 /**
  * Created on 6.04.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -44,7 +43,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await selectTemplatesFolderAndClickOnNew();
             // 2. Verify that 'Uploader' button is not present in the 'New Content' modal dialog:
             let isDisplayed = await newContentDialog.waitForUploaderButtonDisplayed();
-            assert.isFalse(isDisplayed, "'Uploader' button should not be displayed for '_templates' folder");
+            assert.ok(isDisplayed === false, "'Uploader' button should not be displayed for '_templates' folder");
         });
 
     // verifies the xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
@@ -72,6 +71,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await contentWizard.switchToLiveEditFrame();
             await textComponentCke.clickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             await insertImageDialog.waitForDialogClosed();
             await contentWizard.waitAndClickOnSave();
@@ -79,7 +79,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
         });
 
     // xp-apps#737: Page Editor panel for a site is not correctly refreshed when a page template was added or removed
-    it(`GIVEN site is opened AND page-template is opened WHEN the 'site' has been selected in supports (in template) THEN template should be applied in the site-wizard`,
+    it(`GIVEN site and its page-template are opened WHEN the 'site' has been selected in supports (in template) THEN template should be applied in the site-wizard`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageTemplateForm = new PageTemplateForm();
@@ -112,7 +112,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             // 3. Verify that the image that was inserted in the template is displayed in the site
             let srcAttr = await liveFormPanel.verifyImageElementsInTextComponent(0);
             await contentWizard.switchToParentFrame();
-            assert.isTrue(srcAttr.includes('/admin/rest'), "Image in the Text Component - Attribute 'src' is not correct");
+            assert.ok(srcAttr.includes('/admin/rest'), "Image in the Text Component - Attribute 'src' is not correct");
         });
 
     //  Live Editor is not updated after a page template was added or removed

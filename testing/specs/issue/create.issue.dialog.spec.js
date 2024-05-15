@@ -1,8 +1,7 @@
 /**
  * Created on 12.01.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
@@ -34,26 +33,26 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
             assert.equal(dialogTitle, 'New Issue', "Required dialog's title should be displayed");
             //Title input should be present:
             let result = await createIssueDialog.isTitleInputDisplayed();
-            assert.isTrue(result, 'Title input should be present');
+            assert.ok(result, 'Title input should be present');
 
             result = await createIssueDialog.isCancelButtonTopDisplayed();
-            assert.isTrue(result, 'Cancel bottom top should be present');
+            assert.ok(result, 'Cancel bottom top should be present');
             result = await createIssueDialog.isCancelButtonBottomDisplayed();
-            assert.isTrue(result, 'Cancel bottom button should be present');
+            assert.ok(result, 'Cancel bottom button should be present');
 
             result = await createIssueDialog.isDescriptionTextAreaDisplayed();
-            assert.isTrue(result, 'Description text area should be present');
+            assert.ok(result, 'Description text area should be present');
             await studioUtils.saveScreenshot('create_issue_add_item_button');
 
             // 'Add Items' button should be displayed when no item has been selected in the grid
             await createIssueDialog.isAddItemsButtonDisplayed();
-            assert.isTrue(result, "'Add Items' button should be present");
+            assert.ok(result, "'Add Items' button should be present");
 
             result = await createIssueDialog.isAssigneesOptionFilterDisplayed();
-            assert.isTrue(result, 'Assignees option filter input should be present');
+            assert.ok(result, 'Assignees option filter input should be present');
 
             result = await createIssueDialog.isItemsOptionFilterDisplayed();
-            assert.isFalse(result, "'Items' option filter input should not be present");
+            assert.ok(result === false, "'Items' option filter input should not be present");
         });
 
     it(`GIVEN 'Create Issue' dialog is opened all inputs are empty WHEN 'Create Issue' button has been pressed THEN validation message should appear`,

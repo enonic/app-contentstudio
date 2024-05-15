@@ -10,7 +10,6 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentId} from '../../app/content/ContentId';
 import {DetachFragmentEvent} from '../event/outgoing/manipulation/DetachFragmentEvent';
-import {ItemViewAddedEvent} from '../ItemViewAddedEvent';
 import {ComponentViewBuilder} from '../ComponentView';
 
 export class FragmentComponentViewBuilder

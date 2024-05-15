@@ -1,8 +1,7 @@
 /**
  * Created on 15.03.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -20,7 +19,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
     // Verify Don't auto-show preview panel for a site #6040
     // don't auto-expand the preview panel (the "Monitor" icon should also be "off" by default), if there's no preview or no apps are selected or none
     // of the selected apps provide controllers (basically, if no controller can be selected in the preview panel).
-    it("Given wizard for new site has been opened WHEN there's no preview or no apps are selected THEN",
+    it(`Given wizard for new site has been opened WHEN there's no preview or no apps are selected THEN 'No page controllers found' message should be shown`,
         async () => {
             let contentWizard = new ContentWizard();
             // 1. New site-wizard is opened:
@@ -33,7 +32,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await contentWizard.waitForControllerOptionFilterInputNotVisible();
             // 4. Click on Page Editor toggler (monitor icon)
             await contentWizard.clickOnPageEditorToggler();
-            // 5. Verify the note in  Live Form panel
+            // 5. Verify the note in 'Live Form' panel
             let message = await contentWizard.getMessageInLiveFormPanel();
             assert.equal(message, 'No page controllers found', 'Expected message should be displayed in the live form panel');
         });

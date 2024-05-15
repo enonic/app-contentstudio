@@ -3,6 +3,7 @@ import {ContentId} from '../content/ContentId';
 import {DependencyType} from './DependencyType';
 import {Project} from '../settings/data/project/Project';
 import {ProjectContext} from '../project/ProjectContext';
+import {Branch} from '../versioning/Branch';
 
 export class DependencyParams {
 
@@ -14,11 +15,14 @@ export class DependencyParams {
 
     private readonly project: Project;
 
+    private readonly branch?: Branch;
+
     constructor(builder: DependencyParamsBuilder) {
         this.id = builder.id;
         this.dependencyType = builder.dependencyType;
         this.contentType = builder.contentType;
         this.project = builder.project || ProjectContext.get().getProject();
+        this.branch = builder.branch || Branch.DRAFT;
     }
 
     getContentId(): ContentId {
@@ -37,6 +41,10 @@ export class DependencyParams {
         return this.project;
     }
 
+    getBranch(): Branch {
+        return this.branch;
+    }
+
     static create(): DependencyParamsBuilder {
         return new DependencyParamsBuilder();
     }
@@ -51,6 +59,8 @@ export class DependencyParamsBuilder {
     contentType: ContentTypeName;
 
     project: Project;
+
+    branch: Branch;
 
     setContentId(value: ContentId): this {
         this.id = value;
@@ -69,6 +79,11 @@ export class DependencyParamsBuilder {
 
     setProject(value: Project): this {
         this.project = value;
+        return this;
+    }
+
+    setBranch(value: Branch): this {
+        this.branch = value;
         return this;
     }
 

@@ -1,8 +1,7 @@
 /**
  * Created on 23.07.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -15,13 +14,13 @@ const LayerWizardPanel = require('../../page_objects/project/layer.wizard.panel'
 
 describe('layer.in.public.project.spec - ui-tests for layer in existing project', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
-    const TEST_DESCRIPTION = "test description";
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
+    const TEST_DESCRIPTION = 'test description';
 
     it(`Preconditions: new project(with Norsk (no) language) and 'Private' access mode should be added`,
         async () => {
@@ -32,29 +31,30 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
     it("GIVEN Buttons: 'Copy language from parent' has been clicked and 'Save' pressed WHEN layer's context has been switched THEN expected language should be displayed in the project context",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            await settingsBrowsePanel.openProjectWizardDialog();
+            await projectUtils.clickOnNewAndOpenProjectWizardDialog();
             let layerWizard = new LayerWizardPanel();
-            //1. Create new layer (private access mode):
-            let layer = projectUtils.buildLayer(PROJECT_DISPLAY_NAME,null,appConst.PROJECT_ACCESS_MODE.PRIVATE,null,null,LAYER_DISPLAY_NAME,null,null);
+            // 1. Create new layer (private access mode):
+            let layer = projectUtils.buildLayer(PROJECT_DISPLAY_NAME, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, null, null,
+                LAYER_DISPLAY_NAME, null, null);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
             await settingsBrowsePanel.waitForNotificationMessage();
-            //2.Click on the layer and press 'Edit' button:
+            // 2.Click on the layer and press 'Edit' button:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await layerWizard.waitForLoaded();
-            //3. Click on 'Copy language from parent' button:
-            await layerWizard.clickOnCopyLanguageFromParent();
+            // 3. Click on 'Copy language from parent' button:
+            await layerWizard.clickOnCopyLanguageFromParent(PROJECT_DISPLAY_NAME);
             await layerWizard.waitForNotificationMessage();
-            //4. Save the layer:
+            // 4. Save the layer:
             await layerWizard.waitAndClickOnSave();
             await layerWizard.waitForNotificationMessage();
             await layerWizard.waitForSpinnerNotVisible(appConst.saveProjectTimeout);
-            //5. Switch to Content Mode:
+            // 5. Switch to Content Mode:
             let contentBrowsePanel = await studioUtils.switchToContentMode();
-            //6. Open modal dialog and select the layer's context:
+            // 6. Open modal dialog and select the layer's context:
             await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
             await contentBrowsePanel.pause(1000);
-            //7. Verify that expected language is copied from the parent project:
+            // 7. Verify that expected language is copied from the parent project:
             let actualLanguage = await contentBrowsePanel.getContextLanguage();
             assert.equal(actualLanguage, "(no)", "Expected language should be displayed in the App Bar")
         });
@@ -63,16 +63,16 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let layerWizard = new LayerWizard();
-            //1.Open the layer:
+            // 1.Open the layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await layerWizard.waitForLoaded();
-            //2. Update the language:
+            // 2. Update the language:
             await layerWizard.clickOnRemoveLanguage();
             await layerWizard.selectLanguage(appConst.LANGUAGES.EN);
             await layerWizard.waitAndClickOnSave();
             await layerWizard.waitForNotificationMessage();
-            //3. Switch to content mode and select the context:
+            // 3. Switch to content mode and select the context:
             let contentBrowsePanel = await studioUtils.switchToContentMode();
             await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
             //4. Verify that language is updated in the browse panel - App Bar
@@ -85,13 +85,13 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
     it("WHEN existing parent project is selected THEN Delete button should be disabled",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1.Select the parent project:
+            // 1.Select the parent project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //2. Verify that 'Delete' button is disabled
+            // 2. Verify that 'Delete' button is disabled
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
-            //3. Parent project should be with 'expander-icon'
+            // 3. Parent project should be with 'expander-icon'
             let result = await settingsBrowsePanel.isExpanderIconPresent(PROJECT_DISPLAY_NAME);
-            assert.isTrue(result, "Expander icon should be displayed in the parent project");
+            assert.ok(result, "Expander icon should be displayed in the parent project");
         });
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/2105
@@ -122,17 +122,17 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
     it("WHEN project and its layer are selected THEN 'Delete' menu item should be disabled in context-menu",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1.parent project and its child project are selected:
+            // 1.parent project and its child project are selected:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(LAYER_DISPLAY_NAME);
-            //2. Verify that 'Delete' button is disabled in browse-panel:
+            // 2. Verify that 'Delete' button is disabled in browse-panel:
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.waitForContextMenuDisplayed();
-            studioUtils.saveScreenshot("multiselect_layer_context_menu");
-            //Verify that New.. and Edit items are enabled:
+            await studioUtils.saveScreenshot('multiselect_layer_context_menu');
+            // Verify that New.. and Edit items are enabled:
             await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
-            //Verify that 'Delete' menu item is disabled:
+            // Verify that 'Delete' menu item is disabled:
             await settingsBrowsePanel.waitForContextMenuItemDisabled('Delete');
         });
 
@@ -142,12 +142,11 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let contentBrowsePanel = await studioUtils.switchToContentMode();
-            //1. Switch to layer's context:
+            // 1. Switch to layer's context:
             await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
             let actualContextName1 = await contentBrowsePanel.getSelectedProjectDisplayName();
             await studioUtils.openSettingsPanel();
-
-            //2. Switch to Settings and delete the layer:
+            // 2. Switch to Settings and delete the layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnDeleteButton();
             let confirmValueDialog = new ConfirmValueDialog();
@@ -156,7 +155,6 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await confirmValueDialog.clickOnConfirmButton();
             await confirmValueDialog.waitForDialogClosed();
             let message = await settingsBrowsePanel.waitForNotificationMessage();
-
             //3. Switch to content mode and verify that parent project's context is loaded:
             await studioUtils.switchToContentMode();
             let expectedMessage = appConst.projectDeletedMessage(LAYER_DISPLAY_NAME);
@@ -177,7 +175,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

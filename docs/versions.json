@@ -13,8 +13,12 @@
       "checkout": "9e9a086"
     },
     {
+      "label": "next",
+      "checkout": "issue-7572"
+    },
+    {
       "label": "stable",
-      "checkout": "5.1",
+      "checkout": "master",
       "latest": true
     }
   ]

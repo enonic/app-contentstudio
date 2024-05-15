@@ -1,4 +1,3 @@
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {BrEl} from '@enonic/lib-admin-ui/dom/BrEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
@@ -10,6 +9,7 @@ import {showError, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/M
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
@@ -19,7 +19,6 @@ import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/LiveEdi
 import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEditEvent';
 import {Content, ContentBuilder} from '../../content/Content';
 import {ContentId} from '../../content/ContentId';
-import {ContentIds} from '../../content/ContentIds';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Site} from '../../content/Site';
 import {ContentDeletedEvent} from '../../event/ContentDeletedEvent';
@@ -45,14 +44,18 @@ import {ComponentPath} from '../../page/region/ComponentPath';
 import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
 import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
-import {FragmentComponent} from '../../page/region/FragmentComponent';
-import {ImageComponent} from '../../page/region/ImageComponent';
+import {FragmentComponentType} from '../../page/region/FragmentComponentType';
+import {ImageComponentType} from '../../page/region/ImageComponentType';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
+import {LayoutComponentType} from '../../page/region/LayoutComponentType';
 import {PageComponentType} from '../../page/region/PageComponentType';
 import {PageItem} from '../../page/region/PageItem';
+import {PageItemType} from '../../page/region/PageItemType';
 import {PartComponent} from '../../page/region/PartComponent';
+import {PartComponentType} from '../../page/region/PartComponentType';
 import {Region} from '../../page/region/Region';
 import {TextComponent} from '../../page/region/TextComponent';
+import {TextComponentType} from '../../page/region/TextComponentType';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {UriHelper} from '../../rendering/UriHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
@@ -75,9 +78,10 @@ import {ShowSplitEditEvent} from '../ShowSplitEditEvent';
 import {ContextWindow, ContextWindowConfig, getInspectParameters} from './contextwindow/ContextWindow';
 import {InsertablesPanel} from './contextwindow/insert/InsertablesPanel';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
-import {ContentInspectionPanel} from './contextwindow/inspect/ContentInspectionPanel';
-import {InspectionsPanel, InspectionsPanelConfig} from './contextwindow/inspect/InspectionsPanel';
+import {InspectionsPanel} from './contextwindow/inspect/InspectionsPanel';
 import {PageInspectionPanel} from './contextwindow/inspect/page/PageInspectionPanel';
+import {ComponentInspectionPanel} from './contextwindow/inspect/region/ComponentInspectionPanel';
+import {DescriptorBasedComponentInspectionPanel} from './contextwindow/inspect/region/DescriptorBasedComponentInspectionPanel';
 import {FragmentInspectionPanel} from './contextwindow/inspect/region/FragmentInspectionPanel';
 import {ImageInspectionPanel} from './contextwindow/inspect/region/ImageInspectionPanel';
 import {LayoutInspectionPanel} from './contextwindow/inspect/region/LayoutInspectionPanel';
@@ -111,7 +115,6 @@ export interface InspectPageParams {
 
 enum ErrorType {
     APP_MISSING = 0,
-    RENDER_ERROR = 1
 }
 
 export class LiveFormPanel
@@ -149,17 +152,10 @@ export class LiveFormPanel
     private componentToInspectOnContextPanelExpand: Component;
 
     private placeholder?: LiveEditPagePlaceholder;
-    private insertablesPanel: InsertablesPanel;
+    private insertablesPanel?: InsertablesPanel;
     private inspectionsPanel: InspectionsPanel;
-    private contentInspectionPanel: ContentInspectionPanel;
-    private pageInspectionPanel: PageInspectionPanel;
-    private regionInspectionPanel: RegionInspectionPanel;
-    private imageInspectionPanel: ImageInspectionPanel;
-    private partInspectionPanel: PartInspectionPanel;
-    private layoutInspectionPanel: LayoutInspectionPanel;
-    private fragmentInspectionPanel: FragmentInspectionPanel;
-    private textInspectionPanel: TextInspectionPanel;
-
+    private defaultPanelToShow: BaseInspectionPanel;
+    private availableInspectPanels: Map<PageItemType, BaseInspectionPanel> = new Map<PageItemType, BaseInspectionPanel>();
     private contentWizardPanel: ContentWizardPanel;
 
     private liveEditPageProxy?: LiveEditPageProxy;
@@ -172,14 +168,26 @@ export class LiveFormPanel
 
     private hasContentEventListeners: boolean;
 
-    private isPageNotRenderable: boolean;
+    private isRenderable: boolean;
+
+    private hasPage: boolean;
+
+    private hasMissingApps: boolean;
+
+    private hasAvailableControllers: boolean;
 
     private lastInspectedItemPath: ComponentPath;
+
+    private saveAction: Action;
+
+    private getDescriptorsPromise: Q.Promise<Descriptor[]>;
+
+    private debouncedUpdateFunc: () => void;
 
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
-    private contentPermissionsUpdatedHandler: (contentIds: ContentIds) => void;
+    private contentPermissionsUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
 
     constructor(config: LiveFormPanelConfig) {
         super('live-form-panel');
@@ -189,6 +197,7 @@ export class LiveFormPanel
         this.content = config.content;
         this.contentType = config.contentType;
         this.liveEditPageProxy = config.liveEditPage;
+        this.debouncedUpdateFunc = AppHelper.debounce(this.updateRenderingState.bind(this), 500);
 
         PageNavigationMediator.get().addPageNavigationHandler(this);
 
@@ -199,24 +208,33 @@ export class LiveFormPanel
     protected initElements(): void {
         if (!this.content.getPage()) {
             this.createLiveEditPagePlaceholder();
-            this.updatePlaceholder();
         }
 
         this.initPageRequiredElements();
     }
 
-    private updatePlaceholder(): void {
-        this.hasControllers().then((hasControllers: boolean) => {
-            this.placeholder.setHasControllers(hasControllers);
+    updateHasControllers(): Q.Promise<void> {
+        this.getDescriptorsPromise = this.createControllersRequest().sendAndParse();
+
+        return this.getDescriptorsPromise.then((descriptors: Descriptor[]) => {
+            const isChanged =
+                !ObjectHelper.isDefined(this.hasAvailableControllers) || this.hasAvailableControllers !== descriptors.length > 0;
+
+            this.hasAvailableControllers = descriptors.length > 0;
+
+            if (isChanged) {
+                this.debouncedUpdateFunc();
+            }
+
+            return Q.resolve();
         }).catch(DefaultErrorHandler.handle);
     }
 
     hasControllers(): Q.Promise<boolean> {
-        return this.createControllersRequest().sendAndParse().then((descriptors: Descriptor[]) => {
-            return Q.resolve(descriptors.length > 0);
-        }).catch((err) => {
-            DefaultErrorHandler.handle(err);
-            return Q.resolve(false);
+        this.getDescriptorsPromise = this.getDescriptorsPromise ?? this.createControllersRequest().sendAndParse();
+
+        return this.getDescriptorsPromise.then((descriptors: Descriptor[]) => {
+            return descriptors.length > 0;
         });
     }
 
@@ -255,6 +273,10 @@ export class LiveFormPanel
         this.contentEventListener = (event) => {
             this.propagateEvent(event);
         };
+
+        const descriptorLoadedHandler = (descriptor: Descriptor) => this.inspectionsPanel.updateButtonsVisibility(descriptor);
+        this.availableInspectPanels.forEach(
+            (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.onDescriptorLoaded(descriptorLoadedHandler));
     }
 
     private initMaskHandlers() {
@@ -351,11 +373,6 @@ export class LiveFormPanel
 
     private handleThisContentUpdated(updated: ContentSummaryAndCompareStatus): void {
         SaveAsTemplateAction.get()?.setContentSummary(updated.getContentSummary());
-
-        if (!this.isPageNotRenderable && this.placeholder && !this.placeholder.hasSelectedController()) {
-            this.updatePlaceholder();
-        }
-
     }
 
     private handleFragmentUpdate(fragment: ContentSummaryAndCompareStatus): void {
@@ -368,15 +385,14 @@ export class LiveFormPanel
         }
     }
 
-    private handleContentPermissionsUpdate(contentIds: ContentIds) {
+    private handleContentPermissionsUpdate(contents: ContentSummaryAndCompareStatus[]) {
         if (!this.content) {
             return;
         }
 
         const thisContentId: ContentId = this.content.getContentId();
-        const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
 
-        if (!isThisContentUpdated) {
+        if (!ContentSummaryAndCompareStatus.isInArray(thisContentId, contents)) {
             return;
         }
 
@@ -397,20 +413,27 @@ export class LiveFormPanel
                 this.lockPageAfterProxyLoad = false;
             }
 
-            this.imageInspectionPanel.refresh();
+            (this.availableInspectPanels.get(ImageComponentType.get()) as ImageInspectionPanel)?.refresh();
         });
     }
 
     private createContextWindow(): ContextWindow {
-        this.inspectionsPanel = this.createInspectionsPanel();
+        this.saveAction = this.initSaveAction();
+        this.initAvailablePanels();
 
-        this.insertablesPanel = new InsertablesPanel({
+        this.inspectionsPanel = new InspectionsPanel({
+            inspectionPanels: Array.from(this.availableInspectPanels.values()),
+            defaultPanelToShow: this.defaultPanelToShow,
+            saveAction: this.saveAction
+        });
+
+        this.insertablesPanel = this.isNotPartOrTextFragment() ? new InsertablesPanel({
             liveEditPage: this.liveEditPageProxy,
             contentWizardPanel: this.contentWizardPanel,
             saveAsTemplateAction: SaveAsTemplateAction.get()
-        });
+        }) : null;
 
-        this.insertablesPanel.setModifyPermissions(this.modifyPermissions);
+        this.insertablesPanel?.setModifyPermissions(this.modifyPermissions);
 
         return new ContextWindow({
             liveFormPanel: this,
@@ -419,53 +442,90 @@ export class LiveFormPanel
         } as ContextWindowConfig);
     }
 
-    private createInspectionsPanel(): InspectionsPanel {
-        const saveAction: Action = new Action(i18n('action.apply'));
+    private initAvailablePanels(): void {
+        if (this.content.getPage()?.isFragment()) {
+            this.initPanelsForFragment();
+        } else {
+            this.initPagePanels();
+        }
+    }
+
+    private initPanelsForFragment(): void {
+        // fragment content doesn't have a top level page inspection panel, we can't change tempate or controller etc.
+        const fragment = this.content.getPage().getFragment();
+
+        if (fragment instanceof TextComponent) {
+            this.initTextComponentFragmentPanels();
+        } else if (fragment instanceof PartComponent) {
+            this.initPartComponentFragmentPanels();
+        } else if (fragment instanceof LayoutComponent) {
+            this.initLayoutComponentFragmentPanels();
+        } else {
+            console.warn('Fragment type not supported for inspection: ' + fragment.getType().getShortName());
+        }
+    }
+
+    private initTextComponentFragmentPanels(): void {
+        // text fragment doesn't have any other components except itself
+        const textInspectionPanel = new TextInspectionPanel();
+        this.availableInspectPanels.set(TextComponentType.get(), textInspectionPanel);
+        this.defaultPanelToShow = textInspectionPanel;
+    }
+
+    private initPartComponentFragmentPanels(): void {
+        // part fragment doesn't have any other components except itself
+        const partInspectionPanel = new PartInspectionPanel();
+        this.availableInspectPanels.set(PartComponentType.get(), partInspectionPanel);
+        this.defaultPanelToShow = partInspectionPanel;
+    }
+
+    private initLayoutComponentFragmentPanels(): void {
+        // layout fragment might have any components to inspect, except top level page
+        const layoutInspectionPanel = new LayoutInspectionPanel();
+        this.availableInspectPanels.set(LayoutComponentType.get(), layoutInspectionPanel);
+        this.availableInspectPanels.set(PartComponentType.get(), new PartInspectionPanel());
+        this.availableInspectPanels.set(ImageComponentType.get(), new ImageInspectionPanel());
+        this.availableInspectPanels.set(FragmentComponentType.get(), new FragmentInspectionPanel());
+        this.availableInspectPanels.set(TextComponentType.get(), new TextInspectionPanel());
+        this.availableInspectPanels.set('region', new RegionInspectionPanel());
+        this.defaultPanelToShow = layoutInspectionPanel;
+    }
+
+    private initPagePanels(): void {
+        const pageInspectionPanel = new PageInspectionPanel(SaveAsTemplateAction.get());
+
+        this.availableInspectPanels.set('page', pageInspectionPanel);
+        this.availableInspectPanels.set(LayoutComponentType.get(), new LayoutInspectionPanel());
+        this.availableInspectPanels.set(PartComponentType.get(), new PartInspectionPanel());
+        this.availableInspectPanels.set(ImageComponentType.get(), new ImageInspectionPanel());
+        this.availableInspectPanels.set(FragmentComponentType.get(), new FragmentInspectionPanel());
+        this.availableInspectPanels.set(TextComponentType.get(), new TextInspectionPanel());
+        this.availableInspectPanels.set('region', new RegionInspectionPanel());
+        this.defaultPanelToShow = pageInspectionPanel;
+    }
+
+    private initSaveAction(): Action {
+        const saveAction = new Action(i18n('action.apply')).setEnabled(false);
 
         saveAction.onExecuted(() => {
             const selectedItem = this.lastInspectedItemPath ? PageState.getComponentByPath(this.lastInspectedItemPath) : null;
 
             if (selectedItem instanceof Component) {
-                const persistedContent = this.contentWizardPanel.getPersistedItem();
-                const viewedPage: Page = PageState.getState();
-                const savedPage: Page = persistedContent.getPage()?.clone();
-
-                if (!ObjectHelper.equals(viewedPage, savedPage)) {
-                    this.contentWizardPanel.setMarkedAsReady(false);
-                }
-
-                this.saveAndReloadOnlyComponent(selectedItem.getPath());
+                this.contentWizardPanel.setMarkedAsReady(false);
+                this.saveAndReloadOnlyComponent(selectedItem.getPath())
+                    .then(() => this.saveAction.setEnabled(false))
+                    .catch(DefaultErrorHandler.handle);
                 return;
             }
 
-
-            this.contentWizardPanel.saveChanges().catch((error) => {
-                DefaultErrorHandler.handle(error);
-            });
+            this.contentWizardPanel.saveChanges().then(() => this.saveAction.setEnabled(false)).catch(DefaultErrorHandler.handle);
         });
 
-        this.contentInspectionPanel = new ContentInspectionPanel();
+        return saveAction;
+    }
 
-        this.pageInspectionPanel = new PageInspectionPanel(SaveAsTemplateAction.get());
-        this.partInspectionPanel = new PartInspectionPanel();
-        this.layoutInspectionPanel = new LayoutInspectionPanel();
-        this.imageInspectionPanel = new ImageInspectionPanel();
-        this.fragmentInspectionPanel = new FragmentInspectionPanel();
-
-        this.textInspectionPanel = new TextInspectionPanel();
-        this.regionInspectionPanel = new RegionInspectionPanel();
-
-        return new InspectionsPanel({
-            contentInspectionPanel: this.contentInspectionPanel,
-            pageInspectionPanel: this.pageInspectionPanel,
-            regionInspectionPanel: this.regionInspectionPanel,
-            imageInspectionPanel: this.imageInspectionPanel,
-            partInspectionPanel: this.partInspectionPanel,
-            layoutInspectionPanel: this.layoutInspectionPanel,
-            fragmentInspectionPanel: this.fragmentInspectionPanel,
-            textInspectionPanel: this.textInspectionPanel,
-            saveAction: saveAction
-        } as InspectionsPanelConfig);
+    private isNotPartOrTextFragment(): boolean {
+        return !this.content.getPage()?.getFragment() || this.content.getPage().getFragment() instanceof LayoutComponent;
     }
 
     doRender(): Q.Promise<boolean> {
@@ -501,15 +561,11 @@ export class LiveFormPanel
         this.togglePreviewErrors();
     }
 
-    private setErrorRenderingFailed() {
-        this.addErrorMessage(ErrorType.RENDER_ERROR, 'field.preview.failed.description');
-    }
-
-    setErrorMissingApps() {
+    private setErrorMissingApps(): void {
         this.addErrorMessage(ErrorType.APP_MISSING, 'field.preview.missing.description');
     }
 
-    clearErrorMissingApps() {
+    private clearErrorMissingApps() {
         if (!this.errorMessages.length) {
             return;
         }
@@ -553,7 +609,6 @@ export class LiveFormPanel
     setModel(liveEditModel: LiveEditModel) {
         this.liveEditModel = liveEditModel;
         this.content = liveEditModel.getContent();
-        this.isPageNotRenderable = false;
 
         const site: Site = this.content.isSite()
                            ? this.content as Site
@@ -566,11 +621,7 @@ export class LiveFormPanel
             .setSite(site);
 
         this.liveEditPageProxy.setModel(liveEditModel);
-        this.pageInspectionPanel.setModel(liveEditModel);
-        this.partInspectionPanel.setModel(liveEditModel);
-        this.layoutInspectionPanel.setModel(liveEditModel);
-        this.imageInspectionPanel.setModel(liveEditModel);
-        this.fragmentInspectionPanel.setModel(liveEditModel);
+        this.availableInspectPanels.forEach((panel) => panel.setModel(liveEditModel));
 
         this.handleContentUpdatedEvent();
     }
@@ -640,11 +691,11 @@ export class LiveFormPanel
         }
     }
 
-    private saveAndReloadOnlyComponent(path: ComponentPath) {
+    private saveAndReloadOnlyComponent(path: ComponentPath): Q.Promise<void> {
         assertNotNull(path, 'component path cannot be null');
         this.pageSkipReload = true;
 
-        this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
+        return this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
             this.pageSkipReload = false;
             this.reloadComponent(path);
 
@@ -654,6 +705,7 @@ export class LiveFormPanel
 
             if (changedComponent instanceof DescriptorBasedComponent && persistedComponent instanceof DescriptorBasedComponent) {
                 changedComponent.setConfig(persistedComponent.getConfig().copy());
+                this.inspectComponentOnDemand(changedComponent);
             }
         });
     }
@@ -672,14 +724,27 @@ export class LiveFormPanel
             this.inspectPage({showPanel: false, showWidget: true});
         });
 
-        eventsManager.onLiveEditPageViewReady(() => {
-            // disable insert tab if there is no page for some reason (i.e. error occurred)
-            // or there is no controller or template set or no automatic template
-            const page = PageState.getState();
-            const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
-            const hasDefaultTemplate = this.liveEditModel?.getDefaultModels().hasDefaultPageTemplate();
-            this.contextWindow.setItemVisible(this.insertablesPanel, isPageRenderable || hasDefaultTemplate);
-        });
+
+            eventsManager.onLiveEditPageViewReady(() => {
+                if (this.insertablesPanel) {
+                    // disable insert tab if there is no page for some reason (i.e. error occurred)
+                    // or there is no controller or template set or no automatic template
+                    const page = PageState.getState();
+                    const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
+                    const hasDefaultTemplate = this.liveEditModel?.getDefaultModels().hasDefaultPageTemplate();
+                    this.contextWindow.setItemVisible(this.insertablesPanel, isPageRenderable || hasDefaultTemplate);
+                }
+
+                if (this.content.getPage()?.isFragment()) { // preselection selector's value to make it not empty
+                    const component = this.content.getPage().getFragment();
+                    const inspectionPanel = this.availableInspectPanels.get(component.getType());
+
+                    if (inspectionPanel instanceof ComponentInspectionPanel) {
+                        inspectionPanel.setComponent(component);
+                    }
+                }
+            });
+
 
         eventsManager.onPageSaveAsTemplate(() => {
             SaveAsTemplateAction.get().execute();
@@ -700,7 +765,10 @@ export class LiveFormPanel
         eventsManager.onLiveEditPageInitializationError((event: LiveEditPageInitializationErrorEvent) => {
             showError(event.getMessage(), false);
             this.contentWizardPanel.showForm();
-            this.contextWindow.setItemVisible(this.insertablesPanel, false);
+
+            if (this.insertablesPanel) {
+                this.contextWindow.setItemVisible(this.insertablesPanel, false);
+            }
         });
 
         eventsManager.onLiveEditPageDialogCreate((event: CreateHtmlAreaDialogEvent) => {
@@ -757,7 +825,7 @@ export class LiveFormPanel
         const canShowPanel = unlocked && params.showPanel;
         this.contextWindow?.showInspectionPanel(
             getInspectParameters({
-                panel: this.pageInspectionPanel,
+                panel: this.availableInspectPanels.get('page'),
                 showWidget: canShowWidget,
                 showPanel: canShowPanel,
                 source: params.source,
@@ -789,11 +857,12 @@ export class LiveFormPanel
 
     private inspectRegion(regionPath: ComponentPath, source?: PageNavigationEventSource): void {
         const region: Region = PageState.getState().getComponentByPath(regionPath) as Region;
+        const regionInspectionPanel = this.availableInspectPanels.get('region') as RegionInspectionPanel;
+        regionInspectionPanel?.setRegion(region);
 
-        this.regionInspectionPanel.setRegion(region);
         this.contextWindow.showInspectionPanel(
             getInspectParameters({
-                panel: this.regionInspectionPanel,
+                panel: regionInspectionPanel,
                 showWidget: true,
                 showPanel: true,
                 source: source,
@@ -812,23 +881,12 @@ export class LiveFormPanel
                     silent: true
                 })
             );
-        if (component instanceof ImageComponent) {
-            showInspectionPanel(this.imageInspectionPanel);
-            this.imageInspectionPanel.setImageComponent(component);
-        } else if (component instanceof PartComponent) {
-            showInspectionPanel(this.partInspectionPanel);
-            this.partInspectionPanel.setDescriptorBasedComponent(component);
-        } else if (component instanceof LayoutComponent) {
-            showInspectionPanel(this.layoutInspectionPanel);
-            this.layoutInspectionPanel.setDescriptorBasedComponent(component);
-        } else if (component instanceof TextComponent) {
-            showInspectionPanel(this.textInspectionPanel);
-            this.textInspectionPanel.setTextComponent(component);
-        } else if (component instanceof FragmentComponent) {
-            showInspectionPanel(this.fragmentInspectionPanel);
-            this.fragmentInspectionPanel.setFragmentComponent(component);
-        } else {
-            throw new Error('Component cannot be selected: ' + ClassHelper.getClassName(component));
+
+        const inspectionPanel = this.availableInspectPanels.get(component.getType());
+
+        if (inspectionPanel instanceof ComponentInspectionPanel) {
+            showInspectionPanel(inspectionPanel);
+            inspectionPanel.setComponent(component);
         }
     }
 
@@ -903,17 +961,15 @@ export class LiveFormPanel
     unloadPage(): void {
         this.liveEditPageProxy?.unload();
         this.frameContainer?.hide();
-        this.partInspectionPanel?.unbindSiteModelListeners();
-        this.layoutInspectionPanel?.unbindSiteModelListeners();
+        this.availableInspectPanels.forEach(
+            (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.unbindSiteModelListeners());
         this.liveEditModel = null;
 
         if (this.placeholder) {
             this.placeholder.deselectOptions();
             this.placeholder.show();
-            this.updatePlaceholder();
         } else {
             this.createLiveEditPagePlaceholder();
-            this.updatePlaceholder();
         }
 
         this.removeContentEventListeners();
@@ -925,16 +981,31 @@ export class LiveFormPanel
         this.hasContentEventListeners = false;
     }
 
-    setPageIsNotRenderable(): void {
-        this.isPageNotRenderable = true;
+    setHasPage(hasPage: boolean): void {
+        const isChanged = !ObjectHelper.isDefined(this.hasPage) || hasPage !== this.hasPage;
+        this.hasPage = hasPage;
 
-        if (!this.placeholder) {
-            this.createLiveEditPagePlaceholder();
+        if (isChanged) {
+            this.debouncedUpdateFunc();
         }
+    }
 
-        this.frameContainer?.hide();
-        this.placeholder.setPageIsNotRenderable();
-        this.placeholder.show();
+    setHasMissingApps(hasMissingApps: boolean): void {
+        const isChanged = !ObjectHelper.isDefined(this.hasMissingApps) || this.hasMissingApps !== hasMissingApps;
+        this.hasMissingApps = hasMissingApps;
+
+        if (isChanged) {
+            this.debouncedUpdateFunc();
+        }
+    }
+
+    setIsRenderable(isRenderable: boolean): void {
+        const isChanged = !ObjectHelper.isDefined(this.isRenderable) || this.isRenderable !== isRenderable;
+        this.isRenderable = isRenderable;
+
+        if (isChanged) {
+            this.debouncedUpdateFunc();
+        }
     }
 
     getContextWindow(): ContextWindow {
@@ -943,7 +1014,7 @@ export class LiveFormPanel
 
     handle(event: PageNavigationEvent): void {
         if (event.getType() === PageNavigationEventType.DESELECT) {
-            this.clearSelection();
+            this.contextWindow.clearSelection(true);
             return;
         }
 
@@ -987,5 +1058,48 @@ export class LiveFormPanel
 
     private isContextPanelDocked(): boolean {
         return this.contextPanelMode === ContextPanelMode.DOCKED;
+    }
+
+    setSaveEnabled(enabled: boolean): void {
+        this.saveAction.setEnabled(enabled);
+    }
+
+    private updateRenderingState(): void {
+        if (this.isRenderable) {
+            this.clearErrorMissingApps();
+            return;
+        }
+
+        // live edit is not rendered, setting state depending on the reason
+
+        if (!this.hasPage) {  // no page, OK, nothing to render, just show placeholder
+            this.handleNoPage();
+            return;
+        }
+
+        // has page, but not renderable, not OK
+
+        if (this.hasMissingApps) { // some apps are missing, assuming error is because of that (actually maybe not but we can't know)
+            this.setErrorMissingApps();
+        } else { // some other error
+            this.handleErrorRenderingPage();
+        }
+    }
+
+    private handleNoPage(): void {
+        this.clearErrorMissingApps();
+        this.placeholder?.setHasControllersMode(this.hasAvailableControllers);
+    }
+
+    private handleErrorRenderingPage(): void {
+        this.clearErrorMissingApps();
+
+        if (!this.placeholder) {
+            this.createLiveEditPagePlaceholder();
+        }
+
+        this.frameContainer?.hide();
+        this.placeholder.setPageIsNotRenderableMode();
+        this.placeholder.show();
     }
 }

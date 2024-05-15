@@ -1,8 +1,7 @@
 /**
  * Created on 13.07.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
@@ -96,8 +95,8 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialog.clickOnItemsTabBarItem();
             await studioUtils.saveScreenshot('publish_close_issue_should_be_disabled');
             // 4.'Publish...' button should be disabled, because invalid child is present'
-            let result = await issueDetailsDialogItemsTab.isPublishButtonEnabled();
-            assert.isFalse(result, 'Publish & Close button should be disabled(invalid child)');
+            let isEnabled = await issueDetailsDialogItemsTab.isPublishButtonEnabled();
+            assert.ok(isEnabled === false, 'Publish & Close button should be disabled(invalid child)');
         });
 
     it(`GIVEN Items-tab has been clicked WHEN invalid content has been excluded THEN 'Publish...' button gets enabled`,
@@ -122,8 +121,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialogItemsTab.waitForHideExcludedItemsButtonDisplayed();
             await studioUtils.saveScreenshot('issue_invalid_dependent_excluded');
             let isSelected = await issueDetailsDialogItemsTab.isDependantCheckboxSelected('shortcut-imported');
-            assert.isFalse(isSelected, 'Checkbox for excluded invalid-item should not be selected');
-
+            assert.ok(isSelected === false, 'Checkbox for excluded invalid-item should not be selected');
         });
 
     it(`GIVEN dependant item has been excluded in Create Issue dialog WHEN 'Publish...' button has been clicked and Publish Wizard is loaded THEN items with unselected checkbox should not be present in Publish wizard`,
@@ -149,10 +147,10 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             let result = await contentPublishDialog.getDisplayNameInDependentItems();
             // returns a truthy value for at least one element in the array contains the name. Otherwise, false.
             let isPresent = result.some(el => el.includes(TEST_CONTENT_NAME));
-            assert.isTrue(isPresent, 'Unselected content should  be present in dependency block in Publishing Wizard');
+            assert.ok(isPresent, 'Unselected content should  be present in dependency block in Publishing Wizard');
             // 6. The checkbox should be unselected
             let isSelected = await issueDetailsDialogItemsTab.isDependantCheckboxSelected(TEST_CONTENT_NAME);
-            assert.isFalse(isSelected, 'CheckBox for the excluded item should be unselected');
+            assert.ok(isSelected === false, 'CheckBox for the excluded item should be unselected');
             // 7. Hide excluded button should be visible:
             await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
         });

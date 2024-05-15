@@ -14,16 +14,52 @@ import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/Selected
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {ProjectApplication} from './ProjectApplication';
 import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
+import {Project} from '../../../../data/project/Project';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ProjectApplicationsComboBox
     extends RichComboBox<Application> {
 
     private dataChangedListeners: (() => void)[] = [];
 
+    private parentSiteConfigs: ApplicationConfig[] = [];
+
+    private inheritedParentSiteConfigs: ApplicationConfig[] = [];
+
+    private isLayoutInProgress: boolean = false;
+
     constructor(params?: ProjectApplicationsFormParams) {
         super(new ProjectApplicationsComboBoxBuilder(params));
 
+        if (params.hasParentProjects()) {
+            this.setParentProjects(params.getParentProjects());
+        }
+
         this.initListeners();
+    }
+
+    setParentProjects(projects: Project[]): Q.Promise<void> {
+        this.parentSiteConfigs = projects[0]?.getSiteConfigs() || [];
+        this.inheritedParentSiteConfigs = this.getParentConfigsNotSelected();
+        return this.layoutApplicationConfigs(this.getMergedConfigs());
+    }
+
+    hasDataChanged(): boolean {
+        if (this.isLayoutInProgress) {
+            return false;
+        }
+        const selectedDisplayValues: Application[] = this.getSelectedDisplayValues();
+        return this.parentSiteConfigs.length !== selectedDisplayValues.length;
+    }
+
+    layoutApplicationConfigs(applicationConfigs: ApplicationConfig[]): Q.Promise<void> {
+        this.isLayoutInProgress = true;
+        this.clearCombobox();
+
+        return this.layoutSelectedApps(applicationConfigs).then(() => {
+            this.isLayoutInProgress = false;
+        });
     }
 
     private initListeners(): void {
@@ -47,19 +83,27 @@ export class ProjectApplicationsComboBox
     }
 
     private notifyDataChanged() {
-        this.dataChangedListeners.forEach((listener: () => void) => {
-            listener();
-        });
+        this.dataChangedListeners.forEach((listener: () => void) => listener());
     }
 
     layout(item: ProjectViewItem): Q.Promise<void> {
-        if (!item || item.getSiteConfigs().length === 0) {
+        const siteConfigs = item.getSiteConfigs();
+        if (!item || siteConfigs.length === 0) {
             return Q(null);
         }
 
-        this.deselectNonSelectedApps(item.getSiteConfigs());
+        return this.layoutSiteConfigs(siteConfigs);
+    }
 
-        return this.layoutSelectedApps(item.getSiteConfigs()).catch(DefaultErrorHandler.handle);
+    protected createOption(application: Application, readOnly?: boolean): Option<Application> {
+        const isReadonly = ObjectHelper.isDefined(readOnly) ? readOnly : this.isReadonly(application.getApplicationKey());
+        return super.createOption(application, isReadonly);
+    }
+
+    private layoutSiteConfigs(configs: ApplicationConfig[]): Q.Promise<void> {
+        this.deselectNonSelectedApps(configs);
+
+        return this.layoutSelectedApps(configs).catch(DefaultErrorHandler.handle);
     }
 
     private deselectNonSelectedApps(configs: ApplicationConfig[]): void {
@@ -78,8 +122,7 @@ export class ProjectApplicationsComboBox
 
             configs.forEach((config: ApplicationConfig) => {
                 const appToSelect: Application = this.getOrGenerateAppByKey(selectedApps, config.getApplicationKey());
-                this.select(appToSelect, false, true);
-
+                this.select(appToSelect, this.isReadonly(config.getApplicationKey()), true);
                 layoutPromises.push(this.layoutSelectedApp(config));
             });
 
@@ -122,6 +165,19 @@ export class ProjectApplicationsComboBox
             .map((selected: ProjectApplicationSelectedOptionView) => selected.getCurrentConfig());
     }
 
+    getSelectedApplicationConfigs(): ApplicationConfig[] {
+        return this.getSelectedApplications().map((app: ProjectApplication) => app.getConfig().clone());
+    }
+
+    getNonInheritedApplicationConfigs(): ApplicationConfig[] {
+        if (this.inheritedParentSiteConfigs.length === 0) {
+            return this.getSelectedApplicationConfigs();
+        }
+        return this.getSelectedApplicationConfigs().filter((config: ApplicationConfig) =>
+            this.inheritedParentSiteConfigs.findIndex((parentConfig: ApplicationConfig) => parentConfig.getApplicationKey().equals(config.getApplicationKey())) === - 1
+        );
+    }
+
     onDataChanged(listener: () => void) {
         this.dataChangedListeners.push(listener);
     }
@@ -134,6 +190,29 @@ export class ProjectApplicationsComboBox
 
     getSelectedOptionView(): ProjectApplicationsSelectedOptionsView {
         return super.getSelectedOptionView() as ProjectApplicationsSelectedOptionsView;
+    }
+
+    private isReadonly(key: ApplicationKey): boolean {
+        const hasParentConfigs: boolean = this.parentSiteConfigs !== undefined && this.parentSiteConfigs?.length > 0;
+        const parentAppKeys: ApplicationKey[] = hasParentConfigs ? this.parentSiteConfigs.map(
+            (config: ApplicationConfig) => config.getApplicationKey()) : [];
+        return hasParentConfigs ? !!parentAppKeys.find((appKey: ApplicationKey) => appKey.equals(key)) : false;
+    }
+
+    private getParentConfigsNotSelected(): ApplicationConfig[] {
+        const selectedConfigs = this.getSelectedApplicationConfigs();
+
+        return this.parentSiteConfigs.filter((config: ApplicationConfig) =>
+            selectedConfigs.findIndex((selected: ApplicationConfig) => selected.getApplicationKey().equals(config.getApplicationKey())) === -1);
+    }
+
+    private getMergedConfigs(): ApplicationConfig[] {
+        const selectedConfigs = this.getSelectedApplicationConfigs();
+
+        return [
+            ...selectedConfigs,
+            ...this.parentSiteConfigs.filter((pc) => selectedConfigs.findIndex(sc => pc.getApplicationKey().equals(sc.getApplicationKey())) === -1),
+        ];
     }
 
 }

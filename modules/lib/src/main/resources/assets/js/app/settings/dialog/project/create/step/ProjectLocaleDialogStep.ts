@@ -3,14 +3,17 @@ import {LocaleComboBox} from '../../../../../locale/LocaleComboBox';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {ProjectDialogStep} from './ProjectDialogStep';
 import {LocaleFormItem} from '../../../../wizard/panel/form/element/LocaleFormItem';
-import {Project} from '../../../../data/project/Project';
 import {ProjectLocaleDialogStepData} from '../data/ProjectLocaleDialogStepData';
 
 export class ProjectLocaleDialogStep
     extends ProjectDialogStep {
 
-    protected createFormItems(): FormItem[] {
-        return [new LocaleFormItem()];
+    private localeFormItem: LocaleFormItem;
+
+    createFormItems(): FormItem[] {
+        this.localeFormItem = new LocaleFormItem();
+        this.hasParentProjects() && this.localeFormItem.setParentProjects(this.getParentProjects());
+        return [this.localeFormItem];
     }
 
     isOptional(): boolean {
@@ -23,10 +26,6 @@ export class ProjectLocaleDialogStep
         this.getLocaleCombobox().onValueChanged(() => {
             this.notifyDataChanged();
         });
-    }
-
-    setParentProject(value: Project) {
-        this.getFormItem().setParentProject(value);
     }
 
     getData(): ProjectLocaleDialogStepData {
@@ -50,10 +49,6 @@ export class ProjectLocaleDialogStep
     }
 
     private getLocaleCombobox(): LocaleComboBox {
-        return this.getFormItem()?.getLocaleCombobox();
-    }
-
-    private getFormItem(): LocaleFormItem {
-        return this.formItems && this.formItems[0] as LocaleFormItem;
+        return this.localeFormItem.getLocaleCombobox();
     }
 }

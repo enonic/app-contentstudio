@@ -3,7 +3,6 @@
  */
 const OccurrencesFormView = require('../wizardpanel/occurrences.form.view');
 const appConst = require('../../libs/app_const');
-const lib = require('../../libs/elements');
 
 const XPATH = {
     attachmentUploaderDiv: "//div[contains(@id,'AttachmentUploader')]",

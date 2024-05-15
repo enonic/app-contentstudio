@@ -18,7 +18,6 @@ const InsertLinkDialog = require('../page_objects/wizardpanel/html-area/insert.l
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
 const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
-const BrowseLayersWidget = require('../page_objects/browsepanel/detailspanel/browse.layers.widget');
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
 const ProjectSelectionDialog = require('../page_objects/project/project.selection.dialog');
@@ -275,11 +274,35 @@ module.exports = {
         await contentWizardPanel.waitAndClickOnSave();
         return await this.doCloseWizardAndSwitchToGrid();
     },
+    async doAddPublishedShortcut(shortcut) {
+        let contentWizardPanel = new ContentWizardPanel();
+        //Open new shortcut-wizard:
+        await this.openContentWizard(appConst.contentTypes.SHORTCUT);
+        await contentWizardPanel.typeData(shortcut);
+        await contentWizardPanel.clickOnMarkAsReadyButton();
+        let contentPublishDialog = new ContentPublishDialog();
+        await contentPublishDialog.clickOnPublishNowButton();
+        await contentPublishDialog.waitForDialogClosed();
+        await contentWizardPanel.waitForNotificationMessage();
+        return await this.doCloseWizardAndSwitchToGrid();
+    },
     async doAddReadyFolder(folder) {
         let contentWizardPanel = new ContentWizardPanel();
         await this.openContentWizard(appConst.contentTypes.FOLDER);
         await contentWizardPanel.typeData(folder);
         await contentWizardPanel.clickOnMarkAsReadyButton();
+        await this.doCloseWizardAndSwitchToGrid();
+        return await this.getBrowser().pause(1000);
+    },
+    async doAddPublishedFolder(folder) {
+        let contentWizardPanel = new ContentWizardPanel();
+        await this.openContentWizard(appConst.contentTypes.FOLDER);
+        await contentWizardPanel.typeData(folder);
+        await contentWizardPanel.clickOnMarkAsReadyButton();
+        let contentPublishDialog = new ContentPublishDialog();
+        await contentPublishDialog.clickOnPublishNowButton();
+        await contentPublishDialog.waitForDialogClosed();
+        await contentWizardPanel.waitForNotificationMessage();
         await this.doCloseWizardAndSwitchToGrid();
         return await this.getBrowser().pause(1000);
     },
@@ -297,6 +320,12 @@ module.exports = {
     async doCloseWizardAndSwitchToGrid() {
         await this.doCloseCurrentBrowserTab();
         return await this.doSwitchToContentBrowsePanel();
+    },
+    async doCloseWizardAndSwitchContentStudioTab() {
+        await this.doCloseCurrentBrowserTab();
+        let browsePanel = new BrowsePanel();
+        await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+        await browsePanel.pause(400);
     },
     async doAddSite(site, noControllers) {
         let contentWizardPanel = new ContentWizardPanel();
@@ -551,7 +580,7 @@ module.exports = {
             }
             await filterPanel.typeSearchText(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await browsePanel.pause(500);
+            return await browsePanel.pause(1000);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_spinner'));
             throw new Error('Filter Panel-  error : ' + err);
@@ -1008,11 +1037,11 @@ module.exports = {
     },
     async scheduleContent(contentName, date) {
         let contentBrowsePanel = new ContentBrowsePanel();
-        let dateTimeRange = new DateTimeRange();
+        let dateTimeRange = new DateTimeRange("//div[contains(@id,'ContentPublishDialog')]");
         await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
         let contentPublishDialog = new ContentPublishDialog();
         await contentPublishDialog.clickOnAddScheduleIcon();
-        await dateTimeRange.typeOnlineFrom(date, "//div[contains(@id,'ContentPublishDialog')]");
+        await dateTimeRange.typeOnlineFrom(date);
         await contentPublishDialog.clickOnScheduleButton();
         return await contentPublishDialog.waitForDialogClosed();
     },

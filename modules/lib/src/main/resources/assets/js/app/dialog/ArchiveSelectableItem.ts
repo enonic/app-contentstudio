@@ -10,11 +10,13 @@ import {StatusSelectionItem} from './StatusSelectionItem';
 import {DependencyType} from '../browse/DependencyType';
 import {ContentId} from '../content/ContentId';
 import {DependencyParams} from '../browse/DependencyParams';
+import {Branch} from '../versioning/Branch';
 
 export interface ArchiveSelectableItemConfig {
     viewer: Viewer<ContentSummaryAndCompareStatus>;
     item: ContentSummaryAndCompareStatus;
     clickable?: boolean;
+    target?: Branch;
 }
 
 export class ArchiveSelectableItem
@@ -24,17 +26,21 @@ export class ArchiveSelectableItem
 
     private static readonly CLICKABLE_CLASS = 'clickable';
 
+    protected config: ArchiveSelectableItemConfig;
+
     showRefButton: ActionButton;
 
     constructor(config: ArchiveSelectableItemConfig) {
         const {viewer, item, clickable = true} = config;
         super(viewer, item);
 
+        this.config = config;
+
         this.addClass('archive-item');
         this.toggleClass(ArchiveSelectableItem.CLICKABLE_CLASS, clickable);
 
-        this.initElements(clickable);
-        this.initListeners(clickable);
+        this.initElements();
+        this.initListeners();
     }
 
     doRender(): Q.Promise<boolean> {
@@ -59,22 +65,22 @@ export class ArchiveSelectableItem
         return this.hasClass(ArchiveSelectableItem.HAS_INBOUND_CLASS);
     }
 
-    protected initElements(clickable: boolean): void {
-        this.initActionButton(clickable);
+    protected initElements(): void {
+        this.initActionButton();
     }
 
-    protected initActionButton(clickable: boolean): void {
+    protected initActionButton(): void {
         const action = new Action(i18n('action.showReferences'));
         action.onExecuted(() => {
             const contentId: ContentId = this.getItem().getContentSummary().getContentId();
             const params: DependencyParams =
-                DependencyParams.create().setContentId(contentId).setDependencyType(DependencyType.INBOUND).build();
+                DependencyParams.create().setContentId(contentId).setDependencyType(DependencyType.INBOUND).setBranch(this.config.target).build();
             new ShowDependenciesEvent(params).fire();
         });
         this.showRefButton = new ActionButton(action);
         this.showRefButton.addClass('show-ref-button');
 
-        if (clickable) {
+        if (this.config.clickable ?? true) {
             this.showRefButton.onClicked(event => {
                 event.stopPropagation();
                 event.preventDefault();
@@ -82,8 +88,8 @@ export class ArchiveSelectableItem
         }
     }
 
-    protected initListeners(clickable: boolean): void {
-        if (clickable) {
+    protected initListeners(): void {
+        if (this.config.clickable ?? true) {
             this.onClicked(event => {
                 if (!this.getItem().isPendingDelete()) {
                     new EditContentEvent([this.getItem()]).fire();

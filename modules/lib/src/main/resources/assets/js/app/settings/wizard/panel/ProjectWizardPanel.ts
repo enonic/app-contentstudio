@@ -30,8 +30,6 @@ import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
 import {TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {ProjectApplicationsWizardStepForm} from './form/ProjectApplicationsWizardStepForm';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {ProjectSteps} from '../../dialog/project/create/ProjectSteps';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 
@@ -359,22 +357,30 @@ export class ProjectWizardPanel
         });
     }
 
-    getParentProject(): string {
-        return !!this.projectWizardStepForm ? this.projectWizardStepForm.getParentProject() : null;
+    getParentProjectsNames(): string[] | undefined {
+        return this.projectWizardStepForm ? this.projectWizardStepForm.getParentProjectsNames() : undefined;
     }
 
-    setParentProject(project?: Project) {
-        this.whenRendered(() => {
-            this.projectWizardStepForm.setParentProject(project);
-            if (!!project && this.getPersistedItem()) { // Existing layer
-                this.projectWizardStepForm.disableParentProjectElements(project.getName());
-            }
-            this.readAccessWizardStepForm.setParentProject(project);
-            this.rolesWizardStepForm.setParentProject(project);
+    getParentProjects(): Project[] | undefined {
+        return this.projectWizardStepForm ? this.projectWizardStepForm.getParentProjects() : undefined;
+    }
 
-            this.projectWizardStepForm.onParentProjectChanged((_project: Project) => {
-                this.readAccessWizardStepForm.setParentProject(_project);
-                this.rolesWizardStepForm.setParentProject(_project);
+    updateParentProjects(projects: Project[] | undefined) {
+        this.whenRendered(() => {
+            this.projectWizardStepForm.setParentProjects(projects);
+
+            const isExistingLayer = projects?.length > 0 && this.getPersistedItem();
+            if (isExistingLayer) {
+                this.projectWizardStepForm.disableParentProjectElements();
+            }
+
+            this.readAccessWizardStepForm.setParentProjects(projects);
+            this.rolesWizardStepForm.setParentProjects(projects);
+            this.applicationsWizardStepForm.setParentProjects(projects);
+
+            this.projectWizardStepForm.onParentProjectChanged((p: Project[]) => {
+                this.readAccessWizardStepForm.setParentProjects(p);
+                this.rolesWizardStepForm.setParentProjects(p);
             });
         });
     }
@@ -384,7 +390,7 @@ export class ProjectWizardPanel
             return true;
         }
 
-        const selectedAppsConfigs: ApplicationConfig[] = this.applicationsWizardStepForm?.getApplicationConfigs() || [];
+        const selectedAppsConfigs: ApplicationConfig[] = this.applicationsWizardStepForm?.getNonInheritedApplicationConfigs() || [];
         const persistedSiteConfigs: ApplicationConfig[] = this.getPersistedItem().getSiteConfigs() || [];
 
         return !ObjectHelper.arrayEquals(persistedSiteConfigs, selectedAppsConfigs);

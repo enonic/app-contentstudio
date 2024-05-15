@@ -1,8 +1,7 @@
 /**
  * Created on 12.07.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -22,7 +21,7 @@ describe("project.not.available.dialog.spec - clicking on 'Start Wizard' button"
     }
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
 
-    it("GIVEN navigated to Content Studio, content grid WHEN Start Wizard button has been pressed THEN 'Save' button gets enabled",
+    it("GIVEN navigated to Content Studio, No available projects found- dialog is shown WHEN 'Start Wizard' button has been pressed THEN project wizard should be loaded",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -34,6 +33,7 @@ describe("project.not.available.dialog.spec - clicking on 'Start Wizard' button"
             await projectUtils.saveScreenshot('not_available_modal_dialog');
             // 2. Click on Start button in the modal dialog:
             await projectNotAvailableDialog.clickOnStartWizardButton();
+            await projectNotAvailableDialog.waitForDialogClosed();
             // 3. Skip the language step
             await languageStep.waitForLoaded();
             await languageStep.clickOnSkipButton();

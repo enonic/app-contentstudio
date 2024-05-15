@@ -5,6 +5,7 @@ const BaseSelectorForm = require('./base.selector.form');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const LoaderComboBox = require('../components/loader.combobox');
+
 const XPATH = {
     container: "//div[contains(@id,'ImageSelector')]",
     wizardStep: "//li[contains(@id,'TabBarItem')]/a[text()='Image selector']",
@@ -14,10 +15,10 @@ const XPATH = {
     selectedOptions: "//div[contains(@id,'ImageSelectorSelectedOptionsView')]",
     editButton: "//div[contains(@id,'SelectionToolbar')]//button[child::span[contains(.,'Edit')]]",
     removeButton: "//div[contains(@id,'SelectionToolbar')]//button[child::span[contains(.,'Remove')]]",
-    selectedImageByDisplayName: function (imageDisplayName) {
+    selectedImageByDisplayName(imageDisplayName) {
         return `//div[contains(@id,'ImageSelectorSelectedOptionView') and descendant::div[contains(@class,'label') and text()='${imageDisplayName}']]`
     },
-    expanderIconByName: function (name) {
+    expanderIconByName(name) {
         return lib.itemByName(name) +
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
     },
@@ -57,6 +58,23 @@ class ImageSelectorForm extends BaseSelectorForm {
         return this.selectImages(contentData.images);
     }
 
+    async waitForImageNotAvailableTextDisplayed() {
+        let locator = lib.FORM_VIEW + XPATH.selectedOption + lib.itemByName('Image is not available');
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let elements = await this.findElements(locator);
+        return elements.length;
+    }
+
+    async clickOnSelectedOptionByIndex(index) {
+        let locator = lib.FORM_VIEW + XPATH.selectedOption + "//div[contains(@class,'squared-content')]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let imagesEl = await this.findElements(locator);
+        if (index > imagesEl.length) {
+            throw new Error("Image selector form, the number of selected options less than the index");
+        }
+        return await this.doTouchActionOnElement(imagesEl[index]);
+    }
+
     async getSelectedImages() {
         let locator = XPATH.selectedOption + "//div[@class='label']";
         return await this.getTextInElements(locator);
@@ -68,7 +86,7 @@ class ImageSelectorForm extends BaseSelectorForm {
             return await this.pause(500);
         } catch (err) {
             await this.saveScreenshot('err_img_sel_dropdown_handle');
-            throw  new Error('image combobox dropdown handle not found ' + err);
+            throw new Error('image combobox dropdown handle not found ' + err);
         }
     }
 
@@ -136,6 +154,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         return result;
     }
 
+    // Expand the dropdown then click on checkboxes in the dropdown-options:
     async clickOnDropDownHandleAndSelectImages(numberImages) {
         await this.clickOnDropdownHandle();
         await this.pause(700);
@@ -143,7 +162,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         let elems = await this.findElements(selector);
         let viewportElement = await this.findElements(
             lib.IMAGE_CONTENT_COMBOBOX.DIV + "//div[contains(@id,'OptionsTreeGrid')]" + "//div[contains(@class, 'slick-viewport')]");
-        //Scrolls and clicks on options in the dropdown:
+        // Scrolls and clicks on options in the dropdown:
         await this.clickOnOptions(elems.slice(0, numberImages), viewportElement[0]);
         await this.clickOnApplyButton();
         return await this.pause(1000);
@@ -160,11 +179,21 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await this.clickOnElement(selector);
     }
 
-    filterOptionsAndSelectImage(displayName) {
+    async filterOptionsAndSelectImage(displayName) {
         let loaderComboBox = new LoaderComboBox();
-        return this.typeTextInInput(this.optionsFilterInput, displayName).then(() => {
-            return loaderComboBox.selectOption(displayName);
-        });
+        await this.typeTextInInput(this.optionsFilterInput, displayName);
+        return await loaderComboBox.selectOption(displayName);
+    }
+
+    async expandDropdownClickOnImage(displayName) {
+        try {
+            let loaderComboBox = new LoaderComboBox();
+            await this.clickOnDropdownHandle();
+            return await loaderComboBox.selectOption(displayName);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('img_selector_option');
+            throw new Error('Image -Selector , error during selecting the option: screenshot ' + screenshot + ' ' + err);
+        }
     }
 
     async doFilterOptions(displayName) {
@@ -232,14 +261,22 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await this.pause(300);
     }
 
-    //Edit image button
+    // Edit image button
     waitForEditButtonDisplayed() {
         return this.waitForElementDisplayed(this.editButton, appConst.mediumTimeout);
     }
 
+    waitForEditButtonDisabled() {
+        return this.waitForElementDisabled(this.editButton, appConst.mediumTimeout);
+    }
+
+    waitForRemoveButtonEnabled() {
+        return this.waitForElementEnabled(this.removeButton, appConst.mediumTimeout);
+    }
+
     async getNumberItemInRemoveButton() {
         await this.waitForRemoveButtonDisplayed();
-        let locator = this.removeButton + "/span";
+        let locator = this.removeButton + '/span';
         return await this.getText(locator);
     }
 }

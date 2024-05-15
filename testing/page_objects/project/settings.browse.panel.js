@@ -35,6 +35,11 @@ const XPATH = {
         return `${lib.projectByName(name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
 
+    projectCheckboxByIdentifier: id => {
+        return `${lib.projectByIdentifier(
+            id)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
+    },
+
     projectItemByName: function (name) {
         return `//div[contains(@id,'NamesView') and descendant::span[@class='display-name' and contains(.,'${name}')]]`
     },
@@ -90,7 +95,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         return XPATH.itemsTreeGrid + lib.H6_DISPLAY_NAME;
     }
 
-    //returns array with displayName of all items in the Settings Browse Panel
+    // returns array with displayName of all items in the Settings Browse Panel
     getDisplayNames() {
         let selector = this.treeGrid + lib.H6_DISPLAY_NAME + "/span[@class='display-name']";
         return this.getTextInElements(selector);
@@ -102,8 +107,8 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(expanderIcon);
             return await this.pause(1100);
         } catch (err) {
-            this.saveScreenshot('err_click_on_expander');
-            throw new Error('error when click on expander-icon ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_expander');
+            throw new Error('error when click on expander-icon, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -111,8 +116,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         try {
             return await this.waitForElementDisplayed(XPATH.itemsTreeGrid + XPATH.projectItemByName(projectName), appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_project");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_browse_panel');
             throw new Error('project is not displayed ! Screenshot: ' + screenshot + "  " + err);
         }
     }
@@ -122,8 +126,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             let selector = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
             return await this.waitForElementDisplayed(selector, appConst.longTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_find_');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_find_item');
             throw new Error('Settings: project item with the display name was not found ! Screenshot: ' + screenshot + "   " + err);
         }
     }
@@ -134,10 +137,9 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
                               `//div[contains(@id,'NamesAndIconView') and descendant::span[contains(@class,'display-name') and contains(.,'${displayName}')]]` +
                               "//div[contains(@id,'Flag')]";
             await this.waitForElementDisplayed(locatorIcon, appConst.longTimeout);
-            return await this.getAttribute(locatorIcon, "data-code");
+            return await this.getAttribute(locatorIcon, 'data-code');
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_language_icon");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_language_icon');
             throw new Error('Settings: language  icon was not found ! ' + screenshot + "  " + err);
         }
     }
@@ -164,8 +166,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(nameXpath);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_find_project");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_find_project');
             throw Error('Project Browse Panel - project was not found ' + screenshot + '  ' + err);
         }
     }
@@ -183,8 +184,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
             return await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_find_project");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_find_project');
             throw Error('Project is not visible, screenshot:' + screenshot + "  " + err);
         }
     }
@@ -196,18 +196,26 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(nameXpath);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_checkbox");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_checkbox_proj');
             throw Error("Project's checkbox was not found Screenshot:" + screenshot + "  " + err);
         }
     }
 
-    getNumberOfSelectedRows() {
-        return this.findElements(XPATH.selectedRow).then(result => {
-            return result.length;
-        }).catch(err => {
-            throw new Error(`Error when getting selected rows ` + err);
-        });
+    async clickOnCheckboxAndSelectRowByIdentifier(id) {
+        try {
+            let nameXpath = XPATH.projectCheckboxByIdentifier(id);
+            await this.waitForElementDisplayed(nameXpath, appConst.shortTimeout);
+            await this.clickOnElement(nameXpath);
+            return await this.pause(300);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_checkbox_proj');
+            throw Error("Project's checkbox was not found Screenshot:" + screenshot + "  " + err);
+        }
+    }
+
+    async getNumberOfSelectedRows() {
+        let result = await this.findElements(XPATH.selectedRow);
+        return result.length;
     }
 
     async getNameInHighlightedRow() {
@@ -224,9 +232,8 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             let result = await this.findElements(XPATH.checkedRows);
             return result.length;
         } catch (err) {
-            let screenshotName = appConst.generateRandomName("err_browse_rows");
-            await this.saveScreenshot(screenshotName);
-            throw new Error(`Error when getting selected rows, screenshot:  ` + screenshotName + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_checked_rows');
+            throw new Error(`Error when getting selected rows, screenshot:  ` + screenshot + "  " + err);
         }
     }
 
@@ -240,18 +247,9 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async openProjectWizardDialog() {
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-        let projectWizard = new ProjectWizard();
-        //1.'New...' button has been clicked:
+        // 1.'New...' button has been clicked:
         await this.clickOnNewButton();
-        //2. 'Project Wizard Dialog' should be loaded:
-        await parentProjectStep.waitForLoaded();
-        return parentProjectStep;
-    }
-
-    async selectParentAndOpenProjectWizardDialog(parentName) {
-        await this.clickOnRowByDisplayName(parentName);
-        await this.clickOnNewButton();
-        let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+        // 2. 'Project Wizard Dialog' should be loaded:
         await parentProjectStep.waitForLoaded();
         return parentProjectStep;
     }

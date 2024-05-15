@@ -1,8 +1,7 @@
 /**
  * Created on 29.09.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -29,6 +28,8 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.doAddSite(SITE);
         });
 
+    // verify  https://github.com/enonic/app-contentstudio/issues/7315
+    // Disable "Apply" button in the Inspections panel when there are no changes to apply #7315
     it(`GIVEN existing site is opened WHEN an option has been selected in selector in the part config THEN the option should be saved after clicking on 'Apply' button`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -39,21 +40,25 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 3.Click on the 'main' item and open Context Menu:
+            // 3.Click on the 'Main' region-item and open Context Menu:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Part']);
             // 4. Select the part with a config
             await liveFormPanel.selectPartByDisplayName('City list');
             await contentWizard.switchToMainFrame();
             await cityListPartInspectionPanel.waitForLoaded();
-            // 5. Select an option in the selector
+            // 5. 'Apply' button should be enabled after selecting a part-option in the part-dropdown:
+            await cityListPartInspectionPanel.waitForApplyButtonEnabled();
+            // 6. Select an image in the dropdown-selector:
             await cityListPartInspectionPanel.selectContentInSelector(appConst.TEST_IMAGES.MAN);
-            // 6. Click on 'Apply' button:
+            // 7. Click on 'Apply' button:
             await cityListPartInspectionPanel.clickOnApplyButton();
-            // 7. Verify that Notification message appears and 'Save' button is disabled:
+            // 8. Verify that Notification message appears and 'Save' button is disabled:
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSaveButtonDisabled();
-            // 8. Verify the selected option:
+            // 9. Verify that 'Apply' button gets disabled:
+            await cityListPartInspectionPanel.waitForApplyButtonDisabled();
+            // 10. Verify the selected option:
             let result = await cityListPartInspectionPanel.getSelectedContentDisplayName();
             assert.equal(result, appConst.TEST_IMAGES.MAN, "The expected content should be displayed in the selector");
         });
@@ -70,15 +75,21 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 2. Click on the part-item in the PCV
             await pageComponentsWizardStepForm.clickOnComponent('City list');
             await cityListPartInspectionPanel.waitForLoaded();
-            // 3. Remove the selected option in the selector in Part config:
+            // Verify bug - Disable "Apply" button in the Inspections panel when there are no changes to apply #7315
+            // 3. Verify that 'Apply' button is disabled when the Inspect Panel loads:
+            await cityListPartInspectionPanel.waitForApplyButtonDisabled();
+            // 4. Remove the selected option in the selector in Part config:
             await cityListPartInspectionPanel.removeSelectedContent(appConst.TEST_IMAGES.MAN);
+            // 5. Select another content in the dropdown selector:
             await cityListPartInspectionPanel.selectContentInSelector(appConst.TEST_IMAGES.SPUMANS);
-            // 4. Click on 'Apply' button:
+            // 6. Verify that 'Apply' button gets enabled:
+            await cityListPartInspectionPanel.waitForApplyButtonEnabled();
+            // 7. Click on 'Apply' button:
             await cityListPartInspectionPanel.clickOnApplyButton();
-            // 5. Verify that Notification message appears and 'Save' button is disabled:
+            // 8. Verify that Notification message appears and 'Save' button is disabled:
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSaveButtonDisabled();
-            // 6. Verify the new selected option:
+            // 9. Verify the new selected option:
             let result = await cityListPartInspectionPanel.getSelectedContentDisplayName();
             assert.equal(result, appConst.TEST_IMAGES.SPUMANS, "The expected content should be displayed in the selector");
         });
@@ -95,7 +106,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 3.Click on the 'main' item and open Context Menu:
+            // 3.Click on the 'Main' item and open Context Menu:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Part']);
             // 4. Select the part with image-selector in config
@@ -107,8 +118,8 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await cityCreationPartInspectionPanel.clickOnImageSelectorModeTogglerButton();
             // 7. Verify that expected options are displayed in tree mode:
             let items = await cityCreationPartInspectionPanel.getTreeModeOptionsImagesDisplayName();
-            assert.isTrue(items.includes(appConst.TEST_FOLDER_WITH_IMAGES), "Expected item should be present in options");
-            assert.isTrue(items.includes(appConst.TEST_FOLDER_WITH_IMAGES_2), "Expected item should be present in options");
+            assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES), "Expected item should be present in options");
+            assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES_2), "Expected item should be present in options");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

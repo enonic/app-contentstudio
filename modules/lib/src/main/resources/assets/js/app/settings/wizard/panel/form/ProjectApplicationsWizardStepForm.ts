@@ -6,8 +6,8 @@ import {SettingsType} from '../../../data/type/SettingsType';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectApplicationsFormItem} from './element/ProjectApplicationsFormItem';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {ProjectApplication} from './element/ProjectApplication';
 import {ProjectApplicationsFormParams} from './element/ProjectApplicationsFormParams';
+import {Project} from '../../../data/project/Project';
 
 export class ProjectApplicationsWizardStepForm
     extends ProjectWizardStepForm {
@@ -28,9 +28,7 @@ export class ProjectApplicationsWizardStepForm
     }
 
     protected initListeners() {
-        this.applicationsFormItem.getComboBox().onDataChanged(() => {
-            this.notifyDataChanged();
-        });
+        this.applicationsFormItem.getComboBox().onDataChanged(() => this.notifyDataChanged());
     }
 
     layout(item: ProjectViewItem): Q.Promise<void> {
@@ -42,9 +40,15 @@ export class ProjectApplicationsWizardStepForm
     }
 
     getApplicationConfigs(): ApplicationConfig[] {
-        return this.applicationsFormItem?.getComboBox()
-                   .getSelectedApplications()
-                   .map((app: ProjectApplication) => app.getConfig()?.clone()) || [];
+        return this.applicationsFormItem?.getSiteConfigs() || [];
     }
 
+    getNonInheritedApplicationConfigs(): ApplicationConfig[] {
+        return this.applicationsFormItem?.getNonInheritedApplicationConfigs() || [];
+    }
+
+    setParentProjects(projects: Project[]) {
+        super.setParentProjects(projects);
+        this.applicationsFormItem.getComboBox().setParentProjects(projects);
+    }
 }

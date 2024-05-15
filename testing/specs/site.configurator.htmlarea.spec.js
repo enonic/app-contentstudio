@@ -1,8 +1,7 @@
 /**
  * Created on 12.01.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
@@ -54,7 +53,7 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             await studioUtils.saveScreenshot('site_config_link_inserted');
             // 6. Verify the text in htmlArea:
             let result = await siteConfiguratorDialog.getTextInHtmlArea(0);
-            assert.isTrue(result.includes(TEST_URL), "Expected URL should be present in the htmlArea");
+            assert.ok(result.includes(TEST_URL), "Expected URL should be present in the htmlArea");
             // 7. Click on 'Apply' button in Site Configurator Dialog:
             await siteConfiguratorDialog.clickOnApplyButton();
             await siteConfiguratorDialog.waitForDialogClosed();
@@ -90,7 +89,7 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_CONTENT_TYPES);
             // 6. Verify that text in the htmlArea is not updated:
             let text = await siteConfiguratorDialog.getTextInHtmlArea(0);
-            assert.isFalse(text.includes(TEST_TEXT), 'Text should not be updated in the htmlarea');
+            assert.ok(text.includes(TEST_TEXT) === false, 'Text should not be updated in the htmlarea');
         });
 
     it("GIVEN site configurator dialog is opened WHEN 'Cancel top' button has been pressed THEN dialog should be closed",

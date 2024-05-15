@@ -4,7 +4,7 @@ import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/ap
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
@@ -19,6 +19,8 @@ import {ApplicationAddedEvent} from '../../site/ApplicationAddedEvent';
 import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export interface SiteConfiguratorSelectedOptionViewParams {
     option: Option<Application>,
@@ -30,7 +32,7 @@ export interface SiteConfiguratorSelectedOptionViewParams {
 export class SiteConfiguratorSelectedOptionView
     extends BaseSelectedOptionView<Application> {
 
-    private readonly application: Application;
+    private application: Application;
 
     private formView: FormView;
 
@@ -56,9 +58,9 @@ export class SiteConfiguratorSelectedOptionView
         super(new BaseSelectedOptionViewBuilder<Application>().setOption(params.option));
 
         this.siteConfigFormDisplayedListeners = [];
-        this.application = params.option.getDisplayValue();
         this.siteConfig = params.siteConfig;
         this.formContext = params.formContext;
+        this.application = this.getApplicationFromParams(params);
         this.isNew = params.isNew;
 
         this.setEditable(this.application.getForm()?.getFormItems().length > 0);
@@ -71,18 +73,23 @@ export class SiteConfiguratorSelectedOptionView
     }
 
     doRender(): Q.Promise<boolean> {
-        this.namesAndIconView = this.createNamesAndIconView();
+        const namesAndIconView = this.createNamesAndIconView();
 
-        this.appendChild(this.namesAndIconView);
+        if (this.namesAndIconView) {
+            this.namesAndIconView.replaceWith(namesAndIconView);
+        } else {
+            this.appendChild(namesAndIconView);
+            this.appendActionButtons();
+        }
+
+        this.namesAndIconView = namesAndIconView;
 
         this.formValidityChangedHandler = (event: FormValidityChangedEvent) => {
             this.toggleClass('invalid', !event.isValid());
         };
 
-        this.toggleClass('uninstalled', this.getOption().isEmpty() === true);
-        this.toggleClass('stopped', this.application.getState() === Application.STATE_STOPPED);
-
-        this.appendActionButtons();
+        this.toggleClass('uninstalled', !ObjectHelper.isDefined(this.application.getState()));
+        this.toggleClass('stopped', this.application.isStopped());
 
         this.configureDialog = this.initConfigureDialog();
 
@@ -94,15 +101,19 @@ export class SiteConfiguratorSelectedOptionView
     }
 
     private createNamesAndIconView() {
-        const namesAndIconView: NamesAndIconView = new NamesAndIconView(new NamesAndIconViewBuilder().setSize(
-            NamesAndIconViewSize.small)).setMainName(this.application.getDisplayName()).setSubName(
-            this.application.getName() + (!!this.application.getVersion() ? '-' + this.application.getVersion() : ''));
+        const namesAndIconView: NamesAndIconView = new NamesAndIconView(new NamesAndIconViewBuilder()
+            .setSize(NamesAndIconViewSize.small))
+            .setMainName(this.application.getDisplayName());
 
         if (this.application.getIconUrl()) {
             namesAndIconView.setIconUrl(this.application.getIconUrl());
         }
 
-        if (this.application.getDescription()) {
+        if (this.application.isStopped()) {
+            namesAndIconView.setSubName(i18n('text.application.is.stopped', this.application.getApplicationKey().toString()));
+        } else if (!ObjectHelper.isDefined(this.application.getState())) {
+            namesAndIconView.setSubName(i18n('text.application.not.available', this.application.getApplicationKey().toString()));
+        } else if (this.application.getDescription()) {
             namesAndIconView.setSubName(this.application.getDescription());
         }
 
@@ -114,17 +125,25 @@ export class SiteConfiguratorSelectedOptionView
     }
 
     update() {
-        new GetApplicationRequest(this.application.getApplicationKey()).sendAndParse().then((app: Application) => {
-            if (app.getIconUrl()) {
-                this.namesAndIconView.setIconUrl(app.getIconUrl());
-            }
+        new GetApplicationRequest(this.application.getApplicationKey(), true).sendAndParse()
+            .then((app: Application) => {
+                this.application = app;
+            })
+            .catch(() => {
+                this.application = SiteConfiguratorSelectedOptionView.getEmptyDisplayValue(this.application.getApplicationKey().toString());
+            })
+            .finally(() => {
+                this.doRender();
+            })
+            .done();
+    }
 
-            if (app.getDescription()) {
-                this.namesAndIconView.setSubName(app.getDescription());
-            }
+    static getEmptyDisplayValue(id: string): Application {
+        const emptyApp: ApplicationBuilder = new ApplicationBuilder();
+        emptyApp.applicationKey = ApplicationKey.fromString(id);
+        emptyApp.displayName = id;
 
-            this.namesAndIconView.setMainName(app.getDisplayName());
-        }).catch(DefaultErrorHandler.handle).done();
+        return emptyApp.build();
     }
 
     protected onEditButtonClicked(e: MouseEvent) {
@@ -254,6 +273,16 @@ export class SiteConfiguratorSelectedOptionView
         });
 
         return formView;
+    }
+
+    private getApplicationFromParams(params: SiteConfiguratorSelectedOptionViewParams): Application {
+        const application = params.option.getDisplayValue();
+        let stoppedApplication: Application;
+        if (!application.getState() && params.formContext) {
+            stoppedApplication = params.formContext.getStoppedApplicationByKey(application.getApplicationKey());
+        }
+
+        return stoppedApplication || application;
     }
 
     private bindValidationEvent(formView: FormView) {

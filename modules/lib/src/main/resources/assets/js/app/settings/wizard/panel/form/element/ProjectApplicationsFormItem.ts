@@ -2,8 +2,10 @@ import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
 import {ProjectApplicationsComboBox} from './ProjectApplicationsComboBox';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectViewItem} from '../../../../view/ProjectViewItem';
-import * as Q from 'q';
 import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
+import Q from 'q';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {ProjectApplication} from './ProjectApplication';
 
 export class ProjectApplicationsFormItem
     extends ProjectFormItem {
@@ -16,6 +18,14 @@ export class ProjectApplicationsFormItem
         );
 
         this.addClass('project-applications-form-item');
+    }
+
+    getSiteConfigs(): ApplicationConfig[] {
+        return this.getComboBox().getSelectedApplicationConfigs();
+    }
+
+    getNonInheritedApplicationConfigs(): ApplicationConfig[] {
+        return this.getComboBox().getNonInheritedApplicationConfigs();
     }
 
     getComboBox(): ProjectApplicationsComboBox {

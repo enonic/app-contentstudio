@@ -1,0 +1,61 @@
+.projects-selector {
+  .@{_COMMON_PREFIX}wrapper {
+    .font-icon-default {
+      width: 100%;
+      height: 100%;
+
+      .flag {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+
+  &.multiple-occurrence {
+    .selected-option {
+      padding-left: 0;
+
+      &.placeholder {
+        outline: 2px dashed @admin-medium-gray-border;
+        border: none;
+        height: 45px !important;
+      }
+    }
+  }
+
+  &.disabled {
+    .drag-control {
+      display: none;
+    }
+  }
+
+  &.flat {
+    .tree-grid.tree-mode {
+      .grid {
+        .slick-row {
+          .slick-cell {
+            .toggle.icon {
+              display: none;
+            }
+          }
+        }
+      }
+
+      .tree-grid-toolbar {
+        .selection-controller {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .tree-grid {
+    .flag {
+      &.fi {
+        &::before {
+          line-height: 24px;
+        }
+      }
+    }
+  }
+}

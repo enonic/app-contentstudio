@@ -20,7 +20,7 @@ import {SettingsItemsTreeGridHelper} from './SettingsItemsTreeGridHelper';
 export class SettingsItemsTreeGrid
     extends TreeGrid<SettingsViewItem> {
 
-    private static PROJECTS_FOLDER_ID: string = 'projects';
+    static PROJECTS_FOLDER_ID: string = 'projects';
 
     private readonly treeGridActions: SettingsTreeGridActions;
 
@@ -69,13 +69,17 @@ export class SettingsItemsTreeGrid
         }
     }
 
-    private getProjectsPyParent(parentName: string): Project[] {
-        return this.projects.filter((project: Project) => project.getParent() === parentName);
+    private getProjectsPyParent(parentName: string | null): Project[] {
+        if (parentName == null) {
+            return this.projects.filter((project: Project) => (project.getParents() ?? []).length === 0);
+        } else {
+            return this.projects.filter((project: Project) => project.hasMainParentByName(parentName));
+        }
     }
 
     hasChildren(item: SettingsViewItem): boolean {
         return ObjectHelper.iFrameSafeInstanceOf(item, FolderViewItem) ||
-               this.projects.some((project: Project) => project.getParent() === item.getId());
+               this.projects.some((project: Project) => project.hasMainParentByName(item.getId()));
     }
 
     getItemById(id: string): SettingsViewItem {
@@ -152,10 +156,10 @@ export class SettingsItemsTreeGrid
 
         const projectItem: ProjectViewItem = item as ProjectViewItem;
 
-        if (!projectItem.getData().getParent()) {
+        if (!projectItem.getData().getMainParent()) {
             return this.getRoot().getNodeByDataId(SettingsItemsTreeGrid.PROJECTS_FOLDER_ID);
         }
 
-        return this.getRoot().getNodeByDataId(projectItem.getData().getParent());
+        return this.getRoot().getNodeByDataId(projectItem.getData().getMainParent());
     }
 }

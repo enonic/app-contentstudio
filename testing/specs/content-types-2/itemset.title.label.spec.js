@@ -1,8 +1,7 @@
 /**
  * Created on 24.11.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -12,13 +11,13 @@ const SetInSetFormView = require('../../page_objects/wizardpanel/itemset/set.in.
 
 describe("itemset.title.labels.spec: checks item set's title and labels", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let ITEM_SET_NOTE1 = "test text";
-    let ITEM_SET_NOTE2 = "test text 2";
-    let ITEM_SET_NAME1 = contentBuilder.generateRandomName('itemset');
+    const ITEM_SET_NOTE1 = 'test text';
+    const ITEM_SET_NOTE2 = 'test text 2';
+    const ITEM_SET_NAME1 = contentBuilder.generateRandomName('itemset');
 
     it("Preconditions: new site should be created",
         async () => {
@@ -31,18 +30,18 @@ describe("itemset.title.labels.spec: checks item set's title and labels", functi
         async () => {
             let contentWizard = new ContentWizard();
             let setInSetFormView = new SetInSetFormView();
-            //1. Open the new wizard:
+            // 1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.SET_IN_SET);
-            //2. Fill in the name input:
+            // 2. Fill in the name input:
             await contentWizard.typeDisplayName(ITEM_SET_NAME1);
-            //3. Click on 'Add' button and add 'Contact Info' item set:
+            // 3. Click on 'Add' button and add 'Contact Info' item set:
             await setInSetFormView.clickOnAddContactInfoButton();
-            //4. Fill in the top text input
+            // 4. Fill in the top text input
             await setInSetFormView.typeTextInLabelInput(ITEM_SET_NOTE1);
-            //5. Verify that subtitle automatically gets "Contact Info":
+            // 5. Verify that subtitle automatically gets "Contact Info":
             let subtitle = await setInSetFormView.getItemSetSubtitle();
             assert.equal(subtitle, "Contact Info", "Expected subtitle should be displayed in the item set");
-            //6. Title gets equal the text in the top input
+            // 6. Title gets equal the text in the top input
             let title = await setInSetFormView.getItemSetTitle();
             assert.equal(title, ITEM_SET_NOTE1, "Expected title should be displayed in the item set");
             await contentWizard.waitAndClickOnSave();
@@ -75,21 +74,21 @@ describe("itemset.title.labels.spec: checks item set's title and labels", functi
             let setInSetFormView = new SetInSetFormView();
             //1. Open the existing content with Item Set:
             await studioUtils.selectAndOpenContentInWizard(ITEM_SET_NAME1);
-            let result = await contentWizard.isContentInvalid();
+            let isInvalid = await contentWizard.isContentInvalid();
             //2. Verify that the content is invalid
-            assert.isTrue(result, "content should be invalid");
+            assert.ok(isInvalid, "content should be invalid");
             //3. Fill in the first name and last name inputs:
             await setInSetFormView.typeTextInFirstNameInput("John");
             await setInSetFormView.typeTextInLastNameInput("Doe");
-            result = await contentWizard.isContentInvalid();
+            isInvalid = await contentWizard.isContentInvalid();
             //4. Verify that the content gets valid now
-            assert.isFalse(result, "content should be valid");
+            assert.ok(isInvalid === false, "the content should be valid");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

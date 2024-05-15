@@ -43,32 +43,41 @@ class ConfirmValueDialog extends Page {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
             await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot('err_confirm_delete');
-            throw new Error("Confirmation Content Deleting Dialog is not loaded " + err);
+            let screenshot = await this.saveScreenshot('err_confirm_delete');
+            throw new Error("Confirm Value Dialog was not loaded, screenshot: " + screenshot + ' ' + err);
         }
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
-            throw new Error("Confirmation Content Deleting Dialog must be closed " + err);
-        })
+    async waitForDialogClosed() {
+        try {
+            return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_confirm_value_dlg');
+            throw new Error("Confirm Value Dialog must be closed, screenshot: " + screenshot + ' ' + err);
+        }
     }
 
-    waitForConfirmButtonDisabled() {
-        return this.waitForElementDisabled(this.confirmButton, appConst.mediumTimeout).catch(err => {
-            throw new Error("Confirm button is not disabled in " + err);
-        })
+    async waitForConfirmButtonDisabled() {
+        try {
+            await this.waitForElementDisabled(this.confirmButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_confirm_value_dlg');
+            throw new Error("Confirm Value Dialog - Confirm button is not disabled, screenshot: " + screenshot + ' ' + err);
+        }
     }
 
-    waitForConfirmButtonEnabled() {
-        return this.waitForElementEnabled(this.confirmButton, appConst.mediumTimeout).catch(err => {
-            throw new Error("Confirm button should be enabled " + err);
-        })
+    async waitForConfirmButtonEnabled() {
+        try {
+            await this.waitForElementEnabled(this.confirmButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_confirm_value_dlg');
+            throw new Error("Confirm Value Dialog - Confirm button should be enabled, screenshot " + screenshot + ' ' + err);
+        }
     }
 
     waitForCancelButtonEnabled() {
         return this.waitForElementEnabled(this.cancelButton, appConst.mediumTimeout).catch(err => {
-            throw new Error("Confirm Delete Dialog - Cancel button is not enabled in " + err);
+            throw new Error("Confirm Value Dialog - Cancel button is not enabled in " + err);
         })
     }
 
@@ -92,8 +101,8 @@ class ConfirmValueDialog extends Page {
             await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
             return await this.pause(1000);
         } catch (err) {
-            this.saveScreenshot('err_confirmation_dialog');
-            throw new Error('Confirmation dialog - Error when clicking on Confirm button.' + err);
+            await this.saveScreenshot('err_confirmation_dialog');
+            throw new Error('Confirm Value dialog - Error during clicking on Confirm button.' + err);
         }
     }
 

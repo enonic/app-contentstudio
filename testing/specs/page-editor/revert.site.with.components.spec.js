@@ -1,8 +1,7 @@
 /**
  * Created on 05.11.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -15,13 +14,13 @@ const appConst = require('../../libs/app_const');
 
 describe("revert.site.with.components.spec: Insert Text component then revert the previous version and check Live Frame", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const TEXT = "test text";
 
     let SITE;
-    let CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = 'main region';
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -46,23 +45,22 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             await textComponentCke.typeTextInCkeEditor(TEXT);
             await contentWizard.waitAndClickOnSave();
             await textComponentCke.switchToLiveEditFrame();
-            //Verify that text component in edit mode is present:
+            // Verify that text component in edit mode is present:
             await liveFormPanel.waitForEditableTextComponentDisplayed(TEXT);
         });
 
-    // TODO check this case
-    it.skip(`GIVEN existing site with text component is opened WHEN do right click on the text-component THEN component's context menu should appear`,
+    it(`GIVEN existing site with text component is opened WHEN do right click on the text-component THEN component's context menu should appear`,
         async () => {
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
-            //1. Open the site with text component:
+            // 1. Open the site with text component:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             let position = await contentWizard.getLiveFramePosition();
-            //2. Do right-click on the text-component:
+            // 2. Do right-click on the text-component:
             await contentWizard.switchToLiveEditFrame();
             await liveFormPanel.doRightClickOnTextComponent(TEXT, position.x, position.y);
             await studioUtils.saveScreenshot('text_component_context_menu');
-            //3. Verify menu items:
+            // 3. Verify menu items:
             let result = await liveFormPanel.getItemViewContextMenuItems();
             assert.equal(result[0], 'Select parent');
             assert.equal(result[1], 'Insert');
@@ -80,24 +78,24 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             let versionPanel = new WizardVersionsWidget();
             let liveFormPanel = new LiveFormPanel();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            //1. Open  'Versions Panel':
+            // 1. Open  'Versions Panel':
             await contentWizard.openVersionsHistoryPanel();
-            //2. Revert the previous version:
+            // 2. Revert the previous version:
             await versionPanel.clickAndExpandVersion(1);
             await versionPanel.clickOnRevertButton();
             await studioUtils.saveScreenshot('site_reverted1');
             await contentWizard.switchToLiveEditFrame();
-            //3. After reverting - text-component should not be present in Live Frame
+            // 3. After reverting - text-component should not be present in Live Frame
             await liveFormPanel.waitForTextComponentNotDisplayed(TEXT);
             await contentWizard.switchToMainFrame();
-            //4.Verify - Save button should be disabled after the reverting:
+            // 4.Verify - Save button should be disabled after the reverting:
             await contentWizard.waitForSaveButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

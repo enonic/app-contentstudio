@@ -1,8 +1,7 @@
 /**
  * Created on 18.02.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -137,7 +136,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             await contentPublishDialog.waitForDialogOpened();
             let actualItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(actualItems.length, 1, 'The list should contain only one item');
-            assert.isTrue(actualItems[0].includes('_templates'), 'The list of items should contains only one item');
+            assert.ok(actualItems[0].includes('_templates'), 'The list of items should contains only one item');
         });
 
     //test verifies https://github.com/enonic/app-contentstudio/issues/493

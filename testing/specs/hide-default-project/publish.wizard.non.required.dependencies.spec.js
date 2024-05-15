@@ -1,8 +1,7 @@
 /**
  * Created on 16.07.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -31,7 +30,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
     let SITE;
     let TEST_FOLDER;
     const CONTENT_LINK_TITLE = appConst.generateRandomName('link');
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
 
     it("Precondition: click on 'Start Wizard' button then create a project",
         async () => {
@@ -129,7 +128,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             await contentPublishDialog.waitForDependenciesListDisplayed();
             depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 1, 'non-required dependency should be displayed in the list');
-            assert.isTrue(depItems[0].includes('_templates'), 'non-required dependency should be displayed in the list');
+            assert.ok(depItems[0].includes('_templates'), 'non-required dependency should be displayed in the list');
         });
 
     it("GIVEN 'Show excluded' button has been clicked in the 'Publish Wizard' WHEN 'Show excluded' has been pressed THEN non-required dependency item gets visible in the modal dialog",
@@ -152,7 +151,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             assert.equal(depItems.length, 1, 'The only one dependent item should be in the dependencies list');
             // 7. Verify that the checkbox for the dependency item is not selected:
             let isCheckboxSelected = await contentPublishDialog.isDependantCheckboxSelected(TEST_FOLDER.displayName);
-            assert.isFalse(isCheckboxSelected, 'Checkbox for the dependent item should not be selected');
+            assert.ok(isCheckboxSelected === false, 'Checkbox for the dependent item should not be selected');
         });
 
     it("GIVEN site with non-required dependency item is selected AND 'Create Issue' dialog has been opened WHEN 'Hide excluded' button has been clicked THEN dependent item should be hidden",
@@ -218,7 +217,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             assert.equal(depItems.length, 1, 'The only one dependent item should be in the dependencies list');
             // 6. Verify that the checkbox for the dependency item is not selected:
             let isCheckboxSelected = await createRequestPublishDialog.isDependantCheckboxSelected(TEST_FOLDER.displayName);
-            assert.isFalse(isCheckboxSelected, 'Checkbox for the dependent item should not be selected');
+            assert.ok(isCheckboxSelected === false, 'Checkbox for the dependent item should not be selected');
         });
 
     it("GIVEN 'Request Publishing' dialog has been opened WHEN checkbox for non-required item has been clicked THEN 'Show/Hide' excluded buttons are not displayed",
@@ -270,7 +269,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
                 // 8. Verify that the 'dependency items' list is displayed in the 'Items' tab:
                 await issueDetailsDialogItemsTab.waitForDependenciesListDisplayed();
                 let isSelected = await issueDetailsDialogItemsTab.isDependantCheckboxSelected(TEST_FOLDER.displayName);
-                assert.isFalse(isSelected, "The dependant item-checkbox should be unselected");
+            assert.ok(isSelected === false, "The dependant item-checkbox should be unselected");
         });
 
         it("GIVEN checkbox for non-required item is selected in IssueDetails dialog WHEN 'Publish' button has been pressed in 'Items tab' THEN the same dependant item should be selected in Publish Content dialog",
@@ -298,7 +297,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
                     await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
                     // 7. Verify that the item is selected in the 'Items' tab:
                     let isSelected = await issueDetailsDialogItemsTab.isDependantCheckboxSelected(TEST_FOLDER.displayName);
-                    assert.isTrue(isSelected, "The checkbox for dependant item should be selected in Issue details dialog");
+                    assert.ok(isSelected, "The checkbox for dependant item should be selected in Issue details dialog");
                     // 8. Verify that the 'dependency items' list is displayed in the 'Items' tab:
                     await issueDetailsDialogItemsTab.waitForHideExcludedItemsButtonNotDisplayed();
                     // 9. Click on 'Publish' button and open 'Publish Wizard':
@@ -306,7 +305,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
                     await studioUtils.saveScreenshot('dependant_item_in_publish_wizard');
                     // 10. The same checkbox for dependant item should be selected in 'Publish Wizard' as well:
                     isSelected = await contentPublishDialog.isDependantCheckboxSelected(TEST_FOLDER.displayName);
-                    assert.isTrue(isSelected, "The same checkbox for dependant item should be selected in 'Publish Wizard' as well");
+                    assert.ok(isSelected, "The same checkbox for dependant item should be selected in 'Publish Wizard' as well");
                     // 11. Hide excluded items button should not be displayed in 'Publish Wizard':
                     await contentPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
             });
@@ -331,7 +330,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
                     assert.equal(depItems.length, 1, 'The only one dependent item should be in the dependencies list');
                     // 7. Verify that the checkbox for the dependency item is not selected:
                     let isCheckboxSelected = await createRequestPublishDialog.isDependantCheckboxSelected(TEST_FOLDER.displayName);
-                    assert.isFalse(isCheckboxSelected, 'Checkbox for the dependent item should not be selected');
+                    assert.ok(isCheckboxSelected === false, 'Checkbox for the dependent item should not be selected');
             });
 
         it("GIVEN 'Request Publishing' dialog has been opened WHEN checkbox for non-required item has been clicked THEN 'Show/Hide' excluded buttons are not displayed",

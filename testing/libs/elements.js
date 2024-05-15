@@ -78,6 +78,7 @@ module.exports = Object.freeze({
         DEPENDENT_ITEM_LIST_UL: "//ul[contains(@id,'DialogDependantItemsList')]",
         DEPENDENT_ITEM_LIST_UL_2: "//ul[contains(@id,'PublishDialogDependantList')]",
         DEPENDANT_ITEM_VIEWER: "//div[contains(@id,'DependantItemViewer')]",
+        DEPENDANT_ITEM_LIST_UNPUBLISH_DIALOG:"//ul[contains(@id,'DialogWithRefsDependantList')]",
     },
     tabBarItemByName: name => {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
@@ -114,6 +115,9 @@ module.exports = Object.freeze({
     },
     projectByName: name => {
         return `//div[contains(@id,'NamesView') and descendant::span[contains(@class,'name') and contains(.,'${name}')]]`
+    },
+    projectByIdentifier: id => {
+        return `//div[contains(@id,'NamesView') and descendant::p[contains(@class,'sub-name') and contains(.,'${id}')]]`
     },
     selectedProjectView: displayName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[text()='${displayName}']]`,
     formItemByLabel: (label) => {
@@ -155,7 +159,7 @@ module.exports = Object.freeze({
     VERSIONS_SHOW_CHANGES_BUTTON: `//button[contains(@id,'ActionButton') and @title='Show changes']`,
     LIVE_EDIT_FRAME: "//iframe[contains(@class,'live-edit-frame')]",
     APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
-    SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Settings']",
+    SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and child::span[text()='Settings']]",
     MODE_CONTENT_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Content']",
     IMAGE_CONTENT_COMBOBOX:{
         DIV: "//div[contains(@id,'ImageContentComboBox')]",

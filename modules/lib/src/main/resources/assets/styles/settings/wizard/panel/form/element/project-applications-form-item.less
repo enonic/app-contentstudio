@@ -1,42 +1,48 @@
 .project-applications-form-item {
-  .project-application-viewer {
-    .font-icon-default {
-      width: 100%;
-      height: 100%;
 
-      img {
-        width: 100%;
-        height: 100%;
+  .project-application-selected-options-view {
+    .selected-option {
+      height: auto;
+      background-color: @admin-bg-toolbar;
+      padding: 10px;
+      margin-bottom: 10px;
+
+      &.invalid:not(.non-editable) {
+        .highlight-option(@admin-input-red);
       }
-    }
-  }
 
-  .selected-option {
-    background-color: @admin-bg-toolbar;
-    padding: 10px !important;
-    margin-bottom: 10px;
-
-    &.invalid {
-      background-color: @admin-input-red;
-
-      .names-and-icon-view .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}sub-name {
-        color: @admin-shadow-gray;
+      &.non-removable {
+        padding-right: 30px;
       }
 
       &:hover {
-        background-color: @admin-input-red;
+        background-color: @admin-bg-toolbar;
       }
-    }
 
-    &:hover {
-      background-color: @admin-bg-toolbar;
-    }
+      .project-application-viewer {
+        flex-grow: 1;
 
-    .project-application-viewer {
-      flex-grow: 1;
+        &.stopped,
+        &.uninstalled {
+          .@{_COMMON_PREFIX}wrapper {
+            margin-right: 10px;
+            .icon-alert();
 
-      &.not-available {
-        opacity: 0.8;
+            &:before {
+              position: relative;
+              top: auto;
+              left: auto;
+            }
+
+            .font-icon-default {
+              display: none !important;
+            }
+          }
+
+          a.edit {
+            display: none;
+          }
+        }
       }
     }
   }

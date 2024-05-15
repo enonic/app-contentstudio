@@ -1,8 +1,7 @@
 /**
  * Created on 08.09.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
@@ -39,7 +38,7 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
             await newContentDialog.waitForOpened();
             // 2. Verify the Upload button
             let isDisplayed = await newContentDialog.waitForUploaderButtonDisplayed();
-            assert.isTrue(isDisplayed, "Uploader button should be present in the modal dialog");
+            assert.ok(isDisplayed, "Uploader button should be present in the modal dialog");
             // 3.  Most popular block should be displayed
             await newContentDialog.waitForMostPopularBlockDisplayed();
         });
@@ -99,9 +98,9 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
             items = await newContentDialog.getItems();
             await studioUtils.saveScreenshot("new_content_dialog_not_filtered");
             assert.equal(items.length, 3, "One item should be in the filtered dialog");
-            assert.isTrue(items.includes("Folder"), "Folder type should be displayed");
-            assert.isTrue(items.includes("Shortcut"), "Shortcut type should be displayed");
-            assert.isTrue(items.includes("Site"), "Site type should be displayed");
+            assert.ok(items.includes("Folder"), "Folder type should be displayed");
+            assert.ok(items.includes("Shortcut"), "Shortcut type should be displayed");
+            assert.ok(items.includes("Site"), "Site type should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

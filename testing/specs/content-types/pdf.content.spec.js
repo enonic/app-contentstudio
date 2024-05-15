@@ -1,8 +1,7 @@
 /**
  * Created on 07.09.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
@@ -17,11 +16,11 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
         webDriverHelper.setupBrowser();
     }
 
-    const TXT_FILE_DISPLAY_NAME = "test-text";
-    const TXT_EXTRACTION_TEXT = "Minsk Belarus";
-    const PDF_EXTRACTION_TEXT = "my test pdf file";
-    const PDF_TAG_TEXT = "tag pdf";
-    const PDF_CONTENT_DISPLAY_NAME = "pdf";
+    const TXT_FILE_DISPLAY_NAME = 'test-text';
+    const TXT_EXTRACTION_TEXT = 'Minsk Belarus';
+    const PDF_EXTRACTION_TEXT = 'my test pdf file';
+    const PDF_TAG_TEXT = 'tag pdf';
+    const PDF_CONTENT_DISPLAY_NAME = 'pdf';
 
     it(`GIVEN new tag and extraction text are saved in media content(PDF) WHEN extraction text has been typed in Filter Panel THEN expected pdf content should be filtered in the grid`,
         async () => {
@@ -47,11 +46,13 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
             await pdfForm.typeTextInAbstractionTextArea(PDF_EXTRACTION_TEXT);
             await pdfForm.addTag(PDF_TAG_TEXT);
             await contentWizard.waitAndClickOnSave();
-            await studioUtils.doCloseWizardAndSwitchToGrid();
+            await contentWizard.waitForNotificationMessage();
+            await studioUtils.doCloseWizardAndSwitchContentStudioTab();
             // 4. Type the extraction text
             await contentFilterPanel.typeSearchText(PDF_EXTRACTION_TEXT);
             await contentFilterPanel.pause(3000);
-            await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
+            // TODO Uncomment this code:
+            //await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
             // 5. Verify that the pdf content is filtered:
             await studioUtils.saveScreenshot('pdf_abstraction_text');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();

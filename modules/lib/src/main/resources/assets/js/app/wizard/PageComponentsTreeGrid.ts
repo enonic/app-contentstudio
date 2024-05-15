@@ -70,6 +70,15 @@ export class PageComponentsTreeGrid
         PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
             this.updateItemByPath(event.getPath());
         });
+
+        const isRootItemEmptyChecker = this.toggleRootItemHasChildren.bind(this);
+
+        this.onLoaded(isRootItemEmptyChecker);
+        this.onDataChanged(isRootItemEmptyChecker);
+    }
+
+    private toggleRootItemHasChildren(): void {
+        this.toggleClass('no-children-root', !this.isRootItemWithChildren());
     }
 
     queryScrollable(): Element {
@@ -162,7 +171,6 @@ export class PageComponentsTreeGrid
         const fullComponent: TreeComponent = TreeComponent.create()
             .setDisplayName(region.getName())
             .setDescription(RegionItemType.get().getShortName())
-            .setIconClass(ItemViewIconClassResolver.resolveByType(RegionItemType.get().getShortName()))
             .setHasChildren(this.hasComponentChildren(region))
             .setType('region')
             .build();
@@ -518,6 +526,10 @@ export class PageComponentsTreeGrid
         }
 
         super.expandOnClick(elem, data);
+    }
+
+    private isRootItemWithChildren(): boolean {
+        return this.getRoot().getDefaultRoot()?.getChildren()[0]?.hasChildren();
     }
 
 }

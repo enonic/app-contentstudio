@@ -321,11 +321,42 @@
       &.caption {
         margin: 15px 0;
       }
+
+      &.image-accessibility {
+        .image-accessibility-radio {
+          box-sizing: border-box;
+          padding-right: 0;
+
+          .alt-text {
+            margin-left: 23px;
+            width: calc(100% - 23px);
+
+            &:disabled {
+              opacity: 0.5;
+            }
+          }
+        }
+        .validation-viewer {
+          margin-top: 10px;
+        }
+      }
     }
 
     @-moz-document url-prefix() { // FF Issue with fieldset width, fix for XP-4975
       fieldset {
         display: table-cell;
+      }
+    }
+  }
+
+  .modal-dialog-footer {
+    .form-view {
+      fieldset:not(:last-child) {
+        margin-bottom: 0;
+      }
+
+      fieldset:not(:first-child) {
+        margin-top: 0;
       }
     }
   }

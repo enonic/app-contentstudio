@@ -1,8 +1,7 @@
 /**
  * Created on 28.11.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
@@ -42,23 +41,23 @@ describe('Content with image-selector, select images and verify that Outbound de
                 let siteConfiguratorDialog = new SiteConfiguratorDialog();
                 let wizardDependenciesWidget = new WizardDependenciesWidget();
                 let contentWizard = new ContentWizard();
-                //1. Open existing site:
+                // 1. Open existing site:
                 await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-                //2. Open Site Configurator:
+                // 2. Open Site Configurator:
                 await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_CONTENT_TYPES);
                 await siteConfiguratorDialog.showToolbarAndClickOnInsertImageButton();
                 await insertImageDialog.waitForDialogVisible();
-                //3. Insert an image:
+                // 3. Insert an image:
                 await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME1);
+                await insertImageDialog.clickOnDecorativeImageRadioButton();
                 await insertImageDialog.clickOnInsertButton();
-                //site should be saved automatically!!!
+                // the site should be saved automatically after the inserting!
                 await siteConfiguratorDialog.clickOnApplyButton();
                 await openWizardDependencyWidget();
                 await studioUtils.saveScreenshot('site_configurator_wizard_dependencies');
                 await contentWizard.waitForSaveButtonDisabled();
-                //4. Verify that 'Show outbound' button should be present on the widget, because the image was inserted in site configurator
+                // 4. Verify that 'Show outbound' button should be present on the widget, because the image was inserted in site configurator
                 await wizardDependenciesWidget.waitForOutboundButtonVisible();
-
             });
 
         it(`GIVEN wizard for new content with image selector is opened WHEN 2 images has been selected THEN 2 outbound dependencies should be present on the widget`,
@@ -66,40 +65,40 @@ describe('Content with image-selector, select images and verify that Outbound de
                 let imageSelectorForm = new ImageSelectorForm();
                 let wizardDependenciesWidget = new WizardDependenciesWidget();
                 let contentWizard = new ContentWizard();
-                //1. Open new wizard and type a name:
+                // 1. Open new wizard and type a name:
                 await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
                 await contentWizard.typeDisplayName(contentDisplayName);
-                //2. Select two images and save:
+                // 2. Select two images and save:
                 await imageSelectorForm.selectImages([IMAGE_DISPLAY_NAME1, IMAGE_DISPLAY_NAME2]);
                 await contentWizard.waitAndClickOnSave();
-                //3. Open dependencies widget:
+                // 3. Open dependencies widget:
                 await openWizardDependencyWidget();
                 //4. Verify the number of outbound items:
                 let actualNumber = await wizardDependenciesWidget.getNumberOutboundItems();
                 assert.equal(actualNumber, 2, '2 outbound items should be present on the widget');
             });
 
-        //verifies https://github.com/enonic/app-contentstudio/issues/969  Incorrect validation in Image Selector when the number of selected images exceeds allowed value
+        // verifies https://github.com/enonic/app-contentstudio/issues/969  Incorrect validation in Image Selector when the number of selected images exceeds allowed value
         it(`GIVEN wizard for image selector(2:4) is opened WHEN 5 images have been selected AND saved WHEN the content has been reopened THEN 4 images remain in wizard AND Red icon should not be present in the Widget View`,
             async () => {
                 let imageSelectorForm = new ImageSelectorForm();
                 let wizardDetailsPanel = new WizardDetailsPanel();
                 let contentWizard = new ContentWizard();
-                //1. Open new wizard and type a name:
+                // 1. Open new wizard and type a name:
                 await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
                 await contentWizard.typeDisplayName(CONTENT_NAME2);
-                //2. Click on dropdown handle, expand the options and click on 5 checkboxes:
+                // 2. Click on dropdown handle, expand the options and click on 5 checkboxes:
                 await imageSelectorForm.clickOnDropDownHandleAndSelectImages(5);
                 await studioUtils.saveScreenshot("image_selector_exceed");
-                //3. Click on Save button and close the wizard:
+                // 3. Click on Save button and close the wizard:
                 await studioUtils.saveAndCloseWizard();
-                //4. Reopen the content again:
+                // 4. Reopen the content again:
                 await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME2, false);
-                studioUtils.saveScreenshot("image_selector_reopened");
-                //Details Panel should be automatically opened:
-                //Verify that the content is valid:
-                let result = await wizardDetailsPanel.isContentInvalid();
-                assert.isFalse(result, "Red icon should not be present in the Widget View(Details Panel)");
+                await studioUtils.saveScreenshot("image_selector_reopened");
+                // Details Panel should be automatically opened:
+                // Verify that the content is valid:
+                let isInvalid = await wizardDetailsPanel.isContentInvalid();
+                assert.ok(isInvalid === false, "Red icon should not be present in the Widget View(Details Panel)");
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

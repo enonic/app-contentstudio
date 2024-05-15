@@ -1,8 +1,7 @@
 /**
  * Created on 26.03.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -101,13 +100,15 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            await projectWizard.clickOnAccessModeRadio("Public");
+            // 2. Click on 'Public' radio:
+            await projectWizard.clickOnAccessModeRadio('Public');
+            // 3. Confirm, click on 'Yes' button:
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
-            // 2. Verify that combobox in 'Custom mode access' gets disabled:
+            // 4. Verify that combobox in 'Custom mode access' gets disabled:
             await projectWizard.waitForCustomAccessModeComboboxDisabled();
-            // 3. Verify that 'Save' button gets enabled:
+            // 5. Verify that 'Save' button gets enabled:
             await projectWizard.waitForSaveButtonEnabled();
         });
 
@@ -134,7 +135,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await confirmationDialog.clickOnCancelTopButton();
             let isSelected = await projectWizard.isAccessModeRadioSelected("Private");
             // 5. Verify that access mode returns to the initial state:
-            assert.isTrue(isSelected, "Private mode should be reverted in the Access Mode form");
+            assert.ok(isSelected, "Private mode should be reverted in the Access Mode form");
             // 6. Verify that 'Save' button is disabled
             await projectWizard.waitForSaveButtonDisabled();
         });

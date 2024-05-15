@@ -52,6 +52,13 @@ tasks.register( 'copyCustomConfig', Copy ) {
     into file( configDir )
 }
 
+tasks.register( 'copyProjectMultiConfig', Copy ) {
+    println "$appDir${File.separator}project-multi-config"
+    from "$appDir${File.separator}project-multi-config"
+    include '**.*.cfg'
+    into file( configDir )
+}
+
 tasks.register( 'copyApps', Copy ) {
     println '*********************************************************'
     println '* task started:copyApps  *'
@@ -245,9 +252,21 @@ tasks.register( 'w_testProjects', NpmTask ) {
     finalizedBy generateReportAndStopServer
 }
 
+tasks.register( 'w_miscTests', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
+    args = ['run-script', 'test_misc:wdio_chrome']
+    finalizedBy generateReportAndStopServer
+}
+
 tasks.register( 'w_testProjects_2', NpmTask ) {
     dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_project_2:wdio_chrome']
+    finalizedBy generateReportAndStopServer
+}
+
+tasks.register( 'testProjects_multi', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps, copyProjectMultiConfig )
+    args = ['run-script', 'test_project_multi:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 

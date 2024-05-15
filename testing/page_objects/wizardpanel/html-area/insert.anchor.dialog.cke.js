@@ -26,11 +26,13 @@ class InsertAnchorModalDialog extends Page {
         return XPATH.container + lib.TEXT_INPUT;
     }
 
-    typeInTextInput(text) {
-        return this.typeTextInInput(this.textInput, text).catch(err => {
-            this.saveScreenshot('err_insert_anchor', err);
-            throw new Error("Insert Anchor Dialog - " + err);
-        })
+    async typeInTextInput(text) {
+        try {
+            return await this.typeTextInInput(this.textInput, text)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_insert_anchor');
+            throw new Error("Insert Anchor Dialog -screenshot:  " + screenshot + ' ' + err);
+        }
     }
 
     clickOnCancelButton() {
@@ -42,21 +44,30 @@ class InsertAnchorModalDialog extends Page {
         return await this.pause(500);
     }
 
-    clickOnInsertButtonAndWaitForClosed() {
-        return this.clickOnElement(this.insertButton).catch((err) => {
-            this.saveScreenshot('err_click_on_insert_anchor_icon');
-            throw new Error('Insert Anchor Dialog, error when click on the Insert button  ' + err);
-        }).then(() => {
-            return this.waitForDialogClosed(appConst.mediumTimeout);
-        }).catch(err => {
-            throw new Error('Insert Anchor Dialog, is not closed in   ' + appConst.mediumTimeout + "   " + err);
-        })
+    async clickOnInsertButtonAndWaitForClosed() {
+        try {
+            await this.clickOnElement(this.insertButton);
+            return await this.waitForDialogClosed(appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_insert_anchor_icon');
+            throw new Error('Insert Anchor Dialog, screenshot:  ' + screenshot + "   " + err);
+        }
     }
 
-    waitForValidationMessage() {
-        return this.waitForElementDisplayed(XPATH.container + lib.VALIDATION_RECORDING_VIEWER, appConst.shortTimeout).catch(err => {
-            return false;
-        });
+    async waitForValidationMessage() {
+        try {
+            let locator = XPATH.container + lib.VALIDATION_RECORDING_VIEWER;
+            return await this.waitForElementDisplayed(locator, appConst.shortTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_insert_anchor_icon');
+            throw new Error('Insert Anchor dialog, validation message should be displayed! screenshot: ' + screenshot + '' + err);
+        }
+    }
+
+    async getValidationMessage() {
+        let locator = XPATH.container + lib.VALIDATION_RECORDING_VIEWER;
+        await this.waitForValidationMessage();
+        return await this.getText(locator);
     }
 
     waitForDialogLoaded() {
@@ -74,5 +85,6 @@ class InsertAnchorModalDialog extends Page {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
     }
 }
+
 module.exports = InsertAnchorModalDialog;
 

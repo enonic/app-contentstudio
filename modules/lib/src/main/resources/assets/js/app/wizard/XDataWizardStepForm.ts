@@ -7,9 +7,12 @@ import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentFormContext} from '../ContentFormContext';
 import {ExtraData} from '../content/ExtraData';
+import {ContentPanelStripHeader} from './ContentPanelStripHeader';
 
 export class XDataWizardStepForm
     extends ContentWizardStepForm {
+
+    protected outerHeader: ContentPanelStripHeader;
 
     private readonly xData: XData;
 
@@ -43,7 +46,7 @@ export class XDataWizardStepForm
     }
 
     isExpandable(): boolean {
-        return this.xData.isOptional();
+        return this.isOptional();
     }
 
     isEnabled(): boolean {
@@ -92,15 +95,11 @@ export class XDataWizardStepForm
     }
 
     resetHeaderState() {
-        if (this.outerHeader) {
-            this.outerHeader.setTogglerState(this.enabled, true);
-        }
+        this.outerHeader?.setTogglerState(this.enabled, true);
     }
 
     private setHeaderState(enabled: boolean, silent: boolean = false) {
-        if (this.outerHeader) {
-            this.outerHeader.setTogglerState(enabled, silent);
-        }
+        this.outerHeader?.setTogglerState(enabled, silent);
     }
 
     private setEnabledState(value: boolean, silent: boolean = false): Q.Promise<void> {

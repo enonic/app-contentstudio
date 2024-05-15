@@ -85,6 +85,8 @@ import {TextEditModeChangedEvent} from '../../../page-editor/event/outgoing/navi
 import {EditContentFromComponentViewEvent} from '../../../page-editor/event/outgoing/manipulation/EditContentFromComponentViewEvent';
 import {ContentUrlHelper} from '../../util/ContentUrlHelper';
 import {TextComponent} from '../../page/region/TextComponent';
+import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
+import {PageStateEvent} from '../../../page-editor/event/incoming/common/PageStateEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -372,15 +374,17 @@ export class LiveEditPageProxy
                     console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
                 }
 
-                if (this.liveEditModel) {
+                if (this.isLiveEditAllowed()) {
                     new InitializeLiveEditEvent(this.createLiveEditParams()).fire(this.liveEditWindow);
+                } else {
+                    PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
                 }
             } else {
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.handleIframeLoadedEvent: notify live edit ready at ' + new Date().toISOString());
                 }
 
-                if (this.liveEditModel) {
+                if (this.isLiveEditAllowed()) {
                     PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
                 }
             }
@@ -391,14 +395,15 @@ export class LiveEditPageProxy
     }
 
     private createLiveEditParams(): LiveEditParams {
+        const isPageTemplate = this.liveEditModel.getContent().isPageTemplate();
         const isFragment = this.liveEditModel.getContent().getType().isFragment();
         const displayName = this.liveEditModel.getContent().getDisplayName();
-        const locked = !this.liveEditModel.getContent().isPageTemplate() && !PageState.getState()?.hasController() && !isFragment;
+        const locked = !isPageTemplate && !PageState.getState()?.hasController() && !isFragment;
         const isFragmentAllowed = this.liveEditModel.isFragmentAllowed();
         const isResetEnabled =  PageState.getState()?.hasController();
         const pageName = displayName;
         const pageIconClass = PageHelper.getPageIconClass(PageState.getState());
-        const isPageEmpty = this.liveEditModel.getContent().isPageTemplate() && !PageState.getState()?.hasController();
+        const isPageEmpty = isPageTemplate && !PageState.getState()?.hasController();
         const applicationKeys = this.liveEditModel.getSiteModel().getSite().getApplicationKeys().map((key) => key.toString());
         const contentId = this.liveEditModel.getContent().getId();
         const language = this.liveEditModel.getContent()?.getLanguage();
@@ -431,6 +436,7 @@ export class LiveEditPageProxy
 
         return {
             isFragment,
+            isPageTemplate,
             displayName,
             locked,
             isFragmentAllowed,
@@ -726,6 +732,8 @@ export class LiveEditPageProxy
                 } else {
                     new AddComponentViewEvent(event.getPath(), event.getComponent().getType()).fire(this.liveEditWindow);
                 }
+
+                new PageStateEvent(PageState.getState().toJson()).fire(this.liveEditWindow);
             }
         });
 
@@ -735,8 +743,13 @@ export class LiveEditPageProxy
                     // do nothing since component is being moved
                 } else {
                     new RemoveComponentViewEvent(event.getPath()).fire(this.liveEditWindow);
+                    new PageStateEvent(PageState.getState().toJson()).fire(this.liveEditWindow);
                 }
             }
+        });
+
+        PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
+            new PageStateEvent(PageState.getState().toJson()).fire(this.liveEditWindow);
         });
 
         BeforeContentSavedEvent.on(() => {
@@ -780,5 +793,14 @@ export class LiveEditPageProxy
         };
 
         PageState.getEvents().onPageUpdated(listener);
+    }
+
+    private isLiveEditAllowed(): boolean {
+        // if content is rendered, but has no controller nor template, we should not allow live edit
+
+        return this.liveEditModel ? this.liveEditModel.getContent().isPageTemplate() ||
+                                    PageState.getState()?.hasController() ||
+                                    this.liveEditModel.getContent().getType().isFragment() ||
+                                    this.liveEditModel.getDefaultModels().hasDefaultPageTemplate() : false;
     }
 }

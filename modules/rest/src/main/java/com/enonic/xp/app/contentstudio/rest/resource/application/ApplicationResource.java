@@ -117,8 +117,7 @@ public final class ApplicationResource
         final ListApplicationJson listJson = new ListApplicationJson();
 
         params.getApplicationKeys()
-            .stream()
-            .map( this.applicationService::getInstalledApplication )
+            .stream().map( this.applicationService::get )
             .filter( Objects::nonNull )
             .map( this::applicationToJson )
             .forEach( listJson::add );
@@ -132,7 +131,7 @@ public final class ApplicationResource
     {
         final ListApplicationJson json = new ListApplicationJson();
 
-        Applications applications = this.applicationService.getInstalledApplications();
+        Applications applications = this.applicationService.list();
 
         applications = this.filterApplications( applications, query );
         applications = this.sortApplications( applications );

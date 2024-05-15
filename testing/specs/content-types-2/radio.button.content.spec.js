@@ -1,8 +1,7 @@
 /**
  * Created on 20.10.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -30,51 +29,47 @@ describe('radiobutton.content.spec: tests for content with radio buttons', funct
         async () => {
             let radioButtonForm = new RadioButtonForm();
             let contentWizard = new ContentWizard();
-            //1. open new wizard and fill in the name input:
+            // 1. open new wizard and fill in the name input:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.RADIOBUTTON_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
-
             //2. Verify that 'option A' is not selected in the new wizard:
             let isSelected = await radioButtonForm.isRadioSelected(appConst.RADIO_OPTION.OPTION_A);
-            assert.isFalse(isSelected, "Option A should not be selected");
-
+            assert.ok(isSelected === false, "Option A should not be selected");
             //3. Verify that 'option B' is not selected in the new wizard:
             isSelected = await radioButtonForm.isRadioSelected(appConst.RADIO_OPTION.OPTION_B);
-            assert.isFalse(isSelected, "Option B should not be selected");
-
+            assert.ok(isSelected === false, "Option B should not be selected");
             //4. Verify that option C is not selected in the new wizard:
             isSelected = await radioButtonForm.isRadioSelected(appConst.RADIO_OPTION.OPTION_C);
-            assert.isFalse(isSelected, "Option C should not be selected");
-
+            assert.ok(isSelected === false, "Option C should not be selected");
             let isInValid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInValid, 'the content should be valid, because combobox input is not required');
+            assert.ok(isInValid === false, 'the content should be valid, because combobox input is not required');
         });
 
     it("GIVEN wizard for new content with required 'radiobutton' is opened WHEN the name input has been filled AND a radio has been selected THEN the content gets valid",
         async () => {
             let radioButtonForm = new RadioButtonForm();
             let contentWizard = new ContentWizard();
-            //1. open new wizard and fill in the name input:
+            // 1. open new wizard and fill in the name input:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.RADIOBUTTON_1_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
-            //2. Verify that the radio is not selected in the new wizard:
+            // 2. Verify that the radio is not selected in the new wizard:
             let isSelected = await radioButtonForm.isRadioSelected(appConst.RADIO_OPTION.OPTION_A);
-            assert.isFalse(isSelected, "Option A should not be selected");
-            //3. Verify that the content is invalid(radio is not selected yet)
+            assert.ok(isSelected === false, "Option A should not be selected");
+            // 3. Verify that the content is invalid(radio is not selected yet)
             let isInValid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInValid, 'the content should be invalid, because the radio input is required');
-            //4. Click on the 'option A' radio button:
+            assert.ok(isInValid, 'the content should be invalid, because the radio input is required');
+            // 4. Click on the 'option A' radio button:
             await radioButtonForm.clickOnRadio(appConst.RADIO_OPTION.OPTION_A);
-            //5. Verify that the radio is selected now
+            // 5. Verify that the radio is selected now
             isSelected = await radioButtonForm.isRadioSelected(appConst.RADIO_OPTION.OPTION_A);
             await studioUtils.saveScreenshot('radio_not_required');
-            assert.isTrue(isSelected, "'Option A' should be selected");
+            assert.ok(isSelected, "'Option A' should be selected");
 
-            //6. Verify that the content gets valid even before clicking on the 'Save' button
+            // 6. Verify that the content gets valid even before clicking on the 'Save' button
             isInValid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInValid, 'the content should be valid, because the radio is selected now');
+            assert.ok(isInValid === false, 'the content should be valid, because the radio is selected now');
 
-            //6. Click on 'Mark as Ready' button, the content will be automatically saved:
+            // 7. Click on 'Mark as Ready' button, the content will be automatically saved:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.waitForNotificationMessage();
         });
@@ -82,18 +77,18 @@ describe('radiobutton.content.spec: tests for content with radio buttons', funct
     it("WHEN existing 'radiobutton' content is reopened THEN expected radio button should be selected",
         async () => {
             let radioButtonForm = new RadioButtonForm();
-            //1. reopen existing checkbox content:
+            // 1. reopen existing checkbox content:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_2);
-            //2. Verify that the 'option A'  radio is selected
+            // 2. Verify that the 'option A'  radio is selected
             await studioUtils.saveScreenshot('radio_content_reopened');
             let isSelected = await radioButtonForm.isRadioSelected(appConst.RADIO_OPTION.OPTION_A);
-            assert.isTrue(isSelected, "'Option A' should be selected");
+            assert.ok(isSelected, "'Option A' should be selected");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

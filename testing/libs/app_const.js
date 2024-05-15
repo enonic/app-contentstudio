@@ -19,10 +19,10 @@ module.exports = Object.freeze({
     itemPublishedNotificationMessage: (name) => {
         return `Item \"${name}\" is published.`
     },
-    issueClosedNotificationMessage (name) {
+    issueClosedNotificationMessage(name) {
         return `Issue \"${name}\" is closed.`
     },
-    sortOrderTitle (by, order) {
+    sortOrderTitle(by, order) {
         return `Sorted by \"${by}\" in ${order} order`
     },
     permissionsAppliedNotificationMessage: (name) => {
@@ -87,6 +87,9 @@ module.exports = Object.freeze({
         TWO_ITEMS_PUBLISHED: '2 items are published.',
         TWO_ITEMS_UNPUBLISHED: '2 items are unpublished',
         CONTENT_REVERTED: 'The content was reverted to the version from',
+        applicationsCopiedFromParent: (name) => {
+            return `Applications successfully copied from \"${name}\"`
+        },
     },
     TEST_DATA: {
         TEST_FOLDER_IMAGES_1_DISPLAY_NAME: 'All Content types images',
@@ -102,6 +105,7 @@ module.exports = Object.freeze({
         APP_WITH_CONFIG_OPTION_SET: 'Simple Test Selenium App',
         APP_WITH_METADATA_MIXIN: 'Third Selenium App',
         FIRST_SELENIUM_APP: 'First Selenium App',
+        MY_FIRST_APP: 'My First App',
     },
 
     VERSIONS_ITEM_HEADER: {
@@ -146,6 +150,9 @@ module.exports = Object.freeze({
         FTP: 'Ftp',
         TEL: 'Tel',
         RELATIVE: 'Relative'
+    },
+    LIVE_EDIT:{
+        REGION_MAIN_DISPLAY_NAME:'Main'
     },
 
     VALIDATION_MESSAGE: {
@@ -241,7 +248,8 @@ module.exports = Object.freeze({
         ELEPHANT: 'elephant',
         ENTERPRISE: 'enterprise',
         GEEK: 'geek',
-        TELK: 'telk'
+        TELK: 'telk',
+        MONET_004: 'monet-004',
     },
     COMPONENT_VIEW_MENU_ITEMS: {
         INSERT: 'Insert',

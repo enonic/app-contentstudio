@@ -9,6 +9,7 @@ import {ContentId} from './content/ContentId';
 import {ContentPath} from './content/ContentPath';
 import {Project} from './settings/data/project/Project';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {Application} from '@enonic/lib-admin-ui/application/Application';
 
 export class ContentFormContext
     extends FormContext {
@@ -22,6 +23,8 @@ export class ContentFormContext
     private readonly project?: Project;
 
     private readonly applicationKey?: ApplicationKey;
+
+    private stoppedApplications?: Application[];
 
     private contentUpdatedListeners: ((content: Content) => void)[] = [];
 
@@ -72,6 +75,15 @@ export class ContentFormContext
 
     getApplicationKey(): ApplicationKey {
         return this.applicationKey;
+    }
+
+    setStoppedApplications(applications: Application[]): ContentFormContext {
+        this.stoppedApplications = applications;
+        return this;
+    }
+
+    getStoppedApplicationByKey(appKey: ApplicationKey): Application | undefined {
+        return this.stoppedApplications?.find(app => app.getApplicationKey().equals(appKey));
     }
 
     createInputTypeViewContext(inputTypeConfig: object, parentPropertyPath: PropertyPath, input: Input): ContentInputTypeViewContext {

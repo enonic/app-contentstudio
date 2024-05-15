@@ -7,108 +7,92 @@ const Page = require('../page');
 const XPATH = {
     container: "//div[contains(@id,'DateTimeRange')]",
     onlineFromDateTime: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[text()='Online from']]//input[contains(@id,'TextInput')]",
-    onlineFromPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[text()='Online from']]" +
-                           "//div[contains(@id,'DateTimePickerPopup')]",
+    onlineFromPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[text()='Online from']]//div[contains(@id,'DateTimePickerPopup')]",
+    onlineToPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[text()='Online to']]//div[contains(@id,'DateTimePickerPopup')]",
     onlineToDateTime: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[text()='Online to']]//input[contains(@id,'TextInput')]",
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
 };
 
-//ScheduleWizardStepForm, DateTimeRange
+// ScheduleWizardStepForm, DateTimeRange form
 class DateTimeRange extends Page {
 
+    constructor(xpath) {
+        super();
+        this.parentContainer = xpath === undefined ? '' : xpath;
+    }
+
     get onlineFromDateTimeInput() {
-        return XPATH.container + XPATH.onlineFromDateTime;
+        return this.parentContainer + XPATH.container + XPATH.onlineFromDateTime;
     }
 
     get onlineToDateTimeInput() {
-        return XPATH.container + XPATH.onlineToDateTime;
+        return this.parentContainer + XPATH.container + XPATH.onlineToDateTime;
     }
 
     get validationRecord() {
-        return lib.FORM_VIEW + lib.OCCURRENCE_ERROR_BLOCK;
+        return this.parentContainer + lib.FORM_VIEW + lib.OCCURRENCE_ERROR_BLOCK;
     }
 
-    clearOnlineFrom(xpath) {
-        if (xpath === undefined) {
-            xpath = '';
-        }
-        return this.clearTextInput(xpath + this.onlineFromDateTimeInput);
+    clearOnlineFrom() {
+        return this.clearTextInput(this.parentContainer + this.onlineFromDateTimeInput);
     }
 
-    typeOnlineFrom(value, xpath) {
-        if (xpath === undefined) {
-            xpath = '';
-        }
-        return this.typeTextInInput(xpath + this.onlineFromDateTimeInput, value);
+    async showOnlineToPickerPopup() {
+        await this.clickOnElement(this.onlineToDateTimeInput);
+        return await this.pause(300);
     }
 
-    waitForOnlineToInputDisplayed(xpath) {
-        if (xpath === undefined) {
-            xpath = '';
-        }
-        return this.waitForElementDisplayed(xpath + this.onlineToDateTimeInput, appConst.mediumTimeout);
+    async showOnlineFromPickerPopup() {
+        await this.clickOnElement(this.onlineFromDateTimeInput);
+        return await this.pause(300);
     }
 
-    waitForOnlineFromInputDisplayed(xpath) {
-        if (xpath === undefined) {
-            xpath = '';
-        }
-        return this.waitForElementDisplayed(xpath + this.onlineFromDateTimeInput, appConst.mediumTimeout);
+    typeOnlineFrom(value) {
+        return this.typeTextInInput(this.onlineFromDateTimeInput, value);
     }
 
-    async getOnlineFrom(xpath) {
-        if (xpath === undefined) {
-            xpath = '';
-        }
+    waitForOnlineToInputDisplayed() {
+        return this.waitForElementDisplayed(this.onlineToDateTimeInput, appConst.mediumTimeout);
+    }
+
+    waitForOnlineFromInputDisplayed() {
+        return this.waitForElementDisplayed(this.onlineFromDateTimeInput, appConst.mediumTimeout);
+    }
+
+    async getOnlineFrom() {
         await this.waitForOnlineFromInputDisplayed();
         await this.pause(300);
-        return await this.getTextInInput(xpath + this.onlineFromDateTimeInput);
+        return await this.getTextInInput(this.onlineFromDateTimeInput);
     }
 
-    getOnlineTo(xpath) {
-        if (xpath === undefined) {
-            xpath = '';
-        }
+    getOnlineTo() {
         return this.getTextInInput(this.onlineToDateTimeInput);
     }
 
-    typeOnlineTo(value, xpath) {
-        if (xpath === undefined) {
-            xpath = '';
-        }
+    typeOnlineTo(value) {
         return this.typeTextInInput(this.onlineToDateTimeInput, value);
     }
 
 
-    waitForValidationRecording(ms, xpath) {
-        if (xpath === undefined) {
-            xpath = '';
-        }
-        return this.waitForElementDisplayed(xpath + this.validationRecord, ms);
+    waitForValidationRecording(ms) {
+        return this.waitForElementDisplayed(this.validationRecord, ms);
     }
 
-    isValidationRecordingDisplayed(xpath) {
-        if (xpath === undefined) {
-            xpath = '';
-        }
-        return this.isElementDisplayed(xpath + this.validationRecord);
+    isValidationRecordingDisplayed() {
+        return this.isElementDisplayed(this.validationRecord);
     }
 
-    getValidationRecord(xpath) {
-        if (xpath === undefined) {
-            xpath = '';
-        }
-        return this.getText(xpath + this.validationRecord).catch(err => {
-            this.saveScreenshot('err_schedule_validation_record');
+    async getValidationRecord() {
+        try {
+            return await this.getText(this.validationRecord);
+        } catch (err) {
+            await this.saveScreenshot('err_schedule_validation_record');
             throw new Error('getting Validation text: ' + err);
-        })
+        }
     }
 
-    waitForDisplayed(xpath) {
-        if (xpath === undefined) {
-            xpath = '';
-        }
-        return this.waitUntilDisplayed(xpath + XPATH.container, appConst.shortTimeout);
+    waitForDisplayed() {
+        return this.waitUntilDisplayed(this.parentContainer + XPATH.container, appConst.shortTimeout);
     }
 
     async waitForOnlineFromPickerDisplayed() {
@@ -119,16 +103,16 @@ class DateTimeRange extends Page {
         }
     }
 
-    waitForNotDisplayed(xpath) {
-        if (xpath === undefined) {
-            xpath = '';
+    async waitForOnlineToPickerDisplayed() {
+        try {
+            return await this.waitUntilDisplayed(XPATH.onlineToPickerPopup, appConst.shortTimeout);
+        } catch (err) {
+            throw new Error("Online from picker popup should be opened!" + err);
         }
-        return this.waitUntilElementNotVisible(xpath + XPATH.container, appConst.shortTimeout);
     }
 
-    async doOpenOnlineFromPickerPopup() {
-        await this.clickOnElement(this.onlineFromDateTimeInput);
-        return await this.waitForOnlineFromPickerDisplayed();
+    waitForNotDisplayed() {
+        return this.waitUntilElementNotVisible(this.parentContainer + XPATH.container, appConst.shortTimeout);
     }
 
     async clickOnHoursArrowOnlineFrom() {
@@ -137,7 +121,6 @@ class DateTimeRange extends Page {
         await elems[0].click();
         return await this.pause(300);
     }
-
 }
 
 module.exports = DateTimeRange;

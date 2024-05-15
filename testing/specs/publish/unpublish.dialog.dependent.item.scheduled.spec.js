@@ -1,8 +1,7 @@
 /**
  * Created on 18.02.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -64,12 +63,13 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             let actualStatus = await contentUnpublishDialog.getItemStatus(SITE.displayName);
             // 4. Verify the number of dependent items
             let dependantItems = await contentUnpublishDialog.getDependentItemsPath();
-            assert.isTrue(dependantItems.length === 1, 'One dependent item should be displaed in the dialog');
+            assert.ok(dependantItems.length === 1, 'One dependent item should be displayed in the dialog');
             // 5. Verify that 'Publishing Scheduled' status is displayed in the modal dialog:
             assert.equal(actualStatus, appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED, 'Scheduled status should be displayed in the dialog');
             let actualNumber = await contentUnpublishDialog.getNumberInUnpublishButton();
             assert.equal(actualNumber, '2', '2 items will be unpablished');
         });
+    
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {

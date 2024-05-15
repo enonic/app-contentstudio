@@ -1,8 +1,7 @@
 /**
  * Created on 16.01.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
@@ -37,14 +36,14 @@ describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + te
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.typeNameInFilterPanel(folder1.displayName);
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(folder1.displayName);
-            //1. Select the first folder:
+            // 1. Select the first folder:
             await studioUtils.typeNameInFilterPanel(folder2.displayName);
             await contentBrowsePanel.pause(1000);
-            //2. Select the second folder:
+            // 2. Select the second folder:
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(folder2.displayName);
-            //3. Delete folders:
+            // 3. Delete folders:
             await studioUtils.doDeleteNowAndConfirm(2);
-            //4. Delete button should be disabled now:
+            // 4. Delete button should be disabled now:
             await contentBrowsePanel.waitForArchiveButtonDisabled();
         });
 
@@ -54,20 +53,20 @@ describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + te
             let contentWizard = new ContentWizard();
             let deleteContentDialog = new DeleteContentDialog();
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            //1. Fill in the name input
+            // 1. Fill in the name input
             await contentWizard.typeDisplayName(appConst.generateRandomName("folder"));
-            //2. Open Delete/Archive content dialog
+            // 2. Open Delete/Archive content dialog
             await contentWizard.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.waitForSpinnerNotVisible();
-            //3. Click on 'Delete' menu item:
+            // 3. Click on 'Delete' menu item:
             await deleteContentDialog.clickOnDeleteMenuItem();
-            //4. Verify that Alert does not appear in the wizard:
+            // 4. Verify that Alert does not appear in the wizard:
             let result = await contentWizard.isAlertOpen();
             if (result) {
                 await contentWizard.dismissAlert();
             }
-            assert.isFalse(result, "Alert should not appear after trying to delete the wizard with unsaved changes");
+            assert.ok(result === false, "Alert should not appear after trying to delete the wizard with unsaved changes");
             await studioUtils.doSwitchToContentBrowsePanel();
             await contentBrowsePanel.pause(2000);
         });
@@ -78,30 +77,30 @@ describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + te
             let contentWizard = new ContentWizard();
             let folderName = appConst.generateRandomName("folder");
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            //1. Fill in the name input
+            // 1. Fill in the name input
             await contentWizard.typeDisplayName(folderName);
-            //2. Click on 'Close tab' icon:
+            // 2. Click on 'Close tab' icon:
             await contentWizard.clickOnCloseBrowserTab();
             await contentWizard.pause(500);
-            //3. Verify that Alert appears in the wizard:
+            // 3. Verify that Alert appears in the wizard:
             let result = await contentWizard.isAlertOpen();
             if (result) {
                 await contentWizard.acceptAlert();
             }
-            assert.isTrue(result, "Alert should appear after trying to close the wizard with unsaved changes");
+            assert.ok(result, "Alert should appear after trying to close the wizard with unsaved changes");
             await studioUtils.doSwitchToContentBrowsePanel();
             let contentFilterPanel = new ContentFilterPanel();
-            //4. Open Filter Panel and type the name of folder
+            // 4. Open Filter Panel and type the name of folder
             await studioUtils.openFilterPanel();
             await contentFilterPanel.typeSearchText(folderName);
-            //5. Verify that content with that name does not exist (has not been saved)
+            // 5. Verify that content with that name does not exist (has not been saved)
             await contentBrowsePanel.waitForContentNotDisplayed(folderName);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

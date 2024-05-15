@@ -1,8 +1,7 @@
 /**
  * Created on 30.07.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -18,7 +17,7 @@ describe('site.with.layout.component.spec - specification', function () {
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const LAYOUT_NAME = '3-col';
 
     it(`GIVEN existing site is opened  WHEN 3-column layout has been inserted THEN layout-component with 3 regions should be present in Live Edit`,

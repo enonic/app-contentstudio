@@ -1,8 +1,7 @@
 /**
  * Created on 22.11.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -44,7 +43,7 @@ describe('Wizard page - verify schedule form', function () {
             await wizardDetailsPanel.waitForScheduleWidgetItemNotDisplayed();
         });
 
-    it(`GIVEN existing content is opened WHEN content has been published THEN 'Schedule' form should appear in Edit Properties modal dialog`,
+    it(`GIVEN existing content is opened WHEN content has been published THEN 'Schedule' form should appear in 'Edit Properties' modal dialog`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardDetailsPanel = new WizardDetailsPanel();
@@ -64,7 +63,7 @@ describe('Wizard page - verify schedule form', function () {
             // 5. Verify the date in Online from input:
             let expectedDate = new Date().toISOString().substring(0, 10);
             let from = await editScheduleDialog.getOnlineFrom();
-            assert.isTrue(from.includes(expectedDate), "Expected date time should be displayed");
+            assert.ok(from.includes(expectedDate), "Expected date time should be displayed");
         });
 
     it("GIVEN existing published folder is opened WHEN 'Online to' is earlier than 'Online from' THEN expected validation message appears",
@@ -80,14 +79,14 @@ describe('Wizard page - verify schedule form', function () {
             assert.equal(recordingActual, appConst.VALIDATION_MESSAGE.SCHEDULE_FORM_ONLINE_PAST);
         });
 
-    it("GIVEN existing published folder is opened WHEN 'Online from' has been cleared and 'Online to' has been set THEN 'Invalid value entered' message appears",
+    it("GIVEN existing published folder is opened WHEN 'Online from' input has been cleared and 'Online to' has been set THEN 'Invalid value entered' message appears",
         async () => {
             let contentWizard = new ContentWizard();
             // 1. Open the 'published' folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             // 2. Open Edit Schedule modal dialog:
             let editScheduleDialog = await studioUtils.openEditScheduleDialog();
-            // 3. 'Online from' has been cleared and 'Online to' has been set in future
+            // 3. 'Online from' input has been cleared and 'Online to' has been set in future
             await editScheduleDialog.typeOnlineFrom('  ');
             await editScheduleDialog.typeOnlineTo(DATE_TIME_IN_FUTURE);
             await studioUtils.saveScreenshot('online_to_cleared');
@@ -125,16 +124,16 @@ describe('Wizard page - verify schedule form', function () {
             let wizardVersionsWidget = new WizardVersionsWidget();
             // 1. Select and open the unpublished folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            // 2. Expand the publish menu then click on 'Publish...'
+            // 2. Expand the publish-menu then click on 'Publish...' menu item:
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();
-            // 3. Click on Add Schedule (calendar icon):
+            // 3. Click on 'Add Schedule' (calendar icon):
             await contentPublishDialog.clickOnAddScheduleIcon();
-            // 4. Type dateTime in future
+            // 4. Type a dateTime in future
             await contentPublishDialog.typeInOnlineFrom(DATE_TIME_IN_FUTURE);
             await contentPublishDialog.typeInOnlineTo(DATE_TIME_TO);
             await studioUtils.saveScreenshot('online_to_set');
-            await contentPublishDialog.clickOnOkButton();
+            await contentPublishDialog.clickOnOkInPickerPopup();
             // 5. Press the Schedule button
             await contentPublishDialog.clickOnScheduleButton();
             // 6. Verify that status is 'Publishing Scheduled''
@@ -143,8 +142,8 @@ describe('Wizard page - verify schedule form', function () {
             await contentWizard.openVersionsHistoryPanel();
             // 8. Verify the status in versions widget
             let status = await wizardVersionsWidget.getContentStatus();
-            assert.isTrue(status.includes('Will be published'), "'Will be published' should be present in the versions widget");
-            assert.isTrue(status.includes(DATE_TIME_IN_FUTURE), 'Expected date time in future should be displayed');
+            assert.ok(status.includes('Will be published'), "'Will be published' should be present in the versions widget");
+            assert.ok(status.includes(DATE_TIME_IN_FUTURE), 'Expected date time in future should be displayed');
         });
 
     it(`WHEN 'Online from' has been set in future THEN 'Published until' should be displayed in versions widget`,
@@ -163,13 +162,13 @@ describe('Wizard page - verify schedule form', function () {
             await contentPublishDialog.waitForDialogOpened();
             // 3. Click on Add Schedule (calendar icon):
             await contentPublishDialog.clickOnAddScheduleIcon();
-            // 4. Type dateTime in past:
+            // 4. Type a date-Time 'in past':
             await contentPublishDialog.typeInOnlineFrom(DATE_TIME_IN_PAST);
             // 5. Insert dateTime in future:
             await contentPublishDialog.typeInOnlineTo(DATE_TIME_TO);
             await studioUtils.saveScreenshot('online_to_set_2');
-            await contentPublishDialog.clickOnOkButton();
-            // 6. Press  'Schedule' button
+            await contentPublishDialog.clickOnOkInPickerPopup();
+            // 6. Press 'Schedule' button
             await contentPublishDialog.clickOnScheduleButton();
             // 7. Verify that status is 'Publishing Scheduled''
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHED);
@@ -177,10 +176,9 @@ describe('Wizard page - verify schedule form', function () {
             await contentWizard.openVersionsHistoryPanel();
             // 9. Verify the status in versions widget
             let status = await wizardVersionsWidget.getContentStatus();
-            assert.isTrue(status.includes('Published until'), "'Published until' should be present in the versions widget");
-            assert.isTrue(status.includes(DATE_TIME_TO), 'Expected date time in future should be displayed');
+            assert.ok(status.includes('Published until'), "'Published until' should be present in the versions widget");
+            assert.ok(status.includes(DATE_TIME_TO), 'Expected date time in future should be displayed');
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

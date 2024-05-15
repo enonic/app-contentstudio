@@ -174,9 +174,9 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.notifyDescriptorLoaded(descriptor);
     }
 
-    setDescriptorBasedComponent(component: COMPONENT) {
+    setComponent(component: COMPONENT): void {
         this.unregisterComponentListeners();
-        this.setComponent(component);
+        super.setComponent(component);
         this.updateSelectorValue();
         this.registerComponentListeners();
     }

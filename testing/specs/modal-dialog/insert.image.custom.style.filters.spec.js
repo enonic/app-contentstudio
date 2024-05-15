@@ -1,8 +1,7 @@
 /**
  * Created on 17.06.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -42,6 +41,7 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
             await insertImageDialog.waitForDialogVisible();
             // 2. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             // 3. Type the 'Avatar' text in filter input and click on the option:
             await insertImageDialog.doFilterStyleAndClickOnOption('Avatar');
             // 4. save the changes and save the content
@@ -65,6 +65,10 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
             // 4. Verify that 'Avatar' option should be selected in the styles dropdown selector
             await studioUtils.saveScreenshot('image_dialog_custom_style_avatar');
             assert.equal(actualStyle, 'Avatar', "'Avatar' style should be selected in the dropdown");
+
+            // 5. Verify that 'Decorative image' radio-button is selected
+            let isSelected = await insertImageDialog.isDecorativeImageRadioSelected();
+            assert.ok(isSelected, `'Decorative image' radio-button is selected`);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

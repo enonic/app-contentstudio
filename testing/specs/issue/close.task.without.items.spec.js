@@ -1,8 +1,7 @@
 /**
  * Created on 25.05.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
@@ -10,9 +9,9 @@ const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog'
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const appConst = require('../../libs/app_const');
 
-describe('close.task.without.items.spec: create task without items, close the task and reopen it again', function () {
+describe('close.issue.without.items.spec: create an issue without items, close the issue and reopen it again', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let issueTitle = appConst.generateRandomName('issue');
@@ -30,7 +29,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             // Click on Items-tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
             let result = await issueDetailsDialog.isNoActionLabelPresent();
-            assert.isTrue(result, `No items to publish' should be displayed, because items were not selected`);
+            assert.ok(result, `No items to publish' should be displayed, because items were not selected`);
         });
 
     it(`GIVEN existing 'open' issue is clicked and Issue Details dialog is opened WHEN 'Close Issue' button has been pressed THEN the issue gets 'Closed'`,

@@ -1,8 +1,7 @@
 /**
  * Created on 31.07.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
@@ -22,18 +21,18 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check the 
             let wizardDetailsPanel = new WizardDetailsPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
-            //1. Open new wizard:
+            // 1. Open new wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.openDetailsPanel();
-            //2. Version history widget should not be displayed by default!
+            // 2. Version history widget should not be displayed by default!
             let isLoaded = await wizardVersionsWidget.isWidgetLoaded();
-            assert.isFalse(isLoaded, "Versions Widget should not be displayed");
-            //3. Click on dropdown handle and open Versions widget:
+            assert.ok(isLoaded === false, "Versions Widget should not be displayed");
+            // 3. Click on dropdown handle and open Versions widget:
             await wizardDetailsPanel.openVersionHistory();
             await studioUtils.saveScreenshot("wizard_versions_widget");
-            //4. Verify that "Versions Widget" should be loaded:
+            // 4. Verify that "Versions Widget" should be loaded:
             await wizardVersionsWidget.waitForVersionsLoaded();
-
+            // 5. One version item should be present in the widget:
             let result = await wizardVersionsWidget.countVersionItems();
             assert.equal(result, 1, "One version item should be present in wizard for unnamed content");
         });
@@ -43,13 +42,13 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check the 
             let wizardDetailsPanel = new WizardDetailsPanel();
             let contentWizard = new ContentWizard();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
-            //1. Open new wizard:
+            // 1. Open new wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.openDetailsPanel();
-            //2. Click on dropdown handle and select Dependencies menu item:
+            // 2. Click on dropdown handle and select Dependencies menu item:
             await wizardDetailsPanel.openDependencies();
             await studioUtils.saveScreenshot("wizard_dependencies_widget");
-            //3. Verify that "Dependencies Widget" should be loaded:
+            // 3. Verify that "Dependencies Widget" should be loaded:
             await wizardDependenciesWidget.waitForWidgetLoaded();
             // 'No outgoing dependencies' should be displayed in the widget:
             await wizardDependenciesWidget.waitForNoOutgoingDependenciesMessage();
@@ -57,13 +56,13 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check the 
             await wizardDependenciesWidget.waitForNoIncomingDependenciesMessage();
 
             let result = await wizardDependenciesWidget.getContentName();
-            assert.isTrue(result.includes("_unnamed"), "'Unnamed' should be displayed in the dependency widget in new wizard");
+            assert.ok(result.includes("_unnamed"), "'Unnamed' should be displayed in the dependency widget in new wizard");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -32,6 +32,7 @@ import {CreateTextComponentViewConfig} from '../CreateTextComponentViewConfig';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Content} from '../../app/content/Content';
 import {PageUnlockedEvent} from '../event/outgoing/manipulation/PageUnlockedEvent';
+import {PageState} from '../../app/wizard/page/PageState';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder {
@@ -133,8 +134,7 @@ export class TextComponentView
             this.renderMode = VIEW_MODE.EDIT;
             this.initialValue = initialText;
         } else {
-            const content = ContentContext.get().getContent().getContentSummary() as Content;
-            const isPageTemplateMode = !content.getPage() || content.getPage().hasTemplate();
+            const isPageTemplateMode = !PageState.getState() || PageState.getState().hasTemplate();
 
             if (isPageTemplateMode) {
                 // using html from live edit load if page is rendered using a template and no page object is present

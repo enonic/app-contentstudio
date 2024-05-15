@@ -1,23 +1,21 @@
 import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
 import {Attachments, AttachmentsBuilder} from '../attachment/Attachments';
 import {ContentJson} from './ContentJson';
 import {ExtraData} from './ExtraData';
-import {ExtraDataByMixinNameComparator} from './ExtraDataByMixinNameComparator';
 import {ExtraDataJson} from '../resource/json/ExtraDataJson';
 import {XDataName} from './XDataName';
 import {Page, PageBuilder} from '../page/Page';
 import {AccessControlList} from '../access/AccessControlList';
-import {Permission} from '../access/Permission';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
 import {ValidationError} from '@enonic/lib-admin-ui/ValidationError';
+import {ContentDiff} from './ContentDiff';
+import {isEqual} from '../Diff';
+import {ContentDiffHelper} from '../util/ContentDiffHelper';
 
 export class Content
     extends ContentSummary
@@ -61,10 +59,6 @@ export class Content
         return this.attachments;
     }
 
-    getExtraDataByNameString(name: string): ExtraData {
-        return this.extraData.find((item: ExtraData) => item.getName().toString() === name);
-    }
-
     getExtraDataByName(name: XDataName): ExtraData {
         return this.extraData.filter((item: ExtraData) => item.getName().equals(name))[0];
     }
@@ -97,96 +91,13 @@ export class Content
         return this.overwritePermissions;
     }
 
-    isAnyPrincipalAllowed(principalKeys: PrincipalKey[], permission: Permission): boolean {
-
-        if (principalKeys.some(key => RoleKeys.isAdmin(key))) {
-            return true;
-        }
-        const permissionEntries = this.permissions.getEntries();
-        for (const permissionEntry of permissionEntries) {
-            if (permissionEntry.isAllowed(permission)) {
-                const principalInEntry = principalKeys.some((principalKey: PrincipalKey) => {
-                    if (principalKey.equals(permissionEntry.getPrincipalKey())) {
-                        return true;
-                    }
-                });
-                if (principalInEntry) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    dataEquals(other: PropertyTree, ignoreEmptyValues: boolean = false): boolean {
-        return PropertyTreeHelper.propertyTreesEqual(this.data, other, ignoreEmptyValues);
-    }
-
-    extraDataEquals(other: ExtraData[], ignoreEmptyValues: boolean = false): boolean {
-        if (ignoreEmptyValues) {
-            const isOtherArrayEmpty: boolean = !other || other.length === 0 || other.every(ed => !ed.getData() || ed.getData().isEmpty());
-            const isThisArrayEmpty: boolean =
-                !this.extraData || this.extraData.length === 0 || this.extraData.every(ed => !ed.getData() || ed.getData().isEmpty());
-
-            if (isThisArrayEmpty && isOtherArrayEmpty) {
-                return true;
-            }
-        }
-
-        const comparator = new ExtraDataByMixinNameComparator();
-
-        const arrayA = this.extraData.sort(comparator.compare);
-        const arrayB = other.sort(comparator.compare);
-
-        if (arrayA.length !== arrayB.length) {
-            return false;
-        }
-
-        for (let i = 0; i < arrayA.length; i++) {
-            if (!PropertyTreeHelper.propertyTreesEqual(arrayA[i].getData(), arrayB[i].getData(), ignoreEmptyValues)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     equals(o: Equitable, ignoreEmptyValues: boolean = false): boolean {
         if (!ObjectHelper.iFrameSafeInstanceOf(o, Content)) {
             return false;
         }
 
-        if (!super.equals(o)) {
-            return false;
-        }
-
-        let other = o as Content;
-
-        if (!this.dataEquals(other.getContentData(), ignoreEmptyValues)) {
-            return false;
-        }
-
-        if (!this.extraDataEquals(other.getAllExtraData(), ignoreEmptyValues)) {
-            return false;
-        }
-
-        if (!ObjectHelper.equals(this.pageObj, other.pageObj)) {
-            return false;
-        }
-
-        if (!ObjectHelper.equals(this.permissions, other.permissions)) {
-            return false;
-        }
-
-        if (!ObjectHelper.equals(this.attachments, other.attachments)) {
-            return false;
-        }
-
-        if (this.inheritPermissions !== other.inheritPermissions) {
-            return false;
-        }
-
-        return true;
+        const diff: ContentDiff = ContentDiffHelper.diff(this, o as Content, ignoreEmptyValues);
+        return isEqual(diff);
     }
 
     clone(): Content {

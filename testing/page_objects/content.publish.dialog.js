@@ -3,6 +3,7 @@ const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
 const DateTimeRange = require('../page_objects/components/datetime.range');
 const DependantsControls = require('./issue/dependant.controls');
+const DateTimePickerPopup = require('../page_objects/wizardpanel/time/date.time.picker.popup');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentPublishDialog')]",
@@ -28,6 +29,7 @@ const XPATH = {
     contentStatus: displayName => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
     removeItemIconByName: name => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]//div[@class='icon remove']`,
     excludedItemsNote: "//span[@class='excluded-items-note']",
+    publishChangeLogInput: "//input[contains(@placeholder,'Describe changes that will')]",
 };
 
 class ContentPublishDialog extends Page {
@@ -99,8 +101,22 @@ class ContentPublishDialog extends Page {
         return XPATH.container + XPATH.inProgressStateEntryDiv + lib.PUBLISH_DIALOG.EXCLUDE_BTN;
     }
 
+    getContainerXpath() {
+        return XPATH.container;
+    }
+
     get allDependantsCheckbox() {
         return XPATH.container + lib.checkBoxDiv('All');
+    }
+
+    async clickOnLogMessageLink() {
+        await this.waitForElementDisplayed(this.logMessageLink, appConst.mediumTimeout);
+        return await this.clickOnElement(this.logMessageLink);
+    }
+
+    typeTextInLogMessageInput(text) {
+        let locator = XPATH.container + XPATH.publishChangeLogInput;
+        return this.typeTextInInput(locator, text);
     }
 
     async waitForDependantsBlockDisplayed() {
@@ -254,8 +270,8 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.publishNowButton);
             return await this.pause(1000);
         } catch (err) {
-            await this.saveScreenshot('err_click_on_publish_button_publish_dialog');
-            throw new Error(`Error when clicking on 'Publish Now' button ` + err);
+            await this.saveScreenshotUniqueName('err_click_on_publish_button');
+            throw new Error(`Error occurred after clicking on 'Publish Now' button ` + err);
         }
     }
 
@@ -282,7 +298,7 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.scheduleButton);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_dialog_schedule_button'));
+            await this.saveScreenshotUniqueName('err_dialog_schedule_button');
             throw new Error('Error when clicking on Schedule button  ' + err);
         }
     }
@@ -302,7 +318,7 @@ class ContentPublishDialog extends Page {
             await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error('Error when clicking on Show Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
+            throw new Error('Error after clicking on Show Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
         }
     }
 
@@ -313,7 +329,7 @@ class ContentPublishDialog extends Page {
             return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error('Error when clicking on Hide Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
+            throw new Error('Error after clicking on Hide Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
         }
     }
 
@@ -446,37 +462,41 @@ class ContentPublishDialog extends Page {
     }
 
     async typeInOnlineFrom(dateTime) {
-        let dateTimeRange = new DateTimeRange();
-        await dateTimeRange.typeOnlineFrom(dateTime, XPATH.container);
+        let dateTimeRange = new DateTimeRange(XPATH.container);
+        await dateTimeRange.typeOnlineFrom(dateTime);
         return await this.pause(300);
+    }
+
+    async showOnlineToPickerPopup() {
+        let dateTimeRange = new DateTimeRange(XPATH.container);
+        await dateTimeRange.showOnlineToPickerPopup();
+    }
+
+    async showOnlineFormPickerPopup() {
+        let dateTimeRange = new DateTimeRange(XPATH.container);
+        await dateTimeRange.showOnlineFromPickerPopup();
     }
 
     async typeInOnlineTo(dateTime) {
-        let dateTimeRange = new DateTimeRange();
-        await dateTimeRange.typeOnlineTo(dateTime, XPATH.container);
+        let dateTimeRange = new DateTimeRange(XPATH.container);
+        await dateTimeRange.typeOnlineTo(dateTime);
         return await this.pause(300);
     }
 
-    async clickOnOkButton() {
-        let locator = "//div[@class='picker-buttons']//button[child::span[text()='OK']]";
-        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
-        let elems = await this.getDisplayedElements(locator);
-        if (elems.length === 0) {
-            throw new Error("Button OK is not displayed");
-        }
-        await elems[0].click();
-        await this.pause(200);
+    async clickOnOkInPickerPopup() {
+        let dateTimePickerPopup = new DateTimePickerPopup();
+        await dateTimePickerPopup.clickOnOkButton();
     }
 
     async getNumberItemsToPublish() {
         let selector = XPATH.container + `//button[contains(@id,'ActionButton')]/span[contains(.,'Publish Now')]`;
         let number = await this.getText(selector);
         let startIndex = number.indexOf('(');
-        if (startIndex == -1) {
+        if (startIndex === -1) {
             throw new Error("Content Publish Dialog - error when get a number in  'Publish now' button  ");
         }
         let endIndex = number.indexOf(')');
-        if (endIndex == -1) {
+        if (endIndex === -1) {
             throw new Error("Content Publish Dialog - error when get a number in  'Publish now' button ");
         }
         return number.substring(startIndex + 1, endIndex);
@@ -564,12 +584,6 @@ class ContentPublishDialog extends Page {
         let locator = XPATH.container + XPATH.excludedItemsNote;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return this.getText(locator);
-    }
-
-    async clickOnShowExcludedItemsButton() {
-        await this.waitForShowExcludedItemsButtonDisplayed()
-        await this.clickOnElement(this.showExcludedItemsButton);
-        return await this.pause(1000);
     }
 
     async getNumberInAllCheckbox() {

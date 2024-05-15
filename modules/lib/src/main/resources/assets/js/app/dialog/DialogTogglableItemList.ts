@@ -50,15 +50,17 @@ export class DialogTogglableItemList
 
         const serverEvents = ContentServerEventsHandler.getInstance();
 
-        const itemsByIdsUpdatedHandler = (updatedIds: ContentIds): void => {
-            const isItemsUpdated = this.getItems().some(item => updatedIds.contains(item.getContentId()));
+        const itemsByIdsUpdatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]): void => {
+            const updatedIds = updatedItems.map(item => item.getId());
+            const isItemsUpdated = this.getItems().some(item => updatedIds.findIndex(updatedId => updatedId === item.getId()) > -1);
+
             if (isItemsUpdated) {
                 this.notifyListChanged();
             }
         };
 
         const itemsUpdatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]) => {
-            itemsByIdsUpdatedHandler(ContentIds.from(updatedItems.map(item => item.getContentId())));
+            itemsByIdsUpdatedHandler(updatedItems);
         };
 
         const deletedHandler = (deletedItems: ContentServerChangeItem[]) => {

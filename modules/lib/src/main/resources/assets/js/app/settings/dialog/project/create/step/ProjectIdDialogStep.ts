@@ -23,7 +23,9 @@ export class ProjectIdDialogStep
 
     private descriptionInput: TextInput;
 
-    private nameOccupied: boolean;
+    createFormItems(): FormItem[] {
+        return [this.createProjectDisplayNameFormItem(), this.createProjectNameFormItem(), this.createDescriptionFormItem()];
+    }
 
     setDisplayName(value: string, silent?: boolean): void {
         this.displayNameInput.setValue(value, silent);
@@ -35,10 +37,6 @@ export class ProjectIdDialogStep
 
     setDescription(value: string, silent?: boolean): void {
         this.descriptionInput.setValue(value, silent);
-    }
-
-    protected createFormItems(): FormItem[] {
-        return [this.createProjectDisplayNameFormItem(), this.createProjectNameFormItem(), this.createDescriptionFormItem()];
     }
 
     private createProjectDisplayNameFormItem(): FormItem {
@@ -71,7 +69,6 @@ export class ProjectIdDialogStep
         super.initEventListeners();
 
         this.nameFormItem.getProjectNameInput().onValueChanged(() => {
-            this.nameOccupied = false;
             this.nameFormItem.setNameIsOccupied(false);
             this.nameFormItem.validate(new ValidationResult(), true);
             this.notifyDataChanged();
@@ -112,7 +109,6 @@ export class ProjectIdDialogStep
         }
 
         return this.isNameOccupied().then((isOccupied: boolean) => {
-            this.nameOccupied = isOccupied;
             this.nameFormItem.setNameIsOccupied(isOccupied);
             this.nameFormItem.validate(new ValidationResult(), true);
 

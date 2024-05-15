@@ -1,8 +1,7 @@
 /**
  * Created on 27.04.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -66,17 +65,19 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
+            // 1. Open new wizard for htmlArea 0:1
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             await contentWizard.waitAndClickOnSave();
+            // 2. Verify that only one area is displayed:
             let ids = await htmlAreaForm.getIdOfHtmlAreas();
             assert.equal(ids.length, 1, "Single html area should be displayed by default");
-            // Verify that toolbar is not visible:
+            // 3. Verify that the toolbar is not visible in the htmlArea:
             let isToolbarVisible = await htmlAreaForm.isEditorToolbarVisible(0);
-            assert.isFalse(isToolbarVisible, 'Html Area toolbar should be hidden by default');
-            // Verify that 'Add' button is not present:
+            assert.ok(isToolbarVisible === false, 'Html Area toolbar should be hidden by default');
+            // 4. Verify that 'Add' button is not present:
             await htmlAreaForm.waitForAddButtonNotDisplayed();
-            // Verify that 'Mark as ready' button is displayed in the wizard toolbar:
+            // 5. Verify that 'Mark as ready' button is displayed in the wizard toolbar:
             await contentWizard.waitForMarkAsReadyButtonVisible();
         });
 
@@ -84,26 +85,29 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         async () => {
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
+            // 1. Open new wizard for htmlArea 0:1
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
             await contentWizard.waitAndClickOnSave();
-            let isNotValid = await contentWizard.isContentInvalid();
+            // 2. The content should be valid(htmlArea is not required input)
+            let isInvalid = await contentWizard.isContentInvalid();
             await studioUtils.saveScreenshot('cke_htmlarea_should_be_valid');
-            assert.isFalse(isNotValid, 'the content should be valid, because the input is not required');
+            assert.ok(isInvalid === false, 'the content should be valid, because the input is not required');
+            // 3. The htmlArea should be empty:
             let actualResult = await htmlAreaForm.getTextFromHtmlArea();
-            assert.equal(actualResult[0], "", "Html Area should be empty");
+            assert.equal(actualResult[0], '', "Html Area should be empty");
         });
 
-    it(`GIVEN htmlarea(0:1) content was saved with empty html area WHEN the content has been re-opened THEN text area should be empty`,
+    it(`GIVEN existing htmlarea(0:1) content with empty html area WHEN the content has been re-opened THEN text area should be empty`,
         async () => {
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectContentAndOpenWizard(CONTENT_NAME_2);
-            let isNotValid = await contentWizard.isContentInvalid();
-            await studioUtils.saveScreenshot('cke_htmlarea_should_be_valid');
-            assert.isFalse(isNotValid, 'the content should be valid, because the input is not required');
+            let isInvalid = await contentWizard.isContentInvalid();
+            await studioUtils.saveScreenshot('content_htmlarea_should_be_valid');
+            assert.ok(isInvalid === false, 'the content should be valid, because the input is not required');
             let actualResult = await htmlAreaForm.getTextFromHtmlArea();
-            assert.equal(actualResult[0], "", "Html Area should be empty");
+            assert.equal(actualResult[0], '', "Html Area should be empty");
         });
 
     it(`GIVEN wizard for new 'htmlArea 0:1' is opened WHEN text has been typed THEN expected text should appear in the area`,

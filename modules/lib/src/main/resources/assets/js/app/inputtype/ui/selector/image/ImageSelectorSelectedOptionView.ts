@@ -10,6 +10,9 @@ import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {ProgressBar} from '@enonic/lib-admin-ui/ui/ProgressBar';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 
 export class ImageSelectorSelectedOptionView
     extends BaseSelectedOptionView<MediaTreeSelectorItem> {
@@ -24,7 +27,7 @@ export class ImageSelectorSelectedOptionView
 
     private progress: ProgressBar;
 
-    private error: DivEl;
+    private error: NamesAndIconView;
 
     private loadMask: LoadMask;
 
@@ -37,16 +40,14 @@ export class ImageSelectorSelectedOptionView
     setOption(option: Option<MediaTreeSelectorItem>) {
         super.setOption(option);
 
-        let displayValue: MediaTreeSelectorItem = option.getDisplayValue();
+        const displayValue: MediaTreeSelectorItem = option.getDisplayValue();
 
-        if (displayValue.getContentSummary()) {
-            const isMissingContent = option.getDisplayValue().isEmptyContent();
+        if (displayValue.isEmptyContent()) {
+            this.showImageNotAvailable(displayValue.getId());
+        } else if (displayValue.getContentSummary()) {
             this.updateIconSrc(displayValue);
-            this.label.getEl().setInnerHtml(displayValue.getDisplayName());
-            this.icon.getEl().setAttribute('title',
-                isMissingContent ?
-                    option.getValue() : option.getDisplayValue().getPath() ?
-                                           option.getDisplayValue().getPath().toString() : '');
+            this.label.setHtml(displayValue.getDisplayName());
+            this.icon.setTitle(displayValue.getPath()?.toString() ?? '');
         }
     }
 
@@ -88,7 +89,7 @@ export class ImageSelectorSelectedOptionView
         this.label = new DivEl('label');
         this.check = Checkbox.create().build();
         this.progress = new ProgressBar();
-        this.error = new DivEl('error');
+        this.error = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.compact).setAppendIcon(true).build();
         this.loadMask = new LoadMask(this);
 
         let squaredContent = new DivEl('squared-content');
@@ -128,18 +129,7 @@ export class ImageSelectorSelectedOptionView
             ResponsiveManager.fireResizeEvent();
         });
 
-        if (this.getOption().getDisplayValue().isEmptyContent()) {
-            this.addClass('missing');
-        }
-
         return Q(true);
-    }
-
-    private showProgress() {
-        this.check.hide();
-        this.icon.getEl().setVisibility('hidden');
-        this.loadMask.hide();
-        this.progress.show();
     }
 
     private showSpinner() {
@@ -154,12 +144,20 @@ export class ImageSelectorSelectedOptionView
         this.icon.getEl().setVisibility('visible');
         this.check.show();
         this.progress.hide();
+        this.error.hide();
+        this.removeClass('image-not-found');
     }
 
-    showError(text: string) {
+    showImageNotAvailable(imageId: string) {
         this.progress.hide();
-        this.error.setHtml(text).show();
+        this.error.addClass('error');
+        this.error.setMainName(imageId).setSubName(i18n('text.image.notavailable'));
+        this.error.show();
         this.check.show();
+        this.icon.getEl().setVisibility('hidden');
+        this.icon.setSrc('');
+        this.label.setHtml('');
+        this.addClass('image-not-found');
     }
 
     updateProportions() {
@@ -169,7 +167,6 @@ export class ImageSelectorSelectedOptionView
 
         this.centerVertically(this.icon, contentHeight);
         this.centerVertically(this.progress, contentHeight);
-        this.centerVertically(this.error, contentHeight);
     }
 
     private centerVertically(el: Element, contentHeight: number) {

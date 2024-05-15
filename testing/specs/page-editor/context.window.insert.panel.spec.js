@@ -1,8 +1,7 @@
 /**
  * Created on 17.07.2021.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -78,10 +77,10 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             // 2. Verify items in the panel:
             let items = await insertablesPanel.getItems();
             assert.equal(items.length, 4, 'Four items should be present in the panel');
-            assert.isTrue(items.includes('Part'), "'Part' item should be displayed");
-            assert.isTrue(items.includes('Layout'), "'Layout' item should be displayed");
-            assert.isTrue(items.includes('Rich Text Editor'), "'Rich Text Editor' item should be displayed");
-            assert.isTrue(items.includes('Fragment'), "'Fragment' item should be displayed");
+            assert.ok(items.includes('Part'), "'Part' item should be displayed");
+            assert.ok(items.includes('Layout'), "'Layout' item should be displayed");
+            assert.ok(items.includes('Rich Text Editor'), "'Rich Text Editor' item should be displayed");
+            assert.ok(items.includes('Fragment'), "'Fragment' item should be displayed");
         });
 
     // verifies the xp#5580 Site Wizard - endless spinner appears when Show-Hide button was pressed in the second time
@@ -124,10 +123,11 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             await wizardVersionsWidget.clickOnRevertButton();
             // 4. Verify  the notification message:
             let actualMessage = await contentWizard.waitForNotificationMessage();
-            assert.include(actualMessage, appConst.NOTIFICATION_MESSAGES.CONTENT_REVERTED, 'Expected notification message should appear');
+            assert.ok(actualMessage.includes(appConst.NOTIFICATION_MESSAGES.CONTENT_REVERTED),
+                'Expected notification message should appear');
             // 5. Verify that widget is displayed :
             let isDisplayed = await wizardVersionsWidget.isWidgetLoaded();
-            assert.isTrue(isDisplayed, "'Versions widget' remains visible in 'Details Panel' after reverting versions");
+            assert.ok(isDisplayed, "'Versions widget' remains visible in 'Details Panel' after reverting versions");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

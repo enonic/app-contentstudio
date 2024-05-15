@@ -7,6 +7,7 @@ import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ComponentsTreeItem} from './ComponentsTreeItem';
 import {PageComponentsMenuIcon} from './PageComponentsMenuIcon';
+import {PageItemType} from '../page/region/PageItemType';
 
 export class PageComponentsTreeGridHelper {
 
@@ -59,15 +60,29 @@ export class PageComponentsTreeGridHelper {
         return wrapper.toString();
     }
 
+    // Type guard function
+    private static isPageOrRegion(componentType: PageItemType): componentType is 'page' | 'region' {
+        return componentType === 'page' || PageComponentsTreeGridHelper.isRegion(componentType);
+    }
+
+    // Type guard function
+    private static isRegion(componentType: PageItemType): componentType is 'region' {
+        return componentType === 'region';
+    }
+
     private static nameFormatter(row: number, cell: number, value: unknown, columnDef: unknown,
                                  node: TreeNode<ComponentsTreeItem>) {
         const viewer: PageComponentsItemViewer = node.getViewer('name') as PageComponentsItemViewer || new PageComponentsItemViewer();
         node.setViewer('name', viewer);
         const itemWrapper: ComponentsTreeItem = node.getData();
         viewer.setObject(itemWrapper);
-
-        if (itemWrapper.getType() !== 'page' && itemWrapper.getType() !== 'region') {
+        if (!PageComponentsTreeGridHelper.isPageOrRegion(itemWrapper.getType())) {
             viewer.addClass('draggable');
+        } else {
+            viewer.addClass((itemWrapper.getType() as 'page' | 'region').toString());
+            if (PageComponentsTreeGridHelper.isRegion(itemWrapper.getType()) && !node.isExpandable()) {
+                viewer.addClass('empty icon-arrow_drop_up');
+            }
         }
 
         return viewer.toString();

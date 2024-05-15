@@ -1,8 +1,7 @@
 /**
  * Created on 17.08.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
@@ -33,8 +32,8 @@ describe("Shortcut's target specification", function () {
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('shortcut_target_not_selected');
             // 3. Verify that the content is not valid:
-            let actualResult = await contentWizard.isContentInvalid();
-            assert.isTrue(actualResult, "shortcut content should be invalid, because a target is not selected");
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid, "shortcut content should be invalid, because a target is not selected");
             // 4. Verify the validation recording:
             let recording = await shortcutForm.getFormValidationRecording();
             assert.equal(recording, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "Expected validation message should appear");

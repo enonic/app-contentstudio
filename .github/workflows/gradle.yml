@@ -1,119 +1,115 @@
 name: Gradle Build
 
 on:
-    push:
-    repository_dispatch:
-        types: [ lib-admin-ui ]
+  push:
+  repository_dispatch:
+    types: [ lib-admin-ui ]
 
 concurrency: build-${{ github.ref }}
 
 jobs:
-    publish_vars:
-        runs-on: ubuntu-latest
+  publish_vars:
+    runs-on: ubuntu-latest
 
-        outputs:
-            publish: ${{ steps.publish_vars.outputs.release != 'true' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/5.')) }}
-            repo: ${{ steps.publish_vars.outputs.repo }}
+    outputs:
+      publish: ${{ steps.publish_vars.outputs.release != 'true' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/5.')) }}
+      repo: ${{ steps.publish_vars.outputs.repo }}
 
-        steps:
+    steps:
 
-            -   uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-            -   name: Get publishing variables
-                id: publish_vars
-                uses: enonic/release-tools/publish-vars@master
-                env:
-                    PROPERTIES_PATH: './gradle.properties'
+      - name: Get publishing variables
+        id: publish_vars
+        uses: enonic/release-tools/publish-vars@master
+        env:
+          PROPERTIES_PATH: './gradle.properties'
 
-    build:
-        runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-        needs: publish_vars
+    needs: publish_vars
 
-        steps:
-            - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Set up JDK 11
-              uses: actions/setup-java@v4
-              with:
-                java-version: 11
-                distribution: 'temurin'
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: 11
+          distribution: 'temurin'
 
-            -   uses: actions/cache@v3
-                with:
-                    path: |
-                        ~/.gradle/caches
-                        ~/.gradle/wrapper
-                    key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-                    restore-keys: |
-                        ${{ runner.os }}-gradle-
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
-            -   name: Build with Gradle
-                run: ./gradlew build -Pcom.enonic.xp.app.production=true
+      - name: Prepare Gradle Arguments
+        run: |
+          BASE_ARGS="--refresh-dependencies build"
+          PUBLISH_ARGS="publish -Pcom.enonic.xp.app.production=true -PrepoKey=${{ needs.publish_vars.outputs.repo }} -PrepoUser=ci -PrepoPassword=${{ secrets.ARTIFACTORY_PASSWORD }}"
+          if [ "${{ needs.publish_vars.outputs.publish }}" == "true" ]; then
+            GRADLE_ARGS="$BASE_ARGS $PUBLISH_ARGS"
+          else
+            GRADLE_ARGS="$BASE_ARGS"
+          fi
+          echo "GRADLE_ARGS=$GRADLE_ARGS" >> $GITHUB_ENV
 
-            -   uses: actions/upload-artifact@v4
-                with:
-                    name: contentstudio
-                    path: modules/app/build/libs/contentstudio.jar
+      - name: Build with Gradle
+        run: ./gradlew $GRADLE_ARGS
 
-            -   uses: codecov/codecov-action@v3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: contentstudio
+          path: modules/app/build/libs/contentstudio.jar
 
-            -   name: Publish
-                if: needs.publish_vars.outputs.publish == 'true'
-                run: ./gradlew publish -Pcom.enonic.xp.app.production=true -PrepoKey=${{ needs.publish_vars.outputs.repo }} -PrepoUser=${{ secrets.ARTIFACTORY_USERNAME }} -PrepoPassword=${{ secrets.ARTIFACTORY_PASSWORD }}
+      - uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
-    selenium-test:
-        strategy:
-            fail-fast: false
-            matrix:
-                suite: [ w_testProjects, w_testProjects_2, w_testPageEditor, w_testInputTypes, w_testInputTypes_2, w_testWizardsGrid, w_testPublishIssues, w_testModalDialog, w_testHiddenDefProject ]
+  selenium-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [ w_testProjects, w_testProjects_2, w_testPageEditor, w_testInputTypes, w_testInputTypes_2, w_testWizardsGrid, w_testPublishIssues, w_testModalDialog, w_testHiddenDefProject, testProjects_multi, w_miscTests ]
 
-        runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-        needs: build
+    needs: build
 
-        steps:
-            - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Set up JDK 11
-              uses: actions/setup-java@v4
-              with:
-                java-version: 11
-                distribution: 'temurin'
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: 11
+          distribution: 'temurin'
 
-            - uses: actions/cache@v3
-              with:
-                  path: |
-                      ~/.gradle/caches
-                      ~/.gradle/wrapper
-                  key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-                  restore-keys: |
-                      ${{ runner.os }}-gradle-
-            - run: |
-                  set -ex
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
-            - uses: actions/download-artifact@v4
-              with:
-                  name: contentstudio
-                  path: modules/app/build/libs
+      - uses: actions/download-artifact@v4
+        with:
+          name: contentstudio
+          path: modules/app/build/libs
 
-            - name: Run Selenium Tests
-              run: ./gradlew :testing:${{ matrix.suite }}
+      - name: Run Selenium Tests
+        run: ./gradlew --refresh-dependencies :testing:${{ matrix.suite }}
 
-            - name: Slack Notification
-              uses: rtCamp/action-slack-notify@v2
-              if: failure()
-              env:
-                  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-                  SLACK_CHANNEL: notif-build-tests
-                  SLACK_USERNAME: GitHub Actions
-                  SLACK_TITLE: GitHub Action Failure in Content Studio app ${{ matrix.suite }}
-                  SLACK_MESSAGE: ${{job.container.id}}
-                  SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
-                  SLACK_COLOR: ${{ job.status }}
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        if: failure()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: notif-build-tests
+          SLACK_USERNAME: GitHub Actions
+          SLACK_TITLE: GitHub Action Failure in Content Studio app ${{ matrix.suite }}
+          SLACK_MESSAGE: ${{job.container.id}}
+          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          SLACK_COLOR: ${{ job.status }}
 
-            -   uses: actions/upload-artifact@v4
-                with:
-                    name: 'ui-test-report-${{ matrix.suite }}'
-                    path: |
-                        testing/build/reports
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: 'ui-test-report-${{ matrix.suite }}'
+          path: |
+            testing/build/reports

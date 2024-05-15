@@ -1,8 +1,7 @@
 /**
  * Created on 22.09.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -19,8 +18,9 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
         webDriverHelper.setupBrowser();
     }
     const TEST_NUMBER = '12345';
+    const PROJECT_APP = appConst.APP_CONTENT_TYPES;
 
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
 
     it(`GIVEN existing project has been opened WHEN application has been selected THEN expected application should be present in selected options view`,
         async () => {
@@ -37,7 +37,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             // 4. Verify that Applications-step is present in the wizard:
             await projectWizard.clickOnWizardStep('Applications');
             // 5. Select the application:
-            await projectWizard.selectApplication(appConst.TEST_APPS_NAME.APP_CONTENT_TYPES);
+            await projectWizard.selectApplication(PROJECT_APP);
             await projectWizard.waitAndClickOnSave();
             await projectWizard.waitForNotificationMessages();
             await studioUtils.saveScreenshot('proj_wizard_selected_app');
@@ -62,7 +62,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             await projectWizard.waitForLoaded();
             // 3. Click on Applications-step in the wizard then click on 'Edit' button:
             await projectWizard.clickOnWizardStep('Applications');
-            await projectWizard.clickOnEditProjectConfig(appConst.APP_CONTENT_TYPES);
+            await projectWizard.clickOnEditProjectConfig(PROJECT_APP);
             // 4. Verify that site configurator dialog is loaded:
             await siteConfiguratorDialog.waitForDialogOpened();
             // 5. Verify elements on the dialog:
@@ -82,7 +82,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             await projectWizard.waitForLoaded();
             // 3. Click on Applications-step in the wizard then click on 'Edit' button:
             await projectWizard.clickOnWizardStep('Applications');
-            await projectWizard.clickOnEditProjectConfig(appConst.APP_CONTENT_TYPES);
+            await projectWizard.clickOnEditProjectConfig(PROJECT_APP);
             // 4. Verify that site configurator dialog is loaded:
             await siteConfiguratorDialog.waitForDialogOpened();
             // 5. there are no changes in the dialog, click on 'Apply' button:
@@ -105,7 +105,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             await projectWizard.waitForLoaded();
             // 3. Click on Applications-step in the wizard then click on 'Edit' button:
             await projectWizard.clickOnWizardStep('Applications');
-            await projectWizard.clickOnEditProjectConfig(appConst.APP_CONTENT_TYPES);
+            await projectWizard.clickOnEditProjectConfig(PROJECT_APP);
             await siteConfiguratorDialog.waitForDialogOpened();
             // 4. Insert a text in the text-input then click on 'Apply' button:
             await siteConfiguratorDialog.typeTextInNumPostsInput(TEST_NUMBER);
@@ -114,7 +114,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             // 5. Verify that Save button gets enabled:
             await projectWizard.waitForSaveButtonEnabled();
             // 6. Reopen the configurator:
-            await projectWizard.clickOnEditProjectConfig(appConst.APP_CONTENT_TYPES);
+            await projectWizard.clickOnEditProjectConfig(PROJECT_APP);
             await siteConfiguratorDialog.waitForDialogOpened();
             // 7. Verify that 'Max posts per page' is correctly saved:
             let actualNumber = await siteConfiguratorDialog.getTextInNumPostsInput();
@@ -134,9 +134,9 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             await studioUtils.saveScreenshot('root_new_content_with_apps_2');
             // 3. Verify that all input types are available for adding new content in root directory:
             let contentTypeItems = await newContentDialog.getItems();
-            assert.isTrue(contentTypeItems.includes('all-inputs'), "Expected input type should be displayed in the modal dialog");
-            assert.isTrue(contentTypeItems.includes('attachment0_0'), "Expected input type should be displayed in the modal dialog");
-            assert.isAbove(contentTypeItems.length, 50, "All types from the application should be present in the modal dialog");
+            assert.ok(contentTypeItems.includes('all-inputs'), "Expected input type should be displayed in the modal dialog");
+            assert.ok(contentTypeItems.includes('attachment0_0'), "Expected input type should be displayed in the modal dialog");
+            assert.ok(contentTypeItems.length > 50, "All types from the application should be present in the modal dialog");
         });
 
     it("GIVEN existing project(Private access mode) is opened WHEN access mode has been switched to 'Public' THEN Access Mode gets 'Public'",
@@ -153,7 +153,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             // 2. Click on Applications step
             await projectWizard.clickOnWizardStep('Applications');
             // 3. Click on Remove application icon
-            await projectWizard.clickOnRemoveApplicationIcon();
+            await projectWizard.clickOnRemoveApplicationIcon(PROJECT_APP);
             // 4. Save the project:
             await projectWizard.waitAndClickOnSave();
             // 5. Switch to the content grid panel
@@ -165,9 +165,9 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             await studioUtils.saveScreenshot('root_new_content_with_apps_3');
             // 3. Verify that only 3 types are available for creating new content in root directory:
             let contentTypeItems = await newContentDialog.getItems();
-            assert.isTrue(contentTypeItems.includes('Folder'), 'Folder input type is displayed in the modal dialog');
-            assert.isTrue(contentTypeItems.includes('Shortcut'), 'Shortcut input type is displayed in the modal dialog');
-            assert.isTrue(contentTypeItems.includes('Site'), 'Site input type is displayed in the modal dialog');
+            assert.ok(contentTypeItems.includes('Folder'), 'Folder input type is displayed in the modal dialog');
+            assert.ok(contentTypeItems.includes('Shortcut'), 'Shortcut input type is displayed in the modal dialog');
+            assert.ok(contentTypeItems.includes('Site'), 'Site input type is displayed in the modal dialog');
             assert.equal(contentTypeItems.length, 3, '3 items should be present in the modal dialog');
         });
 

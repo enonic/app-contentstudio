@@ -11,7 +11,7 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 
 describe("revert.zoomed.image.spec: tests for reverting of zoomed image", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -20,14 +20,14 @@ describe("revert.zoomed.image.spec: tests for reverting of zoomed image", functi
             let imageEditor = new ImageEditor();
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
-            //1. Open an existing image:
+            // 1. Open an existing image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.SENG);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            //2. Open edit-mode and do zoom the image
+            // 2. Open edit-mode and do zoom the image
             await imageEditor.clickOnCropButton();
             await imageEditor.doZoomImage(30);
             await studioUtils.saveScreenshot("image_zoomed_2");
-            //3. Click on Apply button and save the image:
+            // 3. Click on Apply button and save the image:
             await imageEditor.clickOnApplyButton();
             await imageEditor.waitForResetFiltersDisplayed();
             await contentWizard.waitAndClickOnSave();
@@ -39,25 +39,25 @@ describe("revert.zoomed.image.spec: tests for reverting of zoomed image", functi
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            //1. Open the zoomed image:
+            // 1. Open the zoomed image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.SENG);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            //2. Verify that 'Reset filters' button is visible:
+            // 2. Verify that 'Reset filters' button is visible:
             await imageEditor.waitForResetFiltersDisplayed();
-            //3. Open Versions Panel
+            // 3. Open Versions Panel
             await contentWizard.openVersionsHistoryPanel();
-            //4. Revert the previous version(image should be focused):
+            // 4. Revert the previous version(image should be focused):
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             await wizardVersionsWidget.clickOnRevertButton();
             await studioUtils.saveScreenshot("version_reverted_not_zoomed");
-            //5. Verify that Save button is disabled:
+            // 5. Verify that Save button is disabled:
             await contentWizard.waitForSaveButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -1,8 +1,7 @@
 /**
  * Created on 12.11.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
@@ -11,7 +10,7 @@ const contentBuilder = require("../libs/content.builder");
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 
-describe('archive.content.dialog.spec:  tests for archiving content', function () {
+describe('archive.confirm.content.dialog.spec:  tests for archiving content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
 
     if (typeof browser === 'undefined') {

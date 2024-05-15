@@ -1,8 +1,7 @@
 /**
  * Created on 20.09.2022.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -29,7 +28,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             // 1. Select 'Default' project and open wizard for new layer:
-            await settingsBrowsePanel.openProjectWizardDialog();
+            await projectUtils.selectParentAndOpenProjectWizardDialog(appConst.PROJECTS.DEFAULT_PROJECT_NAME);
             let layer = projectUtils.buildLayer(appConst.PROJECTS.DEFAULT_PROJECT_NAME, null, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
                 appConst.APP_CONTENT_TYPES, LAYER_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
@@ -56,7 +55,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             await customRelationshipForm.selectOption(articleContent.displayName);
             await studioUtils.saveScreenshot('custom_rel_root_dir');
             let result = await customRelationshipForm.getSelectedOptions();
-            assert.isTrue(result[0].includes(articleContent.displayName), 'Expected option should be selected');
+            assert.ok(result[0].includes(articleContent.displayName), 'Expected option should be selected');
         });
 
     // Verifies: New Content dialog doesn't show content types from project apps #5104
@@ -65,18 +64,18 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
-            //1. Select the layer's context:
+            // 1. Select the layer's context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
-            //2. Click on 'New' button
+            // 2. Click on 'New' button
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
             await newContentDialog.pause(500);
             await studioUtils.saveScreenshot('root_new_content_with_apps');
-            //3. Verify that all input types are available for adding new content in root directory:
+            // 3. Verify that all input types are available for adding new content in root directory:
             let contentTypeItems = await newContentDialog.getItems();
-            assert.isTrue(contentTypeItems.includes('all-inputs'), "Expected input type is displayed in the modal dialog");
-            assert.isTrue(contentTypeItems.includes('attachment0_0'), "Expected input type is displayed in the modal dialog");
-            assert.isAbove(contentTypeItems.length, 50, "All types from the application are present in the modal dialog");
+            assert.ok(contentTypeItems.includes('all-inputs'), "Expected input type is displayed in the modal dialog");
+            assert.ok(contentTypeItems.includes('attachment0_0'), "Expected input type is displayed in the modal dialog");
+            assert.ok(contentTypeItems.length > 50, "All types from the application are present in the modal dialog");
         });
 
     // Verifies: X-data is not returned for a content-type outside of site #5117
@@ -85,20 +84,20 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
             let xDataImageSelector = new XDataImageSelector();
-            //1. Select the layer's context:
+            // 1. Select the layer's context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
-            //2. Click on 'New' button
+            // 2. Click on 'New' button
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
-            //3. Select the item with x-data:
+            // 3. Select the item with x-data:
             let contentWizard = await studioUtils.clickOnItemInNewContentDialog(appConst.contentTypes.DOUBLE_1_1_X_DATA);
-            //4. Click on x-data toggler:
-            await contentWizard.clickOnXdataToggler();
-            //5. Select an image in x-data
+            // 4. Click on x-data toggler:
+            await contentWizard.clickOnXdataTogglerByName('X-data (image selector)');
+            // 5. Select an image in x-data
             await xDataImageSelector.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME);
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('xdata_image_selector_saved_2');
-            //6. Verify that the image appears in the form:
+            // 6. Verify that the image appears in the form:
             await xDataImageSelector.waitForImageSelected();
         });
 

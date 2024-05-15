@@ -19,7 +19,7 @@ public final class CreateProjectParamsJson
 
     private final String description;
 
-    private final ProjectName parent;
+    private final List<ProjectName> parents;
 
     private final ProjectReadAccess readAccess;
 
@@ -27,14 +27,14 @@ public final class CreateProjectParamsJson
 
     @JsonCreator
     CreateProjectParamsJson( @JsonProperty("name") final String name, @JsonProperty("displayName") final String displayName,
-                             @JsonProperty("description") final String description, @JsonProperty("parent") final String parent,
+                             @JsonProperty("description") final String description, @JsonProperty("parents") final List<String> parents,
                              @JsonProperty("readAccess") final ProjectReadAccessJson readAccess,
                              @JsonProperty("applicationConfigs") final List<SiteConfigParamsJson> applicationConfigs )
     {
         this.name = ProjectName.from( name );
         this.displayName = displayName;
         this.description = description;
-        this.parent = parent == null || parent.isBlank() ? null : ProjectName.from( parent );
+        this.parents = parents != null ? parents.stream().map( ProjectName::from ).collect( Collectors.toList() ) : new ArrayList<>();
         this.readAccess = readAccess != null ? readAccess.getProjectReadAccess() : null;
         this.applicationConfigs = applicationConfigs != null ? applicationConfigs.stream()
             .map( siteConfigParamsJson -> siteConfigParamsJson.getSiteConfig() )
@@ -56,9 +56,9 @@ public final class CreateProjectParamsJson
         return description;
     }
 
-    public ProjectName getParent()
+    public List<ProjectName> getParents()
     {
-        return parent;
+        return parents;
     }
 
     public ProjectReadAccess getReadAccess()

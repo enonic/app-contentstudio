@@ -1,8 +1,7 @@
 /**
  * Created on 23.09.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -89,7 +88,7 @@ describe('publish.tree.check.child.spec - Publish Tree action - publish a conten
             await contentBrowsePanel.waitForNotificationMessage();
             // 7. Verify - UNPUBLISH... should be default action for the parent folder
             await contentBrowsePanel.waitForDefaultAction(appConst.PUBLISH_MENU.UNPUBLISH);
-
+            // 8. Select the folder, verify the status
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
             let status = await contentBrowsePanel.getContentStatus(CHILD_FOLDER.displayName);
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "Content's status should be 'published'");

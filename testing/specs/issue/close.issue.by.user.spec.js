@@ -1,8 +1,7 @@
 /**
  * Created on 07.02.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -75,7 +74,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             await studioUtils.openIssuesListDialog();
             // 3. Verify the selected option in the selector:
             let result = await issueListDialog.getTypeFilterSelectedOption();
-            assert.include(result, 'Assigned to Me', "'Assigned to Me' options should be selected in the filter");
+            assert.ok(result.includes('Assigned to Me'), "'Assigned to Me' options should be selected in the filter");
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
@@ -118,7 +117,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             let info = await issueDetailsDialog.getStatusInfo();
             let expectedMessage = appConst.issueClosedBy(USER.displayName);
             // 6. Verify that the info message is displayed in the status selector : "Closed by user:system:${userName}"
-            assert.isTrue(info.includes(expectedMessage), 'Expected notification message should appear');
+            assert.ok(info.includes(expectedMessage), 'Expected notification message should appear');
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
@@ -149,7 +148,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             await studioUtils.saveScreenshot('owner_in_versions');
             // 5. Verify 'by user-name' text in the version item:
             let actualUser = await browseVersionsWidget.getUserNameInItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
-            assert.isTrue(actualUser.includes(USER.displayName), 'Expected user name should be displayed in the version list item');
+            assert.ok(actualUser.includes(USER.displayName), 'Expected user name should be displayed in the version list item');
 
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();

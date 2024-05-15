@@ -1,8 +1,7 @@
 /**
  * Created on 09.04.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
@@ -18,11 +17,11 @@ const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/p
 
 describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Access in project', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
+    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
     let USER;
     let PASSWORD = appConst.PASSWORD.MEDIUM;
 
@@ -44,20 +43,19 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
             let accessModeStep = new ProjectWizardDialogAccessModeStep();
             let permissionsStep = new ProjectWizardDialogPermissionsStep();
             let projectWizard = new ProjectWizard();
-            //1.Open new project wizard:
+            // 1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            //2. Select Project-radio then click on Next button:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
-            //3. Skip the language step:
+            // 2. click on Skip button:
+            await parentProjectStep.clickOnSkipButton();
+            // 3. Skip the language step:
             await languageStep.clickOnSkipButton();
-            //4. Select Custom access mode:
+            // 4. Select Custom access mode:
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.CUSTOM);
-            //5. Select just created user in the dropdown selector:
+            // 5. Select just created user in the dropdown selector:
             await accessModeStep.selectUserInCustomReadAccessSelector(USER.displayName);
             await studioUtils.saveScreenshot("custom_read_access_1");
             await accessModeStep.clickOnNextButton();
-            //6. Skip permissions step:
+            // 6. Skip permissions step:
             await permissionsStep.clickOnSkipButton();
             if (await applicationsStep.isLoaded()) {
                 await applicationsStep.clickOnSkipButton();
@@ -89,18 +87,18 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.Click on the project and press 'Edit' button:
+            // 1.Click on the project and press 'Edit' button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
             await studioUtils.saveScreenshot("custom_read_access_2");
-            //2. Verify that 'Private' radio button is selected.
+            // 2. Verify that 'Private' radio button is selected.
             let isSelected = await projectWizard.isAccessModeRadioSelected("Custom");
-            assert.isFalse(isSelected, "'Custom' radio button should not be selected");
+            assert.ok(isSelected === false, "'Custom' radio button should not be selected");
             isSelected = await projectWizard.isAccessModeRadioSelected("Private");
-            assert.isTrue(isSelected, "'Private' radio button should be selected");
+            assert.ok(isSelected, "'Private' radio button should be selected");
             isSelected = await projectWizard.isAccessModeRadioSelected("Public");
-            assert.isFalse(isSelected, "'Public' radio button should not be selected");
+            assert.ok(isSelected === false, "'Public' radio button should not be selected");
         });
 
     beforeEach(async () => {
@@ -109,7 +107,7 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -1,8 +1,7 @@
 /**
  * Created on 15.12.2017.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -16,7 +15,7 @@ describe('content.image.selector: Image content specification', function () {
     }
 
     let SITE;
-    let FOLDER_WITH_FILES = 'selenium-tests-folder';
+    const FOLDER_WITH_FILES = 'selenium-tests-folder';
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -47,7 +46,7 @@ describe('content.image.selector: Image content specification', function () {
             await imageSelectorForm.doFilterOptions('zzzzzz');
             let isDisplayed = await imageSelectorForm.waitForEmptyOptionsMessage();
             await studioUtils.saveScreenshot('img_empty_options2');
-            assert.isTrue(isDisplayed, "'No matching items' - this message should appear");
+            assert.ok(isDisplayed, "'No matching items' - this message should appear");
         });
 
     it(`GIVEN wizard for image-selector is opened WHEN 'mode toggler' button has been pressed THEN mode should be switched to 'Tree' and expected folder with images should be present in the options`,
@@ -75,7 +74,7 @@ describe('content.image.selector: Image content specification', function () {
             // 4. Verify that content status is displayed in each option
             await studioUtils.saveScreenshot('img_sel_tree_mode_status');
             let statusList = await imageSelectorForm.getTreeModeOptionStatus();
-            assert.isTrue(statusList.length > 0, "Content status should be displayed in each row");
+            assert.ok(statusList.length > 0, "Content status should be displayed in each row");
         });
 
     it(`GIVEN wizard for image-selector is opened WHEN 'dropdown handle' button has been pressed THEN flat mode should be present in the options list`,
@@ -90,9 +89,9 @@ describe('content.image.selector: Image content specification', function () {
             await studioUtils.saveScreenshot('selector_flat_mode');
             let nameImages = await imageSelectorForm.getFlatModeOptionImageNames();
             await studioUtils.saveScreenshot('img_sel_flat_mode');
-            assert.isTrue(nameImages.length > 0, 'images should be present in the dropdown list');
-            assert.isTrue(nameImages[0].includes('.png') || nameImages[0].includes('.jpg') || nameImages[0].includes('.jpeg') ||
-                          nameImages[0].includes('.svg'), 'Expected extension should be in all the names');
+            assert.ok(nameImages.length > 0, 'images should be present in the dropdown list');
+            assert.ok(nameImages[0].includes('.png') || nameImages[0].includes('.jpg') || nameImages[0].includes('.jpeg') ||
+                      nameImages[0].includes('.svg'), 'Expected extension should be in all the names');
         });
 
     // verifies https://github.com/enonic/lib-admin-ui/issues/628
@@ -107,7 +106,7 @@ describe('content.image.selector: Image content specification', function () {
             let optionsName = await imageSelectorForm.getFlatModeOptionImageNames();
             await studioUtils.saveScreenshot('img_sel_filtered');
             assert.equal(optionsName.length, 2, 'one option should be present in options, because text files should be filtered');
-            assert.isTrue(optionsName[1].includes('.svg'), 'pdf and text- files should be filtered in drop down list');
+            assert.ok(optionsName[1].includes('.svg'), 'pdf and text- files should be filtered in drop down list');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

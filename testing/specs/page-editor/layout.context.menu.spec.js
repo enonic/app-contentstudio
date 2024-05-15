@@ -1,8 +1,7 @@
 /**
  * Created on 24.08.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -20,6 +19,7 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
     }
     let SITE;
     const MAIN_REGION = 'main';
+    const TEXT_AREA_X_DATA_NAME = 'Text Area x-data';
 
     // Verifies Layout dropdown should appear in Live Edit after resetting the layout-component #6713
     // https://github.com/enonic/app-contentstudio/issues/6713
@@ -72,9 +72,9 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             await pageComponentsWizardStepForm.openMenu(appConst.LAYOUT_NAME.COL_3);
             // 4. Verify that the only two menu items are displayed in the menu:
             let menuItems = await pageComponentsWizardStepForm.getContextMenuItems();
-            assert.isTrue(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET),
+            assert.ok(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET),
                 "'Reset' menu item should be present in the context menu");
-            assert.isTrue(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT),
+            assert.ok(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT),
                 "'Inspect' menu item should be present in the context menu");
             assert.equal(menuItems.length, 2, "The only two menu items should be present in the Context Menu");
         });
@@ -110,7 +110,7 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             await studioUtils.saveScreenshot('layout_fragment_context_menu_inspect')
             let menuItems = await pageComponentsWizardStepForm.getContextMenuItems();
             // 8. Verify that only 'Inspect' menu is present in the context menu:
-            assert.isTrue(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT),
+            assert.ok(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT),
                 "'Inspect' menu item should be present in the context menu");
             assert.equal(menuItems.length, 1, "The only one menu item should be present in the context menu");
             // 9. Verify that 'Save' button should be enabled after clicking on Reset menu item:
@@ -118,6 +118,31 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             // 10. Verify that layout-combobox gets visible in Live Edit:
             await contentWizard.switchToLiveEditFrame();
             await liveFormPanel.waitForLayoutComboBoxOptionFilterDisplayed();
+        });
+
+    // Verify X-data is not shown for fragments #7284
+    // https://github.com/enonic/app-contentstudio/issues/7284
+    it("WHEN fragment-layout has been opened THEN expected x-data should be displayed",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. Expand the site:
+            await studioUtils.typeNameInFilterPanel(SITE.displayName);
+            await contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
+            await contentBrowsePanel.pause(300);
+            await contentBrowsePanel.clickOnExpanderIcon(SITE.displayName);
+            // 2. Select the fragment:
+            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.LAYOUT_NAME.COL_3);
+            // 3. Click on 'Edit' button
+            await contentBrowsePanel.clickOnEditButton();
+            // 4. Switch to the next browser tab:
+            await studioUtils.doSwitchToNewWizard();
+            await contentWizard.waitForOpened();
+            // 5. Verify that x-data toggler is displayed in the wizard:
+            await contentWizard.waitForXdataTogglerVisible(TEXT_AREA_X_DATA_NAME);
+            // 6. Verify the title of x-data :
+            let result = await contentWizard.getXdataTitles();
+            assert.ok(result.includes(TEXT_AREA_X_DATA_NAME), 'Text Area x-data should be present');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

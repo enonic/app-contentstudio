@@ -1,8 +1,7 @@
 /**
  * Created on 03.08.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -27,7 +26,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             // 1.'Default' project should be loaded after closing the 'Select project' dialog, then open wizard for new layer:
-            await settingsBrowsePanel.openProjectWizardDialog();
+            await projectUtils.selectParentAndOpenProjectWizardDialog("Default");
             let layer = projectUtils.buildLayer("Default", appConst.LANGUAGES.NORSK_NO, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
                 null, LAYER_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
@@ -110,7 +109,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

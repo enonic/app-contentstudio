@@ -2,6 +2,7 @@ import {MinimizeWizardPanelEvent} from '@enonic/lib-admin-ui/app/wizard/Minimize
 import {WizardHeader} from '@enonic/lib-admin-ui/app/wizard/WizardHeader';
 import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
+import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
 import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
@@ -50,9 +51,9 @@ import {Permission} from '../access/Permission';
 import {MovedContentItem} from '../browse/MovedContentItem';
 import {CompareStatus} from '../content/CompareStatus';
 import {Content, ContentBuilder} from '../content/Content';
+import {ContentDiff} from '../content/ContentDiff';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {ContentId} from '../content/ContentId';
-import {ContentIds} from '../content/ContentIds';
 import {ContentName} from '../content/ContentName';
 import {ContentPath} from '../content/ContentPath';
 import {ContentPathPrettifier} from '../content/ContentPathPrettifier';
@@ -60,6 +61,7 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 import {ExtraData} from '../content/ExtraData';
+import {PageTemplate} from '../content/PageTemplate';
 import {Site} from '../content/Site';
 import {WorkflowState} from '../content/WorkflowState';
 import {XData} from '../content/XData';
@@ -70,6 +72,7 @@ import {ContentNamedEvent} from '../event/ContentNamedEvent';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {InspectEvent} from '../event/InspectEvent';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {ImageErrorEvent} from '../inputtype/ui/selector/image/ImageErrorEvent';
 import {Descriptor} from '../page/Descriptor';
@@ -90,13 +93,16 @@ import {GetApplicationsRequest} from '../resource/GetApplicationsRequest';
 import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
+import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {Router} from '../Router';
+import {AIAssistantEventsMediator} from '../saga/AIAssistantEventsMediator';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {ApplicationAddedEvent} from '../site/ApplicationAddedEvent';
 import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
 import {SiteModel} from '../site/SiteModel';
 import {UrlAction} from '../UrlAction';
+import {ContentDiffHelper} from '../util/ContentDiffHelper';
 import {ContentHelper} from '../util/ContentHelper';
 import {PageHelper} from '../util/PageHelper';
 import {UrlHelper} from '../util/UrlHelper';
@@ -116,6 +122,7 @@ import {ContentWizardHeader} from './ContentWizardHeader';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentWizardStep} from './ContentWizardStep';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
+import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
 import {ContentWizardToolbar} from './ContentWizardToolbar';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {DisplayNameResolver} from './DisplayNameResolver';
@@ -130,6 +137,7 @@ import {PageComponentsView} from './PageComponentsView';
 import {PageComponentsWizardStep} from './PageComponentsWizardStep';
 import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
 import {PageEventsManager} from './PageEventsManager';
+import {PageNavigationEventSource} from './PageNavigationEventData';
 import {PermissionHelper} from './PermissionHelper';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
@@ -138,13 +146,6 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
-import {PageTemplate} from '../content/PageTemplate';
-import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
-import {InspectEvent} from '../event/InspectEvent';
-import {PageNavigationEventSource} from './PageNavigationEventData';
-import {AIAssistantEventsMediator} from '../saga/AIAssistantEventsMediator';
-import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -209,9 +210,17 @@ export class ContentWizardPanel
 
     private skipValidation: boolean;
 
-    private currentContent: ContentSummaryAndCompareStatus;
+    private currentCompareStatus: CompareStatus;
 
-    private persistedContent: ContentSummaryAndCompareStatus;
+    private currentPublishStatus: PublishStatus;
+
+    private persistedCompareStatus: CompareStatus;
+
+    private persistedPublishStatus: PublishStatus;
+
+    private peristedLanguage: string;
+
+    private contentAfterLayout: Content;
 
     private splitPanelThreshold: number = 960;
 
@@ -326,7 +335,6 @@ export class ContentWizardPanel
         const saveOnAppChange = (force: boolean = false) => {
             (force ? Q.resolve(true) : this.checkIfAppsHaveDescriptors(applicationKeys))
                 .then((appsHaveDescriptors: boolean) => appsHaveDescriptors ? this.saveChanges() : Q.resolve())
-                .then(this.debouncedAppsChangeHandler)
                 .finally(() => applicationKeys = []);
         };
 
@@ -362,17 +370,18 @@ export class ContentWizardPanel
             if (!this.isAppUsedByContent(event.getApplicationKey())) {
                 return;
             }
-            this.missingOrStoppedAppKeys.push(event.getApplicationKey());
-            this.debouncedAppsChangeHandler();
+
+            this.handleMissingOrStoppedApplicationsChange();
         };
 
         this.applicationStoppedListener = (event: ApplicationEvent) => {
             if (!this.isAppUsedByContent(event.getApplicationKey())) {
                 return;
             }
-            this.missingOrStoppedAppKeys.push(event.getApplicationKey());
 
-            let message = i18n('notify.app.missing', event.getApplicationKey().toString());
+            this.handleMissingOrStoppedApplicationsChange();
+
+            let message = i18n('text.application.not.available', event.getApplicationKey().toString());
 
             if (this.isVisible()) {
                 showWarning(message);
@@ -394,22 +403,13 @@ export class ContentWizardPanel
 
                 this.onShown(shownHandler);
             }
-            this.debouncedAppsChangeHandler();
         };
 
         this.applicationStartedListener = (event: ApplicationEvent) => {
             if (!this.isAppUsedByContent(event.getApplicationKey())) {
                 return;
             }
-            let indexToRemove = -1;
-            this.missingOrStoppedAppKeys.some((applicationKey: ApplicationKey, index) => {
-                indexToRemove = index;
-                return event.getApplicationKey().equals(applicationKey);
-            });
-            if (indexToRemove > -1) {
-                this.missingOrStoppedAppKeys.splice(indexToRemove, 1);
-            }
-            this.debouncedAppsChangeHandler();
+            this.handleMissingOrStoppedApplicationsChange();
         };
 
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
@@ -451,6 +451,10 @@ export class ContentWizardPanel
             this.isRename = true;
             saveAction.setEnabled(true);
             saveAction.execute();
+        });
+
+        this.onPageStateChanged(() => {
+            this.livePanel?.setSaveEnabled(!ObjectHelper.equals(PageState.getState(), this.getPersistedItem().getPage()));
         });
 
         AIAssistantEventsMediator.get().onResultReceived((propertyTree: PropertyTree) => {
@@ -548,11 +552,11 @@ export class ContentWizardPanel
                 this.contentType = loader.contentType;
                 this.parentContent = loader.parentContent;
                 this.contentExistsInParentProject = !!loader.contentExistsInParentProject;
-                this.currentContent =
-                    ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
-                        loader.content, loader.compareStatus, loader.publishStatus
-                    );
-                this.setPersistedContent(this.currentContent);
+                this.persistedCompareStatus = loader.compareStatus;
+                this.persistedPublishStatus = loader.publishStatus;
+                this.currentCompareStatus = loader.compareStatus;
+                this.currentPublishStatus = loader.publishStatus;
+                this.peristedLanguage = loader.content.getLanguage();
 
                 this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNameLabel());
                 this.wizardHeader.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
@@ -630,7 +634,7 @@ export class ContentWizardPanel
 
     protected createWizardAndDetailsSplitPanel(leftPanel: Panel): SplitPanel {
         this.contextView = new ContextView();
-        this.contextView.setItem(this.persistedContent);
+        this.contextView.setItem(this.getContent());
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
 
         this.contextSplitPanel = ContentWizardContextSplitPanel.create(leftPanel, rightPanel)
@@ -771,7 +775,7 @@ export class ContentWizardPanel
                 const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
 
                 this.onValidityChanged((event: ValidityChangedEvent) => {
-                    if (!this.persistedContent) {
+                    if (!this.getPersistedItem()) {
                         return;
                     }
 
@@ -859,10 +863,15 @@ export class ContentWizardPanel
 
         this.initFormContext(contentClone);
         this.updateWizard(contentClone, true);
-        this.resetLivePanel(contentClone).then(() => {
-            this.contextView.updateWidgetsVisibility();
-            this.toggleLiveEdit();
-        });
+
+        const diff = ContentDiffHelper.diff(viewedContent, newPersistedContent);
+
+        if (this.isReloadLiveEditRequired(diff)) {
+            this.resetLivePanel(contentClone).then(() => {
+                this.contextView.updateWidgetsVisibility();
+                this.toggleLiveEdit();
+            }).catch(DefaultErrorHandler.handle);
+        }
 
         if (!ObjectHelper.equals(PageState.getState(), contentClone.getPage())) {
             this.loadAndSetPageState(contentClone.getPage()).then(() => {
@@ -889,6 +898,9 @@ export class ContentWizardPanel
             return Q.resolve();
         }
 
+        this.getLivePanel().setHasPage(!!contentClone.getPage());
+        this.getLivePanel().updateHasControllers();
+
         if (this.isRenderable()) {
             if (this.getPersistedItem().getPage() || this.isWithinSite()) {
                 this.updateLiveEditModel(contentClone);
@@ -899,16 +911,14 @@ export class ContentWizardPanel
 
         if (this.getPersistedItem().getPage()) {
             this.updateLiveEditModel(contentClone);
-            return this.handleNonRederablePage();
+            return this.handleNonRenderablePage();
         }
 
         return this.unloadPage();
     }
 
-    private handleNonRederablePage(): Q.Promise<void> {
+    private handleNonRenderablePage(): Q.Promise<void> {
         this.liveEditModel = null;
-        this.getLivePanel().setPageIsNotRenderable();
-
         return Q.resolve();
     }
 
@@ -951,11 +961,15 @@ export class ContentWizardPanel
         this.contentWizardStepForm?.getFormView()?.clean();
         new BeforeContentSavedEvent().fire();
         this.wizardHeader.toggleEnabled(false);
+        const previousPersistedItem = this.getPersistedItem();
 
         return super.saveChanges().then((content: Content) => {
             if (this.reloadPageEditorOnSave) {
                 this.checkIfRenderable(content)
-                    .then(() => this.resetLivePanel(content.clone()))
+                    .then(() => {
+                        const diff = previousPersistedItem ? ContentDiffHelper.diff(previousPersistedItem, content) : null;
+                        return diff && this.isReloadLiveEditRequired(diff) ? this.resetLivePanel(content.clone()) : Q.resolve();
+                    })
                     .then(() => {
                         this.updateButtonsState();
                         this.contextView.updateWidgetsVisibility();
@@ -1111,26 +1125,27 @@ export class ContentWizardPanel
 
     private handleAppChange(): void {
         IsRenderableRequest.clearCache();
+        const wasRenderable = this.isRenderable();
 
         this.checkIfRenderable().then(() => {
-            this.doHandleAppChange();
+            const isRenderable = this.isRenderable();
+
+            if (wasRenderable && !isRenderable) {
+                this.handleStoppedRendering();
+            } else if (!wasRenderable && isRenderable) {
+                this.handleStartedRendering();
+            }
+
+            this.getLivePanel().updateHasControllers();
         }).catch(DefaultErrorHandler.handle);
     }
 
-    private doHandleAppChange(): void {
-        const isAnyAppMissing: boolean = this.missingOrStoppedAppKeys.length > 0;
-        const livePanel: LiveFormPanel = this.getLivePanel();
+    private handleStoppedRendering(): void {
+        //
+    }
 
-        if (livePanel) {
-            if (!isAnyAppMissing) {
-                if (this.isRenderable()) {
-                    this.debouncedEditorReload(false);
-                }
-                livePanel.clearErrorMissingApps();
-            } else {
-                livePanel.setErrorMissingApps();
-            }
-        }
+    private handleStartedRendering(): void {
+        this.debouncedEditorReload(false);
     }
 
     public checkContentCanBePublished(): boolean {
@@ -1296,7 +1311,13 @@ export class ContentWizardPanel
     }
 
     private createFragmentSteps(): ContentWizardStep[] {
-        return [this.initPageComponentsWizardStep()];
+        const steps = [this.initPageComponentsWizardStep()];
+
+        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
+            steps.push(new XDataWizardStep(form));
+        });
+
+        return steps;
     }
 
     private createPageTemplateSteps(): ContentWizardStep[] {
@@ -1416,15 +1437,14 @@ export class ContentWizardPanel
             }
         };
 
-        const contentPermissionsUpdatedHandler = (contentIds: ContentIds) => {
+        const contentPermissionsUpdatedHandler = (contents: ContentSummaryAndCompareStatus[]) => {
             if (this.contentUpdateDisabled || !this.getPersistedItem()) {
                 return;
             }
 
             const thisContentId: ContentId = this.getPersistedItem().getContentId();
-            const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
 
-            if (!isThisContentUpdated) {
+            if (!ContentSummaryAndCompareStatus.isInArray(thisContentId, contents)) {
                 return;
             }
 
@@ -1448,7 +1468,7 @@ export class ContentWizardPanel
         };
 
         const versionChangeHandler = (contentId: string, version: string) => {
-            if (this.persistedContent?.getId() === contentId) {
+            if (this.getPersistedItem()?.getId() === contentId) {
                 this.handleCUD();
                 this.updateButtonsState();
             }
@@ -1464,22 +1484,25 @@ export class ContentWizardPanel
                 return;
             }
 
-            const parentProject: string = ProjectContext.get().getProject().getParent();
+            const contextProject = ProjectContext.get().getProject();
 
-            if (!parentProject) {
+            if (!contextProject.hasParents()) {
                 return;
             }
 
-            const parentProjectRepo: string = RepositoryId.fromProjectName(parentProject).toString();
             const thisContentId: ContentId = this.getPersistedItem().getContentId();
             const thisContentIdAsString: string = this.getPersistedItem().getContentId().toString();
-            const isParentDeleted: boolean = items.some((item: ContentServerChangeItem) => {
-                return item.getContentId().equals(thisContentId) && item.getRepo() === parentProjectRepo;
+
+            let deletedParent = contextProject.getParents().find(parent => {
+                const parentProjectRepo = RepositoryId.fromProjectName(parent).toString();
+                return items.some((item: ContentServerChangeItem) => {
+                    return item.getContentId().equals(thisContentId) && item.getRepo() === parentProjectRepo;
+                });
             });
 
-            if (isParentDeleted) {
+            if (deletedParent) {
                 void new ContentsExistRequest([thisContentIdAsString])
-                    .setRequestProjectName(parentProject)
+                    .setRequestProjectName(deletedParent)
                     .sendAndParse()
                     .then((result: ContentsExistResult) => {
                         this.contentExistsInParentProject = !!result.getContentsExistMap()[thisContentIdAsString];
@@ -1552,8 +1575,9 @@ export class ContentWizardPanel
     }
 
     private setUpdatedContent(updatedContent: ContentSummaryAndCompareStatus) {
+        this.currentCompareStatus = updatedContent.getCompareStatus();
+        this.currentPublishStatus = updatedContent.getPublishStatus();
         const isUpdatedAndRenamed = this.isContentUpdatedAndRenamed(updatedContent);
-        this.currentContent = updatedContent;
         this.setPersistedContent(updatedContent);
         this.getMainToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
@@ -1569,15 +1593,14 @@ export class ContentWizardPanel
         // names and became valid, the server will generate 2 sequential
         // `NodeServerChangeType.UPDATE` events.
         const noContent = updatedContent == null ||
-                          this.currentContent == null ||
                           updatedContent.getContentSummary() == null ||
-                          this.currentContent.getContentSummary() == null;
+                          this.getPersistedItem() == null;
 
         if (noContent) {
             return false;
         }
 
-        const oldItem = this.currentContent.getContentSummary();
+        const oldItem = this.getPersistedItem();
         const wasUnnamed = !oldItem.getDisplayName() && (oldItem.getName() != null && oldItem.getName().isUnnamed());
 
         const newContent = updatedContent.getContentSummary();
@@ -1690,7 +1713,7 @@ export class ContentWizardPanel
             return false;
         }
 
-        return !this.persistedContent.getContentId().equals(contentId);
+        return !this.getPersistedItem().getContentId().equals(contentId);
     }
 
     private updateLiveEditModel(content: Content): void {
@@ -1713,11 +1736,12 @@ export class ContentWizardPanel
 
     private updatePersistedContent(persistedContent: Content) {
         return this.contentFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
-            this.currentContent = summaryAndStatus;
+            this.currentCompareStatus = summaryAndStatus.getCompareStatus();
+            this.currentPublishStatus = summaryAndStatus.getPublishStatus();
             this.setPersistedContent(summaryAndStatus);
             this.getMainToolbar().setItem(summaryAndStatus);
             this.wizardActions.setContent(summaryAndStatus).refreshState();
-            this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
+            this.getWizardHeader().toggleNameGeneration(this.currentCompareStatus === CompareStatus.NEW);
             this.workflowStateManager.update();
             this.setAllowedActionsBasedOnPermissions();
         });
@@ -1758,16 +1782,16 @@ export class ContentWizardPanel
             console.debug('ContentWizardPanel.initLiveEditor at ' + new Date().toISOString());
         }
 
+        this.updateMissingOrStoppedApplications().catch(DefaultErrorHandler.handle);
+
         if (!this.getLivePanel()) {
             return Q(null);
         }
 
         this.setupWizardLiveEdit();
+        this.getLivePanel().setHasPage(!!this.getPersistedItem().getPage());
+        this.getLivePanel().updateHasControllers();
         this.toggleLiveEdit();
-
-        if (!this.isRenderable() && this.getPersistedItem().getPage()) {
-            this.getLivePanel().setPageIsNotRenderable();
-        }
 
         if (this.isRenderable() && !this.isWithinSite()) {
             this.debouncedEditorReload(false);
@@ -1831,7 +1855,7 @@ export class ContentWizardPanel
                 } else {
                     this.showForm();
                 }
-            });
+            }).catch(DefaultErrorHandler.handle);
         } else {
             this.showForm();
         }
@@ -1870,13 +1894,6 @@ export class ContentWizardPanel
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(content).then(() => {
                 this.contextView.updateWidgetsVisibility();
-                this.fetchMissingOrStoppedAppKeys().then((missingApps: ApplicationKey[]) => {
-                    this.missingOrStoppedAppKeys = missingApps;
-
-                    if (missingApps.length > 0) {
-                        this.debouncedAppsChangeHandler();
-                    }
-                }).catch(DefaultErrorHandler.handle);
 
                 return this.createWizardStepForms().then(() => {
                     const steps: ContentWizardStep[] = this.createSteps();
@@ -1891,6 +1908,8 @@ export class ContentWizardPanel
                         if (this.params.localized) {
                             this.onRendered(() => NotifyManager.get().showFeedback(i18n('notify.content.localized')));
                         }
+
+                        this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
 
                         this.xDataWizardStepForms.resetState();
 
@@ -1955,10 +1974,16 @@ export class ContentWizardPanel
         }
 
         return new GetApplicationsRequest(applicationKeys).sendAndParse().then((applications: Application[]) => {
-            return applicationKeys.filter((key: ApplicationKey) => {
+            const stoppedApps: Application[] = [];
+            const missingOrStoppedAppKeys: ApplicationKey[] = applicationKeys.filter((key: ApplicationKey) => {
                 const app: Application = applications.find((a: Application) => a.getApplicationKey().equals(key));
+                app?.isStopped() && stoppedApps.push(app);
                 return !app || app.getState() === Application.STATE_STOPPED;
             });
+
+            this.formContext.setStoppedApplications(stoppedApps);
+
+            return missingOrStoppedAppKeys;
         });
     }
 
@@ -2194,7 +2219,7 @@ export class ContentWizardPanel
         this.applicationLoadCount++;
         this.formMask.show();
 
-        return new GetApplicationXDataRequest(this.persistedContent.getType(), applicationKey).sendAndParse().then(
+        return new GetApplicationXDataRequest(this.getPersistedItem().getType(), applicationKey).sendAndParse().then(
             (xDatas: XData[]) => {
                 const xDatasToAdd: XData[] = xDatas.filter((xData: XData) => !this.xDataWizardStepForms.contains(xData.getName()));
 
@@ -2241,7 +2266,7 @@ export class ContentWizardPanel
         this.applicationLoadCount++;
         this.formMask.show();
 
-        return new GetApplicationXDataRequest(this.persistedContent.getType(), applicationKey).sendAndParse().then(
+        return new GetApplicationXDataRequest(this.getPersistedItem().getType(), applicationKey).sendAndParse().then(
             (xDatasToRemove: XData[]) => {
                 this.formMask.show();
                 this.removeXDataSteps(xDatasToRemove);
@@ -2305,9 +2330,8 @@ export class ContentWizardPanel
     hasContentChanged(): boolean {
         const contentBuilder: ContentBuilder = this.getPersistedItem().newBuilderWithoutProperties();
         const viewedContent = this.assembleViewedContent(contentBuilder).build();
-        const isNew = ObjectHelper.dateEquals(this.getPersistedItem().getCreatedTime(), this.getPersistedItem().getModifiedTime());
 
-        return !viewedContent.equals(this.getPersistedItem(), isNew);
+        return !viewedContent.equals(this.contentAfterLayout);
     }
 
     assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false,
@@ -2332,12 +2356,12 @@ export class ContentWizardPanel
         const extraData: ExtraData[] = [];
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
-            extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData()));
+            extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData().copy()));
         });
 
         viewedContentBuilder.setExtraData(extraData);
 
-        viewedContentBuilder.setPage(this.assembleViewedPage());
+        viewedContentBuilder.setPage(this.assembleViewedPage()?.clone());
 
         return viewedContentBuilder;
     }
@@ -2371,15 +2395,16 @@ export class ContentWizardPanel
     }
 
     getContent(): ContentSummaryAndCompareStatus {
-        return this.currentContent;
+        return ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(this.getPersistedItem(), this.currentCompareStatus,
+            this.currentPublishStatus);
     }
 
     getCompareStatus(): CompareStatus {
-        return this.currentContent ? this.currentContent.getCompareStatus() : null;
+        return this.currentCompareStatus;
     }
 
     getPublishStatus(): PublishStatus {
-        return this.currentContent ? this.currentContent.getPublishStatus() : null;
+        return this.currentPublishStatus;
     }
 
     private notifyContentNamed(content: Content) {
@@ -2473,6 +2498,7 @@ export class ContentWizardPanel
             const renderable = statusCode === StatusCode.OK;
             this.renderable = renderable;
             this.contextView?.setIsPageRenderable(renderable);
+            this.livePanel?.setIsRenderable(renderable);
 
             return renderable;
         });
@@ -2512,18 +2538,16 @@ export class ContentWizardPanel
             if (!hasUnsavedChanges) {
                 // WARN: intended to restore status to persisted value if data is changed to original values,
                 // but if invoked after save this will revert status to persisted one as well
-                this.currentContent = this.persistedContent;
+                this.currentCompareStatus = this.persistedCompareStatus;
+                this.currentPublishStatus = this.persistedPublishStatus;
 
             } else {
-                if (this.currentContent === this.persistedContent) {
-                    this.currentContent = this.persistedContent.clone();
-                }
                 if (this.wizardActions.isOnline()) {
-                    this.currentContent.setCompareStatus(CompareStatus.NEWER);
+                    this.currentCompareStatus = CompareStatus.NEWER;
                 }
             }
-            this.getMainToolbar().setItem(this.currentContent);
-            this.wizardActions.setContent(this.currentContent).refreshState();
+            this.getMainToolbar().setItem(this.getContent());
+            this.wizardActions.setContent(this.getContent()).refreshState();
             this.workflowStateManager.update();
         }
     }
@@ -2539,6 +2563,7 @@ export class ContentWizardPanel
     onPageStateChanged(listener: () => void) {
         PageState.getEvents().onPageReset(listener);
         PageState.getEvents().onPageUpdated(listener);
+        PageState.getEvents().onPageConfigUpdated(listener);
         PageState.getEvents().onComponentUpdated(listener);
         PageState.getEvents().onComponentAdded(listener);
         PageState.getEvents().onComponentRemoved(listener);
@@ -2569,6 +2594,7 @@ export class ContentWizardPanel
 
     protected setPersistedItem(newPersistedItem: Content): void {
         super.setPersistedItem(newPersistedItem);
+        this.contentAfterLayout = this.getPersistedItem();
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
         AIAssistantEventsMediator.get().setContentContext(newPersistedItem);
@@ -2579,12 +2605,14 @@ export class ContentWizardPanel
     }
 
     private setPersistedContent(content: ContentSummaryAndCompareStatus) {
-        this.persistedContent = content;
         ContentContext.get().setContent(content);
+        this.persistedPublishStatus = content.getPublishStatus();
+        this.persistedCompareStatus = content.getCompareStatus();
+        this.peristedLanguage = content.getLanguage();
 
-        this.wizardHeader?.setOnline(!this.persistedContent.isNew());
+        this.wizardHeader?.setOnline(!content.isNew());
         this.wizardHeader?.setPath(this.getWizardHeaderPath());
-        this.wizardHeader?.setDir(Locale.supportsRtl(this.persistedContent.getLanguage()) ? LangDirection.RTL : LangDirection.AUTO);
+        this.wizardHeader?.setDir(Locale.supportsRtl(content.getLanguage()) ? LangDirection.RTL : LangDirection.AUTO);
         this.contextView?.setItem(content).then(() => this.contextView.updateWidgetsVisibility());
     }
 
@@ -2595,7 +2623,8 @@ export class ContentWizardPanel
 
         return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             const hasModifyPermissions: boolean =
-                this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY);
+                ContentHelper.isAnyPrincipalAllowed(this.getPersistedItem().getPermissions(), loginResult.getPrincipals(),
+                    Permission.MODIFY);
 
             if (!hasModifyPermissions) {
                 NotifyManager.get().showFeedback(i18n('notify.item.readonly'));
@@ -2732,11 +2761,38 @@ export class ContentWizardPanel
         return Q.resolve(this.defaultModels.getDefaultPageTemplate());
     }
 
+    protected createWizardStepsPanel(): WizardStepsPanel {
+        return new ContentWizardStepsPanel(this.stepNavigator, this.formPanel);
+    }
+
+    private updateMissingOrStoppedApplications(): Q.Promise<void> {
+        return this.fetchMissingOrStoppedAppKeys().then((missingApps: ApplicationKey[]) => {
+            this.missingOrStoppedAppKeys = missingApps;
+            this.getLivePanel()?.setHasMissingApps(this.missingOrStoppedAppKeys.length > 0);
+        });
+    }
+
+    private handleMissingOrStoppedApplicationsChange(): void {
+        const currentAppsCount = this.missingOrStoppedAppKeys?.length ?? 0;
+
+        this.updateMissingOrStoppedApplications().then(() => {
+            const fetchedAppCount = this.missingOrStoppedAppKeys.length;
+
+            if (currentAppsCount !== fetchedAppCount) { // can also sort arrays and check array equality
+                this.debouncedAppsChangeHandler();
+            }
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    private isReloadLiveEditRequired(diff: ContentDiff): boolean {
+        return !!diff.data || !!diff.pageObj || !!diff.extraData || !!diff.path || !!diff.displayName || !!diff.name || !!diff.inherit;
+    }
+
     private notifyChangesToAssistant(): void {
         AIAssistantEventsMediator.get().setCurrentData({
             fields: this.contentWizardStepForm.getData().toJson(),
             topic: this.getWizardHeader().getDisplayName(),
-            language: this.persistedContent.getLanguage(),
+            language: this.peristedLanguage,
         });
     }
 

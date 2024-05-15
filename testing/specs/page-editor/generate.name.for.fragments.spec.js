@@ -1,8 +1,7 @@
 /**
  * Created on 25.02.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const ContentFilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
@@ -57,6 +56,7 @@ describe('Generate name for fragments specification', function () {
             // 3. Open 'Insert Image' dialog and insert an image in htmlArea:
             await textComponentCke.clickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             // 4. Save the text-component as fragment:
             await pageComponentView.openMenu('Text');
@@ -71,7 +71,7 @@ describe('Generate name for fragments specification', function () {
             // 7. Only one item should be present in Page Component wizard step
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.equal(result.length, 1, 'One item should be displayed in the Page Component wizard step');
-            assert.isTrue(result.includes('Text'), 'City list part should be present in the dialog');
+            assert.ok(result.includes('Text'), 'City list part should be present in the dialog');
         });
 
     it(`WHEN a fragment-text with an image has been selected AND Show Inbound button has been pressed THEN the parent site should be filtered in the grid`,
@@ -207,6 +207,7 @@ describe('Generate name for fragments specification', function () {
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
             await textComponentCke.clickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             // 5. Click on Mark as ready button and save all:
             await contentWizard.clickOnMarkAsReadyButton();
@@ -215,7 +216,7 @@ describe('Generate name for fragments specification', function () {
             // 6. Verify the workflow state:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             let state = await contentWizard.getContentWorkflowState();
-            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "'Ready for publishing' state should be in the wizard ");
+            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "'Ready for publishing' state should be displayed in the wizard");
             // 7. Verify that Save button is disabled:
             await contentWizard.waitForSaveButtonDisabled();
         });

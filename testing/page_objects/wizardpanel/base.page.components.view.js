@@ -46,6 +46,11 @@ class BasePageComponentView extends Page {
 
     }
 
+    async waitForComponentItemDisplayed(displayName) {
+        let selector = this.container + lib.itemByDisplayName(displayName);
+        return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+    }
+
     async clickOnComponentByDisplayName(displayName) {
         try {
             let selector = this.container + lib.itemByDisplayName(displayName);
@@ -92,7 +97,7 @@ class BasePageComponentView extends Page {
 
     async openMenu(componentName) {
         try {
-            let menuButton = this.container + xpath.componentByName(componentName) + "/../..//div[contains(@class,'menu-icon')]";
+            let menuButton = this.container + xpath.componentByName(componentName) + "/../..//div[contains(@id,'PageComponentsMenuIcon')]";
             await this.waitForElementDisplayed(menuButton, appConst.shortTimeout);
             await this.pause(300);
             await this.clickOnElement(menuButton);
@@ -142,7 +147,7 @@ class BasePageComponentView extends Page {
             let selector = xpath.contextMenuItemByName(menuItem);
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.clickOnElement(selector);
-            return await this.pause(500);
+            return await this.pause(700);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
             throw new Error("Error - Page Component View: Menu Item, screenshot " + screenshot + ' ' + err);

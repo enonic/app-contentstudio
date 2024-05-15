@@ -29,7 +29,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
 
     it(`Preconditions: new system user should be created`,
         async () => {
-            //Do Log in with 'SU', navigate to 'Users' and create new user:
+            // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName('viewer');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
@@ -50,9 +50,8 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await studioUtils.openSettingsPanel();
             // 2.Open new project wizard dialog and :
             await settingsBrowsePanel.openProjectWizardDialog();
-            // 3. Select Project-radio then click on Next button:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+            // 3. click on Skip button:
+            await parentProjectStep.clickOnSkipButton();
             // 4. Skip the language step:
             await languageStep.clickOnSkipButton();
             // 5. Select Custom access mode:

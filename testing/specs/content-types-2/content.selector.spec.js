@@ -1,8 +1,7 @@
 /**
  * Created on 23.12.2017.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -77,7 +76,7 @@ describe('content.selector.spec: content-selector specification', function () {
             await studioUtils.typeNameInFilterPanel(articleContent.displayName);
             let isDisplayed = await contentBrowsePanel.waitForContentDisplayed(articleContent.displayName);
             await studioUtils.saveScreenshot('article_content_added');
-            assert.isTrue(isDisplayed, 'the article should be listed in the grid');
+            assert.ok(isDisplayed, 'the article should be listed in the grid');
         });
 
     it(`WHEN wizard for 'custom-relationship' is opened THEN mode toggler should be present in the content-selector AND 'Flat' mode should be by default`,

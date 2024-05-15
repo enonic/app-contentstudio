@@ -1,8 +1,7 @@
 /**
  * Created on 05.09.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
@@ -18,7 +17,7 @@ const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.di
 
 describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard step', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const NAME = appConst.generateRandomName("project");
@@ -38,8 +37,7 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Select 'Default' project and go to 'Name/ID' step
-            await parentProjectStep.clickOnLayerRadioButton();
-            await parentProjectStep.selectParentProject("Default");
+            await parentProjectStep.selectParentProject('Default');
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
@@ -56,7 +54,28 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //4. Verify that white spaces are trimmed
             let actualId = await nameIdStep.getProjectIdentifier();
             let whitespace = containsWhitespace(actualId);
-            assert.isFalse(whitespace, "White spaces should be trimmed in the input");
+            assert.ok(whitespace === false, "White spaces should be trimmed in the input");
+        });
+
+    // If parent project is not selected on the first step, no apps should be preselected on the "Applications" step
+    //https://github.com/enonic/app-contentstudio/issues/7461
+    it(`GIVEN parent project is not selected on the first step WHEN navigated to Applications wizard step THEN no apps should be preselected on the 'Applications' step`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let accessModeStep = new ProjectWizardDialogAccessModeStep();
+            let permissionsStep = new ProjectWizardDialogPermissionsStep();
+            let applicationsStep = new ProjectWizardDialogApplicationsStep();
+            // 1. Open new project wizard, parent project is not selected on the first step:
+            await settingsBrowsePanel.openProjectWizardDialog();
+            await parentProjectStep.clickOnSkipButton();
+            await languageStep.clickOnSkipButton();
+            await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
+            await accessModeStep.clickOnNextButton();
+            await permissionsStep.clickOnSkipButton();
+            // 2. Go to 'Applications' step: no apps should be preselected on the 'Applications' step
+            await applicationsStep.waitForSelectedApplicationsNotDisplayed();
         });
 
     it(`GIVEN navigated to Name/Id wizard step WHEN identifier input has been cleared THEN 'This field is required' should be displayed`,
@@ -71,8 +90,7 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Go to 'Name/ID' step:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+            await parentProjectStep.clickOnSkipButton();
             await languageStep.clickOnSkipButton();
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
             await accessModeStep.clickOnNextButton();
@@ -104,8 +122,7 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Go to 'Name/ID' step:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+            await parentProjectStep.clickOnSkipButton();
             await languageStep.clickOnSkipButton();
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
             await accessModeStep.clickOnNextButton();
@@ -127,10 +144,9 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //7. Open project wizard dialog again
             await settingsBrowsePanel.openProjectWizardDialog();
             //8. Verify that projects searchable by Identifier:
-            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.typeTextInOptionFilterInputAndSelectOption(ID, NAME);
-            let actualName = await parentProjectStep.getSelectedProject();
-            assert.equal(actualName, NAME, "Expected parent project should be present in the selected option");
+            let names = await parentProjectStep.getSelectedProjects();
+            assert.equal(names[0], NAME, "Expected parent project should be present in the selected option");
         });
 
     it(`WHEN Parent project step has been opened THEN new created project should be searchable by Description`,
@@ -140,10 +156,9 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //1. Open project wizard dialog:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Verify that projects searchable by Description:
-            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.typeTextInOptionFilterInputAndSelectOption(TEST_DESCRIPTION, NAME);
-            let actualName = await parentProjectStep.getSelectedProject();
-            assert.equal(actualName, NAME, "Expected parent project should be present in the selected option");
+            let names = await parentProjectStep.getSelectedProjects();
+            assert.equal(names[0], NAME, "Expected parent project should be present in the selected option");
         });
 
     it(`GIVEN project is selected AND 'Delete' button has been pressed WHEN required Identifier has been typed in Confirmation dialog THEN Confirm button gets enabled`,
@@ -172,7 +187,7 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

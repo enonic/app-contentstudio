@@ -34,7 +34,8 @@ class BaseBrowsePanel extends Page {
             await this.waitForElementDisplayed(this.treeGrid, timeout);
             await this.waitForSpinnerNotVisible(timeout);
         } catch (err) {
-            throw new Error('Browse panel was not loaded in ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_switch');
+            throw new Error(`Error occurred in grid,  screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -43,9 +44,7 @@ class BaseBrowsePanel extends Page {
     }
 
     hotKeyDelete() {
-        return this.getBrowser().status().then(status => {
-            return this.getBrowser().keys(['Control', 'Delete']);
-        })
+        return this.getBrowser().keys(['Control', 'Delete']);
     }
 
     async hotKeyEdit() {
@@ -92,7 +91,7 @@ class BaseBrowsePanel extends Page {
             return await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName("err_clicking_on_selection_toggler");
-            throw new Error("Selection Toggler:screenshot " + screenshot + '' + err);
+            throw new Error("Selection Toggler, screenshot: " + screenshot + '' + err);
         }
     }
 
@@ -117,7 +116,7 @@ class BaseBrowsePanel extends Page {
         return this.isSelected(selector);
     }
 
-    //gets list of content display names
+    // gets list of content display names
     getDisplayNamesInGrid() {
         return this.getTextInElements(this.displayNames).catch(err => {
             this.saveScreenshot('err_get_display_name_grid');
@@ -129,8 +128,8 @@ class BaseBrowsePanel extends Page {
         try {
             return await this.waitForElementDisabled(this.newButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_new_disabled_button');
-            throw Error('New... button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
+            let screenshot = await this.saveScreenshotUniqueName('err_new_disabled_button');
+            throw Error('New... button should be disabled, timeout: ' + screenshot + ' ' + err);
         }
     }
 
@@ -142,17 +141,20 @@ class BaseBrowsePanel extends Page {
         })
     }
 
-    waitForNewButtonEnabled() {
-        return this.waitForElementEnabled(this.newButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_new_button');
-            throw new Error('New button is not enabled in : ' + err);
-        })
+    async waitForNewButtonEnabled() {
+        try {
+            await this.waitForElementEnabled(this.newButton, appConst.mediumTimeout);
+            await this.pause(400);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_new_button');
+            throw new Error('New button is not enabled , screenshot: ' + screenshot + ' ' + err);
+        }
     }
 
     waitForEditButtonDisabled() {
         return this.waitForElementDisabled(this.editButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_edit_disabled_button');
-            throw Error('Edit button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
+            throw Error('Edit button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms' + ' ' + err)
         })
     }
 
@@ -161,8 +163,7 @@ class BaseBrowsePanel extends Page {
             await this.waitForElementEnabled(this.editButton, appConst.longTimeout);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_edit_button');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_edit_button');
             throw Error('Edit button is not enabled, screenshot: ' + screenshot + " " + err);
         }
     }
@@ -183,8 +184,8 @@ class BaseBrowsePanel extends Page {
             await this.clickOnElement(this.editButton);
             return await this.pause(700);
         } catch (err) {
-            this.saveScreenshot('err_browse_panel_edit_button');
-            throw new Error('Browse Panel: Edit button is not enabled! ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_browse_panel_edit_button');
+            throw new Error('Browse Panel: Edit button is not enabled! screenshot:  ' + screenshot + ' ' + err);
         }
     }
 
@@ -195,8 +196,8 @@ class BaseBrowsePanel extends Page {
             await this.clickOnElement(nameXpath);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_find_content'));
-            throw Error('Row with the content was not found: ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_find_content');
+            throw Error('Row with the content was not found, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -254,8 +255,8 @@ class BaseBrowsePanel extends Page {
             await this.doDoubleClick(nameXpath);
             return await this.pause(1000);
         } catch (err) {
-            this.saveScreenshot('err_find_' + displayName);
-            throw Error('Browse Panel - Row with the displayName ' + displayName + ' was not found' + err)
+            let screenshot = await this.saveScreenshotUniqueName('err_find_');
+            throw Error('Browse Panel - Row with the displayName was not found, screenshot: ' + screenshot + ' ' + err)
         }
     }
 
@@ -266,8 +267,8 @@ class BaseBrowsePanel extends Page {
             await this.clickOnElement(displayNameXpath);
             return await this.pause(400);
         } catch (err) {
-            this.saveScreenshot('err_find_item');
-            throw Error(`Row with the displayName ${displayName} was not found.` + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_find_item');
+            throw Error(`Row with the displayName ${displayName} was not found. Screenshot:` + screenshot + ' ' + err);
         }
     }
 
@@ -277,7 +278,7 @@ class BaseBrowsePanel extends Page {
 
         await this.getBrowser().waitUntil(async () => {
             let classAttr = await this.getAttribute(checkboxDiv, 'class');
-            return classAttr.includes("selected");
+            return classAttr.includes('selected');
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "row and Checkbox is not selected"});
     }
 }

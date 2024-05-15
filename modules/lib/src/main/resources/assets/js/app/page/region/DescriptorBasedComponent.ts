@@ -29,8 +29,8 @@ export abstract class DescriptorBasedComponent
     }
 
     setDescriptor(descriptor: Descriptor) {
-        this.setDescriptorKey(descriptor?.getKey());
         this.setName(descriptor ? new ComponentName(descriptor.getDisplayName()) : this.getType().getDefaultName());
+        this.setDescriptorKey(descriptor?.getKey());
     }
 
     private setDescriptorKey(descriptorKey: DescriptorKey) {
@@ -65,7 +65,8 @@ export abstract class DescriptorBasedComponent
 
         return {
             descriptor: this.descriptorKey != null ? this.descriptorKey.toString() : null,
-            config: this.config != null ? this.config.toJson() : null
+            config: this.config != null ? this.config.toJson() : null,
+            name: this.getName()?.toString(),
         } as DescriptorBasedComponentJson;
     }
 
