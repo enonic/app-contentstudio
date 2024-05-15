@@ -609,13 +609,13 @@ Content Studio 5.2 requires XP 7.14.1 or higher.
 <div class="sect3">
 <h4 id="soft_hyphen_in_the_rich_text_editor"><a class="link" href="#soft_hyphen_in_the_rich_text_editor">Soft-hyphen in the Rich Text Editor</a></h4>
 <div class="paragraph">
-<p>Soft-hyphen character <code>&shy;</code> added to Rich Text Editor&#8217;s "Special chars" dialog.</p>
+<p>Soft-hyphen character <code>&amp;shy;</code> added to Rich Text Editor&#8217;s "Special chars" dialog.</p>
 </div>
 </div>
 <div class="sect3">
 <h4 id="email_sender"><a class="link" href="#email_sender">Email sender</a></h4>
 <div class="paragraph">
-<p>Before this release, email notifications for <a href="issues.ahtml">issues</a> created in Content Studio used current user&#8217;s email address in the sender field. A new <a href="https://developer.enonic.com/docs/xp/stable/deployment/config#mail">config property</a> was implemented in XP 7.14.1 which can be used to configure default email sender for emails sent by XP. If properly configured, the sender field in the email notifications sent for issues in Content Studio will be set to the configured email address.</p>
+<p>Before this release, email notifications for <a href="issues.ahtml">issues</a> created in Content Studio used current user&#8217;s email address in the sender field. A new <a href="https://developer.enonic.com/docs/xp/stable/deployment/config#mail" target="_blank" rel="noopener">config property</a> was implemented in XP 7.14.1 which can be used to configure default email sender for emails sent by XP. If properly configured, the sender field in the email notifications sent for issues in Content Studio will be set to the configured email address.</p>
 </div>
 </div>
 <div class="sect3">
@@ -625,7 +625,7 @@ Content Studio 5.2 requires XP 7.14.1 or higher.
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="release/images/cs52-x-data.png" alt="x-data in the Content Editor for" height="75%">
+<img src="release/images/cs52-x-data.png" alt="x-data in the Content Editor form" width="75%">
 </div>
 </div>
 </div>
@@ -831,7 +831,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-05-15 15:16:53 UTC
+Last updated 2024-05-15 15:20:30 UTC
 </div>
 </div>
 </body>
