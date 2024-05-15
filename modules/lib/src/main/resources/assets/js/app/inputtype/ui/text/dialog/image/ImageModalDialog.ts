@@ -142,6 +142,7 @@ export class ImageModalDialog
                 this.ckeOriginalDialog.getButton('ok').click();
                 this.updateEditorElements();
                 this.close();
+                this.config.editor.fire('change');
             }
         });
 
