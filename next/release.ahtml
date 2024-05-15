@@ -446,6 +446,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#project_graph">Project graph</a></li>
 <li><a href="#project_wizard_improvements">Project Wizard improvements</a></li>
 <li><a href="#reference_check_in_the_unpublish_wizard">Reference check in the Unpublish Wizard</a></li>
+<li><a href="#configurable_default_online_from_time">Configurable default Online From time</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5_update_1">Content Studio 5 Update 1</a>
@@ -559,6 +560,17 @@ Content Studio 5.2 requires XP 7.14.1 or higher.
 <div class="content">
 <img src="actions/images/dialog-unpublish-references.png" alt="Reference check in the Unpublish Wizard" width="75%">
 </div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configurable_default_online_from_time"><a class="link" href="#configurable_default_online_from_time">Configurable default Online From time</a></h3>
+<div class="imageblock">
+<div class="content">
+<img src="config/images/pubwiz-online-from.png" alt="Default Online From time in the Publishing Wizard" width="410">
+</div>
+</div>
+<div class="paragraph">
+<p>Default Online From time in the Publishing Wizard can now be configured in Content Studio&#8217;s <a href="config.ahtml#default_online_from_time">config file</a>. If no config is set, the default time will be set to 12:00.</p>
 </div>
 </div>
 </div>
@@ -762,7 +774,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-05-15 13:07:07 UTC
+Last updated 2024-05-15 13:07:36 UTC
 </div>
 </div>
 </body>
