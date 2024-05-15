@@ -24,6 +24,7 @@ import {Styles} from './styles/Styles';
 import {StylesRequest} from './styles/StylesRequest';
 import editor = CKEDITOR.editor;
 import eventInfo = CKEDITOR.eventInfo;
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];
@@ -189,18 +190,20 @@ export class HtmlEditor {
             }
         });
 
-        this.handlePasteFromGoogleDoc();
+        this.handlePaste();
         this.handleFullScreenModeToggled();
         this.handleMouseEvents();
         this.handleElementSelection();
         this.handleImageAlignButtonPressed();
     }
 
-    private handlePasteFromGoogleDoc() {
-        // https://github.com/enonic/app-contentstudio/issues/485
+    private handlePaste(): void {
         this.editor.on('paste', (e: eventInfo) => {
+            // handlePasteFromGoogleDoc, https://github.com/enonic/app-contentstudio/issues/485
             if (GoogleDocPasteHandler.isPastedFromGoogleDoc(e.data.dataTransfer.getData('text/html'))) {
                 e.data.dataValue = new GoogleDocPasteHandler(e.data.dataValue).process();
+            } else { // handle trailing non-breaking spaces , https://github.com/enonic/app-contentstudio/issues/7570
+                e.data.dataValue = e.data.dataValue?.replace(/^(&nbsp;)+|(&nbsp;)+$/g, ' ');
             }
         });
     }
@@ -709,13 +712,51 @@ export class HtmlEditor {
             });
         }
 
-        this.editor.on('key', function (evt: eventInfo) { // stopping select all from propagating
+        this.editor.on('key',  (evt: eventInfo) => { // stopping select all from propagating
             if (evt.data.keyCode === CKEDITOR.CTRL + 65) {
                 if (evt.data.domEvent && evt.data.domEvent.stopPropagation) {
                     evt.data.domEvent.stopPropagation();
                 }
+            } else if (evt.data.keyCode === 32) {
+                this.handleSpacePressed();
             }
         });
+    }
+
+    private handleSpacePressed(): void {
+        // https://github.com/enonic/app-contentstudio/issues/7570, pressing space after link should not insert nbsp
+        const range = this.editor.getSelection().getRanges()[0];
+        const startNode = range.startContainer;
+        const endNode = range.endContainer;
+
+        // checking that cursor is at the end of the same text node, like at place where link ends and other text starts right after it
+        if (startNode.$ === endNode.$ && range.startOffset === range.endOffset && range.startOffset === startNode.getText().length ||
+            range.startOffset === 1) {
+            const prevChar = startNode.getText()[range.startOffset - 1];
+            const nextChar = range.getNextNode()?.getText()[0];
+
+            // checking that cursor position is surrounded by non-whitespace characters
+            if (ObjectHelper.bothDefined(prevChar, nextChar) && !StringHelper.isBlank(prevChar) && !StringHelper.isBlank(nextChar)){
+                setTimeout(() => { // setting timeout to allow space to be replaced with nbsp by browser/editor
+                    const selection: CKEDITOR.dom.selection = this.editor.getSelection();
+                    const range: CKEDITOR.dom.range = selection.getRanges()[0];
+
+                    if (!range) {
+                        return null;
+                    }
+
+                    //checking if text node at cursor position contains nbsp
+                    const elem = range.startContainer?.$;
+                    const isSpaceReplacedWithNbsp = elem?.textContent.search(/\xA0/) > -1;
+
+                    if (isSpaceReplacedWithNbsp) {
+                        elem.textContent = elem.textContent.replace(/\xA0/g, ' ');
+                        // cursor jumps after we replace nbsp with space, so we need to move it back
+                        range.select();
+                    }
+                }, 1);
+            }
+        }
     }
 
     private addCustomLangEntries() {
