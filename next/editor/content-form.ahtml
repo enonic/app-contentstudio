@@ -549,11 +549,11 @@ in the <a href="page-editor.ahtml#editing-page">Page Editor</a>.</p>
 <p>Components can be rearranged directly in the tree with drag’n’drop function.</p>
 </div>
 <div class="paragraph">
-<p>In the image below, a part named <strong>Post single</strong> is selected in the Components view and the part is highlighted with a blue mask at the center of the page editor. The <strong>Post single</strong>’s configuration is visible in the components widget on the right.</p>
+<p>In the image below, a part called <strong>Latest comments</strong> is selected in the Page Components view and highlighted with a blue border/mask in the Page Editor. The selected part&#8217;s configuration form is displayed in the Components widget on the right.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/wizard-component-view-docked.png" alt="Page Components docked" width="75%">
+<img src="images/page-editor-components-docked.png" alt="Page Components" width="75%">
 </div>
 </div>
 <div class="admonitionblock note">
@@ -573,7 +573,7 @@ For fragments and page templates the Page Components tree will be inside the fir
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-05-15 13:16:42 UTC
+Last updated 2024-05-15 15:15:43 UTC
 </div>
 </div>
 </body>

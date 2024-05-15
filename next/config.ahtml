@@ -590,7 +590,7 @@ this by clicking the "<strong>Mark as ready</strong>" link on top of the dialog,
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="config/images/pubwiz-mark-as-ready.png" alt="Mark as ready action in the Publishing Wizard" width="50%">
+<img src="config/images/pubwiz-mark-as-ready.png" alt="Mark as ready action in the Publishing Wizard" width="75%">
 </div>
 </div>
 <div class="paragraph">
@@ -611,7 +611,7 @@ can be disabled by adding the following parameter to the config file:</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="config/images/pubwiz-online-from.png" alt="Default Online From time in the Publishing Wizard" width="50%">
+<img src="config/images/pubwiz-online-from.png" alt="Default Online From time in the Publishing Wizard" width="75%">
 </div>
 </div>
 <div class="listingblock">
@@ -673,7 +673,7 @@ Use this flag with caution. It makes it very simple to publish a content without
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-05-15 13:16:42 UTC
+Last updated 2024-05-15 15:15:43 UTC
 </div>
 </div>
 </body>

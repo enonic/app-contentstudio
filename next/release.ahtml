@@ -446,7 +446,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#project_graph">Project graph</a></li>
 <li><a href="#project_wizard_improvements">Project Wizard improvements</a></li>
 <li><a href="#reference_check_in_the_unpublish_wizard">Reference check in the Unpublish Wizard</a></li>
-<li><a href="#configurable_default_online_from_time">Configurable default Online From time</a></li>
+<li><a href="#decorative_images">Decorative images</a></li>
+<li><a href="#default_online_from_time">Default Online From time</a></li>
+<li><a href="#page_components_view">Page Components view</a></li>
+<li><a href="#other_improvements">Other improvements</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5_update_1">Content Studio 5 Update 1</a>
@@ -456,16 +459,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#export_of_search_results">Export of search results</a></li>
 <li><a href="#new_findreplace_dialog_in_rich_text_editor">New Find/Replace dialog in Rich Text Editor</a></li>
 <li><a href="#locked_path_for_published_content">Locked path for published content</a></li>
-<li><a href="#other_improvements">Other improvements</a></li>
+<li><a href="#other_improvements_2">Other improvements</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5">Content Studio 5</a>
 <ul class="sectlevel2">
 <li><a href="#default_content_project_is_hidden_by_default">Default Content Project is hidden by default</a></li>
-<li><a href="#page_components_view">Page Components View</a></li>
+<li><a href="#page_components_view_2">Page Components View</a></li>
 <li><a href="#publishing_wizard_improvements">Publishing Wizard improvements</a></li>
 <li><a href="#call_links_in_the_insert_link_dialog">Call links in the Insert Link dialog</a></li>
-<li><a href="#other_improvements_2">Other improvements</a></li>
+<li><a href="#other_improvements_3">Other improvements</a></li>
 </ul>
 </li>
 </ul>
@@ -563,14 +566,68 @@ Content Studio 5.2 requires XP 7.14.1 or higher.
 </div>
 </div>
 <div class="sect2">
-<h3 id="configurable_default_online_from_time"><a class="link" href="#configurable_default_online_from_time">Configurable default Online From time</a></h3>
+<h3 id="decorative_images"><a class="link" href="#decorative_images">Decorative images</a></h3>
+<div class="paragraph">
+<p>New "Accessibility" section in the <a href="editor/rich-text-editor.ahtml#insertedit_image">Insert/Edit Image dialog</a> of Rich Text editor allows to set decorative images as such. Decorative images are used for styling purposes only and meant to be skipped by screen readers, as opposed to images with meaningful alt text.</p>
+</div>
 <div class="imageblock">
 <div class="content">
-<img src="config/images/pubwiz-online-from.png" alt="Default Online From time in the Publishing Wizard" width="410">
+<img src="editor/images/rich-text-editor-image-dialog.png" alt="Insert Image dialog" width="75%">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="default_online_from_time"><a class="link" href="#default_online_from_time">Default Online From time</a></h3>
+<div class="imageblock">
+<div class="content">
+<img src="config/images/pubwiz-online-from.png" alt="Default Online From time in the Publishing Wizard" width="75%">
 </div>
 </div>
 <div class="paragraph">
 <p>Default Online From time in the Publishing Wizard can now be configured in Content Studio&#8217;s <a href="config.ahtml#default_online_from_time">config file</a>. If no config is set, the default time will be set to 12:00.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="page_components_view"><a class="link" href="#page_components_view">Page Components view</a></h3>
+<div class="paragraph">
+<p>Styling of regions inside the Page Components view has been changed to make regions take less space and attention away from the main page components. Region names are now capitalized.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs52-pcv-regions.png" alt="Regions in the Page Components view" width="75%">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="other_improvements"><a class="link" href="#other_improvements">Other improvements</a></h3>
+<div class="sect3">
+<h4 id="performance"><a class="link" href="#performance">Performance</a></h4>
+<div class="paragraph">
+<p>Preview and Page Editor panels will no longer be refreshed whenever content is published or unpublished.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="soft_hyphen_in_the_rich_text_editor"><a class="link" href="#soft_hyphen_in_the_rich_text_editor">Soft-hyphen in the Rich Text Editor</a></h4>
+<div class="paragraph">
+<p>Soft-hyphen character <code>&shy;</code> added to Rich Text Editor&#8217;s "Special chars" dialog.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="email_sender"><a class="link" href="#email_sender">Email sender</a></h4>
+<div class="paragraph">
+<p>Before this release, email notifications for <a href="issues.ahtml">issues</a> created in Content Studio used current user&#8217;s email address in the sender field. A new <a href="https://developer.enonic.com/docs/xp/stable/deployment/config#mail">config property</a> was implemented in XP 7.14.1 which can be used to configure default email sender for emails sent by XP. If properly configured, the sender field in the email notifications sent for issues in Content Studio will be set to the configured email address.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="extra_data"><a class="link" href="#extra_data">eXtra Data</a></h4>
+<div class="paragraph">
+<p>Layout and behaviour of optional X-Data sections in the Content Form have been changed. <code>+</code> icon is now right-aligned and transforms to <code>x</code> icon whenever the X-Data is active.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs52-x-data.png" alt="x-data in the Content Editor for" height="75%">
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -649,7 +706,7 @@ This mode can be turned on in Content Studio&#8217;s <a href="config.ahtml#exclu
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="release/images/cs51-search-export.png" alt="Search export" width="25%">
+<img src="release/images/cs51-search-export.png" alt="Search export" width="75%">
 </div>
 </div>
 </div>
@@ -660,7 +717,7 @@ This mode can be turned on in Content Studio&#8217;s <a href="config.ahtml#exclu
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="editor/images/rich-text-editor-find-replace.png" alt="470" width="Insert Link dialog">
+<img src="editor/images/rich-text-editor-find-replace.png" alt="Insert Link dialog" width="75%">
 </div>
 </div>
 </div>
@@ -671,7 +728,7 @@ This mode can be turned on in Content Studio&#8217;s <a href="config.ahtml#exclu
 </div>
 </div>
 <div class="sect2">
-<h3 id="other_improvements"><a class="link" href="#other_improvements">Other improvements</a></h3>
+<h3 id="other_improvements_2"><a class="link" href="#other_improvements_2">Other improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -720,7 +777,7 @@ upgrading to Content Studio 5), enable it via Content Studio&#8217;s <a href="co
 </div>
 </div>
 <div class="sect2">
-<h3 id="page_components_view"><a class="link" href="#page_components_view">Page Components View</a></h3>
+<h3 id="page_components_view_2"><a class="link" href="#page_components_view_2">Page Components View</a></h3>
 <div class="paragraph">
 <p>Page Components View, which used to be a floating modal window inside Page Editor, is now made a part
 of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor form</a>. It will be automatically undocked whenever the Content Form is collapsed.</p>
@@ -754,7 +811,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 </div>
 <div class="sect2">
-<h3 id="other_improvements_2"><a class="link" href="#other_improvements_2">Other improvements</a></h3>
+<h3 id="other_improvements_3"><a class="link" href="#other_improvements_3">Other improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -774,7 +831,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-05-15 13:16:42 UTC
+Last updated 2024-05-15 15:15:43 UTC
 </div>
 </div>
 </body>
