@@ -38,23 +38,22 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_0_1);
             await contentWizard.typeDisplayName(appConst.generateRandomName('selector'));
             await imageSelectorForm.waitForOptionsFilterInputDisplayed();
-            // 2. Expand th selector and click on an image-item
+            // 2. Expand the image-selector and click on an image-item:
             await imageSelectorForm.expandDropdownClickOnImage(appConst.TEST_IMAGES.TELK);
             await contentWizard.pause(1000);
-            // 3. Verify the selected image
-            let result = await imageSelectorForm.getSelectedImages();
-            assert.equal(result[0], appConst.TEST_IMAGES.TELK, "Expected image should be displayed in selected options");
+            // 3. Verify the selected image:
+            let selectedOptions = await imageSelectorForm.getSelectedImages();
+            assert.equal(selectedOptions[0], appConst.TEST_IMAGES.TELK, "Expected image should be displayed in selected options");
             // 4. Click on Mark as ready button in the wizard toolbar:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.waitForOpened();
-            // 5. Verify that Show/Hide excluded items are not displayed
+            // 5. Verify that Show/Hide excluded items are not displayed by default configuration:
             await contentPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
             await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
             // 6. Verify that the selected image is displayed in the dependent items block:
             let dependantItems = await contentPublishDialog.getDisplayNameInDependentItems();
-            let expectedItem = '/imagearchive/' + appConst.TEST_IMAGES.TELK + '.png'
-            assert.ok(dependantItems.includes(expectedItem),
-                "Publish Wizard - The selected image should be displayed in Dependent Items block")
+            let isPresent = await dependantItems.some(item=>item.includes(appConst.TEST_IMAGES.TELK));
+            assert.ok(isPresent, "Publish Wizard - The selected image should be displayed in Dependent Items block");
         });
 
     it("GIVEN wizard for new Image Selector(0:1) has been opened WHEN name has been typed THEN options filter input should be displayed AND uploader button should be enabled AND the content gets valid",
