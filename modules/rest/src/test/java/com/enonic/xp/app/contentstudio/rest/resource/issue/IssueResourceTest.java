@@ -35,6 +35,7 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
+import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.context.LocalScope;
@@ -140,10 +141,18 @@ public class IssueResourceTest
         return invocation -> IssueNotificationParams.create().build();
     }
 
+    private void createRepoContext()
+    {
+        final Context context = ContextBuilder.from( ContextAccessor.current() ).repositoryId( "com.enonic.cms.myproject" ).build();
+        ContextAccessor.INSTANCE.set( context );
+    }
+
     @Test
     public void test_create()
         throws Exception
     {
+        createRepoContext();
+
         final CreateIssueJson params =
             new CreateIssueJson( null, "title", "desc", Arrays.asList( User.ANONYMOUS.getKey().toString() ), createPublishRequest(), null );
 
@@ -172,6 +181,8 @@ public class IssueResourceTest
     public void test_create_with_publish_schedule()
         throws Exception
     {
+        createRepoContext();
+
         final CreateIssueJson params =
             new CreateIssueJson( IssueType.PUBLISH_REQUEST.toString(), "title", "desc", Arrays.asList( User.ANONYMOUS.getKey().toString() ),
                                  createPublishRequest(), createPublishRequestSchedule() );
@@ -205,6 +216,8 @@ public class IssueResourceTest
     public void test_createNoDescription()
         throws Exception
     {
+        createRepoContext();
+
         final CreateIssueJson params =
             new CreateIssueJson( null, "title", null, Arrays.asList( User.ANONYMOUS.getKey().toString() ), createPublishRequest(), null );
 
@@ -225,6 +238,8 @@ public class IssueResourceTest
     public void verifyAdminNotFiltered()
         throws Exception
     {
+        createRepoContext();
+
         verifyValidAssigneeNotFiltered( PrincipalKeys.from( RoleKeys.ADMIN ) );
     }
 
@@ -232,6 +247,8 @@ public class IssueResourceTest
     public void verifyContentManagerAdminNotFiltered()
         throws Exception
     {
+        createRepoContext();
+
         verifyValidAssigneeNotFiltered( PrincipalKeys.from( RoleKeys.CONTENT_MANAGER_ADMIN ) );
     }
 
@@ -239,6 +256,8 @@ public class IssueResourceTest
     public void verifyContentManagerExpertNotFiltered()
         throws Exception
     {
+        createRepoContext();
+
         verifyValidAssigneeNotFiltered( PrincipalKeys.from( RoleKeys.CONTENT_MANAGER_EXPERT ) );
     }
 
@@ -246,6 +265,8 @@ public class IssueResourceTest
     public void verifyContentManagerNotFiltered()
         throws Exception
     {
+        createRepoContext();
+
         verifyValidAssigneeNotFiltered( PrincipalKeys.from( RoleKeys.CONTENT_MANAGER_APP ) );
     }
 
@@ -347,6 +368,8 @@ public class IssueResourceTest
     public void verifyInvalidAssigneeFiltered()
         throws Exception
     {
+        createRepoContext();
+
         final CreateIssueJson params =
             new CreateIssueJson( null, "title", "", Arrays.asList( User.ANONYMOUS.getKey().toString() ), createPublishRequest(), null );
 
@@ -491,6 +514,8 @@ public class IssueResourceTest
     @Test
     public void test_update()
     {
+        createRepoContext();
+
         final Issue issue = createIssue();
         final User admin = User.create().
             key( PrincipalKey.from( "user:system:admin" ) ).
@@ -519,6 +544,8 @@ public class IssueResourceTest
     @Test
     public void test_update_with_publish_schedule()
     {
+        createRepoContext();
+
         final Issue issue = createPublishRequestIssue();
         final User admin = User.create().
             key( PrincipalKey.from( "user:system:admin" ) ).
@@ -568,6 +595,8 @@ public class IssueResourceTest
     @Test
     public void test_update_is_autoSave()
     {
+        createRepoContext();
+
         final Issue issue = createIssue();
         final User admin = User.create().
             key( PrincipalKey.from( "user:system:admin" ) ).
