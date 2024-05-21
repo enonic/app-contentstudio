@@ -19,6 +19,15 @@ subprojects {
     apply from: "$rootDir/gradle/node.gradle"
     apply from: "$rootDir/gradle/lib-admin.gradle"
 
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = sourceCompatibility
+
     dependencies {
         testImplementation "org.junit.jupiter:junit-jupiter-api:5.9.1"
         testImplementation "org.junit.jupiter:junit-jupiter-params:5.9.1"

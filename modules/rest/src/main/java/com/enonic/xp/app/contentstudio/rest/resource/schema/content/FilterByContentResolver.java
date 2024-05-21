@@ -32,6 +32,7 @@ import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.LayoutDescriptorService;
 import com.enonic.xp.region.PartDescriptor;
 import com.enonic.xp.region.PartDescriptorService;
+import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
@@ -121,7 +122,8 @@ public class FilterByContentResolver
 
     private Stream<ContentType> getProjectContentTypes()
     {
-        return Optional.ofNullable( ProjectName.from( ContextAccessor.current().getRepositoryId() ) )
+        final RepositoryId repositoryId = ContextAccessor.current().getRepositoryId();
+        return Optional.ofNullable( repositoryId != null ? ProjectName.from( repositoryId ) : null )
             .map( projectName -> projectService.get( projectName ) )
             .map( project -> project.getSiteConfigs()
                 .stream()
