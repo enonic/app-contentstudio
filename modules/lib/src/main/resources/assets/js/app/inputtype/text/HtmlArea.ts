@@ -34,6 +34,7 @@ import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
 import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
+import {ProjectContext} from '../../project/ProjectContext';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
@@ -62,7 +63,7 @@ export class HtmlArea
         this.addClass('html-area');
         this.editors = [];
         this.content = config.content;
-        this.applicationKeys = config.site ? config.site.getApplicationKeys() : [];
+        this.applicationKeys = this.resolveApplicationKeys();
         this.processInputConfig();
 
         this.authRequest = HTMLAreaHelper.isSourceCodeEditable().then((value: boolean) => {
@@ -75,6 +76,16 @@ export class HtmlArea
         });
 
         this.setupEventListeners();
+    }
+
+    private resolveApplicationKeys(): ApplicationKey[] {
+        // if is site or within site then get application keys from site
+        if (this.context.site) {
+            return this.context.site.getApplicationKeys() || [];
+        }
+
+        // if is root non-site content then get application keys from project, e.g. headless content items
+        return ProjectContext.get().getProject()?.getSiteConfigs()?.map((config) => config.getApplicationKey()) || [];
     }
 
     private processInputConfig() {
