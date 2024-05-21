@@ -12,7 +12,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 import org.osgi.service.component.annotations.Activate;
@@ -67,7 +66,6 @@ import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskResultJson;
 import com.enonic.xp.task.TaskService;
 import com.enonic.xp.util.ByteSizeParser;
-import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.multipart.MultipartForm;
 import com.enonic.xp.web.multipart.MultipartItem;
 
@@ -118,12 +116,6 @@ public final class ProjectResource
         throws Exception
     {
         final Project modifiedProject = this.projectService.modify( createParams( json ) );
-
-        if ( ProjectConstants.DEFAULT_PROJECT_NAME.equals( modifiedProject.getName() ) )
-        {
-            return doCreateJson( modifiedProject, null, null, doFetchLanguage( modifiedProject.getName() ) );
-        }
-
         return doCreateJson( modifiedProject );
     }
 
@@ -167,11 +159,6 @@ public final class ProjectResource
     @Path("delete")
     public boolean delete( final DeleteProjectParamsJson params )
     {
-        if ( ProjectConstants.DEFAULT_PROJECT_NAME.equals( params.getName() ) )
-        {
-            throw new WebApplicationException( "Default repo is not allowed to be deleted", HttpStatus.METHOD_NOT_ALLOWED.value() );
-        }
-
         return this.projectService.delete( params.getName() );
     }
 
@@ -312,15 +299,8 @@ public final class ProjectResource
     {
         final ProjectName projectName = project.getName();
 
-        ProjectPermissions projectPermissions = null;
-        ProjectReadAccessType readAccessType = null;
-
-        if ( !ProjectConstants.DEFAULT_PROJECT_NAME.equals( projectName ) )
-        {
-            projectPermissions = doFetchPermissions( projectName );
-            readAccessType = doFetchReadAccess( projectName, projectPermissions.getViewer() ).getType();
-        }
-
+        final ProjectPermissions projectPermissions = doFetchPermissions( projectName );
+        final ProjectReadAccessType readAccessType = doFetchReadAccess( projectName, projectPermissions.getViewer() ).getType();
         final Locale language = doFetchLanguage( projectName );
 
         return doCreateJson( project, projectPermissions, readAccessType, language );

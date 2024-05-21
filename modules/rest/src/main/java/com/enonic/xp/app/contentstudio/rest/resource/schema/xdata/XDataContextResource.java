@@ -37,6 +37,7 @@ import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.ProjectService;
+import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
@@ -144,11 +145,10 @@ public final class XDataContextResource
 
     private Map<XData, Boolean> getProjectXData( final Content content )
     {
+        final RepositoryId repositoryId = ContextAccessor.current().getRepositoryId();
         return contentService.getNearestSite( content.getId() ) == null ? Optional.ofNullable(
-                ProjectName.from( ContextAccessor.current().getRepositoryId() ) )
-            .map( projectService::get )
-            .map( project -> getXDataByApps( project.getSiteConfigs().getApplicationKeys(), content.getType() ) )
-            .orElseGet( Map::of ) : Map.of();
+            repositoryId != null ? ProjectName.from( repositoryId ) : null ).map( projectService::get ).map(
+            project -> getXDataByApps( project.getSiteConfigs().getApplicationKeys(), content.getType() ) ).orElseGet( Map::of ) : Map.of();
     }
 
     private Map<XData, Boolean> getXDataByApps( final Collection<ApplicationKey> applicationKeys, final ContentTypeName contentType )
