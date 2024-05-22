@@ -88,7 +88,7 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
             let cityFormPanel = new CityFormPanel();
             //6. Open just created city content and verify the population:
             await studioUtils.openContentAndSwitchToTabByDisplayName(CITY_NAME, CITY_NAME + " " + appConst.TAB_TITLE_PART);
-            await studioUtils.saveScreenshot("verify_city_wizard");
+            await studioUtils.saveScreenshot('verify_city_wizard');
             let actualPopulation = await cityFormPanel.getPopulation();
             assert.equal(actualPopulation, CITY_POPULATION, "Expected population should be present in the wizard page");
         });

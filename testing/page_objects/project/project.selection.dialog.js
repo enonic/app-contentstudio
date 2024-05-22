@@ -28,12 +28,14 @@ class ProjectSelectionDialog extends Page {
         }
     }
 
-    waitForDialogLoaded() {
-        let selector = XPATH.container + XPATH.projectList + lib.itemByDisplayName("Default");
-        return this.waitForElementDisplayed(selector, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_open_project_selection_dialog');
-            throw new Error('Project Selection dialog should be opened!' + err);
-        });
+    async waitForDialogLoaded() {
+        try {
+            let selector = XPATH.container + "//h2[text()='Select project']";
+            return await this.waitForElementDisplayed(selector, appConst.shortTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_selection_dialog');
+            throw new Error(`Project Selection dialog should be opened! screenshot: ${screenshot} ` + err);
+        }
     }
 
     async isDialogLoaded() {

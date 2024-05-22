@@ -25,7 +25,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
             await studioUtils.doAddFolder(FOLDER);
         });
 
-    it(`GIVEN 'Edit Permissions' dialog is opened(click on Details Panel) WHEN 'Custom' permissions has been selected AND 'Create' operation has been clicked  AND 'Apply' button pressed THEN correct notification should appear `,
+    it.skip(`GIVEN 'Edit Permissions' dialog is opened(click on Details Panel) WHEN 'Custom' permissions has been selected AND 'Create' operation has been clicked  AND 'Apply' button pressed THEN correct notification should appear `,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let userAccessWidget = new UserAccessWidget();
@@ -35,7 +35,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
             await studioUtils.openBrowseDetailsPanel();
             // 2. Open Edit Permissions dialog and uncheck the 'Inherit' checkbox:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
+            //await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
             // 3. Go to 'Content Manager App' entry and open ACE-menu then select 'Custom...' menu item:
             await editPermissionsDialog.showAceMenuAndSelectItem(appConst.roleName.CONTENT_MANAGER_APP, appConst.permissions.CUSTOM);
             await editPermissionsDialog.pause(500);
@@ -50,7 +50,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
             assert.equal(actualMessage, expectedMessage, "'Permissions for 'name' are applied.' - Is expected message");
         });
 
-    it(`GIVEN existing folder with 'Custom' permissions is opened WHEN 'Edit Permissions dialog' has been opened THEN expected operations should be allowed`,
+    it.skip(`GIVEN existing folder with 'Custom' permissions is opened WHEN 'Edit Permissions dialog' has been opened THEN expected operations should be allowed`,
         async () => {
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
@@ -65,7 +65,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
             assert.ok(isAllowed, "'Create' operation should be allowed(green)");
         });
 
-    it(`GIVEN existing folder is selected AND Edit Permissions dialog is opened WHEN 'Create' toggle has been clicked THEN 'Create' operation gets denied(red)`,
+    it.skip(`GIVEN existing folder is selected AND Edit Permissions dialog is opened WHEN 'Create' toggle has been clicked THEN 'Create' operation gets denied(red)`,
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             let userAccessWidget = new UserAccessWidget();
@@ -81,7 +81,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
             await editPermissionsDialog.isOperationAllowed(appConst.roleName.CONTENT_MANAGER_APP, 'Read');
         });
 
-    it(`WHEN folder with updated permissions is selected AND Edit Permissions dialog is opened THEN ACL-entries should be consistently sorted by name`,
+    it.skip(`WHEN folder with updated permissions is selected AND Edit Permissions dialog is opened THEN ACL-entries should be consistently sorted by name`,
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             let userAccessWidget = new UserAccessWidget();

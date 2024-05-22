@@ -17,7 +17,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
         webDriverHelper.setupBrowser();
     }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
-    const PARENT_DEFAULT = 'Default';
+    const PARENT_PROJECT = 'Default';
 
     it("GIVEN layer(in Default) with roles has been saved and reopened WHEN 'Copy roles from parent' has been clicked THEN 'Save' button gets enabled",
         async () => {
@@ -25,7 +25,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             let layerWizard = new LayerWizardPanel();
             // 1. Open Project Wizard Dialog:
             await projectUtils.selectParentAndOpenProjectWizardDialog(appConst.PROJECTS.DEFAULT_PROJECT_NAME);
-            let layer = projectUtils.buildLayer(PARENT_DEFAULT, appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PUBLIC, 'Super User',
+            let layer = projectUtils.buildLayer(PARENT_PROJECT, appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PRIVATE, 'Super User',
                 null, LAYER_DISPLAY_NAME)
             // 2. Fill in forms in the wizard then click on Create button:
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
@@ -35,7 +35,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             await settingsBrowsePanel.clickOnEditButton();
             await layerWizard.waitForLoaded();
             // 4. Click on 'Copy roles from parent':
-            await layerWizard.clickOnCopyRolesFromParent(PARENT_DEFAULT);
+            await layerWizard.clickOnCopyRolesFromParent(PARENT_PROJECT);
             // 5. Verify that notification message appears:
             await layerWizard.waitForNotificationMessage();
             // 6. Verify that 'Save' button gets enabled:
@@ -61,12 +61,12 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await layerWizard.waitForLoaded();
-            // 2. Click on Copy Roles from parent:
-            await layerWizard.clickOnCopyRolesFromParent(PARENT_DEFAULT);
+            // 2. Click on 'Copy Roles from parent':
+            await layerWizard.clickOnCopyRolesFromParent(PARENT_PROJECT);
             await layerWizard.waitForNotificationMessage();
             // 4. Click on 'close' icon:
             await settingsBrowsePanel.clickOnCloseIcon(LAYER_DISPLAY_NAME);
-            await studioUtils.saveScreenshot("layer_wizard_unsaved_changes_1");
+            await studioUtils.saveScreenshot('layer_wizard_unsaved_changes_1');
             await confirmationDialog.waitForDialogOpened();
             let actualMessage = await confirmationDialog.getWarningMessage();
             assert.equal(actualMessage, appConst.PROJECT_UNSAVED_CHANGES_MESSAGE);
@@ -81,7 +81,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await layerWizard.waitForLoaded();
-            await layerWizard.clickOnCopyAccessModeFromParent(PARENT_DEFAULT);
+            await layerWizard.clickOnCopyAccessModeFromParent(PARENT_PROJECT);
             // 2. Confirm the coping:
             await confirmationDialog.clickOnYesButton();
             await layerWizard.waitForNotificationMessage();
@@ -103,7 +103,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             await settingsBrowsePanel.clickOnEditButton();
             await layerWizard.waitForLoaded();
             // 2. Click on Copy button:
-            await layerWizard.clickOnCopyLanguageFromParent(PARENT_DEFAULT);
+            await layerWizard.clickOnCopyLanguageFromParent(PARENT_PROJECT);
             await layerWizard.waitForNotificationMessage();
             // 3. Click on 'close' icon:
             await settingsBrowsePanel.clickOnCloseIcon(LAYER_DISPLAY_NAME);
