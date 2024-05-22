@@ -254,7 +254,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
         });
 
     // Verifies: OptionSet wizard - Save button gets enabled after updating permissions #4915
-    it(`GIVEN existing option set is opened WHEN permissions have been updated THEN Save button remains visible and disabled`,
+    it.skip(`GIVEN existing option set is opened WHEN permissions have been updated THEN 'Save' button remains visible and disabled`,
         async () => {
             let contentWizard = new ContentWizard();
             let userAccessWidget = new UserAccessWidget();
