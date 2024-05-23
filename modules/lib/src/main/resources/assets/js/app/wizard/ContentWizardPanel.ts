@@ -92,6 +92,8 @@ import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {Router} from '../Router';
+import {AIAssistantEventsMediator} from '../saga/AIAssistantEventsMediator';
+import {EnonicAiAppliedData} from '../saga/event/data/EnonicAiAppliedData';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {ApplicationAddedEvent} from '../site/ApplicationAddedEvent';
 import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
@@ -461,7 +463,10 @@ export class ContentWizardPanel
             this.livePanel?.setSaveEnabled(!ObjectHelper.equals(PageState.getState(), this.getPersistedItem().getPage()));
         });
 
-        AIAssistantEventsMediator.get().onResultReceived((propertyTree: PropertyTree) => {
+        AIAssistantEventsMediator.get().onResultReceived(({displayName, propertyTree}: EnonicAiAppliedData) => {
+            if (displayName != null) {
+                this.wizardHeader.setDisplayName(displayName);
+            }
             this.updateWizardStepForms(propertyTree, false);
         });
     }
