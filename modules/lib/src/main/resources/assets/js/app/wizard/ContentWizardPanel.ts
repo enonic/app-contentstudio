@@ -222,6 +222,8 @@ export class ContentWizardPanel
 
     private persistedPublishStatus: PublishStatus;
 
+    private peristedLanguage: string;
+
     private contentAfterLayout: Content;
 
     private splitPanelThreshold: number = 960;
@@ -558,6 +560,7 @@ export class ContentWizardPanel
                 this.persistedPublishStatus = loader.publishStatus;
                 this.currentCompareStatus = loader.compareStatus;
                 this.currentPublishStatus = loader.publishStatus;
+                this.peristedLanguage = loader.content?.getLanguage();
 
                 this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNameLabel());
                 this.wizardHeader.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
@@ -2611,6 +2614,7 @@ export class ContentWizardPanel
         ContentContext.get().setContent(content);
         this.persistedPublishStatus = content.getPublishStatus();
         this.persistedCompareStatus = content.getCompareStatus();
+        this.peristedLanguage = content.getLanguage();
 
         this.wizardHeader?.setOnline(!content.isNew());
         this.wizardHeader?.setPath(this.getWizardHeaderPath());
@@ -2763,14 +2767,6 @@ export class ContentWizardPanel
         return Q.resolve(this.defaultModels.getDefaultPageTemplate());
     }
 
-    private notifyChangesToAssistant(): void {
-        AIAssistantEventsMediator.get().setCurrentData({
-            fields: this.contentWizardStepForm.getData().toJson(),
-            topic: this.getWizardHeader().getDisplayName(),
-            language: this.persistedContent.getLanguage(),
-        });
-    }
-
     protected createWizardStepsPanel(): WizardStepsPanel {
         return new ContentWizardStepsPanel(this.stepNavigator, this.formPanel);
     }
@@ -2797,4 +2793,13 @@ export class ContentWizardPanel
     private isReloadLiveEditRequired(diff: ContentDiff): boolean {
         return !!diff.data || !!diff.pageObj || !!diff.extraData || !!diff.path || !!diff.displayName || !!diff.name || !!diff.inherit;
     }
+
+    private notifyChangesToAssistant(): void {
+        AIAssistantEventsMediator.get().setCurrentData({
+            fields: this.contentWizardStepForm.getData().toJson(),
+            topic: this.getWizardHeader().getDisplayName(),
+            language: this.peristedLanguage,
+        });
+    }
+
 }
