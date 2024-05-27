@@ -6,7 +6,8 @@ export interface EnonicAiAssistantData {
     schema?: {
         form: FormJson;
         name: string;
-    }
+    },
+    customPrompt?: string;
 }
 
 export interface ContentData {

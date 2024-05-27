@@ -23,6 +23,8 @@ export class AIAssistantEventsMediator {
 
     private contentType: ContentType;
 
+    private customPrompt: string;
+
     private resultReceivedListeners: ((result: PropertyTree) => void)[] = [];
 
     private constructor() {
@@ -63,6 +65,11 @@ export class AIAssistantEventsMediator {
         }
     }
 
+    setCustomPrompt(customPrompt: string): this {
+        this.customPrompt = customPrompt;
+        return this;
+    }
+
     private startAssistantEventListener = (event: EnonicAiStartEvent) => {
         this.start();
 
@@ -90,6 +97,7 @@ export class AIAssistantEventsMediator {
                 form: this.contentType.getForm().toJson(),
                 name: this.contentType.getDisplayName()
             },
+            customPrompt: this.customPrompt,
         }).fire();
 
         if (this.currentData) {
