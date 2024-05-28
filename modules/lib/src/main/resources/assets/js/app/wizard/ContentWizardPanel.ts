@@ -568,6 +568,7 @@ export class ContentWizardPanel
                 }
 
                 AIAssistantEventsMediator.get().setContentTypeContext(this.contentType);
+                AIAssistantEventsMediator.get().setCustomPrompt(this.fetchCustomAIPrompt());
 
                 return this.loadAndSetPageState(loader.content?.getPage()?.clone());
             }).then(() => super.doLoadData());
@@ -2796,4 +2797,14 @@ export class ContentWizardPanel
         });
     }
 
+    private fetchCustomAIPrompt(): string | undefined {
+        const siteConfigAI = this.site?.getSiteConfigs().find(this.isAIAppConfig) ||
+                             ProjectContext.get().getProject().getSiteConfigs().find(this.isAIAppConfig);
+
+        return siteConfigAI?.getConfig()?.getString('customPrompt') || undefined;
+    }
+
+    private isAIAppConfig(config: ApplicationConfig): boolean {
+        return config.getApplicationKey().getName() === 'com.enonic.app.saga';
+    }
 }
