@@ -1,8 +1,10 @@
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Content} from '../content/Content';
 import {ContentType} from '../inputtype/schema/ContentType';
+import {EnonicAiAppliedData} from './event/data/EnonicAiAppliedData';
 import {ContentData} from './event/data/EnonicAiAssistantData';
 import {EnonicAIApplyEvent} from './event/incoming/EnonicAIApplyEvent';
 import {EnonicAiStartEvent} from './event/incoming/EnonicAiStartEvent';
@@ -25,7 +27,7 @@ export class AIAssistantEventsMediator {
 
     private customPrompt: string;
 
-    private resultReceivedListeners: ((result: PropertyTree) => void)[] = [];
+    private resultReceivedListeners: ((data: EnonicAiAppliedData) => void)[] = [];
 
     private constructor() {
         this.initListeners();
@@ -105,15 +107,20 @@ export class AIAssistantEventsMediator {
         }
     };
 
-    private stopAssistantEventListener = (event: EnonicAiStopEvent) => {
+    private stopAssistantEventListener = (_: EnonicAiStopEvent) => {
         this.stop();
     };
 
     private applyAssistantEventListener = (event: EnonicAIApplyEvent) => {
         console.log(event.result);
 
+        const {topic} = event.result;
+        const hasDisplayNameChanged = !StringHelper.isEmpty(topic) && topic !== this.content.getDisplayName();
+        const displayName = hasDisplayNameChanged ? topic : undefined;
+
         const propertyTree = PropertyTree.fromJson(event.result.fields);
-        this.notifyResultReceived(propertyTree);
+
+        this.notifyResultReceived({displayName, propertyTree});
     };
 
     private fireDataChangedEvent(): void {
@@ -128,15 +135,15 @@ export class AIAssistantEventsMediator {
         EnonicAIApplyEvent.on(this.applyAssistantEventListener);
     }
 
-    onResultReceived(listener: (result: PropertyTree) => void): void {
+    onResultReceived(listener: (data: EnonicAiAppliedData) => void): void {
         this.resultReceivedListeners.push(listener);
     }
 
-    unResultReceived(listener: (result: PropertyTree) => void): void {
+    unResultReceived(listener: (data: EnonicAiAppliedData) => void): void {
         this.resultReceivedListeners = this.resultReceivedListeners.filter(l => l !== listener);
     }
 
-    notifyResultReceived(result: PropertyTree): void {
-        this.resultReceivedListeners.forEach(l => l(result));
+    notifyResultReceived(data: EnonicAiAppliedData): void {
+        this.resultReceivedListeners.forEach(l => l(data));
     }
 }
