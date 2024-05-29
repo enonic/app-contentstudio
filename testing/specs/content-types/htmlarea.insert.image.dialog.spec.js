@@ -21,12 +21,49 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
     const IMAGE_DISPLAY_NAME_2 = appConst.TEST_IMAGES.POP_02;
     const IMAGE_WIT_ALT_TEXT = appConst.TEST_IMAGES.MONET_004;
     const EXISTING_ALT_TXT = 'alternative test';
+    const HTML_AREA_CONTENT_NAME = appConst.generateRandomName('content');
+    const TEST_CAPTION = 'caption 1234567';
+    const TEST_CAPTION_2 = 'caption 987654321';
 
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
+        });
+
+    // Verify issue - https://github.com/enonic/app-contentstudio/issues/7571
+    // Content with HtmlArea - Save button remains disabled after modifying image's caption #7571
+    it(`GIVEN an image with a caption is inserted in htmlarea WHEN Update image dialog has been opened and the caption has been updated THEN Save button gets enabled after closing the modal dialog`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertImageDialog = new InsertImageDialog();
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await contentWizard.pause(500);
+            // 1. Open Insert Image dialog:
+            await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
+            await insertImageDialog.waitForDialogVisible();
+            // 2. Select an image
+            await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
+            await insertImageDialog.typeCaption(TEST_CAPTION);
+            // 3. Click on 'Decorative' radio:
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
+            // 4. Click on Insert button and close the dialog:
+            await insertImageDialog.clickOnInsertButton();
+            await insertImageDialog.waitForDialogClosed();
+            await contentWizard.waitAndClickOnSave()
+            // 5. Open Insert/Update Image dialog
+            await htmlAreaForm.doubleClickOnHtmlArea();
+            // 6. Update the caption:
+            await insertImageDialog.waitForDialogVisible();
+            await insertImageDialog.typeCaption(TEST_CAPTION_2);
+            await studioUtils.saveScreenshot('insert_image_caption_updated');
+            // 7. Click on Insert button and close the dialog:
+            await insertImageDialog.clickOnUpdateButton();
+            await insertImageDialog.waitForDialogClosed();
+            // 8. Verify that Save button gets enabled after updating the caption:
+            await contentWizard.waitForSaveButtonEnabled();
         });
 
     // verifies XP-4949 HTML Area - Modal dialogs must handle close on Esc
