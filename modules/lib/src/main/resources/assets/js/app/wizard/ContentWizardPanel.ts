@@ -147,6 +147,7 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
+import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -435,6 +436,11 @@ export class ContentWizardPanel
         this.handleSiteConfigApply();
         this.handleBrokenImageInTheWizard();
         this.getWizardHeader().onPropertyChanged(this.dataChangedHandler);
+        this.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
+            if (event.getPropertyName() === 'displayName') {
+                this.debouncedAIAssistantDataChangedHandler();
+            }
+        });
 
         const saveAction: ContentSaveAction = this.getWizardActions().getSaveAction();
 
