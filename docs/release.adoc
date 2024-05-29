@@ -11,9 +11,13 @@ TIP: Release Notes for Content Studio 4.x can be found https://developer.enonic.
 
 IMPORTANT: Content Studio 5.2 requires XP 7.14.1 or higher.
 
-:imagesdir: settings/images
+=== What's new
+
+video::MjWxNLDsUEc[youtube, 75%]
 
 === Project graph
+
+:imagesdir: settings/images
 
 By selecting "Projects" in the Content Studio's "Settings" module it's now possible to see visualised graph of existing content projects and their relations.
 
@@ -97,6 +101,10 @@ image::cs52-x-data.png[x-data in the Content Editor form, 75%]
 
 IMPORTANT: Content Studio 5.1 requires XP 7.13.0 or higher.
 
+=== What's new
+
+video::Lc8GVT7V5cU[youtube, 75%]
+
 === Improved move operation
 
 * Move Content dialog: New "Project root" node on top of the content tree to make it more obvious how to move content to the root. Previously one had to click "Move" button with no target content selected.
@@ -154,6 +162,10 @@ Previously, editor had to click the "lock" icon next to the locked path input in
 
 IMPORTANT: Content Studio 5.0 requires XP 7.13.0 or higher.
 
+=== What's new
+
+video::hB8TOBjRxYc[youtube, 75%]
+
 === Default Content Project is hidden by default
 
 Default Content Project is no longer available in Content Studio without tweaking the config file.
@@ -169,7 +181,7 @@ of the <<editor/content-form#page_components_tree,Content Editor form>>. It will
 
 :imagesdir: editor/images
 
-image::wizard-component-view-docked.png[Page Components view - Docked, 75%]
+image::wizard-component-view-collapsed.png[Page Components view - Docked, 75%]
 image::wizard-component-view-floating.png[Page Components view - Floating, 75%]
 
 === Publishing Wizard improvements
