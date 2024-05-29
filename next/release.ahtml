@@ -443,6 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#content_studio_5_update_2">Content Studio 5 Update 2</a>
 <ul class="sectlevel2">
+<li><a href="#whats_new_in_content_studio_5_2">What&#8217;s new in Content Studio 5.2</a></li>
 <li><a href="#project_graph">Project graph</a></li>
 <li><a href="#project_wizard_improvements">Project Wizard improvements</a></li>
 <li><a href="#reference_check_in_the_unpublish_wizard">Reference check in the Unpublish Wizard</a></li>
@@ -454,6 +455,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#content_studio_5_update_1">Content Studio 5 Update 1</a>
 <ul class="sectlevel2">
+<li><a href="#whats_new_in_content_studio_5_1">What&#8217;s new in Content Studio 5.1</a></li>
 <li><a href="#improved_move_operation">Improved move operation</a></li>
 <li><a href="#improved_auto_exclusion_of_optional_dependencies">Improved auto-exclusion of optional dependencies</a></li>
 <li><a href="#export_of_search_results">Export of search results</a></li>
@@ -464,6 +466,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#content_studio_5">Content Studio 5</a>
 <ul class="sectlevel2">
+<li><a href="#whats_new_in_content_studio_5_0">What&#8217;s new in Content Studio 5.0</a></li>
 <li><a href="#default_content_project_is_hidden_by_default">Default Content Project is hidden by default</a></li>
 <li><a href="#page_components_view_2">Page Components View</a></li>
 <li><a href="#publishing_wizard_improvements">Publishing Wizard improvements</a></li>
@@ -505,6 +508,10 @@ Content Studio 5.2 requires XP 7.14.1 or higher.
 </td>
 </tr>
 </table>
+</div>
+<div class="sect2">
+<h3 id="whats_new_in_content_studio_5_2"><a class="link" href="#whats_new_in_content_studio_5_2">What&#8217;s new in Content Studio 5.2</a></h3>
+
 </div>
 <div class="sect2">
 <h3 id="project_graph"><a class="link" href="#project_graph">Project graph</a></h3>
@@ -648,6 +655,10 @@ Content Studio 5.1 requires XP 7.13.0 or higher.
 </table>
 </div>
 <div class="sect2">
+<h3 id="whats_new_in_content_studio_5_1"><a class="link" href="#whats_new_in_content_studio_5_1">What&#8217;s new in Content Studio 5.1</a></h3>
+
+</div>
+<div class="sect2">
 <h3 id="improved_move_operation"><a class="link" href="#improved_move_operation">Improved move operation</a></h3>
 <div class="ulist">
 <ul>
@@ -767,6 +778,10 @@ Content Studio 5.0 requires XP 7.13.0 or higher.
 </table>
 </div>
 <div class="sect2">
+<h3 id="whats_new_in_content_studio_5_0"><a class="link" href="#whats_new_in_content_studio_5_0">What&#8217;s new in Content Studio 5.0</a></h3>
+
+</div>
+<div class="sect2">
 <h3 id="default_content_project_is_hidden_by_default"><a class="link" href="#default_content_project_is_hidden_by_default">Default Content Project is hidden by default</a></h3>
 <div class="paragraph">
 <p>Default Content Project is no longer available in Content Studio without tweaking the config file.</p>
@@ -831,7 +846,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-05-20 14:48:12 UTC
+Last updated 2024-05-29 07:54:13 UTC
 </div>
 </div>
 </body>
