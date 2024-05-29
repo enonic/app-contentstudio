@@ -1,6 +1,6 @@
 {
   "name": "app-contentstudio",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "description": "Enonic XP - Content Studio App",
   "license": "GPL-3.0",
   "repository": {
@@ -48,7 +48,7 @@
     "extends browserslist-config-enonic"
   ],
   "engines": {
-    "node": ">= 20.10.0",
-    "npm": ">= 10.2.3"
+    "node": ">= 20.13.1",
+    "npm": ">= 10.5.2"
   }
 }
