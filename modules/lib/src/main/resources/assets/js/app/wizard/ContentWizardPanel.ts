@@ -151,6 +151,7 @@ import {ContentDiff} from '../content/ContentDiff';
 import {AIAssistantEventsMediator} from '../saga/AIAssistantEventsMediator';
 import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
+import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -437,6 +438,11 @@ export class ContentWizardPanel
         this.handleSiteConfigApply();
         this.handleBrokenImageInTheWizard();
         this.getWizardHeader().onPropertyChanged(this.dataChangedHandler);
+        this.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
+            if (event.getPropertyName() === 'displayName') {
+                this.debouncedAIAssistantDataChangedHandler();
+            }
+        });
 
         const saveAction: ContentSaveAction = this.getWizardActions().getSaveAction();
 
