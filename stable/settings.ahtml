@@ -444,7 +444,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#projects">Projects</a></li>
 <li><a href="#new_project_wizard">New Project wizard</a>
 <ul class="sectlevel2">
-<li><a href="#project_type">Project Type</a></li>
+<li><a href="#parent_project">Parent Project</a></li>
 <li><a href="#default_language">Default Language</a></li>
 <li><a href="#access_mode">Access Mode</a></li>
 <li><a href="#project_roles">Project Roles</a></li>
@@ -475,8 +475,8 @@ the left-side menu.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The Settings section lists all Content Projects that current user has permissions for. Users with roles
-<em>Content Manager Administrator</em> and <em>System Administrator</em> will always have full access to all projects.</p>
+<p>The Settings section displays all Content Projects that current user has permissions for in the form of a tree. Users with roles
+<em>Content Manager Administrator</em> and <em>System Administrator</em> will always have full access to all projects. By selecting the top node called "Projects" you will display a graph of all content projects and their relations in the panel on the right.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -546,10 +546,7 @@ Deleting a project will delete its repository and all the data inside. This acti
 <h2 id="new_project_wizard"><a class="link" href="#new_project_wizard">New Project wizard</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Project setup in Content Studio is done from the "<em>Settings</em>" section, which can be accessed by clicking the cog icon in the left-side menu.</p>
-</div>
-<div class="paragraph">
-<p>Click "<em>New</em>" button in the toolbar to start the multistep New Project wizard dialog.</p>
+<p>Click "<em>New</em>" button in the toolbar to start the multi-step New Project wizard dialog.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -564,11 +561,9 @@ Upload of project icon is not possible until after the project is created.
 </table>
 </div>
 <div class="sect2">
-<h3 id="project_type"><a class="link" href="#project_type">Project Type</a></h3>
+<h3 id="parent_project"><a class="link" href="#parent_project">Parent Project</a></h3>
 <div class="paragraph">
-<p>On the first step of the Wizard select what type of project you want to create. Select "<em>Project</em>" for a top-level Content Project, or
-"<em>Layer</em>" if you want to set up a localised project which will synchronise its contents with an upstream project/layer. In the latter case
-you will also be asked to select the upstream project.</p>
+<p>The first step of the Wizard determines whether you want to create a regular content project or a layer - a special kind of project which will inherit its data from the parent project. If you want to select a layer, select one of the existing projects from the dropdown list to be a parent of the new layer.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -709,6 +704,12 @@ Only applications containing <code>site.xml</code> can be assigned to content pr
 </tr>
 </table>
 </div>
+<div class="paragraph">
+<p>A layer will always inherit applications from its parent project. Apps inherited from the parent cannot be unselected, but other apps can be added to the layer in addition to the inherited ones.</p>
+</div>
+<div class="paragraph">
+<p>In the screenshot below, the top two applications were inherited from the parent project, while the bottom one was added manually.</p>
+</div>
 <div class="imageblock">
 <div class="content">
 <img src="settings/images/new-project-dialog-5.png" alt="Applications" width="470">
@@ -722,7 +723,7 @@ Only applications containing <code>site.xml</code> can be assigned to content pr
 </td>
 <td class="content">
 Applications assigned to projects will not work for a site or content items inside a site. Assign applications
-directly to the site if you want to use them for site contents.
+directly to the site if you want to use them for contents of a site.
 </td>
 </tr>
 </table>
@@ -853,7 +854,7 @@ You can enable the Default Project in Content Studio via a <a href="config.ahtml
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-05-29 10:40:45 UTC
+Last updated 2024-05-29 10:41:21 UTC
 </div>
 </div>
 </body>

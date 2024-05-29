@@ -561,17 +561,31 @@ This dialog can also be opened using the <code>Ctrl</code>/<code>Cmd</code>+<cod
 <div class="sect2">
 <h3 id="anchor"><a class="link" href="#anchor">Anchor</a></h3>
 <div class="paragraph">
-<p>Anchors enable pointing to a specfic position on a page via context link. If a link references an anchor on the same page then the page will scroll up or down to the location of the anchor. The anchor button in the toolbar opens the Insert Anchor dialog where the name of the anchor is entered. The anchor name will be used as the value of the “id” attribute, so it should be lower case without spaces.</p>
+<p>Anchors enable pointing to a specific position on a page via context link. If a link references an anchor on the same page then the page will scroll up or down to the location of the anchor. The anchor button in the toolbar opens the Insert Anchor dialog where the name of the anchor is entered. The anchor name will be used as the value of the “id” attribute, so it should be lower case without spaces.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="insertedit_image"><a class="link" href="#insertedit_image">Insert/Edit image</a></h3>
 <div class="paragraph">
-<p>This button opens the Insert Image dialog. An existing image content can be selected from the “Image” selector, or a new image can be uploaded using the upload button.
-Once an image is selected, additional formatting options will appear. The image can be floated to the left or right so that text wraps around it.
-The image can also be centered or set to full width. By checking off “Custom width” you will have an option to set relative width of the image.
-Additionally, there&#8217;s an option to apply <a href="#custom_image_styles">custom image styles</a>.
-A caption and alt text can be entered at the bottom of the modal dialog. A double click on an image inside the Editor will open the modal dialog for editing properties of the image.</p>
+<p>This button (or a double click on the image) opens the Insert Image dialog. An existing image content can be selected from the “Image” selector, or a new image can be uploaded using the upload button.</p>
+</div>
+<div class="paragraph">
+<p>Once an image is selected, additional formatting options will appear. The image can be floated to the left or right so that text wraps around it.
+The image can also be centered or set to full width. By checking off “Custom width” you will have an option to set relative width of the image.</p>
+</div>
+<div class="paragraph">
+<p>Additionally, there&#8217;s an option to apply <a href="#custom_image_styles">custom image styles</a>.</p>
+</div>
+<div class="paragraph">
+<p>"Caption" field allows to enter a caption/title for the image and will be displayed under the image as a part of the <code>figure</code> element.</p>
+</div>
+<div class="paragraph">
+<p>"Accessibility" section at the bottom allows to either set the image as decorative (meant to be discoverable only by screen readers, not actual users), or apply an alternative text for the image.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/rich-text-editor-image-dialog.png" alt="Insert Image dialog" width="75%">
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -657,7 +671,7 @@ that the image won&#8217;t undergo any processing on the server and will be rend
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-05-29 10:40:45 UTC
+Last updated 2024-05-29 10:41:21 UTC
 </div>
 </div>
 </body>
