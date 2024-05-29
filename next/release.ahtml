@@ -511,7 +511,11 @@ Content Studio 5.2 requires XP 7.14.1 or higher.
 </div>
 <div class="sect2">
 <h3 id="whats_new_in_content_studio_5_2"><a class="link" href="#whats_new_in_content_studio_5_2">What&#8217;s new in Content Studio 5.2</a></h3>
-
+<div class="videoblock">
+<div class="content">
+<iframe src="https://www.youtube.com/embed/MjWxNLDsUEc?rel=0" frameborder="0" allowfullscreen></iframe>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="project_graph"><a class="link" href="#project_graph">Project graph</a></h3>
@@ -656,7 +660,11 @@ Content Studio 5.1 requires XP 7.13.0 or higher.
 </div>
 <div class="sect2">
 <h3 id="whats_new_in_content_studio_5_1"><a class="link" href="#whats_new_in_content_studio_5_1">What&#8217;s new in Content Studio 5.1</a></h3>
-
+<div class="videoblock">
+<div class="content">
+<iframe src="https://www.youtube.com/embed/Lc8GVT7V5cU?rel=0" frameborder="0" allowfullscreen></iframe>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="improved_move_operation"><a class="link" href="#improved_move_operation">Improved move operation</a></h3>
@@ -779,7 +787,11 @@ Content Studio 5.0 requires XP 7.13.0 or higher.
 </div>
 <div class="sect2">
 <h3 id="whats_new_in_content_studio_5_0"><a class="link" href="#whats_new_in_content_studio_5_0">What&#8217;s new in Content Studio 5.0</a></h3>
-
+<div class="videoblock">
+<div class="content">
+<iframe src="https://www.youtube.com/embed/hB8TOBjRxYc?rel=0" frameborder="0" allowfullscreen></iframe>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="default_content_project_is_hidden_by_default"><a class="link" href="#default_content_project_is_hidden_by_default">Default Content Project is hidden by default</a></h3>
@@ -799,7 +811,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="editor/images/wizard-component-view-docked.png" alt="Page Components view - Docked" width="75%">
+<img src="editor/images/wizard-component-view-collapsed.png" alt="Page Components view - Docked" width="75%">
 </div>
 </div>
 <div class="imageblock">
@@ -846,7 +858,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-05-29 08:17:39 UTC
+Last updated 2024-05-29 08:23:29 UTC
 </div>
 </div>
 </body>
