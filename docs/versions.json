@@ -13,12 +13,8 @@
       "checkout": "9e9a086"
     },
     {
-      "label": "next",
-      "checkout": "5.2"
-    },
-    {
       "label": "stable",
-      "checkout": "master",
+      "checkout": "5.2",
       "latest": true
     }
   ]
