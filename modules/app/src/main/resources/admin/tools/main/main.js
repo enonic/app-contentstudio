@@ -8,13 +8,10 @@ const i18n = require('/lib/xp/i18n');
 
 const AI_ASSISTANT_APP_KEY = 'com.enonic.app.saga';
 
-exports.renderTemplate = function (path, params) {
+exports.renderTemplate = function (params) {
     const view = resolve('./main.html');
-    const toolUri = admin.getToolUrl(app.name, 'main');
-    const enableSecurityPolicy = app.config['contentSecurityPolicy.enabled'] !== 'false';
 
-    params.isBrowseMode = path === toolUri;
-    params.aiAssistantEnabled = appLib.get({key: AI_ASSISTANT_APP_KEY}) != null;
+    const enableSecurityPolicy = app.config['contentSecurityPolicy.enabled'] !== 'false';
 
     const response = {
         contentType: 'text/html',
@@ -40,6 +37,10 @@ exports.getParams = function () {
         app.name,
         'main'
     );
+    const isBrowseMode = path === admin.getToolUrl(app.name, 'main');
+    const aiApp = appLib.get({key: AI_ASSISTANT_APP_KEY});
+    const aiAssistantEnabled = aiApp != null && aiApp.started && !isBrowseMode;
+
     return {
         assetsUri: portal.assetUrl({path: ''}),
         appName: i18n.localize({
@@ -47,7 +48,7 @@ exports.getParams = function () {
             bundles: ['i18n/phrases'],
             locale: admin.getLocales()
         }),
-        aiAssistantAssetUrl: portal.assetUrl({application: AI_ASSISTANT_APP_KEY}),
+        aiAssistantAssetUrl: aiAssistantEnabled ? portal.assetUrl({application: AI_ASSISTANT_APP_KEY}) : undefined,
         launcherPath: admin.getLauncherPath(),
         configServiceUrl: portal.apiUrl({
             application: app.name,
@@ -55,11 +56,13 @@ exports.getParams = function () {
         }),
         toolBaseUrl: toolUrlBase,
         toolAppName: app.name,
+        isBrowseMode: isBrowseMode
     }
 }
 
 function handleGet(req) {
-    return exports.renderTemplate(req.path, exports.getParams());
+    const params = exports.getParams(req.path);
+    return exports.renderTemplate(params);
 }
 
 exports.get = handleGet;
