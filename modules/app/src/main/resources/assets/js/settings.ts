@@ -25,7 +25,8 @@ const appendHtml = (widgetElem: Element): void => {
 };
 
 const init = async (configUri: string, elemId: string): Promise<void> => {
-    await Q.all([CONFIG.init(configUri), ProjectConfigContext.get().init()]);
+    await CONFIG.init(configUri);
+    await ProjectConfigContext.get().init();
 
     const body: Body = Body.get();
     const widgetEl: Element = body.findChildById(elemId, true);

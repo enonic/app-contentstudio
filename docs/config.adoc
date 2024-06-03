@@ -84,7 +84,7 @@ he/she will be asked to create a new content project using <<settings#new_projec
 Whenever the Publishing Wizard contains at least one item that is "_Work in progress_", publishing will be disabled. The editor can solve
 this by clicking the "*Mark as ready*" link on top of the dialog, which will mark all such items as "_Ready for Publishing_".
 
-image::pubwiz-mark-as-ready.png[Mark as ready action in the Publishing Wizard, 410]
+image::pubwiz-mark-as-ready.png[Mark as ready action in the Publishing Wizard, 75%]
 
 To add another level of restriction and prevent accidental publishing of items that are not ready for publishing, the "*Mark as ready*" bulk action
 can be disabled by adding the following parameter to the config file:
@@ -93,6 +93,19 @@ can be disabled by adding the following parameter to the config file:
 [source,properties]
 ----
 publishingWizard.allowContentUpdate = false
+----
+
+=== Default Online From time
+
+Default Online From time is set to 08:00 by default. This default value can be changed by setting the `publishingWizard.defaultPublishFromTime` config property.
+
+image::pubwiz-online-from.png[Default Online From time in the Publishing Wizard, 75%]
+
+
+.Default Online From time in the Publishing Wizard
+[source,properties]
+----
+publishingWizard.defaultPublishFromTime = 08:00
 ----
 
 === Exclude optional dependencies

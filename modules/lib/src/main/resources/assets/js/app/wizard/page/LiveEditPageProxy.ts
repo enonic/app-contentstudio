@@ -87,6 +87,7 @@ import {ContentUrlHelper} from '../../util/ContentUrlHelper';
 import {TextComponent} from '../../page/region/TextComponent';
 import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 import {PageStateEvent} from '../../../page-editor/event/incoming/common/PageStateEvent';
+import {ProjectContext} from '../../project/ProjectContext';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -404,7 +405,7 @@ export class LiveEditPageProxy
         const pageName = displayName;
         const pageIconClass = PageHelper.getPageIconClass(PageState.getState());
         const isPageEmpty = isPageTemplate && !PageState.getState()?.hasController();
-        const applicationKeys = this.liveEditModel.getSiteModel().getSite().getApplicationKeys().map((key) => key.toString());
+        const applicationKeys = this.resolveApplicationKeys();
         const contentId = this.liveEditModel.getContent().getId();
         const language = this.liveEditModel.getContent()?.getLanguage();
         const contentType = this.liveEditModel.getContent().getType()?.toString();
@@ -453,6 +454,16 @@ export class LiveEditPageProxy
             getFragmentIdByPath,
             getTextComponentData,
         };
+    }
+
+    private resolveApplicationKeys(): string[] {
+        // if is site or within site then get application keys from site
+        if (this.liveEditModel.getSiteModel()?.getSite()) {
+            return this.liveEditModel.getSiteModel().getSite().getApplicationKeys().map((key) => key.toString()) || [];
+        }
+
+        // if is root non-site content then get application keys from project, e.g. headless content items
+        return ProjectContext.get().getProject()?.getSiteConfigs()?.map((config) => config.getApplicationKey().toString()) || [];
     }
 
     isLocked(): boolean {

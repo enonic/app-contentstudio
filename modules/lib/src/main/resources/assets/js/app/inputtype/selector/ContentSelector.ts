@@ -54,7 +54,7 @@ export class ContentSelector
 
     protected static contentIdBatch: ContentId[] = [];
 
-    protected static loadSummariesResult: Q.Deferred<ContentSummaryAndCompareStatus[]>;
+    protected static loadSummariesResult: Q.Deferred<ContentSummaryAndCompareStatus[]> = Q.defer<ContentSummaryAndCompareStatus[]>();
 
     public static debug: boolean = false;
 
@@ -554,27 +554,22 @@ export class ContentSelector
     }
 
     private static doFetchSummaries() {
-        new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(ContentSelector.contentIdBatch).then(
+        const idsToLoad = ContentSelector.contentIdBatch;
+        ContentSelector.contentIdBatch = [];
+        const promiseForIdsToLoad = ContentSelector.loadSummariesResult;
+        ContentSelector.loadSummariesResult = Q.defer<ContentSummaryAndCompareStatus[]>();
+        new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(idsToLoad).then(
             (result: ContentSummaryAndCompareStatus[]) => {
-
-                ContentSelector.contentIdBatch = []; // empty batch of ids after loading
-
-                ContentSelector.loadSummariesResult.resolve(result);
-
-                ContentSelector.loadSummariesResult = null; // empty loading result after resolving
+                promiseForIdsToLoad.resolve(result);
             });
     }
 
     protected doLoadContent(contentIds: ContentId[]): Q.Promise<ContentSummaryAndCompareStatus[]> {
         ContentSelector.contentIdBatch = ContentSelector.contentIdBatch.concat(contentIds);
-
-        if (!ContentSelector.loadSummariesResult) {
-            ContentSelector.loadSummariesResult = Q.defer<ContentSummaryAndCompareStatus[]>();
-        }
-
+        const resultPromise = ContentSelector.loadSummariesResult.promise;
         ContentSelector.loadSummaries();
 
-        return ContentSelector.loadSummariesResult.promise.then((result: ContentSummaryAndCompareStatus[]) => {
+        return resultPromise.then((result: ContentSummaryAndCompareStatus[]) => {
             const contentIdsStr: string[] = contentIds.map((id: ContentId) => id.toString());
             return result.filter(content => contentIdsStr.indexOf(content.getId()) >= 0);
         });

@@ -76,11 +76,11 @@ button dropdown in the *Archive item(s)* dialog.
 
 IMPORTANT: Online content will instantly go offline after archiving or deleting.
 
-image::dialog-archive.png[Archive item(s) dialog, 600]
+image::dialog-archive.png[Archive item(s) dialog, 75%]
 
 If any of the items in the dialog has an inbound dependency (is referenced by another content), a warning will be shown on top of the dialog and the action button will be disabled. User can either click "Ignore inbound references" link to ignore the warning and proceed with archiving/deletion, or click "Show references" link for every referenced item and remove the references (the dialog will be automatically refreshed).
 
-image::dialog-archive-references.png[Archive item(s) dialog, 600]
+image::dialog-archive-references.png[Reference check in the Archive item(s) dialog, 75%]
 
 
 == Duplicate
@@ -279,6 +279,12 @@ Unpublishing a published content that is marked for deletion will first take it 
 image::dialog-unpublish.png[]
 
 NOTE: Just like with deletion, you will be asked to confirm the Unpublish action by entering the total number of items to be unpublished.
+
+
+If any of the items in the dialog has a *published* inbound dependency (is referenced by another *published* content), a warning will be shown on top of the dialog and the action button will be disabled. User can either click "Ignore inbound references" link to ignore the warning and proceed with unpublishing, or click "Show references" link for every referenced item, remove the references and publish the changes.
+
+image::dialog-unpublish-references.png[Reference check in the Unpublish dialog, 75%]
+
 
 == Create Issue
 
