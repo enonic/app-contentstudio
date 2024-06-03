@@ -59,6 +59,14 @@ function handleGet() {
                     application: app.name,
                     api: 'export',
                 }),
+                sagaServiceUrl: portal.apiUrl({
+                    application: 'com.enonic.app.saga',
+                    api: 'rest',
+                }),
+                appServiceUrl: portal.apiUrl({
+                    application: app.name,
+                    api: 'applications',
+                }),
             },
             theme: 'light',
             /* Remove in CS/lib-admin-ui 5.0 */
