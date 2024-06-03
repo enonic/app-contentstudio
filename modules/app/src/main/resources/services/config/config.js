@@ -42,7 +42,7 @@ function handleGet() {
                 collaborationUrl: portal.serviceUrl({service: 'collaboration'}),
                 appServiceUrl: portal.serviceUrl({service: 'applications'}),
                 exportServiceUrl: portal.serviceUrl({service: 'export'}),
-                sagaServiceUrl: portal.url({path: '/webapp/com.enonic.app.saga/chats'}),
+                sagaServiceUrl: portal.serviceUrl({service: 'rest', application: 'com.enonic.app.saga'}),
             },
             theme: 'light',
             /* Remove in CS/lib-admin-ui 5.0 */
