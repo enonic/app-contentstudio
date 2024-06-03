@@ -1,4 +1,4 @@
-import com.enonic.uitest.server.ServerInstance
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 plugins {
     id 'java'
@@ -11,19 +11,14 @@ configurations {
     distro
 }
 
-ext {
-    unpackDir = "$buildDir/install"
-    distroDir = "$unpackDir/enonic-xp-generic-$xpVersion"
-    deployDir = "$distroDir/home/deploy"
-    appDir = "$projectDir/test-applications"
-    seleniumDir = "$projectDir/test-applications/selenium"
-    xpHome = "$distroDir/home"
-    configDir = "$xpHome/config"
-    xpServer = new ServerInstance()
-    contentStudioFile = "$deployDir/contentstudio-${version}.jar"
-    contentStudioPlusFile = "$deployDir/contentstudio.plus-${version}.jar"
-    contentStudioAppUrl = project.hasProperty('contentStudioAppUrl') ? contentStudioAppUrl : "file:///$projectDir/../modules/app/build/libs/contentstudio.jar"
-}
+def unpackDir = layout.buildDirectory.dir("install").get()
+def distroDir = unpackDir.dir("enonic-xp-generic-$xpVersion")
+def deployDir = distroDir.dir("home/deploy")
+def appDir = "$projectDir/test-applications"
+def xpHome = "$distroDir/home"
+def configDir = "$xpHome/config"
+def contentStudioFile = "$deployDir/contentstudio-${version}.jar"
+def contentStudioAppUrl = project.hasProperty('contentStudioAppUrl') ? contentStudioAppUrl : "file:///$projectDir/../modules/app/build/libs/contentstudio.jar"
 
 dependencies {
     distro "com.enonic.xp:enonic-xp-generic:$xpVersion@zip"
@@ -33,9 +28,8 @@ tasks.register( 'unpackDistro', Copy ) {
     from {
         configurations.distro.collect { zipTree( it ) }
     }
-    into file( unpackDir )
+    into unpackDir
 }
-
 tasks.register( 'copyConfig', Copy ) {
     println "$appDir${File.separator}common-config"
     from "$appDir${File.separator}common-config"
@@ -93,18 +87,37 @@ tasks.register( 'deployContentStudio', DefaultTask ) {
     mustRunAfter unpackDistro
 }
 
+def process
 tasks.register( 'startServer' ) {
     dependsOn( unpackDistro, copyConfig, deployContentStudio )
     doLast {
-        xpServer.installDir = file( distroDir )
-        xpServer.start()
+        def pb
+        if (DefaultNativePlatform.getCurrentOperatingSystem().windows) {
+            pb = new ProcessBuilder('cmd', '/c', "${distroDir}\\bin\\server.bat")
+        }
+        else {
+            pb = new ProcessBuilder("${distroDir}/bin/server.sh")
+        }
+        Map<String, String> env = pb.environment()
+        env.put("XP_HOME", "${xpHome}".toString())
+
+        def logsPath = layout.buildDirectory.dir("reports/logs").get()
+        mkdir logsPath.asFile
+        pb.redirectOutput(logsPath.file("xp.log").asFile)
+        pb.redirectErrorStream(true)
+        process = pb.start()
+        sleep(90000)
     }
-    mustRunAfter npmInstall
 }
+
 
 tasks.register( 'stopServer' ) {
     doLast {
-        xpServer.stop()
+        if (DefaultNativePlatform.getCurrentOperatingSystem().windows) {
+            Runtime.getRuntime().exec("taskkill /F /T /PID " + process.pid());
+        } else {
+            process.destroy()
+        }
     }
 }
 
