@@ -65,8 +65,6 @@ export class ProjectList
     private sortProjects(items: Project[]): Project[] {
         const result: Project[] = [];
 
-        items.sort(this.putDefaultFirstSorter);
-
         this.getProjectsWithoutParent(items).forEach((level0project: Project) => {
             result.push(...this.unwrapProjectWithChildren(level0project));
         });
@@ -90,17 +88,5 @@ export class ProjectList
 
     protected getItemId(item: Project): string {
         return item.getName();
-    }
-
-    private putDefaultFirstSorter(a: Project, b: Project): number {
-        if (ProjectHelper.isDefault(a)) {
-            return -1;
-        }
-
-        if (ProjectHelper.isDefault(b)) {
-            return 1;
-        }
-
-        return 0;
     }
 }
