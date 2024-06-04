@@ -8,10 +8,6 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
-const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
-const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
-const ProjectNotAvailableDialog = require('../../page_objects/project/project.not.available.dialog');
 const projectUtils = require('../../libs/project.utils');
 const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -24,7 +20,6 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
 
     let SITE;
     let CHILD_FOLDER;
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
     const SHORTCUT_NAME = studioUtils.generateRandomName('shortcut');
     const SHORTCUT_NAME_2 = studioUtils.generateRandomName('shortcut');
     const EXPECTED_NUMBER_ALL = 'All (2)';
@@ -32,37 +27,6 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
     const SHORTCUT_NAME_3 = contentBuilder.generateRandomName('shortcut');
     let TEST_FOLDER;
     const FOLDER_DISPLAY_NAME_2 = appConst.generateRandomName('folder');
-
-    it("Precondition: click on 'Start Wizard' button then create a project",
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let languageStep = new ProjectWizardDialogLanguageStep();
-            let applicationsStep = new ProjectWizardDialogApplicationsStep();
-            let projectNotAvailableDialog = new ProjectNotAvailableDialog();
-            // 1. Project Not Available Dialog should be loaded
-            await projectNotAvailableDialog.waitForDialogLoaded();
-            // 2. Click on Start button in the modal dialog:
-            await projectNotAvailableDialog.clickOnStartWizardButton();
-            // 3. Skip the language step
-            await languageStep.waitForLoaded();
-            await languageStep.clickOnSkipButton();
-            // 4. Select 'Private' access mode in the fours step:
-            let permissionsStep = await projectUtils.fillAccessModeStep(appConst.PROJECT_ACCESS_MODE.PRIVATE);
-            await permissionsStep.waitForLoaded();
-            // 5. skip the permissions step:
-            await permissionsStep.clickOnSkipButton();
-            // 6. Skip the applications step
-            if (await applicationsStep.isLoaded()) {
-                await applicationsStep.clickOnSkipButton();
-            }
-            // 7. Fill in the name input
-            let summaryStep = await projectUtils.fillNameAndDescriptionStep(PROJECT_DISPLAY_NAME);
-            await summaryStep.waitForLoaded();
-            // 8. Click on 'Create Project' button and wait for the dialog is closed:
-            await summaryStep.clickOnCreateProjectButton();
-            await summaryStep.waitForDialogClosed();
-            await settingsBrowsePanel.waitForNotificationMessage();
-        });
 
     it("Precondition: site with child folder should be added",
         async () => {
@@ -204,7 +168,7 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
             await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
         });
 
-    it("Precondition 2 : modified folder should be added",
+    it("Precondition: modified folder should be added",
         async () => {
             let folderName = appConst.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(folderName);
@@ -270,19 +234,7 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
             await contentPublishDialog.waitForPublishNowButtonEnabled();
         });
 
-    it("Post condition - test project should be deleted",
-        async () => {
-            // 1. Open Setting panel
-            await studioUtils.openSettingsPanel();
-            // 2. Select and delete the project:
-            await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
-            let projectNotAvailableDialog = new ProjectNotAvailableDialog();
-            await projectUtils.saveScreenshot('the_only_one_project_deleted_2');
-            // 3. Verify that Project Not Available modal Dialog is automatically loaded
-            await projectNotAvailableDialog.waitForDialogLoaded();
-        });
-
-    beforeEach(() => studioUtils.navigateToContentStudioWithProjects());
+    beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
