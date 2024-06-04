@@ -57,7 +57,7 @@ Start ui-tests on your local environment:
 ```gradlew w_testPublishIssuesLocal``` run ui-tests for creating issues, requests and Publish wizard
 ```gradlew w_testPageEditorLocal```    run ui-tests for Page Editor
 ```gradlew w_testProjectsLocal```      run ui-tests for Projects
-```w_testNoProjects```           run ui-tests with `settings.hideDefaultProject=true publishingWizard.excludeDependencies=true` properties
+```w_tesExcludeDependencies```           run ui-tests with `settings.hideDefaultProject=true publishingWizard.excludeDependencies=true` properties
 
 
 
@@ -77,7 +77,7 @@ selenium-test:
         strategy:
             fail-fast: false
             matrix:
-                suite: [ w_testProjects, w_testProjects_2, w_testPageEditor, w_testInputTypes, w_testInputTypes_2, w_testWizardsGrid, w_testPublishIssues, w_testModalDialog, w_testNoProjects ]
+                suite: [ w_testProjects, w_testProjects_2, w_testPageEditor, w_testInputTypes, w_testInputTypes_2, w_testWizardsGrid, w_testPublishIssues, w_testModalDialog, w_tesExcludeDependencies ]
 ```
 
 Test reports and screenshot you can find in the folder: ```app-contentstudio\testing\build\reports\```

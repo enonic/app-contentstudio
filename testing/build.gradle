@@ -226,8 +226,8 @@ tasks.register( 'w_testPageEditorLocal', NpmTask ) {
     args = ['run-script', 'test_page_editor:wdio_chrome']
 }
 
-tasks.register( 'w_testNoProjects', NpmTask ) {
-    dependsOn ( npmInstall, startServer, copyCustomConfig )
-    args = ['run-script', 'test_hide_default_project:wdio_chrome']
+tasks.register( 'w_tesExcludeDependencies', NpmTask ) {
+    dependsOn ( npmInstall, copyApps, startServer, copyCustomConfig )
+    args = ['run-script', 'test_exclude_dependencies:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }

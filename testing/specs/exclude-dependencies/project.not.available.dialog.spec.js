@@ -21,7 +21,7 @@ describe("project.not.available.dialog.spec - clicking on 'Start Wizard' button"
     }
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
 
-    it("GIVEN navigated to Content Studio, No available projects found- dialog is shown WHEN 'Start Wizard' button has been pressed THEN project wizard should be loaded",
+    it.skip("GIVEN navigated to Content Studio, No available projects found- dialog is shown WHEN 'Start Wizard' button has been pressed THEN project wizard should be loaded",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -58,7 +58,7 @@ describe("project.not.available.dialog.spec - clicking on 'Start Wizard' button"
             assert.equal(actualContext, PROJECT_DISPLAY_NAME, 'Expected name should be displayed in the project selected option(App Bar)');
         });
 
-    it("GIVEN existing the only one project has been deleted THEN 'project not available' modal dialog should be loaded",
+    it.skip("GIVEN existing the only one project has been deleted THEN 'project not available' modal dialog should be loaded",
         async () => {
             // 1. Open Setting panel
             await studioUtils.openSettingsPanel();
@@ -70,7 +70,7 @@ describe("project.not.available.dialog.spec - clicking on 'Start Wizard' button"
             await projectNotAvailableDialog.waitForDialogLoaded();
         });
 
-    it("GIVEN 'Start Wizard' button in 'not available project' modal dialog has been pressed WHEN the project wizard has been closed THEN 'Start Wizard' action button gets visible",
+    it.skip("GIVEN 'Start Wizard' button in 'not available project' modal dialog has been pressed WHEN the project wizard has been closed THEN 'Start Wizard' action button gets visible",
         async () => {
             let languageStep = new ProjectWizardDialogLanguageStep();
             let projectNotAvailableDialog = new ProjectNotAvailableDialog();

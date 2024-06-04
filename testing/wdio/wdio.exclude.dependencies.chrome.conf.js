@@ -9,7 +9,7 @@ const height = properties.get('browser.height');
 exports.config = {
 
     specs: [
-        path.join(__dirname, '../specs/hide-default-project/*.spec.js'),
+        path.join(__dirname, '../specs/exclude-dependencies/*.spec.js'),
     ],
 
     maxInstances: 1,
