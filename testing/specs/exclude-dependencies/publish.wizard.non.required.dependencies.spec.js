@@ -72,7 +72,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             await contentBrowsePanel.waitForNotificationMessage();
             // 2. Publish wizard should be automatically loaded:
             await contentPublishDialog.waitForDialogOpened();
-            await studioUtils.saveScreenshot('publish_dlg_show_excluded_shown');
+            await studioUtils.saveScreenshot('publish_dlg_hide_excluded_shown');
             // 3. Verify that 'Hide excluded' button is displayed:
             await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
             // 4. Click on 'Hide excluded' button:
