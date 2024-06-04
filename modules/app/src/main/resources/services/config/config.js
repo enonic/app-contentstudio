@@ -11,7 +11,6 @@ function handleGet() {
     const excludeDependencies = app.config['publishingWizard.excludeDependencies'] === 'true' || false;
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
-    const hideDefaultProject = app.config['settings.hideDefaultProject'] !== 'false';
     const defaultPublishFromTime = parseTime(app.config['publishingWizard.defaultPublishFromTime']);
 
     return {
@@ -32,7 +31,6 @@ function handleGet() {
             appId: app.name,
             appVersion: app.version,
             branch,
-            hideDefaultProject,
             enableCollaboration,
             defaultPublishFromTime,
             locale: admin.getLocale(),
