@@ -16,6 +16,9 @@ function handleGet() {
         app.name,
         'main'
     );
+    const sagaPollDelay = Number(app.config['openai.poll.delay']) || 0;
+    const sagaPollLimit = Number(app.config['openai.poll.limit']) || 0;
+
     return {
         status: 200,
         contentType: 'application/json',
@@ -68,6 +71,8 @@ function handleGet() {
                     api: 'applications',
                 }),
             },
+            sagaPollDelay,
+            sagaPollLimit,
             theme: 'light',
             /* Remove in CS/lib-admin-ui 5.0 */
             launcher: {

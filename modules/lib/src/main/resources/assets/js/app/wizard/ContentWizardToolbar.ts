@@ -158,6 +158,8 @@ export class ContentWizardToolbar
 
         const setupData: EnonicAiSetupData = {
             serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
+            pollLimit: CONFIG.getNumber('sagaPollLimit') || undefined,
+            pollDelay: CONFIG.getNumber('sagaPollDelay') || undefined,
         };
 
         AI.renderAiAssistant(aiAssistantContainer.getHTMLElement(), setupData);
