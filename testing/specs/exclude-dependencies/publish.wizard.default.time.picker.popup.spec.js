@@ -38,6 +38,7 @@ describe('publish.wizard.dialog.time.picker.popup.spec - tests for configured ti
             await contentPublishDialog.clickOnAddScheduleIcon();
             // 3. Open Oline from Picker popup:
             await contentPublishDialog.showOnlineFormPickerPopup();
+            await studioUtils.saveScreenshot('configured_date_time_picker_popup');
             // 4. Verify the time from the popup:
             let actualTime = await dateTimePickerPopup.getTimeInOnlineFrom();
             assert.equal(actualTime, CONFIGURED_TIME_IN_POPUP,
