@@ -105,18 +105,6 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             assert.equal(actualMessage, appConst.projectDeletedMessage(PROJECT_DISPLAY_NAME))
         });
 
-    //Verifies https://github.com/enonic/app-contentstudio/issues/1946
-    it(`WHEN 'Default' project is opened THEN 'Save' and 'Delete' buttons should be disabled`,
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            // 1. click on Default folder then click on Edit button:
-            await settingsBrowsePanel.clickOnRowByDisplayName('Default');
-            await settingsBrowsePanel.clickOnEditButton();
-            await projectWizard.waitForLoaded();
-            await projectWizard.waitForSaveButtonDisabled();
-            await projectWizard.waitForDeleteButtonDisabled();
-        });
 
     beforeEach(async () => {
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();

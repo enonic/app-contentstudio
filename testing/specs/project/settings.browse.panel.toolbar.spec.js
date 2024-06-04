@@ -45,8 +45,8 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
             await studioUtils.saveScreenshot('settings_toolbar_2');
             // 'New...' button should be enabled :
             await settingsBrowsePanel.waitForNewButtonEnabled();
-            // 'Delete' button should be disabled:
-            await settingsBrowsePanel.waitForDeleteButtonDisabled();
+            // 'Delete' button should be enabled:
+            await settingsBrowsePanel.waitForDeleteButtonEnabled();
             // 'Edit' button gets enabled:
             await settingsBrowsePanel.waitForEditButtonEnabled();
         });

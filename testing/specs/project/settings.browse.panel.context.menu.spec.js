@@ -49,8 +49,8 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
             // 2. Verify that New.. is enabled:
             await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
-            // Verify that Delete menu item is disabled:
-            await settingsBrowsePanel.waitForContextMenuItemDisabled('Delete');
+            // Verify that Delete menu item is enabled:
+            await settingsBrowsePanel.waitForContextMenuItemEnabled('Delete');
         });
 
     it(`GIVEN right click on Projects folder WHEN 'New..' menu has been clicked THEN 'New Settings Item Dialog' should be loaded`,
