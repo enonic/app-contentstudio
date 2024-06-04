@@ -29,11 +29,10 @@ export class ProjectReadAccessWizardStepForm
 
         const layoutPromises: Q.Promise<void>[] = [];
 
-        layoutPromises.push(this.layoutLanguage(item.getLanguage()));
-
-        if (!item.isDefaultProject()) {
-            layoutPromises.push(this.readAccessFormItem.layoutReadAccess(item.getReadAccess(), item.getPermissions()));
-        }
+        layoutPromises.push(
+            this.layoutLanguage(item.getLanguage()),
+            this.readAccessFormItem.layoutReadAccess(item.getReadAccess(), item.getPermissions())
+        );
 
         return Q.all(layoutPromises).spread(() => Q());
     }
@@ -112,10 +111,6 @@ export class ProjectReadAccessWizardStepForm
     }
 
     protected createFormItems(): FormItem[] {
-        if (!!this.item && this.item.isDefaultProject()) {
-            return [this.createLanguageFormItem()];
-        }
-
         return [this.createLanguageFormItem(), this.createReadAccessRadioGroupFormItem()];
     }
 

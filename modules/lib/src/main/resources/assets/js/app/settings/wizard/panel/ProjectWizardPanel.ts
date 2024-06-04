@@ -105,21 +105,15 @@ export class ProjectWizardPanel
         return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => this.isEditAllowed(loginResult));
     }
 
-    protected createStepsForms(persistedItem: ProjectViewItem): SettingDataItemWizardStepForm<ProjectViewItem>[] {
+    protected createStepsForms(): SettingDataItemWizardStepForm<ProjectViewItem>[] {
         const stepForms: SettingDataItemWizardStepForm<ProjectViewItem>[] = [];
-        this.projectWizardStepForm = new ProjectItemNameWizardStepForm();
-        this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm();
 
-        stepForms.push(this.projectWizardStepForm, this.readAccessWizardStepForm);
-
-        const isDefaultProject: boolean = persistedItem?.isDefaultProject();
-
-        if (!isDefaultProject) {
-            stepForms.push(
-                this.rolesWizardStepForm = new ProjectRolesWizardStepForm(),
-                this.applicationsWizardStepForm = new ProjectApplicationsWizardStepForm()
-            );
-        }
+        stepForms.push(
+            this.projectWizardStepForm = new ProjectItemNameWizardStepForm(),
+            this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm(),
+            this.rolesWizardStepForm = new ProjectRolesWizardStepForm(),
+            this.applicationsWizardStepForm = new ProjectApplicationsWizardStepForm()
+        );
 
         return stepForms;
     }
@@ -230,18 +224,14 @@ export class ProjectWizardPanel
         }
 
         const item: ProjectViewItem = this.getPersistedItem();
-        const isDefaultProject: boolean = item.isDefaultProject();
-
-        if (!isDefaultProject) {
-            if (!ObjectHelper.equals(item.getPermissions(), this.rolesWizardStepForm.getPermissions())) {
-                return true;
-            }
-
-            return (!ObjectHelper.arrayEquals(item.getReadAccess().getPrincipalsKeys(),
-                this.readAccessWizardStepForm.getReadAccess().getPrincipalsKeys()));
+        if (!ObjectHelper.equals(item.getPermissions(), this.rolesWizardStepForm.getPermissions())) {
+            return true;
         }
 
-        return false;
+        return !ObjectHelper.arrayEquals(
+            item.getReadAccess().getPrincipalsKeys(),
+            this.readAccessWizardStepForm.getReadAccess().getPrincipalsKeys()
+        );
     }
 
     private isReadAccessChanged(): boolean {
@@ -249,10 +239,7 @@ export class ProjectWizardPanel
             return true;
         }
 
-        const item: ProjectViewItem = this.getPersistedItem();
-        const isDefaultProject: boolean = item.isDefaultProject();
-
-        return !isDefaultProject && item.getReadAccess().getType() !== this.readAccessWizardStepForm.getReadAccess().getType();
+        return this.getPersistedItem().getReadAccess().getType() !== this.readAccessWizardStepForm.getReadAccess().getType();
     }
 
     protected handleDataChanged() {
