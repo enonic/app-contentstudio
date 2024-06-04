@@ -1,7 +1,7 @@
-import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
-import {ElementRemovedEvent} from '@enonic/lib-admin-ui/dom/ElementRemovedEvent';
-import {ElementRegistry} from '@enonic/lib-admin-ui/dom/ElementRegistry';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {ElementRegistry} from '@enonic/lib-admin-ui/dom/ElementRegistry';
+import {ElementRemovedEvent} from '@enonic/lib-admin-ui/dom/ElementRemovedEvent';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 
 export class TooltipHelper {
 
@@ -76,8 +76,10 @@ export class TooltipHelper {
 
         function removeTooltipOnClick(e: JQuery.MouseEventBase): void {
             setTimeout(() => {
-                const target = e.target || e.currentTarget;
-                const canRemove = !lastTarget || lastTarget.isEqualNode(target) || lastTarget.contains(target);
+                const canRemove = !lastTarget ||
+                                  lastTarget.isEqualNode(e.target) ||
+                                  lastTarget.isEqualNode(e.currentTarget) ||
+                                  lastTarget.contains(e.target);
                 if (canRemove) {
                     removeTooltip(e);
                 }
