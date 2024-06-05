@@ -473,7 +473,10 @@ export class ContentWizardPanel
             if (displayName != null) {
                 this.wizardHeader.setDisplayName(displayName);
             }
-            this.updateWizardStepForms(propertyTree, false);
+
+            this.updateWizardStepForms(propertyTree, false).then(() => {
+                this.debouncedAIAssistantDataChangedHandler();
+            });
         });
     }
 
@@ -2499,14 +2502,14 @@ export class ContentWizardPanel
         });
     }
 
-    private updateWizardStepForms(propertyTree: PropertyTree, unchangedOnly: boolean = true) {
+    private updateWizardStepForms(propertyTree: PropertyTree, unchangedOnly: boolean = true): Q.Promise<void> {
         this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
         this.contentWizardStepForm.getData().unChanged(this.debouncedAIAssistantDataChangedHandler);
 
         propertyTree.onChanged(this.dataChangedHandler);
         propertyTree.onChanged(this.debouncedAIAssistantDataChangedHandler);
 
-        this.contentWizardStepForm.update(propertyTree, unchangedOnly).then(() => {
+        return this.contentWizardStepForm.update(propertyTree, unchangedOnly).then(() => {
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
         });
     }
