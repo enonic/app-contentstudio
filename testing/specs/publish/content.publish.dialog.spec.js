@@ -37,7 +37,8 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentPublishDialog.waitForDialogOpened();
             // 4. Verify that dependants block with expected title should be present in the dialog:
             await contentPublishDialog.waitForDependantsBlockDisplayed();
-            // 5. Verify that 'All' checkbox is selected by default:
+            await studioUtils.saveScreenshot('wizard_publish_dialog_all_checkbox_selected');
+            // 5. Verify that 'All' checkbox is selected by default:  settings.hideDefaultProject=false
             let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
             assert.ok(isSelected, "'All' checkbox should be selected by default");
             // 6. Verify that the dependant-checkbox is selected and enabled:
