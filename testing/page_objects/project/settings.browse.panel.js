@@ -182,7 +182,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     async waitForProjectByDisplayNameVisible(displayName) {
         try {
             let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
-            return await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(nameXpath, appConst.shortTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_find_project');
             throw Error('Project is not visible, screenshot:' + screenshot + "  " + err);
