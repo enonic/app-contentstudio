@@ -29,7 +29,7 @@ describe("project.recreate.spec - tests for recreating a single project ", funct
             // 1. Open Setting panel
             await studioUtils.openSettingsPanel();
             // 2. Select and delete the project:
-            await projectUtils.selectAndDeleteProject(PROJECT_DEFAULT_NAME,'default');
+            await projectUtils.selectAndDeleteProject(PROJECT_DEFAULT_NAME, 'default');
             let projectNotAvailableDialog = new ProjectNotAvailableDialog();
             // 3. Verify that Project Not Available modal Dialog is automatically loaded
             await projectNotAvailableDialog.waitForDialogLoaded();
@@ -55,7 +55,9 @@ describe("project.recreate.spec - tests for recreating a single project ", funct
             await summaryStep.clickOnCreateProjectButton();
             await summaryStep.waitForDialogClosed();
             await settingsBrowsePanel.waitForNotificationMessage();
-            await studioUtils.saveScreenshotUniqueName('verify_issue_7646')
+            await studioUtils.saveScreenshotUniqueName('verify_issue_7646');
+            let items = await settingsBrowsePanel.getDisplayNames();
+            assert.ok(items.length === 1, 'Just created project should be displayed in Settings Panel');
             await settingsBrowsePanel.waitForProjectByDisplayNameVisible('Default');
         });
 
