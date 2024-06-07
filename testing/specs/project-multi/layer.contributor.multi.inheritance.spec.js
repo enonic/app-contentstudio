@@ -171,7 +171,8 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog('su', 'password');
             await studioUtils.openSettingsPanel();
             // 1. Select and delete the layer:
-            await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME)
+            await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
+            await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
         });
 
     afterEach(async () => {
