@@ -59,6 +59,9 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await pageComponentView.selectMenuItem(['Insert', 'Part']);
             await liveFormPanel.selectPartByDisplayName('City list');
             await contentWizard.switchToMainFrame();
+            // the site should be  automatically saved:
+            await contentWizard.waitForNotificationMessage();
+            await studioUtils.saveScreenshot('country_template_saved');
         });
 
     it(`GIVEN new country-content is saved WHEN 'Preview' button has been clicked THEN expected population and description should be loaded in new browser tab`,
@@ -72,6 +75,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await contentWizard.typeDisplayName(USA_CONTENT_NAME);
             await countryForm.typeDescription(USA_DESCRIPTION);
             await countryForm.typePopulation(USA_POPULATION);
+            await studioUtils.saveScreenshot('country_usa');
             // 2. Save and close the wizard:
             await contentWizard.hotKeySaveAndCloseWizard();
             // 3. Select the country-content:
@@ -79,7 +83,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 4. Click on 'Preview' button:
             await contentBrowsePanel.clickOnPreviewButton();
             await studioUtils.doSwitchToNextTab();
-            await studioUtils.saveScreenshot('usa-country');
+            await studioUtils.saveScreenshot('usa-country-preview');
             // 5. Verify expected population and description are loaded in the new browser tab:
             let pageSource = await studioUtils.getPageSource();
             assert.ok(pageSource.includes(USA_DESCRIPTION), 'Expected description should be loaded');
@@ -99,6 +103,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await cityForm.typePopulation(SF_POPULATION);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
+            await studioUtils.saveScreenshot('sf_saved');
             // 3. Open USA-country content in 'draft'
             await studioUtils.openResourceInDraft(SITE.displayName + "/" + USA_CONTENT_NAME);
             let pageSource = await studioUtils.getPageSource();
@@ -114,7 +119,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             assert.ok(pageSource.includes('404 - Not Found'), '404 page should be loaded');
         });
 
-    it("GIVEN site has been published with children WHEN USA-content has been opened in 'master' THEN expected population and description should be displayed",
+    it("GIVEN site has been published with child items WHEN USA-content has been opened in 'master' THEN expected population and description should be displayed",
         async () => {
             await studioUtils.findAndSelectItem(SITE.displayName);
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -198,6 +203,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await contentWizard.switchToMainFrame();
             // 5. Verify that Page Component View modal dialog loads automatically after clicking on 'customize'
             await pageComponentView.waitForLoaded();
+            await studioUtils.saveScreenshot('country_pcv');
             let result = await pageComponentView.getPageComponentsDisplayName();
             assert.ok(result.includes(PAGE_CONTROLLER_COUNTRY), "'Country Region'  should be present in the dialog");
             assert.ok(result.includes('City list'), "'City list' part should be present in the dialog");
