@@ -17,7 +17,7 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
 
     const PROJECT_DISPLAY_NAME = appConst.generateRandomName('Project1');
 
-    it(`WHEN new project wizard is opened THEN required elements should be present in the wizard page`,
+    it(`GIVEN new project wizard has been created WHEN Edit button has been clicked THEN required elements should be present in the wizard page`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -31,15 +31,21 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             // 3. Verify that Identifier input is disabled:
             await projectWizard.waitForProjectIdentifierInputDisabled()
             await projectWizard.waitForRolesComboboxDisplayed();
+            let result = await projectWizard.isLocaleOptionsFilterInputClickable();
+            result = await projectWizard.isLocaleOptionsFilterInputClickable();
+            assert.ok(result, 'Locale input should  be clickable');
             // 4. Verify access mode: all radio button should not be selected:
-            let isSelected = await projectWizard.isAccessModeRadioSelected("Custom");
+            let isSelected = await projectWizard.isAccessModeRadioSelected('Custom');
             assert.ok(isSelected === false, "'Custom' radio button should not be selected");
             // 5. Verify that Private radio is selected:
-            isSelected = await projectWizard.isAccessModeRadioSelected("Private");
+            isSelected = await projectWizard.isAccessModeRadioSelected('Private');
             assert.ok(isSelected, "'Private' radio button should be selected");
             // 6. Public radio button should not be selected:
-            isSelected = await projectWizard.isAccessModeRadioSelected("Public");
+            isSelected = await projectWizard.isAccessModeRadioSelected('Public');
             assert.ok(isSelected === false, "'Public' radio button should not be selected");
+            // 7. Applications dropdown should be displayed:
+            await projectWizard.waitForProjectApplicationsOptionsFilterInputDisplayed();
+            await projectWizard.waitForDeleteButtonEnabled();
         });
 
     it("Deleting a project whose name contains uppercase letters",

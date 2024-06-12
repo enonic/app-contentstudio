@@ -42,7 +42,8 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             assert.equal(actualProjectIdentifier, PROJ_IDENTIFIER, 'Expected identifier should be displayed');
             let actualLanguage = await projectWizard.getSelectedLanguage();
             assert.equal(actualLanguage, appConst.LANGUAGES.EN, 'Expected language should be displayed');
-            // 5. Verify that 'Delete' button gets enabled, because new project is created now:
+            await projectWizard.waitForLanguageOptionsFilterInputNotDisplayed();
+            // 5. Verify that 'Delete' button should be enabled:
             await projectWizard.waitForDeleteButtonEnabled();
         });
 

@@ -13,6 +13,7 @@ const CityForm = require('../../page_objects/wizardpanel/city.form.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('my.first.site.country.spec - Create a site with country content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -25,11 +26,12 @@ describe('my.first.site.country.spec - Create a site with country content', func
     const USA_DESCRIPTION = 'USA country';
     const USA_POPULATION = '300 000 000';
     const PAGE_CONTROLLER_COUNTRY = 'Country Region';
-    const COUNTRY_PART = 'country';
+    const COUNTRY_PART = 'Country';
     const SF_LOCATION = '37.7833,-122.4167';
     const SF_NAME = contentBuilder.generateRandomName('sf');
     const SF_POPULATION = '837,442';
-    const NEW_SF_POPULATION = '900,000';
+    const NEW_SF_POPULATION ='900,000';
+    const NEW_SF_POPULATION_WITH_LABEL ='Population: 900,000';
     const COUNTRY_TEMPLATE_NAME = contentBuilder.generateRandomName('template');
 
     it(`Precondition: new site and template with 'country-part' and 'city list' should be created`,
@@ -137,25 +139,31 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.openContentAndSwitchToTabByDisplayName(SF_NAME, 'San Francisco');
             await cityForm.typePopulation(NEW_SF_POPULATION);
             await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
             // 2. Verify that population is not updated in master, because the content is not published now(Modified):
             await studioUtils.openResourceInMaster(SITE.displayName + '/' + USA_CONTENT_NAME);
             let pageSource = await studioUtils.getPageSource();
             assert.ok(pageSource.includes(SF_POPULATION), "population should not be updated");
         });
 
-    it("GIVEN modified site has been published with children WHEN USA-content has been opened in 'master' THEN updated city population should be loaded",
+    it("GIVEN modified site has been published with child-items WHEN USA-content has been opened in 'master' THEN updated city population should be loaded",
         async () => {
             // 1. modified site has been published with children
-            await studioUtils.findAndSelectItem(SITE.displayName);
+            await studioUtils.findAndSelectItem(SF_NAME);
             let contentBrowsePanel = new ContentBrowsePanel();
-            await studioUtils.doMarkAsReadyAndPublishTree();
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
             await contentBrowsePanel.waitForNotificationMessage();
+            let contentPublishDialog = new ContentPublishDialog();
+            await contentPublishDialog.clickOnPublishNowButton();
+            await contentPublishDialog.waitForDialogClosed();
+            await contentBrowsePanel.pause(1000);
+            await studioUtils.saveScreenshot('updated_population_published');
             // 2. Open USA country in master
             await studioUtils.openResourceInMaster(SITE.displayName + '/' + USA_CONTENT_NAME);
             await studioUtils.saveScreenshot('master_population_updated');
-            // 3. Verify the error page
+            // 3. Verify the new population:
             let pageSource = await studioUtils.getPageSource();
-            assert.ok(pageSource.includes(NEW_SF_POPULATION), 'updated San Francisco population should be loaded');
+            assert.ok(pageSource.includes(NEW_SF_POPULATION_WITH_LABEL), 'updated San Francisco population should be loaded');
         });
 
     it("GIVEN just one resource(page template) has been unpublished WHEN USA-content has been opened in 'master' THEN '404' page should be loaded",
@@ -193,7 +201,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let result = await pageComponentView.getPageComponentsDisplayName();
             assert.ok(result.includes(PAGE_CONTROLLER_COUNTRY), "'Country Region'  should be present in the dialog");
             assert.ok(result.includes('City list'), "'City list' part should be present in the dialog");
-            assert.ok(result.includes('country'), "'country part' should be present in the dialog");
+            assert.ok(result.includes('Country'), "'Country part' should be present in the dialog");
         });
 
     it("WHEN USA content has been opened THEN expected components should be displayed in the dialog in Page Component wizard step",
@@ -210,7 +218,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes(PAGE_CONTROLLER_COUNTRY), 'template(top component)  should be present in the dialog');
             assert.ok(result.includes('City list'), 'City list part should be present in the dialog');
-            assert.ok(result.includes('country'), 'country part should be present in the dialog');
+            assert.ok(result.includes('Country'), 'Country part should be present in the dialog');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

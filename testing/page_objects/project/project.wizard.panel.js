@@ -89,6 +89,12 @@ class ProjectWizardPanel extends Page {
         return this.isClickable(this.localeOptionsFilterInput);
     }
 
+    async isProjectSelectorDisabled(){
+        let locator = XPATH.container+ "//div[contains(@id, 'ProjectsSelector')]";
+        let classAttr = await this.getAttribute(locator,'class');
+        return classAttr.includes('disabled');
+    }
+
     async getSelectedParentProjectsDisplayName() {
         let locator = XPATH.container + XPATH.projectSelectedOptionViewDiv + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -189,6 +195,10 @@ class ProjectWizardPanel extends Page {
     }
 
     waitForDescriptionInputDisplayed() {
+        return this.waitForElementDisplayed(XPATH.container, appConst.shortTimeout);
+    }
+
+    waitForLanguageDropdownDisplayed() {
         return this.waitForElementDisplayed(XPATH.container, appConst.shortTimeout);
     }
 
@@ -374,6 +384,14 @@ class ProjectWizardPanel extends Page {
 
     waitForProjectApplicationsOptionsFilterInputDisplayed() {
         return this.waitForElementDisplayed(this.projectApplicationsOptionsFilterInput, appConst.mediumTimeout);
+    }
+
+    waitForLanguageOptionsFilterInputDisplayed() {
+        return this.waitForElementDisplayed(this.localeOptionsFilterInput, appConst.mediumTimeout);
+    }
+
+    waitForLanguageOptionsFilterInputNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.localeOptionsFilterInput, appConst.mediumTimeout);
     }
 
     async selectApplication(appName) {
