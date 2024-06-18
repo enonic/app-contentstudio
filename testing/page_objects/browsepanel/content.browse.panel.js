@@ -655,8 +655,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async waitForStatus(name, expectedStatus) {
-        let locator = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r3')]";
+    async waitForStatus(displayName, expectedStatus) {
+        let locator = lib.slickRowByDisplayName(XPATH.treeGrid, displayName) + "//div[contains(@class,'r3')]";
         await this.getBrowser().waitUntil(async () => {
             let actualStatus = await this.getText(locator);
             return actualStatus === expectedStatus;
