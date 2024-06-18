@@ -13,7 +13,6 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {GetWidgetsByInterfaceRequest} from './resource/GetWidgetsByInterfaceRequest';
 import {Widget, WidgetConfig} from '@enonic/lib-admin-ui/content/Widget';
-import {UriHelper} from './rendering/UriHelper';
 import {WidgetHelper} from './util/WidgetHelper';
 import {ContentAppContainer} from './ContentAppContainer';
 import {Router} from './Router';
@@ -21,6 +20,7 @@ import {UrlAction} from './UrlAction';
 import {ContentAppBar} from './bar/ContentAppBar';
 import {WidgetsSidebar} from './widget/WidgetsSidebar';
 import {WidgetInjectionResult} from './util/WidgetInjectionResult';
+import {UrlHelper} from './util/UrlHelper';
 
 interface MenuWidgetInjectionResult extends WidgetInjectionResult {
     isEnabled: boolean;
@@ -191,10 +191,11 @@ export class AppWrapper
             return;
         }
 
-        fetch(UriHelper.getAdminUri(widget.getUrl(), '/'))
+        fetch(UrlHelper.buildWidgetUri(widget.getUrl()))
             .then(response => response.text())
             .then((html: string) => {
-                const injectedWidgetElem: MenuWidgetInjectionResult = WidgetHelper.injectWidgetHtml(html, this.widgetsBlock) as MenuWidgetInjectionResult;
+                const injectedWidgetElem: MenuWidgetInjectionResult = WidgetHelper.injectWidgetHtml(html,
+                    this.widgetsBlock) as MenuWidgetInjectionResult;
                 injectedWidgetElem.isEnabled = true;
                 this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), injectedWidgetElem);
             })
