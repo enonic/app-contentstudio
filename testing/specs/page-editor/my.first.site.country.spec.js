@@ -153,17 +153,21 @@ describe('my.first.site.country.spec - Create a site with country content', func
 
     it("GIVEN modified site has been published with child-items WHEN USA-content has been opened in 'master' THEN updated city population should be loaded",
         async () => {
-            // 1. modified site has been published with children
+            // 1. modified content has been published
             await studioUtils.findAndSelectItem(SF_NAME);
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             await contentBrowsePanel.waitForNotificationMessage();
-            let contentPublishDialog = new ContentPublishDialog();
+            // Verify that `Publish Content` modal dialog is opened:
+            await contentPublishDialog.waitForDialogOpened();
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
-            await contentBrowsePanel.pause(1000);
             await studioUtils.saveScreenshot('updated_population_published');
-            // 2. Open USA country in master
+            await contentBrowsePanel.pause(1000);
+            let status = await contentBrowsePanel.getContentStatus(SF_NAME);
+            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "Content's status should be 'Published'");
+            // 2. Open USA country in master branch:
             await studioUtils.openResourceInMaster(SITE.displayName + '/' + USA_CONTENT_NAME);
             await studioUtils.saveScreenshot('master_population_updated');
             // 3. Verify the new population:
