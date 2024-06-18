@@ -650,7 +650,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r3')]";
             return await this.getText(selector);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_select_item');
+            let screenshot = await this.saveScreenshotUniqueName('err_content_status');
             throw Error(`Error occurred during getting the status of the content, screenshot: ${screenshot}  ` + err);
         }
     }
