@@ -222,11 +222,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     // Wait for `Publish Menu` Button gets 'Mark as ready'
-    waitForMarkAsReadyButtonVisible() {
-        return this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot("err_publish_button_mark_as_ready");
-            throw new Error("Mark as Ready button is not visible! " + err);
-        })
+    async waitForMarkAsReadyButtonVisible() {
+        try {
+            await this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
+            await this.pause(300);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_mark_as_ready_button');
+            throw new Error(`Mark as Ready button is not visible! screenshot:  ${screenshot} ` + err);
+        }
     }
 
     // Wait for `Publish Menu` Button gets 'Unpublish'
@@ -277,7 +280,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async clickOnMarkAsReadyButton() {
         await this.waitForMarkAsReadyButtonVisible();
         await this.clickOnElement(this.markAsReadyButton);
-        return await this.pause(500);
+        return await this.pause(300);
     }
 
     async clickOnMoveButton() {
@@ -561,7 +564,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForRowCheckboxSelected(name);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_item');
-            throw Error('Row with the name ' + name + ' was not selected, screenshot: ' + screenshot + ' ' + err)
+            throw Error('Row with the name ' + name + ' was not selected, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -642,9 +645,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return this.waitUntilInvalid(xpath);
     }
 
-    getContentStatus(name) {
-        let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r3')]";
-        return this.getText(selector);
+    async getContentStatus(name) {
+        try {
+            let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r3')]";
+            return await this.getText(selector);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_select_item');
+            throw Error(`Error occurred during getting the status of the content, screenshot: ${screenshot}  ` + err);
+        }
     }
 
     async waitForStatus(name, expectedStatus) {
