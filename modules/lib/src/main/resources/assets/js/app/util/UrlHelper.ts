@@ -49,4 +49,8 @@ export class UrlHelper {
     static isContentBrowseUrlMatch(): boolean {
         return window.location.hash.endsWith(UrlAction.BROWSE);
     }
+
+    static buildWidgetUri(widgetUrl: string): string {
+        return UriHelper.getAdminUri(`/tool/${widgetUrl}`);
+    }
 }
