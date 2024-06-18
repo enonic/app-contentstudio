@@ -24,6 +24,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
     let TEMPLATE;
     let USA_CONTENT_NAME;
     const USA_DESCRIPTION = 'USA country';
+    const SF_DISPLAY_NAME= 'San Francisco';
     const USA_POPULATION = '300 000 000';
     const PAGE_CONTROLLER_COUNTRY = 'Country Region';
     const COUNTRY_PART = 'Country';
@@ -71,7 +72,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let contentBrowsePanel = new ContentBrowsePanel();
             USA_CONTENT_NAME = contentBuilder.generateRandomName('usa');
             // 1. Open new country wizard, type a name, description, population:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, "Country");
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'Country');
             await contentWizard.typeDisplayName(USA_CONTENT_NAME);
             await countryForm.typeDescription(USA_DESCRIPTION);
             await countryForm.typePopulation(USA_POPULATION);
@@ -98,7 +99,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.selectSiteAndOpenNewWizard(USA_CONTENT_NAME, 'City');
             // 2. Type a data and save the city:
             await contentWizard.typeInPathInput(SF_NAME);
-            await contentWizard.typeDisplayName('San Francisco');
+            await contentWizard.typeDisplayName(SF_DISPLAY_NAME);
             await cityForm.typeLocation(SF_LOCATION);
             await cityForm.typePopulation(SF_POPULATION);
             await contentWizard.waitAndClickOnSave();
@@ -141,7 +142,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let contentWizard = new ContentWizard();
             let cityForm = new CityForm();
             // 1. Open city content, population of SF has been updated
-            await studioUtils.openContentAndSwitchToTabByDisplayName(SF_NAME, 'San Francisco');
+            await studioUtils.openContentAndSwitchToTabByDisplayName(SF_NAME, SF_DISPLAY_NAME);
             await cityForm.typePopulation(NEW_SF_POPULATION);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -166,7 +167,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.saveScreenshot('updated_population_published');
             await contentBrowsePanel.pause(1000);
             // wait for Published status:
-            await contentBrowsePanel.waitForStatus(SF_NAME, appConst.CONTENT_STATUS.PUBLISHED);
+            await contentBrowsePanel.waitForStatus(SF_DISPLAY_NAME, appConst.CONTENT_STATUS.PUBLISHED);
             // 2. Open USA country in master branch:
             await studioUtils.openResourceInMaster(SITE.displayName + '/' + USA_CONTENT_NAME);
             await studioUtils.saveScreenshot('master_population_updated');
