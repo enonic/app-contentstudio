@@ -26,6 +26,18 @@ class PartInspectionPanel extends Page {
     waitForOpened() {
         return this.waitForElementDisplayed(xpath.container);
     }
+
+    async getTextFomTextInputConfig(){
+        let locatorTextLine = xpath.container + "//div[contains(@id,'TextLine')]"+ lib.TEXT_INPUT;
+        await this.waitForElementDisplayed(locatorTextLine,appConst.mediumTimeout);
+        return await this.getTextInInput(locatorTextLine + lib.TEXT_INPUT);
+    }
+
+    async typeTexInTextInputConfig(text){
+        let locatorTextLine = xpath.container + "//div[contains(@id,'TextLine')]"+ lib.TEXT_INPUT;
+        await this.waitForElementDisplayed(locatorTextLine,appConst.mediumTimeout);
+        return await this.typeTextInInput(locatorTextLine, text);
+    }
 }
 
 module.exports = PartInspectionPanel;

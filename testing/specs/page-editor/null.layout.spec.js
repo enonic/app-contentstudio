@@ -9,6 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const appConst = require('../../libs/app_const');
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
+const PartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/part.inspection.panel');
 
 describe('null.layout.spec - test for layout-controller that returns null ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -20,6 +21,7 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
     let SITE;
     const CONTROLLER_NAME = 'main region';
     const LAYOUT_NULL = 'Layout Null';
+    const TEST_TEXT = 'test1';
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -48,6 +50,40 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             assert.ok(text[0].includes(`Layout "${LAYOUT_NULL}"`, `'layout is empty' - this text should be displayed in the LiveEdit`));
             let isDisplayed = await liveFormPanel.isOptionsFilterInputInLayoutComponentNotDisplayed(0);
             assert.ok(isDisplayed === false, "Options filter should not be displayed for null-layout");
+        });
+
+    // Verify  https://github.com/enonic/app-contentstudio/issues/7676
+    // Fragment: inspection panel doesn't trigger update events #7676
+    it(`GIVEN a part with text input in its config has been saved as fragment WHEN text has been typed THEN Save button gets enabled`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+
+            let liveFormPanel = new LiveFormPanel();
+            // 1. Open the existing site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            // 2. Maximize the Live Edit:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert a part with config:
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Part']);
+            await liveFormPanel.selectPartByDisplayName('Cities List');
+            await contentWizard.switchToMainFrame();
+            await pageComponentView.openMenu('Cities List');
+            // 4. Click on 'Save as Fragment' menu item. (Save the part as fragment)
+            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await contentWizard.waitForNotificationMessage();
+            await contentWizard.pause(700);
+            await studioUtils.doSwitchToNewWizard();
+            let partInspectionPanel = new PartInspectionPanel();
+            // 5. Type a text in the config in Inspect Panel
+            await partInspectionPanel.typeTexInTextInputConfig(TEST_TEXT);
+            // 6. Verify that Save button gets enabled:
+            await contentWizard.waitForSaveButtonEnabled();
+            await contentWizard.waitAndClickOnSave();
+            // 7. Verify the saved text:
+            let result = await partInspectionPanel.getTextFomTextInputConfig();
+            assert.equal(result, TEST_TEXT, 'Expected text should be displayed in the input in Fragment(Part) Inspection Panel')
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
