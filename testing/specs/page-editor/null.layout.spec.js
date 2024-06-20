@@ -76,11 +76,15 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             await contentWizard.pause(700);
             await studioUtils.doSwitchToNewWizard();
             let partInspectionPanel = new PartInspectionPanel();
+            await partInspectionPanel.waitForOpened();
+            await studioUtils.saveScreenshot('fragment_inspect_issue_7676_0');
             // 5. Type a text in the config in Inspect Panel
             await partInspectionPanel.typeTexInTextInputConfig(TEST_TEXT);
+            await studioUtils.saveScreenshot('fragment_inspect_issue_7676_1');
             // 6. Verify that Save button gets enabled:
             await contentWizard.waitForSaveButtonEnabled();
             await contentWizard.waitAndClickOnSave();
+            await studioUtils.saveScreenshot('fragment_inspect_issue_7676_3');
             // 7. Verify the saved text:
             let result = await partInspectionPanel.getTextFomTextInputConfig();
             assert.equal(result, TEST_TEXT, 'Expected text should be displayed in the input in Fragment(Part) Inspection Panel')
