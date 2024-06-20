@@ -27,16 +27,26 @@ class PartInspectionPanel extends Page {
         return this.waitForElementDisplayed(xpath.container);
     }
 
-    async getTextFomTextInputConfig(){
-        let locatorTextLine = xpath.container + "//div[contains(@id,'TextLine')]"+ lib.TEXT_INPUT;
-        await this.waitForElementDisplayed(locatorTextLine,appConst.mediumTimeout);
-        return await this.getTextInInput(locatorTextLine + lib.TEXT_INPUT);
+    async getTextFomTextInputConfig() {
+        try {
+            let locatorTextLine = xpath.container + "//div[contains(@id,'TextLine')]" + lib.TEXT_INPUT;
+            await this.waitForElementDisplayed(locatorTextLine, appConst.mediumTimeout);
+            return await this.getTextInInput(locatorTextLine + lib.TEXT_INPUT);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_part_inspect_text_input');
+            throw new Error(`Error occurred in Part Inspect Panel screenshot: ${screenshot} ` + err);
+        }
     }
 
-    async typeTexInTextInputConfig(text){
-        let locatorTextLine = xpath.container + "//div[contains(@id,'TextLine')]"+ lib.TEXT_INPUT;
-        await this.waitForElementDisplayed(locatorTextLine,appConst.mediumTimeout);
-        return await this.typeTextInInput(locatorTextLine, text);
+    async typeTexInTextInputConfig(text) {
+        try {
+            let locatorTextLine = xpath.container + "//div[contains(@id,'TextLine')]" + lib.TEXT_INPUT;
+            await this.waitForElementDisplayed(locatorTextLine, appConst.mediumTimeout);
+            return await this.typeTextInInput(locatorTextLine, text);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_part_inspect_text_input');
+            throw new Error(`Error occurred in Part Inspect Panel screenshot: ${screenshot} ` + err);
+        }
     }
 }
 
