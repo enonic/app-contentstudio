@@ -23,6 +23,7 @@ import {PageState} from '../../../PageState';
 import {ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
 import {ComponentDescriptorUpdatedEvent} from '../../../../../page/region/ComponentDescriptorUpdatedEvent';
 import {PageEventsManager} from '../../../../PageEventsManager';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {

@@ -724,26 +724,25 @@ export class LiveFormPanel
             this.inspectPage({showPanel: false, showWidget: true});
         });
 
+        eventsManager.onLiveEditPageViewReady(() => {
+            if (this.insertablesPanel) {
+                // disable insert tab if there is no page for some reason (i.e. error occurred)
+                // or there is no controller or template set or no automatic template
+                const page = PageState.getState();
+                const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
+                const hasDefaultTemplate = this.liveEditModel?.getDefaultModels().hasDefaultPageTemplate();
+                this.contextWindow.setItemVisible(this.insertablesPanel, isPageRenderable || hasDefaultTemplate);
+            }
 
-            eventsManager.onLiveEditPageViewReady(() => {
-                if (this.insertablesPanel) {
-                    // disable insert tab if there is no page for some reason (i.e. error occurred)
-                    // or there is no controller or template set or no automatic template
-                    const page = PageState.getState();
-                    const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
-                    const hasDefaultTemplate = this.liveEditModel?.getDefaultModels().hasDefaultPageTemplate();
-                    this.contextWindow.setItemVisible(this.insertablesPanel, isPageRenderable || hasDefaultTemplate);
+            if (this.content.getPage()?.isFragment()) { // preselection selector's value to make it not empty
+                const component = PageState.getState().getFragment();
+                const inspectionPanel = this.availableInspectPanels.get(component.getType());
+
+                if (inspectionPanel instanceof ComponentInspectionPanel) {
+                    inspectionPanel.setComponent(component);
                 }
-
-                if (this.content.getPage()?.isFragment()) { // preselection selector's value to make it not empty
-                    const component = this.content.getPage().getFragment();
-                    const inspectionPanel = this.availableInspectPanels.get(component.getType());
-
-                    if (inspectionPanel instanceof ComponentInspectionPanel) {
-                        inspectionPanel.setComponent(component);
-                    }
-                }
-            });
+            }
+        });
 
 
         eventsManager.onPageSaveAsTemplate(() => {

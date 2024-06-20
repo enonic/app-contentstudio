@@ -113,7 +113,7 @@ export class ContextWindow
             }
 
             this.inspectionsPanel.showInspectionPanel(params.panel);
-            if (this.inspectTab) {
+            if (this.inspectTab && params.panel) {
                 this.inspectTab.setLabel(params.panel.getName());
             }
             if (!params.keepPanelSelection) {
