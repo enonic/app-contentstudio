@@ -610,6 +610,10 @@ export class HtmlArea
         super.updateInputOccurrenceElement(textAreaEl, property, unchangedOnly);
     }
 
+    isSagaEditable(): boolean {
+        return true;
+    }
+
 }
 
 export interface HtmlAreaOccurrenceInfo {
