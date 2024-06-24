@@ -19,7 +19,7 @@ video::MjWxNLDsUEc[youtube, 75%]
 
 :imagesdir: settings/images
 
-By selecting "Projects" in the Content Studio's "Settings" module it's now possible to see visualised graph of existing content projects and their relations.
+By selecting "Projects" in the Content Studio's "Settings" module it's now possible to see a visualised graph of existing content projects and their relations.
 
 image::settings-grid.png[Project graph, 75%]
 
@@ -27,11 +27,11 @@ image::settings-grid.png[Project graph, 75%]
 
 ==== Preset parent project
 
-If an existing project was selected in the Project tree when "New" button is clicked, the Project Wizard will create a layer of the selected project and set up synhronisation of data in the layer with its parent project.
+If an existing project is selected in the Project tree when the "New" button is clicked, the Project Wizard will create a layer of the selected project and set up synhronisation of data in the layer with its parent project.
 
 ==== Removed type selection
 
-Before this release users had to explicitly select whether they are about to create a project or a layer. This requirement has been removed. If a parent project is selected on the first step of the Wizard, a layer will be created and set up to inherit data from the selected project. Otherwise, a regular project will be created.
+Before this release, users had to explicitly select whether they are about to create a project or a layer. This requirement has been removed. If a parent project is selected on the first step of the Wizard, a layer will be created and set up to inherit data from the selected project. Otherwise, a regular project will be created.
 
 image::new-project-dialog-1.png[Select parent project, 75%]
 
@@ -39,7 +39,7 @@ image::new-project-dialog-1.png[Select parent project, 75%]
 
 A layer will always inherit applications from its parent project, even though it was not obvious from the UI before this release. "Applications" step of the "Project Wizard" has been changed to automatically display applications inherited from the parent project (if any), with no option to remove them. Other applications can be added to the layer in addition to the inherited ones.
 
-Settings form of an existing layer has also been fixed accordingly.
+The settings form of an existing layer has also been fixed accordingly.
 
 In the screenshot below, the top two applications were inherited from the parent project, while the bottom one was added manually.
 
@@ -55,7 +55,7 @@ image::dialog-unpublish-references.png[Reference check in the Unpublish Wizard, 
 
 === Decorative images
 
-New "Accessibility" section in the <<editor/rich-text-editor#insertedit_image,Insert/Edit Image dialog>> of Rich Text editor allows to set decorative images as such. Decorative images are used for styling purposes only and meant to be skipped by screen readers, as opposed to images with meaningful alt text.
+A new "Accessibility" section in the <<editor/rich-text-editor#insertedit_image,Insert/Edit Image dialog>> of Rich Text editor allows the setting of decorative images as such. Decorative images are used for styling purposes only and meant to be skipped by screen readers, as opposed to images with meaningful alt text.
 
 :imagesdir: editor/images
 
@@ -89,7 +89,7 @@ Soft-hyphen character `\&shy;` added to Rich Text Editor's "Special chars" dialo
 
 ==== Email sender
 
-Before this release, email notifications for <<issues#,issues>> created in Content Studio used current user's email address in the sender field. A new https://developer.enonic.com/docs/xp/stable/deployment/config#mail[config property^] was implemented in XP 7.14.1 which can be used to configure default email sender for emails sent by XP. If properly configured, the sender field in the email notifications sent for issues in Content Studio will be set to the configured email address.
+Before this release, email notifications for <<issues#,issues>> created in Content Studio used the current user's email address in the sender field. A new https://developer.enonic.com/docs/xp/stable/deployment/config#mail[config property^] is implemented in XP 7.14.1 which can be used to configure default email sender for emails sent by XP. If properly configured, the sender field in the email notifications sent for issues in Content Studio will be set to the configured email address.
 
 ==== eXtra Data
 
@@ -136,7 +136,7 @@ image::cs51-search-export.png[Search export, 75%]
 
 === New Find/Replace dialog in Rich Text Editor
 
-The old <<editor/rich-text-editor#findreplace,Find/Replace dialog>> in the Rich Text Editor that used to cover the text it was searching inside has been replaced with the new inline dialog that allows editor to use the search/replace functions without blocking the source text.
+The old <<editor/rich-text-editor#findreplace,Find/Replace dialog>> in the Rich Text Editor that used to cover the text it was searching inside, has been replaced with the new inline dialog that allows editor to use the search/replace functions without blocking the source text.
 
 :imagesdir: editor/images
 
@@ -144,7 +144,7 @@ image::rich-text-editor-find-replace.png[Insert Link dialog, 75%]
 
 === Locked path for published content
 
-Previously, editor had to click the "lock" icon next to the locked path input inside the Content Editor, in order to rename a published content. That icon is now removed and the path itself has to be clicked to open the Rename content dialog.
+Previously, the editor had to click the "lock" icon next to the locked path input inside the Content Editor, in order to rename a published content. That icon is now removed and the path itself has to be clicked to open the Rename content dialog.
 
 === Other improvements
 
