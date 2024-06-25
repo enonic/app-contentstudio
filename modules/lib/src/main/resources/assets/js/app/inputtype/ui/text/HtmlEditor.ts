@@ -54,17 +54,6 @@ export interface Macro {
     body?: string;
 }
 
-export interface SagaHtmlEditorEventData {
-    selection?: {
-        startOffset: number;
-        endOffset: number;
-        text: string;
-        html: string;
-    }
-    text: string;
-    html: string;
-}
-
 /**
  * NB: Using inline styles for editor's inline mode; Inline styles apply same alignment styles as alignment classes
  * in xp/styles.css, thus don't forget to update inline styles when styles.css modified
@@ -725,7 +714,6 @@ export class HtmlEditor {
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 56, 'div'); // apply the 'Normal (DIV)' format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 57, 'address'); // apply the 'Address' format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 32, 'insertNbsp');
-            this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.ALT + 83, 'openSaga'); // open Saga on CTRL + ALT + S
             this.editor.setKeystroke(CKEDITOR.CTRL + 83, 'saveHandler');
         });
 
@@ -940,7 +928,7 @@ class HtmlEditorConfigBuilder {
     private enabledTools: string[] = [];
 
     private tools: string[][] = [
-        ['Saga', 'Styles', 'Bold', 'Italic', 'Underline'],
+        ['Styles', 'Bold', 'Italic', 'Underline'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
         ['FindAndReplace', 'SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
@@ -1038,7 +1026,7 @@ class HtmlEditorConfigBuilder {
             ],
             removePlugins: this.getPluginsToRemove(),
             removeButtons: this.disabledTools?.join(),
-            extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog,findAndReplace,saga',
+            extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog,findAndReplace',
             extraAllowedContent: this.getExtraAllowedContent(),
             stylesSet: `custom-${this.editorParams.getEditorContainerId()}`,
             image2_disableResizer: true,
