@@ -116,7 +116,7 @@ export class ProjectWizardDialog
     }
 
     private getParentProjectStep(): ParentProjectDialogStep {
-        return this.steps.find((step: DialogStep) => step instanceof ParentProjectDialogStep) as ParentProjectDialogStep;
+        return this.steps.find((step: DialogStep) => step instanceof ParentProjectDialogStep);
     }
 
     private getSelectedLocale(): Locale {
@@ -124,7 +124,7 @@ export class ProjectWizardDialog
     }
 
     private getSelectedLocaleStep(): ProjectLocaleDialogStep {
-        return this.steps.find((step: DialogStep) => step instanceof ProjectLocaleDialogStep) as ProjectLocaleDialogStep;
+        return this.steps.find((step: DialogStep) => step instanceof ProjectLocaleDialogStep);
     }
 
     private setSummaryStepData(): void {
@@ -132,7 +132,7 @@ export class ProjectWizardDialog
     }
 
     private getSummaryStep(): ProjectSummaryStep {
-        return this.steps.find((step: DialogStep) => step instanceof ProjectSummaryStep) as ProjectSummaryStep;
+        return this.steps.find((step: DialogStep) => step instanceof ProjectSummaryStep);
     }
 
     protected submit() {
@@ -222,7 +222,7 @@ export class ProjectWizardDialog
     }
 
     private getProjectReadAccessStep(): ProjectAccessDialogStep {
-        return this.steps.find((step: DialogStep) => step instanceof ProjectAccessDialogStep) as ProjectAccessDialogStep;
+        return this.steps.find((step: DialogStep) => step instanceof ProjectAccessDialogStep);
     }
 
     private getProjectIdData(): ProjectIdDialogStepData {
@@ -230,7 +230,7 @@ export class ProjectWizardDialog
     }
 
     private getProjectIdStep(): ProjectIdDialogStep {
-        return this.steps.find((step: DialogStep) => step instanceof ProjectIdDialogStep) as ProjectIdDialogStep;
+        return this.steps.find((step: DialogStep) => step instanceof ProjectIdDialogStep);
     }
 
     private getPermissions(): ProjectPermissionsDialogStepData {
@@ -238,7 +238,7 @@ export class ProjectWizardDialog
     }
 
     private getProjectPermissionsStep(): ProjectPermissionsDialogStep {
-        return this.steps.find((step: DialogStep) => step instanceof ProjectPermissionsDialogStep) as ProjectPermissionsDialogStep;
+        return this.steps.find((step: DialogStep) => step instanceof ProjectPermissionsDialogStep);
     }
 
     private getProjectApplications(): ProjectApplication[] {
@@ -250,7 +250,7 @@ export class ProjectWizardDialog
     }
 
     private getProjectApplicationsStep(): ProjectApplicationsDialogStep {
-        return this.steps.find((step: DialogStep) => step instanceof ProjectApplicationsDialogStep) as ProjectApplicationsDialogStep;
+        return this.steps.find((step: DialogStep) => step instanceof ProjectApplicationsDialogStep);
     }
 
     private isParentProjectStep(step: DialogStep): boolean {

@@ -4,7 +4,7 @@ import {WidgetInjectionResult} from './WidgetInjectionResult';
 export class WidgetHelper {
 
     static injectWidgetHtml(html: string, target: UIElement): WidgetInjectionResult {
-        const widgetRegexResult: RegExpMatchArray = html.match(/<widget(\s.*?)?>.*?<\/widget>/sg);
+        const widgetRegexResult: RegExpMatchArray = html.match(/<widget(\s.*?)?>[\s\S]*?<\/widget>/g);
 
         if (!widgetRegexResult) {
             throw 'Widget contents must be wrapped inside <widget></widget> tags';

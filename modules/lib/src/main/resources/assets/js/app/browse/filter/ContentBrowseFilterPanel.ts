@@ -206,7 +206,7 @@ export class ContentBrowseFilterPanel
 
     private getSearchField(): TextSearchField {
         const textSearchFieldParent = this.elementsContainer.getChildren().find((child: Element) => child.hasClass('search-container'));
-        return textSearchFieldParent?.getChildren().find((child: Element) => child instanceof TextSearchField) as TextSearchField;
+        return textSearchFieldParent?.getChildren().find((child: Element) => child instanceof TextSearchField);
     }
 
     doRefresh(): Q.Promise<void> {
