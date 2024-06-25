@@ -17,7 +17,6 @@ module.exports = {
         'styles/contentlib': './styles/main.less',
         'lib/ckeditor/plugins/pasteModeSwitcher/plugin': './lib/ckeditor/plugins/pasteModeSwitcher/plugin.raw.js',
         'lib/ckeditor/plugins/findAndReplace/plugin': './lib/ckeditor/plugins/findAndReplace/plugin.ts',
-        'lib/ckeditor/plugins/saga/plugin': './lib/ckeditor/plugins/saga/plugin.ts',
         // html editor css imported separately in the HTMLAreaBuilder for legacy mode
         'styles/html-editor': './styles/inputtype/text/htmlarea/html-editor.less',
         'lib/ckeditor': ['./lib/ckepath.js', './lib/ckeditor/ckeditor.js']
