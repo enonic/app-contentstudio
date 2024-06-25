@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.base.Charsets;
@@ -19,6 +20,8 @@ import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.portal.postprocess.HtmlTag;
+import com.enonic.xp.portal.url.AssetUrlParams;
+import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.web.servlet.ServletRequestHolder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,6 +40,7 @@ class LiveEditInjectionTest
 
     LiveEditInjection injection;
 
+    PortalUrlService portalUrlService;
     @Mock(lenient = true)
     AdminRestConfig config;
 
@@ -47,7 +51,8 @@ class LiveEditInjectionTest
         this.portalResponse = PortalResponse.create().build();
         mockCurrentContextHttpRequest();
 
-        this.injection = new LiveEditInjection(config);
+        this.portalUrlService = mock( PortalUrlService.class );
+        this.injection = new LiveEditInjection(config, portalUrlService);
     }
 
     @Test
@@ -84,6 +89,7 @@ class LiveEditInjectionTest
     public void testInjectHeadBegin()
         throws Exception
     {
+        mockPortalUrlService();
         when( config.contentSecurityPolicy_enabled() ).thenReturn( true );
         injectAndAssert("liveEditInjectionHeadBegin.html");
     }
@@ -92,8 +98,8 @@ class LiveEditInjectionTest
     public void testInjectHeadBeginNoCsp()
         throws Exception
     {
+        mockPortalUrlService();
         when( config.contentSecurityPolicy_enabled() ).thenReturn( false );
-
         injectAndAssert("liveEditInjectionHeadBeginNoCsp.html");
     }
 
@@ -101,6 +107,7 @@ class LiveEditInjectionTest
     public void testInjectBodyEnd()
         throws Exception
     {
+        mockPortalUrlService();
         this.portalRequest.setMode( RenderMode.EDIT );
         this.portalRequest.setRawRequest( ServletRequestHolder.getRequest() );
 
@@ -126,5 +133,9 @@ class LiveEditInjectionTest
         throws Exception
     {
         return Resources.toString( getClass().getResource( resourceName ), Charsets.UTF_8 );
+    }
+
+    private void mockPortalUrlService() {
+        when( portalUrlService.assetUrl( Mockito.any( AssetUrlParams.class ) ) ).thenReturn( "/_/asset/com.enonic.app.contentstudio" );
     }
 }

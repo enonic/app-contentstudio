@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Maps;
 
@@ -18,14 +19,14 @@ import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.portal.postprocess.HtmlTag;
 import com.enonic.xp.portal.postprocess.PostProcessInjection;
+import com.enonic.xp.portal.url.AssetUrlParams;
+import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.util.Exceptions;
 
 @Component(immediate = true, service = PostProcessInjection.class, configurationPid = "com.enonic.app.contentstudio")
 public final class LiveEditInjection
     implements PostProcessInjection
 {
-    private static final String ASSET_URL = "/admin/_/asset/com.enonic.app.contentstudio";
-
     private static final String PREFIX = "{{";
 
     private static final String SUFFIX = "}}";
@@ -40,13 +41,16 @@ public final class LiveEditInjection
 
     private AdminRestConfig config;
 
+    private final PortalUrlService portalUrlService;
+
     @Activate
-    public LiveEditInjection( AdminRestConfig config )
+    public LiveEditInjection( AdminRestConfig config, @Reference PortalUrlService portalUrlService )
     {
         this.headBeginTemplate = loadTemplate("liveEditHeadBegin.html");
         this.bodyEndTemplate = loadTemplate("liveEditBodyEnd.html");
         this.cspMetaTemplate = loadTemplate("liveEditCSP.html");
         this.config = config;
+        this.portalUrlService = portalUrlService;
     }
 
     @Override
@@ -93,7 +97,10 @@ public final class LiveEditInjection
     private Map<String, String> makeModelForHeadBegin( final PortalRequest portalRequest )
     {
         final Map<String, String> map = Maps.newHashMap();
-        map.put("assetsUrl", portalRequest.rewriteUri(ASSET_URL));
+        final AssetUrlParams params = new AssetUrlParams();
+        params.portalRequest( portalRequest );
+        params.application( "com.enonic.app.contentstudio" );
+        map.put("assetsUrl", portalUrlService.assetUrl( params ));
         return map;
     }
 
