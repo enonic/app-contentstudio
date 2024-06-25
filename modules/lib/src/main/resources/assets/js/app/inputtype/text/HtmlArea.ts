@@ -28,7 +28,6 @@ import * as Q from 'q';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 import {ProjectContext} from '../../project/ProjectContext';
-import {EnonicAiOpenDialogEvent} from '../../saga/event/outgoing/EnonicAiOpenDialogEvent';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {HTMLAreaProxy} from '../ui/text/dialog/HTMLAreaProxy';
 import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
@@ -219,6 +218,7 @@ export class HtmlArea
             this.scrollToSelected(textAreaWrapper, e);
 
             textAreaWrapper.getHTMLElement().dispatchEvent(new CustomEvent('focus')); // for AI Assistant
+            textAreaWrapper.addClass('focused'); // for AI Assistant
             AppHelper.dispatchCustomEvent('focusin', this);
         };
 
@@ -233,6 +233,7 @@ export class HtmlArea
 
         const blurHandler = (e) => {
             //checking if remove occurence button clicked or not
+            textAreaWrapper.removeClass('focused'); // for AI Assistant
             AppHelper.dispatchCustomEvent('focusout', this);
 
             this.notifyBlurred(e);
@@ -299,11 +300,6 @@ export class HtmlArea
             if (editor && !this.enabled) {
                 this.setEditorEnabled(editor, false);
             }
-
-            eventInfo.editor.on('openSaga', () => {
-                const dataPath = textAreaWrapper.getEl().getAttribute('data-path');
-                new EnonicAiOpenDialogEvent(dataPath).fire();
-            });
         };
 
         const saveHandler = () => {
@@ -609,7 +605,7 @@ export class HtmlArea
         super.updateInputOccurrenceElement(textAreaEl, property, unchangedOnly);
     }
 
-    isSagaEditable(): boolean {
+    isEditableByAI(): boolean {
         return true;
     }
 
