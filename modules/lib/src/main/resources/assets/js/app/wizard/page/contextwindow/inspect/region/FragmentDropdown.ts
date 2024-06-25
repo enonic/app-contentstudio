@@ -97,8 +97,7 @@ export class FragmentDropdown
 
     // input is private in lib-admin Dropdown, avoiding modifying lib-admin
     private getInputValue(): string {
-        const input: DropdownOptionFilterInput = this.getChildren().find(
-            (child) => child instanceof DropdownOptionFilterInput) as DropdownOptionFilterInput;
+        const input: DropdownOptionFilterInput = this.getChildren().find((child) => child instanceof DropdownOptionFilterInput);
         return input?.getValue() || '';
     }
 
