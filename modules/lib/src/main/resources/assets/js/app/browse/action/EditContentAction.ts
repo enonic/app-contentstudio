@@ -1,15 +1,15 @@
-import {ContentTreeGrid} from '../ContentTreeGrid';
-import {EditContentEvent} from '../../event/EditContentEvent';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {EditContentEvent} from '../../event/EditContentEvent';
+import {ContentTreeGrid} from '../ContentTreeGrid';
+import {ContentsLocalizer} from './ContentsLocalizer';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {ProjectContext} from '../../project/ProjectContext';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ContentsLocalizer} from './ContentsLocalizer';
 
-export class EditContentAction extends ContentTreeGridAction {
+export class EditContentAction
+    extends ContentTreeGridAction {
 
     private static MAX_ITEMS_TO_EDIT: number = 50;
 
