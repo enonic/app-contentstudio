@@ -1,13 +1,14 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {LocalizeContentsRequest} from '../../resource/LocalizeContentsRequest';
-import {ProjectContext} from '../../project/ProjectContext';
-import {ContentId} from '../../content/ContentId';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ContentId} from '../../content/ContentId';
+import {ProjectContext} from '../../project/ProjectContext';
+import {LocalizeContentsRequest} from '../../resource/LocalizeContentsRequest';
+import {ContentWizardPanel} from '../ContentWizardPanel';
 
-export class LocalizeContentAction extends Action {
+export class LocalizeContentAction
+    extends Action {
 
     constructor(wizardPanel: ContentWizardPanel) {
         super(i18n('action.translate'));
@@ -21,6 +22,9 @@ export class LocalizeContentAction extends Action {
             new LocalizeContentsRequest([contentId], language).sendAndParse().then(() => {
                 NotifyManager.get().showFeedback(i18n('notify.content.localized'));
                 wizardPanel.setEnabled(true);
+                if (wizardPanel.isTranslateable()) {
+                    wizardPanel.openTranslateConfirmationDialog();
+                }
             }).catch(DefaultErrorHandler.handle);
         });
     }
