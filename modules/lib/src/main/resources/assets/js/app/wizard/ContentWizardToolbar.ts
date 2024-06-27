@@ -8,7 +8,6 @@ import * as Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentStatusToolbar, ContentStatusToolbarConfig} from '../ContentStatusToolbar';
 import {ProjectContext} from '../project/ProjectContext';
-import {EnonicAiSetupData} from '../saga/event/data/EnonicAiSetupData';
 import {Project} from '../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
@@ -21,10 +20,6 @@ import {CollaborationEl} from './CollaborationEl';
 import {ContentActionCycleButton} from './ContentActionCycleButton';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
-
-interface AIAssistant {
-    renderAiAssistant(container: HTMLElement, setupData: EnonicAiSetupData): void;
-}
 
 export interface ContentWizardToolbarConfig extends ContentStatusToolbarConfig {
     actions: ContentWizardActions;
@@ -59,7 +54,6 @@ export class ContentWizardToolbar
         this.addHomeButton();
         this.addActionButtons();
         this.addPublishMenuButton();
-        this.addAIAssistantButton();
         this.addTogglerButtons();
 
         if (!this.isCollaborationEnabled()) {
@@ -131,24 +125,6 @@ export class ContentWizardToolbar
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
         this.addElement(this.collaborationBlock);
         this.openCollaborationWSConnection();
-    }
-
-    private addAIAssistantButton(): void {
-        const AI = window['Enonic_AI'] as AIAssistant;
-        if (!AI) {
-            return;
-        }
-
-        const aiAssistantContainer = new DivEl('ai-assistant-container');
-        this.addElement(aiAssistantContainer);
-
-        const setupData: EnonicAiSetupData = {
-            serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
-            pollLimit: CONFIG.getNumber('sagaPollLimit') || undefined,
-            pollDelay: CONFIG.getNumber('sagaPollDelay') || undefined,
-        };
-
-        AI.renderAiAssistant(aiAssistantContainer.getHTMLElement(), setupData);
     }
 
     private addHomeButton(): void {
