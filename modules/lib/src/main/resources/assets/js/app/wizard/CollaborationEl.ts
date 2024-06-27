@@ -1,21 +1,20 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
-import {CollaborationServerEvent} from '../event/CollaborationServerEvent';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import * as Q from 'q';
 import {ContentId} from '../content/ContentId';
+import {CollaborationServerEvent} from '../event/CollaborationServerEvent';
 import {ProjectContext} from '../project/ProjectContext';
-import {EnonicAiSetupData} from '../saga/event/data/EnonicAiSetupData';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {AIAssistant} from './AIAssistant';
+import {AI} from '../saga/AI';
+import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
 
 export class CollaborationEl
     extends DivEl {
@@ -215,21 +214,18 @@ export class CollaborationEl
     }
 
     private addAIAssistantButton(): void {
-        const AI = window['Enonic_AI'] as AIAssistant;
-        if (!AI) {
+        if (!AI.get().isAvailable()) {
             return;
         }
 
         this.aiAssistantContainer = new DivEl('ai-assistant-container');
         this.prependChild(this.aiAssistantContainer);
 
-        const setupData: EnonicAiSetupData = {
+        AI.get().renderAssistant(this.aiAssistantContainer.getHTMLElement(), {
             serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
-            pollLimit: CONFIG.getNumber('sagaPollLimit') || undefined,
-            pollDelay: CONFIG.getNumber('sagaPollDelay') || undefined,
-        };
-
-        AI.renderAiAssistant(this.aiAssistantContainer.getHTMLElement(), setupData);
+            pollLimit: CONFIG.getNumber('sagaPollLimit'),
+            pollDelay: CONFIG.getNumber('sagaPollDelay'),
+        });
     }
 
 }
