@@ -16,7 +16,6 @@ export enum InternalWidgetType {
     EMULATOR = 'emulator',
     COMPONENTS = 'components',
     LAYERS = 'layers',
-    SAGA = 'saga',
 }
 
 export class WidgetView
