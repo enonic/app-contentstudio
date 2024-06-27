@@ -93,7 +93,7 @@ import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {Router} from '../Router';
-import {AIAssistantEventsMediator} from '../saga/AIAssistantEventsMediator';
+import {AI} from '../saga/AI';
 import {EnonicAiAppliedData} from '../saga/event/data/EnonicAiAppliedData';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {ApplicationAddedEvent} from '../site/ApplicationAddedEvent';
@@ -270,8 +270,6 @@ export class ContentWizardPanel
     private reloadPageEditorOnSave: boolean = true;
 
     private wizardFormUpdatedDuringSave: boolean;
-
-    private pageEditorUpdatedDuringSave: boolean;
 
     private applicationLoadCount: number;
 
@@ -472,7 +470,7 @@ export class ContentWizardPanel
             this.livePanel?.setSaveEnabled(!ObjectHelper.equals(PageState.getState(), this.getPersistedItem().getPage()));
         });
 
-        AIAssistantEventsMediator.get().onResultReceived(({displayName, propertyTree}: EnonicAiAppliedData) => {
+        AI.get().onResultReceived(({displayName, propertyTree}: EnonicAiAppliedData) => {
             if (displayName != null) {
                 this.wizardHeader.setDisplayName(displayName);
             }
@@ -588,8 +586,8 @@ export class ContentWizardPanel
                     this.wizardHeader.setName(existing.getName().toString());
                 }
 
-                AIAssistantEventsMediator.get().setContentTypeContext(this.contentType);
-                AIAssistantEventsMediator.get().setCustomPrompt(this.fetchCustomAIPrompt());
+                AI.get().setContentTypeContext(this.contentType);
+                AI.get().setCustomPrompt(this.fetchCustomAIPrompt());
 
                 return this.loadAndSetPageState(loader.content?.getPage()?.clone());
             }).then(() => super.doLoadData());
@@ -1928,7 +1926,12 @@ export class ContentWizardPanel
 
                     return this.layoutWizardStepForms(content).then(() => {
                         if (this.params.localized) {
-                            this.onRendered(() => NotifyManager.get().showFeedback(i18n('notify.content.localized')));
+                            this.onRendered(() => {
+                                NotifyManager.get().showFeedback(i18n('notify.content.localized'));
+                                if (this.isTranslateable()) {
+                                    this.openTranslateConfirmationDialog();
+                                }
+                            });
                         }
 
                         this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
@@ -2165,7 +2168,6 @@ export class ContentWizardPanel
         return updateContentRoutine.execute().then((context: RoutineContext) => {
             const content: Content = context.content;
             this.wizardFormUpdatedDuringSave = context.dataUpdated;
-            this.pageEditorUpdatedDuringSave = context.pageUpdated;
 
             if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
                 this.notifyContentNamed(content);
@@ -2619,7 +2621,7 @@ export class ContentWizardPanel
         this.contentAfterLayout = this.getPersistedItem();
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
-        AIAssistantEventsMediator.get().setContentContext(newPersistedItem);
+        AI.get().setContentContext(newPersistedItem);
     }
 
     isHeaderValidForSaving(): boolean {
@@ -2692,6 +2694,14 @@ export class ContentWizardPanel
 
     getSplitPanel(): SplitPanel {
         return this.splitPanel;
+    }
+
+    isTranslateable(): boolean {
+        const content = this.getContent();
+
+        return AI.get().canTranslate() &&
+               (this.isContentExistsInParentProject() && content.hasOriginProject()) &&
+               !!ProjectContext.get().getProject().getLanguage();
     }
 
     private isPageComponentsViewRequired(): boolean {
@@ -2812,7 +2822,7 @@ export class ContentWizardPanel
     }
 
     private notifyChangesToAssistant(): void {
-        AIAssistantEventsMediator.get().setCurrentData({
+        AI.get().setCurrentData({
             fields: this.contentWizardStepForm.getData().toJson(),
             topic: this.getWizardHeader().getDisplayName(),
             language: this.peristedLanguage,
@@ -2854,5 +2864,16 @@ export class ContentWizardPanel
         this.formsContexts.set('content', contentFormContext);
         this.formsContexts.set('xdata', xDataFormContext);
         this.formsContexts.set('live', liveFormContext);
+    }
+
+    openTranslateConfirmationDialog(): void {
+        const translateDialog = new ConfirmationDialog();
+        translateDialog.setQuestion(i18n('dialog.translate.question', this.peristedLanguage));
+        translateDialog.setYesCallback(() => {
+            if (AI.get().canTranslate()) {
+                void AI.get().translate();
+            }
+        });
+        translateDialog.open();
     }
 }

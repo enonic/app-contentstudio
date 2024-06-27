@@ -8,6 +8,7 @@ import * as Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ProjectContext} from '../project/ProjectContext';
+import {AI} from '../saga/AI';
 import {Project} from '../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
@@ -60,6 +61,7 @@ export class ContentWizardToolbar
         }
 
         this.addPublishMenuButton();
+        this.addAIAssistantButton();
         this.addTogglerButtons();
 
         this.fetchProjectInfo();
@@ -138,6 +140,21 @@ export class ContentWizardToolbar
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
         this.addElement(this.collaborationBlock, false);
         this.openCollaborationWSConnection();
+    }
+
+    private addAIAssistantButton(): void {
+        if (!AI.get().isAvailable()) {
+            return;
+        }
+
+        const aiAssistantContainer = new DivEl('ai-assistant-container');
+        this.addElement(aiAssistantContainer);
+
+        AI.get().renderAssistant(aiAssistantContainer.getHTMLElement(), {
+            serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
+            pollLimit: CONFIG.getNumber('sagaPollLimit'),
+            pollDelay: CONFIG.getNumber('sagaPollDelay'),
+        });
     }
 
     private fetchProjectInfo() {
