@@ -6,18 +6,25 @@ import {Content} from '../content/Content';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {EnonicAiAppliedData} from './event/data/EnonicAiAppliedData';
 import {ContentData} from './event/data/EnonicAiAssistantData';
+import {EnonicAiSetupData} from './event/data/EnonicAiSetupData';
 import {EnonicAIApplyEvent} from './event/incoming/EnonicAIApplyEvent';
-import {EnonicAiStartEvent} from './event/incoming/EnonicAiStartEvent';
-import {EnonicAiStopEvent} from './event/incoming/EnonicAiStopEvent';
+import {EnonicAiRenderEvent} from './event/incoming/EnonicAiRenderEvent';
+import {EnonicAiShowEvent} from './event/incoming/EnonicAiShowEvent';
 import {EnonicAiConfigEvent} from './event/outgoing/EnonicAiConfigEvent';
 import {EnonicAiDataSentEvent} from './event/outgoing/EnonicAiDataSentEvent';
 
-// Serves as middleman between AI Assistant events and Studio events
-export class AIAssistantEventsMediator {
+interface AIAssistant {
+    render(container: HTMLElement, setupData: EnonicAiSetupData): void;
 
-    private static instance: AIAssistantEventsMediator;
+    translator: {
+        translate(): Promise<boolean>;
+        isAvailable(): boolean;
+    }
+}
 
-    private isAssistantOn: boolean = false;
+export class AI {
+
+    private static instance: AI;
 
     private content: Content;
 
@@ -30,51 +37,58 @@ export class AIAssistantEventsMediator {
     private resultReceivedListeners: ((data: EnonicAiAppliedData) => void)[] = [];
 
     private constructor() {
-        this.initListeners();
+        EnonicAiRenderEvent.on(this.showAssistantEventListener);
+        EnonicAiShowEvent.on(this.showAssistantEventListener);
+        EnonicAIApplyEvent.on(this.applyAssistantEventListener);
     }
 
-    static get(): AIAssistantEventsMediator {
-        if (!AIAssistantEventsMediator.instance) {
-            AIAssistantEventsMediator.instance = new AIAssistantEventsMediator();
-        }
-
-        return AIAssistantEventsMediator.instance;
+    static get(): AI {
+        return AI.instance ?? (AI.instance = new AI());
     }
 
-    private start(): void {
-        this.isAssistantOn = true;
-    }
-
-    private stop(): void {
-        this.isAssistantOn = false;
-    }
-
-    setContentContext(content: Content): this {
+    setContentContext(content: Content): void {
         this.content = content;
-        return this;
     }
 
-    setContentTypeContext(contentType: ContentType): this {
+    setContentTypeContext(contentType: ContentType): void {
         this.contentType = contentType;
-        return this;
     }
 
     setCurrentData(data: ContentData): void {
         this.currentData = data;
+        this.fireDataChangedEvent();
+    }
 
-        if (this.isAssistantOn) {
-            this.fireDataChangedEvent();
+    setCustomPrompt(customPrompt: string): void {
+        this.customPrompt = customPrompt;
+    }
+
+    private getAssistant(): AIAssistant | undefined {
+        return window['Enonic_AI'] as AIAssistant | undefined;
+    }
+
+    isAvailable(): boolean {
+        return this.getAssistant() != null;
+    }
+
+    renderAssistant(container: HTMLElement, setupData: EnonicAiSetupData): void {
+        const assistant = this.getAssistant();
+        if (assistant) {
+            assistant.render(container, setupData);
         }
     }
 
-    setCustomPrompt(customPrompt: string): this {
-        this.customPrompt = customPrompt;
-        return this;
+    translate(): Promise<boolean> {
+        const assistant = this.getAssistant();
+        return assistant?.translator.translate() ?? Promise.resolve(false);
     }
 
-    private startAssistantEventListener = (event: EnonicAiStartEvent) => {
-        this.start();
+    canTranslate(): boolean {
+        const assistant = this.getAssistant();
+        return assistant?.translator.isAvailable() ?? false;
+    }
 
+    private showAssistantEventListener = () => {
         void new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             const currentUser = loginResult.getUser();
             const fullName = currentUser.getDisplayName();
@@ -107,10 +121,6 @@ export class AIAssistantEventsMediator {
         }
     };
 
-    private stopAssistantEventListener = (_: EnonicAiStopEvent) => {
-        this.stop();
-    };
-
     private applyAssistantEventListener = (event: EnonicAIApplyEvent) => {
         console.log(event.result);
 
@@ -129,21 +139,11 @@ export class AIAssistantEventsMediator {
         }).fire();
     }
 
-    private initListeners(): void {
-        EnonicAiStartEvent.on(this.startAssistantEventListener);
-        EnonicAiStopEvent.on(this.stopAssistantEventListener);
-        EnonicAIApplyEvent.on(this.applyAssistantEventListener);
-    }
-
     onResultReceived(listener: (data: EnonicAiAppliedData) => void): void {
         this.resultReceivedListeners.push(listener);
     }
 
-    unResultReceived(listener: (data: EnonicAiAppliedData) => void): void {
-        this.resultReceivedListeners = this.resultReceivedListeners.filter(l => l !== listener);
-    }
-
-    notifyResultReceived(data: EnonicAiAppliedData): void {
+    private notifyResultReceived(data: EnonicAiAppliedData): void {
         this.resultReceivedListeners.forEach(l => l(data));
     }
 }
