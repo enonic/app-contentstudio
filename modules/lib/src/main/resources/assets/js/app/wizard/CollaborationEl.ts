@@ -13,6 +13,9 @@ import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest
 import * as Q from 'q';
 import {ContentId} from '../content/ContentId';
 import {ProjectContext} from '../project/ProjectContext';
+import {EnonicAiSetupData} from '../saga/event/data/EnonicAiSetupData';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {AIAssistant} from './AIAssistant';
 
 export class CollaborationEl
     extends DivEl {
@@ -22,6 +25,8 @@ export class CollaborationEl
     private usersBlock: DivEl;
 
     private counterBlock: DivEl;
+
+    private aiAssistantContainer?: DivEl;
 
     private collaborators: PrincipalKey[] = [];
 
@@ -44,6 +49,7 @@ export class CollaborationEl
         this.appendChildren(this.usersBlock, this.counterBlock);
 
         this.initCurrentUser();
+        this.addAIAssistantButton();
     }
 
     private initCurrentUser(): void {
@@ -79,7 +85,8 @@ export class CollaborationEl
 
     private getVisibleCount(): number {
         const userElWidth: number = this.usersBlock.getChildren()[0].getEl().getWidthWithMargin();
-        const availableWidth: number = this.getEl().getWidth();
+        const availableWidth: number = this.getEl().getWidth() -
+                                       (this.aiAssistantContainer ? this.aiAssistantContainer.getEl().getWidthWithMargin() : 0);
 
         return Math.floor(availableWidth / userElWidth);
     }
@@ -205,6 +212,24 @@ export class CollaborationEl
 
     private isCollaborator(key: PrincipalKey): boolean {
         return key.equals(this.currentUser?.getKey()) || this.collaborators.some((colKey: PrincipalKey) => colKey.equals(key));
+    }
+
+    private addAIAssistantButton(): void {
+        const AI = window['Enonic_AI'] as AIAssistant;
+        if (!AI) {
+            return;
+        }
+
+        this.aiAssistantContainer = new DivEl('ai-assistant-container');
+        this.prependChild(this.aiAssistantContainer);
+
+        const setupData: EnonicAiSetupData = {
+            serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
+            pollLimit: CONFIG.getNumber('sagaPollLimit') || undefined,
+            pollDelay: CONFIG.getNumber('sagaPollDelay') || undefined,
+        };
+
+        AI.renderAiAssistant(this.aiAssistantContainer.getHTMLElement(), setupData);
     }
 
 }
