@@ -8,7 +8,6 @@ import * as Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ProjectContext} from '../project/ProjectContext';
-import {EnonicAiSetupData} from '../saga/event/data/EnonicAiSetupData';
 import {Project} from '../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
@@ -24,10 +23,6 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 
-
-interface AIAssistant {
-    renderAiAssistant(container: HTMLElement, setupData: EnonicAiSetupData): void;
-}
 
 export interface ContentWizardToolbarConfig extends ToolbarConfig {
     actions: ContentWizardActions;
@@ -66,7 +61,6 @@ export class ContentWizardToolbar
         }
 
         this.addPublishMenuButton();
-        this.addAIAssistantButton();
         this.addTogglerButtons();
 
         this.fetchProjectInfo();
@@ -147,25 +141,7 @@ export class ContentWizardToolbar
         this.openCollaborationWSConnection();
     }
 
-    private addAIAssistantButton(): void {
-        const AI = window['Enonic_AI'] as AIAssistant;
-        if (!AI) {
-            return;
-        }
-
-        const aiAssistantContainer = new DivEl('ai-assistant-container');
-        this.addElement(aiAssistantContainer);
-
-        const setupData: EnonicAiSetupData = {
-            serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
-            pollLimit: CONFIG.getNumber('sagaPollLimit') || undefined,
-            pollDelay: CONFIG.getNumber('sagaPollDelay') || undefined,
-        };
-
-        AI.renderAiAssistant(aiAssistantContainer.getHTMLElement(), setupData);
-    }
-
-    private fetchProjectInfo() {
+    private addHomeButton(): void {
         new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
             this.initProjectViewer(projects);
             return Q.resolve();
