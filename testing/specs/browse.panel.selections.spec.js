@@ -15,6 +15,12 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
         webDriverHelper.setupBrowser();
     }
 
+    it("WHEN browse panel is loaded THEN html language attribute should be 'en'",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await contentBrowsePanel.waitForLangAttribute('en');
+        });
+
     it("GIVEN unnamed content are selected WHEN the content hav been deleted THEN modal dialog should be closed",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();

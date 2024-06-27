@@ -614,6 +614,13 @@ class Page {
     acceptAlert() {
         return this.getBrowser().acceptAlert();
     }
+    async waitForLangAttribute(lang) {
+        let locator = "//html";
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, "lang");
+            return text.includes(lang);
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Html tag should contain 'lang' attribute"});
+    }
 }
 
 module.exports = Page;
