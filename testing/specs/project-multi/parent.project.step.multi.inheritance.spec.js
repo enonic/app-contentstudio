@@ -19,7 +19,6 @@ describe('parent.project.step.multi.inheritance.spec - ui-tests for parent proje
     }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
-    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
     const MULTI_PROJECTS = [PROJECT_DISPLAY_NAME, 'Default'];
 
 
