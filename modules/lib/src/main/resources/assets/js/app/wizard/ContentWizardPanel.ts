@@ -1932,7 +1932,8 @@ export class ContentWizardPanel
                         if (this.params.localized) {
                             this.onRendered(() => {
                                 NotifyManager.get().showFeedback(i18n('notify.content.localized'));
-                                if (this.isTranslateable()) {
+
+                                if (this.isTranslatable()) {
                                     this.openTranslateConfirmationDialog();
                                 }
                             });
@@ -2700,7 +2701,7 @@ export class ContentWizardPanel
         return this.splitPanel;
     }
 
-    isTranslateable(): boolean {
+    isTranslatable(): boolean {
         const content = this.getContent();
 
         return AI.get().canTranslate() &&
