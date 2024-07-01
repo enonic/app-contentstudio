@@ -12,6 +12,7 @@ import {EnonicAiRenderEvent} from './event/incoming/EnonicAiRenderEvent';
 import {EnonicAiShowEvent} from './event/incoming/EnonicAiShowEvent';
 import {EnonicAiConfigEvent} from './event/outgoing/EnonicAiConfigEvent';
 import {EnonicAiDataSentEvent} from './event/outgoing/EnonicAiDataSentEvent';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 interface AIAssistant {
     render(container: HTMLElement, setupData: EnonicAiSetupData): void;
@@ -36,6 +37,8 @@ export class AI {
 
     private resultReceivedListeners: ((data: EnonicAiAppliedData) => void)[] = [];
 
+    private assistantReadyListeners: (() => void)[] = [];
+
     private constructor() {
         EnonicAiRenderEvent.on(this.showAssistantEventListener);
         EnonicAiShowEvent.on(this.showAssistantEventListener);
@@ -48,10 +51,12 @@ export class AI {
 
     setContentContext(content: Content): void {
         this.content = content;
+        this.checkIsReady();
     }
 
     setContentTypeContext(contentType: ContentType): void {
         this.contentType = contentType;
+        this.checkIsReady();
     }
 
     setCurrentData(data: ContentData): void {
@@ -145,5 +150,24 @@ export class AI {
 
     private notifyResultReceived(data: EnonicAiAppliedData): void {
         this.resultReceivedListeners.forEach(l => l(data));
+    }
+
+    whenReady(callback: () => void): void {
+        if (this.isReady()) {
+            callback();
+        } else {
+            this.assistantReadyListeners.push(callback);
+        }
+    }
+
+    isReady(): boolean {
+        return ObjectHelper.isDefined(this.content) && ObjectHelper.isDefined(this.contentType);
+    }
+
+    private checkIsReady(): void {
+        if (this.isReady()) {
+            this.assistantReadyListeners.forEach(l => l());
+            this.assistantReadyListeners = [];
+        }
     }
 }
