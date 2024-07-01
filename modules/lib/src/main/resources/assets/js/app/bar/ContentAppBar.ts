@@ -9,10 +9,8 @@ import {ProjectSelectionDialog} from '../dialog/ProjectSelectionDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectListWithMissingRequest} from '../settings/resource/ProjectListWithMissingRequest';
-import {AccessibilityHelper} from '../util/AccessibilityHelper';
 import {TabbedAppBar} from '@enonic/lib-admin-ui/app/bar/TabbedAppBar';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
-import {AppBarActions} from '@enonic/lib-admin-ui/app/bar/AppBarActions';
 import * as Q from 'q';
 
 export class ContentAppBar
@@ -43,9 +41,6 @@ export class ContentAppBar
     }
 
     private initListeners() {
-        this.setHomeIconAction();
-        this.disableHomeButton();
-
         this.selectedProjectViewer.onClicked(() => {
             ProjectSelectionDialog.get().open();
         });
@@ -119,16 +114,6 @@ export class ContentAppBar
         this.removeClass('project-selector-hidden');
     }
 
-    disableHomeButton(): void {
-        this.getAppIcon().removeClass('clickable');
-        AppBarActions.SHOW_BROWSE_PANEL.setEnabled(false);
-    }
-
-    enableHomeButton(): void {
-        this.getAppIcon().addClass('clickable');
-        AppBarActions.SHOW_BROWSE_PANEL.setEnabled(true);
-    }
-
     setAppName(name: string) {
         this.getAppIcon().show();
 
@@ -138,7 +123,6 @@ export class ContentAppBar
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             const iconEl: DivEl = new DivEl('project-selection-icon icon-dropdown');
-            AccessibilityHelper.tabIndex(iconEl);
             this.selectedProjectViewer.appendChild(iconEl);
             this.selectedProjectViewer.setTitle(i18n('text.selectContext'));
             this.addClass('appbar-content');

@@ -16,7 +16,7 @@ exports.post = processRequest;
 const getPhrases = function(customBundles) {
     const locales = admin.getLocales();
     const phrases = {};
-    let bundles = ['i18n/common', 'i18n/phrases', 'i18n/dialogs'];
+    let bundles = ['i18n/common', 'i18n/phrases', 'i18n/dialogs', 'i18n/wcag'];
     if (customBundles.length) {
         bundles = bundles.concat(customBundles);
     }
