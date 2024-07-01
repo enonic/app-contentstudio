@@ -1,26 +1,25 @@
-import * as Q from 'q';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
-import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
-import {ContentFormContext} from '../../ContentFormContext';
-import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
-import {FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {FormState} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
-import {GetApplicationRequest} from '../../resource/GetApplicationRequest';
-import {ApplicationAddedEvent} from '../../site/ApplicationAddedEvent';
+import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {ContentFormContext} from '../../ContentFormContext';
+import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
+import {GetApplicationRequest} from '../../resource/GetApplicationRequest';
+import {ApplicationAddedEvent} from '../../site/ApplicationAddedEvent';
+import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
+import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
 
 export interface SiteConfiguratorSelectedOptionViewParams {
     option: Option<Application>,
@@ -261,8 +260,8 @@ export class SiteConfiguratorSelectedOptionView
                 .setApplicationKey(this.application.getApplicationKey())
                 .setFormState(new FormState(this.isNew))
                 .build();
-        const formView: FormView =
-            new FormView(context, this.application.getForm(), siteConfig.getConfig()).addClass('site-form') as FormView;
+        const formView = new FormView(context, this.application.getForm(), siteConfig.getConfig());
+        formView.addClass('site-form');
 
         formView.onLayoutFinished(() => {
             formView.displayValidationErrors(true);
