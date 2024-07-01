@@ -149,6 +149,8 @@ import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 
+export type FormContextName = 'content' | 'xdata' | 'live';
+
 export class ContentWizardPanel
     extends WizardPanel<Content> {
 
@@ -279,7 +281,7 @@ export class ContentWizardPanel
 
     public static debug: boolean = false;
 
-    private formContext: ContentFormContext;
+    private formsContexts: Map<FormContextName, ContentFormContext> = new Map<FormContextName, ContentFormContext>();
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
@@ -1995,7 +1997,7 @@ export class ContentWizardPanel
                 return !app || app.getState() === Application.STATE_STOPPED;
             });
 
-            this.formContext.setStoppedApplications(stoppedApps);
+            this.formsContexts.forEach((context: ContentFormContext) => context.setStoppedApplications(stoppedApps));
 
             return missingOrStoppedAppKeys;
         });
@@ -2008,7 +2010,7 @@ export class ContentWizardPanel
 
         const formViewLayoutPromises: Q.Promise<void>[] = [];
         formViewLayoutPromises.push(
-            this.contentWizardStepForm.layout(this.formContext, contentData, this.contentType.getForm()));
+            this.contentWizardStepForm.layout(this.formsContexts.get('content'), contentData, this.contentType.getForm()));
         // Must pass FormView from contentWizardStepForm displayNameResolver,
         // since a new is created for each call to renderExisting
         this.displayNameResolver.setFormView(this.contentWizardStepForm.getFormView());
@@ -2105,7 +2107,7 @@ export class ContentWizardPanel
 
         const xDataForm: Form = new FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
 
-        return xDataStepForm.layout(this.formContext, data, xDataForm).then(() => {
+        return xDataStepForm.layout(this.formsContexts.get('xdata'), data, xDataForm).then(() => {
             this.syncPersistedItemWithXData(xDataStepForm.getXDataName(), data);
             return Q(null);
         });
@@ -2114,7 +2116,7 @@ export class ContentWizardPanel
     private initLiveEditModel(content: Content): LiveEditModel {
         return LiveEditModel.create()
             .setContent(content)
-            .setContentFormContext(this.formContext)
+            .setContentFormContext(this.formsContexts.get('live'))
             .setSiteModel(this.siteModel)
             .setDefaultTemplate(this.defaultModels)
             .build();
@@ -2272,7 +2274,7 @@ export class ContentWizardPanel
 
         const xDataForm: Form = new FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
 
-        return xDataStepForm.layout(this.formContext, data, xDataForm);
+        return xDataStepForm.layout(this.formsContexts.get('xdata'), data, xDataForm);
     }
 
     private removeXDataStepForms(applicationKey: ApplicationKey): Q.Promise<number> {
@@ -2434,21 +2436,19 @@ export class ContentWizardPanel
             console.debug('ContentWizardPanel.initFormContext');
         }
 
-        if (!this.formContext) {
-            const type: ContentTypeName = this.contentType?.getContentTypeName() || content.getType();
-            this.formContext = ContentFormContext.create()
-                .setContentTypeName(type)
-                .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
-                .build() as ContentFormContext;
+        if (this.formsContexts.size === 0) {
+            this.initFormsContexts(content);
         }
 
-        this.formContext
-            .setSite(this.site)
-            .setPersistedContent(content);
-        this.formContext.setFormState(this.formState);
-        this.formContext.setShowEmptyFormItemSetOccurrences(this.isItemPersisted());
-        this.formContext.setLanguage(content.getLanguage());
-        this.formContext.setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError));
+        this.formsContexts.forEach((formContext: ContentFormContext) => {
+            formContext
+                .setSite(this.site)
+                .setPersistedContent(content);
+            formContext.setFormState(this.formState);
+            formContext.setShowEmptyFormItemSetOccurrences(this.isItemPersisted());
+            formContext.setLanguage(content.getLanguage());
+            formContext.setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError));
+        });
     }
 
     setEnabled(value: boolean) {
@@ -2819,5 +2819,31 @@ export class ContentWizardPanel
 
     private isAIAppConfig(config: ApplicationConfig): boolean {
         return config.getApplicationKey().getName() === 'com.enonic.app.saga';
+    }
+
+    private initFormsContexts(content: Content): void {
+        const type: ContentTypeName = this.contentType?.getContentTypeName() || content.getType();
+
+        const contentFormContext = ContentFormContext.create()
+            .setContentTypeName(type)
+            .setIsAiEditable(true)
+            .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
+            .build();
+
+        const xDataFormContext = ContentFormContext.create()
+            .setContentTypeName(type)
+            .setIsAiEditable(false)
+            .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
+            .build();
+
+        const liveFormContext = ContentFormContext.create()
+            .setContentTypeName(type)
+            .setIsAiEditable(false)
+            .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
+            .build();
+
+        this.formsContexts.set('content', contentFormContext);
+        this.formsContexts.set('xdata', xDataFormContext);
+        this.formsContexts.set('live', liveFormContext);
     }
 }
