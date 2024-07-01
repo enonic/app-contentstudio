@@ -8,12 +8,10 @@ import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import * as Q from 'q';
 import {ContentId} from '../content/ContentId';
 import {CollaborationServerEvent} from '../event/CollaborationServerEvent';
 import {ProjectContext} from '../project/ProjectContext';
-import {AI} from '../saga/AI';
 import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
 
 export class CollaborationEl
@@ -24,8 +22,6 @@ export class CollaborationEl
     private usersBlock: DivEl;
 
     private counterBlock: DivEl;
-
-    private aiAssistantContainer?: DivEl;
 
     private collaborators: PrincipalKey[] = [];
 
@@ -48,7 +44,6 @@ export class CollaborationEl
         this.appendChildren(this.usersBlock, this.counterBlock);
 
         this.initCurrentUser();
-        this.addAIAssistantButton();
     }
 
     private initCurrentUser(): void {
@@ -84,8 +79,7 @@ export class CollaborationEl
 
     private getVisibleCount(): number {
         const userElWidth: number = this.usersBlock.getChildren()[0].getEl().getWidthWithMargin();
-        const availableWidth: number = this.getEl().getWidth() -
-                                       (this.aiAssistantContainer ? this.aiAssistantContainer.getEl().getWidthWithMargin() : 0);
+        const availableWidth: number = this.getEl().getWidth();
 
         return Math.floor(availableWidth / userElWidth);
     }
@@ -211,21 +205,6 @@ export class CollaborationEl
 
     private isCollaborator(key: PrincipalKey): boolean {
         return key.equals(this.currentUser?.getKey()) || this.collaborators.some((colKey: PrincipalKey) => colKey.equals(key));
-    }
-
-    private addAIAssistantButton(): void {
-        if (!AI.get().isAvailable()) {
-            return;
-        }
-
-        this.aiAssistantContainer = new DivEl('ai-assistant-container');
-        this.prependChild(this.aiAssistantContainer);
-
-        AI.get().renderAssistant(this.aiAssistantContainer.getHTMLElement(), {
-            serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
-            pollLimit: CONFIG.getNumber('sagaPollLimit'),
-            pollDelay: CONFIG.getNumber('sagaPollDelay'),
-        });
     }
 
 }
