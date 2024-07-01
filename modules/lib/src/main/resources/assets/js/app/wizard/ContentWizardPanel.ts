@@ -2833,19 +2833,19 @@ export class ContentWizardPanel
 
         const contentFormContext = ContentFormContext.create()
             .setContentTypeName(type)
-            .setIsAiEditable(true)
+            .setAiEditable(true)
             .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
             .build();
 
         const xDataFormContext = ContentFormContext.create()
             .setContentTypeName(type)
-            .setIsAiEditable(false)
+            .setAiEditable(false)
             .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
             .build();
 
         const liveFormContext = ContentFormContext.create()
             .setContentTypeName(type)
-            .setIsAiEditable(false)
+            .setAiEditable(false)
             .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
             .build();
 
