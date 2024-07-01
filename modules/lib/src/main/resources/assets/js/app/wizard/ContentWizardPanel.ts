@@ -19,6 +19,7 @@ import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {showFeedback, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
@@ -147,7 +148,6 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
-import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 
 export type FormContextName = 'content' | 'xdata' | 'live';
 
@@ -1733,7 +1733,7 @@ export class ContentWizardPanel
     }
 
     private updateLiveEditModel(content: Content): void {
-        const site: Site = content.isSite() ? content as Site: this.site;
+        const site: Site = content.isSite() ? content as Site : this.site;
 
         if (this.siteModel) {
             this.updateSiteModel(site);
@@ -2760,7 +2760,8 @@ export class ContentWizardPanel
             throw new Error('PageComponentsWizardStepForm is not initialized');
         }
 
-        this.pageComponentsWizardStep = new PageComponentsWizardStep(this.getInitialPageWizardStepName(), this.pageComponentsWizardStepForm);
+        this.pageComponentsWizardStep =
+            new PageComponentsWizardStep(this.getInitialPageWizardStepName(), this.pageComponentsWizardStepForm);
 
         return this.pageComponentsWizardStep;
     }
