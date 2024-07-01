@@ -1920,7 +1920,8 @@ export class ContentWizardPanel
                         if (this.params.localized) {
                             this.onRendered(() => {
                                 NotifyManager.get().showFeedback(i18n('notify.content.localized'));
-                                if (this.isTranslateable()) {
+
+                                if (this.isTranslatable()) {
                                     this.openTranslateConfirmationDialog();
                                 }
                             });
@@ -2441,7 +2442,7 @@ export class ContentWizardPanel
             this.formContext = ContentFormContext.create()
                 .setContentTypeName(type)
                 .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
-                .build() as ContentFormContext;
+                .build();
         }
 
         this.formContext
@@ -2688,7 +2689,7 @@ export class ContentWizardPanel
         return this.splitPanel;
     }
 
-    isTranslateable(): boolean {
+    isTranslatable(): boolean {
         const content = this.getContent();
 
         return AI.get().canTranslate() &&
