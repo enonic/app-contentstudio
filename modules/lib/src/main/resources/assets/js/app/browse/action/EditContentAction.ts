@@ -4,7 +4,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentTreeGrid} from '../ContentTreeGrid';
-import {ContentsLocalizer} from './ContentsLocalizer';
+import {ContentLocalizer} from './ContentLocalizer';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
@@ -15,7 +15,7 @@ export class EditContentAction
 
     private isLocalize: boolean = false;
 
-    private contentsLocalizer?: ContentsLocalizer;
+    private contentLocalizer?: ContentLocalizer;
 
     constructor(grid: ContentTreeGrid) {
         super(grid, i18n('action.edit'), 'mod+e');
@@ -37,11 +37,11 @@ export class EditContentAction
     }
 
     private localizeContents(contents: ContentSummaryAndCompareStatus[]): void {
-        if (!this.contentsLocalizer) {
-            this.contentsLocalizer = new ContentsLocalizer();
+        if (!this.contentLocalizer) {
+            this.contentLocalizer = new ContentLocalizer();
         }
 
-        this.contentsLocalizer.localizeAndEdit(contents).catch(DefaultErrorHandler.handle);
+        this.contentLocalizer.localizeAndEdit(contents).catch(DefaultErrorHandler.handle);
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
