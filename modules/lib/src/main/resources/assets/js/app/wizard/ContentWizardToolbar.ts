@@ -147,13 +147,15 @@ export class ContentWizardToolbar
             return;
         }
 
-        const aiAssistantContainer = new DivEl('ai-assistant-container');
-        this.addElement(aiAssistantContainer);
+        AI.get().whenReady(() => {
+            const aiAssistantContainer = new DivEl('ai-assistant-container');
+            this.addElement(aiAssistantContainer);
 
-        AI.get().renderAssistant(aiAssistantContainer.getHTMLElement(), {
-            serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
-            pollLimit: CONFIG.getNumber('sagaPollLimit'),
-            pollDelay: CONFIG.getNumber('sagaPollDelay'),
+            AI.get().renderAssistant(aiAssistantContainer.getHTMLElement(), {
+                serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
+                pollLimit: CONFIG.getNumber('sagaPollLimit'),
+                pollDelay: CONFIG.getNumber('sagaPollDelay'),
+            });
         });
     }
 

@@ -22,7 +22,7 @@ export class LocalizeContentAction
             new LocalizeContentsRequest([contentId], language).sendAndParse().then(() => {
                 NotifyManager.get().showFeedback(i18n('notify.content.localized'));
                 wizardPanel.setEnabled(true);
-                if (wizardPanel.isTranslateable()) {
+                if (wizardPanel.isTranslatable()) {
                     wizardPanel.openTranslateConfirmationDialog();
                 }
             }).catch(DefaultErrorHandler.handle);
