@@ -10,6 +10,8 @@ import {EnonicAiSetupData} from './event/data/EnonicAiSetupData';
 import {EnonicAIApplyEvent} from './event/incoming/EnonicAIApplyEvent';
 import {EnonicAiRenderEvent} from './event/incoming/EnonicAiRenderEvent';
 import {EnonicAiShowEvent} from './event/incoming/EnonicAiShowEvent';
+import {EnonicAiTranslationCompletedEvent} from './event/incoming/EnonicAiTranslationCompletedEvent';
+import {EnonicAiTranslationStartedEvent} from './event/incoming/EnonicAiTranslationStartedEvent';
 import {EnonicAiConfigEvent} from './event/outgoing/EnonicAiConfigEvent';
 import {EnonicAiDataSentEvent} from './event/outgoing/EnonicAiDataSentEvent';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
@@ -43,6 +45,8 @@ export class AI {
         EnonicAiRenderEvent.on(this.showAssistantEventListener);
         EnonicAiShowEvent.on(this.showAssistantEventListener);
         EnonicAIApplyEvent.on(this.applyAssistantEventListener);
+        EnonicAiTranslationStartedEvent.on(this.translationStatedAssistantEventListener);
+        EnonicAiTranslationCompletedEvent.on(this.translationCompletedAssistantEventListener);
     }
 
     static get(): AI {
@@ -92,6 +96,14 @@ export class AI {
         const assistant = this.getAssistant();
         return assistant?.translator.isAvailable() ?? false;
     }
+
+    private translationStatedAssistantEventListener = (event: EnonicAiTranslationStartedEvent) => {
+        // TODO: Disable input, add animation
+    };
+
+    private translationCompletedAssistantEventListener = (event: EnonicAiTranslationCompletedEvent) => {
+        // TODO: Apply value, enable field, and disable animation
+    };
 
     private showAssistantEventListener = () => {
         void new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
