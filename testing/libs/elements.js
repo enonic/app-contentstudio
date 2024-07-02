@@ -50,7 +50,7 @@ module.exports = Object.freeze({
         CHECKBOX_INPUT: "//input[@type='checkbox']",
         DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
     },
-    DIV:{
+    DIV: {
         FRAGMENT_DROPDOWN_DIV: `//div[contains(@id,'FragmentDropdown')]`,
         CHECKBOX_DIV: "//div[contains(@id,'Checkbox')]",
         DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
@@ -78,7 +78,7 @@ module.exports = Object.freeze({
         DEPENDENT_ITEM_LIST_UL: "//ul[contains(@id,'DialogDependantItemsList')]",
         DEPENDENT_ITEM_LIST_UL_2: "//ul[contains(@id,'PublishDialogDependantList')]",
         DEPENDANT_ITEM_VIEWER: "//div[contains(@id,'DependantItemViewer')]",
-        DEPENDANT_ITEM_LIST_UNPUBLISH_DIALOG:"//ul[contains(@id,'DialogWithRefsDependantList')]",
+        DEPENDANT_ITEM_LIST_UNPUBLISH_DIALOG: "//ul[contains(@id,'DialogWithRefsDependantList')]",
     },
     tabBarItemByName: name => {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
@@ -161,7 +161,7 @@ module.exports = Object.freeze({
     APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
     SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and child::span[text()='Settings']]",
     MODE_CONTENT_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Content']",
-    IMAGE_CONTENT_COMBOBOX:{
+    IMAGE_CONTENT_COMBOBOX: {
         DIV: "//div[contains(@id,'ImageContentComboBox')]",
     },
     PUBLISH_DIALOG: {
@@ -169,7 +169,9 @@ module.exports = Object.freeze({
     },
     CKE: {
         insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
+        pasteModeButton: `//a[contains(@class,'cke_button') and contains(@title,'Paste mode: formatted text')]`,
         insertLinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Link')]`,
+        unlinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Unlink')]`,
         insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,
         findAndReplaceButton: "//a[contains(@class,'cke_button') and @title='Find and replace']",
         insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
