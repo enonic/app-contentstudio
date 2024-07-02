@@ -340,27 +340,26 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             assert.ok(isInvalid === false, 'Article content should be valid because required inputs are filled');
         });
 
+    // TODO add tests for Open Saga button:
     it(`GIVEN 'option 1' is selected in the single selector WHEN help text icon has been clicked THEN expected help text get visible`,
         async () => {
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            let contentWizard = new ContentWizard();
             // 1. Open wizard for new option set:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET_HELP_TEXT);
             let optionSetHelpFormView = new OptionSetHelpFormView();
             // 2. Select 'option 1' in the single-selector:
             await singleSelectionOptionSet.selectOption('option 1');
-            // 3. Click on Show help text toggler:
-            await optionSetHelpFormView.clickOnHelpTextToggler('Ingress1');
+            // 3. Click on Show help text toggler in the wizard-toolbar and show the text:
+            await contentWizard.clickOnHelpTextsToggler();
             // 4. Verify that expected help text gets visible inside the selected option:
             let textOption1 = await optionSetHelpFormView.getHelpText('Ingress1');
             await studioUtils.saveScreenshot('option_1_help_text');
             assert.equal(textOption1, 'Help text 3', 'Expected help text should be displayed');
-
             // 5. Reset the option in single-selector:
             await singleSelectionOptionSet.expandOptionSetMenuAndClickOnMenuItem(0, 'Reset');
             // 6. Select 'option 2'
             await singleSelectionOptionSet.selectOption('option 2');
-            // 7. Click on Show help text toggler and show the text:
-            await optionSetHelpFormView.clickOnHelpTextToggler('Ingress2');
             // 8. Verify that help text is updated:
             let textOption2 = await optionSetHelpFormView.getHelpText('Ingress2');
             await studioUtils.saveScreenshot('option_2_help_text');
