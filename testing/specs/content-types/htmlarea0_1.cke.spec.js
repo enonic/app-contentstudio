@@ -162,17 +162,30 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await htmlAreaForm.clickOnFullScreenButton();
             await fullScreenDialog.waitForDialogLoaded();
             let numberOfButtons = await fullScreenDialog.getNumberOfToolbarButtons();
-            assert.equal(numberOfButtons, 23, "23 buttons should be present in toolbar in Full screen mode");
+            await studioUtils.saveScreenshot('full_screen_buttons');
             await fullScreenDialog.waitForBoldButtonDisplayed();
             await fullScreenDialog.waitForItalicButtonDisplayed();
             await fullScreenDialog.waitForUnderlineButtonDisplayed();
             await fullScreenDialog.waitForJustifyButtonDisplayed();
             await fullScreenDialog.waitForAlignRightButtonDisplayed();
+            await fullScreenDialog.waitForAlignCenterButtonDisplayed();
             await fullScreenDialog.waitForAlignLeftButtonDisplayed();
-            await fullScreenDialog.waitForInsertMacroButtonDisplayed();
-            await fullScreenDialog.waitForInsertImageButtonDisplayed();
+            await fullScreenDialog.waitForDecreaseIndentButtonDisabled();
+            await fullScreenDialog.waitForIncreaseIndentButtonEnabled();
+            await fullScreenDialog.waitForInsertRemoveBulletedListButtonEnabled();
+            await fullScreenDialog.waitForInsertRemoveNumberedListButtonEnabled();
+
+            await fullScreenDialog.waitForFindAndReplaceButtonEnabled();
+            await fullScreenDialog.waitForSpecialCharactersButtonEnabled();
             await fullScreenDialog.waitForInsertAnchorButtonDisplayed();
-            await fullScreenDialog.waitForFindAndReplaceButtonDisplayed();
+            await fullScreenDialog.waitForInsertImageButtonDisplayed();
+            await fullScreenDialog.waitForInsertMacroButtonDisplayed();
+            await fullScreenDialog.waitForInsertLinkButtonDisplayed();
+            await fullScreenDialog.waitForUnlinkButtonDisplayed();
+            await fullScreenDialog.waitForInsertTableButtonDisplayed();
+            await fullScreenDialog.waitForPasteModeButtonDisplayed();
+            await fullScreenDialog.waitForSourceButtonDisplayed();
+            await fullScreenDialog.waitForFullScreenButtonDisplayed();
         });
 
     it(`GIVEN existing 'htmlArea 0:1' is opened WHEN 'Source Code' button has been pressed THEN source dialog should appear with expected text`,
