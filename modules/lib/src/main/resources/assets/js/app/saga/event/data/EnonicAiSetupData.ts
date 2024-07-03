@@ -1,5 +1,6 @@
 export interface EnonicAiSetupData {
-    serviceUrl: string;
+    chatServiceUrl: string;
+    translatorServiceUrl: string;
     pollLimit?: number;
     pollDelay?: number;
 }
