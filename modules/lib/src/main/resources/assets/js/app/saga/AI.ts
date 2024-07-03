@@ -15,6 +15,8 @@ import {EnonicAiTranslationStartedEvent} from './event/incoming/EnonicAiTranslat
 import {EnonicAiConfigEvent} from './event/outgoing/EnonicAiConfigEvent';
 import {EnonicAiDataSentEvent} from './event/outgoing/EnonicAiDataSentEvent';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {AIHelper} from '@enonic/lib-admin-ui/ai/AIHelper';
+import {AI_HELPER_STATE} from '@enonic/lib-admin-ui/ai/AIHelperState';
 
 interface AIAssistant {
     render(container: HTMLElement, setupData: EnonicAiSetupData): void;
@@ -98,11 +100,14 @@ export class AI {
     }
 
     private translationStatedAssistantEventListener = (event: EnonicAiTranslationStartedEvent) => {
-        // TODO: Disable input, add animation
+        AIHelper.getAIHelperByPath(event.path)?.setState(AI_HELPER_STATE.PROCESSING);
     };
 
     private translationCompletedAssistantEventListener = (event: EnonicAiTranslationCompletedEvent) => {
         // TODO: Apply value, enable field, and disable animation
+        const helper = AIHelper.getAIHelperByPath(event.path);
+        helper?.setValue(event.value)
+        helper?.setState(AI_HELPER_STATE.COMPLETED);
     };
 
     private showAssistantEventListener = () => {
