@@ -79,7 +79,9 @@ export class CollaborationEl
 
     private getVisibleCount(): number {
         const userElWidth: number = this.usersBlock.getChildren()[0].getEl().getWidthWithMargin();
-        const availableWidth: number = this.getEl().getWidth();
+        const nonOriginalElements = this.getChildren().filter((el: Element) => el !== this.usersBlock && el !== this.counterBlock);
+        const extras = nonOriginalElements.reduce((acc: number, el: Element) => acc + el.getEl().getWidthWithMargin(), 0);
+        const availableWidth: number = this.getEl().getWidth() - extras;
 
         return Math.floor(availableWidth / userElWidth);
     }
