@@ -42,7 +42,9 @@ export class ContentWizardToolbar
 
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
 
-    private collaborationBlock?: DivEl;
+    private collaborationBlock?: CollaborationEl;
+
+    private aiAssistantContainer: DivEl;
 
     private stateIcon?: DivEl;
 
@@ -141,6 +143,7 @@ export class ContentWizardToolbar
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
         this.addElement(this.collaborationBlock, false);
         this.openCollaborationWSConnection();
+        this.addAssistantIntoCollaborationBlock();
     }
 
     private addAIAssistantButton(): void {
@@ -149,14 +152,16 @@ export class ContentWizardToolbar
         }
 
         AI.get().whenReady(() => {
-            const aiAssistantContainer = new DivEl('ai-assistant-container');
-            this.addElement(aiAssistantContainer);
+            this.aiAssistantContainer = new DivEl('ai-assistant-container');
+            this.addElement(this.aiAssistantContainer);
 
-            AI.get().renderAssistant(aiAssistantContainer.getHTMLElement(), {
+            AI.get().renderAssistant(this.aiAssistantContainer.getHTMLElement(), {
                 serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
                 pollLimit: CONFIG.getNumber('sagaPollLimit'),
                 pollDelay: CONFIG.getNumber('sagaPollDelay'),
             });
+
+            this.addAssistantIntoCollaborationBlock();
         });
     }
 
@@ -270,6 +275,12 @@ export class ContentWizardToolbar
 
     getStateIcon(): DivEl {
         return this.stateIcon;
+    }
+
+    private addAssistantIntoCollaborationBlock(): void {
+        if (this.collaborationBlock && this.aiAssistantContainer) {
+            this.collaborationBlock.prependChild(this.aiAssistantContainer);
+        }
     }
 
     protected openShowPublishedVersionChangesDialog() {
