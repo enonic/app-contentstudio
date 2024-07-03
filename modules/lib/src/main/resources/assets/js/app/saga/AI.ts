@@ -104,9 +104,8 @@ export class AI {
     };
 
     private translationCompletedAssistantEventListener = (event: EnonicAiTranslationCompletedEvent) => {
-        // TODO: Apply value, enable field, and disable animation
         const helper = AIHelper.getAIHelperByPath(event.path);
-        helper?.setValue(event.value)
+        helper?.setValue(event.value);
         helper?.setState(AI_HELPER_STATE.COMPLETED);
     };
 
