@@ -2869,10 +2869,11 @@ export class ContentWizardPanel
 
     openTranslateConfirmationDialog(): void {
         const translateDialog = new ConfirmationDialog();
-        translateDialog.setQuestion(i18n('dialog.translate.question', this.peristedLanguage));
+        const layerLang = ProjectContext.get().getProject().getLanguage();
+        translateDialog.setQuestion(i18n('dialog.translate.question', layerLang));
         translateDialog.setYesCallback(() => {
             if (AI.get().canTranslate()) {
-                void AI.get().translate();
+                void AI.get().translate(layerLang);
             }
         });
         translateDialog.open();
