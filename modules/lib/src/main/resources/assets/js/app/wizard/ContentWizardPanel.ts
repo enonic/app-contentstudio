@@ -148,6 +148,7 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
+import {GetLocalesRequest} from '../resource/GetLocalesRequest';
 
 export type FormContextName = 'content' | 'xdata' | 'live';
 
@@ -2860,14 +2861,18 @@ export class ContentWizardPanel
     }
 
     openTranslateConfirmationDialog(): void {
-        const translateDialog = new ConfirmationDialog();
-        const layerLang = ProjectContext.get().getProject().getLanguage();
-        translateDialog.setQuestion(i18n('dialog.translate.question', layerLang));
-        translateDialog.setYesCallback(() => {
-            if (AI.get().canTranslate()) {
-                void AI.get().translate(layerLang);
-            }
-        });
-        translateDialog.open();
+        new GetLocalesRequest().sendAndParse().then((locales) => {
+            const layerLang = ProjectContext.get().getProject().getLanguage();
+            const locale = locales.find(l => l.getTag() === layerLang);
+            const displayLang = locale ? StringHelper.format('{0} ({1})', locale.getDisplayName(), locale.getProcessedTag()) : layerLang;
+            const translateDialog = new ConfirmationDialog();
+            translateDialog.setQuestion(i18n('dialog.translate.question', displayLang));
+            translateDialog.setYesCallback(() => {
+                if (AI.get().canTranslate()) {
+                    void AI.get().translate(layerLang);
+                }
+            });
+            translateDialog.open();
+        }).catch(DefaultErrorHandler.handle);
     }
 }
