@@ -22,7 +22,7 @@ interface AIAssistant {
     render(container: HTMLElement, setupData: EnonicAiSetupData): void;
 
     translator: {
-        translate(): Promise<boolean>;
+        translate(language?: string): Promise<boolean>;
         isAvailable(): boolean;
     }
 }
@@ -89,9 +89,9 @@ export class AI {
         }
     }
 
-    translate(): Promise<boolean> {
+    translate(language: string): Promise<boolean> {
         const assistant = this.getAssistant();
-        return assistant?.translator.translate() ?? Promise.resolve(false);
+        return assistant?.translator.translate(language) ?? Promise.resolve(false);
     }
 
     canTranslate(): boolean {
