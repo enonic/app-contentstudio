@@ -38,6 +38,7 @@ import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
 import {ProjectContext} from '../../project/ProjectContext';
 import {EnonicAiToggleDialogEvent} from '../../saga/event/outgoing/EnonicAiToggleDialogEvent';
 import {EnonicAiOpenDialogEvent} from '../../saga/event/outgoing/EnonicAiOpenDialogEvent';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
@@ -119,6 +120,14 @@ export class HtmlArea
 
             this.onOccurrenceRemoved(() => this.resetInputHeight());
         });
+
+        this.onOccurrenceValueChanged((occurrence: TextAreaWrapper, value: Value) => {
+            const editor = this.editors.find((e: HtmlAreaOccurrenceInfo) => e.textAreaWrapper === occurrence);
+
+            if (editor) {
+                editor.savedValue = value.getString();
+            }
+        });
     }
 
     getValueType(): ValueType {
@@ -142,12 +151,18 @@ export class HtmlArea
         textAreaEl.addClass(clazz);
 
         const textAreaWrapper = new TextAreaWrapper('text-area-wrapper');
+        const editor = {
+            id: editorId,
+            textAreaWrapper,
+            textAreaEl,
+            savedValue: property.hasNonNullValue() ? property.getString() : '',
+            hasStickyToolbar: false
+        };
+        this.editors.push(editor);
 
         textAreaEl.onRendered(() => {
             this.authRequest.then(() => {
-                this.initEditor(editorId, property, textAreaWrapper).then(() => {
-                    this.editors.push({id: editorId, textAreaWrapper, textAreaEl, property, hasStickyToolbar: false});
-                });
+                this.initEditor(editorId, editor.savedValue, textAreaWrapper).catch(DefaultErrorHandler.handle);
             });
         });
 
@@ -169,11 +184,13 @@ export class HtmlArea
 
     protected updateFormInputElValue(occurrence: FormInputEl, property: Property) {
         const editor: HtmlAreaOccurrenceInfo = this.getEditorInfo(occurrence.getId());
+        const newValue = property.hasNonNullValue() ? property.getString() : '';
+
         if (editor) {
-            editor.property = property;
+            editor.savedValue = newValue;
         }
 
-        this.setEditorContent(occurrence as TextArea, property);
+        this.setEditorContent(occurrence as TextArea, newValue);
     }
 
     resetInputOccurrenceElement(occurrence: Element) {
@@ -214,7 +231,7 @@ export class HtmlArea
         iframe?.setAttribute('tabindex', enable? '0' : '-1');
     }
 
-    private initEditor(id: string, property: Property, textAreaWrapper: Element): Q.Promise<HtmlEditor> {
+    private initEditor(id: string, value: string, textAreaWrapper: Element): Q.Promise<HtmlEditor> {
         const focusHandler = (e) => {
             this.resetInputHeight();
             this.notifyFocused(e);
@@ -297,7 +314,7 @@ export class HtmlArea
         };
 
         const editorReadyHandler = (eventInfo: CKEDITOR.eventInfo) => {
-            this.setEditorContent(textAreaWrapper.findChildById(id) as TextArea, property);
+            this.setEditorContent(textAreaWrapper.findChildById(id) as TextArea, value);
             const editor = this.editors.find((editor: HtmlAreaOccurrenceInfo) => editor.id === id);
 
             if (editor && !this.enabled) {
@@ -472,13 +489,11 @@ export class HtmlArea
         }
     }
 
-    private setEditorContent(textArea: TextArea, property: Property): void {
+    private setEditorContent(textArea: TextArea, value: string): void {
         const editorId: string = textArea.getId();
-        const content: string = property.hasNonNullValue() ?
-                                HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content?.getId(),
-                                    this.context.project) : '';
 
         if (HtmlEditor.exists(editorId)) {
+            const content: string = HTMLAreaHelper.convertRenderSrcToPreviewSrc(value, this.content?.getId(), this.context.project);
             const currentData: string = HtmlEditor.getData(editorId);
             // invoke setData only if data changed
             if (content !== currentData) {
@@ -499,6 +514,7 @@ export class HtmlArea
 
     private handleEditorValueChanged(id: string, occurrence: Element) {
         const value: string = HtmlEditor.getData(id);
+
         const textAreaEl = occurrence.findChildById(id) as TextArea;
         if (textAreaEl && value !== textAreaEl.getValue()) {
             textAreaEl.setValue(value, false, true);
@@ -530,8 +546,10 @@ export class HtmlArea
         this.editors.forEach((editor) => {
             const editorId = editor.id;
 
-            this.destroyEditor(editorId);
-            this.reInitEditor(editorId);
+            if (HtmlEditor.exists(editorId)) {
+                this.destroyEditor(editorId);
+                this.reInitEditor(editorId);
+            }
         });
     }
 
@@ -586,7 +604,7 @@ export class HtmlArea
     private reInitEditor(id: string): Q.Promise<HtmlEditor> {
         const savedEditor: HtmlAreaOccurrenceInfo = this.getEditorInfo(id);
 
-        return this.initEditor(id, savedEditor.property, savedEditor.textAreaWrapper);
+        return this.initEditor(id, savedEditor.savedValue, savedEditor.textAreaWrapper);
     }
 
     private getEditorInfo(id: string): HtmlAreaOccurrenceInfo {
@@ -618,7 +636,7 @@ export interface HtmlAreaOccurrenceInfo {
     id: string;
     textAreaWrapper: Element;
     textAreaEl: TextArea;
-    property: Property;
+    savedValue: string;
     hasStickyToolbar: boolean;
 }
 
