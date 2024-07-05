@@ -4,9 +4,17 @@ import {ProjectIconUrlResolver} from '../../../project/ProjectIconUrlResolver';
 import {ExtendedViewer} from '../../../view/ExtendedViewer';
 import {ProjectHelper} from '../../data/project/ProjectHelper';
 import {Flag} from '../../../locale/Flag';
+import {IWCAG as WCAG, AriaRole, AriaHasPopup} from '@enonic/lib-admin-ui/ui/WCAG';
 
 export class ProjectViewer
-    extends ExtendedViewer<Project> {
+    extends ExtendedViewer<Project>
+    implements WCAG {
+
+    [WCAG]: boolean = true;
+    ariaLabel: string = i18n('wcag.projectViewer.label');
+    ariaHasPopup: AriaHasPopup = AriaHasPopup.DIALOG;
+    role: AriaRole = AriaRole.BUTTON;
+    tabbable: boolean = true;
 
     constructor(className?: string) {
         super(`project-viewer ${className ?? ''}`);
