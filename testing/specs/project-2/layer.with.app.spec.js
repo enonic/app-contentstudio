@@ -24,7 +24,6 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
 
     it("Precondition 1 - new layer in 'Default' project should be added by SU",
         async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             // 1. Select 'Default' project and open wizard for new layer:

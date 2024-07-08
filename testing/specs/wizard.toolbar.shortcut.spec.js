@@ -17,18 +17,19 @@ describe('Wizard toolbar - shortcut spec', function () {
     }
     let DISPLAY_NAME;
 
-    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+s' has been pressed THEN folder should be saved`, async () => {
-        let contentWizard = new ContentWizard();
-        DISPLAY_NAME = contentBuilder.generateRandomName('folder');
-        // 1. Open new wizard:
-        await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-        await contentWizard.typeDisplayName(DISPLAY_NAME);
-        await contentWizard.pause(1000);
-        // 2. Press 'Ctrl+S'
-        await contentWizard.hotKeySave();
-        // 3. Verify the notification message:
-        await contentWizard.waitForExpectedNotificationMessage(appConst.itemSavedNotificationMessage(DISPLAY_NAME));
-    });
+    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+s' has been pressed THEN folder should be saved`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            DISPLAY_NAME = contentBuilder.generateRandomName('folder');
+            // 1. Open new wizard:
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            await contentWizard.typeDisplayName(DISPLAY_NAME);
+            await contentWizard.pause(1000);
+            // 2. Press 'Ctrl+S'
+            await contentWizard.hotKeySave();
+            // 3. Verify the notification message:
+            await contentWizard.waitForExpectedNotificationMessage(appConst.itemSavedNotificationMessage(DISPLAY_NAME));
+        });
 
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Delete' have been pressed THEN 'Delete Dialog' should appear`,
         async () => {
@@ -54,6 +55,15 @@ describe('Wizard toolbar - shortcut spec', function () {
             await contentWizard.hotKeyPublish();
             // 3. Verify that Publish Content dialog loaded:
             await contentPublishDialog.waitForDialogOpened();
+        });
+
+    it(`WHEN existing folder has been opened THEN role attribute should be set to 'role' for wizard-toolbar div`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            // 1. Open the existing folder:
+            await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
+            // 2. Verify that role attribute is set to 'role' for wizard-toolbar div:
+            await contentWizard.waitForToolbarRoleAttribute('toolbar');
         });
 
     it.skip(`GIVEN folder-wizard is opened WHEN 'Alt+w' have been pressed THEN wizard should be closed and grid is loaded`,
