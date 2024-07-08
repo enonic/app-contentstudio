@@ -194,6 +194,15 @@ describe('contentItem.preview.toolbar.spec: create an issue and check it in the 
             await compareWithPublishedVersionDialog.waitForDialogOpened();
         });
 
+    it(`WHEN modified folder has been selected THEN item-preview-toolbar div should be with expected role attribute`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. select the 'modified' folder:
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            // 2. Verify that Item Preview toolbar has 'toolbar' role attribute:
+            await contentItemPreviewPanel.waitForToolbarRoleAttribute('toolbar');
+        });
+
     it(`GIVEN modified folder is selected WHEN the folder has been published THEN 'Show changes' button gets hidden in the item preview toolbar`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();

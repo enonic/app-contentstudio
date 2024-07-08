@@ -1139,6 +1139,14 @@ class ContentWizardPanel extends Page {
         await this.waitForShowChangesButtonDisplayed();
         await this.clickOnElement(this.showChangesToolbarButton);
     }
+
+    async waitForToolbarRoleAttribute(expectedRole) {
+        let locator = XPATH.container + XPATH.toolbar;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, 'role');
+            return text === expectedRole;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Content wizard toolbar should be with 'role=toolbar' attribute"});
+    }
 }
 
 module.exports = ContentWizardPanel;

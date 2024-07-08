@@ -71,7 +71,6 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
     it(`GIVEN 2 projects have been checked in Settings panel WHEN new project wizard modal dialog has been opened THEN only the second selected project should be displayed in the dialog`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
             // 1. Select 2 checkboxes in Settings browse panel:
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME);

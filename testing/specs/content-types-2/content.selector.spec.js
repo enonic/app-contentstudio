@@ -57,11 +57,11 @@ describe('content.selector.spec: content-selector specification', function () {
     it(`GIVEN existing content with custom-relationship selector is opened WHEN the selected option has been removed THEN the article should not be present in selected options`,
         async () => {
             let customRelationshipForm = new CustomRelationshipForm();
-            // 1. Open new wizard for article-content:
+            // 1. existing content with custom-relationship selector is opened:
             await studioUtils.selectAndOpenContentInWizard(RELATIONSHIP_NAME);
-            // 2. Select the article in options -  type the name of the article and click on the slick-row:
+            // 2. the selected option has been removed:
             await customRelationshipForm.removeSelectedOption(ARTICLE_NAME_1);
-            // 3. Verify the selected option:
+            // 3. Verify that option is removed:
             await studioUtils.saveScreenshot('custom_rel_option_removed');
             let result = await customRelationshipForm.getSelectedOptions();
             assert.equal(result.length, 0, "no selected options should be in the options view");
@@ -85,7 +85,7 @@ describe('content.selector.spec: content-selector specification', function () {
             // 1. Open the wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
             await contentSelector.waitForModeTogglerDisplayed();
-            // 2. Verify the mode in content-selector:
+            // 2. Verify that 'Flat' mode should be by default in the selector:
             let actualMode = await contentSelector.getMode();
             await studioUtils.saveScreenshot('content_selector_default_mode');
             assert.equal(actualMode, 'flat', 'Flat mode should be by default');

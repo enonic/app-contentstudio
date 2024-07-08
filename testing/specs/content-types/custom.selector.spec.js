@@ -17,8 +17,8 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
     let SITE;
     let CONTENT_NAME;
     const CONTENT_NAME_2 = appConst.generateRandomName('cselector');
-    let OPTION_1 = 'Option number 1';
-    let OPTION_2 = 'Option number 2';
+    const OPTION_1 = 'Option number 1';
+    const OPTION_2 = 'Option number 2';
 
     it(`Preconditions: new site should be created`,
         async () => {

@@ -958,6 +958,30 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'sort-dialog-trigger')]";
         return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
+
+    async waitForBrowseToolbarRoleAttribute(expectedRole) {
+        let locator = XPATH.toolbar;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, "role");
+            return text === expectedRole;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Browse toolbar should contain expected 'role' attribute"});
+    }
+
+    async waitForGridRoleAttribute(expectedRole) {
+        let locator = XPATH.treeGrid;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, "role");
+            return text === expectedRole;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for Grid should be 'grid'"});
+    }
+
+    async waitForAppContainerRoleAttribute(expectedRole) {
+        let locator = XPATH.treeGrid;
+        await this.getBrowser().waitUntil(async () => {
+            let actualRole = await this.getAttribute(locator, "role");
+            return actualRole === expectedRole;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for AppContainer  should be 'main'"});
+    }
 }
 
 module.exports = ContentBrowsePanel;

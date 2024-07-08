@@ -189,7 +189,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             await contentWizard.clickOnXdataTogglerByName(TEXT_AREA_X_DATA_NAME);
             let result = await xDataTextArea.getTextInTextArea();
             await studioUtils.saveScreenshot('xdata_textarea_should_be_cleared');
-            assert.ok(result == '', 'text-area in the x-data should be cleared');
+            assert.ok(result === '', 'text-area in the x-data should be cleared');
             // 2. Red icon should be present in the wizard, because text-area is required input
             await contentWizard.waitUntilInvalidIconAppears();
         });

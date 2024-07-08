@@ -137,8 +137,6 @@ describe('Text Component with CKE - insert Anchor specification', function () {
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let textComponentCke = new TextComponentCke();
-            let insertAnchorDialog = new InsertAnchorDialog();
             // 1. Open existing site and open 'Page Component View':
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:

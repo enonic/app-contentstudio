@@ -68,7 +68,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await imageSelectorForm.waitForOptionsFilterInputDisplayed();
             // 4. Verify that the content is valid
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid == false, "This content should be valid, because the image selector is not required input");
+            assert.ok(isInvalid === false, "This content should be valid, because the image selector is not required input");
             // 5. Click on Mark as ready button:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.waitForNotificationMessage();

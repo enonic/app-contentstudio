@@ -12,7 +12,6 @@ const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspane
 const contentBuilder = require("../../libs/content.builder");
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const PublishContentDialog = require('../../page_objects/content.publish.dialog');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 

@@ -121,7 +121,7 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             assert.equal(displayName, TEST_FOLDER_1.displayName, 'Expected and actual display name should be equal');
         });
 
-    it(`WHEN do right click on an existing image THEN Preview menu item should be enabled in the context menu`,
+    it(`WHEN do right click on an existing image THEN 'Preview','New', 'Sort' menu items should be disabled in the context menu`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();

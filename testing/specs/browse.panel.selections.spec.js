@@ -14,11 +14,15 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
+    const BROWSE_TOOLBAR_ROLE = 'toolbar';
 
     it("WHEN browse panel is loaded THEN html language attribute should be 'en'",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            // Verify that <html> element has lang="en" attribute:
             await contentBrowsePanel.waitForLangAttribute('en');
+            // Verify that Toolbar is a div with role="toolbar".
+            await contentBrowsePanel.waitForBrowseToolbarRoleAttribute(BROWSE_TOOLBAR_ROLE);
         });
 
     it("GIVEN unnamed content are selected WHEN the content hav been deleted THEN modal dialog should be closed",
