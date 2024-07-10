@@ -93,7 +93,7 @@ export class TogglableStatusSelectionItem
     }
 
     private addTabIndexToTogglerAndRemoveElements() {
-        this.toggler && AccessibilityHelper.tabIndex(this.toggler);
-        this.removeEl && AccessibilityHelper.tabIndex(this.removeEl);
+        this.toggler && AccessibilityHelper.makeTabbable(this.toggler);
+        this.removeEl && AccessibilityHelper.makeTabbable(this.removeEl);
     }
 }
