@@ -12,6 +12,7 @@ import {ProjectListWithMissingRequest} from '../settings/resource/ProjectListWit
 import {TabbedAppBar} from '@enonic/lib-admin-ui/app/bar/TabbedAppBar';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import * as Q from 'q';
+import {AccessibilityHelper} from '../util/AccessibilityHelper';
 
 export class ContentAppBar
     extends TabbedAppBar {
@@ -41,9 +42,10 @@ export class ContentAppBar
     }
 
     private initListeners() {
-        this.selectedProjectViewer.onClicked(() => {
-            ProjectSelectionDialog.get().open();
-        });
+        const openProjectSelectionDialog = () => ProjectSelectionDialog.get().open();
+        this.selectedProjectViewer.onClicked(openProjectSelectionDialog);
+
+        AccessibilityHelper.makeTabbable(this.selectedProjectViewer);
 
         const handler: () => void = this.handleProjectUpdate.bind(this);
 
