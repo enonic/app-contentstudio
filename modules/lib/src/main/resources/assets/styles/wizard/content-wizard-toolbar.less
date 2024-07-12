@@ -1,26 +1,8 @@
 @app-header-height-inner: @app-header-height - 1;
 
 .content-wizard-toolbar {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  align-items: flex-end;
-  align-content: stretch;
   height: @app-header-height;
   line-height: @app-header-height;
-
-  & > * {
-    flex: 0 0 auto;
-  }
-
-  .@{_COMMON_PREFIX}button {
-    z-index: 1;
-
-    span, &.publish-action-button > span {
-      line-height: @app-header-height - 1;
-    }
-  }
 
   .fold-button {
     .@{_COMMON_PREFIX}dropdown {
@@ -59,8 +41,7 @@
     padding: 0 5px;
   }
 
-  .toolbar-publish-controls {
-    height: 100%;
+  > .toolbar-publish-controls {
     order: 2;
     margin-right: 5px;
 

@@ -1,7 +1,5 @@
 .content-publish-menu {
   margin-left: auto;
-  display: flex;
-  border-right: 1px solid @admin-bg-light-gray;
 
   @media screen and (max-width: 720px) {
     border-left: 1px solid @admin-bg-light-gray;
@@ -10,23 +8,17 @@
   }
 
   .action-button {
-    text-align: left;
-    padding-left: 12px;
-    padding-right: 5px;
-    border-left: none;
     display: none !important;
-    min-width: unset;
   }
 
-  .@{_COMMON_PREFIX}dropdown-handle {
-    position: relative;
-    width: @toolbar-height;
+  @media screen and (min-width: 720px) {
+    .@{_COMMON_PREFIX}dropdown-handle {
+      margin-left: -10px;
+    }
   }
 
   &.no-item {
     .action-button.create-issue-action-button {
-      border-left: none;
-      padding-right: 12px;
       .menu-action-button(@admin-button-blue2);
     }
 
@@ -107,27 +99,17 @@
   }
 }
 
-.content-browse-toolbar .content-publish-menu {
-  .@{_COMMON_PREFIX}dropdown-handle {
-    width: @toolbar-height - 1;
-  }
-}
-
-.content-wizard-toolbar .content-publish-menu {
-  .@{_COMMON_PREFIX}dropdown-handle {
-    width: @app-header-height-inner;
-  }
-}
-
 .menu-action-button(@color) {
-  display: inline-block !important;
+  @media screen and (min-width: 720px) {
+    display: flex !important;
+  }
 
   @media screen and (max-width: 720px) {
     display: none !important;
   }
 
   span {
-    line-height: @toolbar-height - 2px;
+    //line-height: @toolbar-height - 2px;
     text-transform: uppercase;
     color: @color;
     font-family: sans-serif, "Open Sans", Helvetica;
@@ -141,7 +123,7 @@
 }
 
 .dropdown-toggler(@color) {
-  .xp-admin-common-dropdown-handle {
+  .@{_COMMON_PREFIX}dropdown-handle {
     &::before {
       color: @color;
     }

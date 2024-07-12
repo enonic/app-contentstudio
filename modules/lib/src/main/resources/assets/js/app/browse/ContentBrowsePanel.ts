@@ -14,7 +14,6 @@ import {NewMediaUploadEvent} from '../create/NewMediaUploadEvent';
 import {ContentPreviewPathChangedEvent} from '../view/ContentPreviewPathChangedEvent';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
-import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
@@ -50,14 +49,12 @@ export class ContentBrowsePanel
     private debouncedBrowseActionsAndPreviewRefreshOnDemand: () => void;
     private browseActionsAndPreviewUpdateRequired: boolean = false;
     private contextPanelToggler: NonMobileContextPanelToggleButton;
-    private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     protected initElements() {
         super.initElements();
 
         this.browseToolbar.addActions(this.getBrowseActions().getAllActionsNoPublish());
 
-        this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
         this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
         this.debouncedBrowseActionsAndPreviewRefreshOnDemand = AppHelper.debounce(() => {
             if (this.browseActionsAndPreviewUpdateRequired) {
@@ -487,8 +484,8 @@ export class ContentBrowsePanel
             contentPublishMenuButton.setItem(this.treeGrid.hasHighlightedNode() ? this.treeGrid.getHighlightedItem() : null);
         });
 
-        this.browseToolbar.appendChild(contentPublishMenuButton);
-        this.browseToolbar.appendChild(this.contextPanelToggler);
+        this.browseToolbar.addActionElement(contentPublishMenuButton);
+        this.browseToolbar.addActionElement(this.contextPanelToggler);
 
         browseActions.onBeforeActionsStashed(() => {
             contentPublishMenuButton.setRefreshDisabled(true);
