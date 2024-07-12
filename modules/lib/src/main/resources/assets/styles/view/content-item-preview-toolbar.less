@@ -1,15 +1,10 @@
 .content-item-preview-toolbar {
-
-  display: flex;
-  flex-shrink: 0;
-
-  .content-status-wrapper {
-    flex-basis: 100%;
-  }
+  justify-content: space-between;
 
   .menu-button {
-
-    width: 240px;
+    flex-direction: row-reverse;
+    padding-right: 5px;
+    height: auto;
 
     &.transparent .@{_COMMON_PREFIX}dropdown-handle:after {
       border-top-width: 7px;
@@ -34,14 +29,16 @@
     .menu {
       z-index: 1;
       position: absolute;
-      right: -1px;
+      right: 5px;
       top: @toolbar-height - 1;
-      width: 240px;
+      width: 224px;
       padding-left: 8px;
       box-shadow: -7px 8px 7px -5px rgba(0, 0, 0, 0.3), 5px 3px 5px -3px rgba(0, 0, 0, 0.3);
 
       .menu-item {
-        padding-right: 40px;
+        line-height: 14px;
+        padding-right: 30px;
+        padding-left: 5px;
         color: @admin-font-gray2;
 
         &:not(.disabled):hover {
@@ -62,15 +59,9 @@
     }
 
     .action-button {
-      display: block;
       font-size: 14px;
-      text-align: left;
       z-index: 2;
-      margin-left: 0;
-      margin-right: 40px;
-      padding-top: 0;
       padding-right: 2px;
-      padding-left: 13px;
       border-left: 1px solid @admin-white;
       min-width: auto;
       width: 200px;
@@ -79,13 +70,20 @@
       &[disabled] {
         display: none;
       }
+
+      &:not(.disabled) span {
+        display: block;
+      }
     }
 
     .@{_COMMON_PREFIX}dropdown-handle {
-      position: absolute;
-      right: 0;
-      left: auto;
       z-index: 2;
+      height: 24px;
+      width: 24px;
+
+      &:before {
+        font-size: 24px;
+      }
 
       &.down + .action-button {
         border-left: 1px solid @admin-bg-light-gray;
@@ -97,10 +95,11 @@
 
       &[disabled] {
         display: none;
+      }
 
+      &:not[disabled] {
         + .action-button {
-          margin-right: 20px;
-          text-align: right;
+
         }
       }
     }
@@ -111,8 +110,6 @@
 ._240-360,
 ._360-540 {
   .content-item-preview-toolbar {
-
-    padding: 0 10px;
 
     .content-status-wrapper, .menu-button {
       .ellipsis();
@@ -137,14 +134,16 @@
       padding-left: 10px;
       overflow: visible;
 
-      .menu {
-        width: 215px;
-      }
-
       .action-button {
         padding-left: 0;
         max-width: calc(100% - 40px);
         border: none !important;
+
+        + .menu {
+          width: 203px;
+          border: none;
+          right: 0;
+        }
       }
 
       .@{_COMMON_PREFIX}dropdown-handle {

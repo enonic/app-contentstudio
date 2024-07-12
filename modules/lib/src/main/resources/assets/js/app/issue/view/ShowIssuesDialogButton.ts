@@ -10,8 +10,14 @@ import {IssueStatus} from '../IssueStatus';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ProjectContext} from '../../project/ProjectContext';
+import {IWCAG as WCAG, AriaHasPopup} from '@enonic/lib-admin-ui/ui/WCAG';
 
-export class ShowIssuesDialogButton extends ActionButton {
+export class ShowIssuesDialogButton
+    extends ActionButton
+    implements WCAG {
+
+    [WCAG]: boolean = true;
+    ariaHasPopup: AriaHasPopup = AriaHasPopup.DIALOG;
 
     private countSpan: SpanEl;
 
