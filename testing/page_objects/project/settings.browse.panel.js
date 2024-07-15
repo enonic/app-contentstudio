@@ -55,6 +55,10 @@ const XPATH = {
 
 class SettingsBrowsePanel extends BaseBrowsePanel {
 
+    get toolbar() {
+        return XPATH.toolbar;
+    }
+
     get deleteButton() {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Delete']]`;
     }
@@ -171,12 +175,14 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    waitForItemByNameVisible(name) {
+    async waitForItemByNameVisible(name) {
         let nameXpath = XPATH.itemsTreeGrid + lib.itemByName(name);
-        return this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_find_' + name);
-            throw Error('Row with the name ' + name + ' is not visible after ' + appConst.mediumTimeout + 'ms')
-        })
+        try {
+            await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_find_item');
+            throw Error(`Row with the name is not displayed! screenshot:${screenshot} ` + err);
+        }
     }
 
     async waitForProjectByDisplayNameVisible(displayName) {
@@ -223,7 +229,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(XPATH.selectedRow, appConst.mediumTimeout);
             return await this.getText(XPATH.selectedRow + lib.H6_DISPLAY_NAME);
         } catch (err) {
-            throw new Error(`Error when getting name in the selected row ` + err);
+            throw new Error(`Error occurred during getting the name in the highlighted row ` + err);
         }
     }
 
@@ -279,22 +285,22 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     async openProjectByDisplayName(displayName) {
         let projectWizard = new ProjectWizard();
         // the root folder(Projects) should be expanded:
-        //1. click on the project:
+        // 1. click on the project:
         await this.clickOnRowByDisplayName(displayName);
-        //2. wait for Edit button gets enabled:
+        // 2. wait for Edit button gets enabled:
         await this.clickOnEditButton();
-        //3. wait for Project is loaded in the wizard page:
+        // 3. wait for Project is loaded in the wizard page:
         return await projectWizard.waitForLoaded();
     }
 
     async checkAndOpenProjectByDisplayName(displayName) {
         let projectWizard = new ProjectWizard();
         // the root folder(Projects) should be expanded:
-        //1. check the project:
+        // 1. check the project:
         await this.clickOnCheckboxAndSelectRowByName(displayName);
-        //2. wait for Edit button gets enabled:
+        // 2. wait for Edit button gets enabled:
         await this.clickOnEditButton();
-        //3. wait for Project is loaded:
+        // 3. wait for Project is loaded:
         await projectWizard.waitForLoaded();
         return projectWizard;
     }
@@ -343,23 +349,27 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementEnabled(this.deleteButton, appConst.shortTimeout);
             return await this.clickOnElement(this.deleteButton);
         } catch (err) {
-            await this.saveScreenshot('err_browsepanel_delete_button');
-            throw new Error('Delete button is not enabled! ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_browsepanel_delete_button');
+            throw new Error(`Error occurred after clicking on 'Delete' button ! screenshot:  ${screenshot}  ` + err);
         }
     }
 
-    waitForDeleteButtonDisabled() {
-        return this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_delete_disabled_button');
-            throw Error('Browse toolbar - Delete button should be disabled, timeout: ' + 3000 + 'ms')
-        })
+    async waitForDeleteButtonDisabled() {
+        try {
+            await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_delete_button');
+            throw Error(`Delete button is not disabled! screenshot:  ${screenshot} ` + err);
+        }
     }
 
-    waitForDeleteButtonEnabled() {
-        return this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_delete_button');
-            throw Error('Delete button is not enabled after ' + appConst.mediumTimeout + 'ms')
-        })
+    async waitForDeleteButtonEnabled() {
+        try {
+            await this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_delete_button');
+            throw Error(`Delete button is not enabled! screenshot:  ${screenshot} ` + err);
+        }
     }
 }
 

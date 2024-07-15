@@ -1,6 +1,7 @@
 /**
  * Created on 17.05.2018.
  */
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
@@ -16,6 +17,8 @@ describe('Wizard toolbar - shortcut spec', function () {
         webDriverHelper.setupBrowser();
     }
     let DISPLAY_NAME;
+    const WIZARD_TOOLBAR_ARIA_LABEL = 'Main menu bar';
+    const WIZARD_TOOLBAR_ROLE = 'toolbar';
 
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+s' has been pressed THEN folder should be saved`,
         async () => {
@@ -57,13 +60,14 @@ describe('Wizard toolbar - shortcut spec', function () {
             await contentPublishDialog.waitForDialogOpened();
         });
 
-    it(`WHEN existing folder has been opened THEN role attribute should be set to 'role' for wizard-toolbar div`,
+    // Verify Accessibility attributes in Content Wizard Panel:
+    it(`WHEN existing folder has been opened THEN role attribute should be set to 'toolbar' for wizard-toolbar div`,
         async () => {
             let contentWizard = new ContentWizard();
             // 1. Open the existing folder:
             await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
-            // 2. Verify that role attribute is set to 'role' for wizard-toolbar div:
-            await contentWizard.waitForToolbarRoleAttribute('toolbar');
+            // 2. Verify that role attribute is set to 'toolbar' for wizard-toolbar div:
+            await contentWizard.waitForToolbarRoleAttribute(WIZARD_TOOLBAR_ROLE);
         });
 
     it.skip(`GIVEN folder-wizard is opened WHEN 'Alt+w' have been pressed THEN wizard should be closed and grid is loaded`,

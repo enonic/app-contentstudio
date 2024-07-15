@@ -231,7 +231,16 @@ class ContentItemPreviewPanel extends Page {
         await this.getBrowser().waitUntil(async () => {
             let text = await this.getAttribute(locator, 'role');
             return text === expectedRole;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Item preview toolbar should be with 'role=toolbar' attribute"});
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Content Item preview toolbar should be with 'role=toolbar' attribute"});
+    }
+
+    // check for Accessibility attributes: aria-label
+    async waitForBrowseToolbarAriaLabelAttribute(expectedValue) {
+        let locator = xpath.toolbar;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, "aria-label");
+            return text === expectedValue;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Content Item preview toolbar should contain expected 'aria-label' attribute"});
     }
 }
 

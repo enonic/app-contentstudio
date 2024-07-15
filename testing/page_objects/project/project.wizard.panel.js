@@ -455,6 +455,15 @@ class ProjectWizardPanel extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
     }
+
+    // check for Accessibility attributes: toolbar role
+    async waitForToolbarRoleAttribute(expectedRole) {
+        let locator = XPATH.container + XPATH.toolbar;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, 'role');
+            return text === expectedRole;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Project wizard, toolbar div should be with 'role=toolbar' attribute"});
+    }
 }
 
 module.exports = ProjectWizardPanel;
