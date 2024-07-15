@@ -20,6 +20,7 @@ const EditSettingsDialog = require('../details_panel/edit.settings.dialog');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
+    projectViewerDiv: `//div[contains(@id,'ProjectViewer')]`,
     wizardHeader: "//div[contains(@id,'ContentWizardHeader')]",
     pageEditorTogglerButton: "//button[contains(@id, 'CycleButton') ]",
     hidePageEditorTogglerButton: "//button[contains(@id,'ContentActionCycleButton') and @title='Hide Page Editor']",
@@ -1146,6 +1147,22 @@ class ContentWizardPanel extends Page {
             let text = await this.getAttribute(locator, 'role');
             return text === expectedRole;
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Content wizard toolbar should be with 'role=toolbar' attribute"});
+    }
+
+    async waitForToolbarAriaLabelAttribute(expectedValue) {
+        let locator = XPATH.container + XPATH.toolbar;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, 'aria-label');
+            return text === expectedValue;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Expected aria-label attribute is not set in the toolbar"});
+    }
+
+    async waitForProjectViewerAriaLabelAttribute(expectedValue) {
+        let locator = XPATH.container + XPATH.projectViewerDiv;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, 'aria-label');
+            return text === expectedValue;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Expected aria-label attribute is not set in the project viewer div"});
     }
 }
 

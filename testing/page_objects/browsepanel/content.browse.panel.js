@@ -14,6 +14,7 @@ const ContentUnpublishDialog = require('../content.unpublish.dialog');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
+    contentAppBarDiv: "//div[contains(@id,'ContentAppBar')]",
     toolbar: "//div[contains(@id,'ContentBrowseToolbar')]",
     treeGridToolbar: "//div[contains(@id,'ContentTreeGridToolbar')]",
     treeGrid: "//div[contains(@id,'ContentTreeGrid')]",
@@ -65,6 +66,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get treeGridToolbar() {
         return XPATH.treeGridToolbar;
+    }
+
+    get toolbar() {
+        return XPATH.toolbar;
     }
 
     get archiveButton() {
@@ -181,7 +186,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get projectViewerButton() {
-        return "//div[contains(@id,'ContentAppBar')]" + XPATH.projectViewerButton;
+        return XPATH.contentAppBarDiv + XPATH.projectViewerButton;
     }
 
     async clickOnProjectViewerButton() {
@@ -959,28 +964,12 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
-    async waitForBrowseToolbarRoleAttribute(expectedRole) {
-        let locator = XPATH.toolbar;
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(locator, "role");
-            return text === expectedRole;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Browse toolbar should contain expected 'role' attribute"});
-    }
-
     async waitForGridRoleAttribute(expectedRole) {
         let locator = XPATH.treeGrid;
         await this.getBrowser().waitUntil(async () => {
             let text = await this.getAttribute(locator, "role");
             return text === expectedRole;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for Grid should be 'grid'"});
-    }
-
-    async waitForAppContainerRoleAttribute(expectedRole) {
-        let locator = XPATH.treeGrid;
-        await this.getBrowser().waitUntil(async () => {
-            let actualRole = await this.getAttribute(locator, "role");
-            return actualRole === expectedRole;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for AppContainer  should be 'main'"});
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for Grid should set 'grid'"});
     }
 }
 

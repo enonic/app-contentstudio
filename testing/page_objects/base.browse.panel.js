@@ -281,6 +281,33 @@ class BaseBrowsePanel extends Page {
             return classAttr.includes('selected');
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "row and Checkbox is not selected"});
     }
+
+    // check for Accessibility attributes: toolbar role
+    async waitForBrowseToolbarRoleAttribute(expectedRole) {
+        let locator = this.toolbar;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, "role");
+            return text === expectedRole;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Browse toolbar should contain expected 'role' attribute"});
+    }
+
+    // check for Accessibility attributes: aria-label
+    async waitForBrowseToolbarAriaLabelAttribute(expectedValue) {
+        let locator = this.toolbar;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, "aria-label");
+            return text === expectedValue;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Browse toolbar should contain expected 'aria-label' attribute"});
+    }
+
+    // check for Accessibility attributes: ContentAppBar role
+    async waitForContentAppBarRoleAttribute(expectedRole) {
+        let locator = XPATH.contentAppBarDiv;
+        await this.getBrowser().waitUntil(async () => {
+            let actualRole = await this.getAttribute(locator, "role");
+            return actualRole === expectedRole;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for ContentAppBar should set 'banner'"});
+    }
 }
 
 module.exports = BaseBrowsePanel;
