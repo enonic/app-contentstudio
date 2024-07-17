@@ -302,18 +302,16 @@ class BaseBrowsePanel extends Page {
 
     // check for Accessibility attributes: ContentAppBar role
     async waitForContentAppBarRoleAttribute(expectedRole) {
-        let locator = XPATH.contentAppBarDiv;
         await this.getBrowser().waitUntil(async () => {
-            let actualRole = await this.getAttribute(locator, "role");
+            let actualRole = await this.getAttribute(lib.DIV.CONTENT_APP_BAR_DIV, "role");
             return actualRole === expectedRole;
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for ContentAppBar should set 'banner'"});
     }
 
     // check for Accessibility attributes: ContentAppBar aria-label:
     async waitForContentAppBarAriaLabel(expectedValue) {
-        let locator = XPATH.contentAppBarDiv;
         await this.getBrowser().waitUntil(async () => {
-            let actualRole = await this.getAttribute(locator, "aria-label");
+            let actualRole = await this.getAttribute(lib.DIV.CONTENT_APP_BAR_DIV, "aria-label");
             return actualRole === expectedValue;
         }, {timeout: appConst.shortTimeout, timeoutMsg: "ContentAppBar should set  aria-label attribute 'Header'"});
     }

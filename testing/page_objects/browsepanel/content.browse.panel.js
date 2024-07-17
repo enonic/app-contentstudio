@@ -14,7 +14,6 @@ const ContentUnpublishDialog = require('../content.unpublish.dialog');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
-    contentAppBarDiv: "//div[contains(@id,'ContentAppBar')]",
     toolbar: "//div[contains(@id,'ContentBrowseToolbar')]",
     treeGridToolbar: "//div[contains(@id,'ContentTreeGridToolbar')]",
     treeGrid: "//div[contains(@id,'ContentTreeGrid')]",
@@ -186,7 +185,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get projectViewerButton() {
-        return XPATH.contentAppBarDiv + XPATH.projectViewerButton;
+        return lib.DIV.CONTENT_APP_BAR_DIV + XPATH.projectViewerButton;
     }
 
     async clickOnProjectViewerButton() {
