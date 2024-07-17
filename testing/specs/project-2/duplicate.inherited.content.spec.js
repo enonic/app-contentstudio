@@ -55,7 +55,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             assert.ok(isInherited === false, 'Copy of inherited site should not be with gray mask');
         });
 
-    // Verifies #2576 'Inherited icon and Reset button should not be displayed in duplicated content'
+    // Verifies #2576 Inherited icon and Reset button should not be displayed in duplicated content
     it("GIVEN copy of the inherited site is selected WHEN the site has been opened THEN 'Reset' button should not be displayed in the wizard toolbar",
         async () => {
             // 1. Select the layer's context:

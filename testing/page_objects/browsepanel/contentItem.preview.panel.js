@@ -86,7 +86,7 @@ class ContentItemPreviewPanel extends Page {
             return await this.clickOnElement(this.issueDropdownHandle);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_issue_dropdown');
-            throw new Error('error after clicking on the dropdown handle ' + err);
+            throw new Error(`error after clicking on the dropdown handle , screenshot: ${screenshot}` + err);
         }
     }
 

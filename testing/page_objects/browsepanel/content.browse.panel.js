@@ -262,8 +262,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await unpublishDialog.pause(1000);
             return unpublishDialog;
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_unpublish_button"));
-            throw new Error("Browse Panel toolbar - Unpublish button: " + err);
+            let screenshot = await this.saveScreenshotUniqueName("err_unpublish_button");
+            throw new Error(`Browse Panel toolbar - Unpublish button screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -293,8 +293,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForMoveButtonEnabled();
             return await this.clickOnElement(this.moveButton);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_move"));
-            throw new Error('error when clicking on the Move button ' + err);
+            let screenshot = await this.saveScreenshotUniqueName("err_move_btn");
+            throw new Error(`error when clicking on the Move button, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -385,8 +385,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             console.log("waitForContentDisplayed, timeout is:" + timeout);
             return await this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), timeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_find'));
-            throw new Error('content is not displayed ! ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_content_displayed');
+            throw new Error(`content is not displayed ! screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -406,8 +406,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(this.previewButton);
             return await this.pause(2000);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_browsepanel_preview"));
-            throw new Error('Error when clicking on Preview button ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_browsepanel_preview');
+            throw new Error(`Error occured after clicking on 'Preview' button, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -440,11 +440,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         })
     }
 
-    waitForSortButtonDisabled() {
-        return this.waitForElementDisabled(this.sortButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_sort_disabled_button');
-            throw Error('Sort button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
-        })
+    async waitForSortButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.sortButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_sort_disabled_button');
+            throw Error(`Sort button should be disabled, screenshot: ${screenshot} ` + err);
+        }
     }
 
     async waitForDuplicateButtonDisabled() {

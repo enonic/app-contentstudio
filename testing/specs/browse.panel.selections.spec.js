@@ -15,14 +15,24 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
         webDriverHelper.setupBrowser();
     }
     const BROWSE_TOOLBAR_ROLE = 'toolbar';
+    const BROWSE_TOOLBAR_ARIA_LABEL = 'Main menu bar';
+    const CONTENT_APP_BAR_ROLE_BANNER = 'banner';
+    const CONTENT_APP_BAR_ARIA_LABEL = 'Header';
 
-    it("WHEN browse panel is loaded THEN html language attribute should be 'en'",
+    // Verify Accessibility attributes in Browse Panel(toolbar role, aria-label):
+    it("WHEN browse panel is loaded THEN role and aria-label attributes should be set correctly",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            // Verify that <html> element has lang="en" attribute:
+            // 1. Verify that <html> element has lang="en" attribute:
             await contentBrowsePanel.waitForLangAttribute('en');
-            // Verify that Toolbar is a div with role="toolbar".
+            // 2. Verify that Browse-Toolbar is a div with role="toolbar".
             await contentBrowsePanel.waitForBrowseToolbarRoleAttribute(BROWSE_TOOLBAR_ROLE);
+            // 3. Verify that Browse-Toolbar is a div with expected 'aria-label' attribute
+            await contentBrowsePanel.waitForBrowseToolbarAriaLabelAttribute(BROWSE_TOOLBAR_ARIA_LABEL);
+            // 4. Verify that ContentAppBar is a div with role="banner".
+            await contentBrowsePanel.waitForContentAppBarRoleAttribute(CONTENT_APP_BAR_ROLE_BANNER);
+            // 5. Verify aria-label attribute for ContentAppBar is set to 'Header':
+            await contentBrowsePanel.waitForContentAppBarAriaLabel(CONTENT_APP_BAR_ARIA_LABEL);
         });
 
     it("GIVEN unnamed content are selected WHEN the content hav been deleted THEN modal dialog should be closed",
