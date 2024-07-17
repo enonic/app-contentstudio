@@ -123,7 +123,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            // 1. folder with children is selected and 'Publish' button pressed"
+            // 1. folder with children is selected and 'Publish' button pressed
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
@@ -153,7 +153,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentPublishDialog.waitForAllDependantsCheckboxDisplayed();
             let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
             assert.ok(isSelected, "'All' checkbox should be selected");
-            // 4. Verify items to publish"
+            // 4. Verify items to publish
             let result = await contentPublishDialog.getItemsToPublish();
             assert.ok(result.length === 1, '1 item to publish should be present in the dialog');
             let dependantItems = await contentPublishDialog.getDisplayNameInDependentItems();

@@ -50,7 +50,7 @@ describe('Shortcut parameters specification', function () {
             await shortcutForm.clickOnAddParametersButton();
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('shortcut_parameter_added_empty');
-            // "red icon" should appear, because the content gets not valid:
+            // "red icon" should appear, because the content gets invalid:
             await contentWizard.waitUntilInvalidIconAppears();
         });
 
@@ -109,7 +109,7 @@ describe('Shortcut parameters specification', function () {
             let confirmationMask = new ConfirmationMask();
             // 1. Open existing shortcut(parameter is added)
             await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
-            // 2. Expand the menu and click on Delete menu item the parameter and confirm it:
+            // 2. Expand the menu and click on 'Delete' menu item the parameter and confirm it:
             await shortcutForm.expandParameterMenuAndClickOnDelete(0);
             await confirmationMask.clickOnConfirmButton('Delete Parameters');
             // 3. Save the content:

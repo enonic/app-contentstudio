@@ -21,6 +21,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     const TEST_DESCRIPTION = 'my description';
     const PROJ_IDENTIFIER = studioUtils.generateRandomName('id');
     const PROJECT_WIZARD_TOOLBAR_ROLE = 'toolbar';
+    const ARIA_LABEL_TOOLBAR = 'Main menu bar';
 
     // Verifies:  Project identifier field is editable issue#2923
     it(`WHEN existing project is opened THEN expected identifier, description and language should be displayed`,
@@ -71,6 +72,8 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.waitForLoaded();
             // 2. Accessibility: Verify that role attribute is set to 'toolbar' for project-toolbar div:
             await projectWizard.waitForToolbarRoleAttribute(PROJECT_WIZARD_TOOLBAR_ROLE);
+            // 3. Accessibility: Verify 'Main menu bar' aria-label attribute for the toolbar:
+            await projectWizard.waitForToolbarAriaLabelAttribute(ARIA_LABEL_TOOLBAR);
         });
 
 

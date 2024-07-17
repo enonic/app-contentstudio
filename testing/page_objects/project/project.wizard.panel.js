@@ -378,7 +378,7 @@ class ProjectWizardPanel extends Page {
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_project_remove_icon');
-            throw new Error(`Error during clicking on remove language icon, screenshot: ${screenshot}  ` + err);
+            throw new Error(`Error occurred after clicking on remove language icon, screenshot: ${screenshot}  ` + err);
         }
     }
 
@@ -463,6 +463,15 @@ class ProjectWizardPanel extends Page {
             let text = await this.getAttribute(locator, 'role');
             return text === expectedRole;
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Project wizard, toolbar div should be with 'role=toolbar' attribute"});
+    }
+
+    // check for Accessibility attributes: aria-label:
+    async waitForToolbarAriaLabelAttribute(expectedValue) {
+        let locator = XPATH.container + XPATH.toolbar;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, 'aria-label');
+            return text === expectedValue;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Expected aria-label attribute is not set in the project toolbar"});
     }
 }
 

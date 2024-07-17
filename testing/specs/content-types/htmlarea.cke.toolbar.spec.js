@@ -130,7 +130,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             assert.ok(result, 'Increase Indent button should be present');
             result = await htmlAreaForm.isTableButtonDisplayed();
             assert.ok(result, 'Table button should be present');
-            // 'Decrease Indent' button should be present'
+            // 'Decrease Indent' button should be present
             await htmlAreaForm.waitForDecreaseIndentDisplayed();
             await htmlAreaForm.waitForIncreaseIndentDisplayed();
         });

@@ -129,7 +129,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.waitForContextMenuDisplayed();
             await studioUtils.saveScreenshot('multiselect_layer_context_menu');
-            // Verify that New.. and Edit items are enabled:
+            // Verify that New... and Edit items are enabled:
             await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
             // Verify that 'Delete' menu item is disabled:

@@ -308,6 +308,15 @@ class BaseBrowsePanel extends Page {
             return actualRole === expectedRole;
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for ContentAppBar should set 'banner'"});
     }
+
+    // check for Accessibility attributes: ContentAppBar aria-label:
+    async waitForContentAppBarAriaLabel(expectedValue) {
+        let locator = XPATH.contentAppBarDiv;
+        await this.getBrowser().waitUntil(async () => {
+            let actualRole = await this.getAttribute(locator, "aria-label");
+            return actualRole === expectedValue;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "ContentAppBar should set  aria-label attribute 'Header'"});
+    }
 }
 
 module.exports = BaseBrowsePanel;

@@ -38,10 +38,6 @@ class ShortcutForm extends Page {
         return xpath.stepForm + xpath.parametersSet + "/div[@class='bottom-button-row']" + xpath.addParametersButton;
     }
 
-    get formValidationRecording() {
-        return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
-    }
-
     get targetValidationRecording() {
         return xpath.targetFormView + lib.INPUT_VALIDATION_VIEW;
     }
@@ -55,9 +51,8 @@ class ShortcutForm extends Page {
         try {
             await this.waitForElementDisplayed(this.addNewContentButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_add_new_btn');
-            await this.saveScreenshot(screenshot);
-            throw new Error('Add new button is not displayed, screenshot:' + screenshot + ' ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
+            throw new Error('Add new button is not displayed, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -65,9 +60,8 @@ class ShortcutForm extends Page {
         try {
             await this.waitForElementNotDisplayed(this.addNewContentButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_add_new_btn');
-            await this.saveScreenshot(screenshot);
-            throw new Error('Add new button should not be displayed, screenshot:' + screenshot + ' ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
+            throw new Error('Add new button should not be displayed, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -141,19 +135,19 @@ class ShortcutForm extends Page {
 
     clickOnCollapseBottomLink() {
         return this.clickOnElement(xpath.stepForm + xpath.collapseButtonBottom).catch(err => {
-            throw  new Error("Error when click on `collapse` link! " + err);
+            throw new Error("Error when click on `collapse` link! " + err);
         })
     }
 
     clickOnCollapseTopLink() {
         return this.clickOnElement(xpath.stepForm + xpath.collapseButtonTop).catch(err => {
-            throw  new Error("Error when click on `collapse` link! " + err);
+            throw new Error("Error when click on `collapse` link! " + err);
         })
     }
 
     clickOnRemoveParameterButton() {
         return this.clickOnElement(xpath.stepForm + xpath.parametersFormOccurrence + lib.REMOVE_BUTTON).catch(err => {
-            throw  new Error("Error when click on `Remove` button! " + err);
+            throw new Error("Error when click on `Remove` button! " + err);
         })
     }
 
@@ -180,7 +174,7 @@ class ShortcutForm extends Page {
 
     clickOnExpandLink() {
         return this.clickOnElement(xpath.stepForm + xpath.expandButton).catch(err => {
-            throw  new Error("Error when click on `Expand` link! " + err);
+            throw new Error("Error when click on `Expand` link! " + err);
         })
     }
 
@@ -189,8 +183,8 @@ class ShortcutForm extends Page {
             await this.waitForAddParametersButtonDisplayed();
             return await this.clickOnElement(this.addParametersButton);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_short"));
-            throw new Error(err);
+            let screenshot = await this.saveScreenshotUniqueName("err_short");
+            throw new Error(`Error occurred after clicking on Add Parameter button, screenshot: ${screenshot} ` + err);
         }
     }
 
