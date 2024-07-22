@@ -173,7 +173,7 @@ class ProjectWizardDialog extends Page {
             return await this.waitForDialogClosed();
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_cancel_button'));
-            throw new Error('Layers Content Tree dialog, error when clicking on Cancel(Top) button  ' + err);
+            throw new Error('Project Wizard dialog, error when clicking on Cancel(Top) button  ' + err);
         }
     }
 
@@ -182,7 +182,7 @@ class ProjectWizardDialog extends Page {
             return await this.waitForElementNotDisplayed(XPATH.container, appConst.saveProjectTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_wizard_not_closed');
-            throw new Error('Layers Content Tree dialog should be closed, screenshot ' + screenshot + '  ' + err);
+            throw new Error('Project Wizard dialog should be closed, screenshot ' + screenshot + '  ' + err);
         }
     }
 
@@ -190,7 +190,7 @@ class ProjectWizardDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.cancelButtonTop, appConst.shortTimeout);
         } catch (err) {
-            throw new Error('Layers Content Tree dialog dialog - Cancel button is not displayed :' + err);
+            throw new Error('Project Wizard dialog  - Cancel Top button is not displayed :' + err);
         }
     }
 
