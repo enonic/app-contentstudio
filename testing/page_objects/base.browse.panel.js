@@ -220,8 +220,8 @@ class BaseBrowsePanel extends Page {
             throw new Error("Menu item is not displayed: " + menuItem);
         }
         return await this.browser.waitUntil(async () => {
-            let result = await el[0].getAttribute("class");
-            return !result.includes("disabled");
+            let result = await el[0].getAttribute('class');
+            return !result.includes('disabled');
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "context menu item is not enabled in 3000 ms"});
     }
 
@@ -232,8 +232,8 @@ class BaseBrowsePanel extends Page {
             throw new Error("Menu item is not displayed: " + menuItem);
         }
         return await this.browser.waitUntil(async () => {
-            let result = await el[0].getAttribute("class");
-            return result.includes("disabled");
+            let result = await el[0].getAttribute('class');
+            return result.includes('disabled');
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "context menu item is not disabled in 3000 ms"});
     }
 
@@ -285,35 +285,34 @@ class BaseBrowsePanel extends Page {
     // check for Accessibility attributes: toolbar role
     async waitForBrowseToolbarRoleAttribute(expectedRole) {
         let locator = this.toolbar;
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(locator, "role");
-            return text === expectedRole;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Browse toolbar should contain expected 'role' attribute"});
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
     }
 
     // check for Accessibility attributes: aria-label
     async waitForBrowseToolbarAriaLabelAttribute(expectedValue) {
         let locator = this.toolbar;
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(locator, "aria-label");
-            return text === expectedValue;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Browse toolbar should contain expected 'aria-label' attribute"});
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL, expectedValue);
     }
 
     // check for Accessibility attributes: ContentAppBar role
     async waitForContentAppBarRoleAttribute(expectedRole) {
-        await this.getBrowser().waitUntil(async () => {
-            let actualRole = await this.getAttribute(lib.DIV.CONTENT_APP_BAR_DIV, "role");
-            return actualRole === expectedRole;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for ContentAppBar should set 'banner'"});
+        let locator = lib.DIV.CONTENT_APP_BAR_DIV;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
     }
 
     // check for Accessibility attributes: ContentAppBar aria-label:
     async waitForContentAppBarAriaLabel(expectedValue) {
-        await this.getBrowser().waitUntil(async () => {
-            let actualRole = await this.getAttribute(lib.DIV.CONTENT_APP_BAR_DIV, "aria-label");
-            return actualRole === expectedValue;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "ContentAppBar should set  aria-label attribute 'Header'"});
+        await this.waitForAttributeValue(lib.DIV.CONTENT_APP_BAR_DIV, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL, expectedValue);
+    }
+
+    async waitForProjectViewerAriaLabelAttribute(expectedValue) {
+        let locator = lib.DIV.CONTENT_APP_BAR_DIV + lib.DIV.PROJECT_VIEWER_DIV;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL, expectedValue);
+    }
+
+    async waitForProjectViewerAriaHasPopupAttribute(expectedValue) {
+        let locator = lib.DIV.CONTENT_APP_BAR_DIV + lib.DIV.PROJECT_VIEWER_DIV;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_HAS_POPUP, expectedValue);
     }
 }
 

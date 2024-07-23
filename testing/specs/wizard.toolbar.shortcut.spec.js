@@ -20,6 +20,7 @@ describe('Wizard toolbar - shortcut spec', function () {
     const WIZARD_TOOLBAR_ARIA_LABEL = 'Main menu bar';
     const WIZARD_TOOLBAR_ROLE = 'toolbar';
     const CONTENT_WIZARD_PROJECT_VIEWER_ARIA_LABEL = 'Content project selector';
+    const CONTENT_WIZARD_PROJECT_VIEWER_ARIA_HAS_POPUP = 'dialog';
 
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+s' has been pressed THEN folder should be saved`,
         async () => {
@@ -85,6 +86,8 @@ describe('Wizard toolbar - shortcut spec', function () {
             let actualProjectName = await contentWizard.getProjectDisplayName();
             assert.equal(actualProjectName, appConst.PROJECTS.DEFAULT_PROJECT_NAME,
                 'Default project name should be displayed in Project Viewer bar');
+            // 5. Verify 'aria-haspopup' attribute in the project-viewer div:
+            await contentWizard.waitForProjectViewerAriaHasPopupAttribute(CONTENT_WIZARD_PROJECT_VIEWER_ARIA_HAS_POPUP);
         });
 
     it.skip(`GIVEN folder-wizard is opened WHEN 'Alt+w' have been pressed THEN wizard should be closed and grid is loaded`,
