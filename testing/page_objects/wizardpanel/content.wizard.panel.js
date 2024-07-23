@@ -1143,26 +1143,22 @@ class ContentWizardPanel extends Page {
 
     async waitForToolbarRoleAttribute(expectedRole) {
         let locator = XPATH.container + XPATH.toolbar;
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(locator, 'role');
-            return text === expectedRole;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Content wizard toolbar should be with 'role=toolbar' attribute"});
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
     }
 
     async waitForToolbarAriaLabelAttribute(expectedValue) {
         let locator = XPATH.container + XPATH.toolbar;
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(locator, 'aria-label');
-            return text === expectedValue;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Expected aria-label attribute is not set in the toolbar"});
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL, expectedValue);
     }
 
     async waitForProjectViewerAriaLabelAttribute(expectedValue) {
         let locator = XPATH.container + XPATH.projectViewerDiv;
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(locator, 'aria-label');
-            return text === expectedValue;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Expected aria-label attribute is not set in the project viewer div"});
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL, expectedValue);
+    }
+
+    async waitForProjectViewerAriaHasPopupAttribute(expectedValue) {
+        let locator = XPATH.container + XPATH.projectViewerDiv;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_HAS_POPUP, expectedValue);
     }
 }
 

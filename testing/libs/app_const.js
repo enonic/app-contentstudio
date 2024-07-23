@@ -68,6 +68,11 @@ module.exports = Object.freeze({
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
     TAB_TITLE_PART: "/ Content",
     CONTENT_STUDIO_TITLE: 'Content Studio',
+    ACCESSIBILITY_ATTRIBUTES: {
+        ROLE: 'role',
+        ARIA_LABEL: 'aria-label',
+        ARIA_HAS_POPUP: 'aria-haspopup',
+    },
     BROWSER_TITLES: {
         CONTENT_STUDIO: 'Content Studio - Enonic XP Admin',
         XP_HOME: 'Enonic XP Home',

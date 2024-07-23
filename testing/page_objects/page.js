@@ -553,6 +553,7 @@ class Page {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Class should contain 'invalid' "});
     }
 
+    // checks the attribute value (actual value contains expected value)
     waitForAttributeHasValue(selector, attribute, value) {
         return this.getBrowser().waitUntil(() => {
             return this.getAttribute(selector, attribute).then(result => {
@@ -614,12 +615,21 @@ class Page {
     acceptAlert() {
         return this.getBrowser().acceptAlert();
     }
+
     async waitForLangAttribute(lang) {
         let locator = "//html";
         await this.getBrowser().waitUntil(async () => {
             let text = await this.getAttribute(locator, "lang");
             return text.includes(lang);
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Html tag should contain 'lang' attribute"});
+    }
+
+    // checks the attribute value (actual value === expected value)
+    async waitForAttributeValue(locator, attrName, expectedValue) {
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, attrName);
+            return text === expectedValue;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: `Expected attribute ${attrName} is not set in the element ${locator}`});
     }
 }
 

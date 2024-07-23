@@ -33,6 +33,10 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.waitForContentAppBarRoleAttribute(CONTENT_APP_BAR_ROLE_BANNER);
             // 5. Verify aria-label attribute for ContentAppBar is set to 'Header':
             await contentBrowsePanel.waitForContentAppBarAriaLabel(CONTENT_APP_BAR_ARIA_LABEL);
+            // 6. Verify that 'Project Viewer' has aria-haspopup attribute set to 'dialog':
+            await contentBrowsePanel.waitForProjectViewerAriaHasPopupAttribute('dialog');
+            // 7. Verify that 'Show Issues' button has aria-haspopup attribute set to 'dialog':
+            await contentBrowsePanel.waitForShowIssuesButtonAriaHasPopupAttribute('dialog');
         });
 
     it("GIVEN unnamed content are selected WHEN the content hav been deleted THEN modal dialog should be closed",

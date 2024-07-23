@@ -972,6 +972,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return text === expectedRole;
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for Grid should set 'grid'"});
     }
+
+    async waitForShowIssuesButtonAriaHasPopupAttribute(expectedValue) {
+        let locator = this.showIssuesListButton;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_HAS_POPUP, expectedValue);
+    }
 }
 
 module.exports = ContentBrowsePanel;
