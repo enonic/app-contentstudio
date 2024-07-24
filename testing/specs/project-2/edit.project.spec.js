@@ -72,7 +72,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.waitForLoaded();
             // 2. Accessibility: Verify that role attribute is set to 'toolbar' for project-toolbar div:
             await projectWizard.waitForToolbarRoleAttribute(PROJECT_WIZARD_TOOLBAR_ROLE);
-            // 3. Accessibility: Verify 'Main menu bar' aria-label attribute for the toolbar:
+            // 3. Accessibility: Verify 'Main menu bar' aria-label attribute for the wizard toolbar:
             await projectWizard.waitForToolbarAriaLabelAttribute(ARIA_LABEL_TOOLBAR);
         });
 
