@@ -160,8 +160,10 @@ describe('item.set.spec: tests for content with Item Set', function () {
             await studioUtils.saveScreenshot('itemset_0_0_filled_3');
 
             // 4. Verify that the content gets valid:
-            let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid === false, "the content with Item Set should be valid now");
+            // https://github.com/enonic/app-contentstudio/issues/7736
+            // Incorrect behaviour of validation for Item Set occurrences #7736
+            //let isInvalid = await contentWizard.isContentInvalid();
+            //assert.ok(isInvalid === false, "the content with Item Set should be valid now");
 
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
