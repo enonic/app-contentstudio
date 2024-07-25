@@ -13,8 +13,6 @@ const xpath = {
     parameterNameInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Name']]//input`,
     parameterValueInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Value']]//input`,
     addParametersButton: "//button[contains(@id,'Button') and child::span[contains(.,'Add')]]",
-    collapseButtonTop: "//div[contains(@class,'top-button-row')]//a[contains(@class,'collapse-button') and (text()='Collapse' or text()='Collapse all')]",
-    collapseButtonBottom: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  (text()='Collapse' or text()='Collapse all')]",
     expandButton: "//div[@class='bottom-button-row']//a[contains(@class,'collapse-button') and text()='Expand']",
     parameterOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//button[contains(@id,'MoreButton')]",
     parametersOccurrenceLabel: "//div[contains(@id,'FormOccurrenceDraggableLabel')]",
@@ -55,8 +53,7 @@ class ShortcutForm extends Page {
         try {
             await this.waitForElementDisplayed(this.addNewContentButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_add_new_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
             throw new Error('Add new button is not displayed, screenshot:' + screenshot + ' ' + err);
         }
     }
@@ -65,8 +62,7 @@ class ShortcutForm extends Page {
         try {
             await this.waitForElementNotDisplayed(this.addNewContentButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_add_new_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
             throw new Error('Add new button should not be displayed, screenshot:' + screenshot + ' ' + err);
         }
     }
@@ -117,43 +113,45 @@ class ShortcutForm extends Page {
     }
 
     waitForCollapseBottomLinkVisible() {
-        return this.waitForElementDisplayed(xpath.stepForm + xpath.collapseButtonBottom, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(xpath.stepForm + lib.BUTTONS.COLLAPSE_BUTTON_BOTTOM, appConst.shortTimeout).catch(err => {
             this.saveScreenshot("err_shortcut_collapse_link");
             throw new Error("shortcut - collapse link is not visible " + err);
         })
     }
 
-    waitForCollapseTopLinkVisible() {
-        return this.waitForElementDisplayed(xpath.stepForm + xpath.collapseButtonTop, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot("err_shortcut_collapse_link");
-            throw new Error("shortcut - collapse link is not visible " + err);
-        })
+    async waitForCollapseTopLinkVisible() {
+        try {
+            return await this.waitForElementDisplayed(xpath.stepForm + lib.BUTTONS.COLLAPSE_BUTTON_TOP, appConst.shortTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName("err_shortcut_collapse_link");
+            throw new Error(`shortcut - collapse link is not visible, screenshot: ${screenshot} ` + err);
+        }
     }
 
     async waitForExpandLinkVisible() {
         try {
             return await this.waitForElementDisplayed(xpath.stepForm + xpath.expandButton, appConst.shortTimeout);
         } catch (err) {
-            await this.saveScreenshot("err_shortcut_expand_link");
-            throw new Error("shortcut - Expand link is not visible " + err);
+            let screenshot = await this.saveScreenshotUniqueName("err_shortcut_expand_link");
+            throw new Error(`shortcut - Expand link is not visible, screenshot: ${screenshot} ` + err);
         }
     }
 
     clickOnCollapseBottomLink() {
-        return this.clickOnElement(xpath.stepForm + xpath.collapseButtonBottom).catch(err => {
-            throw  new Error("Error when click on `collapse` link! " + err);
+        return this.clickOnElement(xpath.stepForm + lib.BUTTONS.COLLAPSE_BUTTON_BOTTOM).catch(err => {
+            throw new Error("Error when click on `collapse` link! " + err);
         })
     }
 
     clickOnCollapseTopLink() {
-        return this.clickOnElement(xpath.stepForm + xpath.collapseButtonTop).catch(err => {
-            throw  new Error("Error when click on `collapse` link! " + err);
+        return this.clickOnElement(xpath.stepForm + lib.BUTTONS.COLLAPSE_BUTTON_TOP).catch(err => {
+            throw new Error("Error when click on `collapse` link! " + err);
         })
     }
 
     clickOnRemoveParameterButton() {
         return this.clickOnElement(xpath.stepForm + xpath.parametersFormOccurrence + lib.REMOVE_BUTTON).catch(err => {
-            throw  new Error("Error when click on `Remove` button! " + err);
+            throw new Error("Error when click on `Remove` button! " + err);
         })
     }
 
@@ -180,7 +178,7 @@ class ShortcutForm extends Page {
 
     clickOnExpandLink() {
         return this.clickOnElement(xpath.stepForm + xpath.expandButton).catch(err => {
-            throw  new Error("Error when click on `Expand` link! " + err);
+            throw new Error("Error when click on `Expand` link! " + err);
         })
     }
 
