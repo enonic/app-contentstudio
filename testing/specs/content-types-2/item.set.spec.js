@@ -26,19 +26,47 @@ describe('item.set.spec: tests for content with Item Set', function () {
             await studioUtils.doAddSite(SITE);
         });
 
-    it("WHEN wizard for ItemSet(0:0) content is opened THEN 'Add' button should be displayed",
+    it("GIVEN a text has been inserted in the ItemSet form WHEN 'Delete' item-set menu item has been clicked THEN 'Delete ItemSet' button should appears",
+        async () => {
+            let itemSetForm = new ItemSetForm();
+            let contentWizard = new ContentWizard();
+            // open wizard for new content with ItemSet(0:0)
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ITEM_SET_0_0);
+            // 1. Click on 'Add' button :
+            await itemSetForm.clickOnAddButton();
+            // 2. fill in required inputs
+            await itemSetForm.typeTextInHtmlArea(0, "hello htmlarea");
+            await itemSetForm.typeTextInTextLine(0, "hello text line");
+            // 3. Save the content
+            await contentWizard.waitAndClickOnSave();
+            // 4. Expand the menu and click on 'Delete' item-set menu item:
+            await itemSetForm.expandMenuClickOnDelete(0);
+            // 5. Verify that 'Delete ItemSet' button gets visible:
+            await itemSetForm.waitForDeleteItemSetButtonDisplayed();
+            // 6. Click on 'Delete ItemSet' button:
+            await itemSetForm.clickOnDeleteItemSetButton();
+            // 7. Verify that Save button gets enabled after deleting item-set:
+            await contentWizard.waitForSaveButtonEnabled();
+            // 8. Verify that 'Add' button appears in the form:
+            await itemSetForm.waitForAddButtonDisplayed();
+        });
+
+    it("WHEN wizard for new content with ItemSet(0:0) is opened THEN 'Add' button should be displayed",
         async () => {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ITEM_SET_0_0);
             // 1. 'Add' button should be displayed:
             await itemSetForm.waitForAddButtonDisplayed();
+            // 2. Item-set form should not be displayed:
             await itemSetForm.waitForItemSetFormNotDisplayed();
             await contentWizard.typeDisplayName(CONTENT_1);
             await studioUtils.saveScreenshot('itemset_0_0_no_set');
-            // 2. Verify that the content gets valid after the filling the display name input:
+            // 3. Verify that the content gets valid after the filling the display name input:
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid === false, "the content with Item Set should be valid");
+            // 4. Verify that 'Collapse' button is not displayed in the Item-set form:
+            await itemSetForm.waitForCollapseButtonNotDisplayed();
         });
 
     it("GIVEN wizard for ItemSet(0:0) is opened AND only the name input is filled in WHEN 'Add' button has been pressed THEN the content gets invalid",
@@ -59,6 +87,8 @@ describe('item.set.spec: tests for content with Item Set', function () {
             // 5. Validation recording gets visible after clicking on 'Save' button:
             let recording = await itemSetForm.getValidationRecordingForHtmlArea(0);
             assert.equal(recording, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, 'Validation recording should be displayed');
+            // 6. Verify that 'Collapse' button gets visible in the Item-set form:
+            await itemSetForm.waitForCollapseButtonDisplayed();
         });
 
     it("GIVEN existing invalid ItemSet(0:0) content is opened WHEN required inputs have been filled in the form THEN the content gets valid",
@@ -74,6 +104,25 @@ describe('item.set.spec: tests for content with Item Set', function () {
             // 2. Verify that the content gets valid:
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid === false, "the content with Item Set should be valid now");
+        });
+
+    it("GIVEN existing invalid content with added empty ItemSet is opened WHEN 'Collapse' button has been clicked THEN 'Expand' button gets visible",
+        async () => {
+            let itemSetForm = new ItemSetForm();
+            let contentWizard = new ContentWizard();
+            // 1. Open existing content with added Item Set
+            await studioUtils.selectContentAndOpenWizard(CONTENT_1);
+            // 2. Click on 'Collapse' button:
+            await itemSetForm.clickOnCollapseButton();
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid, "the content remains invalid after clicking on Collapse button");
+            // 3. Verify that 'Expand' button gets visible:
+            await itemSetForm.waitForExpandButtonDisplayed();
+            await studioUtils.saveScreenshot('itemset_0_0_collapsed');
+            // 4. Verify that 'Save' button remains disabled
+            await contentWizard.waitForSaveButtonDisabled();
+            await itemSetForm.clickOnExpandButton();
+            await itemSetForm.waitForCollapseButtonDisplayed();
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/3773
@@ -133,7 +182,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
             let title2 = await itemSetForm.getItemSetTitle(1);
             assert.equal(title1, TEXT_LINE_TEXT_2, 'form items should be swapped');
             assert.equal(title2, TEXT_LINE_TEXT_1, 'form items should be swapped');
-            //4. Verify that 'Save' button is enabled now:
+            // 4. Verify that 'Save' button is enabled now:
             await contentWizard.waitForSaveButtonEnabled();
         });
 
