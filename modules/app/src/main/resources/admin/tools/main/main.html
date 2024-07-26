@@ -37,7 +37,8 @@
     {{#aiAssistantAssetUrl}}
     <!-- Append the AI Assistant -->
     <link rel="stylesheet" type="text/css" href="{{aiAssistantAssetUrl}}/style.css">
-    <script type="text/javascript" src="{{aiAssistantAssetUrl}}/index.js" async></script>
+    <script type="text/javascript" src="{{aiAssistantAssetUrl}}/index.js" data-locales="{{aiLocales}}"
+            data-asset-url="{{aiAssistantAssetUrl}}" async></script>
     {{/aiAssistantAssetUrl}}
 </head>
 <body>
