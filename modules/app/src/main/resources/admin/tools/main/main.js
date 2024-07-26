@@ -35,18 +35,20 @@ exports.getParams = function (path) {
 
     const aiApp = appLib.get({key: AI_ASSISTANT_APP_KEY});
     const aiAssistantEnabled = aiApp != null && aiApp.started && !isBrowseMode;
+    const locales = admin.getLocales();
 
     return {
         assetsUri: portal.assetUrl({path: ''}),
         appName: i18n.localize({
             key: 'admin.tool.displayName',
             bundles: ['i18n/phrases'],
-            locale: admin.getLocales()
+            locale: locales
         }),
         aiAssistantAssetUrl: aiAssistantEnabled ? portal.assetUrl({application: AI_ASSISTANT_APP_KEY}) : undefined,
         launcherPath: admin.getLauncherPath(),
         configServiceUrl: portal.serviceUrl({service: 'config'}),
-        isBrowseMode: isBrowseMode
+        isBrowseMode: isBrowseMode,
+        aiLocales: locales ? locales.join(',') : '',
     }
 }
 
