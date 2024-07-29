@@ -14,7 +14,7 @@ const xpath = {
     parameterValueInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Value']]//input`,
     addParametersButton: "//button[contains(@id,'Button') and child::span[contains(.,'Add')]]",
     expandButton: "//div[@class='bottom-button-row']//a[contains(@class,'collapse-button') and text()='Expand']",
-    parameterOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//button[contains(@id,'MoreButton')]",
+    parameterOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + lib.BUTTONS.MORE_BUTTON,
     parametersOccurrenceLabel: "//div[contains(@id,'FormOccurrenceDraggableLabel')]",
 };
 
@@ -54,7 +54,7 @@ class ShortcutForm extends Page {
             await this.waitForElementDisplayed(this.addNewContentButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
-            throw new Error('Add new button is not displayed, screenshot:' + screenshot + ' ' + err);
+            throw new Error('Add new button is not displayed, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -63,7 +63,7 @@ class ShortcutForm extends Page {
             await this.waitForElementNotDisplayed(this.addNewContentButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
-            throw new Error('Add new button should not be displayed, screenshot:' + screenshot + ' ' + err);
+            throw new Error('Add new button should not be displayed, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -187,8 +187,8 @@ class ShortcutForm extends Page {
             await this.waitForAddParametersButtonDisplayed();
             return await this.clickOnElement(this.addParametersButton);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_short"));
-            throw new Error(err);
+            let screenshot = await this.saveScreenshotUniqueName("err_short");
+            throw new Error(`Error occurred after clicking on Add Parameter button, screenshot: ${screenshot} ` + err);
         }
     }
 

@@ -38,7 +38,7 @@ class FreeFormView extends Page {
     }
 
     get inputTypeMenuButton() {
-        return xpath.itemSet + xpath.inputTypeSetView + lib.OPTION_SET_MENU_BUTTON;
+        return xpath.itemSet + xpath.inputTypeSetView + lib.BUTTONS.MORE_BUTTON;
     }
 
     waitForAddButtonDisplayed() {

@@ -9,8 +9,6 @@ const InsertLinkDialog = require('./html-area/insert.link.modal.dialog.cke');
 const XPATH = {
     ckeTextArea: "//div[contains(@id,'cke_TextArea')]",
     ckeToolbox: "//span[contains(@class,'cke_toolbox')]",
-    insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
-    insertMacroButton: "//a[contains(@class,'cke_button') and @title='Insert macro']",
     formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
     removeAreaButton: "//div[contains(@id,'HtmlArea')]//button[@class='remove-button']",
 
@@ -32,7 +30,7 @@ class HtmlAreaForm extends OccurrencesFormView {
     }
 
     get addButton() {
-        return lib.FORM_VIEW + lib.ADD_BUTTON;
+        return lib.FORM_VIEW + lib.BUTTONS.ADD_BUTTON;
     }
 
     waitForAddButtonDisplayed() {
@@ -153,16 +151,16 @@ class HtmlAreaForm extends OccurrencesFormView {
     async showToolbarAndClickOnInsertImageButton() {
         await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
         await this.clickOnElement(XPATH.ckeTextArea);
-        await this.waitForElementDisplayed(XPATH.insertImageButton, appConst.mediumTimeout);
-        await this.clickOnElement(XPATH.insertImageButton);
+        await this.waitForElementDisplayed(lib.CKE.insertImageButton, appConst.mediumTimeout);
+        await this.clickOnElement(lib.CKE.insertImageButton);
         return await this.pause(300);
     }
 
     async showToolbarAndClickOnInsertMacroButton() {
         await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
         await this.clickOnElement(XPATH.ckeTextArea);
-        await this.waitForElementDisplayed(XPATH.insertMacroButton, appConst.mediumTimeout);
-        await this.clickOnElement(XPATH.insertMacroButton);
+        await this.waitForElementDisplayed(lib.CKE.insertMacroButton, appConst.mediumTimeout);
+        await this.clickOnElement(lib.CKE.insertMacroButton);
         return await this.pause(300);
     }
 

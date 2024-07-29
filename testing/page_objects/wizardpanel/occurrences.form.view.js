@@ -30,7 +30,7 @@ class OccurrencesFormView extends Page {
     }
 
     get addButton() {
-        return lib.FORM_VIEW + lib.ADD_BUTTON;
+        return lib.FORM_VIEW + lib.BUTTONS.ADD_BUTTON;
     }
 
     get removeButton() {
