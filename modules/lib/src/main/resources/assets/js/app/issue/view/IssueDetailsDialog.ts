@@ -361,7 +361,7 @@ export class IssueDetailsDialog
                 const selectedIds: ContentId[] = selectionChange.selected.map(item => item.getContentId());
                 this.saveOnLoaded = true;
                 this.isUpdatePending = true;
-                this.contentFetcher.fetchByIds(selectedIds).then((result: ContentSummaryAndCompareStatus[]) => {
+                this.contentFetcher.fetchAndCompareStatus(selectedIds).then((result: ContentSummaryAndCompareStatus[]) => {
                     this.addListItems(result);
                 }).catch(DefaultErrorHandler.handle);
             }

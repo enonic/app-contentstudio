@@ -44,26 +44,22 @@ import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {LinkEl} from '@enonic/lib-admin-ui/dom/LinkEl';
 import {ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {Project} from '../../../../../settings/data/project/Project';
 import {ContentPath} from '../../../../../content/ContentPath';
 import {ImageSelectorDropdown} from '../../../../selector/ImageSelectorDropdown';
 import {ContentSelectorDropdownOptions} from '../../../../selector/ContentSelectorDropdown';
 import {ImageContentListBox} from '../../../../selector/ImageContentListBox';
 import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from '../../../selector/image/ImageOptionDataLoader';
-import {ContentSummaryOptionDataLoader} from '../../../selector/ContentSummaryOptionDataLoader';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import eventInfo = CKEDITOR.eventInfo;
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import eventInfo = CKEDITOR.eventInfo;
 
 enum ImageAccessibilityType {
     DECORATIVE = 'decorative',

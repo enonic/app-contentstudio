@@ -1,10 +1,6 @@
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
-import {ComboBox, ComboBoxConfig} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
-import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {BaseSelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
@@ -17,6 +13,7 @@ import {EditContentEvent} from '../../../event/EditContentEvent';
 import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
 import {Project} from '../../../settings/data/project/Project';
+import {ContentId} from '../../../content/ContentId';
 
 
 export class ContentSelectedOptionsView
@@ -127,7 +124,7 @@ export class ContentSelectedOptionView
     private updateMissingStatus(option: Option<ContentTreeSelectorItem>): void {
         this.isMissing = option.getDisplayValue() && !option.getDisplayValue().getPath();
         this.setEditable(!this.isMissing);
-        this.toggleClass(ContentComboBox.NOT_FOUND_CLASS, this.isMissing);
+        this.toggleClass('content-not-found', this.isMissing);
     }
 
     doRender(): Q.Promise<boolean> {

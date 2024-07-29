@@ -24,7 +24,7 @@ export class ProjectAccessDialogStep
 
         this.readAccessFormItem.getRadioGroup().onValueChanged(() => this.notifyDataChanged());
 
-        this.getFormItem().getPrincipalComboBox().onSelectionChanged(() => {
+        this.readAccessFormItem.getPrincipalComboBox().onSelectionChanged(() => {
             this.notifyDataChanged();
         });
     }
@@ -43,7 +43,7 @@ export class ProjectAccessDialogStep
 
         if (readAccessString === ProjectReadAccessType.CUSTOM.toString()) {
             const principals: Principal[] =
-                this.getFormItem().getPrincipalComboBox().getSelectedOptions().map(option => option.getOption().getDisplayValue());
+                this.readAccessFormItem.getPrincipalComboBox().getSelectedOptions().map(option => option.getOption().getDisplayValue());
 
             if (principals.length === 0) {
                 return data.setAccess(ProjectReadAccessType.PRIVATE);

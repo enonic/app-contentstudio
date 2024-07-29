@@ -103,57 +103,6 @@ export class ProjectsSelector
         });
     }
 
-    private updateProject(project: Project) {
-        if (!project) {
-            return;
-        }
-
-        const newOption: Option<Project> = this.createOption(project);
-        const existingOption: Option<Project> = this.getOptionByValue(project.getName());
-
-        const wasChanged = !project.equals(existingOption?.getDisplayValue());
-        if (!wasChanged) {
-            return;
-        }
-
-        if (existingOption) {
-            this.updateOption(existingOption, project);
-        } else {
-            this.addOption(newOption);
-        }
-
-        this.getSelectedOptions().forEach((selectedOption: SelectedOption<Project>) => {
-            if (selectedOption.getOption().getValue() === project.getName()) {
-                selectedOption.getOptionView().setOption(newOption);
-            }
-        });
-    }
-
-    updateAndSelectProjects(projects: Project[]) {
-        if (!projects) {
-            return;
-        }
-
-        const projectValues = projects.map(p => p.getName());
-
-        projects.forEach(p => this.updateProject(p));
-
-        this.getOptions().forEach(option => {
-            const value = option.getValue();
-
-            const mustSelect = projectValues.indexOf(value) >= 0 && !this.isSelected(option.getDisplayValue());
-            if (mustSelect) {
-                this.selectOption(option);
-                return;
-            }
-
-            const mustDeselect = projectValues.indexOf(value) < 0 && this.isSelected(option.getDisplayValue());
-            if (mustDeselect) {
-                this.deselect(option.getDisplayValue());
-            }
-        });
-    }
-
     protected getDisplayValueId(value: Project): string {
         return value.getName();
     }

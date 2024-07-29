@@ -23,7 +23,6 @@ import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentPath} from '../../content/ContentPath';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ContentSummary} from '../../content/ContentSummary';
-import {ContentId} from '../../content/ContentId';
 import {ImageContentListBox} from './ImageContentListBox';
 import {ImageSelectorDropdown} from './ImageSelectorDropdown';
 import {ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
@@ -155,20 +154,6 @@ export class ImageSelector
         }
 
         return new MediaTreeSelectorItem(content, selectable, expandable);
-    }
-
-    protected createMissingContentItem(id: ContentId): MediaTreeSelectorItem {
-        return new MediaTreeSelectorItem().setMissingItemId(id.toString());
-    }
-
-    protected updateSelectedOptionIsEditable(selectedOption: SelectedOption<ContentTreeSelectorItem>) {
-        // different behavior for image selector
-    }
-
-    protected handleOptionUpdated(optionsUpdated: SelectedOption<ContentTreeSelectorItem>[]) {
-        super.handleOptionUpdated(optionsUpdated);
-
-        this.getSelectedOptionsView().updateSelectionToolbarLayout();
     }
 
     protected createContentListBox(loader: ContentSummaryOptionDataLoader<MediaTreeSelectorItem>): ImageContentListBox {
