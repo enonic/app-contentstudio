@@ -701,7 +701,7 @@ class ContentWizardPanel extends Page {
             return await this.pause(500);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_site'));
-            throw new Error("Content Wizard, error during the typing data" + err);
+            throw new Error("Content Wizard, error during creating the content  " + err);
         }
     }
 

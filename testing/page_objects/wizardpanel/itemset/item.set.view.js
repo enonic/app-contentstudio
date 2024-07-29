@@ -129,8 +129,8 @@ class ItemSetFormView extends Page {
         try {
             return await this.waitForElementDisplayed(lib.BUTTONS.EXPAND_BUTTON_BOTTOM, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('item_set_collapse_button');
-            throw new Error(`Collapse button is not displayed! Screenshot: ${screenshot}`);
+            let screenshot = await this.saveScreenshotUniqueName('item_set_expand_button');
+            throw new Error(`Expand button is not displayed! Screenshot: ${screenshot}` + err);
         }
     }
 
