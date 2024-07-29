@@ -47,7 +47,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             assert.ok(isResetDisabled === false, "'Reset' menu item should be enabled");
             // 5. 'Add above' menu item is disabled due to the config: <occurrences minimum="1" maximum="1"/>
             let isAddAboveDisabled = await singleSelectionOptionSet.isAddAboveMenuItemInSingleSelectedOptionDisabled();
-            assert.ok(isAddAboveDisabled, "'Add above' menu item should be disable");
+            assert.ok(isAddAboveDisabled, "'Add above' menu item should be disabled");
         });
 
     it(`GIVEN wizard for new content with Option Set is opened WHEN name input has been filled AND Save button pressed THEN validation recording should appear`,
