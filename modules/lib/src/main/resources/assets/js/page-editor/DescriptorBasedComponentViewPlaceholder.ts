@@ -23,13 +23,13 @@ export abstract class DescriptorBasedComponentViewPlaceholder
 
     setComponentView(componentView: DescriptorBasedComponentView): void {
         this.componentView = componentView;
+        this.comboBox.setContentId(new ContentId(this.componentView.getLiveEditParams().contentId));
         this.reloadDescriptors(new ContentId(this.componentView.getLiveEditParams().contentId));
     }
 
     protected initElements(): void {
         this.comboBox = new ComponentDescriptorsDropdown();
         this.comboBox.setComponentType(this.getType());
-        this.comboBox.setContentId(new ContentId(this.componentView.getLiveEditParams().contentId));
         this.appendChild(this.comboBox);
     }
 
