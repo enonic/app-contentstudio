@@ -7,7 +7,6 @@ const appConst = require('../../../libs/app_const');
 const xpath = {
     container: "//div[contains(@id,'FormOptionSetOccurrenceViewSingleOption')]",
     dropDownDiv: "//div[contains(@id,'Dropdown')]",
-    selectionMenuButton: "//button[contains(@id,'MoreButton')]",
     option1_NameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='option-1-name']]" + lib.TEXT_INPUT,
     option2_OptionsFilterInput: "//div[contains(@id,'InputView') and descendant::div[text()='option-2-image-selector']]" +
                                 lib.COMBO_BOX_OPTION_FILTER_INPUT,
@@ -53,7 +52,7 @@ class ExpandedSingleSelectionOptionSet extends Page {
 
     //More button (menu button) appears when an option is selected
     get selectionMenuButton() {
-        return xpath.container + xpath.selectionMenuButton;
+        return xpath.container + lib.BUTTONS.MORE_BUTTON;
     }
 
     //Expands the menu button:
@@ -79,9 +78,8 @@ class ExpandedSingleSelectionOptionSet extends Page {
             await this.clickOnElement(optionLocator);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_optionset");
-            await this.saveScreenshot(screenshot);
-            throw new Error("Error,after selecting the option in single selection, screenshot:" + screenshot + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_optionset');
+            throw new Error(`Error,after selecting the option in single selection, screenshot: ${screenshot} ` + err);
         }
     }
 }

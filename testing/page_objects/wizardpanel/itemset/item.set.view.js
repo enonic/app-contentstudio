@@ -10,7 +10,6 @@ const xpath = {
     itemSet: "//div[contains(@id,'FormItemSetView')]",
     occurrenceView: "//div[contains(@id,'FormItemSetOccurrenceView')]",
     addItemSetButton: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add'] and @title='Add ItemSet']",
-    itemSetMenuButton: "//button[contains(@id,'MoreButton')]",
     typeTextInHtmlArea: (id, text) => {
         return `CKEDITOR.instances['${id}'].setData('${text}')`;
     },
@@ -24,11 +23,15 @@ class ItemSetFormView extends Page {
     }
 
     get itemSetMenuButton() {
-        return xpath.occurrenceView + xpath.itemSetMenuButton;
+        return xpath.occurrenceView + lib.BUTTONS.MORE_BUTTON;
     }
 
     get collapseButton() {
         return xpath.itemSet + lib.BUTTONS.COLLAPSE_BUTTON_BOTTOM;
+    }
+
+    get collapseAllButton() {
+        return xpath.itemSet + lib.BUTTONS.COLLAPSE_ALL_BUTTON_BOTTOM;
     }
 
     get deleteItemSetButton() {
@@ -40,11 +43,11 @@ class ItemSetFormView extends Page {
     }
 
     get htmlAreaValidationRecording() {
-        return "//div[contains(@id,'InputView') and descendant::div[contains(@id,'HtmlArea')]]" + lib.INPUT_VALIDATION_VIEW;
+        return lib.FORM_VIEW_PANEL.HTML_AREA_INPUT + lib.INPUT_VALIDATION_VIEW;
     }
 
     get textLineValidationRecording() {
-        return "//div[contains(@id,'InputView') and descendant::div[contains(@id,'TextLine')]]" + lib.INPUT_VALIDATION_VIEW;
+        return lib.FORM_VIEW_PANEL.TEXT_LINE_INPUT + lib.INPUT_VALIDATION_VIEW;
     }
 
     async waitForDeleteItemSetButtonDisplayed() {
@@ -68,7 +71,7 @@ class ItemSetFormView extends Page {
         let locator = xpath.itemSet + lib.TEXT_INPUT;
         let elements = this.findElements(locator);
         await elements[index].setValue(text);
-        return await this.pause(200);
+        return await this.pause(300);
     }
 
     waitForAddButtonDisplayed() {
@@ -94,6 +97,15 @@ class ItemSetFormView extends Page {
         }
     }
 
+    async waitForCollapseAllButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.collapseAllButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('item_set_collapse_all_button');
+            throw new Error(`Collapse all button is not displayed! Screenshot: ${screenshot}`);
+        }
+    }
+
     async clickOnCollapseButton() {
         await this.waitForCollapseButtonDisplayed();
         await this.clickOnElement(this.collapseButton);
@@ -103,7 +115,6 @@ class ItemSetFormView extends Page {
         await this.waitForExpandButtonDisplayed();
         await this.clickOnElement(this.expandButton);
     }
-
 
     async waitForCollapseButtonNotDisplayed() {
         try {
@@ -138,12 +149,18 @@ class ItemSetFormView extends Page {
         return await recordingElement[0].getText();
     }
 
-    async expandMenuClickOnDelete(index) {
+    async getValidationRecordingForTextInput(index) {
+        let occurrencesForm = await this.findElements(xpath.occurrenceView);
+        let recordingElement = await occurrencesForm[index].$$(this.textLineValidationRecording);
+        return await recordingElement[0].getText();
+    }
+
+    async expandMenuClickOnMenuItem(index, menuItem) {
         let menuButtons = await this.findElements(this.itemSetMenuButton);
         await menuButtons[index].click();
         await this.pause(400);
         let res = await this.getDisplayedElements(
-            "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Delete']");
+            `//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='${menuItem}']`);
         await res[0].waitForEnabled({timeout: appConst.shortTimeout, timeoutMsg: "Option Set - Delete menu item should be enabled!"});
         await res[0].click();
         return await this.pause(300);
@@ -171,6 +188,13 @@ class ItemSetFormView extends Page {
         let elements = await this.findElements(locator);
         let attr = await elements[index].getAttribute('class');
         return attr.includes('invalid');
+    }
+
+    async clickOnFormOccurrence(label, index) {
+        let locator = xpath.occurrenceByText(label);
+        let element = await this.findElements(locator);
+        await element[index].click();
+        return await this.pause(300);
     }
 }
 

@@ -9,7 +9,7 @@ const xpath = {
     formOptionSet: "//div[contains(@id,'FormOptionSetView') and descendant::h5[text()='Single selection']]",
     textBlockView: "//div[contains(@id,'FormOptionSetOccurrenceView') and descendant::div[text()='Text block']]",
     dropDownDiv: "//div[contains(@id,'Dropdown')]",
-    optionSetMenuButton: "//div[contains(@id,'FormOptionSetOccurrenceView')]" + "//button[contains(@id,'MoreButton')]",
+    optionSetMenuButton: "//div[contains(@id,'FormOptionSetOccurrenceView')]" + lib.BUTTONS.MORE_BUTTON,
     resetMenuItem: "//div[contains(@id,'FormOptionSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Reset']",
     checkboxByLabel: label => `//div[contains(@id,'Checkbox') and descendant::label[text()='${label}']]//label`,
 };

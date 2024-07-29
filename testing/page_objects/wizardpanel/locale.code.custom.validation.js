@@ -19,7 +19,7 @@ class LocaleCodeCustomValidationForm extends Page {
     }
 
     get selectorValidationRecording() {
-        return "//div[contains(@id,'InputView') and descendant::div[contains(@id,'ComboBox')]]" + lib.INPUT_VALIDATION_VIEW;
+        return lib.FORM_VIEW_PANEL.COMBOBOX_INPUT + lib.INPUT_VALIDATION_VIEW;
     }
 
     async getSelectorValidationMessage() {
