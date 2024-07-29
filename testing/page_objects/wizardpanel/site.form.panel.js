@@ -37,12 +37,16 @@ class SiteForm extends Page {
     }
 
     async type(siteData) {
-        if (siteData.description) {
-            await this.typeDescription(siteData.description);
-        }
-        if (siteData.applications) {
-            await this.addApplications(siteData.applications);
-            await this.waitForNotificationMessage();
+        try {
+            if (siteData.description) {
+                await this.typeDescription(siteData.description);
+            }
+            if (siteData.applications) {
+                await this.addApplications(siteData.applications);
+                await this.waitForNotificationMessage();
+            }
+        } catch (err) {
+            throw new Error("Error during creating site(Site form panel)  " + err);
         }
     }
 
