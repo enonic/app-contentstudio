@@ -18,8 +18,6 @@ import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {Project} from '../../../../data/project/Project';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ProjectApplicationsComboBox
     extends FilterableListBoxWrapperWithSelectedView<Application> {
@@ -34,6 +32,8 @@ export class ProjectApplicationsComboBox
 
     private isLayoutInProgress: boolean = false;
 
+    protected selectedOptionsView: ProjectApplicationsSelectedOptionsView;
+
     constructor(params?: ProjectApplicationsFormParams) {
         super(new ProjectApplicationsListBox(), {
             selectedOptionsView: new ProjectApplicationsSelectedOptionsView(params),
@@ -45,6 +45,8 @@ export class ProjectApplicationsComboBox
         if (params.hasParentProjects()) {
             this.setParentProjects(params.getParentProjects());
         }
+
+        this.selectedOptionsView.setIsEditableFunc(this.isReadonly.bind(this));
     }
 
     protected initElements(): void {
@@ -98,7 +100,7 @@ export class ProjectApplicationsComboBox
 
     layoutApplicationConfigs(applicationConfigs: ApplicationConfig[]): Q.Promise<void> {
         this.isLayoutInProgress = true;
-        this.clearCombobox();
+        this.resetSelection();
 
         return this.layoutSelectedApps(applicationConfigs).then(() => {
             this.isLayoutInProgress = false;
@@ -109,7 +111,7 @@ export class ProjectApplicationsComboBox
         if (this.isLayoutInProgress) {
             return false;
         }
-        const selectedDisplayValues: Application[] = this.getSelectedDisplayValues();
+        const selectedDisplayValues: Application[] = this.getSelectedItems();
         return this.parentSiteConfigs.length !== selectedDisplayValues.length;
     }
 
@@ -139,11 +141,6 @@ export class ProjectApplicationsComboBox
         return this.layoutSiteConfigs(siteConfigs);
     }
 
-    protected createOption(application: Application, readOnly?: boolean): Option<Application> {
-        const isReadonly = ObjectHelper.isDefined(readOnly) ? readOnly : this.isReadonly(application.getApplicationKey());
-        return super.createOption(application, isReadonly);
-    }
-
     private layoutSiteConfigs(configs: ApplicationConfig[]): Q.Promise<void> {
         this.deselectNonSelectedApps(configs);
 
@@ -166,7 +163,7 @@ export class ProjectApplicationsComboBox
 
             configs.forEach((config: ApplicationConfig) => {
                 const appToSelect: Application = this.getOrGenerateAppByKey(selectedApps, config.getApplicationKey());
-                this.select(appToSelect, this.isReadonly(config.getApplicationKey()), true);
+                this.select(appToSelect, true);
                 layoutPromises.push(this.layoutSelectedApp(config));
             });
 

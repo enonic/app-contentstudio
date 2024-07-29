@@ -41,7 +41,6 @@ import {Component} from '../../page/region/Component';
 import {Page} from '../../page/Page';
 import {PartComponent} from '../../page/region/PartComponent';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
-import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
@@ -85,7 +84,6 @@ import {PageHelper} from '../../util/PageHelper';
 import {ContextPanelState} from '../../view/context/ContextPanelState';
 import {PageItemType} from '../../page/region/PageItemType';
 import {DescriptorBasedComponentInspectionPanel} from './contextwindow/inspect/region/DescriptorBasedComponentInspectionPanel';
-import {ImageComponentType} from '../../page/region/ImageComponentType';
 import {TextComponentType} from '../../page/region/TextComponentType';
 import {PartComponentType} from '../../page/region/PartComponentType';
 import {LayoutComponentType} from '../../page/region/LayoutComponentType';
@@ -412,8 +410,6 @@ export class LiveFormPanel
                 this.liveEditPageProxy?.setLocked(true);
                 this.lockPageAfterProxyLoad = false;
             }
-
-            (this.availableInspectPanels.get(ImageComponentType.get()) as ImageInspectionPanel)?.refresh();
         });
     }
 
@@ -484,7 +480,6 @@ export class LiveFormPanel
         const layoutInspectionPanel = new LayoutInspectionPanel();
         this.availableInspectPanels.set(LayoutComponentType.get(), layoutInspectionPanel);
         this.availableInspectPanels.set(PartComponentType.get(), new PartInspectionPanel());
-        this.availableInspectPanels.set(ImageComponentType.get(), new ImageInspectionPanel());
         this.availableInspectPanels.set(FragmentComponentType.get(), new FragmentInspectionPanel());
         this.availableInspectPanels.set(TextComponentType.get(), new TextInspectionPanel());
         this.availableInspectPanels.set('region', new RegionInspectionPanel());
@@ -497,7 +492,6 @@ export class LiveFormPanel
         this.availableInspectPanels.set('page', pageInspectionPanel);
         this.availableInspectPanels.set(LayoutComponentType.get(), new LayoutInspectionPanel());
         this.availableInspectPanels.set(PartComponentType.get(), new PartInspectionPanel());
-        this.availableInspectPanels.set(ImageComponentType.get(), new ImageInspectionPanel());
         this.availableInspectPanels.set(FragmentComponentType.get(), new FragmentInspectionPanel());
         this.availableInspectPanels.set(TextComponentType.get(), new TextInspectionPanel());
         this.availableInspectPanels.set('region', new RegionInspectionPanel());
@@ -886,20 +880,6 @@ export class LiveFormPanel
         if (inspectionPanel instanceof ComponentInspectionPanel) {
             showInspectionPanel(inspectionPanel);
             inspectionPanel.setComponent(component);
-         if (component instanceof PartComponent) {
-            showInspectionPanel(this.partInspectionPanel);
-            this.partInspectionPanel.setDescriptorBasedComponent(component);
-        } else if (component instanceof LayoutComponent) {
-            showInspectionPanel(this.layoutInspectionPanel);
-            this.layoutInspectionPanel.setDescriptorBasedComponent(component);
-        } else if (component instanceof TextComponent) {
-            showInspectionPanel(this.textInspectionPanel);
-            this.textInspectionPanel.setTextComponent(component);
-        } else if (component instanceof FragmentComponent) {
-            showInspectionPanel(this.fragmentInspectionPanel);
-            this.fragmentInspectionPanel.setFragmentComponent(component);
-        } else {
-            throw new Error('Component cannot be selected: ' + ClassHelper.getClassName(component));
         }
     }
 
