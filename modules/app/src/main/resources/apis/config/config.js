@@ -62,9 +62,13 @@ function handleGet() {
                     application: app.name,
                     api: 'export',
                 }),
-                sagaServiceUrl: portal.apiUrl({
+                sagaChatServiceUrl: portal.apiUrl({
                     application: 'com.enonic.app.saga',
-                    api: 'rest',
+                    api: 'chat',
+                }),
+                sagaTranslationServiceUrl: portal.apiUrl({
+                    application: 'com.enonic.app.saga',
+                    api: 'translation',
                 }),
                 appServiceUrl: portal.apiUrl({
                     application: app.name,
