@@ -1,4 +1,7 @@
+import {AIHelper} from '@enonic/lib-admin-ui/ai/AIHelper';
+import {AI_HELPER_STATE} from '@enonic/lib-admin-ui/ai/AIHelperState';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
@@ -14,14 +17,11 @@ import {EnonicAiTranslationCompletedEvent} from './event/incoming/EnonicAiTransl
 import {EnonicAiTranslationStartedEvent} from './event/incoming/EnonicAiTranslationStartedEvent';
 import {EnonicAiConfigEvent} from './event/outgoing/EnonicAiConfigEvent';
 import {EnonicAiDataSentEvent} from './event/outgoing/EnonicAiDataSentEvent';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {AIHelper} from '@enonic/lib-admin-ui/ai/AIHelper';
-import {AI_HELPER_STATE} from '@enonic/lib-admin-ui/ai/AIHelperState';
 
 interface AIAssistant {
     render(container: HTMLElement, setupData: EnonicAiSetupData): void;
 
-    translator: {
+    translation: {
         translate(language?: string): Promise<boolean>;
         isAvailable(): boolean;
     }
@@ -91,12 +91,12 @@ export class AI {
 
     translate(language: string): Promise<boolean> {
         const assistant = this.getAssistant();
-        return assistant?.translator.translate(language) ?? Promise.resolve(false);
+        return assistant?.translation.translate(language) ?? Promise.resolve(false);
     }
 
     canTranslate(): boolean {
         const assistant = this.getAssistant();
-        return assistant?.translator.isAvailable() ?? false;
+        return assistant?.translation.isAvailable() ?? false;
     }
 
     private translationStatedAssistantEventListener = (event: EnonicAiTranslationStartedEvent) => {
