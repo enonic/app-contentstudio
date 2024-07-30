@@ -156,7 +156,7 @@ export class ContentWizardToolbar
 
             AI.get().renderAssistant(this.aiAssistantContainer.getHTMLElement(), {
                 chatServiceUrl: CONFIG.getString('services.sagaChatServiceUrl'),
-                translatorServiceUrl: CONFIG.getString('services.sagaTranslatorServiceUrl'),
+                translationServiceUrl: CONFIG.getString('services.sagaTranslationServiceUrl'),
                 pollLimit: CONFIG.getNumber('sagaPollLimit'),
                 pollDelay: CONFIG.getNumber('sagaPollDelay'),
             });
