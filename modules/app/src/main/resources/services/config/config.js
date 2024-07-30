@@ -45,7 +45,7 @@ function handleGet() {
                 appServiceUrl: portal.serviceUrl({service: 'applications'}),
                 exportServiceUrl: portal.serviceUrl({service: 'export'}),
                 sagaChatServiceUrl: portal.serviceUrl({service: 'chat', application: 'com.enonic.app.saga'}),
-                sagaTranslatorServiceUrl: portal.serviceUrl({service: 'translator', application: 'com.enonic.app.saga'}),
+                sagaTranslationServiceUrl: portal.serviceUrl({service: 'translation', application: 'com.enonic.app.saga'}),
             },
             sagaPollDelay,
             sagaPollLimit,
