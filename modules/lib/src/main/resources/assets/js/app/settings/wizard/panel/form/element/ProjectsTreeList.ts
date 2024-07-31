@@ -9,9 +9,8 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export interface ProjectsTreeListParams
-    extends TreeListBoxParams {
+    extends TreeListBoxParams<Project> {
     helper: ProjectOptionDataHelper;
-    parent?: Project;
     loader?: ProjectOptionDataLoader;
 }
 
@@ -62,9 +61,9 @@ export class ProjectsTreeList
     }
 
     protected handleLazyLoad(): void {
-        if (this.options.parent) { // layers
+        if (this.options.parentItem) { // layers
             if (this.getItemCount() === 0) {
-                this.addItems(this.options.helper.getProjectsPyParent(this.options.parent.getName()));
+                this.addItems(this.options.helper.getProjectsPyParent(this.options.parentItem.getName()));
             }
         } else { // root projects
             if (!this.options.loader.isLoading() && !this.options.loader.isLoaded()) {
@@ -78,7 +77,7 @@ export class ProjectsTreeList
 }
 
 export interface ProjectsTreeListElementParams
-    extends TreeListElementParams {
+    extends TreeListElementParams<Project> {
     helper: ProjectOptionDataHelper;
     isFilterMode?: boolean;
 }
@@ -96,7 +95,7 @@ export class ProjectTreeListElement
         const params: ProjectsTreeListParams = super.createChildrenListParams() as ProjectsTreeListParams;
 
         params.helper = this.options.helper;
-        params.parent = this.item;
+        params.parentItem = this.item;
 
         return params;
     }

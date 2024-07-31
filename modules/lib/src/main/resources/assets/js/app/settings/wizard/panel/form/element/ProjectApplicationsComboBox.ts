@@ -18,13 +18,14 @@ import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {Project} from '../../../../data/project/Project';
+import {DataChangedEvent} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
 
 export class ProjectApplicationsComboBox
     extends FilterableListBoxWrapperWithSelectedView<Application> {
 
     private loader: ProjectApplicationsLoader;
 
-    private dataChangedListeners: (() => void)[];
+    private dataChangedListeners: ((event: DataChangedEvent<Application>) => void)[];
 
     private parentSiteConfigs: ApplicationConfig[] = [];
 
@@ -219,7 +220,7 @@ export class ProjectApplicationsComboBox
         );
     }
 
-    onDataChanged(listener: () => void) {
+    onDataChanged(listener: (event: DataChangedEvent<Application>) => void) {
         this.dataChangedListeners.push(listener);
     }
 

@@ -5,6 +5,9 @@ import {SettingsTreeGridActions} from '../grid/SettingsTreeGridActions';
 import {SettingsBrowseItemPanel} from './SettingsBrowseItemPanel';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 import {SettingsItemsTreeGridHighlightEvent} from '../../event/SettingsItemsTreeGridHighlightEvent';
+import {SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {SettingsTreeList} from '../SettingsTreeList';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {
@@ -22,6 +25,18 @@ export class SettingsBrowsePanel
 
     protected createTreeGrid(): SettingsItemsTreeGrid {
         return new SettingsItemsTreeGrid();
+    }
+
+    protected createListBoxPanel(): SelectableListBoxPanel<SettingsViewItem> {
+        const treeListBox = new SettingsTreeList();
+
+        const selectionWrapper = new SelectableListBoxWrapper<SettingsViewItem>(treeListBox, {
+            className: 'settings-list-box-wrapper',
+            maxSelected: 0,
+            checkboxPosition: 'left',
+        });
+
+        return new SelectableListBoxPanel(selectionWrapper);
     }
 
     protected createToolbar(): SettingsBrowseToolbar {
