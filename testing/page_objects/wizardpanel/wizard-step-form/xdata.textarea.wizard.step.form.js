@@ -3,6 +3,7 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
+const lib = require('../../../libs/elements');
 const XPATH = {
     container: `//div[contains(@id,'XDataWizardStepForm')]`,
     textArea: `//div[contains(@id,'InputOccurrenceView')]//textarea`,
@@ -16,6 +17,10 @@ class XDataTextArea extends Page {
 
     typeText(value) {
         return this.typeTextInInput(this.textAreaInput, value);
+    }
+
+    get validationRecord() {
+        return XPATH.container + lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
     }
 
     getTextInTextArea() {
@@ -35,15 +40,17 @@ class XDataTextArea extends Page {
     }
 
     isValidationRecordingVisible() {
-
         return this.isElementDisplayed(this.validationRecord);
     }
 
-    getValidationRecord() {
-        return this.getText(this.validationRecord).catch(err => {
-            this.saveScreenshot('err_textarea_validation_record');
-            throw new Error('getting Validation text: ' + err);
-        })
+    async getValidationRecord() {
+        try {
+            return await this.getText(this.validationRecord);
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_textarea_validation_record');
+            throw new Error(`XDATA textarea, validation message, screenshot:${screenshot} ` + err);
+        }
     }
 }
+
 module.exports = XDataTextArea;

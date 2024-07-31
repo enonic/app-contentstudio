@@ -82,7 +82,7 @@ class IssuesListDialog extends Page {
             await this.clickOnElement(this.newIssueButton);
         } catch (err) {
             await this.saveScreenshot('err_click_issue_list_new');
-            throw  new Error('Issues List Dialog - Error during clicking on the `New issue` button  ' + err);
+            throw new Error('Issues List Dialog - Error during clicking on the `New issue` button  ' + err);
         }
     }
 
@@ -102,8 +102,8 @@ class IssuesListDialog extends Page {
         try {
             await this.waitForElementDisabled(this.closedButton, appConst.shortTimeout);
         } catch (err) {
-            this.saveScreenshot("err_closed_button_should_be_disabled");
-            throw new Error("Issues List Dialog-  Closed button should be disabled " + err);
+            let screenshot = await this.saveScreenshotUniqueName("err_closed_button_should_be_disabled");
+            throw new Error(`Issues List Dialog-  Closed button should be disabled , screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -120,8 +120,8 @@ class IssuesListDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.openButton, appConst.shortTimeout);
         } catch (err) {
-            this.saveScreenshot("err_open_button_should_be_displayed");
-            throw new Error("Issues List Dialog-  'Open' button should be displayed " + err);
+            let screenshot = await this.saveScreenshot("err_open_button_should_be_displayed");
+            throw new Error(`Issues List Dialog-  'Open' button should be displayed, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -133,7 +133,7 @@ class IssuesListDialog extends Page {
             await this.clickOnElement(this.closedButton);
             return await this.pause(700);
         } catch (err) {
-            this.saveScreenshot("err_show_closed_issues_list");
+            await this.saveScreenshot("err_show_closed_issues_list");
             throw new Error("Issues List dialog - Error when clicking on 'Closed' button  " + err);
         }
     }
@@ -146,8 +146,8 @@ class IssuesListDialog extends Page {
             await this.clickOnElement(this.openButton);
             return await this.pause(400);
         } catch (err) {
-            this.saveScreenshot("err_click_open_button");
-            throw new Error("Issues List dialog - Error when clicking on 'Open' button  " + err);
+            let screenshot = await this.saveScreenshot("err_click_open_button");
+            throw new Error(`Issues List dialog - Error when clicking on 'Open' button, screenshot: ${screenshot}  ` + err);
         }
     }
 
@@ -200,8 +200,8 @@ class IssuesListDialog extends Page {
                 return text.includes('disabled');
             }, appConst.shortTimeout);
         } catch (err) {
-            this.saveScreenshot("err_type_filter1");
-            throw new Error("Type Filter - menu item:" + option + " should be disabled! " + err);
+            let screenshot = await this.saveScreenshot("err_type_filter1");
+            throw new Error(`Type Filter - menu item:` + option + ` should be disabled! screenshot: ${screenshot} ` + err);
         }
     }
 

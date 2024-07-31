@@ -47,7 +47,7 @@ describe('Browse panel, properties widget, language spec', function () {
             await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.NEW);
         });
 
-    it(`WHEN existing folder has been published THEN 'First Published' date gets visible in in Properties Widget`,
+    it(`WHEN existing folder has been published THEN 'First Published' date gets visible in Properties Widget`,
         async () => {
             let propertiesWidget = new PropertiesWidget();
             let contentBrowsePanel = new ContentBrowsePanel();

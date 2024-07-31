@@ -55,7 +55,7 @@ class IssueDetailsDialog extends BaseDetailsDialog {
         let xpath = this.itemsTabBarItem + '/a';
         let result = await this.getText(xpath);
         let startIndex = result.indexOf('(');
-        if (startIndex == -1) {
+        if (startIndex === -1) {
             return undefined;
         }
         let endIndex = result.indexOf(')');
@@ -86,7 +86,7 @@ class IssueDetailsDialog extends BaseDetailsDialog {
     async getNumberInItemsTab() {
         let result = await this.getText(this.itemsTabBarItem);
         let startIndex = result.indexOf('(');
-        if (startIndex == -1) {
+        if (startIndex === -1) {
             return undefined;
         }
         let endIndex = result.indexOf(')');

@@ -33,7 +33,7 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             await issueListDialog.waitForNewIssueButtonDisplayed();
         });
 
-    it(`GIVEN 'Issues List Dialog' has been opened WHEN 'New task' button has been clicked THEN 'Create Task' dialog should be loaded`,
+    it(`GIVEN 'Issues List Dialog' has been opened WHEN 'New Issue' button has been clicked THEN 'Create Issue' dialog should be loaded`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let createIssueDialog = new CreateIssueDialog();
@@ -44,12 +44,12 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             await createIssueDialog.waitForDialogLoaded();
         });
 
-    it(`WHEN 'Issues List Dialog' has been opened THEN 'Open' issues should be loaded by default`,
+    it(`WHEN 'Issues List Dialog' has been opened THEN 'Open' issues tab should be active by default`,
         async () => {
             let issueListDialog = new IssueListDialog();
             await studioUtils.openIssuesListDialog();
             let openButton = await issueListDialog.isOpenButtonActive();
-            assert.ok(openButton, 'Open issues should be loaded by default');
+            assert.ok(openButton, 'Open issues tab should be active by default');
             let isClosedButtonActive = await issueListDialog.isClosedButtonActive();
             assert.ok(isClosedButtonActive === false, "'Closed' button should be grey color by default");
         });
@@ -59,13 +59,10 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             let issueListDialog = new IssueListDialog();
             // 1. Open Issues List Dialog:
             await studioUtils.openIssuesListDialog();
-            // 2. Click on Esc:
+            // 2. Click on 'Esc' key:
             await issueListDialog.pressEscKey();
             await issueListDialog.waitForDialogClosed();
         });
-
-    // TODO it(`GIVEN 'Issues List Dialog' is opened WHEN 'Closed' button has been clicked THEN 'Open' button is getting not active`,
-    // TODO it(`GIVEN 'Issues List Dialog' is opened WHEN type filter selector  has been expanded THEN required options should be present in the selector`
 
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

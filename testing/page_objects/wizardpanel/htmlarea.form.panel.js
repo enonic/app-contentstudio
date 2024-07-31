@@ -39,8 +39,8 @@ class HtmlAreaForm extends OccurrencesFormView {
         return this.waitForElementDisplayed(this.addButton, appConst.mediumTimeout);
     }
 
-    waitForAddButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.addButton, appConst.mediumTimeout);
+    async waitForAddButtonNotDisplayed() {
+        return await this.waitForElementNotDisplayed(this.addButton, appConst.mediumTimeout);
     }
 
     async clickOnAddButton() {
@@ -70,7 +70,7 @@ class HtmlAreaForm extends OccurrencesFormView {
     async insertTextInHtmlArea(index, text) {
         let ids = await this.getIdOfHtmlAreas();
         await this.execute(XPATH.typeText(ids[index], text));
-        return await this.pause(300);
+        return await this.pause(500);
     }
 
     async getIdOfHtmlAreas() {
