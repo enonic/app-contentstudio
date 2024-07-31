@@ -164,7 +164,6 @@ export class ContentTreeSelectorDropdown
         return super.doRender().then((rendered: boolean) => {
             this.modeButton.insertBeforeEl(this.optionFilterInput);
             this.treeSelectionWrapper.addClass('filterable-listbox');
-            this.treeSelectionWrapper.appendChild(this.treeList);
             this.modeButton.insertBeforeEl(this.optionFilterInput);
 
             this.preSelectItems();

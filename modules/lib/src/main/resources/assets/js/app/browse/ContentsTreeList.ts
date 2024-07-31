@@ -9,8 +9,7 @@ import {OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataL
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {TreeNode, TreeNodeBuilder} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 
-export interface ContentsListParams extends TreeListBoxParams {
-    parentItem?: ContentTreeSelectorItem;
+export interface ContentsListParams extends TreeListBoxParams<ContentTreeSelectorItem> {
     loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
 }
 
@@ -83,7 +82,7 @@ export class ContentsTreeList
 
 }
 
-export interface ContentsListElementParams extends TreeListElementParams {
+export interface ContentsListElementParams extends TreeListElementParams<ContentTreeSelectorItem> {
     loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>
 }
 
