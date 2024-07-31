@@ -12,6 +12,7 @@ import {ProjectViewItem} from './view/ProjectViewItem';
 import {ProjectListWithMissingRequest} from './resource/ProjectListWithMissingRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import Q from 'q';
+import {SettingsTreeHelper} from './tree/SettingsTreeHelper';
 
 export class SettingsTreeList
     extends TreeListBox<SettingsViewItem> {
@@ -31,18 +32,13 @@ export class SettingsTreeList
     }
 
     protected handleLazyLoad(): void {
-        if (this.isRoot()) {
-            if (this.getItemCount() === 0) {
-                new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
-                    Projects.get().setProjects(projects);
-                    this.setItems([this.makeRootFolderItem()]);
-                }).catch(DefaultErrorHandler.handle);
-            }
-        } else {
-            if (this.getItemCount() === 0) {
-                this.setItems(this.getProjectsViewItemsByParent());
-            }
+        if (this.getItemCount() === 0) {
+            this.setItems(this.isRoot() ? [this.makeRootFolderItem()] : this.getProjectsViewItemsByParent());
         }
+    }
+
+    public reload(): void {
+        this.setItems(this.isRoot() ? [this.makeRootFolderItem()] : this.getProjectsViewItemsByParent());
     }
 
     protected addItemView(item: SettingsViewItem, readOnly?: boolean): SettingsTreeListElement {
@@ -93,14 +89,21 @@ export class SettingsTreeListElement
     }
 
     protected hasChildren(item: SettingsViewItem): boolean {
-        return ObjectHelper.iFrameSafeInstanceOf(item, FolderViewItem) ||
-               Projects.get().getProjects().some((project: Project) => project.hasMainParentByName(item.getId()));
+        return SettingsTreeHelper.hasChildren(item);
     }
 
     protected createItemViewer(item: SettingsViewItem): SettingsItemViewer {
         const viewer = item instanceof FolderViewItem ? new FolderItemViewer() : new ProjectItemViewer();
         viewer.setObject(item);
         return viewer;
+    }
+
+    setExpanded(expanded: boolean): void {
+        super.setExpanded(expanded);
+
+        if (this.item instanceof FolderViewItem) {
+            (this.itemViewer as FolderItemViewer).setExpandedState(expanded);
+        }
     }
 
 }

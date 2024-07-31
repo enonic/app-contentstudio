@@ -1,10 +1,14 @@
 import {Project} from '../data/project/Project';
+import {ProjectListWithMissingRequest} from './ProjectListWithMissingRequest';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class Projects {
 
     private static INSTANCE: Projects;
 
     private projects: Project[] = [];
+
+    private projectsUpdatedListeners: (() => void)[] = [];
 
     private constructor() {
        //
@@ -24,6 +28,7 @@ export class Projects {
 
     public setProjects(projects: Project[]): void {
         this.projects = projects.slice();
+        this.notifyProjectsUpdated();
     }
 
     public getProjectsPyParent(parentName: string | null): Project[] {
@@ -32,5 +37,23 @@ export class Projects {
         } else {
             return this.projects.filter((project: Project) => project.hasMainParentByName(parentName));
         }
+    }
+
+    public reloadProjects(): void {
+        new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
+            this.setProjects(projects);
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    onProjectsUpdated(listener: () => void): void {
+        this.projectsUpdatedListeners.push(listener);
+    }
+
+    unProjectsUpdated(listener: () => void): void {
+        this.projectsUpdatedListeners = this.projectsUpdatedListeners.filter(l => l !== listener);
+    }
+
+    notifyProjectsUpdated(): void {
+        this.projectsUpdatedListeners.forEach(listener => listener());
     }
 }
