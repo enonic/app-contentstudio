@@ -97,6 +97,13 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             assert.ok(isInvalid === false, "The content should be valid, because the required html area is filled");
             // 4. Verify that 'Mark as ready' button is displayed in the wizard toolbar:
             await contentWizard.waitForMarkAsReadyButtonVisible();
+            // 5. Clear the text in the html-area
+            await htmlAreaForm.insertTextInHtmlArea(0, '');
+            // 6. Verify that the content gets invalid:
+            isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid, "The content should be invalid after clearing text in HtmlArea");
+            // 7. Verify that the validation message is not displayed before saving the content:
+            await htmlAreaForm.waitForFormValidationRecordingNotDisplayed();
         });
 
     it(`GIVEN wizard for 'htmlArea 0:2' is opened WHEN display name has been typed THEN content gets valid`,

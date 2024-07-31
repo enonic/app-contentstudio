@@ -2,7 +2,6 @@
  * Created on 14.02.2022
  */
 const assert = require('node:assert');
-;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');

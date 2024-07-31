@@ -20,11 +20,11 @@ describe('Content with image-selector, select images and verify that Outbound de
         if (typeof browser === 'undefined') {
             webDriverHelper.setupBrowser();
         }
-        let contentDisplayName = contentBuilder.generateRandomName('content');
-        let CONTENT_NAME2 = contentBuilder.generateRandomName('content');
+        const contentDisplayName = contentBuilder.generateRandomName('content');
+        const CONTENT_NAME2 = contentBuilder.generateRandomName('content');
 
-        let IMAGE_DISPLAY_NAME1 = appConst.TEST_IMAGES.POP_03;
-        let IMAGE_DISPLAY_NAME2 = appConst.TEST_IMAGES.POP_02;
+        const IMAGE_DISPLAY_NAME1 = appConst.TEST_IMAGES.POP_03;
+        const IMAGE_DISPLAY_NAME2 = appConst.TEST_IMAGES.POP_02;
         let SITE;
 
         it(`Precondition: new site should be added`,
@@ -79,7 +79,7 @@ describe('Content with image-selector, select images and verify that Outbound de
             });
 
         // verifies https://github.com/enonic/app-contentstudio/issues/969  Incorrect validation in Image Selector when the number of selected images exceeds allowed value
-        it(`GIVEN wizard for image selector(2:4) is opened WHEN 5 images have been selected AND saved WHEN the content has been reopened THEN 4 images remain in wizard AND Red icon should not be present in the Widget View`,
+        it(`GIVEN 5 images have been selected in image selector(2:4) and saved WHEN the content has been reopened THEN 4 images remain in wizard AND Red icon should not be present in the Widget View`,
             async () => {
                 let imageSelectorForm = new ImageSelectorForm();
                 let wizardDetailsPanel = new WizardDetailsPanel();

@@ -35,7 +35,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await contentWizard.waitForPreviewButtonNotDisplayed();
         });
 
-    it(`WHEN existing site has been selected(application is not added to this site) THEN 'Preview' button should be disabled in the browse toolbar`,
+    it(`WHEN existing site has been selected(application is not added in the site-wizard) THEN 'Preview' button should be disabled in the browse toolbar`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
@@ -113,10 +113,10 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
     it(`GIVEN existing site is selected WHEN child folder has been saved THEN 'Show Page Editor' button should be present in the wizard toolbar`,
         async () => {
             let contentWizard = new ContentWizard();
-            //1. Select the site, then open new wizard for folder:
+            // 1. Select the site, then open new wizard for folder:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            //2. Verify that Page Editor toggler is displayed:
+            // 2. Verify that Page Editor toggler is displayed:
             await contentWizard.waitForPageEditorTogglerDisplayed();
         });
 

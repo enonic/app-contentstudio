@@ -27,7 +27,7 @@ describe('rename.content.spec - tests for Renamed version item', function () {
             await studioUtils.doAddFolder(TEST_FOLDER);
         });
 
-    it("GIVEN existing 'new' folder is opened WHEN the name has been updated THEN 'Renamed' version item should appear in the version widget",
+    it("GIVEN existing 'new' folder is opened WHEN the name(path) has been updated THEN 'Renamed' version item should appear in the version widget",
         async () => {
             let contentWizard = new ContentWizard();
             let wizardDetailsPanel = new WizardDetailsPanel();
