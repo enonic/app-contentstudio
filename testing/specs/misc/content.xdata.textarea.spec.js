@@ -127,6 +127,24 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             assert.ok(result.includes(HTML_AREA_X_DATA_NAME), 'Html Area x-data should be present');
         });
 
+    ///
+    it(`GIVEN content with optional x-data(textarea) is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area gets visible`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let xDataTextArea = new XDataTextArea();
+            // 1. Open the wizard and type a name:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_0');
+            await contentWizard.typeDisplayName('aaaa1');
+            // 2. Do enable the x-data:
+            await contentWizard.clickOnXdataTogglerByName('Text Area x-data');
+            // 3. Save the content:
+            await contentWizard.waitAndClickOnSave();
+            await studioUtils.saveScreenshot('xdata_enabled_textarea');
+            // 4. 'x-data form' should appear and text area gets visible
+            let message = await xDataTextArea.getValidationRecord();
+            assert.equal(message, 'This field is required', 'Required text-area in x-data should be present');
+        });
+
     it(`GIVEN content with optional x-data(textarea) is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area gets visible`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -177,19 +195,19 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             await contentWizard.waitUntilInvalidIconDisappears();
         });
 
-    it(`GIVEN x-data(required textarea) with a text AND the x-data has been disabled AND content saved WHEN x-data has been enabled again THEN text-area in x-data should be cleared`,
+    it(`GIVEN the  x-data(required textarea) has been disabled AND content saved WHEN x-data toggler has been clicked THEN text-area in x-data should be cleared`,
         async () => {
             let contentWizard = new ContentWizard();
             let xDataTextArea = new XDataTextArea();
             await studioUtils.selectContentAndOpenWizard(DOUBLE_0_0_CONTENT);
-            // 1. x-data form has been disabled:
+            // 1. x-data form has been disabled(click on the toggler):
             await contentWizard.clickOnXdataTogglerByName(TEXT_AREA_X_DATA_NAME);
             await contentWizard.waitAndClickOnSave();
             // 2. x-data form has been enabled again
             await contentWizard.clickOnXdataTogglerByName(TEXT_AREA_X_DATA_NAME);
             let result = await xDataTextArea.getTextInTextArea();
             await studioUtils.saveScreenshot('xdata_textarea_should_be_cleared');
-            assert.ok(result == '', 'text-area in the x-data should be cleared');
+            assert.ok(result === '', 'text-area in the x-data should be cleared');
             // 2. Red icon should be present in the wizard, because text-area is required input
             await contentWizard.waitUntilInvalidIconAppears();
         });

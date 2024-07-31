@@ -64,7 +64,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             assert.ok(isInvalid, 'Selected option view should be red colour because, the required input is empty');
         });
 
-    it(`GIVEN existing site with the configurator is opened WHEN required input has been filled THEN the content is getting valid`,
+    it(`GIVEN existing site with red configurator is opened WHEN required input has been filled THEN the content gets valid`,
         async () => {
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();

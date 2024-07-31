@@ -56,7 +56,7 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
             await textLine.pause(1000);
             //3. Verify that Input Validation recording is not visible:
             let result = await textLine.getOccurrenceValidationRecording(0);
-            studioUtils.saveScreenshot('textline_max_length_1');
+            await studioUtils.saveScreenshot('textline_max_length_1');
             assert.equal(result, "", 'Input Validation recording should not be displayed');
             //4. Verify total-counter and left-counter
             let totalCounter = await textLine.getTotalCounter(0);

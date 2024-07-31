@@ -40,7 +40,7 @@ describe('close.issue.without.items.spec: create an issue without items, close t
             // 1. Click on the task and open Task Details dialog:
             await issueListDialog.clickOnIssue(issueTitle);
             await issueDetailsDialog.waitForDialogLoaded();
-            // 2. Click on 'Close Issue' button:
+            // 2. Click on 'Closed' tab menu button:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             await studioUtils.saveScreenshot('empty_issue_closed');
             // 'The issue is Closed.' - this message should appear

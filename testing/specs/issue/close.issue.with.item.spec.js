@@ -48,18 +48,19 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             await issueDetailsDialog.waitForDialogLoaded();
         });
 
-    it(`GIVEN folder is selected in grid AND 'Issue Details Dialog' is opened WHEN 'Close Issue' button has been pressed THEN issue-menu button gets not visible in Preview Panel`,
+    it(`GIVEN folder is selected AND 'Issue Details Dialog' is opened WHEN 'Closed' tab menu button has been pressed THEN issue-menu button gets not visible in Preview Panel`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            // 1. Open IssueDetails modal dialog:
             await contentItemPreviewPanel.clickOnIssueMenuButton();
             await issueDetailsDialog.waitForDialogLoaded();
-            // the issue has been closed:
+            // 2. Click on 'Closed' tab menu-tem:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
-            // modal dialog has been closed:
+            // 3. modal dialog has been closed:
             await issueDetailsDialog.clickOnCancelTopButton();
-            //Verify that 'issue-menu' button gets not visible in the preview toolbar, (the content is selected);
+            // 4. Verify that 'issue-menu' button gets not visible in the preview toolbar, (the content is selected);
             await contentItemPreviewPanel.waitForIssueMenuButtonNotVisible();
         });
 
