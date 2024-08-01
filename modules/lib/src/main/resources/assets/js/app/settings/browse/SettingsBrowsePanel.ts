@@ -9,6 +9,7 @@ import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/Se
 import {SettingsTreeList, SettingsTreeListElement} from '../SettingsTreeList';
 import {Projects} from '../resource/Projects';
 import {SettingsTreeActions} from '../tree/SettingsTreeActions';
+import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridContextMenu';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {
@@ -18,6 +19,8 @@ export class SettingsBrowsePanel
     protected treeListBox: SettingsTreeList;
 
     protected treeActions: SettingsTreeActions;
+
+    protected contextMenu: TreeGridContextMenu;
 
     protected selectableListBoxPanel: SelectableListBoxPanel<SettingsViewItem>;
 
@@ -35,6 +38,11 @@ export class SettingsBrowsePanel
 
                 listElement?.onDblClicked(() => {
                     this.treeActions.getEditAction().execute();
+                });
+
+                listElement?.onContextMenu((event: MouseEvent) => {
+                    event.preventDefault();
+                    this.contextMenu.showAt(event.clientX, event.clientY);
                 });
             });
         });
@@ -57,6 +65,7 @@ export class SettingsBrowsePanel
         });
 
         this.treeActions = new SettingsTreeActions(selectionWrapper);
+        this.contextMenu = new TreeGridContextMenu(this.treeActions);
 
         return new SelectableListBoxPanel(selectionWrapper);
     }
