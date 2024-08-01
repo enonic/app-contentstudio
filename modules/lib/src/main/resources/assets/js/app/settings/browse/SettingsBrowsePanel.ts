@@ -5,11 +5,14 @@ import {SettingsBrowseItemPanel} from './SettingsBrowseItemPanel';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 import {SettingsItemsTreeGridHighlightEvent} from '../../event/SettingsItemsTreeGridHighlightEvent';
 import {SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
+import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {SettingsTreeList, SettingsTreeListElement} from '../SettingsTreeList';
 import {Projects} from '../resource/Projects';
 import {SettingsTreeActions} from '../tree/SettingsTreeActions';
 import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridContextMenu';
+import * as Q from 'q';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {
@@ -17,6 +20,8 @@ export class SettingsBrowsePanel
     protected treeGrid: SettingsItemsTreeGrid;
 
     protected treeListBox: SettingsTreeList;
+
+    protected toolbar: ListBoxToolbar<SettingsViewItem>;
 
     protected treeActions: SettingsTreeActions;
 
@@ -66,8 +71,13 @@ export class SettingsBrowsePanel
 
         this.treeActions = new SettingsTreeActions(selectionWrapper);
         this.contextMenu = new TreeGridContextMenu(this.treeActions);
+        this.toolbar = new ListBoxToolbar<SettingsViewItem>(selectionWrapper, {
+            refreshAction: () => this.treeListBox.reload(),
+        });
 
-        return new SelectableListBoxPanel(selectionWrapper);
+        this.toolbar.getSelectionPanelToggler().hide();
+
+        return new SelectableListBoxPanel(selectionWrapper, this.toolbar);
     }
 
     protected createToolbar(): SettingsBrowseToolbar {
@@ -110,6 +120,14 @@ export class SettingsBrowsePanel
 
     getItemById(id: string): SettingsViewItem {
         return this.selectableListBoxPanel ? this.selectableListBoxPanel.getItem(id) : this.treeGrid.getItemById(id);
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addClass('settings-browse-panel');
+
+            return rendered;
+        });
     }
 
 }

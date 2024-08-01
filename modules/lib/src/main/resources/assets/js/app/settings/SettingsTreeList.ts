@@ -4,13 +4,9 @@ import {FolderItemBuilder, FolderViewItem} from './view/FolderViewItem';
 import {FolderItemViewer} from './browse/viewer/FolderItemViewer';
 import {SettingsItemViewer} from './browse/viewer/SettingsItemViewer';
 import {ProjectItemViewer} from './browse/viewer/ProjectItemViewer';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Project} from './data/project/Project';
 import {Projects} from './resource/Projects';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectViewItem} from './view/ProjectViewItem';
-import {ProjectListWithMissingRequest} from './resource/ProjectListWithMissingRequest';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import Q from 'q';
 import {SettingsTreeHelper} from './tree/SettingsTreeHelper';
 
