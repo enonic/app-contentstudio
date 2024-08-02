@@ -29,7 +29,6 @@ module.exports = Object.freeze({
     OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
     VALIDATION_RECORDING_VIEWER: "//div[contains(@id,'ValidationRecordingViewer')]//li",
     CONTENT_SUMMARY_AND_STATUS_VIEWER: "//div[contains(@id,'ContentSummaryAndCompareStatusViewer')]",
-    OPTION_SET_MENU_BUTTON: "//button[contains(@id,'MoreButton')]",
     validationRecording: "//div[contains(@id,'ValidationRecordingViewer')]//li",
     inputView: "//div[contains(@id,'InputView')]",
     INPUT_VALIDATION_VIEW: "//div[contains(@id,'InputViewValidationViewer')]",
@@ -54,7 +53,6 @@ module.exports = Object.freeze({
         REFRESH_BUTTON: "//button[contains(@class,'icon-loop')]",
         DROP_DOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
         SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,
-        OPTION_SET_MENU_BUTTON: "//button[contains(@id,'MoreButton')]",
         SELECTOR_MODE_TOGGLER: "//button[contains(@id,'ModeTogglerButton')]",
         UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
         actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
@@ -62,12 +60,25 @@ module.exports = Object.freeze({
         dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[contains(.,'${label}')]]`,
         dialogButtonStrict: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
         togglerButton: (label) => `//button[contains(@id,'TogglerButton') and child::span[text()='${label}']]`,
+        COLLAPSE_BUTTON_BOTTOM: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  (text()='Collapse' or text()='Collapse all')]",
+        COLLAPSE_ALL_BUTTON_BOTTOM: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  (text()='Collapse' or text()='Collapse all')]",
+        EXPAND_BUTTON_BOTTOM: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  text()='Expand']",
+        EXPAND_ALL_BUTTON_BOTTOM: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  text()='Expand all')]",
+        COLLAPSE_BUTTON_TOP: "//div[contains(@class,'top-button-row')]//a[contains(@class,'collapse-button') and (text()='Collapse' or text()='Collapse all')]",
+        MORE_BUTTON: "//button[contains(@id,'MoreButton')]",
+        ADD_BUTTON: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add']]",
     },
     CONTENT_SELECTOR: {
         DIV: "//div[contains(@id,'ContentSelector')]",
         selectedOptionByName: option => {
             return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
         }
+    },
+    FORM_VIEW_PANEL: {
+        INPUT_VIEW: "//div[contains(@id,'InputView')]",
+        HTML_AREA_INPUT: "//div[contains(@id,'InputView') and descendant::div[contains(@id,'HtmlArea')]]",
+        TEXT_LINE_INPUT: "//div[contains(@id,'InputView') and descendant::div[contains(@id,'TextLine')]]",
+        COMBOBOX_INPUT: "//div[contains(@id,'InputView') and descendant::div[contains(@id,'ComboBox')]]",
     },
     DROPDOWN_SELECTOR: {
         contentListElementByDisplayName: (container, displayName) => {
@@ -195,6 +206,7 @@ module.exports = Object.freeze({
         EXCLUDE_BTN: "//button[child::span[contains(.,'Exclude')]]",
     },
     CKE: {
+        TEXTAREA_DIV: "//div[contains(@id,'cke_TextArea')]",
         insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
         insertLinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Link')]`,
         insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,

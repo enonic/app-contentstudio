@@ -73,8 +73,16 @@ class ImageSelectorDropdown extends BaseDropdown {
         return await this.pause(300);
     }
 
+    // Gets all content-statuses in the expanded dropdown list
     async getImagesStatusInOptions() {
-        let statusEl = XPATH.contentListElement + "//div[contains(@class,'status')]";
+        let statusEl = XPATH.contentListElement + lib.H6_DISPLAY_NAME + "/following::div[contains(@class,'status')]";
+        await this.waitForElementDisplayed(statusEl, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(statusEl);
+    }
+
+    // Gets content-status by displayName in the expanded dropdown list
+    async getTreeModeContentStatus(displayName) {
+        let statusEl = XPATH.contentListElement + lib.itemByDisplayName(displayName) + "/following::div[contains(@class,'status')][1]";
         await this.waitForElementDisplayed(statusEl, appConst.mediumTimeout);
         return await this.getTextInElements(statusEl);
     }

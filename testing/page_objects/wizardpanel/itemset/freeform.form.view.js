@@ -38,14 +38,14 @@ class FreeFormView extends Page {
     }
 
     get inputTypeMenuButton() {
-        return xpath.itemSet + xpath.inputTypeSetView + lib.OPTION_SET_MENU_BUTTON;
+        return xpath.itemSet + xpath.inputTypeSetView + lib.BUTTONS.MORE_BUTTON;
     }
 
     waitForAddButtonDisplayed() {
         return this.waitForElementDisplayed(this.addButton, appConst.mediumTimeout);
     }
 
-    //Types the required text in the option filter input and select an option:  TODO: remove slick-grid
+    //Types the required text in the option filter input and select an option:
     async selectInputType(inputType) {
         await this.scrollPanel(800);
         await this.pause(300);

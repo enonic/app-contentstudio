@@ -227,6 +227,7 @@ class ContentPublishDialog extends Page {
     async clickOnMarkAsReadyButton() {
         try {
             await this.waitForMarkAsReadyButtonDisplayed();
+            await this.pause(400);
             await this.clickOnElement(this.markAsReadyButton);
             return await this.pause(700);
         } catch (err) {
@@ -250,8 +251,13 @@ class ContentPublishDialog extends Page {
     }
 
     async waitForDialogOpened() {
-        await this.waitForElementDisplayed(this.publishNowButton, appConst.mediumTimeout);
-        await this.pause(1000);
+        try {
+            await this.waitForElementDisplayed(this.publishNowButton, appConst.mediumTimeout);
+            await this.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_open_publish_dialog');
+            throw new Error('Publish dialog should be loaded, screenshot: ' + screenshot + "  " + err);
+        }
     }
 
     async waitForDialogClosed() {
