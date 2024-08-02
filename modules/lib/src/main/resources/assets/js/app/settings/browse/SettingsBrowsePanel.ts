@@ -3,21 +3,17 @@ import {SettingsItemsTreeGrid} from '../grid/SettingsItemsTreeGrid';
 import {SettingsBrowseToolbar} from './SettingsBrowseToolbar';
 import {SettingsBrowseItemPanel} from './SettingsBrowseItemPanel';
 import {SettingsViewItem} from '../view/SettingsViewItem';
-import {SettingsItemsTreeGridHighlightEvent} from '../../event/SettingsItemsTreeGridHighlightEvent';
 import {SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
 import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {SettingsTreeList, SettingsTreeListElement} from '../SettingsTreeList';
-import {Projects} from '../resource/Projects';
 import {SettingsTreeActions} from '../tree/SettingsTreeActions';
 import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridContextMenu';
 import * as Q from 'q';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {Projects} from '../resource/Projects';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {
-
-    protected treeGrid: SettingsItemsTreeGrid;
 
     protected treeListBox: SettingsTreeList;
 
@@ -31,11 +27,6 @@ export class SettingsBrowsePanel
 
     protected initListeners(): void {
         super.initListeners();
-
-        this.treeGrid.onLoaded(this.updateBrowseActions.bind(this));
-        this.treeGrid.onHighlightingChanged(
-            () => this.treeGrid.hasHighlightedNode() && new SettingsItemsTreeGridHighlightEvent(this.treeGrid.getHighlightedItem()).fire()
-        );
 
         this.treeListBox.onItemsAdded((items: SettingsViewItem[]) => {
             items.forEach((item: SettingsViewItem) => {
@@ -52,7 +43,14 @@ export class SettingsBrowsePanel
             });
         });
 
-        Projects.get().onProjectsUpdated(() => this.treeListBox?.reload());
+        // load tree after projects are loaded
+        const projectsUpdatedListener = () => {
+            this.treeListBox?.reload();
+
+            Projects.get().unProjectsUpdated(projectsUpdatedListener);
+        };
+
+        Projects.get().onProjectsUpdated(projectsUpdatedListener);
     }
 
     protected createTreeGrid(): SettingsItemsTreeGrid {
@@ -93,33 +91,27 @@ export class SettingsBrowsePanel
     }
 
     hasItemWithId(id: string) {
-        return this.treeGrid.hasItemWithId(id);
+        return !!this.treeListBox.getItem(id);
     }
 
     addSettingsItem(item: SettingsViewItem) {
-        this.treeGrid.appendSettingsItemNode(item);
+        this.treeListBox.addItems(item);
     }
 
     updateSettingsItem(item: SettingsViewItem) {
-        this.treeGrid.updateNodeByData(item);
+        this.treeListBox.replaceItems(item);
     }
 
     deleteSettingsItem(id: string) {
-        this.treeGrid.deleteSettingsItem(id);
-    }
+        const item = this.treeListBox.getItem(id);
 
-    hasItemsLoaded(): boolean {
-        return this.treeGrid.getFullTotal() > 1;
-    }
-
-    hasChildren(id: string): boolean {
-        const item: SettingsViewItem = this.treeGrid.getItemById(id);
-
-        return !!item && this.treeGrid.hasChildren(item);
+        if (item) {
+            this.treeListBox.removeItems(item);
+        }
     }
 
     getItemById(id: string): SettingsViewItem {
-        return this.selectableListBoxPanel ? this.selectableListBoxPanel.getItem(id) : this.treeGrid.getItemById(id);
+        return this.selectableListBoxPanel.getItem(id);
     }
 
     doRender(): Q.Promise<boolean> {

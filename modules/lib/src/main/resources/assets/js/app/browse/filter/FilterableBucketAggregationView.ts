@@ -71,7 +71,7 @@ export class FilterableBucketAggregationView
     }
 
     protected addBucket(bucket: Bucket, isSelected?: boolean) {
-        this.bucketListBox.addItem(bucket);
+        this.bucketListBox.addItems(bucket);
 
         if (isSelected || this.isBucketToBeAlwaysOnTop(bucket)) {
             super.addBucket(bucket, isSelected);
