@@ -849,7 +849,7 @@ export class IssueDetailsDialog
             .setSilent(silent)
             .setText(text).sendAndParse()
             .then(issueComment => {
-                this.commentsList.addItem(issueComment);
+                this.commentsList.addItems(issueComment);
                 this.commentTextArea.setValue('').giveFocus();
                 const messageKey = this.isPublishRequest() ? 'notify.publishRequest.commentAdded' : 'notify.issue.commentAdded';
                 showFeedback(i18n(messageKey));

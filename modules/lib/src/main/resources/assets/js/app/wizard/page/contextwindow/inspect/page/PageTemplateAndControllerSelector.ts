@@ -123,7 +123,7 @@ export class PageTemplateAndControllerSelector
                 const listItem = this.getItemById(item.getId());
 
                 if (listItem) {
-                    this.listBox.removeItem(listItem);
+                    this.listBox.removeItems(listItem);
                 }
             });
         });
@@ -246,7 +246,7 @@ export class PageTemplateAndControllerSelector
         this.listBox.clearItems();
 
         if (this.autoOption) {
-            this.listBox.addItem(this.autoOption);
+            this.listBox.addItems(this.autoOption);
         }
 
         this.listBox.addItems(templateOptions);

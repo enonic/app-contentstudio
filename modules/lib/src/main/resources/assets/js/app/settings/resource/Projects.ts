@@ -31,14 +31,6 @@ export class Projects {
         this.notifyProjectsUpdated();
     }
 
-    public getProjectsPyParent(parentName: string | null): Project[] {
-        if (parentName == null) {
-            return this.projects.filter((project: Project) => (project.getParents() ?? []).length === 0);
-        } else {
-            return this.projects.filter((project: Project) => project.hasMainParentByName(parentName));
-        }
-    }
-
     public reloadProjects(): void {
         new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
             this.setProjects(projects);

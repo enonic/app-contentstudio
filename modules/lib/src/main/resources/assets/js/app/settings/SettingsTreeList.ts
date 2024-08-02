@@ -4,11 +4,12 @@ import {FolderItemBuilder, FolderViewItem} from './view/FolderViewItem';
 import {FolderItemViewer} from './browse/viewer/FolderItemViewer';
 import {SettingsItemViewer} from './browse/viewer/SettingsItemViewer';
 import {ProjectItemViewer} from './browse/viewer/ProjectItemViewer';
-import {Projects} from './resource/Projects';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectViewItem} from './view/ProjectViewItem';
 import Q from 'q';
 import {SettingsTreeHelper} from './tree/SettingsTreeHelper';
+import {ProjectsUtil} from './resource/ProjectsUtil';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class SettingsTreeList
     extends TreeListBox<SettingsViewItem> {
@@ -55,13 +56,47 @@ export class SettingsTreeList
 
     private getProjectsViewItemsByParent(): ProjectViewItem[] {
         const parentId = this.options.parentItem instanceof FolderViewItem ? null : this.options.parentItem.getId();
-        return Projects.get().getProjectsPyParent(parentId).map(project => ProjectViewItem.create()
+        return ProjectsUtil.getProjectsPyParent(parentId).map(project => ProjectViewItem.create()
             .setData(project)
             .build());
     }
 
     private isRoot(): boolean {
         return !this.options.parentItem;
+    }
+
+    getParentList(item: ProjectViewItem): TreeListBox<SettingsViewItem> {
+        if (this.options.parentItem) {
+            if (item.getData().hasParents()) { // item is a child Layer
+                if (item.getData().getMainParent() === this.options.parentItem.getId()) {
+                    return this;
+                }
+            } else { // item is a root Project
+                if (this.options.parentItem instanceof FolderViewItem) {
+                    return this;
+                }
+            }
+        }
+
+        let parent = null;
+
+        this.getItemViews().some((listElement: SettingsTreeListElement) => {
+            const result = listElement.getParentList(item);
+
+            if (result) {
+                parent = result;
+                return true;
+            }
+
+            return false;
+        });
+
+
+        return parent;
+    }
+
+    protected updateItemView(itemView: SettingsTreeListElement, item: SettingsViewItem) {
+        itemView.updateItemView(item);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -92,6 +127,14 @@ export class SettingsTreeListElement
         const viewer = item instanceof FolderViewItem ? new FolderItemViewer() : new ProjectItemViewer();
         viewer.setObject(item);
         return viewer;
+    }
+
+    getParentList(item: ProjectViewItem): TreeListBox<SettingsViewItem> {
+        return (this.childrenList as SettingsTreeList).getParentList(item);
+    }
+
+    updateItemView(item: SettingsViewItem): void {
+        (this.itemViewer as SettingsItemViewer).setObject(item);
     }
 
     setExpanded(expanded: boolean): void {
