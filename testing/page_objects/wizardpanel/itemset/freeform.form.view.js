@@ -45,7 +45,7 @@ class FreeFormView extends Page {
         return this.waitForElementDisplayed(this.addButton, appConst.mediumTimeout);
     }
 
-    //Types the required text in the option filter input and select an option:  TODO: remove slick-grid
+    //Types the required text in the option filter input and select an option:
     async selectInputType(inputType) {
         await this.scrollPanel(800);
         await this.pause(300);

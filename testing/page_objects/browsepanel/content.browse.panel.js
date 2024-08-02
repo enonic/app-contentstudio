@@ -657,7 +657,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return await this.getText(selector);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_content_status');
-            throw new Error(`Error occurred during getting the status of the content, screenshot: ${screenshot}  ` + err);
+            throw Error(`Error occurred during getting the status of the content, screenshot: ${screenshot}  ` + err);
         }
     }
 

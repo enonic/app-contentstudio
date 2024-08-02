@@ -52,18 +52,19 @@ class BaseDetailsPanel extends Page {
         return await this.getTextInElements(locator);
     }
 
-    // clicks on dropdown handle and select the 'Version History' menu item
+    //clicks on dropdown handle and select the 'Version History' menu item
     async openVersionHistory() {
         try {
             await this.clickOnWidgetSelectorDropdownHandle();
-            let dropdownOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
-            await this.waitForElementDisplayed(dropdownOption, appConst.mediumTimeout);
-            let elements = await this.getDisplayedElements(dropdownOption);
+            let versionHistoryOption = this.widgetSelectorDropdown +
+                                       lib.itemByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
+            await this.waitForElementDisplayed(versionHistoryOption, appConst.mediumTimeout);
+            let elements = await this.getDisplayedElements(versionHistoryOption);
             await elements[0].click();
             return await this.pause(500);
         } catch (err) {
-            let screenshot =  await this.saveScreenshotUniqueName('err_open_versions');
-            throw new Error("Error occurred during opening Version History widget, screenshot: " + screenshot+ ' ' + err);
+            await this.saveScreenshot(appConst.generateRandomName('err_open_versions'));
+            throw new Error("Error when opening Version History: " + err);
         }
     }
 

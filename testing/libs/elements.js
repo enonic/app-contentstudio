@@ -91,6 +91,12 @@ module.exports = Object.freeze({
             return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
         }
     },
+    FORM_VIEW_PANEL: {
+        INPUT_VIEW: "//div[contains(@id,'InputView')]",
+        HTML_AREA_INPUT: "//div[contains(@id,'InputView') and descendant::div[contains(@id,'HtmlArea')]]",
+        TEXT_LINE_INPUT: "//div[contains(@id,'InputView') and descendant::div[contains(@id,'TextLine')]]",
+        COMBOBOX_INPUT: "//div[contains(@id,'InputView') and descendant::div[contains(@id,'ComboBox')]]",
+    },
     DROPDOWN_SELECTOR: {
         contentListElementByDisplayName: (container, displayName) => {
             return container +
@@ -216,6 +222,7 @@ module.exports = Object.freeze({
         EXCLUDE_BTN: "//button[child::span[contains(.,'Exclude')]]",
     },
     CKE: {
+        TEXTAREA_DIV: "//div[contains(@id,'cke_TextArea')]",
         insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
         insertLinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Link')]`,
         insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,

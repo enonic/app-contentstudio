@@ -15,6 +15,7 @@ const XPATH = {
     homeButton: "//div[contains(@class,'home-button') and descendant::span[text()='Settings']]",
     toolbar: `//div[contains(@id,'SettingsBrowseToolbar')]`,
     itemsTreeGrid: `//div[contains(@id,'SettingsItemsTreeGrid')]`,
+    settingsTreeList: `//ul[contains(@id,'SettingsTreeList')]`,
     treeGridToolbar: `//div[contains(@id,'TreeGridToolbar')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
@@ -80,7 +81,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get treeGrid() {
-        return XPATH.container + XPATH.itemsTreeGrid;
+        return XPATH.container + XPATH.settingsTreeList;
     }
 
     get selectionControllerCheckBox() {
@@ -96,7 +97,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get displayNames() {
-        return XPATH.itemsTreeGrid + lib.H6_DISPLAY_NAME;
+        return XPATH.settingsTreeList + lib.H6_DISPLAY_NAME;
     }
 
     // returns array with displayName of all items in the Settings Browse Panel
@@ -107,7 +108,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async clickOnExpanderIcon(name) {
         try {
-            let expanderIcon = XPATH.itemsTreeGrid + XPATH.expanderIconByName(name);
+            let expanderIcon = XPATH.settingsTreeList + XPATH.expanderIconByName(name);
             await this.clickOnElement(expanderIcon);
             return await this.pause(1100);
         } catch (err) {
@@ -118,7 +119,8 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForItemDisplayed(projectName) {
         try {
-            return await this.waitForElementDisplayed(XPATH.itemsTreeGrid + XPATH.projectItemByName(projectName), appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(XPATH.settingsTreeList + XPATH.projectItemByName(projectName),
+                appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_browse_panel');
             throw new Error('project is not displayed ! Screenshot: ' + screenshot + "  " + err);
@@ -127,7 +129,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForItemByDisplayNameDisplayed(displayName) {
         try {
-            let selector = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
+            let selector = XPATH.settingsTreeList + lib.itemByDisplayName(displayName);
             return await this.waitForElementDisplayed(selector, appConst.longTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_find_item');
@@ -137,7 +139,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForLanguageIconDisplayed(displayName) {
         try {
-            let locatorIcon = XPATH.itemsTreeGrid +
+            let locatorIcon = XPATH.settingsTreeList +
                               `//div[contains(@id,'NamesAndIconView') and descendant::span[contains(@class,'display-name') and contains(.,'${displayName}')]]` +
                               "//div[contains(@id,'Flag')]";
             await this.waitForElementDisplayed(locatorIcon, appConst.longTimeout);
@@ -150,7 +152,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForProjectNotDisplayed(projectDisplayName) {
         try {
-            let selector = XPATH.itemsTreeGrid + lib.itemByDisplayName(projectDisplayName);
+            let selector = XPATH.settingsTreeList + lib.itemByDisplayName(projectDisplayName);
             return await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
             throw new Error("projectName is still displayed :" + err);
@@ -165,7 +167,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async clickOnRowByDisplayName(displayName) {
         try {
-            let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
+            let nameXpath = XPATH.settingsTreeList + lib.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             await this.clickOnElement(nameXpath);
             return await this.pause(500);
@@ -176,7 +178,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     async waitForItemByNameVisible(name) {
-        let nameXpath = XPATH.itemsTreeGrid + lib.itemByName(name);
+        let nameXpath = XPATH.settingsTreeList + lib.itemByName(name);
         try {
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
         } catch (err) {
@@ -187,7 +189,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForProjectByDisplayNameVisible(displayName) {
         try {
-            let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
+            let nameXpath = XPATH.settingsTreeList + lib.itemByDisplayName(displayName);
             return await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_find_project');
@@ -244,7 +246,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     isExpanderIconPresent(name) {
-        let expanderIcon = XPATH.itemsTreeGrid + XPATH.expanderIconByName(name);
+        let expanderIcon = XPATH.settingsTreeList + XPATH.expanderIconByName(name);
         return this.waitForElementDisplayed(expanderIcon).catch(err => {
             this.saveScreenshot('expander_not_exists ' + name);
             return false;
