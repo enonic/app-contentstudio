@@ -21,7 +21,7 @@ export class SettingsTreeList
     }
 
     protected createItemView(item: SettingsViewItem, readOnly: boolean): SettingsTreeListElement {
-        return new SettingsTreeListElement(item, {scrollParent: this.scrollParent, level: this.level});
+        return new SettingsTreeListElement(item, {scrollParent: this.scrollParent, level: this.level, parentList: this});
     }
 
     protected getItemId(item: SettingsViewItem): string {
@@ -65,7 +65,7 @@ export class SettingsTreeList
         return !this.options.parentItem;
     }
 
-    getParentList(item: ProjectViewItem): TreeListBox<SettingsViewItem> {
+    findParentList(item: ProjectViewItem): TreeListBox<SettingsViewItem> {
         if (this.options.parentItem) {
             if (item.getData().hasParents()) { // item is a child Layer
                 if (item.getData().getMainParent() === this.options.parentItem.getId()) {
@@ -81,7 +81,7 @@ export class SettingsTreeList
         let parent = null;
 
         this.getItemViews().some((listElement: SettingsTreeListElement) => {
-            const result = listElement.getParentList(item);
+            const result = listElement.findParentList(item);
 
             if (result) {
                 parent = result;
@@ -119,8 +119,8 @@ export class SettingsTreeListElement
         return new SettingsTreeList(params);
     }
 
-    protected hasChildren(item: SettingsViewItem): boolean {
-        return SettingsTreeHelper.hasChildren(item);
+    hasChildren(): boolean {
+        return SettingsTreeHelper.hasChildren(this.item);
     }
 
     protected createItemViewer(item: SettingsViewItem): SettingsItemViewer {
@@ -129,8 +129,8 @@ export class SettingsTreeListElement
         return viewer;
     }
 
-    getParentList(item: ProjectViewItem): TreeListBox<SettingsViewItem> {
-        return (this.childrenList as SettingsTreeList).getParentList(item);
+    findParentList(item: ProjectViewItem): TreeListBox<SettingsViewItem> {
+        return (this.childrenList as SettingsTreeList).findParentList(item);
     }
 
     updateItemView(item: SettingsViewItem): void {

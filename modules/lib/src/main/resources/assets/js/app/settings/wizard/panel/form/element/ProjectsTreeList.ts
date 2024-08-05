@@ -110,8 +110,8 @@ export class ProjectTreeListElement
         return viewer;
     }
 
-    protected hasChildren(item: Project): boolean {
-        return !this.options.isFilterMode && this.options.helper.hasChildren(item);
+    hasChildren(): boolean {
+        return !this.options.isFilterMode && this.options.helper.hasChildren(this.item);
     }
 
 }
