@@ -16,7 +16,7 @@ describe('content.image.selector: Image selector dropdown specification', functi
 
     let SITE;
     const FOLDER_WITH_FILES = 'selenium-tests-folder';
-    const EXPECTETD_NUMBER_OF_ITEMS_IN_SELECTOR = 14;
+    const EXPECTETD_NUMBER_OF_ITEMS_IN_SELECTOR = 15;
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -122,7 +122,7 @@ describe('content.image.selector: Image selector dropdown specification', functi
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_1_1);
             // 2. Type the folder-name:
             await imageSelectorForm.doFilterOptions(FOLDER_WITH_FILES);
-            // 3. Verify that expected options are present in the expanded list:
+            // 3. Verify that expected images (options) are present in the expanded list: there are only 2 images in this folder.
             let optionsName = await imageSelectorForm.getFlatModeOptionImageNames();
             await studioUtils.saveScreenshot('img_sel_filtered');
             assert.equal(optionsName.length, 2, 'one option should be present in options, because text files should be filtered');
