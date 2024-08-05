@@ -11,6 +11,7 @@ import {SettingsTreeActions} from '../tree/SettingsTreeActions';
 import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridContextMenu';
 import * as Q from 'q';
 import {Projects} from '../resource/Projects';
+import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {
@@ -72,6 +73,8 @@ export class SettingsBrowsePanel
         this.toolbar = new ListBoxToolbar<SettingsViewItem>(selectionWrapper, {
             refreshAction: () => this.treeListBox.reload(),
         });
+
+        new SelectableTreeListBoxKeyNavigator(selectionWrapper);
 
         this.toolbar.getSelectionPanelToggler().hide();
 

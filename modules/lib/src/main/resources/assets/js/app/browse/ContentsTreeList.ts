@@ -109,8 +109,8 @@ export class ContentListElement extends TreeListElement<ContentTreeSelectorItem>
         return new ContentsTreeList(params);
     }
 
-    protected hasChildren(item: ContentTreeSelectorItem): boolean {
-        return item.hasChildren();
+    hasChildren(): boolean {
+        return this.item.hasChildren();
     }
 
     protected createItemViewer(item: ContentTreeSelectorItem): Element {
