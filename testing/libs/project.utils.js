@@ -42,7 +42,9 @@ module.exports = {
         let selectedItems = await parentProjectStep.getSelectedProjects();
         for (let name of parents) {
             if (selectedItems.length === 0 || this.isProjectSelected(selectedItems, name)) {
+                // TODO slickgrid - uncomment this string
                 await parentProjectStep.selectParentProject(name);
+                //await parentProjectStep.selectParentProjectById(name);
             }
         }
         await parentProjectStep.clickOnNextButton();
