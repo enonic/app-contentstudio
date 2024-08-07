@@ -1,7 +1,7 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const ProjectApplicationsComboBox = require('../components/projects/project.applications.comboBox');
+const ProjectApplicationsComboBox = require('../components/projects/project.applications.combobox');
 const ProjectAccessControlComboBox = require('../components/projects/project.access.control.combobox');
 
 const XPATH = {

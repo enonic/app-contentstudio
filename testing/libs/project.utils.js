@@ -37,26 +37,31 @@ module.exports = {
         return await settingsBrowsePanel.pause(500);
     },
     async fillParentNameStep(parents) {
-        let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-        parents = [].concat(parents);
-        let selectedItems = await parentProjectStep.getSelectedProjects();
-        for (let name of parents) {
-            if (selectedItems.length === 0 || this.isProjectSelected(selectedItems, name)) {
-                // TODO slickgrid - uncomment this string
-                await parentProjectStep.selectParentProject(name);
-                //await parentProjectStep.selectParentProjectById(name);
+        try {
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            parents = [].concat(parents);
+            let selectedItems = await parentProjectStep.getSelectedProjects();
+            for (let name of parents) {
+                if (selectedItems.length === 0 || this.isProjectSelected(selectedItems, name)) {
+                    // TODO slickgrid - uncomment this string
+                    await parentProjectStep.selectParentProject(name);
+                    //await parentProjectStep.selectParentProjectById(name);
+                }
             }
+            await parentProjectStep.clickOnNextButton();
+            return new ProjectWizardDialogLanguageStep();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_parent_proj_step');
+            throw new Error(`Error occurred in parent project step, screenshot:${screenshot} ` + err);
         }
-        await parentProjectStep.clickOnNextButton();
-        return new ProjectWizardDialogLanguageStep();
     },
     isProjectSelected(arr, text) {
-         arr.find((item) => {
-            if (item.includes(text)){
+        arr.find((item) => {
+            if (item.includes(text)) {
                 return true;
             }
         });
-         return false;
+        return false;
     },
     async fillLanguageStep(language) {
         let languageStep = new ProjectWizardDialogLanguageStep();
