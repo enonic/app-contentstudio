@@ -2,7 +2,7 @@ import * as Q from 'q';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
-import {ActionName, ContentTreeGridActions} from './action/ContentTreeGridActions';
+import {ActionName} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
 import {ContentTreeGrid, State} from './ContentTreeGrid';
 import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
@@ -14,7 +14,6 @@ import {NewMediaUploadEvent} from '../create/NewMediaUploadEvent';
 import {ContentPreviewPathChangedEvent} from '../view/ContentPreviewPathChangedEvent';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
-import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
@@ -41,16 +40,14 @@ import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {ContentItemPreviewPanel} from '../view/ContentItemPreviewPanel';
 import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
 import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridContextMenu';
-import {ContentsTreeList} from './ContentsTreeList';
-import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
-import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
-import {SettingsTreeActions} from '../settings/tree/SettingsTreeActions';
 import {ContentTreeActions} from './ContentTreeActions';
 import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
-import {ContentsTreeGridList} from './ContentsTreeGridList';
+import {ContentsTreeGridList, ContentsTreeGridListElement} from './ContentsTreeGridList';
+import {SettingsViewItem} from '../settings/view/SettingsViewItem';
+import {SettingsTreeListElement} from '../settings/SettingsTreeList';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -62,7 +59,6 @@ export class ContentBrowsePanel
     private debouncedBrowseActionsAndPreviewRefreshOnDemand: () => void;
     private browseActionsAndPreviewUpdateRequired: boolean = false;
     private contextPanelToggler: NonMobileContextPanelToggleButton;
-    private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     protected treeListBox: ContentsTreeGridList;
 
@@ -77,7 +73,6 @@ export class ContentBrowsePanel
 
         this.browseToolbar.addActions(this.getBrowseActions().getAllActionsNoPublish());
 
-        this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
         this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
         this.debouncedBrowseActionsAndPreviewRefreshOnDemand = AppHelper.debounce(() => {
             if (this.browseActionsAndPreviewUpdateRequired) {
@@ -136,10 +131,25 @@ export class ContentBrowsePanel
                 previewPanel.hideMask(); // dbl click, item is not selected, no need to show a load mask
             }
         });
+
+        this.treeListBox.onItemsAdded((items: ContentSummaryAndCompareStatus[]) => {
+            items.forEach((item: ContentSummaryAndCompareStatus) => {
+                const listElement = this.treeListBox.getDataView(item) as ContentsTreeGridListElement;
+
+                listElement?.onDblClicked(() => {
+                    this.treeActions.getEditAction().execute();
+                });
+
+                listElement?.onContextMenu((event: MouseEvent) => {
+                    event.preventDefault();
+                    this.contextMenu.showAt(event.clientX, event.clientY);
+                });
+            });
+        });
     }
 
     createListBoxPanel(): SelectableListBoxPanel<ContentSummaryAndCompareStatus> {
-        this.treeListBox = new ContentsTreeGridList();
+        this.treeListBox = new ContentsTreeGridList({scrollParent: this});
 
         const selectionWrapper = new SelectableListBoxWrapper<ContentSummaryAndCompareStatus>(this.treeListBox, {
             className: 'content-list-box-wrapper',
