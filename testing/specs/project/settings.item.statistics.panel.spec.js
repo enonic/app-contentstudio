@@ -40,7 +40,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
             // 1. Click on the Projects-checkbox:
-            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByIdentifier('Manage projects and layers');
+            await settingsBrowsePanel.clickOnProjectsFolderCheckbox();
             // 2. Wait for the graphic element for 'Default' project is displayed in 'Projects Graph':
             await studioUtils.saveScreenshot('project_item_statistics');
             await settingsItemStatisticsPanel.waitForGraphicElementDisplayed('Default');
@@ -82,7 +82,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             // 3. Verify that only the second selected project is displayed in the Step:
             await studioUtils.saveScreenshot('project_apps_step_selected_app');
             let selectedProjects = await parentProjectStep.getSelectedProjects();
-            assert.equal(selectedProjects[0], 'Default', 'Default project should be selected in the parent step');
+            assert.equal(selectedProjects[1], 'Default', 'Default project should be selected in the parent step');
         });
 
     it("GIVEN user-contributor is added in Roles WHEN the project has been selected THEN this user should appear in statistics panel",

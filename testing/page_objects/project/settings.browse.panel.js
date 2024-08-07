@@ -32,20 +32,19 @@ const XPATH = {
     projectItemByDisplayName:
         displayName => `//div[contains(@id,'NamesView') and descendant::span[contains(@class,'display-name') and contains(.,'${displayName}')]]`,
 
+
     projectCheckboxByName: name => {
-        return `${lib.projectByName(name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
+        return `//div[contains(@id,'ProjectItemViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]/..//..//div[contains(@id,'Checkbox')]/label`
     },
 
     projectCheckboxByIdentifier: id => {
-        return `${lib.projectByIdentifier(
-            id)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
+        return `//div[contains(@id,'ProjectItemViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${id}')]]/..//..//div[contains(@id,'Checkbox')]/label`
     },
 
-    projectItemByName: function (name) {
+    projectItemByName(name) {
         return `//div[contains(@id,'NamesView') and descendant::span[@class='display-name' and contains(.,'${name}')]]`
     },
-    expanderIconByName: name => `${lib.itemByDisplayName(
-        name)}/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`,
+    expanderIconByName: name => `${lib.PROJECTS.projectByName(name)}/..//div[contains(@class,'toggle icon-arrow_drop_up')]`,
 
     getProjectDescription: name => `${lib.itemByName(
         name)}/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`,
@@ -187,20 +186,28 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             return await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_find_project');
-            throw Error('Project is not visible, screenshot:' + screenshot + "  " + err);
+            throw new Error('Project is not visible, screenshot:' + screenshot + "  " + err);
         }
     }
 
     async clickOnCheckboxAndSelectRowByName(name) {
         try {
             let nameXpath = XPATH.projectCheckboxByName(name);
-            await this.waitForElementDisplayed(nameXpath, appConst.shortTimeout);
-            await this.clickOnElement(nameXpath);
+            await this.waitUntilDisplayed(nameXpath, appConst.mediumTimeout);
+            let checkboxElement = await this.getDisplayedElements(nameXpath);
+            //await this.clickOnElement(nameXpath);
+            await checkboxElement[0].click()
             return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_checkbox_proj');
-            throw Error("Project's checkbox was not found Screenshot:" + screenshot + "  " + err);
+            throw new Error("Project's checkbox was not found Screenshot:" + screenshot + "  " + err);
         }
+    }
+
+    async clickOnProjectsFolderCheckbox() {
+        let locator = `//div[contains(@id,'FolderItemViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'Projects')]]/..//..//div[contains(@id,'Checkbox')]/label`;
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+        await this.clickOnElement(locator);
     }
 
     async clickOnCheckboxAndSelectRowByIdentifier(id) {
@@ -211,7 +218,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_checkbox_proj');
-            throw Error("Project's checkbox was not found Screenshot:" + screenshot + "  " + err);
+            throw new Error("Project's checkbox was not found Screenshot:" + screenshot + "  " + err);
         }
     }
 
@@ -331,7 +338,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     waitForSyncButtonEnabled() {
         return this.waitForElementEnabled(this.syncButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_sync_disabled_button');
-            throw Error('Sync button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
+            throw new Error('Sync button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
         })
     }
 
@@ -360,7 +367,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     waitForDeleteButtonEnabled() {
         return this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_delete_button');
-            throw Error('Delete button is not enabled after ' + appConst.mediumTimeout + 'ms')
+            throw new Error('Delete button is not enabled after ' + appConst.mediumTimeout + 'ms')
         })
     }
 }

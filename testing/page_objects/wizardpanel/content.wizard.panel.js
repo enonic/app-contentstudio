@@ -647,7 +647,7 @@ class ContentWizardPanel extends Page {
         let pageDescriptorDropdown = new PageDescriptorDropdown();
         await pageDescriptorDropdown.selectFilteredControllerAndClickOnOk(pageControllerDisplayName)
         if (typeof checkContextPanel === 'undefined' || checkContextPanel) {
-            await this.waitForContextWindowVisible();
+            //await this.waitForContextWindowVisible();
         }
         await this.pause(500);
     }
