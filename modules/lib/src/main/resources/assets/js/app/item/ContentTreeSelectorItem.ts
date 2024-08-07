@@ -8,6 +8,7 @@ import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
 import {ContentName} from '../content/ContentName';
 import {ContentState} from '../content/ContentState';
+import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 
 export class ContentTreeSelectorItemJson {
 
@@ -19,7 +20,7 @@ export class ContentTreeSelectorItemJson {
 }
 
 export class ContentTreeSelectorItem
-    implements Equitable {
+    implements Equitable, ViewItem {
 
     private readonly content: ContentSummary;
 
@@ -31,6 +32,10 @@ export class ContentTreeSelectorItem
         this.content = content;
         this.selectable = selectable;
         this.expandable = expandable;
+    }
+
+    getIconClass(): string {
+        return '';
     }
 
     public static fromJson(json: ContentTreeSelectorItemJson) {

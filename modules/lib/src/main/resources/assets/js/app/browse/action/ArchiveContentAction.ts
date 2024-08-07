@@ -5,16 +5,19 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import {TreeListBox} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class ArchiveContentAction extends ContentTreeGridAction {
 
-    constructor(grid: ContentTreeGrid) {
+    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
         super(grid, i18n('action.archiveMore'), 'mod+del');
         this.setEnabled(false);
     }
 
     protected handleExecuted() {
-        new ContentDeletePromptEvent(this.grid.getSelectedDataList()).fire();
+        new ContentDeletePromptEvent(this.grid.getSelectedItems()).fire();
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

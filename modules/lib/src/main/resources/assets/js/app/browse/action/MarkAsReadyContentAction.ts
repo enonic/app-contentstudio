@@ -10,6 +10,9 @@ import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {ContentPublishPromptEvent} from '../ContentPublishPromptEvent';
 import {ContentId} from '../../content/ContentId';
+import {TreeListBox} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class MarkAsReadyContentAction
     extends ContentTreeGridAction {
@@ -18,7 +21,7 @@ export class MarkAsReadyContentAction
 
     private confirmDialog: ConfirmationDialog;
 
-    constructor(grid: ContentTreeGrid) {
+    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
         super(grid, i18n('action.markAsReady'));
         this.setEnabled(false);
         this.canPublish = false;
@@ -27,8 +30,8 @@ export class MarkAsReadyContentAction
     }
 
     protected handleExecuted() {
-        const content: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList();
-        const contentToMarkAsReady: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList()
+        const content: ContentSummaryAndCompareStatus[] = this.grid.getSelectedItems();
+        const contentToMarkAsReady: ContentSummaryAndCompareStatus[] = this.grid.getSelectedItems()
             .filter((item: ContentSummaryAndCompareStatus) => item.canBeMarkedAsReady());
         const isSingleItem: boolean = contentToMarkAsReady.length === 1;
 

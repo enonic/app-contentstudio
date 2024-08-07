@@ -8,6 +8,9 @@ import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {ProjectContext} from '../../project/ProjectContext';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentsLocalizer} from './ContentsLocalizer';
+import {TreeListBox} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class EditContentAction extends ContentTreeGridAction {
 
@@ -17,13 +20,13 @@ export class EditContentAction extends ContentTreeGridAction {
 
     private contentsLocalizer?: ContentsLocalizer;
 
-    constructor(grid: ContentTreeGrid) {
+    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
         super(grid, i18n('action.edit'), 'mod+e');
         this.setEnabled(false);
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList();
+        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedItems();
 
         if (contents.length > EditContentAction.MAX_ITEMS_TO_EDIT) {
             showWarning(i18n('notify.edit.tooMuch'));
