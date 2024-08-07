@@ -177,6 +177,10 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
         ];
     }
 
+    getEditAction(): Action {
+        return this.getAction(ActionName.EDIT);
+    }
+
     getAllActions(): Action[] {
         return [
             ...this.getAllActionsNoPublish(),

@@ -5,6 +5,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {ContentResponse} from '../resource/ContentResponse';
+import {ContentPath} from '../content/ContentPath';
 
 export class ContentsTreeGridList
     extends TreeListBox<ContentSummaryAndCompareStatus> {
@@ -22,8 +23,8 @@ export class ContentsTreeGridList
         this.fetcher = new ContentSummaryAndCompareStatusFetcher();
     }
 
-    protected createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentListElement {
-        return new ContentListElement(item, {scrollParent: this.scrollParent, level: this.level});
+    protected createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentsTreeGridListElement {
+        return new ContentsTreeGridListElement(item, {scrollParent: this.scrollParent, level: this.level, parentList: this});
     }
 
     protected getItemId(item: ContentSummaryAndCompareStatus): string {
@@ -35,7 +36,6 @@ export class ContentsTreeGridList
             if (items.length > 0) {
                 this.addItems(items);
             }
-
         }).catch(DefaultErrorHandler.handle);
     }
 
@@ -55,9 +55,31 @@ export class ContentsTreeGridList
         this.handleLazyLoad();
     }
 
+    findParentList(item: ContentSummaryAndCompareStatus): TreeListBox<ContentSummaryAndCompareStatus> {
+        const itemPath = item.getPath();
+        const thisPath = this.options.parentItem?.getPath() || ContentPath.getRoot();
+
+        if (itemPath.isDescendantOf(thisPath)) {
+            if (itemPath.isChildOf(thisPath)) {
+                return this;
+            }
+
+            let ancestor = null;
+
+            this.getItemViews().some((listElement: ContentsTreeGridListElement) => {
+                ancestor = listElement.findParentList(item);
+                return !!ancestor;
+            });
+
+            return ancestor;
+        }
+
+        return null;
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.addClass('content-tree-list');
+            this.addClass('content-tree-grid-list');
 
             return rendered;
         });
@@ -65,7 +87,7 @@ export class ContentsTreeGridList
 
 }
 
-export class ContentListElement extends TreeListElement<ContentSummaryAndCompareStatus> {
+export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryAndCompareStatus> {
 
     protected childrenList: ContentsTreeGridList;
 
@@ -93,6 +115,10 @@ export class ContentListElement extends TreeListElement<ContentSummaryAndCompare
         const viewer = new ContentSummaryAndCompareStatusViewer();
         viewer.setObject(item);
         return viewer;
+    }
+
+    findParentList(item: ContentSummaryAndCompareStatus): TreeListBox<ContentSummaryAndCompareStatus> {
+        return this.childrenList.findParentList(item);
     }
 
     doRender(): Q.Promise<boolean> {

@@ -2,7 +2,7 @@ import * as Q from 'q';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
-import {ActionName, ContentTreeGridActions} from './action/ContentTreeGridActions';
+import {ActionName} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
 import {ContentTreeGrid, State} from './ContentTreeGrid';
 import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
@@ -39,16 +39,14 @@ import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {ContentItemPreviewPanel} from '../view/ContentItemPreviewPanel';
 import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
 import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridContextMenu';
-import {ContentsTreeList} from './ContentsTreeList';
-import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
-import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
-import {SettingsTreeActions} from '../settings/tree/SettingsTreeActions';
 import {ContentTreeActions} from './ContentTreeActions';
 import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
-import {ContentsTreeGridList} from './ContentsTreeGridList';
+import {ContentsTreeGridList, ContentsTreeGridListElement} from './ContentsTreeGridList';
+import {SettingsViewItem} from '../settings/view/SettingsViewItem';
+import {SettingsTreeListElement} from '../settings/SettingsTreeList';
 import {ContentActionMenuButton} from '../ContentActionMenuButton';
 import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 
@@ -134,10 +132,25 @@ export class ContentBrowsePanel
                 previewPanel.hideMask(); // dbl click, item is not selected, no need to show a load mask
             }
         });
+
+        this.treeListBox.onItemsAdded((items: ContentSummaryAndCompareStatus[]) => {
+            items.forEach((item: ContentSummaryAndCompareStatus) => {
+                const listElement = this.treeListBox.getDataView(item) as ContentsTreeGridListElement;
+
+                listElement?.onDblClicked(() => {
+                    this.treeActions.getEditAction().execute();
+                });
+
+                listElement?.onContextMenu((event: MouseEvent) => {
+                    event.preventDefault();
+                    this.contextMenu.showAt(event.clientX, event.clientY);
+                });
+            });
+        });
     }
 
     createListBoxPanel(): SelectableListBoxPanel<ContentSummaryAndCompareStatus> {
-        this.treeListBox = new ContentsTreeGridList();
+        this.treeListBox = new ContentsTreeGridList({scrollParent: this});
 
         const selectionWrapper = new SelectableListBoxWrapper<ContentSummaryAndCompareStatus>(this.treeListBox, {
             className: 'content-list-box-wrapper',
