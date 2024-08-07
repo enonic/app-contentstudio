@@ -104,7 +104,7 @@ export class VersionHistoryListItem
     }
 
     private createRevertButton(): ActionButton {
-        const revertButton: ActionButton = new ActionButton(new Action(i18n('field.version.revert')), false);
+        const revertButton: ActionButton = new ActionButton(new Action(i18n('field.version.revert')));
 
         if (this.content.isReadOnly()) {
             revertButton.setEnabled(false);
@@ -123,7 +123,7 @@ export class VersionHistoryListItem
     }
 
     private createCompareButton(): ActionButton {
-        const compareButton: ActionButton = new ActionButton(new Action(), false);
+        const compareButton: ActionButton = new ActionButton(new Action());
 
         compareButton
             .setTitle(i18n('text.versions.showChanges'))

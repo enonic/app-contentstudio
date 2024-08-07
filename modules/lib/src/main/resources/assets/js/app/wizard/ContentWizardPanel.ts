@@ -581,7 +581,7 @@ export class ContentWizardPanel
         return super.getFormIcon() as ThumbnailUploaderEl;
     }
 
-    protected createMainToolbar(): Toolbar {
+    protected createMainToolbar(): ContentWizardToolbar {
         return new ContentWizardToolbar({
             actions: this.wizardActions,
             workflowStateIconsManager: this.workflowStateManager,

@@ -191,6 +191,10 @@ export class ContentPublishMenuButton
         return this.item != null && this.item.isPendingDelete();
     }
 
+    protected getActiveActionButton(): ActionButton {
+        return [super.getActiveActionButton()].concat(this.getButtons()).find((button: ActionButton) => button.isVisible());
+    }
+
     updateActiveClass() {
         if (this.markAsReadyAction.isEnabled()) {
             this.setActiveClass(this.markAsReadyAction.getActionClass());

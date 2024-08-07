@@ -12,9 +12,10 @@ import {IssueType} from '../issue/IssueType';
 import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentId} from '../content/ContentId';
+import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 
 export class ContentItemPreviewToolbar
-    extends ContentStatusToolbar {
+    extends ContentStatusToolbar<ToolbarConfig> {
 
     private issueButton: MenuButton;
     private mainIssue: Issue;
@@ -65,7 +66,7 @@ export class ContentItemPreviewToolbar
     doRender(): Q.Promise<boolean> {
         return super.doRender().then(rendered => {
             this.issueButton.addClass('transparent');
-            this.addElement(this.issueButton);
+            this.addActionElement(this.issueButton);
             return rendered;
         });
     }

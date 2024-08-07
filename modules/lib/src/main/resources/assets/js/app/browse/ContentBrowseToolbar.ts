@@ -7,7 +7,9 @@ export class ContentBrowseToolbar
     private readonly publishAction: Action;
 
     constructor(publishAction: Action) {
-        super('content-browse-toolbar');
+        super({
+            className: 'content-browse-toolbar'
+        });
 
         this.publishAction = publishAction;
     }
