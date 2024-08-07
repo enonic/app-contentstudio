@@ -27,6 +27,12 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         return this.waitForElementNotDisplayed(this.projectOptionsFilterInput, appConst.mediumTimeout);
     }
 
+    async selectParentParentProjects(names) {
+        for (let name of names) {
+            await this.selectParentProject(name);
+        }
+    }
+
     async selectParentProject(projectDisplayName) {
         let projectsComboBox = new ProjectsComboBox();
         await projectsComboBox.selectFilteredByDisplayNameAndClickOnOk(projectDisplayName);

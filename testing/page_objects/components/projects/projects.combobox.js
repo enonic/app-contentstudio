@@ -7,7 +7,7 @@ const XPATH = {
 };
 
 // Parent Step wizard - select a project in the dropdown selector
-class ProjectsComboBox extends BasDropdown {
+class ProjectsSelector extends BasDropdown {
 
     get container() {
         return XPATH.container;
@@ -31,4 +31,4 @@ class ProjectsComboBox extends BasDropdown {
     }
 }
 
-module.exports = ProjectsComboBox;
+module.exports = ProjectsSelector;
