@@ -3,7 +3,7 @@
  */
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const ProjectsComboBox = require('../../components/projects/projects.comboBox');
+const ProjectsComboBox = require('../../components/projects/projects.combobox');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 
 const XPATH = {
