@@ -3,6 +3,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ToggleContextPanelEvent} from '../ToggleContextPanelEvent';
 import {ContextPanelStateEvent} from '../ContextPanelStateEvent';
 import {ContextPanelState} from '../ContextPanelState';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 
 export class NonMobileContextPanelToggleButton
     extends Button {
@@ -15,8 +16,19 @@ export class NonMobileContextPanelToggleButton
     }
 
     private initListeners() {
-        this.onClicked(() => {
+        const toggleAction = () => {
             new ToggleContextPanelEvent().fire();
+        };
+        this.onClicked(toggleAction);
+
+        this.onKeyDown((event: KeyboardEvent) => KeyHelper.isEnterKey(event) && toggleAction());
+
+        this.onFocus(() => {
+            console.log('Toggle button got focus');
+        });
+
+        this.onBlur(() => {
+            console.log('Toggle button lost focus');
         });
 
         ContextPanelStateEvent.on((event: ContextPanelStateEvent) => {

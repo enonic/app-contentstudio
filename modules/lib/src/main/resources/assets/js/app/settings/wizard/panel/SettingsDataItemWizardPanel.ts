@@ -1,7 +1,7 @@
 import * as Q from 'q';
 import {WizardPanel, WizardPanelParams} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {Toolbar, ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
@@ -257,8 +257,8 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     protected abstract handleDataChanged();
 
-    protected createMainToolbar(): Toolbar {
-        const toolbar: Toolbar = new Toolbar();
+    protected createMainToolbar(): Toolbar<ToolbarConfig> {
+        const toolbar: Toolbar<ToolbarConfig> = new Toolbar<ToolbarConfig>();
 
         toolbar.addAction(this.wizardActions.getSaveAction());
         toolbar.addAction(this.wizardActions.getDeleteAction());

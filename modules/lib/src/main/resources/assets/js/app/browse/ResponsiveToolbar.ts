@@ -1,13 +1,14 @@
-import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {Toolbar, ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
-export class ResponsiveToolbar extends Toolbar {
+export class ResponsiveToolbar extends Toolbar<ToolbarConfig> {
 
     protected readonly hideMobilePreviewButton: Button;
 
-    constructor(className: string = '') {
-        super('responsive-toolbar ' + className);
+    constructor(config?: ToolbarConfig) {
+        super(config);
+        this.addClass('responsive-toolbar');
 
         this.hideMobilePreviewButton = new Button();
         this.hideMobilePreviewButton.addClass('hide-mobile-preview-button icon-arrow-left2');

@@ -1,3 +1,5 @@
+@action-button-width: 200px;
+
 .content-item-preview-toolbar {
   justify-content: space-between;
 
@@ -29,16 +31,16 @@
     .menu {
       z-index: 1;
       position: absolute;
-      right: 5px;
-      top: @toolbar-height - 1;
-      width: 224px;
-      padding-left: 8px;
+      left: 0;
+      right: 0;
+      top: 25px !important;
+      padding-left: 0;
       box-shadow: -7px 8px 7px -5px rgba(0, 0, 0, 0.3), 5px 3px 5px -3px rgba(0, 0, 0, 0.3);
 
       .menu-item {
         line-height: 14px;
         padding-right: 30px;
-        padding-left: 5px;
+        width: @action-button-width - 36;
         color: @admin-font-gray2;
 
         &:not(.disabled):hover {
@@ -61,36 +63,30 @@
     .action-button {
       font-size: 14px;
       z-index: 2;
-      padding-right: 2px;
-      border-left: 1px solid @admin-white;
+      padding-left: 5px;
       min-width: auto;
-      width: 200px;
+      width: @action-button-width;
       .ellipsis();
 
       &[disabled] {
         display: none;
       }
 
-      &:not(.disabled) span {
-        display: block;
+      &:not(.disabled) {
+        &:hover {
+          background-color: @admin-bg-light-gray;
+        }
+        span {
+          display: block;
+        }
       }
     }
 
     .@{_COMMON_PREFIX}dropdown-handle {
       z-index: 2;
-      height: 24px;
-      width: 24px;
 
       &:before {
         font-size: 24px;
-      }
-
-      &.down + .action-button {
-        border-left: 1px solid @admin-bg-light-gray;
-
-        + .menu {
-          border-left: 1px solid @admin-bg-light-gray;
-        }
       }
 
       &[disabled] {
@@ -130,33 +126,26 @@
     }
 
     .menu-button {
-      width: 200px;
+      width: @action-button-width;
       padding-left: 10px;
       overflow: visible;
 
       .action-button {
-        padding-left: 0;
         max-width: calc(100% - 40px);
-        border: none !important;
+        padding-left: 13px;
 
         + .menu {
-          width: 203px;
-          border: none;
-          right: 0;
+          width: @action-button-width - 6;
+          top: 27px !important;
+          left: unset;
         }
       }
 
       .@{_COMMON_PREFIX}dropdown-handle {
-
-        &.down + .action-button {
-          border: none;
-        }
-
         &[disabled] {
 
           + .action-button {
             margin-right: 0;
-            border: none;
           }
         }
       }

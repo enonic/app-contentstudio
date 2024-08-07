@@ -6,7 +6,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import * as Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentStatusToolbar, ContentStatusToolbarConfig} from '../ContentStatusToolbar';
+import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ProjectContext} from '../project/ProjectContext';
 import {Project} from '../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
@@ -20,17 +20,16 @@ import {CollaborationEl} from './CollaborationEl';
 import {ContentActionCycleButton} from './ContentActionCycleButton';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
+import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 
-export interface ContentWizardToolbarConfig extends ContentStatusToolbarConfig {
+export interface ContentWizardToolbarConfig extends ToolbarConfig {
     actions: ContentWizardActions;
     workflowStateIconsManager: WorkflowStateManager;
     compareVersionsPreHook?: () => Q.Promise<void>
 }
 
 export class ContentWizardToolbar
-    extends ContentStatusToolbar {
-
-    protected config: ContentWizardToolbarConfig;
+    extends ContentStatusToolbar<ContentWizardToolbarConfig> {
 
     private cycleViewModeButton: ContentActionCycleButton;
 
@@ -123,7 +122,7 @@ export class ContentWizardToolbar
 
     private addCollaboration(): void {
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
-        this.addElement(this.collaborationBlock);
+        this.addActionElement(this.collaborationBlock);
         this.openCollaborationWSConnection();
     }
 
@@ -182,7 +181,7 @@ export class ContentWizardToolbar
 
         this.contentWizardToolbarPublishControls = new ContentWizardToolbarPublishControls(this.config.actions);
         this.contentWizardToolbarPublishControls.getPublishButton().hide();
-        this.addElement(this.contentWizardToolbarPublishControls);
+        this.addActionElement(this.contentWizardToolbarPublishControls);
     }
 
     private addTogglerButtons() {
@@ -190,13 +189,13 @@ export class ContentWizardToolbar
         this.cycleViewModeButton = new ContentActionCycleButton([actions.getShowLiveEditAction(), actions.getShowFormAction()]);
         this.contextPanelToggler = new NonMobileContextPanelToggleButton();
 
-        this.addElement(this.cycleViewModeButton);
-        this.addElement(this.contextPanelToggler);
+        this.addActionElement(this.cycleViewModeButton);
+        this.addActionElement(this.contextPanelToggler);
     }
 
     private addStateIcon(): void {
         this.stateIcon = new DivEl('toolbar-state-icon');
-        this.addElement(this.stateIcon);
+        this.addActionElement(this.stateIcon);
     }
 
     private isCollaborationEnabled(): boolean {
