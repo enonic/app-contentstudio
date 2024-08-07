@@ -2,10 +2,14 @@ import {PublishContentAction} from './PublishContentAction';
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import {TreeListBox} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
 export class PublishTreeContentAction extends PublishContentAction {
 
-    constructor(grid: ContentTreeGrid) {
+    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
         super(grid, true, false);
 
         this.setClass('publish-tree').setLabel(i18n('action.publishTreeMore'));

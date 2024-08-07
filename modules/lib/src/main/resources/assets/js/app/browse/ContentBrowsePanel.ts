@@ -37,6 +37,18 @@ import {ContentQuery} from '../content/ContentQuery';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {ContentItemPreviewPanel} from '../view/ContentItemPreviewPanel';
+import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
+import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridContextMenu';
+import {ContentsTreeList} from './ContentsTreeList';
+import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
+import {SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
+import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
+import {SettingsTreeActions} from '../settings/tree/SettingsTreeActions';
+import {ContentTreeActions} from './ContentTreeActions';
+import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
+import {ContentsTreeGridList} from './ContentsTreeGridList';
 import {ContentActionMenuButton} from '../ContentActionMenuButton';
 import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 
@@ -50,6 +62,14 @@ export class ContentBrowsePanel
     private debouncedBrowseActionsAndPreviewRefreshOnDemand: () => void;
     private browseActionsAndPreviewUpdateRequired: boolean = false;
     private contextPanelToggler: NonMobileContextPanelToggleButton;
+
+    protected treeListBox: ContentsTreeGridList;
+
+    protected treeActions: ContentTreeActions;
+
+    protected toolbar: ListBoxToolbar<ContentAndStatusTreeSelectorItem>;
+
+    protected contextMenu: TreeGridContextMenu;
 
     protected initElements() {
         super.initElements();
@@ -116,8 +136,30 @@ export class ContentBrowsePanel
         });
     }
 
-    protected getBrowseActions(): ContentTreeGridActions {
-        return super.getBrowseActions() as ContentTreeGridActions;
+    createListBoxPanel(): SelectableListBoxPanel<ContentSummaryAndCompareStatus> {
+        this.treeListBox = new ContentsTreeGridList();
+
+        const selectionWrapper = new SelectableListBoxWrapper<ContentSummaryAndCompareStatus>(this.treeListBox, {
+            className: 'content-list-box-wrapper',
+            maxSelected: 0,
+            checkboxPosition: 'left',
+            highlightMode: true,
+        });
+
+        this.toolbar = new ListBoxToolbar<ContentSummaryAndCompareStatus>(selectionWrapper, {
+            refreshAction: () => this.treeListBox.load(),
+        });
+
+        this.treeActions = new ContentTreeActions(selectionWrapper);
+        this.contextMenu = new TreeGridContextMenu(this.treeActions);
+
+        new SelectableTreeListBoxKeyNavigator(selectionWrapper);
+
+        return new SelectableListBoxPanel(selectionWrapper, this.toolbar);
+    }
+
+    protected getBrowseActions(): ContentTreeActions {
+        return this.treeActions;
     }
 
     getNonToolbarActions(): Action[] {
@@ -456,7 +498,7 @@ export class ContentBrowsePanel
     }
 
     private createContentPublishMenuButton() {
-        const browseActions: ContentTreeGridActions = this.getBrowseActions();
+        const browseActions: ContentTreeActions = this.getBrowseActions();
         const contentActionMenuButton: ContentActionMenuButton = new ContentActionMenuButton({
             defaultAction: browseActions.getAction(ActionName.MARK_AS_READY),
             menuActions: [

@@ -4,23 +4,25 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import {TreeListBox} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class DuplicateContentAction
     extends ContentTreeGridAction {
 
-    constructor(grid: ContentTreeGrid) {
+    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
         super(grid, i18n('action.duplicateMore'));
 
         this.setEnabled(false).setClass('duplicate');
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList();
+        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedItems();
 
         new ContentDuplicatePromptEvent(contents)
             .setYesCallback(() => {
-                const deselected = this.grid.getSelectedDataList().map(content => content.getId());
-                this.grid.deselectNodes(deselected);
+                this.grid.deselect(this.grid.getSelectedItems());
             }).fire();
     }
 

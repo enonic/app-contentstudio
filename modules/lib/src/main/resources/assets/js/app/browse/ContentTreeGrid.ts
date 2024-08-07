@@ -64,7 +64,7 @@ export class ContentTreeGrid
 
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
         this.state = State.ENABLED;
-        this.setContextMenu(new TreeGridContextMenu(new ContentTreeGridActions(this)));
+     //   this.setContextMenu(new TreeGridContextMenu(new ContentTreeGridActions(this)));
 
         this.initEventHandlers();
     }

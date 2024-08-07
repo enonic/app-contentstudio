@@ -7,6 +7,9 @@ import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentSummary} from '../../content/ContentSummary';
+import {TreeListBox} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class PreviewContentAction
     extends ContentTreeGridAction {
@@ -17,7 +20,7 @@ export class PreviewContentAction
 
     private static BLOCK_COUNT: number = 10;
 
-    constructor(grid: ContentTreeGrid) {
+    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
         super(grid, i18n('action.preview'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
 
         this.setEnabled(false).setClass('preview');
@@ -27,7 +30,7 @@ export class PreviewContentAction
 
     protected handleExecuted() {
         if (this.totalSelected < PreviewContentAction.BLOCK_COUNT) {
-            const contentSummaries: ContentSummary[] = this.grid.getSelectedDataList()
+            const contentSummaries: ContentSummary[] = this.grid.getSelectedItems()
                 .filter((item: ContentSummaryAndCompareStatus) => item.isRenderable())
                 .map((data: ContentSummaryAndCompareStatus) => data.getContentSummary());
 
