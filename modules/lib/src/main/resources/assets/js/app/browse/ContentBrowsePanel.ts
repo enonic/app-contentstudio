@@ -168,7 +168,10 @@ export class ContentBrowsePanel
 
         new SelectableTreeListBoxKeyNavigator(selectionWrapper);
 
-        return new SelectableListBoxPanel(selectionWrapper, this.toolbar);
+        const panel =  new SelectableListBoxPanel(selectionWrapper, this.toolbar);
+        panel.addClass('content-selectable-list-box-panel');
+
+        return panel;
     }
 
     protected getBrowseActions(): ContentTreeActions {
