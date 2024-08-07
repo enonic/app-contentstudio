@@ -2,15 +2,90 @@
   .tree-list-element {
     .item-view-wrapper {
       .toggle-and-item-wrapper {
-        .toggle {
-          min-width: 32px;
+        display: grid;
+        grid-template-columns: 32px 1fr;
+
+        .content-tree-grid-list-viewer {
+          display: grid;
+          grid-template-columns: 1fr 25px 90px 135px;
+
+          .content-tree-grid-sort {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+
+          .content-tree-grid-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            .content-status-mixin();
+          }
+
+          .content-tree-grid-modified {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
         }
       }
 
       &.selected {
         > .toggle-and-item-wrapper {
-          .xp-admin-common-names-view * {
-            color: @admin-white;
+          .content-tree-grid-list-viewer {
+            .xp-admin-common-names-view * {
+              color: @admin-white;
+            }
+
+            .content-tree-grid-status {
+              span {
+                color: @admin-white;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.content-selectable-list-box-panel {
+  &._0-240,
+  &._240-360,
+  &._360-540,
+  &._540-720 {
+    .content-list-box-wrapper {
+      .tree-list-element {
+        .item-view-wrapper {
+          .toggle-and-item-wrapper {
+            .content-tree-grid-list-viewer {
+              grid-template-columns: 1fr 25px 90px;
+
+              .content-tree-grid-modified {
+                display: none;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &._0-240,
+  &._240-360 {
+    .content-list-box-wrapper {
+      .tree-list-element {
+        .item-view-wrapper {
+          .toggle-and-item-wrapper {
+            .content-tree-grid-list-viewer {
+              grid-template-columns: 1fr 25px;
+
+              .content-tree-grid-status,
+              .content-tree-grid-modified {
+                display: none;
+              }
+            }
           }
         }
       }

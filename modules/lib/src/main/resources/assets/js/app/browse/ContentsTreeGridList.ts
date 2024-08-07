@@ -3,9 +3,9 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {TreeListBox, TreeListBoxParams, TreeListElement, TreeListElementParams} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {ContentResponse} from '../resource/ContentResponse';
 import {ContentPath} from '../content/ContentPath';
+import {ContentTreeGridListViewer} from './ContentTreeGridListViewer';
 
 export class ContentsTreeGridList
     extends TreeListBox<ContentSummaryAndCompareStatus> {
@@ -111,9 +111,9 @@ export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryA
         return this.item.hasChildren();
     }
 
-    protected createItemViewer(item: ContentSummaryAndCompareStatus): ContentSummaryAndCompareStatusViewer {
-        const viewer = new ContentSummaryAndCompareStatusViewer();
-        viewer.setObject(item);
+    protected createItemViewer(item: ContentSummaryAndCompareStatus): ContentTreeGridListViewer {
+        const viewer = new ContentTreeGridListViewer();
+        viewer.setItem(item);
         return viewer;
     }
 
