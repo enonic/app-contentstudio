@@ -369,6 +369,7 @@ export class ContentBrowsePanel
         if (data?.length > 0) {
             this.handleCUD();
             this.treeGrid.addContentNodes(data);
+            this.treeListBox.addItems(data);
             this.refreshFilterWithDelay();
         }
     }
@@ -414,6 +415,7 @@ export class ContentBrowsePanel
         }
 
         this.handleCUD();
+        this.deleteTreeItems(items);
         this.treeGrid.deleteItems(items);
 
         if (this.treeGrid.isFiltered() && this.treeGrid.isEmpty()) {
@@ -422,6 +424,14 @@ export class ContentBrowsePanel
 
         this.updateContextPanelOnNodesDelete(items);
         this.refreshFilterWithDelay();
+    }
+
+    private deleteTreeItems(toDelete: DeletedContentItem[]) {
+        const itemsFound = toDelete.map((item) => this.treeListBox.getItem(item.id.toString()));
+
+        if (itemsFound.length > 0) {
+            this.treeListBox.removeItems(itemsFound);
+        }
     }
 
     private updateContextPanelOnNodesDelete(items: DeletedContentItem[]) {
@@ -463,6 +473,7 @@ export class ContentBrowsePanel
         this.updateContextPanel(data);
         this.treeGrid.copyPermissionsFromExistingNodes(data);
         this.treeGrid.updateNodes(data);
+        this.treeListBox.replaceItems(data);
         this.refreshFilterWithDelay();
     }
 
