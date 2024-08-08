@@ -6,6 +6,7 @@ import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryA
 import {ContentResponse} from '../resource/ContentResponse';
 import {ContentPath} from '../content/ContentPath';
 import {ContentTreeGridListViewer} from './ContentTreeGridListViewer';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class ContentsTreeGridList
     extends TreeListBox<ContentSummaryAndCompareStatus> {
@@ -25,6 +26,10 @@ export class ContentsTreeGridList
 
     protected createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentsTreeGridListElement {
         return new ContentsTreeGridListElement(item, {scrollParent: this.scrollParent, level: this.level, parentList: this});
+    }
+
+    protected updateItemView(itemView: ContentsTreeGridListElement, item: ContentSummaryAndCompareStatus) {
+        itemView.updateItemView(item);
     }
 
     protected getItemId(item: ContentSummaryAndCompareStatus): string {
@@ -119,6 +124,10 @@ export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryA
 
     findParentList(item: ContentSummaryAndCompareStatus): TreeListBox<ContentSummaryAndCompareStatus> {
         return this.childrenList.findParentList(item);
+    }
+
+    updateItemView(item: ContentSummaryAndCompareStatus): void {
+        (this.itemViewer as ContentTreeGridListViewer).setItem(item);
     }
 
     doRender(): Q.Promise<boolean> {
