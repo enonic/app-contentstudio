@@ -15,8 +15,8 @@ const ContentUnpublishDialog = require('../content.unpublish.dialog');
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
     toolbar: "//div[contains(@id,'ContentBrowseToolbar')]",
-    treeGridToolbar: "//div[contains(@id,'ContentTreeGridToolbar')]",
-    treeGrid: "//div[contains(@id,'ContentTreeGrid')]",
+    treeGridToolbar: "//div[contains(@id,'ListBoxToolbar') and contains(@class,'tree-grid-toolbar')]",
+    treeGridListUL: "//ul[contains(@id,'ContentsTreeGridList')]",
     appBar: "//div[contains(@id,'AppBar')]",
     projectViewerButton: "//div[contains(@id,'ProjectViewer')]",
     highlightedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
@@ -28,6 +28,8 @@ const XPATH = {
     createIssueMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Issue...']",
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
     requestPublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Request Publish']",
+    contentPublishMenuButton: `//div[contains(@id,'ContentBrowsePublishMenuButton')]`,
+    selectionControllerCheckBox: `//div[contains(@id,'ListSelectionController')]`,
     contentActionMenuButton: `//div[contains(@id,'ContentActionMenuButton')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
@@ -48,10 +50,6 @@ const XPATH = {
     rowByDisplayName:
         displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
 
-    checkboxByName(name) {
-        return `${lib.itemByName(
-            name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
-    },
 
     expanderIconByName(name) {
         return lib.itemByName(name) +
@@ -177,11 +175,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get displayNames() {
-        return XPATH.treeGrid + lib.H6_DISPLAY_NAME;
+        return XPATH.treeGridListUL + lib.H6_DISPLAY_NAME;
     }
 
     get treeGrid() {
-        return XPATH.container + XPATH.treeGrid;
+        return XPATH.container + XPATH.treeGridListUL;
     }
 
     get projectViewerButton() {
@@ -382,7 +380,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             let timeout = ms ? ms : appConst.mediumTimeout;
             console.log("waitForContentDisplayed, timeout is:" + timeout);
-            return await this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), timeout);
+            return await this.waitForElementDisplayed(XPATH.treeGridListUL + lib.TREE_GRID.itemByName(contentName), timeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_content_displayed');
             throw new Error(`content is not displayed ! screenshot: ${screenshot} ` + err);
@@ -534,7 +532,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async clickOnRowByDisplayName(displayName) {
         try {
-            let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(displayName);
+            let nameXpath = XPATH.treeGridListUL + lib.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             await this.clickOnElement(nameXpath);
             return await this.pause(500);
@@ -546,7 +544,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForRowByNameVisible(name) {
         try {
-            let nameXpath = XPATH.treeGrid + lib.itemByName(name);
+            let nameXpath = XPATH.treeGridListUL + lib.itemByName(name);
             await this.waitForElementDisplayed(nameXpath, appConst.longTimeout);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_content'));
@@ -556,7 +554,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForContentByDisplayNameVisible(displayName) {
         try {
-            let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(displayName);
+            let nameXpath = XPATH.treeGridListUL + lib.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(nameXpath, 3000)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_find_content');
@@ -566,7 +564,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async clickOnCheckboxAndSelectRowByName(name) {
         try {
-            await this.clickOnCheckbox(name);
+            await this.clickOnCheckboxByName(name);
             await this.waitForRowCheckboxSelected(name);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_item');
@@ -574,11 +572,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async clickOnCheckbox(name) {
-        let checkBox = XPATH.checkboxByName(name);
-        await this.waitForElementDisplayed(checkBox, appConst.mediumTimeout);
-        await this.clickOnElement(checkBox);
-        return await this.pause(300);
+    async clickCheckboxAndSelectRowByDisplayName(displayName) {
+        try {
+            await this.clickOnCheckboxByDisplayName(displayName);
+            return await this.pause(200);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_find_item');
+            throw new Error(`Row with the displayName ${displayName} was not found. Screenshot:` + screenshot + ' ' + err);
+        }
     }
 
     // One or zero highlighted rows:
@@ -601,7 +602,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async getSortingIcon(name) {
-        let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r2')]/span/div";
+        let selector = lib.slickRowByDisplayName(XPATH.treeGridListUL, name) + "//div[contains(@class,'r2')]/span/div";
         let elems = await this.findElements(selector);
         if (elems.length === 0) {
             return 'Default';
@@ -657,7 +658,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return await this.getText(selector);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_content_status');
-            throw Error(`Error occurred during getting the status of the content, screenshot: ${screenshot}  ` + err);
+            throw new Error(`Error occurred during getting the status of the content, screenshot: ${screenshot}  ` + err);
         }
     }
 
@@ -844,14 +845,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async isContentInherited(contentName) {
         await this.waitForContentDisplayed(contentName, appConst.mediumTimeout);
-        let locator = lib.slickRowByName(XPATH.treeGrid, contentName);
+        let locator = lib.TREE_GRID.contentStatusByName(contentName)
         let attr = await this.getAttribute(locator, 'class');
         return attr.includes('data-inherited');
     }
 
     async isContentByDisplayNameInherited(contentName) {
         await this.waitForContentDisplayed(contentName, appConst.mediumTimeout);
-        let locator = lib.slickRowByDisplayName(XPATH.treeGrid, contentName);
+        let locator = lib.TREE_GRID.contentStatusByDisplayName(XPATH.container, contentName);
         let attr = await this.getAttribute(locator, 'class');
         return attr.includes('data-inherited');
     }

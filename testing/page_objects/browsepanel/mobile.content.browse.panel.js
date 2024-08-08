@@ -55,11 +55,6 @@ const XPATH = {
     rowByDisplayName:
         displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
 
-    checkboxByName: function (name) {
-        return `${lib.itemByName(
-            name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
-    },
-
     expanderIconByName: function (name) {
         return lib.itemByName(name) +
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
@@ -412,8 +407,8 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             return await this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), timeout);
         } catch (err) {
             console.log("item is not displayed:" + contentName);
-            this.saveScreenshot('err_find_' + contentName);
-            throw new Error('content is not displayed ! ' + contentName + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_find_content');
+            throw new Error(`content is not displayed ! screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -528,19 +523,12 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
 
     async clickOnCheckboxAndSelectRowByName(name) {
         try {
-            await this.clickOnCheckbox(name);
+            await this.clickOnCheckboxByName(name);
             await this.waitForRowCheckboxSelected(name);
         } catch (err) {
             await this.saveScreenshot('err_select_item');
             throw Error('Row with the name ' + name + ' was not selected ' + err)
         }
-    }
-
-    async clickOnCheckbox(name) {
-        let checkBox = XPATH.checkboxByName(name);
-        await this.waitForElementDisplayed(checkBox, appConst.mediumTimeout);
-        await this.clickOnElement(checkBox);
-        return await this.pause(300);
     }
 
     getNumberOfSelectedRows() {
