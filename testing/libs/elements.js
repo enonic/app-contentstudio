@@ -120,7 +120,7 @@ module.exports = Object.freeze({
         DEPENDENT_ITEM_LIST_UL: "//ul[contains(@id,'DialogDependantItemsList')]",
         DEPENDENT_ITEM_LIST_UL_2: "//ul[contains(@id,'PublishDialogDependantList')]",
         DEPENDANT_ITEM_VIEWER: "//div[contains(@id,'DependantItemViewer')]",
-        DEPENDANT_ITEM_LIST_UNPUBLISH_DIALOG:"//ul[contains(@id,'DialogWithRefsDependantList')]",
+        DEPENDANT_ITEM_LIST_UNPUBLISH_DIALOG: "//ul[contains(@id,'DialogWithRefsDependantList')]",
     },
     tabBarItemByName: name => {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
@@ -130,6 +130,24 @@ module.exports = Object.freeze({
                `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
     },
 
+    TREE_GRID: {
+
+        itemByName: name => {
+            return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
+        },
+        contentStatusByDisplayName: (parent, displayName) => {
+            return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(text(),'${displayName}')]]`
+        },
+        contentStatusByName: displayName => {
+            return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(text(),'${displayName}')]]`
+        },
+        itemTreeGridListElementByDisplayName: displayName => {//ContentTreeGridListViewer
+            return `//li[contains(@id,'ContentsTreeGridListElement') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
+        },
+        itemTreeGridListElementByName: name => {//ContentTreeGridListViewer
+            return `//li[contains(@id,'ContentsTreeGridListElement') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
+        },
+    },
     checkBoxDiv: label => `//div[contains(@id,'Checkbox') and child::label[contains(.,'${label}')]]`,
     actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
     actionButtonStrict: (label) => `//button[contains(@id,'ActionButton') and child::span[text()='${label}']]`,
@@ -152,6 +170,7 @@ module.exports = Object.freeze({
     itemStrictByName: name => {
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and text()='${name}']]`
     },
+    // TODO remove slick-row
     checkboxByName: name => {
         return `${this.itemByName(name)}` +
                `//ancestor::div[contains(@class,'slick-row')]//div[contains(@class,'slick-cell-checkboxsel')]/label`

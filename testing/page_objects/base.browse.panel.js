@@ -201,6 +201,22 @@ class BaseBrowsePanel extends Page {
         }
     }
 
+    // Click on row-checkbox by name
+    async clickOnCheckboxByName(name) {
+        let checkboxElement = lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.DIV.CHECKBOX_DIV + '/label';
+        await this.waitForElementDisplayed(checkboxElement, appConst.mediumTimeout);
+        await this.clickOnElement(checkboxElement);
+        return await this.pause(200);
+    }
+
+    async clickOnCheckboxByDisplayName(displayName) {
+        let checkboxElement = lib.TREE_GRID.itemTreeGridListElementByDisplayName(displayName) + lib.DIV.CHECKBOX_DIV + '/label';
+        await this.waitForElementDisplayed(checkboxElement, appConst.mediumTimeout);
+        await this.clickOnElement(checkboxElement);
+        return await this.pause(200);
+    }
+
+
     async waitForContextMenuDisplayed() {
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getDisplayedElements(lib.TREE_GRID_CONTEXT_MENU);
@@ -260,26 +276,13 @@ class BaseBrowsePanel extends Page {
         }
     }
 
-    async clickCheckboxAndSelectRowByDisplayName(displayName) {
-        try {
-            const displayNameXpath = XPATH.checkboxByDisplayName(displayName);
-            await this.waitForElementDisplayed(displayNameXpath, appConst.mediumTimeout);
-            await this.clickOnElement(displayNameXpath);
-            return await this.pause(400);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_find_item');
-            throw Error(`Row with the displayName ${displayName} was not found. Screenshot:` + screenshot + ' ' + err);
-        }
-    }
-
     async waitForRowCheckboxSelected(itemName) {
-        let checkboxDiv = this.treeGrid + `${lib.itemByName(
-            itemName)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]`;
-
+        let checkboxElement = lib.TREE_GRID.itemTreeGridListElementByName(itemName) + lib.INPUTS.CHECKBOX_INPUT;
         await this.getBrowser().waitUntil(async () => {
-            let classAttr = await this.getAttribute(checkboxDiv, 'class');
-            return classAttr.includes('selected');
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "row and Checkbox is not selected"});
+            let element = await this.findElement(checkboxElement);
+            let isSelected = await element.isSelected();
+            return isSelected;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Checkbox is not selected"});
     }
 }
 
