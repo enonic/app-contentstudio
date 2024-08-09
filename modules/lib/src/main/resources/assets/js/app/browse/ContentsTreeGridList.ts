@@ -6,7 +6,6 @@ import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryA
 import {ContentResponse} from '../resource/ContentResponse';
 import {ContentPath} from '../content/ContentPath';
 import {ContentTreeGridListViewer} from './ContentTreeGridListViewer';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class ContentsTreeGridList
     extends TreeListBox<ContentSummaryAndCompareStatus> {
@@ -15,12 +14,13 @@ export class ContentsTreeGridList
 
     protected readonly fetcher: ContentSummaryAndCompareStatusFetcher;
 
-    protected readonly parentItem?: ContentSummaryAndCompareStatus;
+    protected newItems: Map<string, ContentSummaryAndCompareStatus> = new Map<string, ContentSummaryAndCompareStatus>();
+
+    private wasShownAndLoaded: boolean = false;
 
     constructor(params?: TreeListBoxParams<ContentSummaryAndCompareStatus>) {
         super(params);
 
-        this.parentItem = params?.parentItem;
         this.fetcher = new ContentSummaryAndCompareStatusFetcher();
     }
 
@@ -37,17 +37,29 @@ export class ContentsTreeGridList
     }
 
     protected handleLazyLoad(): void {
+        this.wasShownAndLoaded = true;
+
         this.fetch().then((items: ContentSummaryAndCompareStatus[]) => {
             if (items.length > 0) {
+                // first remove new items that are now to be added to avoid being shown twice
+                items.forEach((item: ContentSummaryAndCompareStatus) => {
+                   const itemId = this.getItemId(item);
+
+                    if (this.newItems.has(itemId)) {
+                        this.newItems.delete(itemId);
+                        this.removeItems([item], true);
+                    }
+                });
+
                 this.addItems(items);
             }
         }).catch(DefaultErrorHandler.handle);
     }
 
     private fetch(): Q.Promise<ContentSummaryAndCompareStatus[]> {
-        const from: number = this.getItemCount();
+        const from: number = this.getItemCount() - this.newItems.size;
         const size: number = ContentsTreeGridList.FETCH_SIZE;
-        const parent = this.parentItem?.getContentId();
+        const parent = this.getParentItem()?.getContentId();
         const order = parent ? null : this.fetcher.createRootChildOrder();
 
         return this.fetcher.fetchChildren(parent, from, size, order).then((data: ContentResponse<ContentSummaryAndCompareStatus>) => {
@@ -55,14 +67,48 @@ export class ContentsTreeGridList
         });
     }
 
+    // new items to be shown on top of the list and must be taken into account when fetching new items, or removed on refresh
+    addNewItems(items: ContentSummaryAndCompareStatus[]): void {
+        if (this.wasShownAndLoaded) {
+            items.forEach((item: ContentSummaryAndCompareStatus) => {
+                this.newItems.set(this.getItemId(item), item);
+            });
+
+            this.addItems(items);
+        } else { // if parent didn't have children before then update it to show expand toggle
+            (this.options.parentListElement as ContentsTreeGridListElement)?.setContainsChildren(true);
+        }
+    }
+
+    protected insertItemView(itemView: ContentsTreeGridListElement): void {
+        const itemId = this.getItemId(itemView.getItem());
+
+        if (this.newItems.has(itemId)) {
+            this.prependChild(itemView);
+        } else {
+            super.insertItemView(itemView);
+        }
+    }
+
+    protected removeItemView(item: ContentSummaryAndCompareStatus): void {
+        const id: string = this.getItemId(item);
+        this.newItems.delete(id);
+        super.removeItemView(item);
+
+        if (this.itemViews.size === 0) {
+            (this.options.parentListElement as ContentsTreeGridListElement)?.setContainsChildren(false);
+        }
+    }
+
     load(): void {
         this.clearItems();
+        this.newItems = new Map<string, ContentSummaryAndCompareStatus>();
         this.handleLazyLoad();
     }
 
     findParentList(item: ContentSummaryAndCompareStatus): TreeListBox<ContentSummaryAndCompareStatus> {
         const itemPath = item.getPath();
-        const thisPath = this.options.parentItem?.getPath() || ContentPath.getRoot();
+        const thisPath = this.getParentItem()?.getPath() || ContentPath.getRoot();
 
         if (itemPath.isDescendantOf(thisPath)) {
             if (itemPath.isChildOf(thisPath)) {
@@ -96,8 +142,15 @@ export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryA
 
     protected childrenList: ContentsTreeGridList;
 
+    private containsChildren: boolean;
+
     constructor(content: ContentSummaryAndCompareStatus, params: TreeListElementParams<ContentSummaryAndCompareStatus>) {
         super(content, params);
+    }
+
+    protected initElements(): void {
+        this.containsChildren = this.item.hasChildren();
+        super.initElements();
     }
 
     protected createChildrenListParams(): TreeListElementParams<ContentSummaryAndCompareStatus> {
@@ -113,7 +166,12 @@ export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryA
     }
 
     hasChildren(): boolean {
-        return this.item.hasChildren();
+        return this.containsChildren;
+    }
+
+    setContainsChildren(value: boolean): void {
+        this.containsChildren = value;
+        this.updateExpandableState();
     }
 
     protected createItemViewer(item: ContentSummaryAndCompareStatus): ContentTreeGridListViewer {

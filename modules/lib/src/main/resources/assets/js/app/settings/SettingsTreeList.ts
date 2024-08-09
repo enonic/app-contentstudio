@@ -55,24 +55,24 @@ export class SettingsTreeList
     }
 
     private getProjectsViewItemsByParent(): ProjectViewItem[] {
-        const parentId = this.options.parentItem instanceof FolderViewItem ? null : this.options.parentItem.getId();
+        const parentId = this.getParentItem() instanceof FolderViewItem ? null : this.getParentItem().getId();
         return ProjectsUtil.getProjectsPyParent(parentId).map(project => ProjectViewItem.create()
             .setData(project)
             .build());
     }
 
     private isRoot(): boolean {
-        return !this.options.parentItem;
+        return !this.options.parentListElement;
     }
 
     findParentList(item: ProjectViewItem): TreeListBox<SettingsViewItem> {
-        if (this.options.parentItem) {
+        if (!this.isRoot()) {
             if (item.getData().hasParents()) { // item is a child Layer
-                if (item.getData().getMainParent() === this.options.parentItem.getId()) {
+                if (item.getData().getMainParent() === this.getParentItem().getId()) {
                     return this;
                 }
             } else { // item is a root Project
-                if (this.options.parentItem instanceof FolderViewItem) {
+                if (this.getParentItem() instanceof FolderViewItem) {
                     return this;
                 }
             }

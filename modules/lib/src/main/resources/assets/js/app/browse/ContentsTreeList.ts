@@ -20,12 +20,9 @@ export class ContentsTreeList
 
     protected readonly loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
 
-    protected readonly parentItem?: ContentTreeSelectorItem;
-
     constructor(params?: ContentsListParams) {
         super(params);
 
-        this.parentItem = params?.parentItem;
         this.loader = params.loader;
     }
 
@@ -52,9 +49,9 @@ export class ContentsTreeList
         const from: number = this.getItemCount();
         const size: number = ContentsTreeList.FETCH_SIZE;
 
-        const data = this.parentItem ? Option.create<ContentTreeSelectorItem>()
-            .setValue(this.parentItem.getId())
-            .setDisplayValue(this.parentItem)
+        const data = this.options.parentListElement ? Option.create<ContentTreeSelectorItem>()
+            .setValue(this.getParentItem().getId())
+            .setDisplayValue(this.getParentItem())
             .build() : null;
 
         const node = new TreeNodeBuilder()
@@ -99,7 +96,6 @@ export class ContentListElement extends TreeListElement<ContentTreeSelectorItem>
     protected createChildrenListParams(): ContentsListParams {
         const params =  super.createChildrenListParams() as ContentsListParams;
 
-        params.parentItem = this.item;
         params.loader = this.options.loader;
 
         return params;
