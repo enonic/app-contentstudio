@@ -131,15 +131,15 @@ module.exports = Object.freeze({
     },
 
     TREE_GRID: {
-
+        CONTENT_STATUS: "//div[contains(@id,'StatusBlock')]/span",
         itemByName: name => {
             return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
         },
         contentStatusByDisplayName: (parent, displayName) => {
-            return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(text(),'${displayName}')]]`
+            return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
         },
-        contentStatusByName: displayName => {
-            return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(text(),'${displayName}')]]`
+        contentStatusByName: name => {
+            return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
         },
         itemTreeGridListElementByDisplayName: displayName => {//ContentTreeGridListViewer
             return `//li[contains(@id,'ContentsTreeGridListElement') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`

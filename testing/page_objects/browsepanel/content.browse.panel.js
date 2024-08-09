@@ -36,12 +36,6 @@ const XPATH = {
     contentSummaryListViewerByName(name) {
         return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
-    contentSummaryByName(name) {
-        return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
-    },
-    contentSummaryByDisplayName(displayName) {
-        return `//div[contains(@id,'ContentSummaryListViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
-    },
     publishMenuItemByName(name) {
         return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
@@ -411,7 +405,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_disabled');
-            throw Error('Preview button should be disabled, screenshot  : ' + screenshot + "  " + err);
+            throw new Error('Preview button should be disabled, screenshot  : ' + screenshot + "  " + err);
         }
     }
 
@@ -420,14 +414,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_enabled');
-            throw Error('Preview button should be enabled, screenshot  : ' + screenshot + "  " + err);
+            throw new Error('Preview button should be enabled, screenshot  : ' + screenshot + "  " + err);
         }
     }
 
     waitForDetailsPanelToggleButtonDisplayed() {
         return this.waitForElementDisplayed(this.detailsPanelToggleButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_details_panel_displayed');
-            throw Error('Details Panel toggle button should be displayed, timeout: ' + err);
+            throw new Error('Details Panel toggle button should be displayed, timeout: ' + err);
         })
     }
 
@@ -444,7 +438,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return await this.waitForElementDisabled(this.duplicateButton, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot('err_duplicate_disabled_button');
-            throw Error('Duplicate button should be disabled, timeout: ' + 3000 + 'ms')
+            throw new Error('Duplicate button should be disabled, timeout: ' + 3000 + 'ms')
         }
     }
 
@@ -646,7 +640,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async getContentStatus(name) {
         try {
-            let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r3')]";
+            let selector = lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.TREE_GRID.CONTENT_STATUS;
             return await this.getText(selector);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_content_status');
@@ -654,8 +648,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async waitForStatus(displayName, expectedStatus) {
-        let locator = lib.slickRowByDisplayName(XPATH.treeGrid, displayName) + "//div[contains(@class,'r3')]";
+    async waitForStatus(name, expectedStatus) {
+        let locator = lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.TREE_GRID.CONTENT_STATUS;
         await this.getBrowser().waitUntil(async () => {
             let actualStatus = await this.getText(locator);
             return actualStatus === expectedStatus;
@@ -754,9 +748,9 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await confirmationDialog.clickOnYesButton();
     }
 
-    // finds workflow state by the display name
-    async getWorkflowState(displayName) {
-        let xpath = XPATH.contentSummaryByDisplayName(displayName);
+    // finds workflow state by a display name
+    async getWorkflowStateByDisplayName(displayName) {
+        let xpath = lib.TREE_GRID.contentStatusByDisplayName(XPATH.container, displayName);
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
@@ -771,9 +765,9 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    // finds workflow state by the name
+    // finds workflow state by a name
     async getWorkflowStateByName(name) {
-        let xpath = XPATH.contentSummaryListViewerByName(name);
+        let xpath = lib.TREE_GRID.contentStatusByName(name);
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
@@ -868,7 +862,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return await this.waitForContextMenuDisplayed();
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_context_menu'));
-            throw Error(`Error when do right click on the row:` + err);
+            throw new Error(`Error when do right click on the row:` + err);
         }
     }
 
@@ -882,7 +876,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot('err_delete_button');
-            throw Error("Archive button should be enabled " + err);
+            throw new Error("Archive button should be enabled " + err);
         }
     }
 
