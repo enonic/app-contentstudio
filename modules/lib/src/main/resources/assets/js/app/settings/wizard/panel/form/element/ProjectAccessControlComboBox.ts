@@ -1,18 +1,13 @@
 import {ProjectAccessControlEntry} from '../../../../access/ProjectAccessControlEntry';
-import {PrincipalContainerCombobox, PrincipalContainerComboboxBuilder} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerCombobox';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalContainerSelectedOptionsView} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ProjectAccessControlEntryView} from './ProjectAccessControlEntryView';
-import {PrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
-import {UrlHelper} from '../../../../../util/UrlHelper';
 import {CSPrincipalLoader} from '../../../../../security/CSPrincipalLoader';
 import {
     FilterableListBoxWrapperWithSelectedView,
     ListBoxInputOptions
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
-import {AccessControlEntry} from '../../../../../access/AccessControlEntry';
-import {AccessControlListBox} from '../../../../../wizard/AccessControlListBox';
 import {ProjectAccessControlListBox} from './ProjectAccessControlListBox';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import * as Q from 'q';
@@ -21,7 +16,6 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {ProjectApplicationsComboBox} from './ProjectApplicationsComboBox';
 
 interface ProjectAccessControlComboBoxOptions extends ListBoxInputOptions<ProjectAccessControlEntry> {
     loader: CSPrincipalLoader;

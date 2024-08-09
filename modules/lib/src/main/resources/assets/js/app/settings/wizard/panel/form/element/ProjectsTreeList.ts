@@ -61,9 +61,9 @@ export class ProjectsTreeList
     }
 
     protected handleLazyLoad(): void {
-        if (this.options.parentItem) { // layers
+        if (this.options.parentListElement) { // layers
             if (this.getItemCount() === 0) {
-                this.addItems(this.options.helper.getProjectsPyParent(this.options.parentItem.getName()));
+                this.addItems(this.options.helper.getProjectsPyParent(this.getParentItem().getName()));
             }
         } else { // root projects
             if (!this.options.loader.isLoading() && !this.options.loader.isLoaded()) {
@@ -95,7 +95,6 @@ export class ProjectTreeListElement
         const params: ProjectsTreeListParams = super.createChildrenListParams() as ProjectsTreeListParams;
 
         params.helper = this.options.helper;
-        params.parentItem = this.item;
 
         return params;
     }

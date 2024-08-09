@@ -369,9 +369,15 @@ export class ContentBrowsePanel
         if (data?.length > 0) {
             this.handleCUD();
             this.treeGrid.addContentNodes(data);
-            this.treeListBox.addItems(data);
+            this.addNewItemsToList(data);
             this.refreshFilterWithDelay();
         }
+    }
+
+    private addNewItemsToList(data: ContentSummaryAndCompareStatus[]): void {
+        data.forEach((item: ContentSummaryAndCompareStatus) => {
+            (this.treeListBox.findParentList(item) as ContentsTreeGridList)?.addNewItems([item]);
+        });
     }
 
     private handleContentRenamed(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) {
@@ -426,8 +432,10 @@ export class ContentBrowsePanel
         this.refreshFilterWithDelay();
     }
 
-    private deleteTreeItems(toDelete: DeletedContentItem[]) {
-        const itemsFound = toDelete.map((item) => this.treeListBox.getItem(item.id.toString()));
+    private deleteTreeItems(toDelete: DeletedContentItem[]): void {
+        const itemsFound = toDelete
+            .map((item) => this.treeListBox.getItem(item.id.toString()))
+            .filter((item) => !!item);
 
         if (itemsFound.length > 0) {
             this.treeListBox.removeItems(itemsFound);
