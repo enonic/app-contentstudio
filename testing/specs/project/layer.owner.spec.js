@@ -118,7 +118,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             // 3. Verify that 'Localize' button appears in the browse toolbar:
             await contentBrowsePanel.waitForLocalizeButtonEnabled();
             // 4. Verify that workflow state the same as in the parent project:
-            let actualWorkflow = await contentBrowsePanel.getWorkflowState(SITE_NAME);
+            let actualWorkflow = await contentBrowsePanel.getWorkflowStateByName(SITE_NAME);
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 
@@ -177,7 +177,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             // 3. Verify that 'Localize' button appears in the browse toolbar:
             await contentBrowsePanel.waitForLocalizeButtonEnabled();
             // 4. Verify that workflow state the same as in the parent project:
-            let actualWorkflow = await contentBrowsePanel.getWorkflowState(SITE_NAME);
+            let actualWorkflow = await contentBrowsePanel.getWorkflowStateByName(SITE_NAME);
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
         });
 

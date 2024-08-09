@@ -38,12 +38,6 @@ const XPATH = {
     contentSummaryListViewerByName(name) {
         return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
-    contentSummaryByName(name) {
-        return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
-    },
-    contentSummaryByDisplayName(displayName) {
-        return `//div[contains(@id,'ContentSummaryListViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
-    },
     publishMenuItemByName(name) {
         return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
@@ -654,7 +648,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async getContentStatus(name) {
         try {
-            let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r3')]";
+            let selector = lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.TREE_GRID.CONTENT_STATUS;
             return await this.getText(selector);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_content_status');
@@ -662,8 +656,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async waitForStatus(displayName, expectedStatus) {
-        let locator = lib.slickRowByDisplayName(XPATH.treeGrid, displayName) + "//div[contains(@class,'r3')]";
+    async waitForStatus(name, expectedStatus) {
+        let locator = lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.TREE_GRID.CONTENT_STATUS;
         await this.getBrowser().waitUntil(async () => {
             let actualStatus = await this.getText(locator);
             return actualStatus === expectedStatus;
@@ -762,9 +756,9 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await confirmationDialog.clickOnYesButton();
     }
 
-    // finds workflow state by the display name
-    async getWorkflowState(displayName) {
-        let xpath = XPATH.contentSummaryByDisplayName(displayName);
+    // finds workflow state by a display name
+    async getWorkflowStateByDisplayName(displayName) {
+        let xpath = lib.TREE_GRID.contentStatusByDisplayName(XPATH.container, displayName);
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
@@ -779,9 +773,9 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    // finds workflow state by the name
+    // finds workflow state by a name
     async getWorkflowStateByName(name) {
-        let xpath = XPATH.contentSummaryListViewerByName(name);
+        let xpath = lib.TREE_GRID.contentStatusByName(name);
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
