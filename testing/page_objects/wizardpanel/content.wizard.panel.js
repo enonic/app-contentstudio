@@ -351,7 +351,7 @@ class ContentWizardPanel extends Page {
             await this.doSwitchToContentBrowsePanel();
             return await this.pause(500);
         } catch (err) {
-            let screenshot = this.saveScreenshotUniqueName('err_close_wizard');
+            let screenshot = await this.saveScreenshotUniqueName('err_close_wizard');
             await this.doSwitchToContentBrowsePanel();
             throw new Error("Wizard was not closed!  screenshot:" + screenshot + ' ' + err);
         }

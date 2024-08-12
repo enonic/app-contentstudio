@@ -100,17 +100,17 @@ describe('Wizard toolbar - shortcut spec', function () {
             await contentBrowsePanel.waitForGridLoaded();
         });
 
-    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Enter' have been pressed THEN the content should be should be saved then closed AND grid is loaded`,
+    it(`GIVEN existing folder is opened AND the display name has been updated WHEN 'Ctrl+Enter' have been pressed THEN the content should be saved and the wizard closes`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
-            // 2. Open Edit Details modal dialog and select the language:
-            let editSettingsDialog = await studioUtils.openEditSettingDialog();
-            await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
+            // 2. Update the content, Save gets enabled:
+            await contentWizard.typeDisplayName(appConst.generateRandomName('test'));
             // 3. Press 'Ctrl+Enter
             await contentWizard.hotKeySaveAndCloseWizard();
+            // 4. Verify that the wizard is closed:
             await contentBrowsePanel.waitForGridLoaded();
         });
 
