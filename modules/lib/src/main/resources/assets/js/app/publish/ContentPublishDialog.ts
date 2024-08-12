@@ -70,7 +70,8 @@ export class ContentPublishDialog
 
         this.scheduleAction = new Action('action.schedule')
             .setIconClass('schedule-action')
-            .onExecuted((action: Action) => this.doPublish(true));
+            .onExecuted((action: Action) => this.doPublish(true))
+            .setVisible(false);
     }
 
     protected initElements() {
@@ -120,15 +121,10 @@ export class ContentPublishDialog
         });
     }
 
-    open() {
-        this.publishScheduleForm.setFormVisible(false);
-
-        super.open();
-    }
-
     close() {
         super.close();
 
+        this.publishScheduleForm.setFormVisible(false);
         this.resetSubTitleMessage();
         this.message = null;
     }
