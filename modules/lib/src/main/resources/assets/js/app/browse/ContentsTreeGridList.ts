@@ -6,6 +6,7 @@ import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryA
 import {ContentResponse} from '../resource/ContentResponse';
 import {ContentPath} from '../content/ContentPath';
 import {ContentTreeGridListViewer} from './ContentTreeGridListViewer';
+import {ChildOrder} from '../resource/order/ChildOrder';
 
 export class ContentsTreeGridList
     extends TreeListBox<ContentSummaryAndCompareStatus> {
@@ -57,10 +58,21 @@ export class ContentsTreeGridList
     }
 
     private fetch(): Q.Promise<ContentSummaryAndCompareStatus[]> {
+        return this.isRootList() ? this.fetchRootItems() : this.fetchItems();
+    }
+
+    protected isRootList(): boolean {
+        return !this.getParentItem();
+    }
+
+    protected fetchRootItems(): Q.Promise<ContentSummaryAndCompareStatus[]> {
+        return this.fetchItems(this.fetcher.createRootChildOrder());
+    }
+
+    protected fetchItems(order?: ChildOrder): Q.Promise<ContentSummaryAndCompareStatus[]> {
         const from: number = this.getItemCount() - this.newItems.size;
         const size: number = ContentsTreeGridList.FETCH_SIZE;
         const parent = this.getParentItem()?.getContentId();
-        const order = parent ? null : this.fetcher.createRootChildOrder();
 
         return this.fetcher.fetchChildren(parent, from, size, order).then((data: ContentResponse<ContentSummaryAndCompareStatus>) => {
             return data.getContents();

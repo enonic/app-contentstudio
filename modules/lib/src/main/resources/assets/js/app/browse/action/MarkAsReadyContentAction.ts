@@ -1,5 +1,4 @@
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {MarkAsReadyRequest} from '../../resource/MarkAsReadyRequest';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -10,8 +9,6 @@ import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {ContentPublishPromptEvent} from '../ContentPublishPromptEvent';
 import {ContentId} from '../../content/ContentId';
-import {TreeListBox} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class MarkAsReadyContentAction

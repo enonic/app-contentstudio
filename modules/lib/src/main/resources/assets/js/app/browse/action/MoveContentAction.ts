@@ -2,11 +2,8 @@ import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentMovePromptEvent} from '../../move/ContentMovePromptEvent';
-import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {TreeListBox} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class MoveContentAction

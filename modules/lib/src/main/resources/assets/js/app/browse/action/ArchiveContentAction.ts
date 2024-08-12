@@ -1,12 +1,8 @@
-import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentDeletePromptEvent} from '../ContentDeletePromptEvent';
-import {CompareStatus} from '../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {TreeListBox} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class ArchiveContentAction extends ContentTreeGridAction {

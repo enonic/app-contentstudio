@@ -4,7 +4,7 @@ import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveMa
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ActionName} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
-import {ContentTreeGrid, State} from './ContentTreeGrid';
+import {ContentTreeGrid} from './ContentTreeGrid';
 import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
 import {ContentBrowseItemPanel} from './ContentBrowseItemPanel';
 import {Router} from '../Router';
@@ -45,6 +45,11 @@ import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selecto
 import {ContentTreeActions} from './ContentTreeActions';
 import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
 import {ContentsTreeGridList, ContentsTreeGridListElement} from './ContentsTreeGridList';
+import {ContentsTreeGridRootList} from './ContentsTreeGridRootList';
+import {State} from './State';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
+import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {SettingsViewItem} from '../settings/view/SettingsViewItem';
 import {SettingsTreeListElement} from '../settings/SettingsTreeList';
 import {ContentActionMenuButton} from '../ContentActionMenuButton';
@@ -61,13 +66,21 @@ export class ContentBrowsePanel
     private browseActionsAndPreviewUpdateRequired: boolean = false;
     private contextPanelToggler: NonMobileContextPanelToggleButton;
 
-    protected treeListBox: ContentsTreeGridList;
+    private state: State;
+
+    protected treeListBox: ContentsTreeGridRootList;
 
     protected treeActions: ContentTreeActions;
 
     protected toolbar: ListBoxToolbar<ContentAndStatusTreeSelectorItem>;
 
     protected contextMenu: TreeGridContextMenu;
+
+    protected keyNavigator: SelectableTreeListBoxKeyNavigator<ContentSummaryAndCompareStatus>;
+
+    protected selectionWrapper: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>;
+
+    protected selectableListBoxPanel: SelectableListBoxPanel<ContentSummaryAndCompareStatus>;
 
     protected initElements() {
         super.initElements();
@@ -89,13 +102,13 @@ export class ContentBrowsePanel
         this.getBrowseActions().setState(State.DISABLED);
         this.toggleFilterPanelAction.setEnabled(false);
         this.contextPanelToggler.setEnabled(false);
-        this.treeGrid.setState(State.DISABLED);
+        this.setContentTreeState(State.DISABLED);
 
         const projectSetHandler = () => {
             this.getBrowseActions().setState(State.ENABLED);
             this.toggleFilterPanelAction.setEnabled(true);
             this.contextPanelToggler.setEnabled(true);
-            this.treeGrid.setState(State.ENABLED);
+            this.setContentTreeState(State.ENABLED);
             Router.get().setHash(UrlAction.BROWSE);
             ProjectContext.get().unProjectChanged(projectSetHandler);
         };
@@ -106,30 +119,18 @@ export class ContentBrowsePanel
     protected initListeners() {
         super.initListeners();
 
-        this.onShown(() => {
-            this.treeGrid.resizeCanvas();
-        });
-
         this.filterPanel.onSearchEvent((query?: ContentQuery) => {
-            this.treeGrid.setTargetBranch(this.filterPanel.getTargetBranch());
-            this.treeGrid.setFilterQuery(query);
+            this.treeListBox.setTargetBranch(this.filterPanel.getTargetBranch());
+            this.treeListBox.setFilterQuery(query);
         });
 
         this.handleGlobalEvents();
 
-        this.treeGrid.onSelectionOrHighlightingChanged(() => {
+        this.selectableListBoxPanel.onSelectionChanged(() => {
             const previewPanel: ContentItemPreviewPanel = this.getPreviewPanel();
-            const selectedItem: ContentSummaryAndCompareStatus = this.treeGrid.getLastSelectedOrHighlightedItem();
+            const selectedItem: ContentSummaryAndCompareStatus = this.selectableListBoxPanel.getLastSelectedItem();
             if (!!selectedItem && previewPanel.isPreviewUpdateNeeded(selectedItem)) {
                 previewPanel.showMask();
-            }
-        }, false);
-
-        this.treeGrid.onDoubleClick(() => {
-            const previewPanel: ContentItemPreviewPanel = this.getPreviewPanel();
-
-            if (previewPanel.isMaskOn()) {
-                previewPanel.hideMask(); // dbl click, item is not selected, no need to show a load mask
             }
         });
 
@@ -150,25 +151,24 @@ export class ContentBrowsePanel
     }
 
     createListBoxPanel(): SelectableListBoxPanel<ContentSummaryAndCompareStatus> {
-        this.treeListBox = new ContentsTreeGridList({scrollParent: this});
+        this.treeListBox = new ContentsTreeGridRootList({scrollParent: this});
 
-        const selectionWrapper = new SelectableListBoxWrapper<ContentSummaryAndCompareStatus>(this.treeListBox, {
+        this.selectionWrapper = new SelectableListBoxWrapper<ContentSummaryAndCompareStatus>(this.treeListBox, {
             className: 'content-list-box-wrapper',
             maxSelected: 0,
             checkboxPosition: 'left',
             highlightMode: true,
         });
 
-        this.toolbar = new ListBoxToolbar<ContentSummaryAndCompareStatus>(selectionWrapper, {
+        this.toolbar = new ListBoxToolbar<ContentSummaryAndCompareStatus>(this.selectionWrapper, {
             refreshAction: () => this.treeListBox.load(),
         });
 
-        this.treeActions = new ContentTreeActions(selectionWrapper);
+        this.treeActions = new ContentTreeActions(this.selectionWrapper);
         this.contextMenu = new TreeGridContextMenu(this.treeActions);
+        this.keyNavigator = new SelectableTreeListBoxKeyNavigator(this.selectionWrapper);
 
-        new SelectableTreeListBoxKeyNavigator(selectionWrapper);
-
-        const panel =  new SelectableListBoxPanel(selectionWrapper, this.toolbar);
+        const panel =  new SelectableListBoxPanel(this.selectionWrapper, this.toolbar);
         panel.addClass('content-selectable-list-box-panel');
 
         return panel;
@@ -203,7 +203,7 @@ export class ContentBrowsePanel
 
         const showMask = () => {
             if (this.isVisible()) {
-                this.treeGrid.mask();
+                // show mask on tree?
             }
         };
 
@@ -213,17 +213,18 @@ export class ContentBrowsePanel
     }
 
     protected updateFilterPanelOnSelectionChange() {
-        this.filterPanel.setSelectedItems(this.treeGrid.getSelectedItems());
+        this.filterPanel.setSelectedItems(this.selectableListBoxPanel.getSelectedItems().map(item => item.getId()));
     }
 
     protected enableSelectionMode() {
-        this.filterPanel.setSelectedItems(this.treeGrid.getSelectedItems());
+        this.filterPanel.setSelectedItems(this.selectableListBoxPanel.getSelectedItems().map(item => item.getId()));
     }
 
     protected disableSelectionMode() {
         this.filterPanel.resetConstraints();
         this.hideFilterPanel();
         super.disableSelectionMode();
+        this.treeListBox.setFilterQuery(null);
     }
 
     protected createContextView(): ContextView {
@@ -256,8 +257,8 @@ export class ContentBrowsePanel
         });
 
         ToggleSearchPanelWithDependenciesEvent.on((event: ToggleSearchPanelWithDependenciesEvent) => {
-            if (this.treeGrid.getToolbar().getSelectionPanelToggler().isActive()) {
-                this.treeGrid.getToolbar().getSelectionPanelToggler().setActive(false);
+            if (this.toolbar.getSelectionPanelToggler().isActive()) {
+                this.toolbar.getSelectionPanelToggler().setActive(false);
             }
 
             this.showFilterPanel();
@@ -268,18 +269,11 @@ export class ContentBrowsePanel
         SearchAndExpandItemEvent.on((event: SearchAndExpandItemEvent) => {
            const contentId: ContentId = event.getContentId();
 
-            if (this.treeGrid.getToolbar().getSelectionPanelToggler().isActive()) {
-                this.treeGrid.getToolbar().getSelectionPanelToggler().setActive(false);
+            if (this.toolbar.getSelectionPanelToggler().isActive()) {
+                this.toolbar.getSelectionPanelToggler().setActive(false);
             }
 
             this.showFilterPanel();
-            const expandLoadedItemHandler = () => {
-                if (this.treeGrid.isFiltered()) {
-                    this.treeGrid.unLoaded(expandLoadedItemHandler);
-                    this.treeGrid.expandNodeByDataId(contentId.toString());
-                }
-            };
-            this.treeGrid.onLoaded(expandLoadedItemHandler);
             this.filterPanel.searchItemById(contentId);
         });
 
@@ -295,24 +289,23 @@ export class ContentBrowsePanel
 
         RepositoryEvent.on(event => {
             if (event.isRestored()) {
-                this.treeGrid.reload().then(() => {
-                    this.updatePreviewItem();
-                });
+                this.treeListBox.load();
             }
         });
 
         ProjectContext.get().onProjectChanged(() => {
-            this.treeGrid.deselectAll();
+            this.selectionWrapper.deselectAll(true);
             this.filterPanel.reset().then(() => {
                 this.hideFilterPanel();
                 this.toggleFilterPanelButton.removeClass('filtered');
-                this.treeGrid.reload();
+                this.treeListBox.setFilterQuery(null);
             });
         });
 
         ProjectContext.get().onNoProjectsAvailable(() => {
             this.handleProjectNotSet();
-            this.treeGrid.clean();
+            this.selectionWrapper.deselectAll(true);
+            this.treeListBox.clearItems(true);
         });
     }
 
@@ -320,7 +313,7 @@ export class ContentBrowsePanel
         const path: string = this.getPathFromInlinePath(contentInlinePath);
 
         if (path) {
-            this.treeGrid.selectInlinedContentInGrid(ContentPath.create().fromString(path).build());
+            // possibly don't need this, but presumes expanding tree structure till the item is found
         }
     }
 
@@ -368,7 +361,6 @@ export class ContentBrowsePanel
 
         if (data?.length > 0) {
             this.handleCUD();
-            this.treeGrid.addContentNodes(data);
             this.addNewItemsToList(data);
             this.refreshFilterWithDelay();
         }
@@ -385,7 +377,7 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: renamed', data, oldPaths);
         }
 
-        this.treeGrid.renameContentNodes(data);
+        this.treeListBox.replaceItems(data);
         this.refreshFilterWithDelay();
     }
 
@@ -407,12 +399,19 @@ export class ContentBrowsePanel
         }
 
         if (!data || data.length === 0 ||
-            !data.some((summary: ContentSummaryAndCompareStatus) => this.treeGrid.hasItemWithDataId(summary.getId()))) {
+            !data.some((summary: ContentSummaryAndCompareStatus) => this.treeListBox.getItem(summary.getId()))) {
             return;
         }
 
-        this.treeGrid.copyStatusFromExistingNodes(data);
-        this.treeGrid.updateNodes(data);
+        data.forEach((newItem: ContentSummaryAndCompareStatus) => {
+            const existingItem: ContentSummaryAndCompareStatus = this.treeListBox.getItem(newItem.getId());
+
+            if (existingItem) {
+                newItem.setCompareStatus(existingItem.getCompareStatus());
+            }
+        });
+
+        this.treeListBox.replaceItems(data);
     }
 
     private handleContentDeleted(items: DeletedContentItem[]) {
@@ -422,10 +421,9 @@ export class ContentBrowsePanel
 
         this.handleCUD();
         this.deleteTreeItems(items);
-        this.treeGrid.deleteItems(items);
 
-        if (this.treeGrid.isFiltered() && this.treeGrid.isEmpty()) {
-            this.treeGrid.resetFilter();
+        if (this.treeListBox.isFiltered() && this.treeListBox.getItems().length === 0) {
+            this.treeListBox.setFilterQuery(null);
         }
 
         this.updateContextPanelOnNodesDelete(items);
@@ -479,8 +477,15 @@ export class ContentBrowsePanel
     private doHandleContentUpdate(data: ContentSummaryAndCompareStatus[]) {
         this.handleCUD();
         this.updateContextPanel(data);
-        this.treeGrid.copyPermissionsFromExistingNodes(data);
-        this.treeGrid.updateNodes(data);
+
+        data.forEach((newItem: ContentSummaryAndCompareStatus) => {
+            const existingItem: ContentSummaryAndCompareStatus = this.treeListBox.getItem(newItem.getId());
+
+            if (existingItem) {
+                newItem.setReadOnly(existingItem.isReadOnly());
+            }
+        });
+
         this.treeListBox.replaceItems(data);
         this.refreshFilterWithDelay();
     }
@@ -490,13 +495,13 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: sorted', data);
         }
 
-        this.treeGrid.sortNodesChildren(data);
+        //this.treeGrid.sortNodesChildren(data);
         this.updateContextPanel(data);
     }
 
     private handleNewMediaUpload(event: NewMediaUploadEvent) {
         event.getUploadItems().forEach((item: UploadItem<ContentSummary>) => {
-            this.treeGrid.appendUploadNode(item);
+            this.appendUploadNode(item);
         });
     }
 
@@ -549,18 +554,16 @@ export class ContentBrowsePanel
             dropdownPosition: MenuButtonDropdownPos.RIGHT
         });
 
-        this.treeGrid.onSelectionChanged(() => {
-            const totalSelected: number = this.treeGrid.getTotalSelected();
+        let previousSelectionSize: number = this.selectionWrapper.getSelectedItems().length;
+
+        this.selectionWrapper.onSelectionChanged(() => {
+            const totalSelected: number = this.selectionWrapper.getSelectedItems().length;
 
             if (totalSelected === 0) {
                 contentActionMenuButton.setItem(null);
             } else if (totalSelected === 1) {
                 contentActionMenuButton.setItem(this.treeGrid.getFirstSelectedItem());
             }
-        });
-
-        this.treeGrid.onHighlightingChanged(() => {
-            contentActionMenuButton.setItem(this.treeGrid.hasHighlightedNode() ? this.treeGrid.getHighlightedItem() : null);
         });
 
         this.browseToolbar.addContainer(contentActionMenuButton, contentActionMenuButton.getChildControls());
@@ -578,7 +581,7 @@ export class ContentBrowsePanel
     private handleCUD() {
         IsRenderableRequest.clearCache();
 
-        if (this.treeGrid.hasSelectedOrHighlightedNode()) {
+        if (this.selectableListBoxPanel.getSelectedItems().length > 0) {
             this.browseActionsAndPreviewUpdateRequired = true;
             this.debouncedBrowseActionsAndPreviewRefreshOnDemand();
         }
@@ -587,11 +590,11 @@ export class ContentBrowsePanel
     protected updateActionsAndPreview(): void {
         this.browseActionsAndPreviewUpdateRequired = false;
 
-        const selectedItem: ContentSummaryAndCompareStatus = this.treeGrid.getLastSelectedOrHighlightedItem();
+        const selectedItem: ContentSummaryAndCompareStatus = this.selectionWrapper.getSelectedItems().pop();
 
         if (selectedItem) {
             new IsRenderableRequest(selectedItem.getContentSummary()).sendAndParse().then((statusCode: number) => {
-                this.treeGrid.updateItemIsRenderable(selectedItem.getId(), statusCode === StatusCode.OK);
+                this.treeListBox.getItem(selectedItem.getId()).setRenderable(statusCode === StatusCode.OK);
                 super.updateActionsAndPreview();
             }).catch(DefaultErrorHandler.handle);
         } else {
@@ -605,5 +608,45 @@ export class ContentBrowsePanel
 
     protected updateContextView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
         return this.contextView.setItem(item);
+    }
+
+    setContentTreeState(state: State) {
+        this.state = state;
+
+        if (this.state === State.ENABLED) {
+            this.toolbar.enable();
+            this.keyNavigator.enableKeys();
+        } else {
+            this.toolbar.disable();
+            this.keyNavigator.disableKeys();
+        }
+    }
+
+    appendUploadNode(item: UploadItem<ContentSummary>) {
+        const data: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromUploadItem(item);
+        const parent: ContentsTreeGridList = this.treeListBox.findParentList(data) as ContentsTreeGridList || this.treeListBox;
+
+        if (parent) {
+            parent.addNewItems([data]);
+            this.addUploadItemListeners(data);
+        }
+    }
+
+    private addUploadItemListeners(data: ContentSummaryAndCompareStatus) {
+        const uploadItem: UploadItem<ContentSummary> = data.getUploadItem();
+        const listElement = this.treeListBox.getItemView(data) as ContentsTreeGridListElement;
+
+        uploadItem.onProgress(() => {
+            listElement.updateItemView(data);
+        });
+
+        uploadItem.onUploaded(() => {
+            this.treeListBox.removeItems(data);
+            showFeedback(i18n('notify.item.created', data.getContentSummary().getType().toString(), uploadItem.getName()));
+        });
+
+        uploadItem.onFailed(() => {
+            this.treeListBox.removeItems(data);
+        });
     }
 }

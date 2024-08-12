@@ -1,4 +1,3 @@
-import {ContentTreeGrid} from '../ContentTreeGrid';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
@@ -7,8 +6,6 @@ import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentSummary} from '../../content/ContentSummary';
-import {TreeListBox} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class PreviewContentAction
