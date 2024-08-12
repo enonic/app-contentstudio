@@ -33,7 +33,7 @@ import {ContentPath} from '../content/ContentPath';
 import {ContentTreeGridDeselectAllEvent} from './ContentTreeGridDeselectAllEvent';
 import {Branch} from '../versioning/Branch';
 
-export enum State {
+enum State {
     ENABLED, DISABLED
 }
 

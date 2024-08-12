@@ -10,7 +10,6 @@ import {ManagedActionState} from '@enonic/lib-admin-ui/managedaction/ManagedActi
 import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ContentTreeGridAction} from './action/ContentTreeGridAction';
 import {ShowNewContentDialogAction} from './action/ShowNewContentDialogAction';
 import {PreviewContentAction} from './action/PreviewContentAction';
@@ -35,15 +34,12 @@ import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenR
 import {HasUnpublishedChildren, HasUnpublishedChildrenResult} from '../resource/HasUnpublishedChildrenResult';
 import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
 import {ContentType} from '../inputtype/schema/ContentType';
+import {State} from './State';
 
 
 export enum ActionName {
     SHOW_NEW_DIALOG, PREVIEW, EDIT, ARCHIVE, DUPLICATE, MOVE, SORT, PUBLISH, PUBLISH_TREE, UNPUBLISH, MARK_AS_READY, REQUEST_PUBLISH,
     CREATE_ISSUE, TOGGLE_SEARCH_PANEL
-}
-
-export enum State {
-    ENABLED, DISABLED
 }
 
 export class ContentTreeActions implements TreeGridActions<ContentSummaryAndCompareStatus> {

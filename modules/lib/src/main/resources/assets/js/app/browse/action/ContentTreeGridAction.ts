@@ -1,8 +1,5 @@
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {TreeListBox} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 

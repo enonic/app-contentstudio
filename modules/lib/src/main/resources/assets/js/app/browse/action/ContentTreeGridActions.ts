@@ -19,14 +19,11 @@ import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentId} from '../../content/ContentId';
+import {State} from '../State';
 
 export enum ActionName {
     SHOW_NEW_DIALOG, PREVIEW, EDIT, ARCHIVE, DUPLICATE, MOVE, SORT, PUBLISH, PUBLISH_TREE, UNPUBLISH, MARK_AS_READY, REQUEST_PUBLISH,
     CREATE_ISSUE, TOGGLE_SEARCH_PANEL
-}
-
-export enum State {
-    ENABLED, DISABLED
 }
 
 export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAndCompareStatus> {
