@@ -33,8 +33,6 @@ export class ContentsTreeGridRootList extends ContentsTreeGridList {
                 .setQuerySort(query.getQuerySort())
                 .setContentTypeNames(query.getContentTypes())
                 .setMustBeReferencedById(query.getMustBeReferencedById());
-        } else {
-            this.clearItems();
         }
 
         this.load();

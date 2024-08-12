@@ -113,7 +113,7 @@ export class ContentsTreeGridList
     }
 
     load(): void {
-        this.clearItems();
+        this.clearItems(true);
         this.newItems = new Map<string, ContentSummaryAndCompareStatus>();
         this.handleLazyLoad();
     }
