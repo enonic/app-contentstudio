@@ -47,9 +47,9 @@ import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSele
 import {ContentsTreeGridList, ContentsTreeGridListElement} from './ContentsTreeGridList';
 import {ContentsTreeGridRootList} from './ContentsTreeGridRootList';
 import {State} from './State';
-import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {EditContentEvent} from '../event/EditContentEvent';
 import {SettingsViewItem} from '../settings/view/SettingsViewItem';
 import {SettingsTreeListElement} from '../settings/SettingsTreeList';
 import {ContentActionMenuButton} from '../ContentActionMenuButton';
@@ -139,7 +139,7 @@ export class ContentBrowsePanel
                 const listElement = this.treeListBox.getDataView(item) as ContentsTreeGridListElement;
 
                 listElement?.onDblClicked(() => {
-                    this.treeActions.getEditAction().execute();
+                    new EditContentEvent([item]).fire();
                 });
 
                 listElement?.onContextMenu((event: MouseEvent) => {
@@ -594,7 +594,7 @@ export class ContentBrowsePanel
 
         if (selectedItem) {
             new IsRenderableRequest(selectedItem.getContentSummary()).sendAndParse().then((statusCode: number) => {
-                this.treeListBox.getItem(selectedItem.getId()).setRenderable(statusCode === StatusCode.OK);
+                this.treeListBox.getItem(selectedItem.getId())?.setRenderable(statusCode === StatusCode.OK);
                 super.updateActionsAndPreview();
             }).catch(DefaultErrorHandler.handle);
         } else {

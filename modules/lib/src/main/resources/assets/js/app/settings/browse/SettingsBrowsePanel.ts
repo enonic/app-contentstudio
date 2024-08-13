@@ -12,6 +12,7 @@ import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridCont
 import * as Q from 'q';
 import {Projects} from '../resource/Projects';
 import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
+import {EditSettingsItemEvent} from '../event/EditSettingsItemEvent';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {
@@ -34,7 +35,7 @@ export class SettingsBrowsePanel
                 const listElement = this.treeListBox.getDataView(item) as SettingsTreeListElement;
 
                 listElement?.onDblClicked(() => {
-                    this.treeActions.getEditAction().execute();
+                    new EditSettingsItemEvent([item]).fire();
                 });
 
                 listElement?.onContextMenu((event: MouseEvent) => {
