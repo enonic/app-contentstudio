@@ -977,6 +977,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         let locator = this.showIssuesListButton;
         await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_HAS_POPUP, expectedValue);
     }
+
+    async waitForPublishMenuRoleAttribute(expectedRole) {
+        let locator = XPATH.contentPublishMenuButton;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
+    }
 }
 
 module.exports = ContentBrowsePanel;

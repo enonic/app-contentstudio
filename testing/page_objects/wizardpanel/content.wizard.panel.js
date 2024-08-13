@@ -1160,6 +1160,11 @@ class ContentWizardPanel extends Page {
         let locator = XPATH.container + XPATH.projectViewerDiv;
         await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_HAS_POPUP, expectedValue);
     }
+
+    async waitForPublishMenuDropdownRoleAttribute(expectedRole) {
+        let locator = XPATH.toolbarPublish + lib.BUTTONS.DROP_DOWN_HANDLE;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
+    }
 }
 
 module.exports = ContentWizardPanel;

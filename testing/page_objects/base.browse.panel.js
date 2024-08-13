@@ -305,9 +305,9 @@ class BaseBrowsePanel extends Page {
         await this.waitForAttributeValue(lib.DIV.CONTENT_APP_BAR_DIV, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL, expectedValue);
     }
 
-    async waitForProjectViewerAriaLabelAttribute(expectedValue) {
+    async waitForProjectViewerRoleAttribute(expectedValue) {
         let locator = lib.DIV.CONTENT_APP_BAR_DIV + lib.DIV.PROJECT_VIEWER_DIV;
-        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL, expectedValue);
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedValue);
     }
 
     async waitForProjectViewerAriaHasPopupAttribute(expectedValue) {

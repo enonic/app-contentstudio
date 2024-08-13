@@ -35,8 +35,12 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.waitForContentAppBarAriaLabel(CONTENT_APP_BAR_ARIA_LABEL);
             // 6. Verify that 'Project Viewer' has aria-haspopup attribute set to 'dialog':
             await contentBrowsePanel.waitForProjectViewerAriaHasPopupAttribute('dialog');
-            // 7. Verify that 'Show Issues' button has aria-haspopup attribute set to 'dialog':
+            // 7. ProjectViewer button has the attribute: role=button
+            await contentBrowsePanel.waitForProjectViewerRoleAttribute('button');
+            // 8. Verify that 'Show Issues' button has aria-haspopup attribute set to 'dialog':
             await contentBrowsePanel.waitForShowIssuesButtonAriaHasPopupAttribute('dialog');
+            // 9. Verify the accessibility attribute 'presentation'
+            await contentBrowsePanel.waitForPublishMenuRoleAttribute('presentation');
         });
 
     it("GIVEN unnamed content are selected WHEN the content hav been deleted THEN modal dialog should be closed",
