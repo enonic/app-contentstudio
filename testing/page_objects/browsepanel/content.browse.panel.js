@@ -16,7 +16,8 @@ const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
     toolbar: "//div[contains(@id,'ContentBrowseToolbar')]",
     treeGridToolbar: "//div[contains(@id,'ListBoxToolbar') and contains(@class,'tree-grid-toolbar')]",
-    treeGridListUL: "//ul[contains(@id,'ContentsTreeGridList')]",
+    selectableListBoxPanelDiv: "//div[contains(@id,'SelectableListBoxPanel')]",
+    contentsTreeGridRootUL: "//ul[contains(@id,ContentsTreeGridRootList)]",
     appBar: "//div[contains(@id,'AppBar')]",
     projectViewerButton: "//div[contains(@id,'ProjectViewer')]",
     highlightedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
@@ -169,11 +170,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get displayNames() {
-        return XPATH.treeGridListUL + lib.H6_DISPLAY_NAME;
+        return XPATH.contentsTreeGridRootUL + lib.H6_DISPLAY_NAME;
     }
 
     get treeGrid() {
-        return XPATH.container + XPATH.treeGridListUL;
+        return XPATH.container + XPATH.contentsTreeGridRootUL;
     }
 
     get projectViewerButton() {
@@ -325,7 +326,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async clickOnExpanderIcon(name) {
         try {
-            let expanderIcon = XPATH.treeGrid + XPATH.expanderIconByName(name);
+            let expanderIcon = XPATH.contentsTreeGridRootUL + XPATH.expanderIconByName(name);
             await this.clickOnElement(expanderIcon);
             return await this.pause(900);
         } catch (err) {
@@ -374,7 +375,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             let timeout = ms ? ms : appConst.mediumTimeout;
             console.log("waitForContentDisplayed, timeout is:" + timeout);
-            return await this.waitForElementDisplayed(XPATH.treeGridListUL + lib.TREE_GRID.itemByName(contentName), timeout);
+            return await this.waitForElementDisplayed(XPATH.contentsTreeGridRootUL + lib.TREE_GRID.itemByName(contentName), timeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_content_displayed');
             throw new Error(`content is not displayed ! screenshot: ${screenshot} ` + err);
@@ -382,7 +383,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async waitForContentNotDisplayed(contentName) {
-        let locator = XPATH.treeGrid + lib.itemByName(contentName)
+        let locator = XPATH.contentsTreeGridRootUL + lib.itemByName(contentName)
         try {
             await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
@@ -526,7 +527,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async clickOnRowByDisplayName(displayName) {
         try {
-            let nameXpath = XPATH.treeGridListUL + lib.itemByDisplayName(displayName);
+            let nameXpath = XPATH.contentsTreeGridRootUL + lib.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             await this.clickOnElement(nameXpath);
             return await this.pause(500);
@@ -538,7 +539,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForRowByNameVisible(name) {
         try {
-            let nameXpath = XPATH.treeGridListUL + lib.itemByName(name);
+            let nameXpath = XPATH.contentsTreeGridRootUL + lib.itemByName(name);
             await this.waitForElementDisplayed(nameXpath, appConst.longTimeout);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_content'));
@@ -548,7 +549,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForContentByDisplayNameVisible(displayName) {
         try {
-            let nameXpath = XPATH.treeGridListUL + lib.itemByDisplayName(displayName);
+            let nameXpath = XPATH.contentsTreeGridRootUL + lib.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(nameXpath, 3000)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_find_content');
