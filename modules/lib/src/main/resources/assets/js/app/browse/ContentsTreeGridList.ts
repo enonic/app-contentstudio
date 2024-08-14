@@ -118,26 +118,26 @@ export class ContentsTreeGridList
         this.handleLazyLoad();
     }
 
-    findParentList(item: ContentSummaryAndCompareStatus): ContentsTreeGridList {
+    findParentLists(item: ContentSummaryAndCompareStatus): ContentsTreeGridList[] {
+        const parents: ContentsTreeGridList[] = [];
         const itemPath = item.getPath();
         const thisPath = this.getParentItem()?.getPath() || ContentPath.getRoot();
 
         if (itemPath.isDescendantOf(thisPath)) {
             if (itemPath.isChildOf(thisPath)) {
-                return this;
+                parents.push(this);
             }
 
-            let ancestor = null;
+            this.getItemViews().forEach((listElement: ContentsTreeGridListElement) => {
+                const moreParents = listElement.findParentLists(item);
 
-            this.getItemViews().some((listElement: ContentsTreeGridListElement) => {
-                ancestor = listElement.findParentList(item);
-                return !!ancestor;
+                if (moreParents.length > 0) {
+                    parents.push(...moreParents);
+                }
             });
-
-            return ancestor;
         }
 
-        return null;
+        return parents;
     }
 
     doRender(): Q.Promise<boolean> {
@@ -192,8 +192,8 @@ export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryA
         return viewer;
     }
 
-    findParentList(item: ContentSummaryAndCompareStatus): TreeListBox<ContentSummaryAndCompareStatus> {
-        return this.childrenList.findParentList(item);
+    findParentLists(item: ContentSummaryAndCompareStatus): ContentsTreeGridList[] {
+        return this.childrenList.findParentLists(item);
     }
 
     updateItemView(item: ContentSummaryAndCompareStatus): void {

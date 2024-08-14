@@ -131,9 +131,9 @@ export class ContentBrowsePanel
             }
         });
 
-        this.treeListBox.onItemsAdded((items: ContentSummaryAndCompareStatus[]) => {
-            items.forEach((item: ContentSummaryAndCompareStatus) => {
-                const listElement = this.treeListBox.getDataView(item) as ContentsTreeGridListElement;
+        this.treeListBox.onItemsAdded((items: ContentSummaryAndCompareStatus[], itemViews: ContentsTreeGridListElement[]) => {
+            items.forEach((item: ContentSummaryAndCompareStatus, index) => {
+                const listElement = itemViews[index]?.getDataView();
 
                 listElement?.onDblClicked(() => {
                     new EditContentEvent([item]).fire();
@@ -365,7 +365,7 @@ export class ContentBrowsePanel
 
     private addNewItemsToList(data: ContentSummaryAndCompareStatus[]): void {
         data.forEach((item: ContentSummaryAndCompareStatus) => {
-            this.treeListBox.findParentList(item)?.addNewItems([item]);
+            this.treeListBox.findParentLists(item).forEach(list => list.addNewItems([item]));
         });
     }
 
@@ -375,7 +375,7 @@ export class ContentBrowsePanel
         }
 
         data.forEach((item: ContentSummaryAndCompareStatus) => {
-            this.treeListBox.findParentList(item)?.replaceItems(item);
+            this.treeListBox.findParentLists(item).forEach(list => list.replaceItems(item));
         });
 
         this.refreshFilterWithDelay();
@@ -436,7 +436,7 @@ export class ContentBrowsePanel
             .filter((item) => !!item);
 
         itemsFound.forEach((item) => {
-            this.treeListBox.findParentList(item)?.removeItems(item);
+            this.treeListBox.findParentLists(item).forEach(list => list.removeItems(item));
         });
     }
 
@@ -483,7 +483,7 @@ export class ContentBrowsePanel
 
             if (existingItem) {
                 newItem.setReadOnly(existingItem.isReadOnly());
-                this.treeListBox.findParentList(newItem)?.replaceItems(newItem);
+                this.treeListBox.findParentLists(newItem).forEach(list => list.replaceItems(newItem));
             }
         });
 
@@ -621,12 +621,13 @@ export class ContentBrowsePanel
 
     appendUploadNode(item: UploadItem<ContentSummary>) {
         const data: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromUploadItem(item);
-        const parent: ContentsTreeGridList = this.treeListBox.findParentList(data) || this.treeListBox;
+        const parentLists = this.treeListBox.findParentLists(data);
+        const pLists = parentLists.length > 0 ? parentLists : [this.treeListBox];
 
-        if (parent) {
+        pLists.forEach(parent => {
             parent.addNewItems([data]);
             this.addUploadItemListeners(data);
-        }
+        });
     }
 
     private addUploadItemListeners(data: ContentSummaryAndCompareStatus) {
