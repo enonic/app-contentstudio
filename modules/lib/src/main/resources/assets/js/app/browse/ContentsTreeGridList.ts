@@ -118,7 +118,7 @@ export class ContentsTreeGridList
         this.handleLazyLoad();
     }
 
-    findParentList(item: ContentSummaryAndCompareStatus): TreeListBox<ContentSummaryAndCompareStatus> {
+    findParentList(item: ContentSummaryAndCompareStatus): ContentsTreeGridList {
         const itemPath = item.getPath();
         const thisPath = this.getParentItem()?.getPath() || ContentPath.getRoot();
 
