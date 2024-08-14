@@ -17,7 +17,7 @@ const XPATH = {
     toolbar: "//div[contains(@id,'ContentBrowseToolbar')]",
     treeGridToolbar: "//div[contains(@id,'ListBoxToolbar') and contains(@class,'tree-grid-toolbar')]",
     selectableListBoxPanelDiv: "//div[contains(@id,'SelectableListBoxPanel')]",
-    contentsTreeGridRootUL: "//ul[contains(@id,ContentsTreeGridRootList)]",
+    contentsTreeGridRootUL: "//ul[contains(@id,'ContentsTreeGridRootList')]",
     appBar: "//div[contains(@id,'AppBar')]",
     projectViewerButton: "//div[contains(@id,'ProjectViewer')]",
     highlightedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
