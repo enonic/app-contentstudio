@@ -47,7 +47,7 @@ export class ContentsTreeGridRootList extends ContentsTreeGridList {
         super.load();
     }
 
-    findParentList(item: ContentSummaryAndCompareStatus): TreeListBox<ContentSummaryAndCompareStatus> {
+    findParentList(item: ContentSummaryAndCompareStatus): ContentsTreeGridList {
         const itemId = this.getItemId(item);
 
         if (this.rootItems.indexOf(itemId) >= 0) {

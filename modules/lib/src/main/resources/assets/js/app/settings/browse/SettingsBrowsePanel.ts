@@ -13,6 +13,7 @@ import * as Q from 'q';
 import {Projects} from '../resource/Projects';
 import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
 import {EditSettingsItemEvent} from '../event/EditSettingsItemEvent';
+import {ProjectViewItem} from '../view/ProjectViewItem';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {
@@ -98,19 +99,19 @@ export class SettingsBrowsePanel
         return !!this.treeListBox.getItem(id);
     }
 
-    addSettingsItem(item: SettingsViewItem) {
-        this.treeListBox.addItems(item);
+    addSettingsItem(item: ProjectViewItem) {
+        this.treeListBox.findParentList(item)?.addItems(item);
     }
 
-    updateSettingsItem(item: SettingsViewItem) {
-        this.treeListBox.replaceItems(item);
+    updateSettingsItem(item: ProjectViewItem) {
+        this.treeListBox.findParentList(item)?.replaceItems(item);
     }
 
     deleteSettingsItem(id: string) {
-        const item = this.treeListBox.getItem(id);
+        const item = this.treeListBox.getItem(id) as ProjectViewItem;
 
         if (item) {
-            this.treeListBox.removeItems(item);
+            this.treeListBox.findParentList(item)?.removeItems(item);
         }
     }
 

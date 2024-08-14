@@ -365,7 +365,7 @@ export class ContentBrowsePanel
 
     private addNewItemsToList(data: ContentSummaryAndCompareStatus[]): void {
         data.forEach((item: ContentSummaryAndCompareStatus) => {
-            (this.treeListBox.findParentList(item) as ContentsTreeGridList)?.addNewItems([item]);
+            this.treeListBox.findParentList(item)?.addNewItems([item]);
         });
     }
 
@@ -374,7 +374,10 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: renamed', data, oldPaths);
         }
 
-        this.treeListBox.replaceItems(data);
+        data.forEach((item: ContentSummaryAndCompareStatus) => {
+            this.treeListBox.findParentList(item)?.replaceItems(item);
+        });
+
         this.refreshFilterWithDelay();
     }
 
@@ -432,9 +435,9 @@ export class ContentBrowsePanel
             .map((item) => this.treeListBox.getItem(item.id.toString()))
             .filter((item) => !!item);
 
-        if (itemsFound.length > 0) {
-            this.treeListBox.removeItems(itemsFound);
-        }
+        itemsFound.forEach((item) => {
+            this.treeListBox.findParentList(item)?.removeItems(item);
+        });
     }
 
     private updateContextPanelOnNodesDelete(items: DeletedContentItem[]) {
@@ -480,10 +483,10 @@ export class ContentBrowsePanel
 
             if (existingItem) {
                 newItem.setReadOnly(existingItem.isReadOnly());
+                this.treeListBox.findParentList(newItem)?.replaceItems(newItem);
             }
         });
 
-        this.treeListBox.replaceItems(data);
         this.refreshFilterWithDelay();
     }
 
@@ -618,7 +621,7 @@ export class ContentBrowsePanel
 
     appendUploadNode(item: UploadItem<ContentSummary>) {
         const data: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromUploadItem(item);
-        const parent: ContentsTreeGridList = this.treeListBox.findParentList(data) as ContentsTreeGridList || this.treeListBox;
+        const parent: ContentsTreeGridList = this.treeListBox.findParentList(data) || this.treeListBox;
 
         if (parent) {
             parent.addNewItems([data]);
