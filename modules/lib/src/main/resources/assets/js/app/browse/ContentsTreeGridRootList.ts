@@ -8,15 +8,12 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
-import {TreeListBox} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 
 export class ContentsTreeGridRootList extends ContentsTreeGridList {
 
     private filterQuery: ContentQuery;
 
     private branch: Branch = Branch.DRAFT;
-
-    private rootItems: string[] = [];
 
     setTargetBranch(branch: Branch): void {
         this.branch = branch;
@@ -42,21 +39,6 @@ export class ContentsTreeGridRootList extends ContentsTreeGridList {
         return !!this.filterQuery;
     }
 
-    load(): void {
-        this.rootItems = [];
-        super.load();
-    }
-
-    findParentList(item: ContentSummaryAndCompareStatus): ContentsTreeGridList {
-        const itemId = this.getItemId(item);
-
-        if (this.rootItems.indexOf(itemId) >= 0) {
-            return this;
-        }
-
-        return super.findParentList(item);
-    }
-
     protected fetchRootItems(): Q.Promise<ContentSummaryAndCompareStatus[]> {
         if (!this.filterQuery) {
             return super.fetchRootItems();
@@ -66,8 +48,6 @@ export class ContentsTreeGridRootList extends ContentsTreeGridList {
 
         return this.makeContentQueryRequest(from).sendAndParse().then(
             (contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-                const moreRootItemsIds = contentQueryResult.getContents().map(content => content.getId());
-                this.rootItems = this.rootItems.concat(moreRootItemsIds);
                 return this.fetcher.updateReadonlyAndCompareStatus(contentQueryResult.getContents());
             });
     }
