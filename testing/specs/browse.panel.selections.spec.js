@@ -157,7 +157,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.pause(2000);
             // 1. Click on Selection Controller checkbox:
             await contentBrowsePanel.clickOnSelectionControllerCheckbox();
-            await studioUtils.saveScreenshot('all_selected');
+            await studioUtils.saveScreenshot('all_grid_items_selected');
             // 2. Verify that New button is disabled and Archive, Duplicate are enabled:
             await contentBrowsePanel.waitForNewButtonDisabled();
             await contentBrowsePanel.waitForArchiveButtonEnabled();
@@ -196,7 +196,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.ok(number2 === 1, "One row should be checked");
             let isVisible = await contentBrowsePanel.waitForSelectionTogglerVisible();
-            assert.ok(isVisible, "Selection Toggler should appear in the toolbar");
+            assert.ok(isVisible, "Selection Toggle should appear in the toolbar");
         });
 
     it("GIVEN one row is checked WHEN one more row has been checked THEN 2 rows should be checked AND 0 rows should be highlighted",

@@ -8,7 +8,6 @@ const appConst = require('../../libs/app_const');
 const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('add.new.in.selector.spec ui-tests for adding a new content directly from Content Selector', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -24,15 +23,6 @@ describe('add.new.in.selector.spec ui-tests for adding a new content directly fr
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();
             let newContentDialog = new NewContentDialog();
-
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await contentBrowsePanel.waitForContentDisplayed('selenium-tests-folder');
-            await contentBrowsePanel.clickOnRowByName('selenium-tests-folder');
-            //await contentBrowsePanel.clickOnRowByDisplayName('folder for selenium tests');
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName('selenium-tests-folder');
-            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName('folder for selenium tests');
-
-
             // 1. Open shortcut-wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
             await contentWizard.typeDisplayName(SHORTCUT_NAME);

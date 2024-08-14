@@ -132,6 +132,7 @@ module.exports = Object.freeze({
 
     TREE_GRID: {
         CONTENT_STATUS: "//div[contains(@id,'StatusBlock')]/span",
+        EXPANDER_ICON_DIV: "//div[contains(@class,'toggle icon-arrow_drop_up')]",
         itemByName: name => {
             return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
         },
