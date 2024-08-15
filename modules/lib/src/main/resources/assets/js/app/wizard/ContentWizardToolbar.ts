@@ -21,6 +21,7 @@ import {ContentActionCycleButton} from './ContentActionCycleButton';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
 import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 
 export interface ContentWizardToolbarConfig extends ToolbarConfig {
     actions: ContentWizardActions;
@@ -30,6 +31,8 @@ export interface ContentWizardToolbarConfig extends ToolbarConfig {
 
 export class ContentWizardToolbar
     extends ContentStatusToolbar<ContentWizardToolbarConfig> {
+
+    ariaLabel: string = i18n('wcag.contenteditor.toolbar.label');
 
     private cycleViewModeButton: ContentActionCycleButton;
 
@@ -88,7 +91,12 @@ export class ContentWizardToolbar
         });
 
         this.whenRendered(() => {
-            this.projectViewer.getNamesAndIconView().getFirstChild().onClicked(() => this.handleHomeIconClicked());
+            this.projectViewer.onClicked(() => this.handleHomeIconClicked());
+            this.projectViewer.onKeyDown((event: KeyboardEvent) => {
+                if (KeyHelper.isEnterKey(event)) {
+                    this.handleHomeIconClicked();
+                }
+            });
         });
     }
 
@@ -122,7 +130,7 @@ export class ContentWizardToolbar
 
     private addCollaboration(): void {
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
-        this.addActionElement(this.collaborationBlock);
+        this.addActionElement(this.collaborationBlock, false);
         this.openCollaborationWSConnection();
     }
 
@@ -148,7 +156,12 @@ export class ContentWizardToolbar
         this.projectViewer.addClass('project-info');
         this.projectViewer.toggleClass('single-repo', projects.length < 2);
 
-        this.prependChild(this.projectViewer);
+        this.projectViewer.applyWCAGAttributes({
+            ariaLabel: i18n('wcag.projectViewer.openBrowse'),
+            ariaHasPopup: ''
+        });
+
+        this.prependActionElement(this.projectViewer);
     }
 
     private handleHomeIconClicked(): void {
@@ -195,7 +208,7 @@ export class ContentWizardToolbar
 
     private addStateIcon(): void {
         this.stateIcon = new DivEl('toolbar-state-icon');
-        this.addActionElement(this.stateIcon);
+        this.addActionElement(this.stateIcon, false);
     }
 
     private isCollaborationEnabled(): boolean {

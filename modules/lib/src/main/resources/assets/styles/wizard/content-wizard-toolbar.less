@@ -1,36 +1,17 @@
 @app-header-height-inner: @app-header-height - 1;
 
 .content-wizard-toolbar {
+  padding: 4px;
   height: @app-header-height;
-  line-height: @app-header-height;
+
+  .action-button {
+    padding: 9px 14px;
+  }
 
   .fold-button {
     .@{_COMMON_PREFIX}dropdown {
       top: @app-header-height;
     }
-
-    .@{_COMMON_PREFIX}button {
-      line-height: 18px;
-    }
-  }
-
-  .app-icon-mixin(true, true);
-  .home-button {
-    padding-right: 0;
-    margin-right: 0;
-  }
-
-  .cycle-button:before {
-    font-size: 26px;
-  }
-
-  .toggle-button.icon-medium:before {
-    font-size: 24px;
-  }
-
-  .toggle-button,
-  .cycle-button {
-    padding: 0 7px;
   }
 
   .content-status-wrapper {
@@ -42,7 +23,7 @@
   }
 
   > .toolbar-publish-controls {
-    order: 2;
+    order: 3;
     margin-right: 5px;
 
     .content-publish-menu {
@@ -50,23 +31,6 @@
         margin-left: 0;
       }
     }
-  }
-
-  .toggle-button {
-    &.icon-clipboard {
-      &:not(.disabled) {
-        display: flex !important;
-      }
-      order: 3;
-    }
-    &.icon-cog {
-      order: 4;
-    }
-  }
-
-  .cycle-button {
-    order: 5;
-    z-index: 1999;
   }
 
   &:not(.live) .toggle-button {
@@ -115,21 +79,33 @@
 
   .project-info {
     height: 100%;
-    overflow: auto;
-    padding-left: 10px;
-    padding-right: 15px;
+    padding: 0 5px;
     border-right: 1px solid @admin-font-gray;
 
+    &:hover {
+      .names-and-icon-view,
+      .@{_COMMON_PREFIX}main-name {
+        cursor: pointer;
+      }
+    }
+
     .@{_COMMON_PREFIX}wrapper {
-      cursor: pointer;
+      margin-right: 5px;
+
+      .names-and-icon-view {
+        .font-icon-default {
+          width: 90%;
+          height: 90%;
+        }
+      }
     }
 
     .@{_COMMON_PREFIX}names-view {
-
       .@{_COMMON_PREFIX}main-name {
-        height: @app-header-height-inner;
-        line-height: @app-header-height-inner;
         font-size: 16px;
+      }
+      .@{_COMMON_PREFIX}sub-name {
+        display: none;
       }
     }
   }
@@ -143,14 +119,33 @@
     background-size: contain;
   }
 
-  .project-viewer {
-    .@{_COMMON_PREFIX}sub-name {
-      display: none;
+  .cycle-button {
+    order: 5;
+    z-index: 1999;
+    padding: 5px 6px;
+
+    &::before {
+      font-size: 26px;
     }
   }
 
   .non-mobile-details-panel-toggle-button {
     order: 6;
+    padding: 8px;
+
+    &::before {
+      font-size: 20px;
+    }
+
+    &.expanded {
+      &::before {
+        color: @admin-button-blue1;
+      }
+
+      &:hover::before {
+        color: @admin-button-blue2;
+      }
+    }
   }
 
   .content-wizard-toolbar-collaboration {

@@ -18,6 +18,7 @@ export class ShowIssuesDialogButton
 
     [WCAG]: boolean = true;
     ariaHasPopup: AriaHasPopup = AriaHasPopup.DIALOG;
+    tabbable: boolean = true;
 
     private countSpan: SpanEl;
 

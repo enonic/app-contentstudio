@@ -21,14 +21,10 @@ export class NonMobileContextPanelToggleButton
         };
         this.onClicked(toggleAction);
 
-        this.onKeyDown((event: KeyboardEvent) => KeyHelper.isEnterKey(event) && toggleAction());
+        this.onEnterPressed(() => toggleAction());
 
-        this.onFocus(() => {
-            console.log('Toggle button got focus');
-        });
-
-        this.onBlur(() => {
-            console.log('Toggle button lost focus');
+        this.onFocus((event) => {
+            console.log('NonMobileContextPanelToggleButton.onFocus', event);
         });
 
         ContextPanelStateEvent.on((event: ContextPanelStateEvent) => {

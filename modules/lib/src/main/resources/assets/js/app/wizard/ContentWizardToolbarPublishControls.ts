@@ -35,6 +35,8 @@ export class ContentWizardToolbarPublishControls
         this.initListeners();
 
         this.appendChild(this.publishButton);
+
+        this.makeTabbable();
     }
 
     protected initMobilePublishControls() {
@@ -79,6 +81,10 @@ export class ContentWizardToolbarPublishControls
 
         this.actions.onActionsUnstashed(() => {
             this.publishButton.setRefreshDisabled(false);
+        });
+
+        this.onFocus(() => {
+            this.publishButton.giveFocus();
         });
     }
 

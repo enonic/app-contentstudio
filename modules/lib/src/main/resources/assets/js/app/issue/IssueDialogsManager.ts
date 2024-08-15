@@ -58,7 +58,7 @@ export class IssueDialogsManager {
             }
             this.publishDialog.setKeepDependencies(false);
             this.publishDialog.unClosed(this.publishDialogCloseHandler);
-            this.detailsDialog.onClosed(this.detailsDialogCloseHandler);
+            //this.detailsDialog.onClosed(this.detailsDialogCloseHandler);
             IssueServerEventsHandler.getInstance().unIssueUpdated(this.issueUpdateHandler);
         };
 
@@ -67,7 +67,7 @@ export class IssueDialogsManager {
             if (backButtonClicked) {
                 return;
             }
-            this.listDialog.close();
+            //this.listDialog.close();
         };
         this.detailsDialogBackButtonClickedHandler = () => {
             backButtonClicked = true;
@@ -102,14 +102,14 @@ export class IssueDialogsManager {
             ignoreNextClosedEvent = true;
             this.createDialog.close();
             this.openDetailsDialogWithListDialog(issue);
-        });
+        });/*
         this.createDialog.onClosed(() => {
             if (!ignoreNextClosedEvent) {
                 this.detailsDialogCloseHandler();
             } else {
                 ignoreNextClosedEvent = false;
             }
-        });
+        });*/
         this.createDialog.onCloseButtonClicked(() => IssueDialogsManager.closeDialog(this.listDialog));
     }
 
@@ -135,14 +135,14 @@ export class IssueDialogsManager {
 
     private listenDetailsDialog() {
         this.detailsDialog.onCloseButtonClicked(() => IssueDialogsManager.closeDialog(this.detailsDialog));
-        this.detailsDialog.onClosed(this.detailsDialogCloseHandler);
+        //this.detailsDialog.onClosed(this.detailsDialogCloseHandler);
         this.detailsDialog.onBackButtonClicked(this.detailsDialogBackButtonClickedHandler);
     }
 
     private listenPublishDialog() {
         ContentPublishPromptEvent.on(() => {
             if (this.detailsDialog.isOpen()) {
-                this.detailsDialog.unClosed(this.detailsDialogCloseHandler);
+                //this.detailsDialog.unClosed(this.detailsDialogCloseHandler);
                 this.publishDialog.onCloseButtonClicked(this.publishDialogBeforeClosedHandler);
                 this.publishDialog.onClosed(this.publishDialogCloseHandler);
                 this.issue = this.detailsDialog.getIssue();
