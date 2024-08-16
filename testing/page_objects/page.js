@@ -311,6 +311,13 @@ class Page {
         return await element.getAttribute(attributeName);
     }
 
+    async waitForAttributeIsPresent(elementLocator, attribute) {
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(elementLocator, attribute);
+            return text != null;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: `Expected attribute ${attribute}  is not set in the element ${elementLocator}`});
+    }
+
     async removeNotificationMessage() {
         try {
             let selector = "//div[contains(@id,'NotificationContainer')]//span[contains(@class,'notification-remove')]";
@@ -395,6 +402,7 @@ class Page {
         let el = await this.findElement(selector);
         return await this.doTouchActionOnElement(el);
     }
+
     async doTouchActionOnElement(el) {
         await el.moveTo();
         let x = await el.getLocation('x');

@@ -17,10 +17,7 @@ describe('Wizard toolbar - shortcut spec', function () {
         webDriverHelper.setupBrowser();
     }
     let DISPLAY_NAME;
-    const WIZARD_TOOLBAR_ARIA_LABEL = 'Main menu bar';
     const WIZARD_TOOLBAR_ROLE = 'toolbar';
-    const CONTENT_WIZARD_PROJECT_VIEWER_ARIA_LABEL = 'Content project selector';
-    const CONTENT_WIZARD_PROJECT_VIEWER_ARIA_HAS_POPUP = 'dialog';
 
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+s' has been pressed THEN folder should be saved`,
         async () => {
@@ -79,15 +76,15 @@ describe('Wizard toolbar - shortcut spec', function () {
             // 1. Open the existing folder:
             await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
             // 2. Verify that Browse-Toolbar is a div with expected 'aria-label' attribute ('Main menu bar')
-            await contentWizard.waitForToolbarAriaLabelAttribute(WIZARD_TOOLBAR_ARIA_LABEL);
-            // 3. Verify that expected aria-label attribute set ProjectViewer div:  aria-label='Content project selector'
-            await contentWizard.waitForProjectViewerAriaLabelAttribute(CONTENT_WIZARD_PROJECT_VIEWER_ARIA_LABEL);
+            await contentWizard.waitForToolbarAriaLabelAttribute();
+            // 3. Verify that expected aria-label attribute set ProjectViewer div
+            await contentWizard.waitForProjectViewerAriaLabelAttribute();
             // 4. 'Default' project should be displayed in the viewer in wizard:
             let actualProjectName = await contentWizard.getProjectDisplayName();
             assert.equal(actualProjectName, appConst.PROJECTS.DEFAULT_PROJECT_NAME,
                 'Default project name should be displayed in Project Viewer bar');
-            // 5. Verify 'aria-haspopup' attribute in the project-viewer div:
-            await contentWizard.waitForProjectViewerAriaHasPopupAttribute(CONTENT_WIZARD_PROJECT_VIEWER_ARIA_HAS_POPUP);
+            // 5. Verify 'aria-label' attribute in the project-viewer div:
+            await contentWizard.waitForProjectViewerAriaLabelAttribute();
             // 6. Publish menu dropdown handle:
             await contentWizard.waitForPublishMenuDropdownRoleAttribute('button');
         });

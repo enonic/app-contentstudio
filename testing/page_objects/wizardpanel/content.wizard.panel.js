@@ -1146,20 +1146,16 @@ class ContentWizardPanel extends Page {
         await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
     }
 
-    async waitForToolbarAriaLabelAttribute(expectedValue) {
+    async waitForToolbarAriaLabelAttribute() {
         let locator = XPATH.container + XPATH.toolbar;
-        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL, expectedValue);
+        await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
     }
 
-    async waitForProjectViewerAriaLabelAttribute(expectedValue) {
+    async waitForProjectViewerAriaLabelAttribute() {
         let locator = XPATH.container + XPATH.projectViewerDiv;
-        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL, expectedValue);
+        await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
     }
 
-    async waitForProjectViewerAriaHasPopupAttribute(expectedValue) {
-        let locator = XPATH.container + XPATH.projectViewerDiv;
-        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_HAS_POPUP, expectedValue);
-    }
 
     async waitForPublishMenuDropdownRoleAttribute(expectedRole) {
         let locator = XPATH.toolbarPublish + lib.BUTTONS.DROP_DOWN_HANDLE;

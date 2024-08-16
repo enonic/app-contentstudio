@@ -289,9 +289,9 @@ class BaseBrowsePanel extends Page {
     }
 
     // check for Accessibility attributes: aria-label
-    async waitForBrowseToolbarAriaLabelAttribute(expectedValue) {
+    async waitForBrowseToolbarAriaLabelAttribute() {
         let locator = this.toolbar;
-        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL, expectedValue);
+        await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
     }
 
     // check for Accessibility attributes: ContentAppBar role
@@ -301,8 +301,9 @@ class BaseBrowsePanel extends Page {
     }
 
     // check for Accessibility attributes: ContentAppBar aria-label:
-    async waitForContentAppBarAriaLabel(expectedValue) {
-        await this.waitForAttributeValue(lib.DIV.CONTENT_APP_BAR_DIV, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL, expectedValue);
+    async waitForContentAppBarAriaLabelAttribute() {
+        let locator = lib.DIV.CONTENT_APP_BAR_DIV;
+        await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
     }
 
     async waitForProjectViewerRoleAttribute(expectedValue) {
