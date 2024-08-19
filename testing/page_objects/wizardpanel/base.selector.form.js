@@ -5,6 +5,7 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const LoaderComboBox = require('../components/loader.combobox');
+const ContentSelectorDropdown = require('../components/content.selector.dropdown');
 
 class BaseSelectorForm extends Page {
 
@@ -64,6 +65,7 @@ class BaseSelectorForm extends Page {
     async swapOptions(sourceName, destinationName) {
         let sourceLocator = this.selectedOptionByDisplayName(sourceName);
         let destinationLocator = this.selectedOptionByDisplayName(destinationName);
+        let source1 = await this.findElements(sourceLocator);
         let source = await this.findElement(sourceLocator);
         let destination = await this.findElement(destinationLocator);
         await source.dragAndDrop(destination);
@@ -85,24 +87,32 @@ class BaseSelectorForm extends Page {
 
     async getOptionsDisplayName() {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            let optionsLocator = "//div[contains(@id,'Grid') and contains(@class,'options-container')]" + lib.SLICK_ROW +
-                                 lib.H6_DISPLAY_NAME;
-            await loaderComboBox.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
-            return await loaderComboBox.getOptionDisplayNames();
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            return await contentSelectorDropdown.getOptionsDisplayNameInFlatMode()
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error("Error occurred in the dropdown selector, screenshot: " + screenshot + ' ' + err);
         }
     }
 
-    async clickOnApplyButton() {
+    async getOptionsDisplayNameInTreeMode() {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            await loaderComboBox.clickOnApplyButton();
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            return await contentSelectorDropdown.getOptionsDisplayNameInTreeMode()
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
+            throw new Error("Error occurred in the dropdown selector, screenshot: " + screenshot + ' ' + err);
+        }
+    }
+
+    // Click on OK button:
+    async clickOnOkButton() {
+        try {
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            await contentSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-            throw new Error("Loader combobox, Apply button, screenshot: " + screenshot + ' ' + err);
+            throw new Error("Content Selector, Apply selection (OK) button, screenshot: " + screenshot + ' ' + err);
         }
     }
 
