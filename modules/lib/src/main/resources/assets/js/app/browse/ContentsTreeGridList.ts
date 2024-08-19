@@ -118,6 +118,10 @@ export class ContentsTreeGridList
         this.handleLazyLoad();
     }
 
+    wasAlreadyShownAndLoaded(): boolean {
+        return this.wasShownAndLoaded;
+    }
+
     findParentLists(item: ContentSummaryAndCompareStatus): ContentsTreeGridList[] {
         const parents: ContentsTreeGridList[] = [];
         const itemPath = item.getPath();
