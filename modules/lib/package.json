@@ -30,7 +30,8 @@
     "jquery-ui": "^1.13.2",
     "jsondiffpatch": "^0.5.0",
     "lodash": "^4.17.21",
-    "q": "^1.5.1"
+    "q": "^1.5.1",
+    "sortablejs": "^1.15.2"
   },
   "devDependencies": {
     "@enonic/eslint-config": "^2.0.0",
@@ -42,6 +43,7 @@
     "@types/jquery": "^3.5.25",
     "@types/jqueryui": "^1.12.19",
     "@types/q": "^1.5.7",
+    "@types/sortablejs": "^1.15.8",
     "circular-dependency-plugin": "^5.2.2",
     "eslint": "^9.10.0",
     "globals": "^15.9.0",

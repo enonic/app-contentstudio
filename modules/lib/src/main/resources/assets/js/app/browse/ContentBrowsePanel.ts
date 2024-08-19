@@ -498,7 +498,19 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: sorted', data);
         }
 
-        //this.treeGrid.sortNodesChildren(data);
+        data.forEach((item: ContentSummaryAndCompareStatus) => {
+            this.treeListBox.findParentLists(item).forEach(list => {
+                list.replaceItems(item);
+
+                const itemElement = list.getItemView(item) as ContentsTreeGridListElement;
+                const itemList = itemElement.getList() as ContentsTreeGridList;
+
+                if (itemList.wasAlreadyShownAndLoaded()) {
+                    itemList.load();
+                }
+            });
+        });
+
         this.updateContextPanel(data);
     }
 
