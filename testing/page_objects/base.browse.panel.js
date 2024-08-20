@@ -12,8 +12,6 @@ const XPATH = {
     contextMenuItemByName: (name) => {
         return `${lib.TREE_GRID_CONTEXT_MENU}/li[contains(@id,'MenuItem') and contains(.,'${name}')]`;
     },
-    checkboxByDisplayName: displayName => `${lib.itemByDisplayName(
-        displayName)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`,
 };
 
 class BaseBrowsePanel extends Page {
@@ -79,7 +77,7 @@ class BaseBrowsePanel extends Page {
             await this.waitForElementNotDisplayed(this.selectionPanelToggler, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName("err_selection_toggler_should_not_visible");
-            throw new Error("Selection toggler should not be visible, screenshot:" + screenshot + ' ' + err);
+            throw new Error(`Selection toggler should not be visible, screenshot: ${screenshot} ` + err);
         }
     }
 

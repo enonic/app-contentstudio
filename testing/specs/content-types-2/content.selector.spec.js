@@ -37,14 +37,14 @@ describe('content.selector.spec: content-selector specification', function () {
             await studioUtils.saveAndCloseWizard();
         });
 
-    it(`GIVEN new wizard for custom-relationship content is opened WHEN article-option has been selected THEN expected article should appear in the selected options view`,
+    it(`GIVEN new wizard for custom-relationship content is opened WHEN an article-option has been selected THEN expected article should appear in the selected options view`,
         async () => {
             let contentWizard = new ContentWizard();
             let customRelationshipForm = new ContentSelectorForm();
             // 1. Open new wizard for article-content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
             await contentWizard.typeDisplayName(RELATIONSHIP_NAME);
-            // 2. Select the article in options -  type the name of the article and click on the slick-row:
+            // 2. Select the article in options -  type the name of the article and click on the filtered option:
             await customRelationshipForm.selectOption(ARTICLE_NAME_1);
             await contentWizard.waitAndClickOnSave();
             // 3. Verify the selected option:
@@ -56,11 +56,11 @@ describe('content.selector.spec: content-selector specification', function () {
     it(`GIVEN existing content with custom-relationship selector is opened WHEN the selected option has been removed THEN the article should not be present in selected options`,
         async () => {
             let customRelationshipForm = new ContentSelectorForm();
-            // 1. Open new wizard for article-content:
+            // 1. Open the existing content with selected option (custom relationship):
             await studioUtils.selectAndOpenContentInWizard(RELATIONSHIP_NAME);
-            // 2. Select the article in options -  type the name of the article and click on the slick-row:
+            // 2. Remove the selected option:
             await customRelationshipForm.removeSelectedOption(ARTICLE_NAME_1);
-            // 3. Verify the selected option:
+            // 3. Verify that option is not displayed:
             await studioUtils.saveScreenshot('custom_rel_option_removed');
             let result = await customRelationshipForm.getSelectedOptions();
             assert.equal(result.length, 0, "no selected options should be in the options view");

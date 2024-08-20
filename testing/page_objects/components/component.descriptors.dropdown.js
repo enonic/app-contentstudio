@@ -2,8 +2,12 @@
  * Created on 30.01.2024
  */
 const BasDropdown = require('./base.dropdown');
+const lib = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
 const XPATH = {
     container: "//div[contains(@id,'ComponentDescriptorsDropdown')]",
+    descriptorListBoxUL: "//ul[contains(@id,'DescriptorListBox')]",
+    componentItemLI: "//li[contains(@class,'item-view-wrapper')]"
 };
 
 class ComponentDescriptorsDropdown extends BasDropdown {
@@ -19,6 +23,16 @@ class ComponentDescriptorsDropdown extends BasDropdown {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('Component Descriptors Dropdown - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
         }
+    }
+
+    async getOptionsDisplayName(parentXpath) {
+        if (parentXpath === undefined) {
+            parentXpath = '';
+        }
+        let locator = parentXpath + XPATH.descriptorListBoxUL + XPATH.componentItemLI + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.pause(300);
+        return await this.getTextInDisplayedElements(locator);
     }
 }
 
