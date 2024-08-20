@@ -947,14 +947,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await this.clickOnElement(XPATH.foldButtonByName(name));
     }
 
-    waitForSortIconNotDisplayed(name) {
-        let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'sort-dialog-trigger')]";
-        return this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
+    async waitForSortIconNotDisplayed(name) {
+        let selector = lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.TREE_GRID.SORT_DIALOG_TOGGLE;
+        return await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
     }
 
-    waitForSortIconDisplayed(name) {
-        let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'sort-dialog-trigger')]";
-        return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+    async waitForSortIconDisplayed(name) {
+        let selector = lib.TREE_GRID.itemTreeGridListElementByName(name) + +lib.TREE_GRID.SORT_DIALOG_TOGGLE;
+        return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
     async waitForGridRoleAttribute(expectedRole) {

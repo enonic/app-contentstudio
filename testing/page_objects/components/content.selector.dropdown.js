@@ -25,6 +25,7 @@ class ContentSelectorDropdown extends BaseDropdown {
             throw new Error('Content selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
         }
     }
+
     async getOptionsDisplayNameInTreeMode(parentXpath) {
         if (parentXpath === undefined) {
             parentXpath = '';

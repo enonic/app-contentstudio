@@ -5,6 +5,7 @@ const BaseComponentInspectionPanel = require('./base.component.inspection.panel'
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const FragmentDropdown = require('../../../components/selectors/fragment.dropdown');
+
 const xpath = {
     container: `//div[contains(@id,'FragmentInspectionPanel')]`,
     selectedOptionView: `//div[contains(@id,'SelectedOptionView')]`,
@@ -52,9 +53,8 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async getFragmentDropdownOptions() {
-        let locator = this.fragmentDropdown + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
-        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
-        return await this.getTextInDisplayedElements(locator);
+        let fragmentDropdown = new FragmentDropdown();
+        return await fragmentDropdown.getOptionsDisplayName();
     }
 
     async typeNameAndSelectFragment(displayName) {
@@ -62,12 +62,11 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
         await fragmentDropdown.selectFilteredFragmentAndClickOnOk(displayName, xpath.container);
     }
 
-    async clickOnOptionInFragmentDropdown(option) {
-        let optionSelector = lib.slickRowByDisplayName(this.fragmentDropdown, option);
-        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-        await this.clickOnElement(optionSelector);
+    async clickOnOptionInFragmentDropdownAndOk(optionDisplayName) {
+        let fragmentDropdown = new FragmentDropdown();
+        await fragmentDropdown.clickOnOptionByDisplayName(optionDisplayName, xpath.container);
+        await fragmentDropdown.clickOnApplySelectionButton(xpath.container);
         await this.waitForSpinnerNotVisible();
-        return await this.pause(2000);
     }
 
     waitForOpened() {

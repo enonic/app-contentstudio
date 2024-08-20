@@ -9,10 +9,7 @@ const XPATH = {
     container: "//div[contains(@id,'FragmentDropdown')]",
     fragmentDropdownListUL: "//ul[contains(@id,'FragmentDropdownList')]",
     dropdownListItem: "//li[contains(@class,'item-view-wrapper')]",
-    optionByText: text => {
-        return `//div[contains(@id,'ComboBoxDisplayValueViewer') and text()='${text}']`
-    },
-};
+}
 
 class FragmentDropdown extends BaseDropdown {
 

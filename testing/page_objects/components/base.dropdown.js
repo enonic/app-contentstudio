@@ -186,15 +186,6 @@ class BaseDropdown extends Page {
         return attr.includes('folder-closed') ? 'flat' : 'tree';
     }
 
-    // async getOptionsDisplayNameInTreeMode(parentXpath) {
-    //     if (parentXpath === undefined) {
-    //         parentXpath = '';
-    //     }
-    //     let locator = parentXpath + XPATH.contentsTreeListUL + XPATH.contentListItemLI + lib.H6_DISPLAY_NAME;
-    //     await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-    //     await this.pause(500);
-    //     return await this.getTextInDisplayedElements(locator);
-    // }
 }
 
 module.exports = BaseDropdown;

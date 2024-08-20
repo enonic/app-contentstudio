@@ -43,7 +43,7 @@ class LiveFormPanel extends Page {
             let contentWizard = new ContentWizard();
             let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
             await contentWizard.switchToLiveEditFrame();
-            await componentDescriptorsDropdown.selectFilteredContentAndClickOnOk(displayName, parentForComboBox);
+            await componentDescriptorsDropdown.selectFilteredComponentAndClickOnOk(displayName, parentForComboBox);
             await contentWizard.switchToParentFrame();
             return await this.pause(1000);
         } catch (err) {

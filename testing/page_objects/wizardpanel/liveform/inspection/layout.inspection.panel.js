@@ -49,18 +49,22 @@ class LayoutInspectionPanel extends Page {
         return await this.pause(300);
     }
 
-    async clickOnOptionInLayoutDropdown(option) {
-        let optionSelector = lib.slickRowByDisplayName(xpath.layoutDropdown, option);
-        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-        await this.clickOnElement(optionSelector);
-        await this.waitForSpinnerNotVisible();
-        return await this.pause(2000);
+    async clickOnOptionInLayoutDropdown(optionDisplayName) {
+        let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
+        await componentDescriptorsDropdown.clickOnOptionByDisplayName(optionDisplayName, xpath.container);
+        await componentDescriptorsDropdown.clickOnApplySelectionButton(xpath.container);
+        return await this.pause(1000);
     }
 
     async getSelectedOption() {
         let locator = xpath.container + xpath.selectedOptionViewDiv + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
+    }
+
+    async getLayoutDropdownOptions() {
+        let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
+        return await componentDescriptorsDropdown.getOptionsDisplayName(xpath.container);
     }
 }
 

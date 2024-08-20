@@ -546,18 +546,22 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         });
     }
 
-    async getSortingIcon(name) {
-        let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r2')]/span/div";
+    async getSortingIcon(contentName) {
+        let selector = this.treeGrid + lib.TREE_GRID.itemTreeGridListElementByName(contentName) +
+                       "//div[contains(@class,'content-tree-grid-sort')]";
         let elems = await this.findElements(selector);
         if (elems.length === 0) {
-            return "Default";
+            return 'Default';
         }
-        let classAttr = await elems[0].getAttribute("class");
+        let classAttr = await elems[0].getAttribute('class');
         if (classAttr.includes('num-asc')) {
             return "Date ascending";
         } else if (classAttr.includes('num-desc')) {
             return "Date descending";
-        } else if (classAttr === 'sort-dialog-trigger icon-menu') {
+        } else if (classAttr.includes('alpha-asc')) {
+            return "Name ascending";
+        }
+        if (classAttr === 'sort-dialog-trigger icon-menu') {
             return appConst.sortMenuItem.MANUALLY_SORTED;
         }
     }
