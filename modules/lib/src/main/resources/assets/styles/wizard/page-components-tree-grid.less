@@ -1,22 +1,52 @@
 .page-components-tree-grid {
-  .grid .slick-row {
-    .slick-cell {
-      &.l0 {
-        flex-grow: 1;
+  .tree-list-element {
+    .item-view-wrapper {
+      height: 44px;
+
+      .toggle-and-item-wrapper {
+        display: grid;
+        grid-template-columns: 40px 1fr;
+
+        .page-components-item-view {
+          display: grid;
+          grid-template-columns: 1fr 40px;
+
+          .page-components-item-view-menu {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            .page-component-menu-icon {
+              transition-duration: 0.5s;
+            }
+          }
+        }
+
+        &.menu-open {
+          .page-component-menu-icon {
+            .rotate(90deg);
+          }
+        }
       }
 
-      &.l1 {
-        flex-basis: 45px;
-      }
-    }
-  }
+      &.selected {
+        > .toggle-and-item-wrapper {
+          .page-components-item-viewer {
+            .xp-admin-common-names-view * {
+              color: @admin-white;
+            }
+          }
 
-  &.no-children-root {
-    .slick-cell {
-      padding-left: 16px;
+          .font-icon-default {
+            color: @admin-white;
+          }
 
-      .toggle.icon {
-        display: none;
+          .page-components-item-view-menu {
+            .page-component-menu-icon {
+              color: @admin-white;
+            }
+          }
+        }
       }
     }
   }

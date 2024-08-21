@@ -95,10 +95,6 @@ export class SettingsTreeList
         return parent;
     }
 
-    protected updateItemView(itemView: SettingsTreeListElement, item: SettingsViewItem) {
-        itemView.updateItemView(item);
-    }
-
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addClass('settings-tree-list');
@@ -133,7 +129,8 @@ export class SettingsTreeListElement
         return (this.childrenList as SettingsTreeList).findParentList(item);
     }
 
-    updateItemView(item: SettingsViewItem): void {
+    setItem(item: SettingsViewItem): void {
+        super.setItem(item);
         (this.itemViewer as SettingsItemViewer).setObject(item);
     }
 
