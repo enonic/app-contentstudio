@@ -156,8 +156,8 @@ module.exports = Object.freeze({
         TEL: 'Tel',
         RELATIVE: 'Relative'
     },
-    LIVE_EDIT:{
-        REGION_MAIN_DISPLAY_NAME:'Main'
+    LIVE_EDIT: {
+        REGION_MAIN_DISPLAY_NAME: 'Main'
     },
 
     VALIDATION_MESSAGE: {
@@ -391,16 +391,24 @@ module.exports = Object.freeze({
         SUPER_USER: 'Super User',
         ME: "Me",
     },
-    sortMenuItem: {
-        DISPLAY_NAME: 'Display name',
+    GRID_SORTING: {
+        DATE_ASC: 'Date ascending',
+        DATE_DESC: 'Date descending',
+        NAME_ASC: 'Name ascending',
+        NAME_DESC: 'Name descending',
         MANUALLY_SORTED: 'Manually sorted',
-        MODIFIED_DATE: 'Modified date',
-        CREATED_DATE: 'Created date',
-        PUBLISHED_DATE: "Published date",
     },
-    SORT_ORDER: {
+    SORT_DIALOG: {
+        MENU_ITEM: {
+            DISPLAY_NAME: 'Display name',
+            MANUALLY_SORTED: 'Manually sorted',
+            MODIFIED_DATE: 'Modified date',
+            CREATED_DATE: 'Created date',
+            PUBLISHED_DATE: "Published date",
+        },
         ASCENDING: 'ascending',
         DESCENDING: 'descending'
+
     },
     STATUS_WIDGET: {
         NEW: 'NEW',
