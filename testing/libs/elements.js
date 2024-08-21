@@ -252,6 +252,7 @@ module.exports = Object.freeze({
         formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
     },
     PROJECTS: {
+        projectNameAndIconViewDiv: displayName => `//div[contains(@id,'NamesAndIconView') and descendant::span[contains(@class,'display-name') and contains(.,'${displayName}')]]`,
         projectByName: name => {
             return `//div[contains(@id,'ProjectItemViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`
         },

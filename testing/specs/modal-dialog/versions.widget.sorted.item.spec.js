@@ -48,7 +48,7 @@ describe('tests for Sorted versions item', function () {
             // 2. Expand the sort menu in the modal dialog:
             await sortContentDialog.clickOnMenuButton();
             // 3. 'Display name-ascending' menu item has been clicked:
-            await sortContentDialog.doSort('Display name', appConst.SORT_ORDER.ASCENDING);
+            await sortContentDialog.doSort(appConst.SORT_DIALOG.MENU_ITEM.DISPLAY_NAME, appConst.SORT_DIALOG.ASCENDING);
             await sortContentDialog.clickOnSaveButton();
             await sortContentDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('folder_sorted_1');

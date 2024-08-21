@@ -557,24 +557,27 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async getSortingIcon(contentName) {
-        let selector = this.treeGrid + lib.TREE_GRID.itemTreeGridListElementByName(contentName) +
+    async getSortingIcon(contentDisplayName) {
+        let selector = this.treeGrid + lib.TREE_GRID.itemTreeGridListElementByDisplayName(contentDisplayName) +
                        "//div[contains(@class,'content-tree-grid-sort')]";
         let elems = await this.findElements(selector);
+        let sort;
         if (elems.length === 0) {
             return 'Default';
         }
         let classAttr = await elems[0].getAttribute('class');
         if (classAttr.includes('num-asc')) {
-            return "Date ascending";
+            sort = appConst.GRID_SORTING.DATE_ASC;
         } else if (classAttr.includes('num-desc')) {
-            return "Date descending";
+            sort = appConst.GRID_SORTING.DATE_DESC
         } else if (classAttr.includes('alpha-asc')) {
-            return "Name ascending";
+            sort = appConst.GRID_SORTING.NAME_ASC;
+        } else if (classAttr.includes('alpha-desc')) {
+            sort = appConst.GRID_SORTING.NAME_DESC;
+        } else if (classAttr.includes('icon-menu')) {
+            sort = appConst.SORT_DIALOG.MENU_ITEM.MANUALLY_SORTED;
         }
-        if (classAttr === 'sort-dialog-trigger icon-menu') {
-            return appConst.sortMenuItem.MANUALLY_SORTED;
-        }
+        return sort;
     }
 
     // returns number of rows with selected checkbox:
@@ -945,7 +948,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async waitForSortIconDisplayed(name) {
-        let selector = lib.TREE_GRID.itemTreeGridListElementByName(name) + +lib.TREE_GRID.SORT_DIALOG_TOGGLE;
+        let selector = lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.TREE_GRID.SORT_DIALOG_TOGGLE;
         return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 }
