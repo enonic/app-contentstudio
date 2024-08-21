@@ -29,10 +29,6 @@ export class ContentsTreeGridList
         return new ContentsTreeGridListElement(item, {scrollParent: this.scrollParent, level: this.level, parentList: this});
     }
 
-    protected updateItemView(itemView: ContentsTreeGridListElement, item: ContentSummaryAndCompareStatus) {
-        itemView.updateItemView(item);
-    }
-
     protected getItemId(item: ContentSummaryAndCompareStatus): string {
         return item.getId();
     }
@@ -169,14 +165,6 @@ export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryA
         super.initElements();
     }
 
-    protected createChildrenListParams(): TreeListElementParams<ContentSummaryAndCompareStatus> {
-        const params =  super.createChildrenListParams() as TreeListElementParams<ContentSummaryAndCompareStatus>;
-
-        params.parentItem = this.item;
-
-        return params;
-    }
-
     protected createChildrenList(params?: TreeListElementParams<ContentSummaryAndCompareStatus>): ContentsTreeGridList {
         return new ContentsTreeGridList(params);
     }
@@ -200,7 +188,8 @@ export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryA
         return this.childrenList.findParentLists(item);
     }
 
-    updateItemView(item: ContentSummaryAndCompareStatus): void {
+    setItem(item: ContentSummaryAndCompareStatus): void {
+        super.setItem(item);
         (this.itemViewer as ContentTreeGridListViewer).setItem(item);
     }
 

@@ -5,7 +5,7 @@ import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 export class ComponentPath
     implements Equitable {
 
-    private static DIVIDER: string = '/';
+    static DIVIDER: string = '/';
 
     private readonly parentPath?: ComponentPath;
 

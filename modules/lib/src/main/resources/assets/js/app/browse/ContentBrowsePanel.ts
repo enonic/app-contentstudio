@@ -653,7 +653,7 @@ export class ContentBrowsePanel
         const listElement = this.treeListBox.getItemView(data) as ContentsTreeGridListElement;
 
         uploadItem.onProgress(() => {
-            listElement.updateItemView(data);
+            listElement.setItem(data);
         });
 
         uploadItem.onUploaded(() => {
