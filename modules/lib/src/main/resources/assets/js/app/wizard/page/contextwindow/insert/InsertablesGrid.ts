@@ -1,63 +1,37 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Grid} from '@enonic/lib-admin-ui/ui/grid/Grid';
-import {GridOptions, GridOptionsBuilder} from '@enonic/lib-admin-ui/ui/grid/GridOptions';
-import {GridColumn, GridColumnBuilder} from '@enonic/lib-admin-ui/ui/grid/GridColumn';
 import {H5El} from '@enonic/lib-admin-ui/dom/H5El';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {DataView} from '@enonic/lib-admin-ui/ui/grid/DataView';
 import {FontIcon} from '../../../../icon/FontIcon';
 import {Insertable} from './Insertable';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
 
 export interface InsertablesGridOptions {
     draggableRows?: boolean;
     rowClass?: string;
-    onClick?: (event: MouseEvent) => void;
 }
 
 export class InsertablesGrid
-    extends Grid<Insertable> {
+    extends ListBox<Insertable> {
 
     private componentGridOptions: InsertablesGridOptions;
 
-    constructor(dataView: DataView<Insertable>, options: InsertablesGridOptions = {}) {
-
-        super(dataView);
+    constructor(options: InsertablesGridOptions = {}) {
+        super('insertables-list');
 
         this.componentGridOptions = options;
-
-        this.onRendered(() => {
-            if (this.componentGridOptions.onClick) {
-                this.setOnClick(this.componentGridOptions.onClick);
-            }
-        });
     }
 
-    protected createOptions(): GridOptions<Insertable> {
-        return new GridOptionsBuilder()
-            .setHideColumnHeaders(true)
-            .setRowHeight(50)
-            .setWidth('100%')
-            .setRerenderOnResize(false)
-            .build();
+    protected createItemView(item: Insertable, readOnly: boolean): Element {
+        return this.createView(item);
     }
 
-    protected createColumns(): GridColumn<Insertable>[] {
-        return [
-            new GridColumnBuilder()
-                .setName('component')
-                .setField('component')
-                .setId('component')
-                .setBoundaryWidth(150, 9999)
-                .setCssClass('grid-row')
-                .setFormatter((row, cell, value, columnDef, dataContext) => {
-                    return this.buildRow(row, cell, value, columnDef, dataContext as Insertable).toString();
-                }).build()
-        ];
+    protected getItemId(item: Insertable): string {
+        return item.getName();
     }
 
-    private buildRow(row: number, cell: number, value: unknown, columnDef: Slick.Column<Insertable>, insertable: Insertable): DivEl {
-        let rowEl = new DivEl();
+    private createView(insertable: Insertable): LiEl {
+        let rowEl = new LiEl();
         rowEl.getEl().setData('portal-component-type', insertable.getName());
         if (this.componentGridOptions.draggableRows) {
             rowEl.getEl().setData('context-window-draggable', 'true');
@@ -68,10 +42,10 @@ export class InsertablesGrid
 
         let icon = new FontIcon(insertable.getIconCls());
 
-        let title = new H5El();
+        let title = new H5El('title');
         title.getEl().setInnerHtml(insertable.getDisplayName());
 
-        let subtitle = new H6El();
+        let subtitle = new H6El('subtitle');
         subtitle.getEl().setInnerHtml(insertable.getDescription());
 
         rowEl.appendChild(icon);

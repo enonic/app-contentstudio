@@ -45,12 +45,7 @@ export class PageComponentsViewDragHandler {
         const fromPath = this.makeComponentPath(fromParentPath, event.oldIndex);
         const toPath = this.makeComponentPath(toParentPath, event.newIndex);
 
-
-        console.log('fromPath', fromPath.toString());
-        console.log('toPath', toPath.toString());
-
         PageEventsManager.get().notifyComponentMoveRequested(fromPath, toPath);
-
         PageNavigationMediator.get().notify(new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(toPath)));
     }
 
