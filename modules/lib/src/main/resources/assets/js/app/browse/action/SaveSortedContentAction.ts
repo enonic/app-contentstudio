@@ -8,7 +8,8 @@ export class SaveSortedContentAction
 
     constructor(dialog: SortContentDialog) {
         super(i18n('action.save'));
-        this.setEnabled(true);
+
+        this.setEnabled(true).setClass('save-sort');
 
         this.onExecuted(() => {
             new SaveSortedContentEvent(dialog.getContent().getContentSummary()).fire();

@@ -16,7 +16,6 @@ import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {RepositoryEvent} from '@enonic/lib-admin-ui/content/event/RepositoryEvent';
@@ -38,6 +37,7 @@ import {ContentQuery} from '../content/ContentQuery';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {ContentItemPreviewPanel} from '../view/ContentItemPreviewPanel';
+import {ContentActionMenuButton} from '../ContentActionMenuButton';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -456,14 +456,16 @@ export class ContentBrowsePanel
 
     private createContentPublishMenuButton() {
         const browseActions: ContentTreeGridActions = this.getBrowseActions();
-        const contentPublishMenuButton: ContentBrowsePublishMenuButton = new ContentBrowsePublishMenuButton({
-            publishAction: browseActions.getAction(ActionName.PUBLISH),
-            publishTreeAction: browseActions.getAction(ActionName.PUBLISH_TREE),
-            unpublishAction: browseActions.getAction(ActionName.UNPUBLISH),
-            markAsReadyAction: browseActions.getAction(ActionName.MARK_AS_READY),
-            createIssueAction: browseActions.getAction(ActionName.CREATE_ISSUE),
-            requestPublishAction: browseActions.getAction(ActionName.REQUEST_PUBLISH),
-            showCreateIssueButtonByDefault: true
+        const contentActionMenuButton: ContentActionMenuButton = new ContentActionMenuButton({
+            defaultAction: browseActions.getAction(ActionName.CREATE_ISSUE),
+            menuActions: [
+                browseActions.getAction(ActionName.MARK_AS_READY),
+                browseActions.getAction(ActionName.PUBLISH),
+                browseActions.getAction(ActionName.PUBLISH_TREE),
+                browseActions.getAction(ActionName.UNPUBLISH),
+                browseActions.getAction(ActionName.CREATE_ISSUE),
+                browseActions.getAction(ActionName.REQUEST_PUBLISH)
+            ]
         });
 
         let previousSelectionSize: number = this.treeGrid.getTotalSelected();
@@ -474,25 +476,25 @@ export class ContentBrowsePanel
             const hadMultipleSelection: boolean = previousSelectionSize > 1;
 
             previousSelectionSize = totalSelected;
-            contentPublishMenuButton.setItem(isSingleSelected ? this.treeGrid.getFirstSelectedItem() : null);
+            contentActionMenuButton.setItem(isSingleSelected ? this.treeGrid.getFirstSelectedItem() : null);
             if (hadMultipleSelection && isSingleSelected) {
-                contentPublishMenuButton.updateActiveClass();
+                 contentActionMenuButton.refreshActionButton();
             }
         });
 
         this.treeGrid.onHighlightingChanged(() => {
-            contentPublishMenuButton.setItem(this.treeGrid.hasHighlightedNode() ? this.treeGrid.getHighlightedItem() : null);
+            contentActionMenuButton.setItem(this.treeGrid.hasHighlightedNode() ? this.treeGrid.getHighlightedItem() : null);
         });
 
-        this.browseToolbar.addActionElement(contentPublishMenuButton);
+        this.browseToolbar.addActionElement(contentActionMenuButton);
         this.browseToolbar.addActionElement(this.contextPanelToggler);
 
         browseActions.onBeforeActionsStashed(() => {
-            contentPublishMenuButton.setRefreshDisabled(true);
+            contentActionMenuButton.setRefreshDisabled(true);
         });
 
         browseActions.onActionsUnStashed(() => {
-            contentPublishMenuButton.setRefreshDisabled(false);
+            contentActionMenuButton.setRefreshDisabled(false);
         });
     }
 

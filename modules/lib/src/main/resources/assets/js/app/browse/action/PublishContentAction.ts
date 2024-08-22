@@ -11,7 +11,9 @@ export class PublishContentAction extends ContentTreeGridAction {
 
     constructor(grid: ContentTreeGrid, includeChildItems: boolean = false, useShortcut: boolean = true) {
         super(grid, i18n('action.publishMore'), useShortcut ? 'ctrl+alt+p' : null);
-        this.setEnabled(false);
+
+        this.setEnabled(false).setClass('publish');
+
         this.includeChildItems = includeChildItems;
     }
 

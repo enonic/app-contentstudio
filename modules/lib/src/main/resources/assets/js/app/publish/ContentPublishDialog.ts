@@ -88,7 +88,7 @@ export class ContentPublishDialog
             this.scheduleAction.setVisible(visible);
         });
 
-        const menuButton = this.getButtonRow().makeActionMenu(this.publishAction, []);
+        const menuButton = this.getButtonRow().makeActionMenu(this.publishAction);
         this.actionButton = menuButton.getActionButton();
     }
 

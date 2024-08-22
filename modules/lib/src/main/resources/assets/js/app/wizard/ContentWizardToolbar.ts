@@ -71,12 +71,16 @@ export class ContentWizardToolbar
             this.toggleValid(!WorkflowStateManager.isInvalid(status));
         });
 
-        this.contentWizardToolbarPublishControls.getPublishButton().onInitialized(() => {
+        const onControlsInitialised = () => {
             this.status.show();
             this.contentWizardToolbarPublishControls.getPublishButton().show();
             // Call after the ContentPublishMenuButton.handleActionsUpdated debounced calls
             setTimeout(() => this.foldOrExpand());
-        });
+
+            this.contentWizardToolbarPublishControls.getPublishButton().unActionUpdated(onControlsInitialised);
+        };
+
+        this.contentWizardToolbarPublishControls.getPublishButton().onActionUpdated(onControlsInitialised);
 
         this.contentWizardToolbarPublishControls.getPublishButton().onPublishRequestActionChanged((added: boolean) => {
             this.toggleClass('publish-request', added);
@@ -184,7 +188,6 @@ export class ContentWizardToolbar
             actions.getDuplicateAction(),
             actions.getMoveAction(),
             actions.getPreviewAction(),
-            actions.getUndoPendingDeleteAction()
         ]);
         super.addGreedySpacer();
     }

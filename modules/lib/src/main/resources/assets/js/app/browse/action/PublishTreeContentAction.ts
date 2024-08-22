@@ -8,7 +8,7 @@ export class PublishTreeContentAction extends PublishContentAction {
     constructor(grid: ContentTreeGrid) {
         super(grid, true, false);
 
-        this.setLabel(i18n('action.publishTreeMore'));
+        this.setClass('publish-tree').setLabel(i18n('action.publishTreeMore'));
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
