@@ -38,6 +38,8 @@ import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/Se
 import {ComponentAddedEvent} from '../page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../page/region/ComponentRemovedEvent';
 import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
+import {PageComponentsViewDragHandler} from './PageComponentsViewDragHandler';
+import {LayoutComponentType} from '../page/region/LayoutComponentType';
 
 enum Modifiers {
     LOCKED = 'locked',
@@ -80,6 +82,8 @@ export class PageComponentsView
     private isToBeEnabled: boolean;
 
     private animationTimeout: number;
+
+    private gridDragHandler: PageComponentsViewDragHandler;
 
     constructor(liveEditPage: LiveEditPageProxy) {
         super('page-components-view');
@@ -168,6 +172,10 @@ export class PageComponentsView
                     event.stopPropagation();
                     this.showContextMenu(item, event);
                 });
+
+                if (item.getType() === 'region') {
+                    new PageComponentsViewDragHandler(itemView.getList() as PageComponentsTreeGrid, this.tree);
+                }
             });
         });
 
