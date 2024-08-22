@@ -51,17 +51,15 @@ export class InsertablesPanel
         let topDescription = new PEl();
         topDescription.getEl().setInnerHtml(i18n('field.insertables'));
 
-        const insertablesDataView: DataView<Insertable> = new DataView<Insertable>();
-        this.insertablesGrid = new InsertablesGrid(insertablesDataView, {draggableRows: true, rowClass: 'comp'});
-
-        insertablesDataView.setItems(Insertables.ALL, 'name');
+        this.insertablesGrid = new InsertablesGrid({draggableRows: true, rowClass: 'comp'});
+        this.insertablesGrid.setItems(Insertables.ALL);
 
         this.appendChildren(topDescription, this.insertablesGrid);
 
         PageEventsManager.get().onLiveEditPageViewReady(() => {
             if (PageState.getState()?.isFragment()) {
                 this.destroyDraggables();
-                insertablesDataView.setItems(Insertables.ALLOWED_IN_FRAGMENT, 'name');
+                this.insertablesGrid.setItems(Insertables.ALLOWED_IN_FRAGMENT);
                 this.initializeDraggables();
             }
         });
