@@ -17,10 +17,15 @@ export class DragHandler {
 
     protected initSortable(): void {
         this.sortable = new Sortable(this.rootElement.getHTMLElement(), {
+            group: this.getGroup(),
             sort: true,
             animation: 150,
             onUpdate: (event: SortableEvent) => this.handleUpdate(event),
         });
+    }
+
+    protected getGroup(): string {
+        return null;
     }
 
     protected handleMovements(from: number, to: number): void {
