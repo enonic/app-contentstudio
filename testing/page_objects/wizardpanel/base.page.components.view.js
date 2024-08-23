@@ -28,8 +28,16 @@ const xpath = {
 
 class BasePageComponentView extends Page {
 
+    async isComponentSelected(displayName) {
+        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::li[contains(@class,'item-view-wrapper')]`;
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+        let cell = await this.findElement(locator);
+        let attr = await cell.getAttribute('class');
+        return attr.includes('selected');
+    }
+
     async waitForItemSelected(displayName) {
-        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::div[contains(@class,'slick-cell')]`;
+        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::li[contains(@class,'item-view-wrapper')]`;
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(locator, 'class');
             return result.includes('selected');
@@ -38,7 +46,7 @@ class BasePageComponentView extends Page {
     }
 
     async waitForItemNotSelected(displayName) {
-        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::div[contains(@class,'slick-cell')]`;
+        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::li[contains(@class,'item-view-wrapper')]`;
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(locator, 'class');
             return !result.includes('selected');
@@ -118,14 +126,6 @@ class BasePageComponentView extends Page {
             let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
             throw new Error('Page Component View, open menu - Error when clicking on `Menu button`, screenshot: ' + screenshot + ' ' + err);
         }
-    }
-
-    async isComponentSelected(displayName) {
-        let rowXpath = lib.slickRowByDisplayName(this.container, displayName) + "//div[contains(@class,'slick-cell')]";
-        await this.waitForElementDisplayed(rowXpath, appConst.shortTimeout);
-        let cell = await this.findElement(rowXpath);
-        let attr = await cell.getAttribute('class');
-        return attr.includes('selected');
     }
 
     waitForMenuItemNotDisplayed(menuItem) {
