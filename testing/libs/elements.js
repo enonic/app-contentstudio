@@ -144,10 +144,10 @@ module.exports = Object.freeze({
             return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
         },
         itemTreeGridListElementByDisplayName: displayName => {//ContentTreeGridListViewer
-            return `//li[contains(@id,'ContentsTreeGridListElement') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
+            return `(//li[ contains(@id,'ContentsTreeGridListElement') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]])[last()]`
         },
         itemTreeGridListElementByName: name => {//ContentTreeGridListViewer
-            return `//li[contains(@id,'ContentsTreeGridListElement') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
+            return `(//li[contains(@id,'ContentsTreeGridListElement') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]])[last()]`
         },
     },
     checkBoxDiv: label => `//div[contains(@id,'Checkbox') and child::label[contains(.,'${label}')]]`,
