@@ -1,14 +1,7 @@
-import * as $ from 'jquery';
 import {WidgetItemView} from '../../WidgetItemView';
-import {LiveEditPageProxy} from '../../../../wizard/page/LiveEditPageProxy';
-import {EmulatorGrid} from './EmulatorGrid';
+import {EmulatorGrid, EmulatorListElement} from './EmulatorGrid';
 import {EmulatorDevice} from './EmulatorDevice';
 import {EmulatedEvent} from '../../../../event/EmulatedEvent';
-import {DataView} from '@enonic/lib-admin-ui/ui/grid/DataView';
-
-export interface EmulatorWidgetItemViewConfig {
-    liveEditPage?: LiveEditPageProxy;
-}
 
 export interface EmulatorDeviceRow {
     id: number;
@@ -20,29 +13,11 @@ export class EmulatorWidgetItemView
 
     private devicesRows: EmulatorDeviceRow[];
 
-    private liveEditPage: LiveEditPageProxy;
-
-    constructor(config: EmulatorWidgetItemViewConfig) {
+    constructor() {
         super('emulator-widget-item-view');
-
-        this.liveEditPage = config.liveEditPage;
 
         this.generateEmulatorDevicesRows();
         this.initEmulationGrid();
-
-        // Using jQuery since grid.setOnClick fires event twice, bug in slickgrid
-        $(this.getHTMLElement()).on('click', '.grid-row > div', (event: JQueryEventObject) => {
-
-            const el = $(event.currentTarget);
-            const width = el.data('width');
-            const height = el.data('height');
-            const units = el.data('units');
-
-            const deviceRow = this.findRowBySize(width, height, units);
-            if (deviceRow) {
-                new EmulatedEvent(deviceRow.device).fire();
-            }
-        });
     }
 
     private generateEmulatorDevicesRows() {
@@ -59,18 +34,33 @@ export class EmulatorWidgetItemView
     }
 
     private initEmulationGrid() {
-        const dataView = new DataView<Slick.SlickData>();
-        const grid = new EmulatorGrid(dataView);
+        const grid = new EmulatorGrid();
 
-        dataView.setItems(this.devicesRows);
-        grid.setActiveCell(0, 0);
+        grid.setItems(this.devicesRows);
+        grid.setActive(this.devicesRows[0].device);
+
+        grid.getItemViews().forEach((view: EmulatorListElement) => {
+            view.onClicked(() => {
+                const width = view.getEl().getData('width');
+                const height = view.getEl().getData('height');
+                const units = view.getEl().getData('units');
+
+                grid.setActive(view.getItem().device);
+
+                const deviceRow = this.findDeviceBySize(+width, +height, units);
+
+                if (deviceRow) {
+                    new EmulatedEvent(deviceRow.device).fire();
+                }
+            });
+        });
 
         EmulatedEvent.on((event: EmulatedEvent) => {
             if (!event.isEmulator()) {
                 // sync selected device with external event
-                this.devicesRows.some((row: EmulatorDeviceRow, index: number) => {
+                this.devicesRows.some((row: EmulatorDeviceRow) => {
                     if (row.device.equals(event.getDevice())) {
-                        grid.setActiveCell(index, 0);
+                        grid.setActive(event.getDevice());
                         return true;
                     }
                     return false;
@@ -81,7 +71,7 @@ export class EmulatorWidgetItemView
         this.appendChild(grid);
     }
 
-    private findRowBySize(width: number, height: number, units: string): EmulatorDeviceRow {
+    private findDeviceBySize(width: number, height: number, units: string): EmulatorDeviceRow {
         let row: EmulatorDeviceRow = null;
 
         this.devicesRows.some((deviceRow: EmulatorDeviceRow) => {
