@@ -457,7 +457,7 @@ export class ContentBrowsePanel
     private createContentPublishMenuButton() {
         const browseActions: ContentTreeGridActions = this.getBrowseActions();
         const contentActionMenuButton: ContentActionMenuButton = new ContentActionMenuButton({
-            defaultAction: browseActions.getAction(ActionName.CREATE_ISSUE),
+            defaultAction: browseActions.getAction(ActionName.MARK_AS_READY),
             menuActions: [
                 browseActions.getAction(ActionName.MARK_AS_READY),
                 browseActions.getAction(ActionName.PUBLISH),
@@ -465,7 +465,9 @@ export class ContentBrowsePanel
                 browseActions.getAction(ActionName.UNPUBLISH),
                 browseActions.getAction(ActionName.CREATE_ISSUE),
                 browseActions.getAction(ActionName.REQUEST_PUBLISH)
-            ]
+            ],
+            defaultActionNoContent: browseActions.getAction(ActionName.CREATE_ISSUE),
+            debounceRequests: 500
         });
 
         let previousSelectionSize: number = this.treeGrid.getTotalSelected();

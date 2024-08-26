@@ -77,6 +77,10 @@ export class ContentWizardToolbar
             // Call after the ContentPublishMenuButton.handleActionsUpdated debounced calls
             setTimeout(() => this.foldOrExpand());
 
+            if (this.isCollaborationToBeAdded()) {
+                this.addCollaboration();
+            }
+
             this.contentWizardToolbarPublishControls.getPublishButton().unActionUpdated(onControlsInitialised);
         };
 
@@ -120,10 +124,6 @@ export class ContentWizardToolbar
 
     setItem(item: ContentSummaryAndCompareStatus): void {
         super.setItem(item);
-
-        if (this.isCollaborationToBeAdded()) {
-            this.addCollaboration();
-        }
 
         this.contentWizardToolbarPublishControls.setContent(item);
     }

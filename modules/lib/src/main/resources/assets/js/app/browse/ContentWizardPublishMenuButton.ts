@@ -24,26 +24,9 @@ export class ContentWizardPublishMenuButton
     }
 
     private createPublishRequestAction(issues: Issue[]) {
-        const hasIssues = issues != null && issues.length > 0;
-        let publishRequestAdded = false;
-        if (hasIssues) {
-            this.publishRequest = null;
-            // Reverse to find the oldest
-            issues.reverse().some(issue => {
-                const isPublishRequest = issue.getType() === IssueType.PUBLISH_REQUEST;
-                if (isPublishRequest) {
-                    this.publishRequest = issue;
-                }
-
-                return isPublishRequest;
-            });
-
-            const hasPublishRequest = this.publishRequest != null;
-            if (hasPublishRequest) {
-                publishRequestAdded = true;
-            }
-        }
-        this.notifyPublishRequestActionChanged(publishRequestAdded);
+        // Reverse to find the oldest
+        this.publishRequest = issues.reverse().find(issue => issue.getType() === IssueType.PUBLISH_REQUEST);
+        this.notifyPublishRequestActionChanged(!!this.publishRequest);
     }
 
     public onPublishRequestActionChanged(listener: (added: boolean) => void) {

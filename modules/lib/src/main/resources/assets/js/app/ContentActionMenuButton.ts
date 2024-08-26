@@ -11,6 +11,13 @@ import {MenuButtonConfig, MenuButton, MenuButtonDropdownPos} from '@enonic/lib-a
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {MenuButtonProgressBarManager} from '@enonic/lib-admin-ui/ui/button/MenuButtonProgressBarManager';
 import {ContentId} from './content/ContentId';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+
+interface ContentActionMenuButtonConfig
+    extends MenuButtonConfig {
+    defaultActionNoContent?: Action;
+    debounceRequests?: number;
+}
 
 export class ContentActionMenuButton
     extends MenuButton {
@@ -24,9 +31,11 @@ export class ContentActionMenuButton
     protected item: ContentSummaryAndCompareStatus;
 
     private isRefreshDisabled: boolean = false;
-    private debouncedFetch: (highlightedOrSelected: ContentSummaryAndCompareStatus) => void;
+    private debouncedFetch: (content: ContentSummaryAndCompareStatus) => void;
 
-    constructor(config: MenuButtonConfig) {
+    protected config: ContentActionMenuButtonConfig;
+
+    constructor(config: ContentActionMenuButtonConfig) {
         super(
             Object.assign(
                 {}, config, {dropdownPosition: MenuButtonDropdownPos.RIGHT}
@@ -39,7 +48,11 @@ export class ContentActionMenuButton
     protected initListeners(): void {
         super.initListeners();
 
-        this.debouncedFetch = AppHelper.debounce(this.fetchIssues, 500);
+        if (this.config.debounceRequests) {
+            this.debouncedFetch = AppHelper.debounce(this.fetchIssues, 500);
+        } else {
+            this.debouncedFetch = this.fetchIssues;
+        }
 
         this.handleIssueCreatedOrUpdated();
         this.handleActionsUpdated();
@@ -99,8 +112,10 @@ export class ContentActionMenuButton
     }
 
     private handleActionsUpdated() {
-        this.actionUpdatedHandler = AppHelper.debounce(() => this.refreshActionButton(), 50);
-
+        this.actionUpdatedHandler = AppHelper.debounce(() => {
+            this.refreshActionButton();
+            this.toggleClass('no-item', !this.item);
+        }, 50);
         this.getMenuActions().forEach((action: Action) => action.onPropertyChanged(() => {
             if (!this.isRefreshDisabled) {
                 this.actionUpdatedHandler();
@@ -109,14 +124,22 @@ export class ContentActionMenuButton
     }
 
     protected getActiveAction(): Action {
+        if (!ObjectHelper.isDefined(this.item) && ObjectHelper.isDefined(this.config.defaultActionNoContent)) {
+            return this.config.defaultActionNoContent;
+        }
+
+        const defaultAction = this.getDefaultAction();
+        if (defaultAction.isEnabled()) {
+            return defaultAction;
+        }
+
         const activeAction = this.getMenuActions().find((action: Action) => action.isEnabled());
 
-        return activeAction || this.getDefaultAction();
+        return activeAction || defaultAction;
     }
 
     refreshActionButton() {
         this.setButtonAction(this.getActiveAction());
-        this.toggleClass('no-item', !this.item);
         this.notifyActionUpdated();
     }
 
@@ -128,22 +151,22 @@ export class ContentActionMenuButton
         this.item = item;
     }
 
-    private fetchIssues(highlightedOrSelected: ContentSummaryAndCompareStatus) {
+    private fetchIssues(content: ContentSummaryAndCompareStatus) {
         // don't update for mobile since the list is not visible
         if (this.isMinimized()) {
             return;
         }
-        if (this.issueActionsList && this.issueActionsList.length > 0) {
+        if (this.issueActionsList?.length > 0) {
             this.removeMenuActions(this.issueActionsList);
-            this.issueActionsList.length = 0;
+            this.issueActionsList = [];
             this.removeMenuSeparator();
         }
-        if (this.issuesRequest == null && highlightedOrSelected) {
-            const contentId = highlightedOrSelected.getContentSummary().getContentId();
+        if (!ObjectHelper.isDefined(this.issuesRequest) && ObjectHelper.isDefined(content)) {
+            const contentId = content.getContentSummary().getContentId();
             this.issuesRequest = this.findIssues(contentId)
                 .catch(DefaultErrorHandler.handle)
                 .finally(() => {
-                    this.issuesRequest = undefined;
+                    this.issuesRequest = null;
                 });
         }
     }
