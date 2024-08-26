@@ -234,12 +234,12 @@ class BasePageComponentView extends Page {
     }
 
     async getPageComponentsDisplayName() {
-        let locator = this.container + lib.SLICK_VIEW_PORT + xpath.pageComponentsItemViewer + lib.H6_DISPLAY_NAME;
+        let locator = this.container + xpath.pageComponentsItemViewer + lib.H6_DISPLAY_NAME;
         return await this.getTextInDisplayedElements(locator);
     }
 
     async getDraggablePageComponentsDisplayName() {
-        let locator = this.container + lib.SLICK_VIEW_PORT + xpath.draggablePageComponentsItemViewer + lib.H6_DISPLAY_NAME;
+        let locator = this.container + xpath.draggablePageComponentsItemViewer + lib.H6_DISPLAY_NAME;
         return await this.getTextInDisplayedElements(locator);
     }
 
