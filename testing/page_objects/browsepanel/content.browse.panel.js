@@ -605,7 +605,12 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async waitForExpandToggleDisplayed(contentName) {
         try {
             let expanderIcon = this.treeGrid + lib.TREE_GRID.itemTreeGridListElementByName(contentName) + lib.TREE_GRID.EXPANDER_ICON_DIV;
-            return await this.waitForElementDisplayed(expanderIcon, appConst.shortTimeout);
+            let res = await this.findElements(expanderIcon);
+            if (res === 0) {
+                throw new Error('Expander icon was not found!');
+            }
+            // check only the last element:
+            return res[res.length - 1].waitForDisplayed();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_expand_toggle');
             throw new Error(`Expand toggle should be displayed! screenshot: ${screenshot} ` + err);
