@@ -14,7 +14,6 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
-import {RichComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 
 export class ModalDialogFormItemBuilder {
 
@@ -229,12 +228,6 @@ export abstract class ModalDialog
         if (validator) {
             if (ObjectHelper.iFrameSafeInstanceOf(formItemEl, TextInput)) {
                 (formItemEl as TextInput).onValueChanged(this.onValidatedFieldValueChanged.bind(this, formItem));
-            }
-            if (ObjectHelper.iFrameSafeInstanceOf(formItemEl, RichComboBox)) {
-                (formItemEl as RichComboBox<unknown>).onOptionSelected(this.onValidatedFieldValueChanged.bind(this,
-                    formItem));
-                (formItemEl as RichComboBox<unknown>).onOptionDeselected(this.onValidatedFieldValueChanged.bind(this,
-                    formItem));
             }
         }
 
