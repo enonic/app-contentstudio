@@ -201,10 +201,34 @@ class BaseBrowsePanel extends Page {
 
     // Click on row-checkbox by name
     async clickOnCheckboxByName(name) {
-        let checkboxElement = lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.DIV.CHECKBOX_DIV + '/label';
-        await this.waitForElementDisplayed(checkboxElement, appConst.mediumTimeout);
-        await this.clickOnElement(checkboxElement);
+        let listElements = lib.TREE_GRID.itemTreeGridListElementByName(name);
+        let result = await this.findElements(listElements);
+        if (result === 0) {
+            throw new Error('Checkbox was not found!');
+        }
+        let listElement = result[result.length - 1];
+        let checkboxElement = await listElement.$('.' + lib.DIV.CHECKBOX_DIV + '/label');
+        // check only the last element:
+        await checkboxElement.waitForDisplayed();
+        await checkboxElement.click();
         return await this.pause(200);
+    }
+
+    async waitForRowCheckboxSelected(itemName) {
+        let listElements = lib.TREE_GRID.itemTreeGridListElementByName(itemName);
+        let result = await this.findElements(listElements);
+        if (result === 0) {
+            throw new Error('Checkbox was not found!');
+        }
+        // get the last 'ContentsTreeGridListElement' element:
+        let listElement = result[result.length - 1];
+        // get the checkbox input for the last 'ContentsTreeGridListElement' element
+        let checkboxElement = await listElement.$('.' + lib.INPUTS.CHECKBOX_INPUT);
+
+        await this.getBrowser().waitUntil(async () => {
+            let isSelected = await checkboxElement.isSelected();
+            return isSelected;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Checkbox is not selected"});
     }
 
     async clickOnCheckboxByDisplayName(displayName) {
