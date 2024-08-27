@@ -155,7 +155,7 @@ export class ContextView
     }
 
     private initWidgetsSelectionRow() {
-        this.widgetsSelectionRow = new WidgetsSelectionRow(this);
+        this.widgetsSelectionRow = new WidgetsSelectionRow();
         this.appendChild(this.widgetsSelectionRow);
         this.widgetsSelectionRow.updateState(this.activeWidget);
     }
