@@ -8,7 +8,6 @@ const appConst = require('../../../libs/app_const');
 const XPATH = {
     container: "//div[contains(@id,'FilterableListBoxWrapper')]",
     bucketListBoxUL: "//ul[contains(@id,'BucketListBox')]",
-    bucketListItem: "//li[contains(@class,'item-view-wrapper')]",
 };
 
 class FilterableListBox extends BaseDropdown {
@@ -19,7 +18,7 @@ class FilterableListBox extends BaseDropdown {
 
     // gets options name from the list box:
     async getOptionsDisplayName(parentLocator) {
-        let locator = parentLocator + XPATH.bucketListBoxUL + XPATH.bucketListItem + lib.H6_DISPLAY_NAME;
+        let locator = parentLocator + XPATH.bucketListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
         await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
         await this.pause(300);
         return await this.getTextInDisplayedElements(locator);

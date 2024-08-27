@@ -17,7 +17,7 @@ const XPATH = {
 class BaseBrowsePanel extends Page {
 
     get refreshButton() {
-        return this.treeGridToolbar + lib.REFRESH_BUTTON;
+        return this.treeGridToolbar + lib.BUTTONS.REFRESH_BUTTON;
     }
 
     //refresh the grid:
@@ -97,14 +97,14 @@ class BaseBrowsePanel extends Page {
     async waitForSelectionControllerPartial() {
         let selector = this.selectionControllerCheckBox + "//input[@type='checkbox']";
         await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(selector, "class");
+            let text = await this.getAttribute(selector, 'class');
             return text.includes('partial');
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Selection Controller checkBox should displayed as partial"});
     }
 
     async isSelectionControllerPartial() {
         let selector = this.selectionControllerCheckBox + "//input[@type='checkbox']";
-        let text = await this.getAttribute(selector, "class");
+        let text = await this.getAttribute(selector, 'class');
         return text.includes('partial');
     }
 
@@ -134,7 +134,7 @@ class BaseBrowsePanel extends Page {
     //Wait for `New` button is visible
     waitForNewButtonVisible() {
         return this.waitForElementDisplayed(this.newButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot("err_new_project_button");
+            this.saveScreenshot('err_new_project_button');
             throw new Error("New button is not visible! " + err);
         })
     }
@@ -180,7 +180,7 @@ class BaseBrowsePanel extends Page {
         try {
             await this.waitForElementEnabled(this.editButton, appConst.mediumTimeout);
             await this.clickOnElement(this.editButton);
-            return await this.pause(700);
+            return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_browse_panel_edit_button');
             throw new Error('Browse Panel: Edit button is not enabled! screenshot:  ' + screenshot + ' ' + err);
@@ -234,8 +234,8 @@ class BaseBrowsePanel extends Page {
             throw new Error("Menu item is not displayed: " + menuItem);
         }
         return await this.browser.waitUntil(async () => {
-            let result = await el[0].getAttribute("class");
-            return !result.includes("disabled");
+            let result = await el[0].getAttribute('class');
+            return !result.includes('disabled');
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "context menu item is not enabled in 3000 ms"});
     }
 
@@ -246,8 +246,8 @@ class BaseBrowsePanel extends Page {
             throw new Error("Menu item is not displayed: " + menuItem);
         }
         return await this.browser.waitUntil(async () => {
-            let result = await el[0].getAttribute("class");
-            return result.includes("disabled");
+            let result = await el[0].getAttribute('class');
+            return result.includes('disabled');
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "context menu item is not disabled in 3000 ms"});
     }
 

@@ -3,7 +3,6 @@
  */
 module.exports = Object.freeze({
     NOTIFICATION_TEXT: "//div[@class='notification-text']",
-    REFRESH_BUTTON: "//button[contains(@class,'icon-loop')]",
     BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",
     FORM_VIEW: `//div[contains(@id,'FormView')]`,
     FORM_ITEM: "//div[contains(@id,'FormItem')]",
@@ -11,7 +10,6 @@ module.exports = Object.freeze({
     TIME_PICKER_INPUT: "//div[contains(@id,'TimePicker')]//input[contains(@id,'TextInput')]",
     DATE_PICKER_INPUT: "//div[contains(@id,'DatePicker') and contains(@class,'date-time-picker')]//input[contains(@id,'TextInput')]",
     CONTENT_COMBOBOX: "//div[contains(@id,'ContentComboBox')]",
-    NEW_CONTENT_BUTTON: "//button[contains(@class,'new-content-button')]",
     SELECTED_LOCALE: `//div[contains(@id,'LocaleSelectedOptionView')]`,
     SLICK_VIEW_PORT: `//div[contains(@class,'slick-viewport')]`,
     SLICK_ROW: "//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row')]",
@@ -112,6 +110,8 @@ module.exports = Object.freeze({
         APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
         CONTENT_TREE_SELECTOR: "//div[contains(@id,'ContentTreeSelectorDropdown')]",
         CONTENTS_TREE_LIST_UL: "//ul[contains(@id,'ContentsTreeList')]",
+        DROPDOWN_LIST_ITEM: "//li[contains(@class,'item-view-wrapper')]",
+        WIDGET_FILTER_DROPDOWN: `//div[contains(@id,'WidgetFilterDropdown')]`,
     },
 
     DEPENDANTS: {

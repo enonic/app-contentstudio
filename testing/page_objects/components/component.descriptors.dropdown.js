@@ -7,7 +7,6 @@ const appConst = require('../../libs/app_const');
 const XPATH = {
     container: "//div[contains(@id,'ComponentDescriptorsDropdown')]",
     descriptorListBoxUL: "//ul[contains(@id,'DescriptorListBox')]",
-    componentItemLI: "//li[contains(@class,'item-view-wrapper')]"
 };
 
 class ComponentDescriptorsDropdown extends BasDropdown {
@@ -29,7 +28,7 @@ class ComponentDescriptorsDropdown extends BasDropdown {
         if (parentXpath === undefined) {
             parentXpath = '';
         }
-        let locator = parentXpath + XPATH.descriptorListBoxUL + XPATH.componentItemLI + lib.H6_DISPLAY_NAME;
+        let locator = parentXpath + XPATH.descriptorListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(300);
         return await this.getTextInDisplayedElements(locator);

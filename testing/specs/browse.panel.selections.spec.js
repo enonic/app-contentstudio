@@ -22,7 +22,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             let confirmValueDialog = new ConfirmValueDialog();
             await studioUtils.typeNameInFilterPanel('unnamed');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
-            if (result.length === 0) {
+            if (result.length <= 1) {
                 return;
             }
             await contentBrowsePanel.clickOnSelectionControllerCheckbox();
@@ -170,7 +170,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.pause(1500);
             // 1. click on existing folder(the row gets highlighted):
             await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
-            await contentBrowsePanel.pause(900);
+            await contentBrowsePanel.pause(700);
             await studioUtils.saveScreenshot('row_clicked_1');
             let actualName = await contentBrowsePanel.getNameInHighlightedRow();
             // 2. expected content should be highlighted:
