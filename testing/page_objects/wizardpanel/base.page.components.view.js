@@ -124,7 +124,7 @@ class BasePageComponentView extends Page {
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
-            throw new Error('Page Component View, open menu - Error when clicking on `Menu button`, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Page Component View, Error occurred after clicking on 'Menu button', screenshot:${screenshot} ` + err);
         }
     }
 

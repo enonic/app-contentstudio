@@ -8,7 +8,6 @@ const XPATH = {
     comboBoxListInput: "//div[contains(@id,'ComboBoxListInput')]",
     listItemViewer: "//div[contains(@id,'ComboBoxDisplayValueViewer')]",
     comboboxList: "//ul[contains(@id,'ComboBoxList))",
-    comoboxListItem: "//li[contains(@class,'item-view-wrapper')]",
     optionByText: text => {
         return `//div[contains(@id,'ComboBoxDisplayValueViewer') and text()='${text}']`
     },

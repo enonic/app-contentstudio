@@ -8,7 +8,6 @@ const appConst = require('../../../libs/app_const');
 const XPATH = {
     container: "//div[contains(@id,'FragmentDropdown')]",
     fragmentDropdownListUL: "//ul[contains(@id,'FragmentDropdownList')]",
-    dropdownListItem: "//li[contains(@class,'item-view-wrapper')]",
 }
 
 class FragmentDropdown extends BaseDropdown {
@@ -27,7 +26,7 @@ class FragmentDropdown extends BaseDropdown {
     }
 
     async getOptionsDisplayName() {
-        let locator = XPATH.container + XPATH.fragmentDropdownListUL + XPATH.dropdownListItem + lib.H6_DISPLAY_NAME;
+        let locator = XPATH.container + XPATH.fragmentDropdownListUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
         await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
         await this.pause(300);
         return await this.getTextInDisplayedElements(locator);

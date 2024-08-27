@@ -8,7 +8,6 @@ const appConst = require('../../../libs/app_const');
 const XPATH = {
     container: "//div[contains(@id,'PageTemplateAndControllerSelector')]",
     selectorListBoxUL: "//ul[contains(@id,'PageOptionsList')]",
-    pageListItem: "//li[contains(@class,'item-view-wrapper')]",
     optionByName: text => {
         return `//div[contains(@id,'PageTemplateAndSelectorViewer') and descendant::h6[ text()='${text}']]`
     },
@@ -33,7 +32,7 @@ class InspectPanelControllerSelector extends BaseDropdown {
         if (parentXpath === undefined) {
             parentXpath = '';
         }
-        let locator = parentXpath + XPATH.selectorListBoxUL + XPATH.pageListItem + lib.H6_DISPLAY_NAME;
+        let locator = parentXpath + XPATH.selectorListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(500);
         return await this.getTextInDisplayedElements(locator);
@@ -43,7 +42,7 @@ class InspectPanelControllerSelector extends BaseDropdown {
         if (parentXpath === undefined) {
             parentXpath = '';
         }
-        let locator = parentXpath + XPATH.selectorListBoxUL + XPATH.pageListItem + lib.P_SUB_NAME;
+        let locator = parentXpath + XPATH.selectorListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.P_SUB_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(500);
         return await this.getTextInDisplayedElements(locator);
