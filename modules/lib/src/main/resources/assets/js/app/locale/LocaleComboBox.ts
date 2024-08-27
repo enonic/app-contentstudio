@@ -153,6 +153,7 @@ export class LocaleSelectedOptionsView
     }
 
     createSelectedOption(option: Option<Locale>): SelectedOption<Locale> {
+
         const optionView = new LocaleSelectedOptionView(option);
         return new SelectedOption<Locale>(optionView, this.count());
     }

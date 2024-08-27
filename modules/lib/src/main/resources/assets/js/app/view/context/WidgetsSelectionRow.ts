@@ -1,194 +1,188 @@
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {WidgetView} from './WidgetView';
-import {ContextView} from './ContextView';
-import {Dropdown} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
-import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import * as Q from 'q';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
 
 export class WidgetsSelectionRow
     extends DivEl {
 
-    private contextView: ContextView;
-
     private widgetSelectorDropdown: WidgetSelectorDropdown;
 
-    constructor(contextView: ContextView) {
+    private selectionWrapper: WidgetFilterDropdown;
+
+    constructor() {
         super('widgets-selection-row');
 
-        this.contextView = contextView;
+        this.initElements();
+        this.initListeners();
+    }
 
-        this.widgetSelectorDropdown = new WidgetSelectorDropdown(this.contextView);
+    private initElements(): void {
+        this.widgetSelectorDropdown = new WidgetSelectorDropdown();
         this.widgetSelectorDropdown.addClass('widget-selector');
 
-        this.widgetSelectorDropdown.onOptionSelected((event: OptionSelectedEvent<WidgetViewOption>) => {
-            let widgetView = event.getOption().getDisplayValue().getWidgetView();
-            widgetView.setActive();
+        this.selectionWrapper =
+            new WidgetFilterDropdown(this.widgetSelectorDropdown);
+    }
+
+    private initListeners(): void {
+        this.selectionWrapper.onSelectionChanged((selectionChange: SelectionChange<WidgetView>) => {
+            selectionChange.selected[0]?.setActive();
+            this.selectionWrapper.cleanInput();
+            this.selectionWrapper.hideDropdown();
         });
 
-        this.appendChild(this.widgetSelectorDropdown);
-    }
+        this.selectionWrapper.onDropdownVisibilityChanged((visible: boolean) => {
+           this.toggleClass('dropdown-visible', visible);
 
-    updateState(widgetView: WidgetView) {
-        if (this.widgetSelectorDropdown.getValue() !== widgetView.getWidgetName()) {
-            this.widgetSelectorDropdown.setValue(widgetView.getWidgetName());
-        }
-
-        if (this.widgetSelectorDropdown.getSelectedOption()) {
-            this.widgetSelectorDropdown.getSelectedOptionView().getEl().setDisplay('inline-block');
-        }
-    }
-
-    updateWidgetsDropdown(widgetViews: WidgetView[], selectedView?: WidgetView) {
-        const previousSelection = this.widgetSelectorDropdown.getSelectedOption();
-        const previousSelectionView = previousSelection ? previousSelection.getDisplayValue().getWidgetView() : null;
-        this.widgetSelectorDropdown.removeAllOptions();
-
-        widgetViews.forEach((view: WidgetView) => {
-
-            const option = Option.create<WidgetViewOption>()
-                .setValue(view.getWidgetName())
-                .setDisplayValue(new WidgetViewOption(view))
-                .build();
-
-            this.widgetSelectorDropdown.addOption(option);
+            if (visible) {
+               this.selectionWrapper.giveFocus();
+           }
         });
+    }
 
-        if (this.widgetSelectorDropdown.getOptionCount() < 2) {
-            this.widgetSelectorDropdown.addClass('single-optioned');
-        }
+    updateState(widgetView: WidgetView): void {
+        const currentlySelectedItem = this.selectionWrapper.getSelectedItems()[0];
 
-        const visibleNow: boolean = this.isVisible();
-
-        if (visibleNow) {
-            this.setVisible(false);
-        }
-
-        this.widgetSelectorDropdown.deselectOptions(true);
-        this.selectOptionByWidgetView(selectedView || previousSelectionView, true);
-
-        if (visibleNow) {
-            this.setVisible(true);
+        if (currentlySelectedItem?.getWidgetName() !== widgetView.getWidgetName()) {
+            this.selectionWrapper.select(widgetView);
         }
     }
 
-    private selectOptionByWidgetView(view: WidgetView, silent?: boolean) {
-        const views = this.widgetSelectorDropdown.getOptions().map(option => option.getDisplayValue().getWidgetView());
-        let i = 0;
-        if (view) {
-            for (; i < views.length; i++) {
-                if (views[i].compareByType(view)) {
-                    break;
-                }
-            }
+    updateWidgetsDropdown(widgetViews: WidgetView[], selectedView?: WidgetView): void {
+        this.widgetSelectorDropdown.clearItems();
+        this.widgetSelectorDropdown.setItems(widgetViews);
+
+        if (selectedView) {
+            this.selectionWrapper.select(selectedView);
         }
-        const index = i < views.length ? i : 0;
-        this.widgetSelectorDropdown.selectRow(index, silent);
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.appendChild(this.selectionWrapper);
+
+            return rendered;
+        });
     }
 }
 
-export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
+export class WidgetSelectorDropdown
+    extends ListBox<WidgetView> {
 
-    constructor(contextView: ContextView) {
-        super('widgetSelector', {
-            skipExpandOnClick: true,
-            inputPlaceholderText: '',
-            listMaxHeight: 250,
-            optionDisplayValueViewer: new WidgetViewer(),
-            rowHeight: 50
-        });
-
-        this.onClicked((event) => {
-            if (WidgetSelectorDropdown.isDefaultOptionDisplayValueViewer(event.target)) {
-                if (this.isDropdownShown()) {
-                    if (this.getSelectedOption()) {
-                        let widgetView = this.getSelectedOption().getDisplayValue().getWidgetView();
-                        if (widgetView !== contextView.getActiveWidget()) {
-                            widgetView.setActive();
-                        }
-                        this.hideDropdown();
-                    }
-                }
-            }
-        });
-
-        this.onOptionSelected(() => {
-            this.clearInput();
-        });
-
-        this.onExpanded(() => {
-            this.navigateToSelectedOption();
-        });
-
-        AppHelper.focusInOut(this, () => {
-            this.hideDropdown();
-        });
-
-        ResponsiveManager.onAvailableSizeChanged(this, () => this.refresh.bind(this));
+    constructor() {
+        super('widgetSelector');
     }
 
-    private static isDefaultOptionDisplayValueViewer(object: Object) {
-        if (object && object instanceof HTMLElement) {
-            const elem = object;
-            return elem.parentElement.className.indexOf('option-value') > -1
-                   && elem.id.indexOf('DropdownHandle') === -1;
-        }
-        return false;
+    protected createItemView(item: WidgetView, readOnly: boolean): Element {
+        const viewer = new WidgetViewer();
+        viewer.setObject(item);
+        return viewer;
+    }
+
+    protected getItemId(item: WidgetView): string {
+        return item.getWidgetName();
     }
 }
 
-export class WidgetViewOption {
-
-    private widgetView: WidgetView;
-
-    constructor(widgetView: WidgetView) {
-        this.widgetView = widgetView;
-    }
-
-    getWidgetView(): WidgetView {
-        return this.widgetView;
-    }
-
-    toString(): string {
-        return this.widgetView.getWidgetName();
-    }
-
-}
-
-export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
+export class WidgetViewer
+    extends NamesAndIconViewer<WidgetView> {
 
     constructor() {
         super('widget-viewer', NamesAndIconViewSize.compact);
     }
 
-    doLayout(object: WidgetViewOption) {
+    doLayout(object: WidgetView) {
         super.doLayout(object);
 
         const view = this.getNamesAndIconView();
-        if (object && object.getWidgetView() && view) {
-            const widgetClass = object.getWidgetView().isInternal() ? 'internal-widget' : 'external-widget';
+        if (object && view) {
+            const widgetClass = object.isInternal() ? 'internal-widget' : 'external-widget';
             view.removeClass('external-widget internal-widget');
             view.addClass(widgetClass);
         }
     }
 
-    resolveDisplayName(object: WidgetViewOption): string {
-        return object.getWidgetView().getWidgetName();
+    resolveDisplayName(object: WidgetView): string {
+        return object.getWidgetName();
     }
 
-    resolveSubName(object: WidgetViewOption): string {
-        return object.getWidgetView().getWidgetDescription();
+    resolveSubName(object: WidgetView): string {
+        return object.getWidgetDescription();
     }
 
-    resolveIconUrl(object: WidgetViewOption): string {
-        return object.getWidgetView().getWidgetIconUrl();
+    resolveIconUrl(object: WidgetView): string {
+        return object.getWidgetIconUrl();
     }
 
-    resolveIconClass(object: WidgetViewOption): string {
-        return object.getWidgetView().getWidgetIconClass();
+    resolveIconClass(object: WidgetView): string {
+        return object.getWidgetIconClass();
     }
 
+}
+
+export class WidgetFilterDropdown
+    extends FilterableListBoxWrapperWithSelectedView<WidgetView> {
+
+    constructor(listBox: ListBox<WidgetView>) {
+        super(listBox, {
+            className: 'widget-filter-dropdown',
+            selectedOptionsView: new WidgetSelectedOptionsView(),
+            maxSelected: 1,
+            filter: (item: WidgetView, searchString: string): boolean => {
+                return item.getWidgetName().toLowerCase().indexOf(searchString.toLowerCase()) > -1 ||
+                       item.getWidgetDescription().toLowerCase().indexOf(searchString.toLowerCase()) > -1;
+            }
+        });
+    }
+
+    createSelectedOption(item: WidgetView): Option<WidgetView> {
+        return Option.create<WidgetView>()
+            .setValue(item.getWidgetName())
+            .setDisplayValue(item)
+            .build();
+    }
+
+    hideDropdown(): void {
+        super.hideDropdown();
+    }
+
+}
+
+export class WidgetSelectedOptionsView
+    extends BaseSelectedOptionsView<WidgetView> {
+
+    protected createSelectedOptionView(option: Option<WidgetView>): SelectedOptionView<WidgetView> {
+        return new WidgetSelectedOptionView(option);
+    }
+}
+
+export class WidgetSelectedOptionView
+    extends WidgetViewer
+    implements SelectedOptionView<WidgetView> {
+
+    private option: Option<WidgetView>;
+
+    constructor(option: Option<WidgetView>) {
+        super();
+
+        this.setOption(option);
+    }
+
+    setOption(option: Option<WidgetView>) {
+        this.option = option;
+        this.setObject(option.getDisplayValue());
+    }
+
+    getOption(): Option<WidgetView> {
+        return this.option;
+    }
 }
