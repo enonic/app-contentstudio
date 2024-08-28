@@ -22,25 +22,20 @@ interface ContentActionMenuButtonConfig
 export class ContentActionMenuButton
     extends MenuButton {
 
+    protected config: ContentActionMenuButtonConfig;
+    protected item: ContentSummaryAndCompareStatus;
+
     private issueActionsList: Action[];
     private issuesRequest: Q.Promise<void>;
 
     private actionUpdatedListeners: (() => void)[] = [];
     private actionUpdatedHandler: () => void;
 
-    protected item: ContentSummaryAndCompareStatus;
-
     private isRefreshDisabled: boolean = false;
-    private debouncedFetch: (content: ContentSummaryAndCompareStatus) => void;
-
-    protected config: ContentActionMenuButtonConfig;
+    private debouncedFetchIssues: () => void;
 
     constructor(config: ContentActionMenuButtonConfig) {
-        super(
-            Object.assign(
-                {}, config, {dropdownPosition: MenuButtonDropdownPos.RIGHT}
-            )
-        );
+        super(config);
 
         this.addClass('content-publish-menu transparent no-item');
     }
@@ -49,9 +44,9 @@ export class ContentActionMenuButton
         super.initListeners();
 
         if (this.config.debounceRequests) {
-            this.debouncedFetch = AppHelper.debounce(this.fetchIssues, 500);
+            this.debouncedFetchIssues = AppHelper.debounce(this.fetchIssues, 500);
         } else {
-            this.debouncedFetch = this.fetchIssues;
+            this.debouncedFetchIssues = this.fetchIssues;
         }
 
         this.handleIssueCreatedOrUpdated();
@@ -102,7 +97,7 @@ export class ContentActionMenuButton
         const reloadList = () => {
             if (this.item) {
                 // item might've been removed from issue, so reload even if it's not listed
-                this.debouncedFetch(this.item);
+                this.debouncedFetchIssues();
             }
         };
 
@@ -114,8 +109,9 @@ export class ContentActionMenuButton
     private handleActionsUpdated() {
         this.actionUpdatedHandler = AppHelper.debounce(() => {
             this.refreshActionButton();
-            this.toggleClass('no-item', !this.item);
+            this.toggleClass('no-item', !this.hasItem());
         }, 50);
+
         this.getMenuActions().forEach((action: Action) => action.onPropertyChanged(() => {
             if (!this.isRefreshDisabled) {
                 this.actionUpdatedHandler();
@@ -124,7 +120,7 @@ export class ContentActionMenuButton
     }
 
     protected getActiveAction(): Action {
-        if (!ObjectHelper.isDefined(this.item) && ObjectHelper.isDefined(this.config.defaultActionNoContent)) {
+        if (!this.hasItem() && ObjectHelper.isDefined(this.config.defaultActionNoContent)) {
             return this.config.defaultActionNoContent;
         }
 
@@ -138,20 +134,25 @@ export class ContentActionMenuButton
         return activeAction || defaultAction;
     }
 
-    refreshActionButton() {
+    private refreshActionButton() {
         this.setButtonAction(this.getActiveAction());
         this.notifyActionUpdated();
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
-        if (item && (!this.item || !item.getContentId().equals(this.item.getContentId()))) {
-            this.debouncedFetch(item);
+        if (ObjectHelper.equals(item, this.item)) {
+            return;
         }
 
         this.item = item;
+        this.debouncedFetchIssues();
     }
 
-    private fetchIssues(content: ContentSummaryAndCompareStatus) {
+    private hasItem(): boolean {
+        return ObjectHelper.isDefined(this.item);
+    }
+
+    private fetchIssues() {
         // don't update for mobile since the list is not visible
         if (this.isMinimized()) {
             return;
@@ -161,8 +162,8 @@ export class ContentActionMenuButton
             this.issueActionsList = [];
             this.removeMenuSeparator();
         }
-        if (!ObjectHelper.isDefined(this.issuesRequest) && ObjectHelper.isDefined(content)) {
-            const contentId = content.getContentSummary().getContentId();
+        if (!ObjectHelper.isDefined(this.issuesRequest) && this.hasItem()) {
+            const contentId = this.item.getContentId();
             this.issuesRequest = this.findIssues(contentId)
                 .catch(DefaultErrorHandler.handle)
                 .finally(() => {

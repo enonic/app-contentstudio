@@ -5,6 +5,7 @@ import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {BasePublishAction} from './action/BasePublishAction';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
+import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 
 export class ContentWizardToolbarPublishControls
     extends DivEl {
@@ -41,7 +42,8 @@ export class ContentWizardToolbarPublishControls
                 actions.getRequestPublishAction(),
                 actions.getOpenRequestAction(),
                 actions.getCreateIssueAction()
-            ]
+            ],
+            dropdownPosition: MenuButtonDropdownPos.RIGHT
         });
 
         actions.getOpenRequestAction().onExecuted(() => {

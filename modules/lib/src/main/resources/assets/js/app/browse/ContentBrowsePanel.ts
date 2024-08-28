@@ -38,6 +38,7 @@ import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {ContentItemPreviewPanel} from '../view/ContentItemPreviewPanel';
 import {ContentActionMenuButton} from '../ContentActionMenuButton';
+import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -467,20 +468,17 @@ export class ContentBrowsePanel
                 browseActions.getAction(ActionName.REQUEST_PUBLISH)
             ],
             defaultActionNoContent: browseActions.getAction(ActionName.CREATE_ISSUE),
-            debounceRequests: 500
+            debounceRequests: 500,
+            dropdownPosition: MenuButtonDropdownPos.RIGHT
         });
-
-        let previousSelectionSize: number = this.treeGrid.getTotalSelected();
 
         this.treeGrid.onSelectionChanged(() => {
             const totalSelected: number = this.treeGrid.getTotalSelected();
-            const isSingleSelected: boolean = totalSelected === 1;
-            const hadMultipleSelection: boolean = previousSelectionSize > 1;
 
-            previousSelectionSize = totalSelected;
-            contentActionMenuButton.setItem(isSingleSelected ? this.treeGrid.getFirstSelectedItem() : null);
-            if (hadMultipleSelection && isSingleSelected) {
-                 contentActionMenuButton.refreshActionButton();
+            if (totalSelected === 0) {
+                contentActionMenuButton.setItem(null);
+            } else if (totalSelected === 1) {
+                contentActionMenuButton.setItem(this.treeGrid.getFirstSelectedItem());
             }
         });
 
