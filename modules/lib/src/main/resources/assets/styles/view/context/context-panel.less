@@ -1,6 +1,3 @@
-@widget-filter-height: @toolbar-height;
-@widget-selector-height: 49px;
-
 .context-panel {
   // common details panel styles
   height: calc(100vh - @app-header-height - @toolbar-height);
@@ -66,7 +63,7 @@
     width: 5px;
     height: 100%;
     float: left;
-    background-color: #eeeeee;
+    background-color: @admin-bg-light-gray;
     cursor: ew-resize;
     .notSelectable();
   }
@@ -77,69 +74,6 @@
 
   .context-panel-mask {
     z-index: @z-index-mask - 2;
-  }
-
-  .widgets-selection-row {
-
-    position: relative;
-    z-index: @z-index-mask - 1;
-
-    .widget-selector {
-
-      max-width: initial;
-      min-height: @widget-selector-height;
-
-      .icon-list:before {
-        font-size: 22px !important;
-      }
-
-      .option-filter-input {
-        border: none;
-        height: @widget-filter-height;
-      }
-
-      &.single-optioned {
-        .selected-option .option-value {
-          margin: 0;
-        }
-
-        .@{_COMMON_PREFIX}dropdown-handle {
-          display: none;
-        }
-      }
-
-      .@{_COMMON_PREFIX}dropdown-handle {
-        box-sizing: border-box;
-        width: @app-header-height;
-        height: @widget-filter-height;
-        right: 0;
-      }
-
-      .selected-option {
-        border: 0;
-
-        .option-value {
-          margin: 0 @widget-selector-height 0 0;
-          width: auto;
-
-          .widget-viewer {
-            line-height: @widget-selector-height;
-            padding: 8px 0 8px 10px;
-          }
-        }
-      }
-
-      .widget-viewer {
-        font-size: 14px;
-        cursor: default;
-        .ellipsis();
-      }
-
-      .options-container {
-        border: none;
-        border-top: 1px solid @admin-bg-light-gray;
-      }
-    }
   }
 
   &.dragging {
