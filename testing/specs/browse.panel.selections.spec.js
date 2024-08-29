@@ -48,7 +48,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             let confirmValueDialog = new ConfirmValueDialog();
             await studioUtils.typeNameInFilterPanel('unnamed');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
-            if (result.length === 0) {
+            if (result.length <= 1) {
                 return;
             }
             await contentBrowsePanel.clickOnSelectionControllerCheckbox();

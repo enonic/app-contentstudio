@@ -50,7 +50,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             await studioUtils.saveScreenshot('status_menu_closed_task');
             await issueDetailsDialog.waitForExpectedNotificationMessage(appConst.NOTIFICATION_MESSAGES.ISSUE_CLOSED_MESSAGE);
             // 3. 'Reopen Issue' button should appear in the Details dialog:
-            await issueDetailsDialog.waitForReopenButtonLoaded();
+            await issueDetailsDialog.waitForReopenButtonDisplayed();
         });
 
     it(`GIVEN existing 'closed' task WHEN 'Issue Details' dialog is opened THEN title input should not be editable`,
