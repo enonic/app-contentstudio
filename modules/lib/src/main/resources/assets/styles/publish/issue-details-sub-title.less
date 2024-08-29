@@ -3,22 +3,90 @@
   font-size: 13px;
 
   .issue-status-selector {
-    display: inline-block;
-    position: relative;
-    min-width: inherit;
-    margin: 0 0 0 20px;
-    vertical-align: middle;
+    display: flex;
+
+    .issue-icon {
+      position: absolute;
+      top: -3px;
+      left: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 16px;
+      cursor: pointer;
+      z-index: 3;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        display: block;
+      }
+
+      &::before {
+        width: 28px;
+        height: 28px;
+        margin: 2px;
+        background-color: @admin-white;
+        border-radius: 14px;
+      }
+
+      &::after {
+        width: 32px;
+        height: 32px;
+      }
+    }
 
     .tab-menu-button {
-      display: inline-block;
-      padding: 2px 40px 3px 30px;
+      box-sizing: border-box;
+      margin-left: 14px;
+      padding: 0 40px;
       font-weight: bold;
-      line-height: 22px;
+      height: 27px;
+      line-height: 27px;
       border-radius: 6px;
 
       .label {
         margin: 0;
         color: white;
+      }
+    }
+
+    .menu {
+      top: -3px;
+      left: 18px;
+      width: fit-content;
+      padding-top: 40px;
+      text-align: center;
+      border-radius: 4px 12px 4px 4px;
+
+      &::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: -4px;
+        left: -21px;
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        background-color: @admin-white;
+        box-shadow: -3px -1px 4px 0px rgba(0, 0, 0, 0.3);
+      }
+
+      li {
+        padding: 2px 5px 3px;
+        border-radius: 4px;
+        line-height: 19px;
+      }
+    }
+
+    .@{_COMMON_PREFIX}dropdown-handle {
+      z-index: 2;
+      pointer-events: none;
+      margin-left: -35px;
+      height: 27px;
+
+      &::before {
+        color: @admin-white;
       }
     }
 
@@ -47,78 +115,6 @@
 
       &.publish-request .issue-icon::after {
         background-image: url("../../images/publish-request-closed.svg");
-      }
-    }
-
-    .issue-icon {
-      position: absolute;
-      top: -4px;
-      left: -20px;
-      width: 32px;
-      height: 32px;
-      border-radius: 16px;
-      cursor: pointer;
-      z-index: 3;
-
-      &::before,
-      &::after {
-        content: '';
-        position: absolute;
-        display: block;
-      }
-
-      &::before {
-        width: 28px;
-        height: 28px;
-        margin: 2px;
-        background-color: @admin-white;
-        border-radius: 14px;
-      }
-
-      &::after {
-        width: 32px;
-        height: 32px;
-      }
-    }
-
-    .menu {
-      min-width: inherit;
-      padding-top: 40px;
-      text-align: center;
-      border-radius: 4px 12px 4px 4px;
-
-      &::before {
-        content: '';
-        display: block;
-        position: absolute;
-        top: -4px;
-        left: -20px;
-        width: 40px;
-        height: 40px;
-        border-radius: 20px;
-        background-color: @admin-white;
-        box-shadow: -3px -1px 4px 0px rgba(0, 0, 0, 0.3);
-      }
-
-      li {
-        padding: 2px 5px 3px;
-        border-radius: 4px;
-        line-height: 19px;
-      }
-    }
-
-    .@{_COMMON_PREFIX}dropdown-handle {
-      z-index: 2;
-      pointer-events: none;
-      width: 30px;
-      height: 30px;
-
-      &.down {
-        height: 28px;
-      }
-
-      &::before {
-        color: @admin-white;
       }
     }
   }
