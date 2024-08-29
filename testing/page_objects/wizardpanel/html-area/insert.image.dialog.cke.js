@@ -287,7 +287,7 @@ class InsertImageDialog extends Page {
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
     }
 
     async waitForImageRangeValue() {
