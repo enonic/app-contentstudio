@@ -19,6 +19,7 @@ import {ResolveDeleteRequest} from '../resource/ResolveDeleteRequest';
 import {ConfirmValueDialog} from './ConfirmValueDialog';
 import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
 import {DependantItemsWithReferencesDialog} from '../dialog/DependantItemsWithReferencesDialog';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 
 enum ActionType {
     DELETE = 'delete',
@@ -148,7 +149,16 @@ export class ContentDeleteDialog
         const totalItemsToProcess: number = this.totalItemsToDelete;
         const yesCallback: () => void = this.createConfirmExecutionCallback();
 
+        const lastFocusedElement = Body.get().getFocusedElement();
+        if (lastFocusedElement) {
+            Body.get().setFocusedElement(null);
+        }
+
         this.close();
+
+        if (lastFocusedElement) {
+            Body.get().setFocusedElement(lastFocusedElement);
+        }
 
         if (!this.confirmExecutionDialog) {
             this.confirmExecutionDialog = new ConfirmValueDialog();
