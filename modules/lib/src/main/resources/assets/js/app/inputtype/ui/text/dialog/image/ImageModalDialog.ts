@@ -768,8 +768,8 @@ export class ImageDialogToolbar
         topLineContainer.appendChild(this.imageStyleSelector = this.createImageStyleSelector());
         topLineContainer.appendChild(this.customWidthCheckbox = this.createCustomWidthCheckbox());
 
-        super.addActionElement(topLineContainer);
-        super.addActionElement(this.createCustomWidthRangeInput());
+        super.addElement(topLineContainer);
+        super.addElement(this.createCustomWidthRangeInput());
     }
 
     private createAlignmentButtons(): DivEl {

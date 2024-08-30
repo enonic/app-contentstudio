@@ -61,6 +61,7 @@
     }
 
     .action-button {
+      flex-wrap: nowrap;
       font-size: 14px;
       z-index: 2;
       padding-left: 5px;
@@ -85,18 +86,8 @@
     .@{_COMMON_PREFIX}dropdown-handle {
       z-index: 2;
 
-      &:before {
-        font-size: 24px;
-      }
-
       &[disabled] {
         display: none;
-      }
-
-      &:not[disabled] {
-        + .action-button {
-
-        }
       }
     }
   }

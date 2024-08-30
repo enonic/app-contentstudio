@@ -53,14 +53,15 @@ export class ContentWizardToolbar
     protected initElements(): void {
         super.initElements();
 
-        this.addHomeButton();
-        this.addActionButtons();
-        this.addPublishMenuButton();
-        this.addTogglerButtons();
+        this.addHomeButton().then(() => {
+            this.addActionButtons();
+            this.addPublishMenuButton();
+            this.addTogglerButtons();
 
-        if (!this.isCollaborationEnabled()) {
-            this.addStateIcon();
-        }
+            if (!this.isCollaborationEnabled()) {
+                this.addStateIcon();
+            }
+        });
     }
 
     protected initListeners(): void {
@@ -69,25 +70,6 @@ export class ContentWizardToolbar
         this.config.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
             this.updateStateIcon(status);
             this.toggleValid(!WorkflowStateManager.isInvalid(status));
-        });
-
-        const onControlsInitialised = () => {
-            this.status.show();
-            this.contentWizardToolbarPublishControls.getPublishButton().show();
-            // Call after the ContentPublishMenuButton.handleActionsUpdated debounced calls
-            setTimeout(() => this.foldOrExpand());
-
-            if (this.isCollaborationToBeAdded()) {
-                this.addCollaboration();
-            }
-
-            this.contentWizardToolbarPublishControls.getPublishButton().unActionUpdated(onControlsInitialised);
-        };
-
-        this.contentWizardToolbarPublishControls.getPublishButton().onActionUpdated(onControlsInitialised);
-
-        this.contentWizardToolbarPublishControls.getPublishButton().onPublishRequestActionChanged((added: boolean) => {
-            this.toggleClass('publish-request', added);
         });
 
         ProjectUpdatedEvent.on((event: ProjectUpdatedEvent) => {
@@ -99,6 +81,25 @@ export class ContentWizardToolbar
         });
 
         this.whenRendered(() => {
+            const onPublishControlsInitialised = () => {
+                this.status.show();
+                this.contentWizardToolbarPublishControls.getPublishButton().show();
+                // Call after the ContentPublishMenuButton.handleActionsUpdated debounced calls
+                setTimeout(() => this.foldOrExpand());
+
+                if (this.isCollaborationToBeAdded()) {
+                    this.addCollaboration();
+                }
+
+                this.contentWizardToolbarPublishControls.getPublishButton().unActionUpdated(onPublishControlsInitialised);
+            };
+
+            this.contentWizardToolbarPublishControls.getPublishButton().onActionUpdated(onPublishControlsInitialised);
+
+            this.contentWizardToolbarPublishControls.getPublishButton().onPublishRequestActionChanged((added: boolean) => {
+                this.toggleClass('publish-request', added);
+            });
+
             this.projectViewer.onClicked(() => this.handleHomeIconClicked());
             this.projectViewer.onKeyDown((event: KeyboardEvent) => {
                 if (KeyHelper.isEnterKey(event)) {
@@ -134,19 +135,21 @@ export class ContentWizardToolbar
 
     private addCollaboration(): void {
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
-        this.addActionElement(this.collaborationBlock, false);
+        this.addElement(this.collaborationBlock, false);
         this.openCollaborationWSConnection();
     }
 
-    private addHomeButton(): void {
-        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+    private addHomeButton(): Q.Promise<void> {
+        return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
             this.addProjectButton(projects);
+            return Q.resolve();
         }).catch((reason) => {
             this.addProjectButton([Project.create()
                 .setName(ProjectContext.get().getProject().getName())
                 .build()
             ]);
             DefaultErrorHandler.handle(reason);
+            return Q.reject(reason);
         });
     }
 
@@ -165,7 +168,7 @@ export class ContentWizardToolbar
             ariaHasPopup: ''
         });
 
-        this.prependActionElement(this.projectViewer);
+        this.addElement(this.projectViewer);
     }
 
     private handleHomeIconClicked(): void {
@@ -196,8 +199,9 @@ export class ContentWizardToolbar
         this.status.hide();
 
         this.contentWizardToolbarPublishControls = new ContentWizardToolbarPublishControls(this.config.actions);
-        this.contentWizardToolbarPublishControls.getPublishButton().hide();
-        this.addActionElement(this.contentWizardToolbarPublishControls);
+        const publishButton = this.contentWizardToolbarPublishControls.getPublishButton();
+        publishButton.hide();
+        this.addContainer(this.contentWizardToolbarPublishControls, [publishButton.getActionButton(), publishButton.getDropdownHandle()]);
     }
 
     private addTogglerButtons() {
@@ -205,13 +209,13 @@ export class ContentWizardToolbar
         this.cycleViewModeButton = new ContentActionCycleButton([actions.getShowLiveEditAction(), actions.getShowFormAction()]);
         this.contextPanelToggler = new NonMobileContextPanelToggleButton();
 
-        this.addActionElement(this.cycleViewModeButton);
-        this.addActionElement(this.contextPanelToggler);
+        this.addElement(this.cycleViewModeButton);
+        this.addElement(this.contextPanelToggler);
     }
 
     private addStateIcon(): void {
         this.stateIcon = new DivEl('toolbar-state-icon');
-        this.addActionElement(this.stateIcon, false);
+        this.addElement(this.stateIcon, false);
     }
 
     private isCollaborationEnabled(): boolean {

@@ -1,5 +1,6 @@
 .content-publish-menu {
   margin-left: auto;
+  height: @toolbar-height - 8;
 
   >.action-button {
     .menu-action-button(@admin-font-gray2); // default color
@@ -53,11 +54,10 @@
   }
 
   @media screen and (max-width: 720px) {
-    display: none;
+    display: none !important;
   }
 
   span {
-    //line-height: @toolbar-height - 2px;
     text-transform: uppercase;
     color: @color;
     font-family: sans-serif, "Open Sans", Helvetica;
@@ -83,9 +83,7 @@
     }
 
     @media screen and (max-width: 720px) {
-      position: static;
-      display: flex;
-      width: @app-header-height;
+      width: @toolbar-height - 8;
     }
   }
 }

@@ -3,8 +3,16 @@
   width: 100%;
   border-top: 1px solid @admin-bg-light-gray;
 
-  .fold-button .@{_COMMON_PREFIX}dropdown .@{_COMMON_PREFIX}:hover {
-    background-color: @admin-bg-light-gray;
+  .fold-button {
+    height: @toolbar-height - 8px;
+    padding: 0 25px 0 14px;
+    .@{_COMMON_PREFIX}dropdown {
+      top: @toolbar-height - 4;
+
+      .@{_COMMON_PREFIX}:hover {
+        background-color: @admin-bg-light-gray;
+      }
+    }
   }
 
   &.mobile-preview-on {
