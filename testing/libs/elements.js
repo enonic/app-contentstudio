@@ -129,6 +129,7 @@ module.exports = Object.freeze({
         CONTENTS_TREE_LIST_UL: "//ul[contains(@id,'ContentsTreeList')]",
         DROPDOWN_LIST_ITEM: "//li[contains(@class,'item-view-wrapper')]",
         WIDGET_FILTER_DROPDOWN: `//div[contains(@id,'WidgetFilterDropdown')]`,
+        FILTERABLE_LISTBOX: "//div[contains(@id,'FilterableListBoxWrapper')]",
     },
 
     DEPENDANTS: {

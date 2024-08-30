@@ -44,22 +44,17 @@ class Page {
         if (elements.length === 0) {
             return [];
         }
-        let pr = await elements.map(async (el) => await el.isDisplayed());
-        return Promise.all(pr).then(result => {
-            return elements.filter((el, i) => result[i]);
-        });
-        //let result = await Promise.all(pr);
-        //return  result.filter((el,i)=>result[i]);
-
-        // let result = await Promise.all(elements.map(async (el) => {
-        //     await el.isDisplayed();
-        //
-        // }));
-        //return  result.filter((el,i)=>result[i]);
+        return await this.doFilterDisplayedElements(elements);
     }
 
     pause(ms) {
         return this.browser.pause(ms);
+    }
+
+    async doFilterDisplayedElements(elements) {
+        let pr = await elements.map(async (el) => await el.isDisplayed());
+        let result = await Promise.all(pr);
+        return elements.filter((el, i) => result[i]);
     }
 
     async scrollAndClickOnElement(selector) {

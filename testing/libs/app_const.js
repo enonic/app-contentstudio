@@ -363,6 +363,7 @@ module.exports = Object.freeze({
         OPTION_SET_HELP_TEXT: 'optionset_help',
         PERSON: 'Person',
         LOCALE_CODE: 'Locale Code',
+        FREE_FORM: 'freeform',
     },
     permissions: {
         FULL_ACCESS: 'Full Access',
