@@ -51,17 +51,18 @@ export class ContentWizardToolbar
     }
 
     protected initElements(): void {
-        super.initElements();
+        this.addProjectButton();
+        this.addActionButtons();
+        this.appendStatusWrapperEl();
 
-        this.addHomeButton().then(() => {
-            this.addActionButtons();
-            this.addPublishMenuButton();
-            this.addTogglerButtons();
+        if (!this.isCollaborationEnabled()) {
+            this.addStateIcon();
+        }
 
-            if (!this.isCollaborationEnabled()) {
-                this.addStateIcon();
-            }
-        });
+        this.addPublishMenuButton();
+        this.addTogglerButtons();
+
+        this.fetchProjectInfo();
     }
 
     protected initListeners(): void {
@@ -139,12 +140,13 @@ export class ContentWizardToolbar
         this.openCollaborationWSConnection();
     }
 
-    private addHomeButton(): Q.Promise<void> {
-        return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-            this.addProjectButton(projects);
+    private fetchProjectInfo() {
+        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+            this.initProjectViewer(projects);
             return Q.resolve();
         }).catch((reason) => {
-            this.addProjectButton([Project.create()
+            this.initProjectViewer([
+                Project.create()
                 .setName(ProjectContext.get().getProject().getName())
                 .build()
             ]);
@@ -153,15 +155,8 @@ export class ContentWizardToolbar
         });
     }
 
-    private addProjectButton(projects: Project[]): void {
-        const currentProjectName: string = ProjectContext.get().getProject().getName();
-        const project: Project = projects.filter((p: Project) => p.getName() === currentProjectName)[0];
-
-        this.projectViewer = new ProjectViewer();
-        this.projectViewer.setObject(project);
-
-        this.projectViewer.addClass('project-info');
-        this.projectViewer.toggleClass('single-repo', projects.length < 2);
+    private addProjectButton(): void {
+        this.projectViewer = new ProjectViewer('project-info');
 
         this.projectViewer.applyWCAGAttributes({
             ariaLabel: i18n('wcag.projectViewer.openBrowse'),
@@ -169,6 +164,14 @@ export class ContentWizardToolbar
         });
 
         this.addElement(this.projectViewer);
+    }
+
+    private initProjectViewer(projects: Project[]): void {
+        const currentProjectName: string = ProjectContext.get().getProject().getName();
+        const project: Project = projects.filter((p: Project) => p.getName() === currentProjectName)[0];
+
+        this.projectViewer.setObject(project);
+        this.projectViewer.toggleClass('single-repo', projects.length < 2);
     }
 
     private handleHomeIconClicked(): void {

@@ -3,7 +3,6 @@ import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompare
 import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolbar';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
-import * as Q from 'q';
 import {CompareWithPublishedVersionDialog} from './dialog/CompareWithPublishedVersionDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
@@ -23,11 +22,21 @@ export class ContentStatusToolbar<C extends ToolbarConfig>
 
     protected initElements(): void {
         super.initElements();
+
+        this.appendStatusWrapperEl();
+    }
+
+    protected appendStatusWrapperEl() {
         this.status = new SpanEl('status');
 
-        this.showChangesBtn = new ButtonEl();
-        this.showChangesBtn.setClass('show-changes').setTitle(i18n('text.versions.showChanges'));
+        this.showChangesBtn = new ButtonEl('show-changes', '');
+        this.showChangesBtn.setTitle(i18n('text.versions.showChanges'));
         this.showChangesBtn.onClicked(() => this.openShowPublishedVersionChangesDialog());
+
+        const statusWrapper = new DivEl('content-status-wrapper');
+        statusWrapper.appendChildren(this.status, this.showChangesBtn);
+
+        this.addContainer(statusWrapper, [this.showChangesBtn]);
     }
 
     setItem(item: ContentSummaryAndCompareStatus): void {
@@ -66,16 +75,6 @@ export class ContentStatusToolbar<C extends ToolbarConfig>
     private clearStatus(): void {
         this.status.setHtml('');
         this.showChangesBtn.setEnabled(false).hide();
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then(rendered => {
-            const statusWrapper = new DivEl('content-status-wrapper');
-            this.addElement(statusWrapper);
-            statusWrapper.appendChildren(this.status, this.showChangesBtn);
-
-            return rendered;
-        });
     }
 
     protected openShowPublishedVersionChangesDialog() {
