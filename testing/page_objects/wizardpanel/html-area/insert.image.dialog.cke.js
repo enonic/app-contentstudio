@@ -254,7 +254,6 @@ class InsertImageDialog extends Page {
             return await this.clickOnElement(this.cancelButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_click_on_insert_image_button');
-            await this.clickOnCancelButton();
             throw new Error(`Insert Image Dialog, error occurred after clicking on the Cancel button, screenshot:${screenshot}  ` + err);
         }
     }
@@ -290,8 +289,14 @@ class InsertImageDialog extends Page {
         }
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
+    async waitForDialogClosed() {
+        try {
+            return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_close');
+            await this.clickOnCancelButton();
+            throw new Error(`Insert image dialog should be closed, screenshot: ${screenshot} ` + err);
+        }
     }
 
     async waitForImageRangeValue() {
