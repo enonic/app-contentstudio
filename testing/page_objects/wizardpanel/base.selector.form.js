@@ -4,7 +4,6 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const LoaderComboBox = require('../components/loader.combobox');
 const ContentSelectorDropdown = require('../components/content.selector.dropdown');
 
 class BaseSelectorForm extends Page {
@@ -31,19 +30,6 @@ class BaseSelectorForm extends Page {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Selector Validation recording should not be displayed"});
     }
 
-    //Selects an option by the display name
-    async selectOption(optionDisplayName) {
-        try {
-            let loaderComboBox = new LoaderComboBox();
-            await this.typeTextInInput(this.optionsFilterInput, optionDisplayName);
-            await loaderComboBox.selectOption(optionDisplayName);
-            return await loaderComboBox.pause(300);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_combobox');
-            throw new Error("Error in loader combobox, screenshot:" + screenshot + " " + err)
-        }
-    }
-
     async clearOptionsFilterInput(){
         await this.clearTextInput(this.optionsFilterInput);
         await this.pause(1000);
@@ -54,14 +40,6 @@ class BaseSelectorForm extends Page {
         return await this.pause(500);
     }
 
-    //Selects an option by the name
-    async selectOptionByName(optionName) {
-        let loaderComboBox = new LoaderComboBox();
-        await this.typeTextInInput(this.optionsFilterInput, optionName);
-        await loaderComboBox.selectOptionByName(optionName);
-        return await loaderComboBox.pause(300);
-    }
-
     async swapOptions(sourceName, destinationName) {
         let sourceLocator = this.selectedOptionByDisplayName(sourceName);
         let destinationLocator = this.selectedOptionByDisplayName(destinationName);
@@ -70,10 +48,6 @@ class BaseSelectorForm extends Page {
         let destination = await this.findElement(destinationLocator);
         await source.dragAndDrop(destination);
         return await this.pause(1000);
-    }
-
-    isOptionFilterDisplayed() {
-        return this.isElementDisplayed(this.optionsFilterInput);
     }
 
     async waitForEmptyOptionsMessage() {

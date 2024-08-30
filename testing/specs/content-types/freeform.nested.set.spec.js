@@ -51,7 +51,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             assert.ok(isInvalid, 'The content should be invalid');
             // 6. Scroll the wizard page and select 'Button' option in the second occurrence block:
             await contentWizard.scrollPanel(600);
-            //
+            // expand the second occurrence of 'element type' dropdown and click on 'Button' option
             await freeFormNestedSet.expandOptionsAndSelectElementType('Button', 1);
             await studioUtils.saveScreenshot('nested_sets_gets_valid_0');
             // 7. Verify that "Save" button gets enabled
