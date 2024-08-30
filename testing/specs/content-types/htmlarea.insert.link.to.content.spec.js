@@ -29,7 +29,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
     it(`GIVEN target is selected in the Insert content-link modal dialog WHEN the option has been removed THEN 'upload' button should appears in the dialog`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open Insert Link dialog:
@@ -57,7 +57,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             // 3. Click on content-dropdown handler, expand the options:
             await insertLinkDialogContentPanel.clickOnContentDropdownHandle();
             // 4. Verify that a folder from root directory appears in the dropdown options(tree mode is default mode in the dropdown):
-            let items = await insertLinkDialogContentPanel.getDropdownListOptions();
+            let items = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInTreeMode();
             await studioUtils.saveScreenshot('content_link_entire_project_checked');
             assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES), "Folder from Default project should be present in the options");
             assert.ok(items.length > 3, 'Items from default project should be present in the options');
@@ -103,7 +103,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             // 3. Click on content-dropdown handler, expand the options in tree mode(the default mode):
             await insertLinkDialogContentPanel.clickOnContentDropdownHandle();
             // 4. get options in Tree-mode
-            let items = await insertLinkDialogContentPanel.getDropdownListOptions();
+            let items = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInTreeMode();
             assert.equal(items.length, 1,"Only one item should be displayed in the dropdown list");
             // 5. Verify that items from root directory are not present in the options, due to show content from entire project is not selected:
             await studioUtils.saveScreenshot('content_link_entire_project_not_checked');
@@ -112,7 +112,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             // 6. Switch to the flat mode:
             await insertLinkDialogContentPanel.clickOnContentSelectorModeTogglerButton();
             // 7. Verify the number of available items in the flat mode:
-            let itemsFlatMode = await insertLinkDialogContentPanel.getDropdownListOptions();
+            let itemsFlatMode = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInFlatMode();
             assert.equal(itemsFlatMode.length, 6, '6 Items from the current site should be present in the options');
         });
 
@@ -189,7 +189,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
     it("GIVEN InsertLinkModalDialog is opened WHEN 'Escape' key has been pressed THEN modal dialog should closes",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 1. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
