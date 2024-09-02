@@ -5,4 +5,17 @@
   <allow>
     <principal>role:system.authenticated</principal>
   </allow>
+  <apis>
+    <api>chartdata</api>
+    <api>collaboration</api>
+    <api>config</api>
+    <api>content</api>
+    <api>export</api>
+    <api>i18n</api>
+    <api>license</api>
+    <api>styles</api>
+    <api>com.enonic.xp.app.main:launcher</api>
+    <api>com.enonic.xp.app.main:i18n</api>
+    <api>widget:</api>
+  </apis>
 </tool>
