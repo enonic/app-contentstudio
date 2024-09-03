@@ -21,12 +21,6 @@ export class NonMobileContextPanelToggleButton
         };
         this.onClicked(toggleAction);
 
-        this.onEnterPressed(() => toggleAction());
-
-        this.onFocus((event) => {
-            console.log('NonMobileContextPanelToggleButton.onFocus', event);
-        });
-
         ContextPanelStateEvent.on((event: ContextPanelStateEvent) => {
             const expanded: boolean = event.getState() !== ContextPanelState.COLLAPSED;
             this.toggleClass('expanded', expanded);

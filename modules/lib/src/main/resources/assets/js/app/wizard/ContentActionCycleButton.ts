@@ -40,8 +40,6 @@ export class ContentActionCycleButton
         this.onClicked(() => {
             this.activeAction.execute();
         });
-
-        this.onEnterPressed(() => this.activeAction.execute());
     }
 
     private selectNextAction(action: Action): void {
