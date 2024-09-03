@@ -486,7 +486,7 @@ export class ContentBrowsePanel
             contentActionMenuButton.setItem(this.treeGrid.hasHighlightedNode() ? this.treeGrid.getHighlightedItem() : null);
         });
 
-        this.browseToolbar.addContainer(contentActionMenuButton, [contentActionMenuButton.getActionButton(), contentActionMenuButton.getDropdownHandle()]);
+        this.browseToolbar.addContainer(contentActionMenuButton, contentActionMenuButton.getChildControls());
         this.browseToolbar.addElement(this.contextPanelToggler);
 
         browseActions.onBeforeActionsStashed(() => {

@@ -204,7 +204,7 @@ export class ContentWizardToolbar
         this.contentWizardToolbarPublishControls = new ContentWizardToolbarPublishControls(this.config.actions);
         const publishButton = this.contentWizardToolbarPublishControls.getPublishButton();
         publishButton.hide();
-        this.addContainer(this.contentWizardToolbarPublishControls, [publishButton.getActionButton(), publishButton.getDropdownHandle()]);
+        this.addContainer(this.contentWizardToolbarPublishControls, publishButton.getChildControls());
     }
 
     private addTogglerButtons() {
