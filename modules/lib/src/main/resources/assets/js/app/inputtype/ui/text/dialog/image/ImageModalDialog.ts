@@ -908,7 +908,7 @@ export class ImageDialogToolbar
         const imageStyleSelector: ImageStyleSelector = new ImageStyleSelector(this.contentId);
 
         this.initSelectedStyle(imageStyleSelector);
-        imageStyleSelector.onOptionSelected(() => {
+        imageStyleSelector.onValueChanged(() => {
             if (StyleHelper.isOriginalImage(this.getProcessingStyleCls())) {
                 this.customWidthCheckbox.setChecked(false).setEnabled(false);
                 this.rangeInputContainer.hide();
@@ -965,7 +965,7 @@ export class ImageDialogToolbar
 
     private getProcessingStyleCls(): string {
         if (this.isProcessingStyleSelected()) {
-            return this.imageStyleSelector.getSelectedOption().getDisplayValue().getName();
+            return this.imageStyleSelector.getSelectedStyle().getName();
         }
 
         return '';
@@ -979,14 +979,13 @@ export class ImageDialogToolbar
     }
 
     private isProcessingStyleSelected(): boolean {
-        return (!!this.imageStyleSelector &&
-                !!this.imageStyleSelector.getSelectedOption() &&
-                !this.imageStyleSelector.getSelectedOption().getDisplayValue().isEmpty());
+        const selectedStyle = this.imageStyleSelector.getSelectedStyle();
+        return selectedStyle && !selectedStyle.isEmpty();
     }
 
     getProcessingStyle(): Style {
         if (this.isProcessingStyleSelected()) {
-            return this.imageStyleSelector.getSelectedOption().getDisplayValue().getStyle();
+            return this.imageStyleSelector.getSelectedStyle();
         }
 
         return;
