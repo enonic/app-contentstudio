@@ -4,11 +4,9 @@ import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeMan
 import {Class} from '@enonic/lib-admin-ui/Class';
 import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ContentSelector} from './ContentSelector';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {MediaUploaderEl, MediaUploaderElConfig, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';

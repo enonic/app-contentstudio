@@ -9,7 +9,6 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {Dropdown, DropdownConfig} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {UploadStartedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
 import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
@@ -47,6 +46,7 @@ import {ContentTreeSelectorDropdown} from '../../../selector/ContentTreeSelector
 import {ContentListBox} from '../../../selector/ContentListBox';
 import {ContentSelectorDropdownOptions} from '../../../selector/ContentSelectorDropdown';
 import eventInfo = CKEDITOR.eventInfo;
+import {Dropdown} from '@enonic/lib-admin-ui/ui/Dropdown';
 
 export interface LinkModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -369,19 +369,21 @@ export class LinkModalDialog
     }
 
     private createAnchorPanel(anchorList: string[]): Panel {
-        return this.createFormPanel([
+        const anchorPanel =  this.createFormPanel([
             this.createAnchorDropdown(anchorList)
         ]);
+
+        anchorPanel.addClass('anchor-panel');
+
+        return anchorPanel;
     }
 
     private createAnchorDropdown(anchorList: string[]): FormItem {
-        const dropDown = new Dropdown<string>('anchor', {} as DropdownConfig<string>);
+        const dropDown = new Dropdown('anchor');
+        dropDown.addClass('anchor-dropdown');
 
         anchorList.forEach((anchor: string) => {
-            dropDown.addOption(Option.create<string>()
-                .setValue(LinkModalDialog.anchorPrefix + anchor)
-                .setDisplayValue(anchor)
-                .build());
+            dropDown.addOption(LinkModalDialog.anchorPrefix + anchor, anchor);
         });
 
         if (this.getAnchor()) {
