@@ -1,13 +1,12 @@
 import * as Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {NumberHelper} from '@enonic/lib-admin-ui/util/NumberHelper';
-import {Dropdown, DropdownConfig} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {Dropdown} from '@enonic/lib-admin-ui/ui/Dropdown';
 import eventInfo = CKEDITOR.eventInfo;
 
 enum DialogType {
@@ -111,25 +110,14 @@ export class TableDialog
         ];
     }
 
-    private createHeadersDropdown(): Dropdown<string> {
-        const headerDropdown: Dropdown<string> = new Dropdown<string>('headers', {} as DropdownConfig<string>);
+    private createHeadersDropdown(): Dropdown {
+        const headerDropdown: Dropdown = new Dropdown('headers');
+        headerDropdown.addClass('headers-dropdown');
 
-        headerDropdown.addOption(Option.create<string>()
-            .setValue('')
-            .setDisplayValue(i18n('dialog.table.headers.none'))
-            .build());
-        headerDropdown.addOption(Option.create<string>()
-            .setValue('row')
-            .setDisplayValue(i18n('dialog.table.headers.row'))
-            .build());
-        headerDropdown.addOption(Option.create<string>()
-            .setValue('col')
-            .setDisplayValue(i18n('dialog.table.headers.col'))
-            .build());
-        headerDropdown.addOption(Option.create<string>()
-            .setValue('both')
-            .setDisplayValue(i18n('dialog.table.headers.both'))
-            .build());
+        headerDropdown.addOption('', i18n('dialog.table.headers.none'));
+        headerDropdown.addOption('row', i18n('dialog.table.headers.row'));
+        headerDropdown.addOption('col', i18n('dialog.table.headers.col'));
+        headerDropdown.addOption('both', i18n('dialog.table.headers.both'));
 
         return headerDropdown;
     }
@@ -139,14 +127,14 @@ export class TableDialog
         this.rowsField.getInput().getEl().setDisabled(this.dialogType === DialogType.TABLEPROPERTIES);
         this.colsField.getInput().getEl().setValue(this.getOriginalColsElem().getValue());
         this.colsField.getInput().getEl().setDisabled(this.dialogType === DialogType.TABLEPROPERTIES);
-        (this.headersField.getInput() as Dropdown<string>).setValue(this.getOriginalHeadersElem().getValue());
+        (this.headersField.getInput() as Dropdown).setValue(this.getOriginalHeadersElem().getValue());
         this.captionField.getInput().getEl().setValue(this.getOriginalCaptionElem().getValue());
     }
 
     private updateOriginalDialogInputValues() {
         this.getOriginalRowsElem().setValue(this.rowsField.getInput().getEl().getValue(), false);
         this.getOriginalColsElem().setValue(this.colsField.getInput().getEl().getValue(), false);
-        this.getOriginalHeadersElem().setValue((this.headersField.getInput() as Dropdown<string>).getValue(), false);
+        this.getOriginalHeadersElem().setValue((this.headersField.getInput() as Dropdown).getValue(), false);
         this.getOriginalCaptionElem().setValue(this.captionField.getInput().getEl().getValue(), false);
     }
 
