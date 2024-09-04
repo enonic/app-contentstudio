@@ -610,7 +610,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
                 throw new Error('Expander icon was not found!');
             }
             // check only the last element:
-            return res[res.length - 1].waitForDisplayed();
+            return await res[res.length - 1].waitForDisplayed();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_expand_toggle');
             throw new Error(`Expand toggle should be displayed! screenshot: ${screenshot} ` + err);

@@ -4,6 +4,7 @@
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
+const FilterableListBox = require('../../components/selectors/filterable.list.box');
 
 const xpath = {
     itemSet: "//div[contains(@id,'FormItemSetView')]",
@@ -22,7 +23,7 @@ class FreeFormView extends Page {
 
     get elementTypeDropDownHandle() {
         return xpath.itemSet + xpath.elementTypeSetView + "//div[contains(@id,'FormOptionSetOccurrenceViewSingleOption')]" +
-               "//div[contains(@id,'Dropdown')]" + lib.DROP_DOWN_HANDLE;
+               lib.DROPDOWN_SELECTOR.FILTERABLE_LISTBOX + lib.DROP_DOWN_HANDLE;
     }
 
     get inputTypeOptionFilterInput() {
@@ -30,7 +31,7 @@ class FreeFormView extends Page {
     }
 
     get inputTypeDropDownHandle() {
-        return xpath.itemSet + xpath.inputTypeSetView + "//div[contains(@id,'Dropdown')]" + lib.DROP_DOWN_HANDLE;
+        return xpath.itemSet + xpath.inputTypeSetView + lib.DROPDOWN_SELECTOR.FILTERABLE_LISTBOX + lib.DROP_DOWN_HANDLE;
     }
 
     get addButton() {
@@ -45,16 +46,12 @@ class FreeFormView extends Page {
         return this.waitForElementDisplayed(this.addButton, appConst.mediumTimeout);
     }
 
-    //Types the required text in the option filter input and select an option:
-    async selectInputType(inputType) {
+    // Clicks on a filtered option, then click on 'OK' button :
+    async selectInputType(inputTypeName) {
         await this.scrollPanel(800);
         await this.pause(300);
-        await this.typeTextInInput(this.inputTypeOptionFilterInput, inputType);
-
-        let optionLocator = lib.slickRowByDisplayName(xpath.inputTypeSetView, inputType);
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        let elements = await this.getDisplayedElements(optionLocator);
-        await elements[0].click();
+        let filterableListBox = new FilterableListBox();
+        await filterableListBox.clickOnFilteredItemAndClickOnOk(inputTypeName, xpath.itemSet);
         return await this.pause(200);
     }
 
@@ -82,7 +79,6 @@ class FreeFormView extends Page {
             await this.waitForAddButtonDisplayed();
             await this.pause(300);
             await this.scrollAndClickOnElement(this.addButton);
-            //await this.clickOnElement(this.addButton);
             return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_add_btn_nested_set');
@@ -90,15 +86,25 @@ class FreeFormView extends Page {
         }
     }
 
-    //Expands the selector and clicks on the option, index is a number of occurrence block
-    async expandOptionsAndSelectElementType(option, index) {
+    // Clicks on dropdown handle in FilterableListBox with the label 'element type' then clicks on an option
+    async expandOptionsAndSelectElementType(optionDisplayName, occurrenceIndex) {
+        let filterableListBox = new FilterableListBox();
         await this.waitUntilDisplayed(this.elementTypeDropDownHandle, appConst.mediumTimeout);
-        let elements = await this.getDisplayedElements(this.elementTypeDropDownHandle);
-        await elements[index].click();
-        let optionLocator = xpath.elementTypeSetView + lib.itemByDisplayName(option);
-        await this.waitUntilDisplayed(optionLocator, appConst.mediumTimeout);
-        let optionsElements = await this.getDisplayedElements(optionLocator);
-        await optionsElements[0].click();
+        let dropdownElements = await this.getDisplayedElements(this.elementTypeDropDownHandle);
+        if (dropdownElements.length === 1) {
+            await dropdownElements[0].click();
+        } else {
+            await dropdownElements[occurrenceIndex].click();
+        }
+
+        let occurrencesXpath = "//div[contains(@class,'occurrence-views-container')]//div[contains(@id,'FormItemSetOccurrenceView')]";
+        let occurrences = await this.findElements(occurrencesXpath);
+        let optionLocator = filterableListBox.buildLocatorForOptionByDisplayName(optionDisplayName);
+        // get options in the root occurence item(it is parent for all items)
+        let optionElements = await occurrences[0].$$('.' + optionLocator);
+        let displayedElements = await this.doFilterDisplayedElements(optionElements);
+        await displayedElements[0].click();
+        await filterableListBox.clickOnApplySelectionButton();
         return await this.pause(300);
     }
 }

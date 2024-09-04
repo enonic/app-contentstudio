@@ -266,15 +266,14 @@ class InsertImageDialog extends Page {
         }
     }
 
-    clickOnUpdateButton() {
-        return this.clickOnElement(this.updateButton).catch(err => {
-            this.saveScreenshot('err_click_on_update_image_button');
-            throw new Error('Insert Image Dialog, error when click on the Update button  ' + err);
-        }).then(() => {
-            return this.waitForDialogClosed();
-        }).then(() => {
-            return this.pause(500);
-        });
+    async clickOnUpdateButton() {
+        try {
+            await this.clickOnElement(this.updateButton);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_update_image_button');
+            await this.clickOnCancelButton();
+            throw new Error(`Insert Image Dialog, error when click on the Update button, screenshot:${screenshot}  ` + err);
+        }
     }
 
     async waitForDialogVisible() {
@@ -286,8 +285,14 @@ class InsertImageDialog extends Page {
         }
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
+    async waitForDialogClosed() {
+        try {
+            return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_close');
+            await this.clickOnCancelButton();
+            throw new Error(`Insert image dialog should be closed, screenshot: ${screenshot} ` + err);
+        }
     }
 
     async waitForImageRangeValue() {

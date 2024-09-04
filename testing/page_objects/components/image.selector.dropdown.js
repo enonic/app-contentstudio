@@ -32,10 +32,10 @@ class ImageSelectorDropdown extends BaseDropdown {
         await this.filterItem(text, parentLocator);
     }
 
-    async selectFilteredImageInFlatMode(item, parentLocator) {
+    async selectFilteredImageInFlatMode(imageDisplayName, parentLocator) {
         try {
             // parentLocator = modal dialog or wizard panel...
-            await this.clickOnFilteredItemAndClickOnOk(item, parentLocator);
+            await this.clickOnFilteredItemAndClickOnOk(imageDisplayName, parentLocator);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_img_selector_flat');
             throw new Error('Image selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);

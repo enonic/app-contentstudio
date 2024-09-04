@@ -119,9 +119,8 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async clickOnApplyButton() {
-        let selector = lib.IMAGE_CONTENT_COMBOBOX.DIV + "//span[text()='Apply']";
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        return await this.clickOnElement(selector);
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        return await imageSelectorDropdown.clickOnApplySelectionButton();
     }
 
     async filterOptionsAndSelectImage(displayName) {
@@ -168,10 +167,13 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async selectOptionByImagePath(imagePath, imageDisplayName) {
-        let loaderComboBox = new LoaderComboBox();
-        await this.typeTextInInput(this.optionsFilterInput, imagePath);
-        await loaderComboBox.selectOption(imageDisplayName);
-        return await loaderComboBox.pause(300);
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        await imageSelectorDropdown.filterItem(imagePath);
+        // 2. Wait for the required option is displayed then click on it:
+        await imageSelectorDropdown.clickOnOptionByDisplayName(imageDisplayName);
+        // 3. Click on 'OK' button:
+        await imageSelectorDropdown.clickOnApplySelectionButton();
+        return await imageSelectorDropdown.pause(300);
     }
 
     //Remove image button:
@@ -200,16 +202,6 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await this.getText(locator);
     }
 
-    // Selects an option by the display-name then click on OK (Apply selection  button):
-    // async selectOption(optionDisplayName) {
-    //     try {
-    //         let contentSelectorDropdown = new ContentSelectorDropdown();
-    //         await contentSelectorDropdown.clickOnFilteredItemAndClickOnOk(optionDisplayName);
-    //     } catch (err) {
-    //         let screenshot = await this.saveScreenshotUniqueName('err_combobox');
-    //         throw new Error("Error occurred in content combobox, screenshot:" + screenshot + " " + err)
-    //     }
-    // }
     async clickOnExpanderIconInOptionsList(displayName) {
         let imageSelectorDropdown = new ImageSelectorDropdown();
         await imageSelectorDropdown.clickOnOptionExpanderIcon(displayName);
