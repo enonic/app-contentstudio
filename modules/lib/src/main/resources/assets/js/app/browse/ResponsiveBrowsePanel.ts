@@ -34,14 +34,12 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
             Body.get().toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
             this.toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
-            this.treeGrid.toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
             this.selectableListBoxPanel.toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
         });
 
         this.browseToolbar.onFoldClicked(() => {
             this.contextSplitPanel.hideContextPanel();
             this.toggleMobilePreviewMode(false);
-            this.treeGrid.removeHighlighting();
         });
     }
 
@@ -75,7 +73,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
     protected updatePreviewItem(): void {
         super.updatePreviewItem();
 
-        const item: ViewItem = this.selectableListBoxPanel.getLastSelectedItem() || this.treeGrid.getLastSelectedOrHighlightedItem();
+        const item: ViewItem = this.selectableListBoxPanel.getLastSelectedItem();
         this.updateContextView(item).catch(DefaultErrorHandler.handle);
 
         if (this.selectableListBoxPanel.getSelectedItems().length > 0 && this.selectableListBoxPanel.getSelectionMode() ===
