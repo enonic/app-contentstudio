@@ -19,7 +19,7 @@ export class GetContentSummaryByIds
         this.addRequestPathElements('resolveByIds');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentIds: this.ids.map(id => id.toString())
         };

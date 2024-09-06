@@ -30,7 +30,7 @@ export class CompareContentRequest
         return new CompareContentRequest(ids).setContentRootPath(contentRootPath).setRequestProjectName(projectName);
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             ids: this.ids
         };

@@ -17,7 +17,7 @@ export class GetContentTypeDescriptorsRequest
         this.addRequestPathElements('contentTypes');
     }
 
-    getParams(): Object {
+    getParams(): object {
         const params = super.getParams() as GetContentTypeDescriptorsRequestParams;
         params.allowedContentTypes = this.allowedContentTypes;
 

@@ -22,7 +22,7 @@ export class MoveContentRequest
         this.addRequestPathElements('move');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentIds: this.ids.map(id => id.toString()),
             parentContentPath: this.parentPath ? this.parentPath.toString() : ''

@@ -247,7 +247,11 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     }
 
     resetParams() {
-        this.isTreeLoadMode ? this.treeRequest.resetParams() : this.flatRequest.resetParams();
+        if (this.isTreeLoadMode) {
+            this.treeRequest.resetParams()
+        } else {
+            this.flatRequest.resetParams();
+        }
     }
 
     isPartiallyLoaded(): boolean {

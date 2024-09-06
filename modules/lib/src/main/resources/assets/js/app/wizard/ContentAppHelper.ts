@@ -39,12 +39,12 @@ export class ContentAppHelper {
 
     private static getActionArguments(action: string): string[] {
         if (!ContentAppHelper.isContentWizardUrlMatch(action)) {
-            throw `Incorrect URL pattern for ${action}`;
+            throw Error(`Incorrect URL pattern for ${action}`);
         }
 
         const match = window.location.pathname.match(`(${action})/.+$`);
         if (!match[0]) {
-            throw `Missing arguments for ${action}`;
+            throw Error(`Missing arguments for ${action}`);
         }
 
         return match[0].split('/').slice(1);

@@ -1,4 +1,4 @@
-/* eslint-disable complexity */
+ 
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
 import {ContentDeletedEvent} from './ContentDeletedEvent';

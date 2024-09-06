@@ -19,7 +19,7 @@ export class GetPageTemplateByKeyRequest
         assertNotNull(this.pageTemplateKey, 'pageTemplateKey cannot be null');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             key: this.pageTemplateKey.toString()
         };

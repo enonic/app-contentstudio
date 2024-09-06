@@ -26,7 +26,7 @@ export class GetMimeTypesByContentTypeNamesRequest
         return GetMimeTypesByContentTypeNamesRequest.cache.get(this.namesAsString);
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             typeNames: this.namesAsString
         };

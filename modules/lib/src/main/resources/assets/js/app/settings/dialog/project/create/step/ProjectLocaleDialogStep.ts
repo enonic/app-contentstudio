@@ -12,7 +12,9 @@ export class ProjectLocaleDialogStep
 
     createFormItems(): FormItem[] {
         this.localeFormItem = new LocaleFormItem();
-        this.hasParentProjects() && this.localeFormItem.setParentProjects(this.getParentProjects());
+        if (this.hasParentProjects()) {
+            this.localeFormItem.setParentProjects(this.getParentProjects());
+        }
         return [this.localeFormItem];
     }
 

@@ -122,7 +122,7 @@ export class AccessControlEntryView
         return ace;
     }
 
-    // eslint-disable-next-line complexity
+     
     public static getAccessValueFromEntry(ace: AccessControlEntry): Access {
         if (ace.getDeniedPermissions().length > 0) {
             return Access.CUSTOM;
@@ -189,7 +189,7 @@ export class AccessControlEntryView
         };
     }
 
-    // eslint-disable-next-line complexity
+     
     private getPermissionsByAccess(access: Access): Permission[] {
         if (access === Access.FULL) {
             return this.getFullPermissions();

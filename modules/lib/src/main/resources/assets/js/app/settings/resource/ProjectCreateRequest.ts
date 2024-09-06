@@ -24,8 +24,8 @@ export class ProjectCreateRequest
         return this;
     }
 
-    getParams(): Object {
-        const params: Object = super.getParams();
+    getParams(): object {
+        const params: object = super.getParams();
 
         if (this.parents?.length > 0) {
             params['parents'] = this.parents.map((p) => p.getName());

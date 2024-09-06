@@ -15,7 +15,9 @@ export class ProjectAccessDialogStep
 
     createFormItems(): FormItem[] {
         this.readAccessFormItem = new ProjectReadAccessFormItem();
-        this.hasParentProjects() && this.readAccessFormItem.setParentProjects(this.getParentProjects());
+        if (this.hasParentProjects()) {
+            this.readAccessFormItem.setParentProjects(this.getParentProjects());
+        }
         return [this.readAccessFormItem];
     }
 

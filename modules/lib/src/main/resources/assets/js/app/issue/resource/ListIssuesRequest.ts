@@ -61,7 +61,7 @@ export class ListIssuesRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             type: this.issueStatus != null ? IssueStatus[this.issueStatus] : null,
             from: this.from,

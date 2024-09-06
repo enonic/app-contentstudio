@@ -3,13 +3,16 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ContentServerEvent} from './ContentServerEvent';
 import {ContentServerChangeItem} from './ContentServerChangeItem';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type delayedFnType = (args?: any[], interrupt?: boolean) => void
+
 export class ServerEventAggregator {
 
     private static AGGREGATION_TIMEOUT: number = 500;
 
     private batchReadyListeners: ((items: ContentServerChangeItem[], type: NodeServerChangeType) => void)[] = [];
 
-    private typesAndDelayedFunctions: Map<string, Function> = new Map<string, Function>();
+    private typesAndDelayedFunctions: Map<string, delayedFnType> = new Map<string, delayedFnType>();
 
     private typesAndChangeItems: Map<string, ContentServerChangeItem[]> =
         new Map<string, ContentServerChangeItem[]>();
@@ -28,16 +31,17 @@ export class ServerEventAggregator {
                 this.typesAndChangeItems.get(typeAndRepo).push(changeItem);
                 this.typesAndDelayedFunctions.get(typeAndRepo)();
             } else {
-                const debouncedFunc: Function = AppHelper.debounceWithInterrupt(() => {
-                    const items: ContentServerChangeItem[] = this.typesAndChangeItems.get(typeAndRepo);
+                const debouncedFunc: delayedFnType =
+                    AppHelper.debounceWithInterrupt(() => {
+                        const items: ContentServerChangeItem[] = this.typesAndChangeItems.get(typeAndRepo);
 
-                    this.typesAndDelayedFunctions.delete(typeAndRepo);
-                    this.typesAndChangeItems.delete(typeAndRepo);
+                        this.typesAndDelayedFunctions.delete(typeAndRepo);
+                        this.typesAndChangeItems.delete(typeAndRepo);
 
-                    if (items?.length > 0) {
-                        this.notifyBatchIsReady(items, type);
-                    }
-                }, ServerEventAggregator.AGGREGATION_TIMEOUT);
+                        if (items?.length > 0) {
+                            this.notifyBatchIsReady(items, type);
+                        }
+                    }, ServerEventAggregator.AGGREGATION_TIMEOUT);
 
                 this.typesAndDelayedFunctions.set(typeAndRepo, debouncedFunc);
                 this.typesAndChangeItems.set(typeAndRepo, event.getNodeChange().getChangeItems());

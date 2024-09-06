@@ -21,7 +21,7 @@ const liveEditPage = new LiveEditPage();
 const init = () => {
     const assetUrl: string = document.currentScript?.getAttribute('data-asset-url');
     if (!assetUrl) {
-        throw 'Unable to init wysiwyg editor';
+        throw Error('Unable to init wysiwyg editor');
     }
 
     // Notify parent frame if any modifier except shift is pressed

@@ -13,17 +13,15 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
 
+import com.enonic.xp.content.*;
+import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.context.ContextBuilder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.io.ByteSource;
 
 import com.enonic.xp.attachment.Attachment;
-import com.enonic.xp.content.Content;
-import com.enonic.xp.content.ContentId;
-import com.enonic.xp.content.ContentService;
-import com.enonic.xp.content.ExtraData;
-import com.enonic.xp.content.Media;
 import com.enonic.xp.exception.ThrottlingException;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.image.Cropping;
@@ -84,7 +82,7 @@ public final class ContentImageResource
         }
 
         final ContentId contentId = ContentId.from( contentIdAsString );
-        final Content content = contentService.getById( contentId );
+        final Content content = ContextBuilder.copyOf(ContextAccessor.current()).branch(ContentConstants.BRANCH_DRAFT).build().callWith(() -> contentService.getById( contentId ));
         if ( content == null )
         {
             throw new WebApplicationException( Response.Status.NOT_FOUND );

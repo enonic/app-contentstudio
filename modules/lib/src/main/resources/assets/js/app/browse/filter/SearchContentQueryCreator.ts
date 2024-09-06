@@ -94,7 +94,7 @@ export class SearchContentQueryCreator {
         this.contentQuery.setQuerySort(this.makeSort());
     }
 
-    private makeQueryJson(): Object {
+    private makeQueryJson(): object {
         if (this.constraintItems?.length > 0) {
             return this.containsTextAndMatchesIdsOnConstraintsJson();
         }
@@ -106,7 +106,7 @@ export class SearchContentQueryCreator {
         return this.createContainsTextOrMatchesIdJson();
     }
 
-    private containsTextAndMatchesIdsOnConstraintsJson(): Object {
+    private containsTextAndMatchesIdsOnConstraintsJson(): object {
         return {
             'boolean': {
                 'must': [
@@ -117,7 +117,7 @@ export class SearchContentQueryCreator {
         };
     }
 
-    private createConstraintsJson(): Object {
+    private createConstraintsJson(): object {
         return {
             'in': {
                 'field': '_id',
@@ -126,7 +126,7 @@ export class SearchContentQueryCreator {
         };
     }
 
-    private createContainsTextOrMatchesIdJson(): Object {
+    private createContainsTextOrMatchesIdJson(): object {
         if (this.searchInputValues.textSearchFieldValue) {
             return this.createContainsTextAndMatchesIdJson();
         }
@@ -134,7 +134,7 @@ export class SearchContentQueryCreator {
         return this.matchAllQuery();
     }
 
-    private createContainsTextAndMatchesIdJson(): Object {
+    private createContainsTextAndMatchesIdJson(): object {
         const textValue: string = this.searchInputValues.textSearchFieldValue;
 
         return {
@@ -179,13 +179,13 @@ export class SearchContentQueryCreator {
         };
     }
 
-    private matchAllQuery(): Object {
+    private matchAllQuery(): object {
         return {
             'matchAll': {}
         };
     }
 
-    private containsTextOrMatchesIdOnInboundIds(): Object {
+    private containsTextOrMatchesIdOnInboundIds(): object {
         return {
             'boolean': {
                 'must': [
@@ -196,7 +196,7 @@ export class SearchContentQueryCreator {
         };
     }
 
-    private createInboundRefsJson(): Object {
+    private createInboundRefsJson(): object {
         return  {
             'boolean': {
                 'must': [
@@ -221,7 +221,7 @@ export class SearchContentQueryCreator {
         };
     }
 
-    private makeSort(): Object[] {
+    private makeSort(): object[] {
         return [
             {
                 'field': '_score'

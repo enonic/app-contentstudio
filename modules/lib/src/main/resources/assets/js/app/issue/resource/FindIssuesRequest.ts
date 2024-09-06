@@ -54,7 +54,7 @@ export class FindIssuesRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             status: IssueStatus[this.issueStatus],
             from: this.from,

@@ -4,7 +4,7 @@ import {ListSiteApplicationsRequest} from '../resource/ListSiteApplicationsReque
 export class SiteApplicationLoader
     extends ApplicationLoader {
 
-    constructor(filterObject: Object) {
+    constructor(filterObject: object) {
         super(filterObject);
     }
 

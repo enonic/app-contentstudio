@@ -18,7 +18,7 @@ export class GetContentSummaryByIdRequest
         this.expand = ContentResourceRequest.EXPAND_SUMMARY;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             id: this.id.toString(),
             expand: this.expand

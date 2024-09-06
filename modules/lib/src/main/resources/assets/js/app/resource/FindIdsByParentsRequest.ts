@@ -17,7 +17,7 @@ export class FindIdsByParentsRequest
         this.ids = ids.map(id => id.toString());
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentIds: this.ids,
         };

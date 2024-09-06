@@ -38,7 +38,7 @@ export class IsRenderableRequest
         return response.getStatus();
     }
 
-    getParams(): Object {
+    getParams(): object {
         if (!this.mode) {
             return super.getParams();
         }
@@ -61,10 +61,14 @@ export class IsRenderableRequest
         }
 
         const request = super.sendAndParse().then((statusCode: number) => {
-            id && IsRenderableRequest.cache.set(id, statusCode);
+            if (id) {
+                IsRenderableRequest.cache.set(id, statusCode);
+            }
             return statusCode;
         }).catch((error: RequestError) => {
-            id && IsRenderableRequest.cache.set(id, error.getStatusCode());
+            if (id) {
+                IsRenderableRequest.cache.set(id, error.getStatusCode());
+            }
             return error.getStatusCode();
         });
 

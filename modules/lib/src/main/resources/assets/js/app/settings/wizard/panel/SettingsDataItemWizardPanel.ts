@@ -290,7 +290,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     protected updateIcon(): Q.Promise<void> {
-        throw new Exception('Must be implemented by inheritor.', ExceptionType.ERROR);
+        throw Error('Must be implemented by inheritor.');
     }
 
     protected abstract getIconClass(): string;

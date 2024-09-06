@@ -11,7 +11,7 @@ export class GetContentRootPermissionsRequest
         this.addRequestPathElements('rootPermissions');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {};
     }
 

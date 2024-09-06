@@ -22,7 +22,7 @@ export class GetPageDescriptorsByApplicationsRequest
         this.addRequestPathElements('list', 'by_applications');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             applicationKeys: this.applicationKeys ? this.applicationKeys.map(key => key.toString()) : []
         };

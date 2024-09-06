@@ -16,7 +16,7 @@ export class ContentsExistRequest
         this.addRequestPathElements('contentsExist');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentIds: this.contentIds
         };
