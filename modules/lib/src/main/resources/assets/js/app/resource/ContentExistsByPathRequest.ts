@@ -16,7 +16,7 @@ export class ContentExistsByPathRequest
         this.addRequestPathElements('contentsExistByPath');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentPaths: [this.contentPath]
         };

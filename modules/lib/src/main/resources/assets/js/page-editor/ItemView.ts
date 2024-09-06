@@ -371,7 +371,7 @@ export abstract class ItemView
     }
 
     protected isDragging(): boolean {
-        throw 'Should be overridden, typically DragAndDrop.get().isDragging()';
+        throw Error('Should be overridden, typically DragAndDrop.get().isDragging()');
     }
 
     protected unbindMouseListeners() {

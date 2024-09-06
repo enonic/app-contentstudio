@@ -24,7 +24,7 @@ export class ResolveDependenciesRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentIds: this.ids.map(id => id.toString()),
             target: this.target?.toString() || Branch.DRAFT,

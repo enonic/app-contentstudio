@@ -19,9 +19,9 @@ export class ContentQuery
 
     private mustBeReferencedById: ContentId;
 
-    private query: Object;
+    private query: object;
 
-    private querySort: Object[];
+    private querySort: object[];
 
     private aggregationQueries: AggregationQuery[] = [];
 
@@ -58,21 +58,21 @@ export class ContentQuery
         return this.mustBeReferencedById;
     }
 
-    setQuery(value: Object): ContentQuery {
+    setQuery(value: object): ContentQuery {
         this.query = value;
         return this;
     }
 
-    getQuery(): Object {
+    getQuery(): object {
         return this.query;
     }
 
-    setQuerySort(value: Object[]): ContentQuery {
+    setQuerySort(value: object[]): ContentQuery {
         this.querySort = value;
         return this;
     }
 
-    getQuerySort(): Object[] {
+    getQuerySort(): object[] {
         return this.querySort;
     }
 

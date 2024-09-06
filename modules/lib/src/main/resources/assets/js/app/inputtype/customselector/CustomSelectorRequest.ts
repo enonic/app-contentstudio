@@ -46,7 +46,7 @@ export class CustomSelectorRequest
         this.loaded = false;
     }
 
-    getParams(): Object {
+    getParams(): object {
         if (this.postLoading && this.start === 0) {
             // When CustomSelector switches to postLoading mode,
             // don't re-fetch the first batch but go directly to the second

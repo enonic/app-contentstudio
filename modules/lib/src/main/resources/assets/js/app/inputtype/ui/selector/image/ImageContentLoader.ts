@@ -14,7 +14,7 @@ export class ImageContentLoader {
 
     private static requestTokens: RequestToken[] = [];
 
-    private static loadContent: Function = AppHelper.debounce(ImageContentLoader.doLoadContent, 500);
+    private static loadContent: () => void = AppHelper.debounce(ImageContentLoader.doLoadContent, 500);
 
     static queueContentLoadRequest(contentIds: ContentId[]): Q.Promise<ContentSummary[]> {
 

@@ -65,7 +65,7 @@ export class CreateIssueRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             title: this.title ? this.title.toString() : '',
             description: this.description ? this.description.toString() : '',

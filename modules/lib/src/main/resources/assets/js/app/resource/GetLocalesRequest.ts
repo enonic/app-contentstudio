@@ -17,7 +17,7 @@ export class GetLocalesRequest
         this.addRequestPathElements(ContentResourceRequest.CONTENT_PATH, 'locales');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             query: this.searchQuery
         };

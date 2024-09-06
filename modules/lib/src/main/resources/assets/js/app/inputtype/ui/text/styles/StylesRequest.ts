@@ -44,7 +44,7 @@ export class StylesRequest
         return Path.fromString(CONFIG.getString('services.stylesUrl'));
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.contentId,
             project: ProjectContext.get().getProject().getName()

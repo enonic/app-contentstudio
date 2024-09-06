@@ -49,7 +49,7 @@ export class ListIssueCommentsRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             issue: this.issueId,
             from: this.from,

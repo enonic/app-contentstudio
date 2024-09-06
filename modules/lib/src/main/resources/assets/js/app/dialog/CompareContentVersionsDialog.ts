@@ -58,7 +58,7 @@ export class CompareContentVersionsDialog
 
     private revertRightButton: Button;
 
-    private contentCache: Record<string, Object>;
+    private contentCache: Record<string, object>;
 
     private diffPatcher: DiffPatcher;
 
@@ -636,7 +636,7 @@ export class CompareContentVersionsDialog
         this.rightDropdown.refresh(); // making readonly changes in options visible
     }
 
-    private fetchVersionPromise(versionId: string): Q.Promise<Object> {
+    private fetchVersionPromise(versionId: string): Q.Promise<object> {
         const cache = this.contentCache[versionId];
 
         if (cache) {
@@ -665,7 +665,7 @@ export class CompareContentVersionsDialog
         }
         this.comparisonContainer.addClass('loading');
 
-        return Q.all(promises).spread((leftJson: Object, rightJson: Object) => {
+        return Q.all(promises).spread((leftJson: object, rightJson: object) => {
             const delta: Delta = this.diffPatcher.diff(leftJson, rightJson || leftJson);
             let text;
             let isEmpty = false;

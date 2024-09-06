@@ -130,7 +130,7 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
         ResponsiveManager.onAvailableSizeChanged(this, () => this.refresh.bind(this));
     }
 
-    private static isDefaultOptionDisplayValueViewer(object: Object) {
+    private static isDefaultOptionDisplayValueViewer(object: object) {
         if (object && object instanceof HTMLElement) {
             const elem = object;
             return elem.parentElement.className.indexOf('option-value') > -1

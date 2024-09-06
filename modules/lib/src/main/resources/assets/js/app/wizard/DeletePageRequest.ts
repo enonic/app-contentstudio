@@ -17,7 +17,7 @@ export class DeletePageRequest
         this.addRequestPathElements('delete');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.contentId.toString()
         };

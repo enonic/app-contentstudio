@@ -35,7 +35,7 @@ export class CreateIssueCommentRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             issue: this.issueId,
             text: this.text,

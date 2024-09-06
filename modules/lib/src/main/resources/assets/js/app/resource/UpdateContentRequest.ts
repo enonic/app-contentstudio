@@ -111,7 +111,7 @@ export class UpdateContentRequest
             .setWorkflow(content.getWorkflow());
     }
 
-    getParams(): Object {
+    getParams(): object {
         const contentName: string = this.name.isUnnamed() ? this.name.getValue() : this.name.toString();
 
         return {

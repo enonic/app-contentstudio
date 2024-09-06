@@ -42,7 +42,7 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
         this.childOrder = childOrder;
     }
 
-    getParams(): Object {
+    getParams(): object {
         let params = super.getParams();
         return Object.assign(params, {
             parentPath: this.parentPath ? this.parentPath.toString() : null,

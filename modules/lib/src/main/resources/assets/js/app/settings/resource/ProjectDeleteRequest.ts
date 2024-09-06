@@ -14,7 +14,7 @@ export class ProjectDeleteRequest
         this.name = name;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             name: this.name
         };

@@ -16,7 +16,7 @@ export class GetIssueStatsRequest
         this.addRequestPathElements('stats');
     }
 
-    getParams(): Object {
+    getParams(): object {
         const type = this.type != null ? IssueType[this.type] : null;
         return {
             type

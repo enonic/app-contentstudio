@@ -29,7 +29,7 @@ export class GetContentVersionsRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.contentId.toString(),
             from: this.from,

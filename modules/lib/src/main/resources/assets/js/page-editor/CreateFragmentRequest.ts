@@ -41,7 +41,7 @@ export class CreateFragmentRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.contentId.toString(),
             config: this.config ? this.config.toJson() : null,

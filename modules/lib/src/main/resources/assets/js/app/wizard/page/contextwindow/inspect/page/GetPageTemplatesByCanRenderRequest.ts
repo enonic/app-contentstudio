@@ -20,7 +20,7 @@ export class GetPageTemplatesByCanRenderRequest
         this.addRequestPathElements('listByCanRender');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             siteId: this.site.toString(),
             contentTypeName: this.contentTypeName.toString()

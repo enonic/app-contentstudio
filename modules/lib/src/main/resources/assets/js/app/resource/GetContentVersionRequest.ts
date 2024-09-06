@@ -25,7 +25,7 @@ export class GetContentVersionRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.id.toString(),
             versionId: this.versionId,

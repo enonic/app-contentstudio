@@ -15,7 +15,7 @@ export class GetEffectivePermissionsRequest
         this.addRequestPathElements('effectivePermissions');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             id: this.contentId.toString()
         };

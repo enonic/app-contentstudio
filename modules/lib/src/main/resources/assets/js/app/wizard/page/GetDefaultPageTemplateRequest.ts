@@ -19,7 +19,7 @@ export class GetDefaultPageTemplateRequest
         this.addRequestPathElements('default');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             siteId: this.site.toString(),
             contentTypeName: this.contentTypeName.toString()

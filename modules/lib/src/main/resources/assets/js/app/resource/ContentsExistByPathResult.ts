@@ -2,7 +2,7 @@ import {ContentsExistByPathJson} from './json/ContentsExistByPathJson';
 
 export class ContentsExistByPathResult {
 
-    private contentsExistByPathMap: Object = {};
+    private contentsExistByPathMap: object = {};
 
     constructor(json: ContentsExistByPathJson) {
         json.contentsExistJson.forEach(item => {
@@ -10,7 +10,7 @@ export class ContentsExistByPathResult {
         });
     }
 
-    getContentsExistMap(): Object {
+    getContentsExistMap(): object {
         return this.contentsExistByPathMap;
     }
 }

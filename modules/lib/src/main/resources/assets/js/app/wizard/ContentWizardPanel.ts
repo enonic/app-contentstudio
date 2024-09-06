@@ -1965,7 +1965,9 @@ export class ContentWizardPanel
             const stoppedApps: Application[] = [];
             const missingOrStoppedAppKeys: ApplicationKey[] = applicationKeys.filter((key: ApplicationKey) => {
                 const app: Application = applications.find((a: Application) => a.getApplicationKey().equals(key));
-                app?.isStopped() && stoppedApps.push(app);
+                if (app?.isStopped()) {
+                    stoppedApps.push(app);
+                }
                 return !app || app.getState() === Application.STATE_STOPPED;
             });
 

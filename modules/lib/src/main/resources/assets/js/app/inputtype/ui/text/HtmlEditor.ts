@@ -105,7 +105,7 @@ export class HtmlEditor {
     }
 
     private modifyImagePluginUpcastDowncastFunctions(e: eventInfo) {
-        const originalUpcastFunction: Function = e.data.upcast;
+        const originalUpcastFunction: (el: CKEDITOR.htmlParser.element, data) => CKEDITOR.htmlParser.element = e.data.upcast;
         const newUpcastFunction = function (el: CKEDITOR.htmlParser.element, data) {
             const result: CKEDITOR.htmlParser.element = originalUpcastFunction(el, data);
 
@@ -132,7 +132,7 @@ export class HtmlEditor {
             return result;
         };
 
-        const originalDowncastFunction: Function = e.data.downcast;
+        const originalDowncastFunction: (el: CKEDITOR.htmlParser.element) => CKEDITOR.htmlParser.element = e.data.downcast;
         const newDowncastFunction = function (el: CKEDITOR.htmlParser.element) {
             if (el.name === 'figure' && el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) {
                 return el;
@@ -551,7 +551,7 @@ export class HtmlEditor {
     }
 
     private handleNativeNotifications() {
-        const progressNotifications: Object = {};
+        const progressNotifications: object = {};
 
         this.editor.on('notificationShow', function (evt: eventInfo) {
             // Do not show the default notification

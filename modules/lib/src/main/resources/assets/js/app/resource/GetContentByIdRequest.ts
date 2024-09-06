@@ -28,7 +28,7 @@ export class GetContentByIdRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             id: this.id.toString(),
             versionId: this.versionId,

@@ -41,7 +41,7 @@ export class PageHelper {
         return new GetComponentDescriptorRequest(key.toString(), type).sendAndParse().then((pageDescriptor: Descriptor) => {
             return pageDescriptor;
         }).catch(() => {
-            throw new Exception(i18n('live.view.page.error.descriptornotfound', key), ExceptionType.WARNING);
+            throw Error(i18n('live.view.page.error.descriptornotfound', key));
         });
     }
 

@@ -17,7 +17,7 @@ export class ResolveDeleteRequest
         this.addRequestPathElements('resolveForDelete');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentIds: this.ids.map(id => id.toString())
         };

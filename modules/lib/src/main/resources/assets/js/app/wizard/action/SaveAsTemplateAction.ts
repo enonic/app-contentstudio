@@ -15,7 +15,7 @@ export class SaveAsTemplateAction
 
     private static INSTANCE: SaveAsTemplateAction;
 
-    private userHasCreateRights: Boolean;
+    private userHasCreateRights: boolean;
 
     private contentSummary: ContentSummary;
 

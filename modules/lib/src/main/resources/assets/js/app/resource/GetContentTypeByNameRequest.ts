@@ -18,7 +18,7 @@ export class GetContentTypeByNameRequest
         this.name = name;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             name: this.name.toString(),
             inlineMixinsToFormItems: this.inlineMixinsToFormItems

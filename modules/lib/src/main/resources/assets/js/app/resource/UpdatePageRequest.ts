@@ -57,7 +57,7 @@ export class UpdatePageRequest extends PageResourceRequest<Content> implements P
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.contentId.toString(),
             controller: this.controller ? this.controller.toString() : null,

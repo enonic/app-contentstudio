@@ -18,7 +18,7 @@ export class UndoPendingDeleteContentRequest
         this.addRequestPathElements('undoPendingDelete');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentIds: this.ids.map((contentId: ContentId) => contentId.toString())
         };
