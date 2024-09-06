@@ -37,7 +37,7 @@ export class OrderContentRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return this.contentToJson();
     }
 

@@ -40,14 +40,14 @@ const init = async (configUri: string, elemId: string): Promise<void> => {
 
 void (async (currentScript: HTMLOrSVGScriptElement) => {
     if (!currentScript) {
-        throw 'Legacy browsers are not supported';
+        throw Error('Legacy browsers are not supported');
     }
 
     const configUri: string = currentScript.getAttribute('data-config-service-url');
     const elemId: string = currentScript.getAttribute('data-widget-id');
 
     if (!configUri || !elemId) {
-        throw 'Missing attributes on inject script';
+        throw Error('Missing attributes on inject script');
     }
 
     await init(configUri, elemId);

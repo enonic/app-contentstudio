@@ -20,7 +20,7 @@ export class GetMacrosRequest
         this.applicationKeys = applicationKeys;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             appKeys: ApplicationKey.toStringArray(this.applicationKeys)
         };

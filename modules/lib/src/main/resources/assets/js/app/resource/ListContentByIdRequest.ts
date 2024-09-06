@@ -48,7 +48,7 @@ export class ListContentByIdRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             parentId: this.parentId ? this.parentId.toString() : null,
             expand: this.expand,

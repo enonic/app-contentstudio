@@ -7,17 +7,17 @@ export class SettingsEventAggregator {
 
     private static TIMEOUT: number = 1000;
 
-    private updateEvents: Map<string, Function> = new Map<string, Function>();
+    private updateEvents: Map<string, () => void> = new Map<string, () => void>();
 
-    private createEvents: Map<string, Function> = new Map<string, Function>();
+    private createEvents: Map<string, () => void> = new Map<string, () => void>();
 
-    private deleteEvents: Map<string, Function> = new Map<string, Function>();
+    private deleteEvents: Map<string, () => void> = new Map<string, () => void>();
 
     public appendUpdateEvent(projectName: string) {
         if (this.updateEvents.get(projectName)) {
             this.updateEvents.get(projectName)();
         } else {
-            const debouncedFunc: Function = AppHelper.debounce(() => {
+            const debouncedFunc: () => void = AppHelper.debounce(() => {
                 this.updateEvents.delete(projectName);
                 new ProjectUpdatedEvent(projectName).fire();
             }, SettingsEventAggregator.TIMEOUT);
@@ -32,7 +32,7 @@ export class SettingsEventAggregator {
         if (this.createEvents.get(projectName)) {
             this.createEvents.get(projectName)();
         } else {
-            const debouncedFunc: Function = AppHelper.debounce(() => {
+            const debouncedFunc: () => void = AppHelper.debounce(() => {
                 this.createEvents.delete(projectName);
                 new ProjectCreatedEvent(projectName).fire();
             }, SettingsEventAggregator.TIMEOUT);
@@ -47,7 +47,7 @@ export class SettingsEventAggregator {
         if (this.deleteEvents.get(projectName)) {
             this.deleteEvents.get(projectName)();
         } else {
-            const debouncedFunc: Function = AppHelper.debounce(() => {
+            const debouncedFunc: () => void = AppHelper.debounce(() => {
                 this.deleteEvents.delete(projectName);
                 new ProjectDeletedEvent(projectName).fire();
             }, SettingsEventAggregator.TIMEOUT);

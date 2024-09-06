@@ -193,9 +193,9 @@ export class ContentDuplicateDialog
         }
     }
 
-    private checkFinished(): Q.Promise<Boolean> {
+    private checkFinished(): Q.Promise<boolean> {
 
-        const deferred = Q.defer<Boolean>();
+        const deferred = Q.defer<boolean>();
 
         const handler = (taskState: TaskState) => {
             if (taskState === TaskState.FINISHED) {

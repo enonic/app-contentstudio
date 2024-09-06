@@ -17,7 +17,7 @@ export class GetNearestSiteRequest
         this.addRequestPathElements('nearestSite');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.contentId.toString()
         };

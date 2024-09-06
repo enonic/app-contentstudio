@@ -51,8 +51,8 @@ export class ContentPublishMenuButton
 
     private activeClass: string;
 
-    private initializedListeners: Function[] = [];
-    private actionUpdatedHandler: Function;
+    private initializedListeners: (() => void)[] = [];
+    private actionUpdatedHandler: () => void;
 
     protected publishAction: ContentPublishMenuAction;
     protected unpublishAction: ContentPublishMenuAction;
@@ -147,9 +147,7 @@ export class ContentPublishMenuButton
     }
 
     private notifyInitialized() {
-        this.initializedListeners.forEach((listener: () => void) => {
-            listener();
-        });
+        this.initializedListeners.forEach((listener: () => void) => listener());
     }
 
     onInitialized(listener: () => void) {

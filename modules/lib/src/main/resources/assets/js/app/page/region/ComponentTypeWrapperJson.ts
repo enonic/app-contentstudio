@@ -1,14 +1,14 @@
 import {ImageComponentJson} from './ImageComponentJson';
-import {PartComponentJson} from './PartComponentJson';
 import {TextComponentJson} from './TextComponentJson';
 import {LayoutComponentJson} from './LayoutComponentJson';
 import {FragmentComponentJson} from './FragmentComponentJson';
+import {DescriptorBasedComponentJson} from './DescriptorBasedComponentJson';
 
 export interface ComponentTypeWrapperJson {
 
     ImageComponent?: ImageComponentJson;
 
-    PartComponent?: PartComponentJson;
+    PartComponent?: DescriptorBasedComponentJson;
 
     TextComponent?: TextComponentJson;
 

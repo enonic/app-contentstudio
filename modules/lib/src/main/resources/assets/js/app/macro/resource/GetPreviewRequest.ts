@@ -17,7 +17,7 @@ export class GetPreviewRequest
         this.addRequestPathElements('preview');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             form: this.data.toJson(),
             contentPath: !!this.path ? this.path.toString() : '',

@@ -22,7 +22,7 @@ export class UpdateIssueCommentRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             comment: this.commentId,
             text: this.text

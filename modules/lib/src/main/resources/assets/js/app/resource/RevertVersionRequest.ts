@@ -18,7 +18,7 @@ export class RevertVersionRequest
         this.addRequestPathElements('revert');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             versionId: this.versionId,
             contentKey: this.contentKey

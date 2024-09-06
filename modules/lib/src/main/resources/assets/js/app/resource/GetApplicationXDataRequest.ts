@@ -20,7 +20,7 @@ export class GetApplicationXDataRequest
         this.addRequestPathElements('getApplicationXDataForContentType');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentTypeName: this.contentTypeName.toString(),
             applicationKey: this.applicationKey.toString()

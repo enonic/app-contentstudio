@@ -15,7 +15,7 @@ export class GetContentByPathRequest
         this.addRequestPathElements('bypath');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             path: this.contentPath.toString()
         };

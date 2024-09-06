@@ -86,7 +86,7 @@ export class CreateContentRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             valid: this.valid,
             requireValid: this.requireValid,

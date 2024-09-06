@@ -242,7 +242,7 @@ export class IssueList
     }
 
     private setupLazyLoading() {
-        const scrollHandler: Function = AppHelper.debounce(this.handleScroll.bind(this), 100, false);
+        const scrollHandler: () => void = AppHelper.debounce(this.handleScroll.bind(this), 100, false);
 
         this.onScrolled(() => {
             scrollHandler();

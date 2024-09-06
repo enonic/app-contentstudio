@@ -120,7 +120,7 @@ export class Region
             let message = 'The rendered page is not consistent with the page components structure. Expected component with index ' +
                           `${index} was not found in region '${this.getName()}'.`;
             console.error(message);
-            throw new Exception(message, ExceptionType.ERROR);
+            throw Error(message);
         }
         assertState(component.getIndex() === index,
             'Index of Component is not as expected. Expected [' + index + '], was: ' + component.getIndex());

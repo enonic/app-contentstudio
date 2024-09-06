@@ -87,7 +87,7 @@ export class UpdateIssueRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         const approvers = this.approvers ? this.approvers.map((el) => el.toString()) : undefined;
         const publishRequest = this.publishRequest ? this.publishRequest.toJson() : undefined;
         return {

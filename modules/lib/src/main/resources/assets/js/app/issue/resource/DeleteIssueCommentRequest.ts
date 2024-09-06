@@ -14,7 +14,7 @@ export class DeleteIssueCommentRequest
         this.addRequestPathElements('comment', 'delete');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             comment: this.commentId
         };

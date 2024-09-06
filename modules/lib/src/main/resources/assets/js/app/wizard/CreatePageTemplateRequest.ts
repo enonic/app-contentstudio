@@ -70,7 +70,7 @@ export class CreatePageTemplateRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             controller: this.controller ? this.controller.toString() : null,
             config: this.config ? this.config.toJson() : null,

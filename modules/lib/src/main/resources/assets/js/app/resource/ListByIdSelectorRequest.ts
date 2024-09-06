@@ -36,7 +36,7 @@ export class ListByIdSelectorRequest<DATA extends ContentTreeSelectorItem>
         this.childOrder = childOrder;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             from: this.getFrom(),
             size: this.getSize(),

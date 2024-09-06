@@ -308,7 +308,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             }).catch(reason => DefaultErrorHandler.handle(reason));
     }
 
-    private checkIsChildrenAllowedByContentType(selectedItem: ContentSummaryAndCompareStatus): Q.Promise<Boolean> {
+    private checkIsChildrenAllowedByContentType(selectedItem: ContentSummaryAndCompareStatus): Q.Promise<boolean> {
         const deferred = Q.defer<boolean>();
 
         new GetContentTypeByNameRequest(selectedItem.getContentSummary().getType()).sendAndParse()

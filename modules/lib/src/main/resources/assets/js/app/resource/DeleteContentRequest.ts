@@ -36,7 +36,7 @@ export class DeleteContentRequest
         this.deleteOnline = deleteOnline;
     }
 
-    getParams(): Object {
+    getParams(): object {
         let fn = (contentPath: ContentPath) => {
             return contentPath.toString();
         };

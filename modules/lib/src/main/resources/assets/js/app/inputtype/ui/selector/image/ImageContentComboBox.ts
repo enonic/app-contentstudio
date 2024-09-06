@@ -108,7 +108,7 @@ export class ImageContentComboBox
         grid.invalidate();
     }
 
-    protected createOption(data: Object, readOnly?: boolean): Option<MediaTreeSelectorItem> {
+    protected createOption(data: object, readOnly?: boolean): Option<MediaTreeSelectorItem> {
         const item: MediaTreeSelectorItem = this.dataToMediaTreeSelectorItem(data);
         if (item) {
             return this.optionsFactory.createOption(item, readOnly);
@@ -117,7 +117,7 @@ export class ImageContentComboBox
         return null;
     }
 
-    private dataToMediaTreeSelectorItem(data: Object): MediaTreeSelectorItem {
+    private dataToMediaTreeSelectorItem(data: object): MediaTreeSelectorItem {
         if (ObjectHelper.iFrameSafeInstanceOf(data, MediaTreeSelectorItem)) {
             return data as MediaTreeSelectorItem;
         }

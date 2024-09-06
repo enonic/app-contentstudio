@@ -213,7 +213,7 @@ export class CompareWithPublishedVersionDialog
             promises.push(this.fetchVersionPromise(publishedVersionId));
         }
 
-        return Q.all(promises).spread((activeJson: Object, publishedJson: Object) => {
+        return Q.all(promises).spread((activeJson: object, publishedJson: object) => {
             const delta: Delta = this.diffPatcher.diff(publishedJson || {}, activeJson,);
             let text;
             let isEmpty = false;

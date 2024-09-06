@@ -17,7 +17,7 @@ export class GetContentTypesByContentRequest
         this.addRequestPathElements('byContent');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.contentId && this.contentId.toString()
         };

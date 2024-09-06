@@ -15,7 +15,7 @@ export class GetContentPermissionsByIdRequest
         this.addRequestPathElements('contentPermissions');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             id: this.contentId.toString()
         };

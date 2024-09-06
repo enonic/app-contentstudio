@@ -8,7 +8,9 @@ export class AccessibilityHelper {
 
        // Enter event will execute a click
        element.onKeyPressed((event: KeyboardEvent) => {
-           event.key === 'Enter' && element.getHTMLElement().click();
+           if (event.key === 'Enter') {
+               element.getHTMLElement().click();
+           }
        });
     }
 }

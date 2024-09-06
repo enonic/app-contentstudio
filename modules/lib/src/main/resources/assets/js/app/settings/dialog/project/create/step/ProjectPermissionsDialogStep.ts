@@ -15,7 +15,9 @@ export class ProjectPermissionsDialogStep
 
     createFormItems(): FormItem[] {
         this.projectRolesFormFormItem = new ProjectRolesFormItem();
-        this.hasParentProjects() && this.projectRolesFormFormItem.setParentProjects(this.getParentProjects());
+        if (this.hasParentProjects()) {
+            this.projectRolesFormFormItem.setParentProjects(this.getParentProjects());
+        }
         return [this.projectRolesFormFormItem];
     }
 
@@ -38,8 +40,12 @@ export class ProjectPermissionsDialogStep
         const items: Map<ProjectAccess, Principal[]> = new Map<ProjectAccess, Principal[]>;
 
         selectedAccessEntries.forEach((entry: ProjectAccessControlEntry) => {
-            items.has(entry.getAccess()) ? items.get(entry.getAccess()).push(entry.getPrincipal()) : items.set(entry.getAccess(),
-                [entry.getPrincipal()]);
+            const projectAccess: ProjectAccess = entry.getAccess();
+            if (items.has(projectAccess)) {
+                items.get(projectAccess).push(entry.getPrincipal())
+            } else {
+                items.set(projectAccess, [entry.getPrincipal()]);
+            };
         });
 
         return new ProjectPermissionsDataBuilder()

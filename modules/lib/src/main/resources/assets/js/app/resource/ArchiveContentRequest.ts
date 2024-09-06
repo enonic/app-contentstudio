@@ -26,7 +26,7 @@ export class ArchiveContentRequest extends CmsContentResourceRequest<TaskId> {
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         const fn = (contentId: ContentId) => {
             return contentId.toString();
         };

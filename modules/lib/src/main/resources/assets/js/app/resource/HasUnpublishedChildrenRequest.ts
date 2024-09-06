@@ -17,7 +17,7 @@ export class HasUnpublishedChildrenRequest
         this.addRequestPathElements('hasUnpublishedChildren');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentIds: this.ids.map(id => id.toString())
         };

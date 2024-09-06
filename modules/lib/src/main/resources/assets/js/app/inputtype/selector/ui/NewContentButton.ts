@@ -155,11 +155,11 @@ export class NewContentButton
     }
 
     unContentAdded(listener: (content: ContentSummary) => void): void {
-        this.contentAddedListeners = this.contentAddedListeners.filter((currentListener: Function) => listener !== currentListener);
+        this.contentAddedListeners = this.contentAddedListeners.filter((currentListener: (content: ContentSummary) => void) => listener !== currentListener);
     }
 
     private notifyContentAdded(content: ContentSummary): void {
-        this.contentAddedListeners.forEach((listener: Function) => listener(content));
+        this.contentAddedListeners.forEach((listener: (content: ContentSummary) => void) => listener(content));
     }
 
     doRender(): Q.Promise<boolean> {

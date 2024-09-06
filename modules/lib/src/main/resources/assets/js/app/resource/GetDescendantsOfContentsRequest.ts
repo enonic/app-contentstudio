@@ -39,7 +39,7 @@ export class GetDescendantsOfContentsRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentPaths: this.convertPaths(),
             filterStatuses: this.convertStatuses()

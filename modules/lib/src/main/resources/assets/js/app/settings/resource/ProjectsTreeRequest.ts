@@ -14,7 +14,7 @@ export class ProjectsTreeRequest extends ProjectResourceRequest<ProjectsTreeItem
         this.addRequestPathElements('getTree');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             name: this.name
         };

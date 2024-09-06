@@ -18,7 +18,7 @@ export class ResolveUnpublishRequest
         this.addRequestPathElements('resolveForUnpublish');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentIds: this.ids.map(id => id.toString())
         };

@@ -15,7 +15,7 @@ export class GetContentAttachmentsRequest
         this.addRequestPathElements('getAttachments');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             id: this.contentId.toString()
         };

@@ -16,7 +16,7 @@ export class GetPublishStatusesRequest
         this.addRequestPathElements('getPublishStatuses');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             ids: this.ids
         };

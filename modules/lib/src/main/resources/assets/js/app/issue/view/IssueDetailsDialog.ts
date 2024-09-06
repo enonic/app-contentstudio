@@ -111,7 +111,7 @@ export class IssueDetailsDialog
 
     private ignoreNextExcludeChildrenEvent: boolean;
 
-    private debouncedUpdateIssue: Function;
+    private debouncedUpdateIssue: () => void;
 
     private commentsList: IssueCommentsList;
 
@@ -320,7 +320,7 @@ export class IssueDetailsDialog
         });
 
         this.commentsList.onItemsAdded((itemsAdded: IssueComment[]) => {
-            const debouncedScroll: Function = AppHelper.debounce(() => {
+            const debouncedScroll: () => void = AppHelper.debounce(() => {
                 if (this.commentsList.isVisible()) {
                     const element: HTMLElement = this.getBody().getHTMLElement();
                     element.scrollTop = element.scrollHeight - element.clientHeight;
@@ -643,7 +643,7 @@ export class IssueDetailsDialog
     }
 
     private handleIssueGlobalEvents() {
-        const updateHandler: Function = AppHelper.debounce((issue: Issue) => {
+        const updateHandler: (issue: Issue) => void = AppHelper.debounce((issue: Issue) => {
             this.setIssue(issue);
         }, 3000, true);
 

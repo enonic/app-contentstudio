@@ -232,7 +232,7 @@ export class ContentPublishDialog
     }
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {
-        const labelWithNumber: Function = (num, label) => `${label}${num > 1 ? ` (${num})` : ''}`;
+        const labelWithNumber: (num: number, label: string) => string = (num, label) => `${label}${num > 1 ? ` (${num})` : ''}`;
 
         this.publishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.publishNow')));
         this.scheduleAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.schedule')));

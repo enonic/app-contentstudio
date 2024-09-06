@@ -46,9 +46,6 @@ interface CropData
     auto: boolean;
 }
 
-interface ZoomData
-    extends SVGRect {}
-
 export class ImageEditor
     extends DivEl {
 
@@ -72,8 +69,8 @@ export class ImageEditor
     private cropData: CropData = {x: 0, y: 0, w: 0, h: 0, auto: true};
     private revertCropData: CropData;
 
-    private zoomData: ZoomData = {x: 0, y: 0, w: 0, h: 0};
-    private revertZoomData: ZoomData;
+    private SVGRect: SVGRect = {x: 0, y: 0, w: 0, h: 0};
+    private revertZoomData: SVGRect;
 
     private orientation: number;
     private originalOrientation: number;
@@ -681,9 +678,8 @@ export class ImageEditor
 
         // Legacy
         if ('detail' in event) { spinY = event.detail; }
-        if ('wheelDelta' in event) { spinY = -event.wheelDelta / 120; }
-        if ('wheelDeltaY' in event) { spinY = -event.wheelDeltaY / 120; }
-        if ('wheelDeltaX' in event) { spinX = -event.wheelDeltaX / 120; }
+        if ('deltaY' in event) { spinY = event.deltaY / -120; }
+        if ('deltaX' in event) { spinX = event.deltaX / -120; }
 
         let pixelX = spinX * this.WHEEL_PIXEL_STEP;
         let pixelY = spinY * this.WHEEL_PIXEL_STEP;
@@ -1674,7 +1670,7 @@ export class ImageEditor
                 console.log('After restraining', dx, dy, this.cropData);
             }
 
-            this.notifyCropPositionChanged(this.cropData, this.zoomData);
+            this.notifyCropPositionChanged(this.cropData, this.SVGRect);
 
             if (this.isImageLoaded() && this.isCropEditMode()) {
                 this.updateCropMaskPosition();
@@ -1749,10 +1745,10 @@ export class ImageEditor
     }
 
     private isInsideCrop(x: number, y: number) {
-        return x >= this.zoomData.x + this.cropData.x &&
-               x <= (this.zoomData.x + this.cropData.x + this.cropData.w) &&
-               y >= this.zoomData.y + this.cropData.y &&
-               y <= (this.zoomData.y + this.cropData.y + this.cropData.h);
+        return x >= this.SVGRect.x + this.cropData.x &&
+               x <= (this.SVGRect.x + this.cropData.x + this.cropData.w) &&
+               y >= this.SVGRect.y + this.cropData.y &&
+               y <= (this.SVGRect.y + this.cropData.y + this.cropData.h);
 
     }
 
@@ -1856,7 +1852,7 @@ export class ImageEditor
                 let deltaY = this.getOffsetY(event) - lastPos.y;
                 let toolbarEl = this.stickyToolbar.getEl();
                 let topBoundary = toolbarEl.getHeight() + toolbarEl.getOffsetTop() - this.frame.getEl().getOffsetTop();
-                let distBetweenCropAndZoomBottoms = this.zoomData.h - this.cropData.h - this.cropData.y;
+                let distBetweenCropAndZoomBottoms = this.SVGRect.h - this.cropData.h - this.cropData.y;
                 let newH = this.cropData.h +
                            (deltaY > distBetweenCropAndZoomBottoms ? distBetweenCropAndZoomBottoms : deltaY);
 
@@ -1872,10 +1868,10 @@ export class ImageEditor
             } else if (panMouseDown) {
 
                 this.setZoomPositionPx({
-                    x: this.zoomData.x + currPos.x - lastPos.x,
-                    y: this.zoomData.y + currPos.y - lastPos.y,
-                    w: this.zoomData.w,
-                    h: this.zoomData.h
+                    x: this.SVGRect.x + currPos.x - lastPos.x,
+                    y: this.SVGRect.y + currPos.y - lastPos.y,
+                    w: this.SVGRect.w,
+                    h: this.SVGRect.h
                 });
 
             }
@@ -1935,19 +1931,19 @@ export class ImageEditor
      * @returns {number}
      */
     private restrainCropX(x: number) {
-        return Math.max(0, Math.min(this.zoomData.w - this.cropData.w, x));
+        return Math.max(0, Math.min(this.SVGRect.w - this.cropData.w, x));
     }
 
     private restrainCropY(y: number) {
-        return Math.max(0, Math.min(this.zoomData.h - this.cropData.h, y));
+        return Math.max(0, Math.min(this.SVGRect.h - this.cropData.h, y));
     }
 
     private restrainCropW(x: number) {
-        return Math.max(0, Math.min(this.zoomData.w, x));
+        return Math.max(0, Math.min(this.SVGRect.w, x));
     }
 
     private restrainCropH(y: number) {
-        return Math.max(0, Math.min(this.zoomData.h, y));
+        return Math.max(0, Math.min(this.SVGRect.h, y));
     }
 
     private rectFromSVG(svg: SVGRect): Rect {
@@ -1993,31 +1989,31 @@ export class ImageEditor
     }
 
     private setZoomPositionPx(zoom: SVGRect, updateAuto: boolean = true) {
-        let oldX = this.zoomData.x;
-        let oldY = this.zoomData.y;
-        let oldW = this.zoomData.w;
-        let oldH = this.zoomData.h;
+        let oldX = this.SVGRect.x;
+        let oldY = this.SVGRect.y;
+        let oldW = this.SVGRect.w;
+        let oldH = this.SVGRect.h;
 
         if (ImageEditor.debug) {
             console.group('ImageEditor.setZoomPositionPx');
             console.log('Before restraining', zoom.x - oldX, zoom.y - oldY, zoom);
         }
 
-        this.zoomData.w = this.restrainZoomW(zoom.w);
-        this.zoomData.h = this.restrainZoomH(zoom.h);
-        this.zoomData.x = this.restrainZoomX(zoom.x);
-        this.zoomData.y = this.restrainZoomY(zoom.y);
+        this.SVGRect.w = this.restrainZoomW(zoom.w);
+        this.SVGRect.h = this.restrainZoomH(zoom.h);
+        this.SVGRect.x = this.restrainZoomX(zoom.x);
+        this.SVGRect.y = this.restrainZoomY(zoom.y);
 
-        if (oldX !== this.zoomData.x ||
-            oldY !== this.zoomData.y ||
-            oldW !== this.zoomData.w ||
-            oldH !== this.zoomData.h) {
+        if (oldX !== this.SVGRect.x ||
+            oldY !== this.SVGRect.y ||
+            oldW !== this.SVGRect.w ||
+            oldH !== this.SVGRect.h) {
 
-            let dx = this.zoomData.x - oldX;
-            let dy = this.zoomData.y - oldY;
+            let dx = this.SVGRect.x - oldX;
+            let dy = this.SVGRect.y - oldY;
 
             if (ImageEditor.debug) {
-                console.log('After restraining', dx, dy, this.zoomData);
+                console.log('After restraining', dx, dy, this.SVGRect);
             }
 
             if (this.isImageLoaded()) {
@@ -2045,10 +2041,10 @@ export class ImageEditor
 
     private getZoomPositionPx(): SVGRect {
         return {
-            x: this.zoomData.x,
-            y: this.zoomData.y,
-            w: this.zoomData.w,
-            h: this.zoomData.h
+            x: this.SVGRect.x,
+            y: this.SVGRect.y,
+            w: this.SVGRect.w,
+            h: this.SVGRect.h
         };
     }
 
@@ -2062,8 +2058,8 @@ export class ImageEditor
     }
 
     private isInsideZoom(x: number, y: number) {
-        return x >= this.zoomData.x && x <= (this.zoomData.x + this.zoomData.w) &&
-               y >= this.zoomData.y && y <= (this.zoomData.y + this.zoomData.h);
+        return x >= this.SVGRect.x && x <= (this.SVGRect.x + this.SVGRect.w) &&
+               y >= this.SVGRect.y && y <= (this.SVGRect.y + this.SVGRect.h);
     }
 
     private moveZoomKnobByPx(delta: number) {
@@ -2082,8 +2078,8 @@ export class ImageEditor
             let zoomCoeff = 1 + knobPct * (this.maxZoom - 1);
             let w = this.restrainZoomW(this.frameW * zoomCoeff);
             let h = this.restrainZoomH(this.frameH * zoomCoeff);
-            let x = this.zoomData.x - (w - this.zoomData.w) / 2;
-            let y = this.zoomData.y - (h - this.zoomData.h) / 2;
+            let x = this.SVGRect.x - (w - this.SVGRect.w) / 2;
+            let y = this.SVGRect.y - (h - this.SVGRect.h) / 2;
 
             this.setZoomPositionPx({x, y, w, h});
         }
@@ -2092,17 +2088,17 @@ export class ImageEditor
     private updateZoomPosition() {
 
         if (ImageEditor.debug) {
-            console.log('ImageEditor.updateZoomPosition', this.zoomData);
+            console.log('ImageEditor.updateZoomPosition', this.SVGRect);
         }
 
-        this.canvas.getEl().setWidthPx(this.zoomData.w).setHeightPx(this.zoomData.h).setLeftPx(this.zoomData.x).setTopPx(
-            this.zoomData.y);
+        this.canvas.getEl().setWidthPx(this.SVGRect.w).setHeightPx(this.SVGRect.h).setLeftPx(this.SVGRect.x).setTopPx(
+            this.SVGRect.y);
 
         let zoomKnobEl = this.zoomKnob.getEl();
         let zoomLineEl = this.zoomLine.getEl();
 
         let sliderLength = zoomLineEl.getWidth();
-        let knobPct = (this.zoomData.w / this.frameW - 1) / (this.maxZoom - 1);
+        let knobPct = (this.SVGRect.w / this.frameW - 1) / (this.maxZoom - 1);
         let knobNewX = Math.max(0, Math.min(sliderLength, knobPct * sliderLength));
 
         zoomKnobEl.setLeftPx(knobNewX);
@@ -2145,11 +2141,11 @@ export class ImageEditor
      * @returns {number}
      */
     private restrainZoomX(x: number) {
-        return Math.max(Math.min(this.frameW, this.cropData.w) - this.zoomData.w, Math.min(0, x));
+        return Math.max(Math.min(this.frameW, this.cropData.w) - this.SVGRect.w, Math.min(0, x));
     }
 
     private restrainZoomY(y: number) {
-        return Math.max(Math.min(this.frameH, this.cropData.h) - this.zoomData.h, Math.min(0, y));
+        return Math.max(Math.min(this.frameH, this.cropData.h) - this.SVGRect.h, Math.min(0, y));
     }
 
     private restrainZoomW(x: number) {

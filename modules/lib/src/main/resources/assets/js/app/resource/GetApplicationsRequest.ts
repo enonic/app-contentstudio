@@ -20,7 +20,7 @@ export class GetApplicationsRequest
         this.addRequestPathElements('getApplicationsByKeys');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             applicationKeys: this.keys.map((key: ApplicationKey) => key.toString())
         };

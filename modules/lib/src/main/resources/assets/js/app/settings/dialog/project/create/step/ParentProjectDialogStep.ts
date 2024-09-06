@@ -11,7 +11,9 @@ export class ParentProjectDialogStep
 
     createFormItems(): FormItem[] {
         this.projectTypeFormItem = new ParentProjectFormItem();
-        this.hasParentProjects() && this.projectTypeFormItem.setSelectedProjects(this.getParentProjects());
+        if (this.hasParentProjects()) {
+            this.projectTypeFormItem.setSelectedProjects(this.getParentProjects());
+        }
         return [this.projectTypeFormItem];
     }
 

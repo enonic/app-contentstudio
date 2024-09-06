@@ -15,7 +15,7 @@ export class ProjectGetRequest
         this.addRequestPathElements('get');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             name: this.name
         };

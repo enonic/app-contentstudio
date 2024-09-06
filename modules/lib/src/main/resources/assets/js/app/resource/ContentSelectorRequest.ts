@@ -150,7 +150,7 @@ export abstract class ContentSelectorRequest<CONTENT>
         this.loaded = false;
     }
 
-    getParams(): Object {
+    getParams(): object {
         const queryExprAsString = this.getQueryExpr() ? this.getQueryExpr().toString() : '';
 
         return {

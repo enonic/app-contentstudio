@@ -40,7 +40,7 @@ export class ContentSummaryHelper {
         }
 
         if (!ObjectHelper.stringEquals(item.getIconUrl(), other.getIconUrl())) {
-            diff.iconUrl;
+            diff.iconUrl = true;
         }
 
         if (!ObjectHelper.equals(item.getThumbnail(), other.getThumbnail())) {
@@ -48,7 +48,7 @@ export class ContentSummaryHelper {
         }
 
         if (!ObjectHelper.stringEquals(item.getModifier(), other.getModifier())) {
-            diff.modifier;
+            diff.modifier = true;
         }
 
         if (!ObjectHelper.objectEquals(item.getOwner(), other.getOwner())) {

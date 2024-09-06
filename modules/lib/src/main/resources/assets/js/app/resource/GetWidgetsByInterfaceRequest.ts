@@ -16,7 +16,7 @@ export class GetWidgetsByInterfaceRequest
         this.addRequestPathElements('list', 'byinterfaces');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return this.widgetInterfaces;
     }
 

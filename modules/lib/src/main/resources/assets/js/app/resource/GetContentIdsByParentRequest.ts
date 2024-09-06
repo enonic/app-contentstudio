@@ -26,7 +26,7 @@ export class GetContentIdsByParentRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             parentId: this.parentId ? this.parentId.toString() : null,
             childOrder: this.order ? this.order.toString() : ''

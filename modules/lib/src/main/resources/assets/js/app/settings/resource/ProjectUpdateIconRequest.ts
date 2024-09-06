@@ -33,7 +33,7 @@ export class ProjectUpdateIconRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             name: this.name,
             icon: this.icon,

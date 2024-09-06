@@ -15,7 +15,7 @@ export class IsContentReadOnlyRequest
         this.addRequestPathElements('isReadOnlyContent');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentIds: this.ids.map(id => id.toString())
         };

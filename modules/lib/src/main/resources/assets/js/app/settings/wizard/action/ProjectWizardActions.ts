@@ -21,12 +21,12 @@ export class ProjectWizardActions
         this.delete.setEnabled(false);
     }
 
-    enableActionsForExisting(item: SettingsViewItem) {
-        this.updateActionsEnabledState();
+    enableActionsForExisting(item: SettingsViewItem): Q.Promise<void> {
+        return this.updateActionsEnabledState();
     }
 
-    private updateActionsEnabledState() {
-        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+    private updateActionsEnabledState(): Q.Promise<void> {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             this.save.setEnabled(this.isEditAllowed(loginResult));
             this.toggleDeleteAction(loginResult);
         });

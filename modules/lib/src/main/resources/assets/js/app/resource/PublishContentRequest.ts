@@ -64,7 +64,7 @@ export class PublishContentRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             ids: this.ids.map((el) => {
                 return el.toString();
