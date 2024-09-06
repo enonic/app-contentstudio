@@ -209,7 +209,7 @@ export abstract class ModalDialog
         let formItem;
 
         if (this.fields[id]) {
-            throw 'Element with id ' + id + ' already exists';
+            throw Error(`Element with id ${id} already exists`);
         }
 
         if (value) {

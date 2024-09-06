@@ -163,15 +163,16 @@ export class ContentSelector
             }
 
             const optionsUpdated: SelectedOption<ContentTreeSelectorItem>[] = [];
-            const selectedContentIdsMap: {} = {};
+            const selectedContentIds: string[] = [];
 
             this.getSelectedOptions().forEach((selectedOption: SelectedOption<ContentTreeSelectorItem>) => {
-                if (selectedOption.getOption().getDisplayValue()?.getContentId()) {
-                    selectedContentIdsMap[selectedOption.getOption().getDisplayValue().getContentId().toString()] = '';
+                const selectedOptionContentId = selectedOption.getOption().getDisplayValue()?.getContentId();
+                if (selectedOptionContentId) {
+                    selectedContentIds.push(selectedOptionContentId.toString());
                 }
             });
 
-            paths.filter(deletedItem => !pending && selectedContentIdsMap.hasOwnProperty(deletedItem.getContentId().toString()))
+            paths.filter(deletedItem => !pending && selectedContentIds.indexOf(deletedItem.getContentId().toString()) > -1)
                 .forEach((deletedItem) => {
                     const selectedOption = this.getSelectedOptionsView().getById(deletedItem.getContentId().toString());
                     if (selectedOption) {
@@ -214,7 +215,8 @@ export class ContentSelector
             const selectedOption: SelectedOption<ContentTreeSelectorItem> = this.findSelectedOptionByContentPath(movedItem.oldPath);
 
             if (selectedOption) {
-                this.getContentComboBox().updateOption(selectedOption.getOption(), movedItem.item);
+                const contentTreeSelectorItem = this.createSelectorItem(movedItem.item);
+                this.getContentComboBox().updateOption(selectedOption.getOption(), contentTreeSelectorItem);
             }
         });
     }

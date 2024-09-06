@@ -28,7 +28,7 @@ export class DeleteAttachmentRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.contentId.toString(),
             attachmentNames: this.attachmentNames

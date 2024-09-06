@@ -47,7 +47,7 @@ export class ApplyContentPermissionsRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.id.toString(),
             permissions: this.permissions ? this.permissions.toJson() : undefined,

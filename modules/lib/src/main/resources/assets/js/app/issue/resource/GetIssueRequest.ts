@@ -15,7 +15,7 @@ export class GetIssueRequest
         this.addRequestPathElements('id');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {id: this.id};
     }
 

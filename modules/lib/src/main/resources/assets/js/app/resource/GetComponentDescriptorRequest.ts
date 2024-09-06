@@ -26,7 +26,7 @@ export class GetComponentDescriptorRequest
         this.addRequestPathElements(ContentResourceRequest.CONTENT_PATH, 'page', isPage ? '' : componentType.getShortName(), 'descriptor');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             key: this.descriptorKey
         };

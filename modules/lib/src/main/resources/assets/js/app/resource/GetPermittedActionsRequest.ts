@@ -32,7 +32,7 @@ export class GetPermittedActionsRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         let fn = (contentId: ContentId) => {
             return contentId.toString();
         };

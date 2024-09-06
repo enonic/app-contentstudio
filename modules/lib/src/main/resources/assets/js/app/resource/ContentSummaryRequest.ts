@@ -61,7 +61,7 @@ export class ContentSummaryRequest
         return this.path;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return this.request.getParams();
     }
 

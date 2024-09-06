@@ -16,7 +16,7 @@ export class GetContentXDataRequest
         this.addRequestPathElements('getContentXData');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.contentId.toString()
         };

@@ -34,7 +34,7 @@ export class CreateMediaFromUrlRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             url: this.url,
             name: this.name,

@@ -7,7 +7,7 @@ export class WidgetHelper {
         const widgetRegexResult: RegExpMatchArray = html.match(/<widget(\s.*?)?>[\s\S]*?<\/widget>/g);
 
         if (!widgetRegexResult) {
-            throw 'Widget contents must be wrapped inside <widget></widget> tags';
+            throw Error('Widget contents must be wrapped inside <widget></widget> tags');
         }
 
         const widgetContainer: UIElement = UIElement.fromHtml(widgetRegexResult[0]);

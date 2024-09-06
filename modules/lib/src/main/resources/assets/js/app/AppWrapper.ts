@@ -287,7 +287,7 @@ export class AppWrapper
     }
 
     private listenAppEvents() {
-        const debouncedAdminToolUpdate: Function = AppHelper.debounce(() => {
+        const debouncedAdminToolUpdate: () => void = AppHelper.debounce(() => {
             this.updateSidebarWidgets();
         }, 1000);
 

@@ -15,7 +15,7 @@ export class MarkAsReadyRequest
         this.addRequestPathElements('markAsReady');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentIds: this.ids.map((contentId: ContentId) => contentId.toString())
         };

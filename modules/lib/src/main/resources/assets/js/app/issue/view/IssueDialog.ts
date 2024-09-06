@@ -26,7 +26,7 @@ export abstract class IssueDialog
 
     private opener: ModalDialog;
 
-    private debouncedAddItems: Function;
+    private debouncedAddItems: () => void;
 
     private newItems: ContentSummary[] = [];
 

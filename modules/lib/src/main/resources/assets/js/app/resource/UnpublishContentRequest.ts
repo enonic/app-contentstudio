@@ -37,7 +37,7 @@ export class UnpublishContentRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             includeChildren: this.includeChildren,
             ids: this.ids.map((el) => {

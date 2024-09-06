@@ -303,7 +303,7 @@ export class RequestContentPublishDialog
     }
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {
-        const labelWithNumber: Function = (num, label) => `${label}${num > 1 ? ` (${num})` : ''}`;
+        const labelWithNumber: (num: number, label: string) => string = (num, label) => `${label}${num > 1 ? ` (${num})` : ''}`;
 
         this.requestPublishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.createRequest')));
     }

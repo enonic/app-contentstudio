@@ -35,7 +35,7 @@ export class RestoreInheritRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.contentId.toString(),
             project: !!this.projectToUpdate ? this.projectToUpdate : ProjectContext.get().getProject().getName(),

@@ -606,7 +606,11 @@ export class PageComponentsView
     }
 
     private toggleCollapsedState(): void {
-        this.isCollapsed() ? this.expand() : this.collapse();
+        if (this.isCollapsed()) {
+            this.expand();
+        } else {
+            this.collapse();
+        }
     }
 
     private isCollapsed(): boolean {

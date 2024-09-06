@@ -17,7 +17,7 @@ export class PreviewRequest<PARSED_TYPE>
         this.macroKey = macroKey;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             form: this.data.toJson(),
             macroKey: this.macroKey.getRefString()

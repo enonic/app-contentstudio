@@ -272,7 +272,7 @@ export class LinkModalDialog
     }
 
     private createContentPanel(): Panel {
-        const getContentId: Function = () => {
+        const getContentId: () => string = () => {
             if (!this.link) {
                 return StringHelper.EMPTY_STRING;
             }
@@ -335,7 +335,7 @@ export class LinkModalDialog
     }
 
     private createEmailPanel(): Panel {
-        const getEmail: Function = () => {
+        const getEmail: () => string = () => {
             if (!this.isEmail()) {
                 return StringHelper.EMPTY_STRING;
             }
@@ -343,7 +343,7 @@ export class LinkModalDialog
             return this.link.replace(LinkModalDialog.emailPrefix, StringHelper.EMPTY_STRING);
         };
 
-        const getSubject: Function = () => {
+        const getSubject: () => string = () => {
             return this.getOriginalSubjElem().getValue();
         };
 
@@ -428,7 +428,7 @@ export class LinkModalDialog
         return isTabSelected ? this.getOriginalTargetElem().getValue() === '_blank' : false;
     }
 
-    private createContentTargetCheckboxFormItem(id: string, isTabSelectedFn: Function, showOnCreate: boolean = false): FormItem {
+    private createContentTargetCheckboxFormItem(id: string, isTabSelectedFn: () => boolean, showOnCreate: boolean = false): FormItem {
         const checkbox = this.createCheckbox(isTabSelectedFn);
 
         const formItemBuilder = new ModalDialogFormItemBuilder(id).setInputEl(checkbox);
@@ -461,7 +461,7 @@ export class LinkModalDialog
         return this.showAllContentCheckboxFormItem;
     }
 
-    private createUrlTargetCheckboxFormItem(id: string, isTabSelectedFn: Function, showOnCreate: boolean = false): FormItem {
+    private createUrlTargetCheckboxFormItem(id: string, isTabSelectedFn: () => boolean, showOnCreate: boolean = false): FormItem {
         const checkbox = this.createCheckbox(isTabSelectedFn);
 
         const formItemBuilder = new ModalDialogFormItemBuilder(id).setInputEl(checkbox);
@@ -474,7 +474,7 @@ export class LinkModalDialog
         return this.urlTargetCheckboxFormItem;
     }
 
-    private createCheckbox(isTabSelectedFn: Function): Checkbox {
+    private createCheckbox(isTabSelectedFn: () => boolean): Checkbox {
         const checkbox: Checkbox = Checkbox.create().setLabelText(i18n('dialog.link.formitem.openinnewtab')).setInputAlignment(
             InputAlignment.LEFT).build();
 
@@ -824,11 +824,11 @@ export class LinkModalDialog
     }
 
     protected getMainFormItems(): FormItem [] {
-        const getLinkText: Function = () => {
+        const getLinkText: () => string = () => {
             return this.ckeOriginalDialog.getValueOf('info', 'linkDisplayText') as string;
         };
 
-        const getTooltip: Function = () => {
+        const getTooltip: () => string = () => {
             return this.getOriginalTitleElem().getValue();
         };
 
@@ -887,7 +887,7 @@ export class LinkModalDialog
         return contentPath === this.parentSitePath || contentPath.startsWith(`${this.parentSitePath}/`);
     }
 
-    private createContentSelector(getValueFn: Function,
+    private createContentSelector(getValueFn: () => string,
                            loaderBuilder: ContentSummaryOptionDataLoaderBuilder
     ): ContentComboBox<ContentTreeSelectorItem> {
         const selector = ContentComboBox.create()
@@ -1248,7 +1248,7 @@ export class LinkModalDialog
             .getChild([0, 0]) as unknown as CKEDITOR.ui.dialog.uiElement;
     }
 
-    private createFormItemWithPostponedValue(id: string, label: string, getValueFn: Function,
+    private createFormItemWithPostponedValue(id: string, label: string, getValueFn: () => string,
                                              validator?: (input: FormInputEl) => string, placeholder?: string): FormItem {
 
         const formItemBuilder = new ModalDialogFormItemBuilder(id, label);

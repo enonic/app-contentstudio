@@ -28,7 +28,7 @@ export class UpdateProjectLanguageRequest extends ProjectResourceRequest<string>
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
 
         const params: {name: string, language?: string} = {
             name: this.name

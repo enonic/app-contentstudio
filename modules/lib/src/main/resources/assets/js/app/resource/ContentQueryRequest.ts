@@ -63,7 +63,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         this.contentQuery.setFrom(this.contentQuery.getFrom() >= 0 ? 0 : -1);
     }
 
-    getParams(): Object {
+    getParams(): object {
         const queryExprAsString: string = this.contentQuery.getQueryExpr()?.toString();
 
         return {

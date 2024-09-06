@@ -23,7 +23,7 @@ export class ResolvePublishDependenciesRequest
         this.addRequestPathElements('resolvePublishContent');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             ids: this.ids.map((el) => {
                 return el.toString();

@@ -18,7 +18,7 @@ export class DuplicateContentRequest
         this.addRequestPathElements('duplicate');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contents: this.contents.map((item: ContentDuplicateParams) => item.toJson())
         };

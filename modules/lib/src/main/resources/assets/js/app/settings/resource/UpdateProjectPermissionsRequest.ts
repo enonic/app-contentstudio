@@ -36,7 +36,7 @@ export class UpdateProjectPermissionsRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         const params: {name: string, permissions?: ProjectPermissionsJson} = {
             name: this.name
         };

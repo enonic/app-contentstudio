@@ -28,7 +28,7 @@ export type SelectionTypeChangeListener = (type: SelectionType) => void;
 
 export interface ObserverConfig {
     sort?: boolean | ((items: ContentSummaryAndCompareStatus[]) => ContentSummaryAndCompareStatus[]);
-    lazyLoadHandler?: Function;
+    lazyLoadHandler?: () => void;
     scrollElement?: Element;
 }
 

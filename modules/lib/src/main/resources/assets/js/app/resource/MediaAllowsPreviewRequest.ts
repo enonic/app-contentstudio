@@ -16,7 +16,7 @@ export class MediaAllowsPreviewRequest
         this.addRequestPathElements('media', 'isAllowPreview');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.contentId ? this.contentId.toString() : null,
             identifier: this.identifier

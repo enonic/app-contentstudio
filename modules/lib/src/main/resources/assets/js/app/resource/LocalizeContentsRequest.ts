@@ -22,8 +22,8 @@ export class LocalizeContentsRequest
         this.addRequestPathElements('localize');
     }
 
-    getParams(): Object {
-        const params: Object = {
+    getParams(): object {
+        const params: object = {
             contentIds: this.ids.map(id => id.toString())
         };
 

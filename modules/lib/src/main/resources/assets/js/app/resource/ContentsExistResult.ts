@@ -2,7 +2,7 @@ import {ContentsExistJson} from './json/ContentsExistJson';
 
 export class ContentsExistResult {
 
-    private contentsExistMap: Object = {};
+    private contentsExistMap: object = {};
 
     constructor(json: ContentsExistJson) {
         json.contentsExistJson.forEach(item => {
@@ -10,7 +10,7 @@ export class ContentsExistResult {
         });
     }
 
-    getContentsExistMap(): Object {
+    getContentsExistMap(): object {
         return this.contentsExistMap;
     }
 }

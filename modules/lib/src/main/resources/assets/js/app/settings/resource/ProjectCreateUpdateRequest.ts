@@ -41,7 +41,7 @@ export abstract class ProjectCreateUpdateRequest
         return this;
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             name: this.name,
             displayName: this.displayName,
