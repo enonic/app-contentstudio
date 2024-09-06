@@ -1,5 +1,4 @@
 import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
-import {SettingsTreeGridActions} from '../grid/SettingsTreeGridActions';
 import {SettingsTreeActions} from '../tree/SettingsTreeActions';
 
 export class SettingsBrowseToolbar

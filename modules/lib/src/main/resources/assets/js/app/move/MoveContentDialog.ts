@@ -11,7 +11,6 @@ import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDia
 import {ModalDialogWithConfirmation} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
-import {ContentTreeGrid} from '../browse/ContentTreeGrid';
 import {SearchAndExpandItemEvent} from '../browse/SearchAndExpandItemEvent';
 import {ContentIds} from '../content/ContentIds';
 import {ContentPath} from '../content/ContentPath';
@@ -35,8 +34,6 @@ export class MoveContentDialog
     private movedContentSummaries: ContentSummary[] = [];
 
     private contentPathSubHeader: H6El;
-
-    private treeGrid: ContentTreeGrid;
 
     private descriptionHeader: H6El;
 
@@ -118,8 +115,6 @@ export class MoveContentDialog
         const contents = event.getContentSummaries();
 
         this.movedContentSummaries = contents;
-        this.treeGrid = event.getTreeGrid();
-
         this.destinationSearchInput.setFilterContents(contents);
         this.contentPathSubHeader.setHtml(contents.length === 1 ? contents[0].getPath().toString() : '');
 
@@ -198,19 +193,7 @@ export class MoveContentDialog
     }
 
     private getParentSite(content: ContentSummary): Q.Promise<ContentSummary> {
-        if (!this.treeGrid?.hasItemWithDataIdInDefault(content.getId())) {
-            return new GetNearestSiteRequest(content.getContentId()).sendAndParse();
-        }
-
-        let parentData: ContentSummaryAndCompareStatus = this.treeGrid.getParentDataById(content.getId());
-        while (parentData) {
-            if (parentData.getContentSummary().isSite()) {
-                return Q(parentData.getContentSummary());
-            }
-            parentData = this.treeGrid.getParentDataById(parentData.getId());
-        }
-
-        return Q(null);
+        return new GetNearestSiteRequest(content.getContentId()).sendAndParse();
     }
 
     private doMove(): void {

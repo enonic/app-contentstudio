@@ -1,5 +1,4 @@
 import {BrowsePanel} from '@enonic/lib-admin-ui/app/browse/BrowsePanel';
-import {SettingsItemsTreeGrid} from '../grid/SettingsItemsTreeGrid';
 import {SettingsBrowseToolbar} from './SettingsBrowseToolbar';
 import {SettingsBrowseItemPanel} from './SettingsBrowseItemPanel';
 import {SettingsViewItem} from '../view/SettingsViewItem';
@@ -54,10 +53,6 @@ export class SettingsBrowsePanel
         };
 
         Projects.get().onProjectsUpdated(projectsUpdatedListener);
-    }
-
-    protected createTreeGrid(): SettingsItemsTreeGrid {
-        return new SettingsItemsTreeGrid();
     }
 
     protected createListBoxPanel(): SelectableListBoxPanel<SettingsViewItem> {
