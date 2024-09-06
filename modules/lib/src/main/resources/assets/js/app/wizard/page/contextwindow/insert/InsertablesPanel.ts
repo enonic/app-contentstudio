@@ -5,14 +5,11 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {ContentWizardPanel} from '../../../ContentWizardPanel';
 import {LiveEditPageProxy} from '../../LiveEditPageProxy';
-import {Insertable} from './Insertable';
 import {InsertablesGrid} from './InsertablesGrid';
 import {Insertables} from './Insertables';
 import {SaveAsTemplateAction} from '../../../action/SaveAsTemplateAction';
-import {LiveEditPageViewReadyEvent} from '../../../../../page-editor/LiveEditPageViewReadyEvent';
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {DataView} from '@enonic/lib-admin-ui/ui/grid/DataView';
 import {PageEventsManager} from '../../../PageEventsManager';
 import {PageState} from '../../PageState';
 

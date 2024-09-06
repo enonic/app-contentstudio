@@ -1,5 +1,5 @@
 import {Toolbar, ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
-import {SettingsTreeGridActions} from '../grid/SettingsTreeGridActions';
+import {SettingsTreeActions} from '../tree/SettingsTreeActions';
 import {SettingsTreeActions} from '../tree/SettingsTreeActions';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 

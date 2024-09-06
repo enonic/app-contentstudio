@@ -2,9 +2,7 @@ import * as Q from 'q';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
-import {ActionName} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
-import {ContentTreeGrid} from './ContentTreeGrid';
 import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
 import {ContentBrowseItemPanel} from './ContentBrowseItemPanel';
 import {Router} from '../Router';
@@ -42,7 +40,7 @@ import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridCont
 import {SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
-import {ContentTreeActions} from './ContentTreeActions';
+import {ActionName, ContentTreeActions} from './ContentTreeActions';
 import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
 import {ContentsTreeGridList, ContentsTreeGridListElement} from './ContentsTreeGridList';
 import {ContentsTreeGridRootList} from './ContentsTreeGridRootList';
@@ -58,7 +56,6 @@ import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
 
-    protected treeGrid: ContentTreeGrid;
     protected browseToolbar: ContentBrowseToolbar;
     protected filterPanel: ContentBrowseFilterPanel;
     private debouncedFilterRefresh: () => void;
@@ -188,10 +185,6 @@ export class ContentBrowsePanel
 
     protected createToolbar(): ContentBrowseToolbar {
         return new ContentBrowseToolbar(this.getBrowseActions().getPublishAction());
-    }
-
-    protected createTreeGrid(): ContentTreeGrid {
-        return new ContentTreeGrid();
     }
 
     protected createBrowseItemPanel(): ContentBrowseItemPanel {

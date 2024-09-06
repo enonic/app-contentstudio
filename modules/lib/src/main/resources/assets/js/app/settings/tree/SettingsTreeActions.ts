@@ -4,7 +4,6 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {SettingsViewItem} from '../view/SettingsViewItem';
-import {SyncAction} from '../browse/action/SyncAction';
 import {SettingsTreeHelper} from './SettingsTreeHelper';
 import {NewSettingsItemTreeAction} from '../browse/action/NewSettingsItemTreeAction';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';

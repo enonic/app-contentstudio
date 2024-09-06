@@ -16,7 +16,7 @@ export class MoveContentAction
 
     protected handleExecuted() {
         const contents = this.grid.getSelectedItems().map(content => content.getContentSummary());
-        new ContentMovePromptEvent(contents, null).fire();
+        new ContentMovePromptEvent(contents).fire();
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
