@@ -7,7 +7,6 @@ import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
 import {OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {TreeNode, TreeNodeBuilder} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 
 export interface ContentsListParams extends TreeListBoxParams<ContentTreeSelectorItem> {
     loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
@@ -54,11 +53,7 @@ export class ContentsTreeList
             .setDisplayValue(this.getParentItem())
             .build() : null;
 
-        const node = new TreeNodeBuilder()
-            .setData(data)
-            .build() as TreeNode<Option<ContentTreeSelectorItem>>;
-
-        return this.loader.fetchChildren(node, from, size);
+        return this.loader.fetchChildren(data, from, size);
     }
 
     load(): void {

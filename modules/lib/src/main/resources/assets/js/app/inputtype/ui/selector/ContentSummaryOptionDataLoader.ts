@@ -1,7 +1,6 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {OptionDataLoader, OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
-import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import * as Q from 'q';
 import {ContentId} from '../../../content/ContentId';
 import {ContentSummary} from '../../../content/ContentSummary';
@@ -87,11 +86,6 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         this.initRequest(builder, this.flatRequest);
     }
 
-    fetch(node: TreeNode<Option<DATA>>): Q.Promise<DATA> {
-        this.treeRequest.setContent(node.getDataId() ? node.getData().getDisplayValue().getContent() : null);
-        return this.loadItems().then(items => items[0]);
-    }
-
     protected sendPreLoadRequest(ids: string): Q.Promise<DATA[]> {
         const contentIds = ids.split(';').map((id) => new ContentId(id));
         return new GetContentSummaryByIds(contentIds).setRequestProject(this.project).sendAndParse().then(((contents: ContentSummary[]) => {
@@ -137,32 +131,27 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         return this.sendAndParseFlatRequest();
     }
 
-    fetchChildren(parentNode: TreeNode<Option<DATA>>, from: number = 0,
+    fetchChildren(data: Option<ContentTreeSelectorItem>, from: number = 0,
                   size: number = -1): Q.Promise<OptionDataLoaderData<DATA>> {
 
         const postLoad: boolean = from > 0;
-
-        if (parentNode.getRoot().getId() === parentNode.getId()) {
-            this.notifyLoadingData(postLoad);
-        }
 
         this.isTreeLoadMode = true;
 
         this.treeRequest.setFrom(from);
         this.treeRequest.setSize(size);
-
-        this.treeRequest.setChildOrder(parentNode.getDataId() ? parentNode.getData().getDisplayValue().getContent().getChildOrder() : null);
+        this.treeRequest.setChildOrder(data?.getId() ? data.getDisplayValue().getContent().getChildOrder() : null);
 
         if (this.smartTreeMode) {
             (this.treeRequest as ContentTreeSelectorQueryRequest<DATA>).setParentPath(
-                parentNode.getDataId() ? parentNode.getData().getDisplayValue().getContent().getPath() : null);
+                data?.getId() ? data.getDisplayValue().getContent().getPath() : null);
         } else {
-            this.treeRequest.setContent(parentNode.getDataId() ? parentNode.getData().getDisplayValue().getContent() : null);
+            this.treeRequest.setContent(data.getDisplayValue().getContent() || null);
         }
 
         this.treeRequest.setSearchString(this.treeFilterValue);
 
-        const needsFakeRoot = this.fakeRoot && parentNode.getDataId() == null && !this.treeFilterValue && from === 0;
+        const needsFakeRoot = this.fakeRoot && data?.getId() == null && !this.treeFilterValue && from === 0;
 
         return this.loadItems().then((result: DATA[]) => {
             result = result.filter(this.postFilterFn);
