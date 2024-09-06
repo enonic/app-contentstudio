@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {ImageContentLoader} from './ImageContentLoader';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
@@ -20,15 +19,9 @@ export class ImageOptionDataLoader
         super(builder);
     }
 
-    fetch(node: TreeNode<Option<MediaTreeSelectorItem>>): Q.Promise<MediaTreeSelectorItem> {
-        return super.fetch(node).then((data) => {
-            return this.wrapItem(data);
-        });
-    }
-
-    fetchChildren(parentNode: TreeNode<Option<MediaTreeSelectorItem>>, from: number = 0,
+    fetchChildren(option: Option<ContentTreeSelectorItem>, from: number = 0,
                   size: number = -1): Q.Promise<OptionDataLoaderData<MediaTreeSelectorItem>> {
-        return super.fetchChildren(parentNode, from, size).then((data: OptionDataLoaderData<ContentTreeSelectorItem>) => {
+        return super.fetchChildren(option, from, size).then((data: OptionDataLoaderData<ContentTreeSelectorItem>) => {
                 return this.createOptionData(data.getData(), data.getHits(), data.getTotalHits());
             }
         );
