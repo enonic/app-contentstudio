@@ -522,8 +522,11 @@ async function startContentWizard() {
 }
 
 function getTheme(): string {
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return CONFIG.has('theme') ? (`theme-${CONFIG.getString('theme')}` || '') : '';
+    if (CONFIG.has('theme')) {
+        return `theme-${CONFIG.getString('theme')}`;
+    }
+
+    return '';
 }
 
 async function startContentBrowser() {
