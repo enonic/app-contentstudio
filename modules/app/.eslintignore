@@ -1,8 +1,0 @@
-node_modules/
-build/
-dist/
-out/
-.xp/
-**/*.js
-**/*.d.ts
-**/spec/**
