@@ -19,10 +19,6 @@ const XPATH = {
     selectedImageByDisplayName: function (imageDisplayName) {
         return `//div[contains(@id,'ImageSelectorSelectedOptionView') and descendant::div[contains(@class,'label') and text()='${imageDisplayName}']]`
     },
-    expanderIconByName: function (name) {
-        return lib.itemByName(name) +
-               `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
-    },
 };
 
 class ImageSelectorForm extends BaseSelectorForm {
@@ -226,6 +222,10 @@ class ImageSelectorForm extends BaseSelectorForm {
     async getTreeModeOptionDisplayNames() {
         let imageSelectorDropdown = new ImageSelectorDropdown();
         return await imageSelectorDropdown.getOptionsDisplayNameInTreeMode(XPATH.container);
+    }
+
+    async waitForImageNotAvailableTextDisplayed() {
+
     }
 }
 
