@@ -70,6 +70,7 @@ export class ContentTreeSelectorDropdown
 
             this.isTreeMode = active;
 
+            this.applyButton.hide();
             this.handleModeChanged();
 
             if (ObjectHelper.bothDefined(this.lastTreeSearchValue, this.lastFlatSearchValue) &&
