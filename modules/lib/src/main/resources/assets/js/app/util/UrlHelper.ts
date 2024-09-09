@@ -51,6 +51,6 @@ export class UrlHelper {
     }
 
     static buildWidgetUri(widgetUrl: string): string {
-        return UriHelper.getAdminUri(`/tool/${widgetUrl}`);
+        return `${CONFIG.getString(UrlHelper.toolUriPropertyName)}/${widgetUrl}`;
     }
 }
