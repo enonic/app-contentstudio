@@ -81,7 +81,7 @@ export class ImageSelector
     }
 
     createLoader(): ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {
-        return ImageOptionDataLoader.build(this.createOptionDataLoaderBuilder());
+        return ImageOptionDataLoader.build(this.createOptionDataLoaderBuilder().setAppendLoadResults(false));
     }
 
     protected createOptionDataLoaderBuilder(): ImageOptionDataLoaderBuilder {
