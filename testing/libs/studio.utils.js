@@ -623,7 +623,7 @@ module.exports = {
             await this.doSwitchToContentBrowsePanelAndSelectDefaultContext();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_cs');
-            throw new Error('Error navigate to Content Studio,  screenshot:  ' + screenshot + '  ' + err);
+            throw new Error(`Error occurred after clicking on  Content Studio link in Launcher Panel,  screenshot:${screenshot}  ` + err);
         }
     },
     async navigateToContentStudioAppMobile(userName, password) {

@@ -100,7 +100,7 @@ class FreeFormView extends Page {
         let occurrencesXpath = "//div[contains(@class,'occurrence-views-container')]//div[contains(@id,'FormItemSetOccurrenceView')]";
         let occurrences = await this.findElements(occurrencesXpath);
         let optionLocator = filterableListBox.buildLocatorForOptionByDisplayName(optionDisplayName);
-        // get options in the root occurence item(it is parent for all items)
+        // get options in the root occurrence item(it is parent for all items)
         let optionElements = await occurrences[0].$$('.' + optionLocator);
         let displayedElements = await this.doFilterDisplayedElements(optionElements);
         await displayedElements[0].click();
