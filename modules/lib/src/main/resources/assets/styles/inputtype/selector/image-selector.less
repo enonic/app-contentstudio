@@ -1,14 +1,11 @@
 .image-selector {
   position: relative;
 
-  .combobox-wrapper {
-    .rich-combobox {
-      .selected-options {
-        .selected-option {
-          height: auto;
-        }
-      }
-    }
+  .image-selector-dropdown.selectable-listbox-wrapper.content-selector-dropdown {
+    grid-template-areas:
+      'filter-and-list extra-button'
+      'selected-options selected-options'
+      'selection-toolbar selection-toolbar';
   }
 
   .image-uploader-el {
@@ -174,6 +171,7 @@
     padding: 10px;
     text-align: center;
     box-sizing: border-box;
+    grid-area: selection-toolbar;
 
     button {
       margin-right: 10px;

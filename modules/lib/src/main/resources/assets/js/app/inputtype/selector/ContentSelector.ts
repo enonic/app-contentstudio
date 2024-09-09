@@ -213,6 +213,8 @@ export class ContentSelector
         this.contentSelectedOptionsView = this.createSelectedOptionsView().setContextContent(this.context.content);
         const loader = this.createLoader();
         const listBox = this.createContentListBox(loader);
+        listBox.setEmptyText(i18n('field.option.noitems'));
+
         const dropdownOptions = {
             loader: loader,
             className: this.getDropdownClassName(),

@@ -42,7 +42,7 @@ import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {Project} from '../../../../settings/data/project/Project';
 import {ContentPath} from '../../../../content/ContentPath';
-import {ContentTreeSelectorDropdown} from '../../../selector/ContentTreeSelectorDropdown';
+import {ContentTreeSelectorDropdown, ContentTreeSelectorDropdownOptions} from '../../../selector/ContentTreeSelectorDropdown';
 import {ContentListBox} from '../../../selector/ContentListBox';
 import {ContentSelectorDropdownOptions} from '../../../selector/ContentSelectorDropdown';
 import eventInfo = CKEDITOR.eventInfo;
@@ -901,12 +901,13 @@ export class LinkModalDialog
 
     private createContentSelector(loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>): ContentTreeSelectorDropdown {
         const listBox = new ContentListBox({loader: loader});
-        const dropdownOptions: ContentSelectorDropdownOptions = {
+        const dropdownOptions: ContentTreeSelectorDropdownOptions = {
             loader: loader,
             maxSelected: 1,
             selectedOptionsView: new ContentSelectedOptionsView(),
             className: 'single-occurrence',
             getSelectedItems: this.getSelectedItemsHandler.bind(this),
+            initialTreeMode: true,
         };
 
         return new ContentTreeSelectorDropdown(listBox, dropdownOptions);

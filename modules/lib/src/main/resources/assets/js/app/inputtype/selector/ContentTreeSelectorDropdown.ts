@@ -1,4 +1,4 @@
-import {ContentSelectorDropdown} from './ContentSelectorDropdown';
+import {ContentSelectorDropdown, ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
 import {ContentsTreeList} from '../../browse/ContentsTreeList';
 import {ModeTogglerButton} from '../ui/selector/ModeTogglerButton';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
@@ -8,6 +8,11 @@ import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
+export interface ContentTreeSelectorDropdownOptions
+    extends ContentSelectorDropdownOptions {
+    initialTreeMode?: boolean;
+}
+
 export class ContentTreeSelectorDropdown
     extends ContentSelectorDropdown {
 
@@ -15,15 +20,21 @@ export class ContentTreeSelectorDropdown
 
     protected treeSelectionWrapper: ContentTreeSelectionWrapper;
 
-    protected isTreeMode: boolean = false;
+    protected isTreeMode: boolean;
 
     protected modeButton: ModeTogglerButton;
+
+    protected options: ContentTreeSelectorDropdownOptions;
 
     private lastFlatSearchValue: string;
 
     private lastTreeSearchValue: string;
 
-    protected initElements() {
+    constructor(listBox, options: ContentSelectorDropdownOptions) {
+        super(listBox, options);
+    }
+
+    protected initElements(): void {
         super.initElements();
 
         this.modeButton = new ModeTogglerButton();
@@ -34,6 +45,8 @@ export class ContentTreeSelectorDropdown
             checkboxPosition: this.options.checkboxPosition,
             className: 'content-tree-selector',
         });
+
+        this.isTreeMode = this.options.initialTreeMode || false;
     }
 
     protected initListeners(): void {
@@ -88,6 +101,15 @@ export class ContentTreeSelectorDropdown
                 this.treeSelectionWrapper.deselect(item, true);
             });
         });
+    }
+
+    protected postInitListeners(): void {
+        super.postInitListeners();
+
+        if (this.isTreeMode) {
+            this.modeButton.setActive(true);
+            this.hideDropdown();
+        }
     }
 
     protected doShowDropdown() {
@@ -154,7 +176,7 @@ export class ContentTreeSelectorDropdown
             this.lastTreeSearchValue = value;
             this.treeList.clearItems();
             this.treeList.load();
-        }  else {
+        } else {
             this.lastFlatSearchValue = value;
             super.search(value);
         }
