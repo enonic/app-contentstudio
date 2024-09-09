@@ -9,7 +9,7 @@
       "com.enonic.xp.my-interface-2"
     ],
     "key": "myapp:my-widget",
-    "url": "_/widgets/myapp/my-widget"
+    "url": "_/widget/myapp/my-widget"
   },
   {
     "config": {
@@ -20,6 +20,6 @@
     "iconUrl": null,
     "interfaces": [],
     "key": "myapp:my-second-widget",
-    "url": "_/widgets/myapp/my-second-widget"
+    "url": "_/widget/myapp/my-second-widget"
   }
 ]

@@ -1,3 +1,5 @@
+/*global app, resolve*/
+
 const admin = require('/lib/xp/admin');
 const mustache = require('/lib/mustache');
 const portal = require('/lib/xp/portal');
@@ -31,6 +33,10 @@ exports.renderTemplate = function (path, params) {
 }
 
 exports.getParams = function () {
+    const toolUrlBase = admin.getToolUrl(
+        app.name,
+        'main'
+    );
     return {
         assetsUri: portal.assetUrl({path: ''}),
         appName: i18n.localize({
@@ -39,7 +45,9 @@ exports.getParams = function () {
             locale: admin.getLocales()
         }),
         launcherPath: admin.getLauncherPath(),
-        configServiceUrl: portal.serviceUrl({service: 'config'})
+        configServiceUrl: `${toolUrlBase}/_/${app.name}/config`,
+        toolBaseUrl: toolUrlBase,
+        toolAppName: app.name,
     }
 }
 
