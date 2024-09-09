@@ -14,14 +14,17 @@ describe('launcher.panel.spec: tests for Launcher Panel', function () {
         webDriverHelper.setupBrowser();
     }
 
+    const LAUNCHER_ACTIVE_HOME_ROW = 'com.enonic.xp.app.main';
+
     it("WHEN su is logged in THEN 'Home' link should be active, 'Super User' is current user",
         async () => {
             let launcherPanel = new LauncherPanel();
             await launcherPanel.waitForPanelDisplayed();
+            await studioUtils.saveScreenshot('launcher_panel_active_row')
             let currentUser = await launcherPanel.getCurrentUser();
             assert.equal(currentUser, appConst.systemUsersDisplayName.SUPER_USER);
             let result = await launcherPanel.getActiveRowId();
-            assert.equal(result, 'home', 'link with id==home should be active');
+            assert.equal(result, LAUNCHER_ACTIVE_HOME_ROW, 'link with id==home should be active');
         });
 
     it("GIVEN su is logged in WHEN 'Close XP menu' button has been clicked THEN launcher panel gets not visible",

@@ -12,7 +12,11 @@ function handleGet() {
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
     const defaultPublishFromTime = parseTime(app.config['publishingWizard.defaultPublishFromTime']);
-
+    const toolUri = admin.getToolUrl(
+        app.name,
+        'main'
+    );
+    const serviceBaseUrl = `${toolUri}/_/${app.name}`;
     return {
         status: 200,
         contentType: 'application/json',
@@ -24,10 +28,7 @@ function handleGet() {
             assetsUri: portal.assetUrl({
                 path: ''
             }),
-            toolUri: admin.getToolUrl(
-                app.name,
-                'main'
-            ),
+            toolUri: toolUri,
             appId: app.name,
             appVersion: app.version,
             branch,
@@ -35,13 +36,12 @@ function handleGet() {
             defaultPublishFromTime,
             locale: admin.getLocale(),
             services: {
-                contentUrl: portal.serviceUrl({service: 'content'}),
-                i18nUrl: portal.serviceUrl({service: 'i18n'}),
-                licenseUrl: portal.serviceUrl({service: 'license'}),
-                stylesUrl: portal.serviceUrl({service: 'styles'}),
-                collaborationUrl: portal.serviceUrl({service: 'collaboration'}),
-                appServiceUrl: portal.serviceUrl({service: 'applications'}),
-                exportServiceUrl: portal.serviceUrl({service: 'export'}),
+                contentUrl: `${serviceBaseUrl}/content`,
+                i18nUrl: `${serviceBaseUrl}/i18n`,
+                licenseUrl: `${serviceBaseUrl}/license`,
+                stylesUrl: `${serviceBaseUrl}/styles`,
+                collaborationUrl: `${serviceBaseUrl}/collaboration`,
+                exportServiceUrl: `${serviceBaseUrl}/export`,
             },
             theme: 'light',
             /* Remove in CS/lib-admin-ui 5.0 */

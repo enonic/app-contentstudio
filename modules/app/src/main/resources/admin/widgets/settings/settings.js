@@ -1,3 +1,6 @@
+/*global app, resolve*/
+
+const admin = require('/lib/xp/admin');
 const portal = require('/lib/xp/portal');
 const mustache = require('/lib/mustache');
 
@@ -7,7 +10,7 @@ function handleGet() {
         assetsUri: portal.assetUrl({
             path: 'js/settings.js'
         }),
-        configServiceUrl: portal.serviceUrl({service: 'config'})
+        configServiceUrl: `${admin.getToolUrl(app.name, 'main')}/_/${app.name}/config`,
     };
 
     return {
