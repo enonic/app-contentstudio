@@ -908,7 +908,7 @@ export class LinkModalDialog
             selectedOptionsView: new ContentSelectedOptionsView(),
             className: 'single-occurrence',
             getSelectedItems: this.getSelectedItemsHandler.bind(this),
-            initialTreeMode: true,
+            treeMode: true,
         };
 
         return new ContentTreeSelectorDropdown(listBox, dropdownOptions);
