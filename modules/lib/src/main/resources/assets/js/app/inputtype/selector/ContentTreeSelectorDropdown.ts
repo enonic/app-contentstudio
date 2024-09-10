@@ -10,7 +10,7 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export interface ContentTreeSelectorDropdownOptions
     extends ContentSelectorDropdownOptions {
-    initialTreeMode?: boolean;
+    treeMode?: boolean;
 }
 
 export class ContentTreeSelectorDropdown
@@ -20,7 +20,7 @@ export class ContentTreeSelectorDropdown
 
     protected treeSelectionWrapper: ContentTreeSelectionWrapper;
 
-    protected isTreeMode: boolean;
+    protected treeMode: boolean;
 
     protected modeButton: ModeTogglerButton;
 
@@ -46,7 +46,7 @@ export class ContentTreeSelectorDropdown
             className: 'content-tree-selector',
         });
 
-        this.isTreeMode = this.options.initialTreeMode || false;
+        this.treeMode = this.options.treeMode || false;
     }
 
     protected initListeners(): void {
@@ -68,14 +68,14 @@ export class ContentTreeSelectorDropdown
                 this.appendChild(this.treeSelectionWrapper);
             }
 
-            this.isTreeMode = active;
+            this.treeMode = active;
 
             this.applyButton.hide();
             this.handleModeChanged();
 
             if (ObjectHelper.bothDefined(this.lastTreeSearchValue, this.lastFlatSearchValue) &&
                 !ObjectHelper.stringEquals(this.lastTreeSearchValue, this.lastFlatSearchValue)) {
-                this.search(this.isTreeMode ? this.lastFlatSearchValue : this.lastTreeSearchValue);
+                this.search(this.treeMode ? this.lastFlatSearchValue : this.lastTreeSearchValue);
             }
         });
 
@@ -107,14 +107,16 @@ export class ContentTreeSelectorDropdown
     protected postInitListeners(): void {
         super.postInitListeners();
 
-        if (this.isTreeMode) {
+        if (this.treeMode) {
             this.modeButton.setActive(true);
             this.hideDropdown();
         }
     }
 
-    protected doShowDropdown() {
-        this.handleModeChanged();
+    protected doShowDropdown(): void {
+        this.treeSelectionWrapper.setVisible(this.treeMode);
+        this.treeList.setVisible(this.treeMode);
+        this.listBox.setVisible(!this.treeMode);
     }
 
     protected doHideDropdown() {
@@ -132,22 +134,18 @@ export class ContentTreeSelectorDropdown
     }
 
     protected handleModeChanged(): void {
-        this.options.loader.setTreeLoadMode(this.isTreeMode);
-
-        this.treeSelectionWrapper.setVisible(this.isTreeMode);
-        this.treeList.setVisible(this.isTreeMode);
-        this.listBox.setVisible(!this.isTreeMode);
+        this.options.loader.setTreeLoadMode(this.treeMode);
+        this.showDropdown();
     }
 
     protected applySelection() {
         super.applySelection();
 
-        this.treeSelectionWrapper.setVisible(false);
-        this.treeList.setVisible(false);
+        this.hideDropdown();
     }
 
     getItemById(id: string): ContentTreeSelectorItem {
-        return this.isTreeMode ? this.treeList.getItem(id) : super.getItemById(id);
+        return this.treeMode ? this.treeList.getItem(id) : super.getItemById(id);
     }
 
     protected selectLoadedTreeListItems(items: ContentTreeSelectorItem[]): void {
@@ -163,17 +161,10 @@ export class ContentTreeSelectorDropdown
         });
     }
 
-    protected handleClickOutside() {
-        super.handleClickOutside();
-
-        this.treeSelectionWrapper.setVisible(false);
-        this.treeList.setVisible(false);
-    }
-
     protected search(value?: string) {
         this.options.loader.setTreeFilterValue(value);
 
-        if (this.isTreeMode) {
+        if (this.treeMode) {
             this.lastTreeSearchValue = value;
             this.treeList.clearItems();
             this.treeList.load();

@@ -43,7 +43,7 @@ export class ContentTypeFilter
     }
 
     getValueType(): ValueType {
-        return ValueTypes.STRING;
+           return ValueTypes.STRING;
     }
 
     newInitialValue(): Value {
@@ -63,7 +63,6 @@ export class ContentTypeFilter
         const contentId: ContentId = this.isContextDependent ? this.context.content?.getContentId() : null;
         return new ContentTypeSummaryLoader(contentId, this.context.project);
     }
-
 
     private onContentTypeSelected(contentType: ContentTypeSummary): void {
         this.ignorePropertyChange(true);

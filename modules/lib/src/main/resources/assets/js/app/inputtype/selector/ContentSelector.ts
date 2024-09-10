@@ -1,7 +1,6 @@
 import * as Q from 'q';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Input} from '@enonic/lib-admin-ui/form/Input';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from '@enonic/lib-admin-ui/Class';
@@ -35,7 +34,7 @@ import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ContentSelectorDropdown, ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentListBox} from './ContentListBox';
-import {ContentTreeSelectorDropdown} from './ContentTreeSelectorDropdown';
+import {ContentTreeSelectorDropdown, ContentTreeSelectorDropdownOptions} from './ContentTreeSelectorDropdown';
 
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
@@ -215,12 +214,14 @@ export class ContentSelector
         const listBox = this.createContentListBox(loader);
         listBox.setEmptyText(i18n('field.option.noitems'));
 
-        const dropdownOptions = {
+        const dropdownOptions: ContentTreeSelectorDropdownOptions = {
+            treeMode: this.treeMode,
             loader: loader,
             className: this.getDropdownClassName(),
             maxSelected: input.getOccurrences().getMaximum(),
             selectedOptionsView: this.contentSelectedOptionsView,
             getSelectedItems: this.getSelectedItemsIds.bind(this),
+
         };
 
         const contentSelectorDropdown = this.doCreateSelectorDropdown(listBox, dropdownOptions);
