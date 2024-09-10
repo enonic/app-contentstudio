@@ -44,9 +44,8 @@ import {Project} from '../../../../settings/data/project/Project';
 import {ContentPath} from '../../../../content/ContentPath';
 import {ContentTreeSelectorDropdown, ContentTreeSelectorDropdownOptions} from '../../../selector/ContentTreeSelectorDropdown';
 import {ContentListBox} from '../../../selector/ContentListBox';
-import {ContentSelectorDropdownOptions} from '../../../selector/ContentSelectorDropdown';
-import eventInfo = CKEDITOR.eventInfo;
 import {Dropdown} from '@enonic/lib-admin-ui/ui/Dropdown';
+import eventInfo = CKEDITOR.eventInfo;
 
 export interface LinkModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -277,6 +276,8 @@ export class LinkModalDialog
         const showAllContentToggler = (showAllContent: boolean) => {
             contentSelectorBuilder.setAllowedContentPaths([showAllContent ? '' : this.parentSitePath]);
             loader.initRequests(contentSelectorBuilder);
+            contentSelector.getTreeList().clearItems();
+            contentSelector.getTreeList().load();
         };
 
         const contentPanel = this.createFormPanel([

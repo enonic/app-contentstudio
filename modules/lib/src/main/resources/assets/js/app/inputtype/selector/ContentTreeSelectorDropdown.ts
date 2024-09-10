@@ -183,6 +183,10 @@ export class ContentTreeSelectorDropdown
         }
     }
 
+    getTreeList(): ContentsTreeList {
+        return this.treeList;
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.modeButton.insertBeforeEl(this.optionFilterInput);
