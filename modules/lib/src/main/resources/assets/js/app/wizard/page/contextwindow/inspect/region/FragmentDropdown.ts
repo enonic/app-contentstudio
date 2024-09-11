@@ -11,6 +11,7 @@ import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedData
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class FragmentDropdown
     extends FilterableListBoxWrapper<ContentSummary> {
@@ -35,6 +36,7 @@ export class FragmentDropdown
 
         this.loader = this.createLoader();
         this.listBox.setLoader(this.loader);
+        this.listBox.setEmptyText(i18n('field.option.noitems'));
         this.selectedViewer = new ContentSummaryViewer();
     }
 
