@@ -119,7 +119,9 @@ export class LocaleComboBox
                locale.getVariant().toLowerCase().indexOf(str) >= 0 ||
                locale.getDisplayVariant().toLowerCase().indexOf(str) >= 0 ||
                locale.getCountry().toLowerCase().indexOf(str) >= 0 ||
-               locale.getDisplayCountry().toLowerCase().indexOf(str) >= 0;
+               locale.getDisplayCountry().toLowerCase().indexOf(str) >= 0 ||
+               LocaleViewer.makeDisplayName(locale).toLowerCase().indexOf(str) >= 0;
+
     }
 }
 

@@ -51,6 +51,6 @@ export class ProjectLocaleDialogStep
     }
 
     private getLocaleCombobox(): LocaleComboBox {
-        return this.localeFormItem.getLocaleCombobox();
+        return this.localeFormItem?.getLocaleCombobox();
     }
 }

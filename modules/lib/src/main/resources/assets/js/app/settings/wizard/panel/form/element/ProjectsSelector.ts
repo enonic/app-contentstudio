@@ -13,11 +13,11 @@ import {
     FilterableListBoxWrapperWithSelectedView,
     ListBoxInputOptions
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
-import {ProjectsTreeList} from './ProjectsTreeList';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ProjectsTreeRootList} from './ProjectsTreeRootList';
 
 export interface ProjectsComboBoxOptions
     extends ListBoxInputOptions<Project> {
@@ -29,11 +29,9 @@ export class ProjectsSelector
 
     protected options: ProjectsComboBoxOptions;
 
-    protected listBox: ProjectsTreeList;
+    protected listBox: ProjectsTreeRootList;
 
     private readonly helper: ProjectOptionDataHelper;
-
-    private readonly loader: ProjectOptionDataLoader;
 
     constructor(maximumOccurrences?: number) {
         const loader = new ProjectOptionDataLoader();
@@ -45,12 +43,11 @@ export class ProjectsSelector
             selectedOptionsView: new ProjectSelectedOptionsView(),
         };
 
-        const list = new ProjectsTreeList({helper: helper, loader: loader, className: 'projects-tree-list'});
+        const list = new ProjectsTreeRootList({helper: helper, loader: loader, className: 'projects-tree-list'});
 
         super(list, dropdownOptions);
 
         this.helper = helper;
-        this.loader = loader;
     }
 
     protected initListeners(): void {
@@ -78,14 +75,6 @@ export class ProjectsSelector
         return !!this.options.loader.getSearchString();
     }
 
-    private updateProject(project: Project) {
-        if (!project) {
-            return;
-        }
-
-        this.updateItem(project);
-    }
-
     updateAndSelectProjects(projects: Project[]) {
         if (!projects) {
             return;
@@ -97,7 +86,7 @@ export class ProjectsSelector
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.addClass('parent-project-selector');
+            this.addClass('projects-selector');
 
             return rendered;
         });
@@ -117,7 +106,6 @@ export class ProjectsSelector
 
     private getLoadedResults(): Project[] {
         return this.options.loader.getResults();
-
     }
 
     createSelectedOption(item: Project): Option<Project> {

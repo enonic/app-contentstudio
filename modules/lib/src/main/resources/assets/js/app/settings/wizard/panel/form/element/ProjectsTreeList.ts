@@ -3,10 +3,6 @@ import {Project} from '../../../../data/project/Project';
 import {ProjectOptionDataHelper} from './ProjectOptionDataHelper';
 import {ProjectViewer} from '../../../viewer/ProjectViewer';
 import {ProjectOptionDataLoader} from './ProjectOptionDataLoader';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export interface ProjectsTreeListParams
     extends TreeListBoxParams<Project> {
@@ -19,41 +15,13 @@ export class ProjectsTreeList
 
     options: ProjectsTreeListParams;
 
-    protected lastSearchString: string;
-
-    protected searchString: string;
-
-    protected debounceSearch: () => void;
-
     constructor(params: ProjectsTreeListParams) {
         super(params);
-
-        this.debounceSearch = AppHelper.debounce(this.doSearch.bind(this), 300);
-    }
-
-    search(searchString: string): void {
-        this.searchString = searchString;
-
-        if (this.options.loader.isLoaded()) {
-            this.debounceSearch();
-        }
-    }
-
-    protected doSearch(): void {
-       if (!ObjectHelper.isDefined(this.lastSearchString) || !ObjectHelper.stringEquals(this.lastSearchString, this.searchString)) {
-           this.lastSearchString = this.searchString;
-
-           this.setItems(this.isFilterMode() ? this.options.helper.filter(this.searchString) : this.options.helper.getRootProjects());
-       }
-    }
-
-    protected isFilterMode(): boolean {
-        return !StringHelper.isBlank(this.searchString);
     }
 
     protected createItemView(item: Project, readOnly: boolean): ProjectTreeListElement {
         return new ProjectTreeListElement(item,
-            {helper: this.options.helper, scrollParent: this.scrollParent, level: this.level, isFilterMode: this.isFilterMode()});
+            {helper: this.options.helper, scrollParent: this.scrollParent, level: this.level});
     }
 
     protected getItemId(item: Project): string {
@@ -61,17 +29,8 @@ export class ProjectsTreeList
     }
 
     protected handleLazyLoad(): void {
-        if (this.options.parentListElement) { // layers
-            if (this.getItemCount() === 0) {
-                this.addItems(this.options.helper.getProjectsPyParent(this.getParentItem().getName()));
-            }
-        } else { // root projects
-            if (!this.options.loader.isLoading() && !this.options.loader.isLoaded()) {
-                this.options.loader.load().then((projects: Project[]) => {
-                    this.options.helper.setProjects(projects);
-                    this.doSearch();
-                }).catch(DefaultErrorHandler.handle);
-            }
+        if (this.getItemCount() === 0) {
+            this.addItems(this.options.helper.getProjectsPyParent(this.getParentItem().getName()));
         }
     }
 }

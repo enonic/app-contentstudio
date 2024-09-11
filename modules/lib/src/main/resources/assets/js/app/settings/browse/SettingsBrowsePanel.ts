@@ -5,7 +5,7 @@ import {SettingsViewItem} from '../view/SettingsViewItem';
 import {SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
 import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {SettingsTreeList, SettingsTreeListElement} from '../SettingsTreeList';
+import {SettingsTreeList} from '../SettingsTreeList';
 import {SettingsTreeActions} from '../tree/SettingsTreeActions';
 import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridContextMenu';
 import * as Q from 'q';
@@ -13,6 +13,7 @@ import {Projects} from '../resource/Projects';
 import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
 import {EditSettingsItemEvent} from '../event/EditSettingsItemEvent';
 import {ProjectViewItem} from '../view/ProjectViewItem';
+import {SettingsDataViewItem} from '../view/SettingsDataViewItem';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {
@@ -32,10 +33,14 @@ export class SettingsBrowsePanel
 
         this.treeListBox.onItemsAdded((items: SettingsViewItem[]) => {
             items.forEach((item: SettingsViewItem) => {
-                const listElement = this.treeListBox.getDataView(item) as SettingsTreeListElement;
+                const listElement = this.treeListBox.getDataView(item);
 
                 listElement?.onDblClicked(() => {
-                    new EditSettingsItemEvent([item]).fire();
+                    const actualItem  = this.treeListBox.getItem(item.getId());
+
+                    if (actualItem instanceof SettingsDataViewItem) {
+                        new EditSettingsItemEvent([actualItem]).fire();
+                    }
                 });
 
                 listElement?.onContextMenu((event: MouseEvent) => {
