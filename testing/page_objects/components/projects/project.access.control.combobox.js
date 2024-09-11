@@ -1,7 +1,7 @@
 /**
  * Created on 23.02.2024
  */
-const BasDropdown = require('../base.dropdown');
+const BasDropdown = require('../selectors/base.dropdown');
 const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
 const XPATH = {

@@ -4,8 +4,8 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
-const LocaleSelectorDropdown = require('../components/locale.selector.dropdown');
-const PrincipalComboBox = require('../components/principal.combobox.dropdon')
+const LocaleSelectorDropdown = require('../components/selectors/locale.selector.dropdown');
+const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdon')
 
 const xpath = {
     container: `//div[contains(@id,'EditPropertiesDialog')]`,

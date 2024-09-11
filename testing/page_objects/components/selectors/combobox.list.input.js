@@ -2,7 +2,7 @@
  * Created on 15.02.2024
  */
 const BasDropdown = require('./base.dropdown');
-const appConst = require('../../libs/app_const');
+const appConst = require('../../../libs/app_const');
 const XPATH = {
     container: "//div[contains(@id,'ComboBox')]",
     comboBoxListInput: "//div[contains(@id,'ComboBoxListInput')]",

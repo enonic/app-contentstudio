@@ -2,8 +2,8 @@
  * Created on 30.01.2024
  */
 const BasDropdown = require('./base.dropdown');
-const lib = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
+const lib = require('../../../libs/elements');
+const appConst = require('../../../libs/app_const');
 const XPATH = {
     container: "//div[contains(@id,'ComponentDescriptorsDropdown')]",
     descriptorListBoxUL: "//ul[contains(@id,'DescriptorListBox')]",

@@ -1,7 +1,7 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
-const AccessControlComboBox = require('./components/access.control.combobox');
+const AccessControlComboBox = require('./components/selectors/access.control.combobox');
 const xpath = {
     container: `//div[contains(@id,'EditPermissionsDialog')]`,
     accessSelector: "//div[contains(@id,'AccessSelector')]",

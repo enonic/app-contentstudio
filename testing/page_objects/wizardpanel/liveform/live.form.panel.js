@@ -6,7 +6,7 @@ const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
 const ContentWizard = require('../content.wizard.panel');
 const FragmentDropdown = require('../../../page_objects/components/selectors/fragment.dropdown');
-const ComponentDescriptorsDropdown = require('../../../page_objects/components/component.descriptors.dropdown');
+const ComponentDescriptorsDropdown = require('../../components/selectors/component.descriptors.dropdown');
 const xpath = {
     container: "//div[contains(@id,'LiveFormPanel')]",
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",

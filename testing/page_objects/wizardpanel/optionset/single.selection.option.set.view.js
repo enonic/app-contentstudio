@@ -4,6 +4,8 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
+const FilterableListBox = require('../../components/selectors/filterable.list.box');
+
 const xpath = {
     container: "//div[contains(@id,'FormOptionSetOccurrenceView') and contains(@class,'single-selection')]",
     nameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='Name']]" + lib.TEXT_INPUT,
@@ -126,13 +128,12 @@ class SingleSelectionOptionSet extends Page {
     }
 
     // Expands the selector and clicks on the option
-    async selectOption(option) {
+    async selectOption(optionDisplayName) {
         try {
-            await this.waitForElementDisplayed(this.dropDownHandle, appConst.mediumTimeout);
-            await this.clickOnElement(this.dropDownHandle);
-            let optionLocator = xpath.container + lib.itemByDisplayName(option);
-            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-            await this.clickOnElement(optionLocator);
+            let filterableListBox = new FilterableListBox();
+            await filterableListBox.clickOnDropdownHandle(this.formOptionSet);
+            await filterableListBox.clickOnOptionByDisplayName(optionDisplayName);
+            await filterableListBox.clickOnApplySelectionButton(this.formOptionSet);
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_optionset');

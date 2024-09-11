@@ -4,7 +4,7 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const SiteConfiguratorComboBox = require('../components/site.configurator.combobox');
+const SiteConfiguratorComboBox = require('../components/selectors/site.configurator.combobox');
 const SiteConfigDialog = require('./site.configurator.dialog');
 const XPATH = {
     wizardSteps: `//div[contains(@id,'WizardStepsPanel')]`,

@@ -32,7 +32,7 @@ const XPATH = {
     selectionControllerCheckBox: `//div[contains(@id,'ListSelectionController')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     contentSummaryListViewerByName(name) {
-        return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
+        return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
     publishMenuItemByName(name) {
         return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
@@ -372,7 +372,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return await this.pause(2000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName("err_browsepanel_preview");
-            throw new Error(`Error occurred after clicking on Preview button, screenshot:${screnshot} ` + err);
+            throw new Error(`Error occurred after clicking on Preview button, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -513,8 +513,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let nameXpath = XPATH.contentsTreeGridRootUL + lib.itemByName(name);
             await this.waitForElementDisplayed(nameXpath, appConst.longTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_content'));
-            throw new Error("Content was not found: " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_content');
+            throw new Error(`Content was not found: screenshot:${screenshot} ` + err);
         }
     }
 
@@ -524,7 +524,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(nameXpath, 3000)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_find_content');
-            throw new Error('Content was not found, screenshot ' + screenshot + "  " + err);
+            throw new Error(`Content was not found, screenshot :${screenshot}  ` + err);
         }
     }
 
@@ -544,7 +544,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return await this.pause(200);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_find_item');
-            throw new Error(`Row with the displayName ${displayName} was not found. Screenshot:` + screenshot + ' ' + err);
+            throw new Error(`Row with the displayName ${displayName} was not found. Screenshot: :${screenshot}` + err);
         }
     }
 
@@ -606,7 +606,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             let expanderIcon = this.treeGrid + lib.TREE_GRID.itemTreeGridListElementByName(contentName) + lib.TREE_GRID.EXPANDER_ICON_DIV;
             let res = await this.findElements(expanderIcon);
-            if (res === 0) {
+            if (res.length === 0) {
                 throw new Error('Expander icon was not found!');
             }
             // check only the last element:
@@ -718,7 +718,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
             return await this.waitForAttributeHasValue(selector, "class", "disabled");
         } catch (err) {
-            await this.saveScreenshot("err_publish_menuItem");
+            await this.saveScreenshot('err_publish_menuItem');
             throw new Error(menuItem + " should be disabled! " + err);
         }
     }
@@ -742,7 +742,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot("err_click_issue_menuItem");
+            await this.saveScreenshot('err_click_issue_menuItem');
             throw new Error('error when try to click on publish menu item, ' + err);
         }
     }
@@ -803,7 +803,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
         } else if (result === 'viewer content-summary-and-compare-status-viewer') {
             return appConst.WORKFLOW_STATE.PUBLISHED;
-
         } else {
             throw new Error("Error when getting content's state, actual result is:" + result);
         }
@@ -877,7 +876,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_localize_btn');
-            throw new Error('Content Browse Panel, Localize button, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Content Browse Panel, Localize button, screenshot:${screenshot} ` + err);
         }
     }
 

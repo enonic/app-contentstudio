@@ -19,8 +19,6 @@ module.exports = Object.freeze({
     TEXT_AREA: "//textarea[contains(@id,'TextArea')]",
     WIDGET_SELECTOR_DROPDOWN: `//div[contains(@id,'WidgetSelectorDropdown')]`,
     DROP_DOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
-    GRID_CANVAS: `//div[contains(@class,'grid-canvas')]`,
-    DIV_GRID: "//div[contains(@id,'Grid') and contains(@class,'grid no-header')]",
     SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,
     TEXT_INPUT: "//input[@type='text']",
     DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
