@@ -918,6 +918,7 @@ export class LinkModalDialog
         return ContentSummaryOptionDataLoader
             .create()
             .setProject(this.config.project)
+            .setAppendLoadResults(false)
             .setAllowedContentPaths([parentSitePath ? `${parentSitePath}/` : '']);
     }
 
