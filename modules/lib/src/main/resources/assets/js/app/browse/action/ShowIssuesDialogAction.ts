@@ -9,7 +9,8 @@ export class ShowIssuesDialogAction
 
     constructor() {
         super();
-        this.setEnabled(true);
+
+        this.setEnabled(true).setClass('show-issues');
         this.onExecuted(() => {
             new ShowIssuesDialogEvent().setAssignedToMe(this.assignedToMe).setCreatedByMe(this.createdByMe).fire();
         });

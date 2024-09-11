@@ -5,19 +5,12 @@ const XPATH = {
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
     editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
     reopenIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Issue']]`,
-    commentButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment']]`,
     itemsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Items')]]",
-    assigneesTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Assignees')]]",
-    commentsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Comments')]]",
-    issueStatusSelector: `//div[contains(@id,'IssueStatusSelector')]`,
+    issueStatusSelectorDiv: `//div[contains(@id,'IssueStatusSelector')]`,
     issueCommentTextArea: `//div[contains(@id,'IssueCommentTextArea')]`,
     issueCommentsListItem: `//div[contains(@id,'IssueCommentsListItem')]`,
     noActionLabel: `//div[@class='no-action-message']`,
     closeTabMenuItem: "//li[contains(@id,'TabMenuItem') and child::a[text()='Closed']]",
-    issueCommentsListItemByText:
-        text => `//div[contains(@id,'IssueCommentsListItem') and descendant::p[@class='inplace-text' and text()='${text}']]`,
-    issueStatusMenuItem:
-        menuItem => `//ul[contains(@class,'menu')]/li[contains(@id,'TabMenuItem') and child::a[text()='${menuItem}']]`,
 };
 
 class IssueDetailsDialog extends BaseDetailsDialog {
@@ -27,7 +20,7 @@ class IssueDetailsDialog extends BaseDetailsDialog {
     }
 
     get issueStatusSelector() {
-        return XPATH.container + XPATH.issueStatusSelector;
+        return XPATH.container + XPATH.issueStatusSelectorDiv;
     }
 
     get itemsTabBarItem() {
@@ -66,10 +59,13 @@ class IssueDetailsDialog extends BaseDetailsDialog {
         return this.isElementDisplayed(XPATH.container);
     }
 
-    waitForReopenButtonLoaded() {
-        return this.waitForElementDisplayed(XPATH.reopenIssueButton, appConst.mediumTimeout).catch(err => {
-            throw new Error("Issue Details dialog 'Reopen issue' is not loaded " + err)
-        });
+    async waitForReopenButtonDisplayed() {
+        try {
+            await this.waitForElementDisplayed(XPATH.reopenIssueButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_reopen_issue_btn');
+            throw new Error(`Issue Details dialog 'Reopen issue' was not loaded! screenshot:  ${screenshot}  ` + err);
+        }
     }
 
     async clickOnReopenIssueButton() {
@@ -98,7 +94,7 @@ class IssueDetailsDialog extends BaseDetailsDialog {
             let result = await this.getAttribute(this.itemsTabBarItem, 'class');
             return result.includes('active');
         } catch (err) {
-            throw  new Error('Issue Details Dialog  ' + err);
+            throw new Error('Issue Details Dialog  ' + err);
         }
     }
 
@@ -113,18 +109,13 @@ class IssueDetailsDialog extends BaseDetailsDialog {
         }
     }
 
-    async clickOnStatusSelectorMenu() {
-        await this.waitForElementDisplayed(this.issueStatusSelector, appConst.mediumTimeout);
-        await this.clickOnElement(this.issueStatusSelector);
-        return await this.pause(200);
-    }
-
     async clickOncloseTabMenuItem() {
         await this.waitForElementDisplayed(XPATH.closeTabMenuItem, appConst.mediumTimeout);
         await this.clickOnElement(XPATH.closeTabMenuItem);
     }
 
-    async getStatusInfo() {
+    // gets text in title attribute:
+    async getIssueStatusInfo() {
         await this.waitForElementDisplayed(this.issueStatusSelector, appConst.mediumTimeout);
         let titleAttr = await this.getAttribute(this.issueStatusSelector, 'title');
         return titleAttr;

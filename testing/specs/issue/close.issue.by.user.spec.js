@@ -113,8 +113,8 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             await issueListDialog.clickOnClosedButton();
             // 4. Click on the issue:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            // 5. Verify the status info:
-            let info = await issueDetailsDialog.getStatusInfo();
+            // 5. Verify the status info(title attribute):
+            let info = await issueDetailsDialog.getIssueStatusInfo();
             let expectedMessage = appConst.issueClosedBy(USER.displayName);
             // 6. Verify that the info message is displayed in the status selector : "Closed by user:system:${userName}"
             assert.ok(info.includes(expectedMessage), 'Expected notification message should appear');

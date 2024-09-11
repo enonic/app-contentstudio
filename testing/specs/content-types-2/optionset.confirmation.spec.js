@@ -35,7 +35,6 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             // 1. Open wizard for new option set:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET_HELP_TEXT);
-            let optionSetHelpFormView = new OptionSetHelpFormView();
             // 2. Type the text 'option 1' in lower case and select the option in Single selection radio option set:
             await singleSelectionOptionSet.filterAndSelectOption('option 1');
             // 3. Verify the menu items in the selected option:
@@ -154,7 +153,6 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
     it(`GIVEN wizard for new 'option set' is opened WHEN menu has been expanded in the single item-set THEN 'Delete' menu item should be disabled, Add below and Add above are enabled`,
         async () => {
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
-            let confirmationMask = new ConfirmationMask();
             // 1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
             // 2. Select 'Option 1':

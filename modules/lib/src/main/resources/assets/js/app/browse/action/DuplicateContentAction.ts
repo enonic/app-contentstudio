@@ -10,7 +10,8 @@ export class DuplicateContentAction
 
     constructor(grid: ContentTreeGrid) {
         super(grid, i18n('action.duplicateMore'));
-        this.setEnabled(false);
+
+        this.setEnabled(false).setClass('duplicate');
     }
 
     protected handleExecuted() {

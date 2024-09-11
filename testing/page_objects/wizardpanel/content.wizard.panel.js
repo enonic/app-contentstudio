@@ -20,6 +20,7 @@ const EditSettingsDialog = require('../details_panel/edit.settings.dialog');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
+    projectViewerDiv: `//div[contains(@id,'ProjectViewer')]`,
     wizardHeader: "//div[contains(@id,'ContentWizardHeader')]",
     pageEditorTogglerButton: "//button[contains(@id, 'CycleButton') ]",
     hidePageEditorTogglerButton: "//button[contains(@id,'ContentActionCycleButton') and @title='Hide Page Editor']",
@@ -350,7 +351,7 @@ class ContentWizardPanel extends Page {
             await this.doSwitchToContentBrowsePanel();
             return await this.pause(500);
         } catch (err) {
-            let screenshot = this.saveScreenshotUniqueName('err_close_wizard');
+            let screenshot = await this.saveScreenshotUniqueName('err_close_wizard');
             await this.doSwitchToContentBrowsePanel();
             throw new Error("Wizard was not closed!  screenshot:" + screenshot + ' ' + err);
         }
@@ -1138,6 +1139,27 @@ class ContentWizardPanel extends Page {
     async clickOnShowChangesToolbarButton() {
         await this.waitForShowChangesButtonDisplayed();
         await this.clickOnElement(this.showChangesToolbarButton);
+    }
+
+    async waitForToolbarRoleAttribute(expectedRole) {
+        let locator = XPATH.container + XPATH.toolbar;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
+    }
+
+    async waitForToolbarAriaLabelAttribute() {
+        let locator = XPATH.container + XPATH.toolbar;
+        await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
+    }
+
+    async waitForProjectViewerAriaLabelAttribute() {
+        let locator = XPATH.container + XPATH.projectViewerDiv;
+        await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
+    }
+
+
+    async waitForPublishMenuDropdownRoleAttribute(expectedRole) {
+        let locator = XPATH.toolbarPublish + lib.BUTTONS.DROP_DOWN_HANDLE;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
     }
 }
 

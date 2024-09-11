@@ -23,6 +23,8 @@ import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeNa
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
+import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {Content} from '../content/Content';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -36,7 +38,7 @@ enum PREVIEW_TYPE {
 }
 
 export class ContentItemPreviewPanel
-    extends ItemPreviewPanel<ViewItem> {
+    extends ItemPreviewPanel<ViewItem, ToolbarConfig> {
 
     protected image: ImgEl;
     protected item: ViewItem;
@@ -46,6 +48,7 @@ export class ContentItemPreviewPanel
     protected noSelectionMessage: DivEl;
     protected debouncedSetItem: (item: ViewItem) => void;
     protected readonly contentRootPath: string;
+    protected toolbar: ContentItemPreviewToolbar;
 
     constructor(contentRootPath?: string) {
         super('content-item-preview-panel');
@@ -95,7 +98,7 @@ export class ContentItemPreviewPanel
             this.update(content);
         }
 
-        this.toolbar.setItem(item);
+        this.toolbar.setItem(content);
         this.item = item;
     }
 
@@ -127,7 +130,7 @@ export class ContentItemPreviewPanel
     }
 
     public clearItem() {
-        (this.toolbar as ContentItemPreviewToolbar).clearItem();
+        this.toolbar.clearItem();
     }
 
     private setupListeners() {
@@ -187,7 +190,7 @@ export class ContentItemPreviewPanel
         });
     }
 
-    createToolbar(): ItemPreviewToolbar<ViewItem> {
+    createToolbar(): ContentItemPreviewToolbar {
         return new ContentItemPreviewToolbar();
     }
 

@@ -32,7 +32,6 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             await projectWizard.waitForProjectIdentifierInputDisabled()
             await projectWizard.waitForRolesComboboxDisplayed();
             let result = await projectWizard.isLocaleOptionsFilterInputClickable();
-            result = await projectWizard.isLocaleOptionsFilterInputClickable();
             assert.ok(result, 'Locale input should  be clickable');
             // 4. Verify access mode: all radio button should not be selected:
             let isSelected = await projectWizard.isAccessModeRadioSelected('Custom');

@@ -45,8 +45,8 @@ describe('inputs.custom.validation.spec: tests for content with custom validatio
             let actualMessage = await localeCodeCustomValidationForm.getSelectorValidationMessage();
             assert.equal(actualMessage, 'Invalid value selected', "Expected validation message should be displayed");
             // 6. Verify that the content remains invalid
-            let isInValid = await contentWizard.isContentInvalid();
-            assert.ok(isInValid, 'the content should be invalid, this value is invalid');
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid, 'the content should be invalid, this value is invalid');
         });
 
     it(`GIVEN existing content with custom validation is opened WHEN valid option has been selected in the combobox AND saved THEN the content gets valid`,
@@ -64,8 +64,8 @@ describe('inputs.custom.validation.spec: tests for content with custom validatio
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('custom_validation_allowed_option');
             // 4. Verify that the content gets valid
-            let isInValid = await contentWizard.isContentInvalid();
-            assert.ok(isInValid === false, 'the content should be valid');
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === false, 'the content should be valid');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

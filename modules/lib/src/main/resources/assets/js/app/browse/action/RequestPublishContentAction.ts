@@ -10,7 +10,8 @@ export class RequestPublishContentAction
 
     constructor(grid: ContentTreeGrid) {
         super(grid, i18n('action.requestPublishMore'));
-        this.setEnabled(false);
+
+        this.setEnabled(false).setClass('request-publish');
     }
 
     protected handleExecuted() {

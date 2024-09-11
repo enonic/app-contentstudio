@@ -65,7 +65,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             await dateForm.typeDate(0, DATE_IN_DECEMBER);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            await studioUtils.saveScreenshot('date_saved');
+            await studioUtils.saveScreenshot('date_content_saved');
             // 3. Reopen te content
             await studioUtils.doCloseWizardAndSwitchToGrid();
             // 4. Verify the saved date:
@@ -98,17 +98,17 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             assert.equal(result, DATE_IN_DECEMBER, "the previous date should be reverted");
         });
 
-    it("GIVEN wizard for new Date(1:1) is opened WHEN incorrect date has been typed THEN date content should be not valid",
+    it("GIVEN wizard for new Date(1:1) is opened WHEN incorrect date has been typed THEN date content should be invalid",
         async () => {
             let dateForm = new DateForm();
             let contentWizard = new ContentWizard();
-            //1. Open wizard for new date 1:1
+            // 1. Open wizard for new date 1:1
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DATE_1_1);
-            //2. Type a name and incorrect date:
+            // 2. Type a name and incorrect date:
             await dateForm.typeDate(0, INCORRECT_DAY_DATE);
             await contentWizard.typeDisplayName(DATE_NAME_1);
-            await studioUtils.saveScreenshot('date_incorrect');
-            //3. Verify the red border in the date input
+            await studioUtils.saveScreenshot('date_content_incorrect_value');
+            // 3. Verify the red border in the date input
             await dateForm.waitForRedBorderInDateInput(0);
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid, "The date content should be invalid");
@@ -164,7 +164,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             // 4. Verify that the content is valid:
             let isInValid = await contentWizard.isContentInvalid();
             assert.ok(isInValid === false, 'the content should be valid, because correct value inserted in the required input');
-            //5. Verify that default action is 'Mark as Ready' now
+            // 5. Verify that default action is 'Mark as Ready' now
             await contentWizard.waitForMarkAsReadyButtonVisible();
         });
 
@@ -200,8 +200,8 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             let validationMessage = await timeForm.getOccurrenceValidationRecording(0);
             assert.equal(validationMessage, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'validation recording should appear');
             // 4. Verify that the content is valid, because the input is not required:
-            let isInValid = await contentWizard.isContentInvalid();
-            assert.ok(isInValid === false, 'the content should be valid, because not correct value is inserted in the not required input');
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === false, 'the content should be valid, because not correct value is inserted in the not required input');
             // 5. Verify that the time input has red border(the value is not valid)
             await timeForm.waitForRedBorderDisplayedInTimeInput(0);
         });

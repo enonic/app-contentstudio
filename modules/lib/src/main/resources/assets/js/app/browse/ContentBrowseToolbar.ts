@@ -1,13 +1,18 @@
 import {ResponsiveToolbar} from './ResponsiveToolbar';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class ContentBrowseToolbar
     extends ResponsiveToolbar {
 
+    ariaLabel: string = i18n('wcag.contentbrowser.toolbar.label');
+
     private readonly publishAction: Action;
 
     constructor(publishAction: Action) {
-        super('content-browse-toolbar');
+        super({
+            className: 'content-browse-toolbar'
+        });
 
         this.publishAction = publishAction;
     }

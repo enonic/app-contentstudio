@@ -72,8 +72,6 @@ declare const require: { context: (directory: string, useSubdirectories: boolean
 const importAll = r => r.keys().forEach(r);
 importAll(require.context('lib-contentstudio/app/inputtype', true, /^(?!\.[\/\\](ui)).*(\.js)$/));
 
-const body = Body.get();
-
 function getApplication(): Application {
     const application = new Application(
         CONFIG.getString('appId'),
@@ -206,7 +204,7 @@ function preLoadApplication() {
         clearFavicon();
         const wizardParams: ContentWizardPanelParams = ContentAppHelper.createWizardParamsFromUrl();
 
-        if (!body.isRendered() && !body.isRendering()) {
+        if (!Body.get().isRendered() && !Body.get().isRendering()) {
             dataPreloaded = true;
             const projectName: string = application.getPath().getElement(0);
             // body is not rendered if the tab is in background
@@ -555,7 +553,7 @@ async function startContentBrowser() {
         }, 3000);
     }
 
-    body.appendChild(commonWrapper);
+    Body.get().appendChild(commonWrapper);
 
     const NewContentDialog = (await import ('lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;
 
@@ -646,6 +644,8 @@ function initProjectContext(application: Application): Q.Promise<void> {
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     await i18nInit(CONFIG.getString('services.i18nUrl'));
+
+    const body = Body.get();
 
     preLoadApplication();
 

@@ -183,13 +183,13 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             await contentWizard.typeDisplayName(CONTENT_NAME_3);
             // 2. Text has been inserted in the first area:
             await htmlAreaForm.insertTextInHtmlArea(0, 'test');
-            //'3. The second area has been added:
+            // 3. The second area has been added:
             await htmlAreaForm.clickOnAddButton();
-            //'4. Content has been saved
+            // 4. Content has been saved
             await contentWizard.waitAndClickOnSave();
-            //'5. Text has been inserted in the second area:
+            // 5. Text has been inserted in the second area:
             await htmlAreaForm.insertTextInHtmlArea(1, 'test');
-            //'6. Verify that 'Save' button gets enabled:
+            // 6. Verify that 'Save' button gets enabled:
             await contentWizard.waitForSaveButtonEnabled();
         });
 
@@ -197,14 +197,14 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
-            //'1. Open existing content
+            // 1. Open existing content
             await studioUtils.selectContentAndOpenWizard(CONTENT_NAME_3);
-            //'2. Remove the second area:
+            // 2. Remove the second area:
             await htmlAreaForm.removeTextArea(1);
-            //'3. Verify that 'Add' button gets visible
+            // 3. Verify that 'Add' button gets visible
             await htmlAreaForm.waitForAddButtonDisplayed();
             await contentWizard.waitForSaveButtonEnabled();
-            //'4. Verify that single area is present in the form now:
+            // 4. Verify that single area is present in the form now:
             let ids = await htmlAreaForm.getIdOfHtmlAreas();
             assert.equal(ids.length, 1, "Single html area should be displayed");
         });
