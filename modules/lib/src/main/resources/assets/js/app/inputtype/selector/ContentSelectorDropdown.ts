@@ -78,7 +78,9 @@ export class ContentSelectorDropdown
     protected postInitListeners(): void {
         this.options.loader.onLoadedData((event: LoadedDataEvent<ContentTreeSelectorItem>) => {
             if (event.isPostLoad()) {
-                this.listBox.addItems(event.getData());
+                if (event.getData().length > 0) {
+                    this.listBox.addItems(event.getData());
+                }
             } else {
                 this.listBox.setItems(event.getData());
             }
