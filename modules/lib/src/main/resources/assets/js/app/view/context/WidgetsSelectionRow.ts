@@ -35,7 +35,7 @@ export class WidgetsSelectionRow
 
     private initListeners(): void {
         this.selectionWrapper.onSelectionChanged((selectionChange: SelectionChange<WidgetView>) => {
-            selectionChange.selected[0]?.setActive();
+            selectionChange.selected?.[0]?.setActive();
             this.selectionWrapper.cleanInput();
             this.selectionWrapper.hideDropdown();
         });

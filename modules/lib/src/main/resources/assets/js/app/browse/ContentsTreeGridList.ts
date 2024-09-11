@@ -98,6 +98,12 @@ export class ContentsTreeGridList
         }
     }
 
+    protected addItemView(item: ContentSummaryAndCompareStatus, readOnly?: boolean,
+                          index?: number): TreeListElement<ContentSummaryAndCompareStatus> {
+        (this.options.parentListElement as ContentsTreeGridListElement)?.setContainsChildren(true);
+        return super.addItemView(item, readOnly, index);
+    }
+
     protected removeItemView(item: ContentSummaryAndCompareStatus): void {
         const id: string = this.getItemId(item);
         this.newItems.delete(id);
