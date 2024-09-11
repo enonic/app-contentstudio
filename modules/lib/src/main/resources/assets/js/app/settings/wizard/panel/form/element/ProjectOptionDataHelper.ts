@@ -15,7 +15,7 @@ export class ProjectOptionDataHelper
         this.filterFunc = this.doFilter.bind(this);
     }
 
-    setProjects(projects: Project[]) {
+    setProjects(projects: Project[]): void {
         this.projects = projects;
     }
 
@@ -48,7 +48,7 @@ export class ProjectOptionDataHelper
     }
 
     filter(searchString: string): Project[] {
-        this.searchString = searchString;
+        this.searchString = searchString?.toLowerCase();
         return this.projects.slice().filter(this.filterFunc);
     }
 
