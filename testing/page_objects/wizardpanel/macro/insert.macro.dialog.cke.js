@@ -1,7 +1,7 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const MacroComboBox = require('../../components/insert.macro.combobox');
+const MacroComboBox = require('../../components/selectors/insert.macro.combobox');
 
 const XPATH = {
     container: `//div[contains(@id,'MacroModalDialog')]`,

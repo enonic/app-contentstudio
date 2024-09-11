@@ -203,7 +203,7 @@ class BaseBrowsePanel extends Page {
     async clickOnCheckboxByName(name) {
         let listElements = lib.TREE_GRID.itemTreeGridListElementByName(name);
         let result = await this.findElements(listElements);
-        if (result === 0) {
+        if (result.length === 0) {
             throw new Error('Checkbox was not found!');
         }
         let listElement = result[result.length - 1];

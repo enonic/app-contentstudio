@@ -5,7 +5,7 @@
 const Page = require('../../../page');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
-const ComponentDescriptorsDropdown = require('../../../components/component.descriptors.dropdown');
+const ComponentDescriptorsDropdown = require('../../../components/selectors/component.descriptors.dropdown');
 const xpath = {
     container: `//div[contains(@id,'LayoutInspectionPanel')]`,
     layoutDropdown: `//div[contains(@id,'ComponentDescriptorsDropdown')]`,

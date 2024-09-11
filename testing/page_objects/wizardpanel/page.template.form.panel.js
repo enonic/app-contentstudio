@@ -4,7 +4,7 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const ContentTypeFilterDropdown = require('../components/content.type.filter.dropdown');
+const ContentTypeFilterDropdown = require('../components/selectors/content.type.filter.dropdown');
 
 const XPATH = {
     wizardStep: `//div[contains(@id,'ContentWizardStepForm')]`,

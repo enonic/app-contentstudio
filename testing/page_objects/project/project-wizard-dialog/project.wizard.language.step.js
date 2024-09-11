@@ -3,7 +3,7 @@
  */
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const LocaleComboBox = require('../../components/locale.selector.dropdown');
+const LocaleComboBox = require('../../components/selectors/locale.selector.dropdown');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 
 const XPATH = {

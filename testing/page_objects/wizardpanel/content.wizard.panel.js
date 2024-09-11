@@ -17,7 +17,7 @@ const ContentUnpublishDialog = require('../content.unpublish.dialog');
 const WizardDependenciesWidget = require('./details/wizard.dependencies.widget');
 const PropertiesWidget = require('../browsepanel/detailspanel/properties.widget.itemview');
 const EditSettingsDialog = require('../details_panel/edit.settings.dialog');
-const PageDescriptorDropdown = require('../components/page.descriptor.dropdown');
+const PageDescriptorDropdown = require('../components/selectors/page.descriptor.dropdown');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,

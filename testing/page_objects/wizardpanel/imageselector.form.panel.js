@@ -3,9 +3,7 @@
  */
 const BaseSelectorForm = require('./base.selector.form');
 const lib = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
-const LoaderComboBox = require('../components/loader.combobox');
-const ImageSelectorDropdown = require('../components/image.selector.dropdown');
+const ImageSelectorDropdown = require('../components/selectors/image.selector.dropdown');
 
 const XPATH = {
     container: "//div[contains(@id,'ImageSelector')]",

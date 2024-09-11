@@ -4,7 +4,7 @@
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
-const ContentSelectorDropdown = require('../../../components/content.selector.dropdown');
+const ContentSelectorDropdown = require('../../../components/selectors/content.selector.dropdown');
 const xpath = {
     container: `//div[contains(@id,'PartInspectionPanel')]`,
     zoomLevelViewDiv: "//div[contains(@id,'InputView') and descendant::div[text()='Zoom level 1-15']]",

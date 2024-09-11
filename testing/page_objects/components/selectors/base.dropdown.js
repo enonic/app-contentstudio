@@ -1,9 +1,9 @@
 /**
  * Created on 08.01.2024
  */
-const lib = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
-const Page = require('../page');
+const lib = require('../../../libs/elements');
+const appConst = require('../../../libs/app_const');
+const Page = require('../../page');
 const XPATH = {
     rightCheckBoxDiv: "//li[contains(@class,'checkbox-right')]//div[contains(@id,'Checkbox')]",
     rightCheckboxByDisplayName: displayName => `//li[contains(@class,'checkbox-right') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]//div[contains(@id,'Checkbox')]`,

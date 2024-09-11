@@ -161,8 +161,7 @@ class CompareContentVersionsDialog extends Page {
     }
 
     async getPermissionsUpdatedOptionsInDropdownList() {
-        let locator = XPATH.containerLeft +
-                      "//div[contains(@class,'slick-cell')]//div[contains(@id,'NamesAndIconView')]//div[contains(@class, 'icon-masks')]";
+        let locator = XPATH.containerLeft + XPATH.listItemNameAndIconView + "//div[contains(@class, 'icon-masks')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.findElements(locator);
     }

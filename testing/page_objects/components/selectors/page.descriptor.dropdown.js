@@ -1,14 +1,14 @@
 /**
  * Created on 08.01.2024
  */
-const lib = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
-const BasDropdown = require('./base.dropdown');
+const lib = require('../../../libs/elements');
+const appConst = require('../../../libs/app_const');
+const BaseDropdown = require('./base.dropdown');
 const XPATH = {
     container: "//div[contains(@id,'PageDescriptorDropdown')]",
 };
 
-class PageDescriptorDropdown extends BasDropdown {
+class PageDescriptorDropdown extends BaseDropdown {
 
     get container(){
         return XPATH.container;

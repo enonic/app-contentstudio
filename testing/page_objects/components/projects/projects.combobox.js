@@ -1,7 +1,7 @@
 /**
  * Created on 13.02.2024
  */
-const BasDropdown = require('../base.dropdown');
+const BasDropdown = require('../selectors/base.dropdown');
 const XPATH = {
     container: "//div[contains(@id,'ProjectsSelector')]",
 };

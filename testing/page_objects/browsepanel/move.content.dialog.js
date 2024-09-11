@@ -4,7 +4,7 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const ContentMoveComboBox = require('../components/content.move.combobox');
+const ContentMoveComboBox = require('../components/selectors/content.move.combobox');
 
 const XPATH = {
     container: `//div[contains(@id,'MoveContentDialog')]`,

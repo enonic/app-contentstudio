@@ -4,7 +4,7 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const ContentSelectorDropdown = require('../components/content.selector.dropdown');
+const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 const xpath = {
     stepForm: `//div[contains(@id,'ContentWizardStepForm')]`,
     parametersSet: "//div[contains(@id,'FormItemSetView') and descendant::h5[contains(.,'Parameters')]]",
