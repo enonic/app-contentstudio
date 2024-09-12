@@ -8,12 +8,24 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
+import {ContentTreeGridLoadedEvent} from './ContentTreeGridLoadedEvent';
 
 export class ContentsTreeGridRootList extends ContentsTreeGridList {
 
     private filterQuery: ContentQuery;
 
     private branch: Branch = Branch.DRAFT;
+
+    protected initListeners(): void {
+        super.initListeners();
+
+        const listener = () => {
+          new ContentTreeGridLoadedEvent().fire();
+          this.unItemsAdded(listener);
+        };
+
+        this.onItemsAdded(listener);
+    }
 
     setTargetBranch(branch: Branch): void {
         this.branch = branch;
