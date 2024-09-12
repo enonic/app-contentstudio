@@ -1,10 +1,10 @@
-import {Project} from '../../data/project/Project';
+import {AriaHasPopup, AriaRole, WCAG} from '@enonic/lib-admin-ui/ui/WCAG';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Flag} from '../../../locale/Flag';
 import {ProjectIconUrlResolver} from '../../../project/ProjectIconUrlResolver';
 import {ExtendedViewer} from '../../../view/ExtendedViewer';
+import {Project} from '../../data/project/Project';
 import {ProjectHelper} from '../../data/project/ProjectHelper';
-import {Flag} from '../../../locale/Flag';
-import {IWCAG as WCAG, AriaRole, AriaHasPopup} from '@enonic/lib-admin-ui/ui/WCAG';
 
 export class ProjectViewer
     extends ExtendedViewer<Project>
