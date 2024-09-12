@@ -14,10 +14,8 @@ import {NewMediaUploadEvent} from '../create/NewMediaUploadEvent';
 import {ContentPreviewPathChangedEvent} from '../view/ContentPreviewPathChangedEvent';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
-import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {RepositoryEvent} from '@enonic/lib-admin-ui/content/event/RepositoryEvent';
@@ -39,6 +37,8 @@ import {ContentQuery} from '../content/ContentQuery';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {ContentItemPreviewPanel} from '../view/ContentItemPreviewPanel';
+import {ContentActionMenuButton} from '../ContentActionMenuButton';
+import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -50,14 +50,12 @@ export class ContentBrowsePanel
     private debouncedBrowseActionsAndPreviewRefreshOnDemand: () => void;
     private browseActionsAndPreviewUpdateRequired: boolean = false;
     private contextPanelToggler: NonMobileContextPanelToggleButton;
-    private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     protected initElements() {
         super.initElements();
 
         this.browseToolbar.addActions(this.getBrowseActions().getAllActionsNoPublish());
 
-        this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
         this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
         this.debouncedBrowseActionsAndPreviewRefreshOnDemand = AppHelper.debounce(() => {
             if (this.browseActionsAndPreviewUpdateRequired) {
@@ -459,43 +457,44 @@ export class ContentBrowsePanel
 
     private createContentPublishMenuButton() {
         const browseActions: ContentTreeGridActions = this.getBrowseActions();
-        const contentPublishMenuButton: ContentBrowsePublishMenuButton = new ContentBrowsePublishMenuButton({
-            publishAction: browseActions.getAction(ActionName.PUBLISH),
-            publishTreeAction: browseActions.getAction(ActionName.PUBLISH_TREE),
-            unpublishAction: browseActions.getAction(ActionName.UNPUBLISH),
-            markAsReadyAction: browseActions.getAction(ActionName.MARK_AS_READY),
-            createIssueAction: browseActions.getAction(ActionName.CREATE_ISSUE),
-            requestPublishAction: browseActions.getAction(ActionName.REQUEST_PUBLISH),
-            showCreateIssueButtonByDefault: true
+        const contentActionMenuButton: ContentActionMenuButton = new ContentActionMenuButton({
+            defaultAction: browseActions.getAction(ActionName.MARK_AS_READY),
+            menuActions: [
+                browseActions.getAction(ActionName.MARK_AS_READY),
+                browseActions.getAction(ActionName.PUBLISH),
+                browseActions.getAction(ActionName.PUBLISH_TREE),
+                browseActions.getAction(ActionName.UNPUBLISH),
+                browseActions.getAction(ActionName.CREATE_ISSUE),
+                browseActions.getAction(ActionName.REQUEST_PUBLISH)
+            ],
+            defaultActionNoContent: browseActions.getAction(ActionName.CREATE_ISSUE),
+            debounceRequests: 500,
+            dropdownPosition: MenuButtonDropdownPos.RIGHT
         });
-
-        let previousSelectionSize: number = this.treeGrid.getTotalSelected();
 
         this.treeGrid.onSelectionChanged(() => {
             const totalSelected: number = this.treeGrid.getTotalSelected();
-            const isSingleSelected: boolean = totalSelected === 1;
-            const hadMultipleSelection: boolean = previousSelectionSize > 1;
 
-            previousSelectionSize = totalSelected;
-            contentPublishMenuButton.setItem(isSingleSelected ? this.treeGrid.getFirstSelectedItem() : null);
-            if (hadMultipleSelection && isSingleSelected) {
-                contentPublishMenuButton.updateActiveClass();
+            if (totalSelected === 0) {
+                contentActionMenuButton.setItem(null);
+            } else if (totalSelected === 1) {
+                contentActionMenuButton.setItem(this.treeGrid.getFirstSelectedItem());
             }
         });
 
         this.treeGrid.onHighlightingChanged(() => {
-            contentPublishMenuButton.setItem(this.treeGrid.hasHighlightedNode() ? this.treeGrid.getHighlightedItem() : null);
+            contentActionMenuButton.setItem(this.treeGrid.hasHighlightedNode() ? this.treeGrid.getHighlightedItem() : null);
         });
 
-        this.browseToolbar.appendChild(contentPublishMenuButton);
-        this.browseToolbar.appendChild(this.contextPanelToggler);
+        this.browseToolbar.addContainer(contentActionMenuButton, contentActionMenuButton.getChildControls());
+        this.browseToolbar.addElement(this.contextPanelToggler);
 
         browseActions.onBeforeActionsStashed(() => {
-            contentPublishMenuButton.setRefreshDisabled(true);
+            contentActionMenuButton.setRefreshDisabled(true);
         });
 
         browseActions.onActionsUnStashed(() => {
-            contentPublishMenuButton.setRefreshDisabled(false);
+            contentActionMenuButton.setRefreshDisabled(false);
         });
     }
 

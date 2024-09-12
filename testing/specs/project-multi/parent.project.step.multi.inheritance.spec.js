@@ -7,7 +7,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const appConst = require('../../libs/app_const');
-const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const SettingsItemStatisticsPanel = require('../../page_objects/project/settings.item.statistics.panel');

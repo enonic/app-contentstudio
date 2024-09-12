@@ -311,6 +311,13 @@ class Page {
         return await element.getAttribute(attributeName);
     }
 
+    async waitForAttributeIsPresent(elementLocator, attribute) {
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(elementLocator, attribute);
+            return text != null;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: `Expected attribute ${attribute}  is not set in the element ${elementLocator}`});
+    }
+
     async removeNotificationMessage() {
         try {
             let selector = "//div[contains(@id,'NotificationContainer')]//span[contains(@class,'notification-remove')]";
@@ -395,6 +402,7 @@ class Page {
         let el = await this.findElement(selector);
         return await this.doTouchActionOnElement(el);
     }
+
     async doTouchActionOnElement(el) {
         await el.moveTo();
         let x = await el.getLocation('x');
@@ -553,6 +561,7 @@ class Page {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Class should contain 'invalid' "});
     }
 
+    // checks the attribute value (actual value contains expected value)
     waitForAttributeHasValue(selector, attribute, value) {
         return this.getBrowser().waitUntil(() => {
             return this.getAttribute(selector, attribute).then(result => {
@@ -613,6 +622,22 @@ class Page {
 
     acceptAlert() {
         return this.getBrowser().acceptAlert();
+    }
+
+    async waitForLangAttribute(lang) {
+        let locator = "//html";
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, "lang");
+            return text.includes(lang);
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Html tag should contain 'lang' attribute"});
+    }
+
+    // checks the attribute value (actual value === expected value)
+    async waitForAttributeValue(locator, attrName, expectedValue) {
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, attrName);
+            return text === expectedValue;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: `Expected attribute ${attrName} is not set in the element ${locator}`});
     }
 }
 

@@ -38,19 +38,22 @@
       margin-left: 0.25em;
     }
   }
+  .entry-button-wrapper {
+    display: flex;
 
-  .entry-button {
-    &.link {
-      .link-button();
-    }
+    .entry-button {
+      &.link {
+        .link-button();
+      }
 
-    &.non-interactive {
-      display: none;
-      pointer-events: none;
-    }
+      &.non-interactive {
+        display: none;
+        pointer-events: none;
+      }
 
-    &:not(.link):not(:last-child) {
-      margin-right: 12px;
+      &:not(.link):not(:last-child) {
+        margin-right: 12px;
+      }
     }
   }
 

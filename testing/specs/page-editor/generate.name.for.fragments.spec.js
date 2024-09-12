@@ -86,7 +86,7 @@ describe('Generate name for fragments specification', function () {
             let browseDependenciesWidget = new BrowseDependenciesWidget();
             await browseDependenciesWidget.clickOnShowInboundButton();
             await studioUtils.doSwitchToNextTab();
-            // 'Dependencies Section' should be present, in the filter panel'
+            // 'Dependencies Section' should be present, in the filter panel
             await contentFilterPanel.waitForDependenciesSectionVisible();
             await studioUtils.saveScreenshot('text_component_inbound_section');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();

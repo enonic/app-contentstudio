@@ -19,7 +19,8 @@ export class EditContentAction extends ContentTreeGridAction {
 
     constructor(grid: ContentTreeGrid) {
         super(grid, i18n('action.edit'), 'mod+e');
-        this.setEnabled(false);
+
+        this.setEnabled(false).setClass('edit');
     }
 
     protected handleExecuted() {

@@ -122,9 +122,9 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             // 2. Verify the validation recording:
             let recording = await doubleForm.getOccurrenceValidationRecording(0);
             await studioUtils.saveScreenshot('double_min_max_4');
-            //3. Verify that Validation message is not displayed:
+            // 3. Verify that Validation message is not displayed:
             assert.equal(recording, "", 'Validation recording should not be displayed');
-            //4. Verify that input is displayed with red border
+            // 4. Verify that input is displayed with red border
             let isInputRed = await doubleForm.isInvalidValue(0);
             assert.ok(isInputRed === false, "input should be with green border");
         });

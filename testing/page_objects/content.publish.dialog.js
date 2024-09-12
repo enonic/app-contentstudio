@@ -490,8 +490,13 @@ class ContentPublishDialog extends Page {
     }
 
     async clickOnOkInPickerPopup() {
-        let dateTimePickerPopup = new DateTimePickerPopup();
-        await dateTimePickerPopup.clickOnOkButton();
+        try {
+            let dateTimePickerPopup = new DateTimePickerPopup();
+            await dateTimePickerPopup.clickOnOkButton();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_picker_popup');
+            throw new Error(`Error occurred in picker popup dialog, screenshot: ${screenshot} ` + err);
+        }
     }
 
     async getNumberItemsToPublish() {

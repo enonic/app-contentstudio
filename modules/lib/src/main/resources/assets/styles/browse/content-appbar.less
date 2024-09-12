@@ -32,7 +32,8 @@
   }
 
   .project-viewer {
-    margin-left: 10px;
+    padding-left: 5px;
+    margin-left: 5px;
     display: flex;
     pointer-events: none;
     flex-shrink: 0;
@@ -58,6 +59,7 @@
 
           &::before {
             font-size: @default-icon-size;
+            color: @admin-white;
           }
         }
       }
@@ -83,7 +85,7 @@
 
     .project-selection-icon {
       &:before {
-        color: @admin-font-gray1;
+        color: @admin-white;
       }
     }
 
@@ -108,7 +110,7 @@
 
       .project-selection-icon {
         &:before {
-          color: darken(@admin-font-gray1, 10%);
+          color: darken(@admin-white, 10%);
         }
       }
     }
@@ -146,6 +148,7 @@
   .separator {
     font-size: 15px;
     padding-left: 2px;
+    color: @admin-font-gray;
   }
 
   .appbar-tab-menu {

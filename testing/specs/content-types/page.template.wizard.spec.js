@@ -109,7 +109,7 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             assert.equal(support[0], 'Site', 'Site option should be selected in the selector');
             // 4. Verify that the template gets valid after revering the version
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid == false, 'Red icon should not be displayed after reverting the valid version');
+            assert.ok(isInvalid === false, 'Red icon should not be displayed after reverting the valid version');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

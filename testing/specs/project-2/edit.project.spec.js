@@ -20,6 +20,8 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     const PROJECT2_DISPLAY_NAME = studioUtils.generateRandomName('project');
     const TEST_DESCRIPTION = 'my description';
     const PROJ_IDENTIFIER = studioUtils.generateRandomName('id');
+    const PROJECT_WIZARD_TOOLBAR_ROLE = 'toolbar';
+    const ARIA_LABEL_TOOLBAR = 'Main menu bar';
 
     // Verifies:  Project identifier field is editable issue#2923
     it(`WHEN existing project is opened THEN expected identifier, description and language should be displayed`,
@@ -58,6 +60,22 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             let actualIdentifier = await settingsBrowsePanel.getProjectIdentifier(PROJECT_DISPLAY_NAME);
             assert.equal(actualIdentifier, PROJ_IDENTIFIER, "Expected Identifier should be displayed in the grid");
         });
+
+    // Verify Accessibility attributes in Project Wizard Panel:
+    it(`WHEN existing project is opened THEN role attribute should be set to 'toolbar' for project-toolbar div`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let projectWizard = new ProjectWizard();
+            // 1.Click on the project and press 'Edit' button:
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
+            // 2. Accessibility: Verify that role attribute is set to 'toolbar' for project-toolbar div:
+            await projectWizard.waitForToolbarRoleAttribute(PROJECT_WIZARD_TOOLBAR_ROLE);
+            // 3. Accessibility: Verify 'Main menu bar' aria-label attribute for the wizard toolbar:
+            await projectWizard.waitForToolbarAriaLabelAttribute(ARIA_LABEL_TOOLBAR);
+        });
+
 
     it(`GIVEN existing project is opened WHEN 'SU' has been added in 'custom read access' THEN 'SU' should appear in the selected options`,
         async () => {

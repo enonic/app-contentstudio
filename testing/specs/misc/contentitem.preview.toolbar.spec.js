@@ -19,9 +19,11 @@ describe('contentItem.preview.toolbar.spec: create an issue and check it in the 
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let firstIssueTitle = appConst.generateRandomName('issue');
-    let secondIssueTitle = appConst.generateRandomName('issue');
+    const firstIssueTitle = appConst.generateRandomName('issue');
+    const secondIssueTitle = appConst.generateRandomName('issue');
     let TEST_FOLDER;
+    const ARIA_LABEL_TOOLBAR = 'Main menu bar';
+    const TOOLBAR_ROLE = 'toolbar';
 
     it(`GIVEN folder has been created WHEN the folder is selected THEN 'New' status should be displayed in the preview-toolbar`,
         async () => {
@@ -192,6 +194,17 @@ describe('contentItem.preview.toolbar.spec: create an issue and check it in the 
             // 3.  Open 'Compare With Published Version' modal dialog
             await contentItemPreviewPanel.clickOnShowChangesToolbarButton();
             await compareWithPublishedVersionDialog.waitForDialogOpened();
+        });
+
+    it(`WHEN modified folder has been selected THEN item-preview-toolbar div should be with expected role attribute`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. select the 'modified' folder:
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            // 2. Verify that Item Preview toolbar has 'toolbar' role attribute:
+            await contentItemPreviewPanel.waitForToolbarRoleAttribute(TOOLBAR_ROLE);
+            // 3. Verify arial-label='Main menu bar'
+            await contentItemPreviewPanel.waitForBrowseToolbarAriaLabelAttribute(ARIA_LABEL_TOOLBAR);
         });
 
     it(`GIVEN modified folder is selected WHEN the folder has been published THEN 'Show changes' button gets hidden in the item preview toolbar`,

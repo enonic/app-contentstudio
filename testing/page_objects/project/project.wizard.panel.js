@@ -66,7 +66,7 @@ class ProjectWizardPanel extends Page {
     }
 
     get descriptionInput() {
-        return XPATH.container + lib.formItemByLabel("Description") + lib.TEXT_INPUT;
+        return XPATH.container + lib.formItemByLabel('Description') + lib.TEXT_INPUT;
     }
 
     get selectedCustomReadAccessOptions() {
@@ -89,9 +89,9 @@ class ProjectWizardPanel extends Page {
         return this.isClickable(this.localeOptionsFilterInput);
     }
 
-    async isProjectSelectorDisabled(){
-        let locator = XPATH.container+ "//div[contains(@id, 'ProjectsSelector')]";
-        let classAttr = await this.getAttribute(locator,'class');
+    async isProjectSelectorDisabled() {
+        let locator = XPATH.container + "//div[contains(@id, 'ProjectsSelector')]";
+        let classAttr = await this.getAttribute(locator, 'class');
         return classAttr.includes('disabled');
     }
 
@@ -107,11 +107,13 @@ class ProjectWizardPanel extends Page {
         return await this.pause(1000);
     }
 
-    waitForLoaded() {
-        return this.waitForElementDisplayed(this.descriptionInput, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_open_insert_anchor_dialog');
-            throw new Error('Project Wizard was not loaded!' + err);
-        });
+    async waitForLoaded() {
+        try {
+            await this.waitForElementDisplayed(this.descriptionInput, appConst.shortTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_project_wizard');
+            throw new Error(`Project Wizard was not loaded! screenshot: ${screenshot} ` + err);
+        }
     }
 
     waitForWizardClosed() {
@@ -140,7 +142,7 @@ class ProjectWizardPanel extends Page {
             return await this.waitForElementDisabled(this.saveButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_pr_wizard_save_btn');
-            throw new Error("Project Wizard Panel - Save button, screenshot :" + screenshot + ' ' + err);
+            throw new Error(`Project Wizard Panel - Save button, screenshot :${screenshot} ` + err);
         }
     }
 
@@ -149,7 +151,7 @@ class ProjectWizardPanel extends Page {
             return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_pr_wizard_delete_btn');
-            throw new Error('Delete button is not disabled, screenshot :' + screenshot + ' ' + err);
+            throw new Error(`Delete button is not disabled, screenshot :${screenshot} ` + err);
         }
     }
 
@@ -158,7 +160,7 @@ class ProjectWizardPanel extends Page {
             return await this.waitForElementEnabled(this.deleteButton, appConst.longTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_pr_wizard_delete_btn');
-            throw new Error("Delete button is not enabled, screenshot:" + screenshot + ' ' + err);
+            throw new Error(`Delete button is not enabled, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -186,7 +188,7 @@ class ProjectWizardPanel extends Page {
             return await this.getText(selector);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_project_locale');
-            throw new Error('Selected language was not found, screenshot:  ' + screenshot + ' ' + err);
+            throw new Error(`Selected language was not found, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -378,7 +380,7 @@ class ProjectWizardPanel extends Page {
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_project_remove_icon');
-            throw new Error(`Error during clicking on remove language icon, screenshot: ${screenshot}  ` + err);
+            throw new Error(`Error occurred after clicking on remove language icon, screenshot: ${screenshot}  ` + err);
         }
     }
 
@@ -454,6 +456,18 @@ class ProjectWizardPanel extends Page {
         let locator = XPATH.container + lib.selectedProjectView(appName) + lib.EDIT_ICON;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
+    }
+
+    // check for Accessibility attributes: wizard-toolbar role
+    async waitForToolbarRoleAttribute(expectedRole) {
+        let locator = XPATH.container + XPATH.toolbar;
+        await this.waitForAttributeValue(locator, 'role', expectedRole, appConst.shortTimeout);
+    }
+
+    // check for Accessibility attributes: wizard-toolbar aria-label:
+    async waitForToolbarAriaLabelAttribute(expectedValue) {
+        let locator = XPATH.container + XPATH.toolbar;
+        await this.waitForAttributeValue(locator, 'aria-label', expectedValue, appConst.shortTimeout);
     }
 }
 

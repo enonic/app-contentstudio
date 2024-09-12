@@ -59,6 +59,8 @@ module.exports = Object.freeze({
         CHECKBOX_DIV: "//div[contains(@id,'Checkbox')]",
         DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
         NOTIFICATION_ACTIONS_DIV: "//div[@class='notification-actions']",
+        CONTENT_APP_BAR_DIV: "//div[contains(@id,'ContentAppBar')]",
+        PROJECT_VIEWER_DIV: "//div[contains(@id,'ProjectViewer')]",
     },
     BUTTONS: {
         BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",

@@ -52,9 +52,9 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
         async () => {
             let longForm = new LongForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
-            //1. Type a value value more than max:
+            // 1. Type a value that more than max:
             await longForm.typeLong(11);
-            //2. Verify the validation message:
+            // 2. Verify the validation message:
             await studioUtils.saveScreenshot('long_min_max_3');
             let actualText = await longForm.getOccurrenceValidationRecording(0);
             assert.equal(actualText,'The value cannot be greater than 10', 'Validation recording should appear');
@@ -64,11 +64,11 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
         async () => {
             let longForm = new LongForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
-            //1. Max value has been typed:
+            // 1. Max value has been typed:
             await longForm.typeLong(10);
             await longForm.pause(700);
             await studioUtils.saveScreenshot('long_min_max_4');
-            //2. Verify the validation message is not displayed:
+            // 2. Verify the validation message is not displayed:
             let actualText = await longForm.getOccurrenceValidationRecording(0);
             assert.equal(actualText,"", 'Input Validation recording should not be displayed');
         });
@@ -77,11 +77,11 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
         async () => {
             let longForm = new LongForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
-            //1. Min value has been typed:
+            // 1. Min value has been typed:
             await longForm.typeLong(1);
             await longForm.pause(700);
             await studioUtils.saveScreenshot('long_min_max_5');
-            //2. Verify the input validation message is not present:
+            // 2. Verify the input validation message is not present:
             let actualText = await longForm.getOccurrenceValidationRecording(0);
             assert.equal(actualText,"", 'Input Validation recording should not be displayed');
         });

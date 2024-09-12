@@ -1,7 +1,20 @@
 .content-publish-menu {
   margin-left: auto;
-  display: flex;
-  border-right: 1px solid @admin-bg-light-gray;
+  height: @toolbar-height - 8;
+
+  >.action-button {
+    .menu-action-button(@admin-font-gray2); // default color
+
+    &.publish-action,
+    &.publish-tree-action,
+    &.open-request-action{
+      .menu-action-button(@admin-green);
+    }
+
+    &.create-issue-action {
+      .menu-action-button(@admin-button-blue2);
+    }
+  }
 
   @media screen and (max-width: 720px) {
     border-left: 1px solid @admin-bg-light-gray;
@@ -9,90 +22,18 @@
     margin-right: 0;
   }
 
-  .action-button {
-    text-align: left;
-    padding-left: 12px;
-    padding-right: 5px;
-    border-left: none;
-    display: none !important;
-    min-width: unset;
-  }
-
-  .@{_COMMON_PREFIX}dropdown-handle {
-    position: relative;
-    width: @toolbar-height;
+  @media screen and (min-width: 720px) {
+    .@{_COMMON_PREFIX}dropdown-handle {
+      margin-left: -10px;
+    }
   }
 
   &.no-item {
-    .action-button.create-issue-action-button {
-      border-left: none;
-      padding-right: 12px;
-      .menu-action-button(@admin-button-blue2);
-    }
-
-    .dropdown-toggler(@admin-button-blue2);
-
     @media screen and (min-width: 720px) {
-      .xp-admin-common-dropdown-handle {
+      .@{_COMMON_PREFIX}dropdown-handle {
         display: none;
       }
     }
-  }
-
-  &.publish {
-    .publish-action-button {
-      .menu-action-button(@admin-green);
-    }
-
-    .dropdown-toggler(@admin-green);
-  }
-
-  &.publish-tree {
-    .publish-tree-action-button {
-      .menu-action-button(@admin-green);
-    }
-
-    .dropdown-toggler(@admin-green);
-  }
-
-  &.mark-as-ready {
-    .mark-as-ready-action-button {
-      .menu-action-button(@admin-font-gray2);
-    }
-
-    .dropdown-toggler(@admin-font-gray2);
-  }
-
-  &.unpublish {
-    .unpublish-action-button {
-      .menu-action-button(@admin-font-gray2);
-    }
-
-    .dropdown-toggler(@admin-font-gray2);
-  }
-
-  &.request-publish {
-    .request-publish-action-button {
-      .menu-action-button(@admin-font-gray2);
-    }
-
-    .dropdown-toggler(@admin-font-gray2);
-  }
-
-  &.create-issue {
-    .create-issue-action-button {
-      .menu-action-button(@admin-button-blue2);
-    }
-
-    .dropdown-toggler(@admin-button-blue2);
-  }
-
-  &.open-request {
-    .open-request-action-button {
-      .menu-action-button(@admin-green);
-    }
-
-    .dropdown-toggler(@admin-green);
   }
 
   .progress-bar {
@@ -107,27 +48,16 @@
   }
 }
 
-.content-browse-toolbar .content-publish-menu {
-  .@{_COMMON_PREFIX}dropdown-handle {
-    width: @toolbar-height - 1;
-  }
-}
-
-.content-wizard-toolbar .content-publish-menu {
-  .@{_COMMON_PREFIX}dropdown-handle {
-    width: @app-header-height-inner;
-  }
-}
-
 .menu-action-button(@color) {
-  display: inline-block !important;
+  @media screen and (min-width: 720px) {
+    display: flex;
+  }
 
   @media screen and (max-width: 720px) {
     display: none !important;
   }
 
   span {
-    line-height: @toolbar-height - 2px;
     text-transform: uppercase;
     color: @color;
     font-family: sans-serif, "Open Sans", Helvetica;
@@ -138,10 +68,12 @@
       color: @color;
     }
   }
+
+  .dropdown-toggler(@color);
 }
 
 .dropdown-toggler(@color) {
-  .xp-admin-common-dropdown-handle {
+  ~ .@{_COMMON_PREFIX}dropdown-handle {
     &::before {
       color: @color;
     }
@@ -151,9 +83,7 @@
     }
 
     @media screen and (max-width: 720px) {
-      position: static;
-      display: flex;
-      width: @app-header-height;
+      width: @toolbar-height - 8;
     }
   }
 }
@@ -165,7 +95,7 @@
 
     .@{_COMMON_PREFIX}dropdown-handle,
     .action-button,
-    .action-button.create-issue-action-button {
+    .action-button.create-issue-action {
       display: none !important;
     }
   }

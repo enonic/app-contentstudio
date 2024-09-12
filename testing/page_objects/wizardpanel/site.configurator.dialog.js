@@ -37,10 +37,6 @@ class SiteConfiguratorDialog extends Page {
         return XPATH.container + "//input[contains(@name,'numPosts')]";
     }
 
-    get textInput() {
-        return XPATH.container + lib.TEXT_INPUT;
-    }
-
     async waitForImageUploadButtonDisplayed() {
         try {
             return await this.waitForElementDisplayed(this.imageSelectorUploadButton, appConst.mediumTimeout);
