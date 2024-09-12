@@ -78,7 +78,7 @@ describe('edit.permissions.dialog.spec: tests for Edit Permissions dialog that i
             // 4. Reopen Edit Permissions dialog:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             await studioUtils.saveScreenshot("edit_perm_dlg_overwrite_checkbox");
-            // "Overwrite Child' checkbox should not be selected, when the dialog is reopened
+            // 'Overwrite Child' checkbox should not be selected, when the dialog is reopened
             isChecked = await editPermissionsDialog.isOverwriteChildPermissionsCheckBoxSelected();
             assert.ok(isChecked === false, "Overwrite Child checkbox should be unchecked");
         });

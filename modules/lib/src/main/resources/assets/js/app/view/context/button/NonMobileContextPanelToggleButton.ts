@@ -3,6 +3,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ToggleContextPanelEvent} from '../ToggleContextPanelEvent';
 import {ContextPanelStateEvent} from '../ContextPanelStateEvent';
 import {ContextPanelState} from '../ContextPanelState';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 
 export class NonMobileContextPanelToggleButton
     extends Button {
@@ -15,9 +16,10 @@ export class NonMobileContextPanelToggleButton
     }
 
     private initListeners() {
-        this.onClicked(() => {
+        const toggleAction = () => {
             new ToggleContextPanelEvent().fire();
-        });
+        };
+        this.onClicked(toggleAction);
 
         ContextPanelStateEvent.on((event: ContextPanelStateEvent) => {
             const expanded: boolean = event.getState() !== ContextPanelState.COLLAPSED;

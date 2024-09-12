@@ -39,6 +39,9 @@ export class IssueStatusSelector
 
             this.addNavigationItem(menuItem);
         });
+        this.getMenuEl().whenRendered(() => {
+            this.getTabMenuButtonEl().getEl().setWidthPx(this.getMenuEl().getEl().getWidth());
+        });
     }
 
     private initIcon() {

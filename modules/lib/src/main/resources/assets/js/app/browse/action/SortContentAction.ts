@@ -9,7 +9,8 @@ export class SortContentAction extends ContentTreeGridAction {
 
     constructor(grid: ContentTreeGrid) {
         super(grid, i18n('action.sortMore'));
-        this.setEnabled(false);
+
+        this.setEnabled(false).setClass('sort');
     }
 
     protected handleExecuted() {

@@ -55,16 +55,16 @@ describe('combobox.content.spec: tests for comboBox content', function () {
         async () => {
             let comboBoxForm = new ComboBoxForm();
             let contentWizard = new ContentWizard();
-            //1. open new wizard and fill in the name input:
+            // 1. open new wizard and fill in the name input:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.COMBOBOX_1_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
-            //2. Select a required option:
+            // 2. Select a required option:
             await comboBoxForm.typeInFilterAndClickOnOption(OPTION_A);
-            //3. Verify that Options filter Input gets not visible/disabled after selecting an option
+            // 3. Verify that Options filter Input gets not visible/disabled after selecting an option
             await comboBoxForm.waitForOptionFilterInputDisabled();
-            //4. Verify that the content gets valid even before clicking on the 'Save' button
+            // 4. Verify that the content gets valid even before clicking on the 'Save' button
             let isInValid = await contentWizard.isContentInvalid();
-            assert.ok(isInValid === false, 'the content should be valid, because combobox input is not required');
+            assert.ok(isInValid === false, 'the content should be valid, because the required option has been selected');
 
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -80,9 +80,9 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             await comboBoxForm.clickOnRemoveSelectedOptionButton(0);
             // 3. Verify that Options filter Input gets visible/enabled after removing the selected option
             await comboBoxForm.waitForOptionFilterInputEnabled();
-            // 4. Verify that the content gets invalid even after removing a required selected option:
+            // 4. Verify that the content gets invalid after removing the required selected option:
             let isInValid = await contentWizard.isContentInvalid();
-            assert.ok(isInValid, 'the content should be not valid, because combobox input is required');
+            assert.ok(isInValid, 'the content should be invalid, because combobox input is required');
             // 5. Verify the message 'This field is required'
             let actualMessage = await comboBoxForm.getComboBoxValidationMessage();
             assert.equal(actualMessage, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "Expected validation message should appear");
@@ -123,7 +123,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             await comboBoxForm.clickOnRemoveSelectedOptionButton(1);
             // 3. Verify that the content gets not valid even after removing a required selected option:
             let isInValid = await contentWizard.isContentInvalid();
-            assert.ok(isInValid, 'the content should be invalid, because combobox input is required');
+            assert.ok(isInValid, 'the content should be invalid, because 2 options are required');
             // 4. Verify the message: 'Min 2 valid occurrence(s) required'
             let actualMessage = await comboBoxForm.getComboBoxValidationMessage();
             assert.equal(actualMessage, "Min 2 valid occurrence(s) required", "Expected validation message should appear");

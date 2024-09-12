@@ -13,6 +13,7 @@ export class PublishAction extends BasePublishAction {
             shortcut: 'ctrl+alt+p',
             errorMessage: i18n('notify.publish.invalidError')
         });
+        this.setClass('publish');
     }
 
     protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {

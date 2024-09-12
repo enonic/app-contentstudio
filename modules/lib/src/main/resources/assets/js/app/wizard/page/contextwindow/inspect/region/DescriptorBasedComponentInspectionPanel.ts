@@ -23,7 +23,7 @@ import {PageState} from '../../../PageState';
 import {ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
 import {ComponentDescriptorUpdatedEvent} from '../../../../../page/region/ComponentDescriptorUpdatedEvent';
 import {PageEventsManager} from '../../../../PageEventsManager';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {
@@ -160,7 +160,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     protected createSelector(componentType: ComponentType): ComponentDescriptorsDropdown {
         return new ComponentDescriptorsDropdown({
-            optionDisplayValueViewer: new DescriptorViewer(),
+            optionDisplayValueViewer: new DescriptorViewer('', NamesAndIconViewSize.compact),
             dataIdProperty: 'value',
             noOptionsText: 'No components available'
         }).setComponentType(componentType);

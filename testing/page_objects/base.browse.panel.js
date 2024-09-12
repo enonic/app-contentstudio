@@ -220,8 +220,8 @@ class BaseBrowsePanel extends Page {
             throw new Error("Menu item is not displayed: " + menuItem);
         }
         return await this.browser.waitUntil(async () => {
-            let result = await el[0].getAttribute("class");
-            return !result.includes("disabled");
+            let result = await el[0].getAttribute('class');
+            return !result.includes('disabled');
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "context menu item is not enabled in 3000 ms"});
     }
 
@@ -232,8 +232,8 @@ class BaseBrowsePanel extends Page {
             throw new Error("Menu item is not displayed: " + menuItem);
         }
         return await this.browser.waitUntil(async () => {
-            let result = await el[0].getAttribute("class");
-            return result.includes("disabled");
+            let result = await el[0].getAttribute('class');
+            return result.includes('disabled');
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "context menu item is not disabled in 3000 ms"});
     }
 
@@ -280,6 +280,40 @@ class BaseBrowsePanel extends Page {
             let classAttr = await this.getAttribute(checkboxDiv, 'class');
             return classAttr.includes('selected');
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "row and Checkbox is not selected"});
+    }
+
+    // check for Accessibility attributes: toolbar role
+    async waitForBrowseToolbarRoleAttribute(expectedRole) {
+        let locator = this.toolbar;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
+    }
+
+    // check for Accessibility attributes: aria-label
+    async waitForBrowseToolbarAriaLabelAttribute() {
+        let locator = this.toolbar;
+        await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
+    }
+
+    // check for Accessibility attributes: ContentAppBar role
+    async waitForContentAppBarRoleAttribute(expectedRole) {
+        let locator = lib.DIV.CONTENT_APP_BAR_DIV;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
+    }
+
+    // check for Accessibility attributes: ContentAppBar aria-label:
+    async waitForContentAppBarAriaLabelAttribute() {
+        let locator = lib.DIV.CONTENT_APP_BAR_DIV;
+        await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
+    }
+
+    async waitForProjectViewerRoleAttribute(expectedValue) {
+        let locator = lib.DIV.CONTENT_APP_BAR_DIV + lib.DIV.PROJECT_VIEWER_DIV;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedValue);
+    }
+
+    async waitForProjectViewerAriaHasPopupAttribute(expectedValue) {
+        let locator = lib.DIV.CONTENT_APP_BAR_DIV + lib.DIV.PROJECT_VIEWER_DIV;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_HAS_POPUP, expectedValue);
     }
 }
 

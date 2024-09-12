@@ -13,7 +13,6 @@ import {SortContentAction} from './SortContentAction';
 import {PublishContentAction} from './PublishContentAction';
 import {PublishTreeContentAction} from './PublishTreeContentAction';
 import {UnpublishContentAction} from './UnpublishContentAction';
-import {UndoPendingDeleteContentAction} from './UndoPendingDeleteContentAction';
 import {CreateIssueAction} from './CreateIssueAction';
 import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
 import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
@@ -39,6 +38,8 @@ export enum ActionName {
     CREATE_ISSUE, TOGGLE_SEARCH_PANEL
 }
 
+export type ActionMap<T extends Action> = Map<ActionName, T>;
+
 export enum State {
     ENABLED, DISABLED
 }
@@ -47,7 +48,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
     private readonly grid: ContentTreeGrid;
 
-    private actionsMap: Map<ActionName, ContentTreeGridAction> = new Map<ActionName, ContentTreeGridAction>();
+    private actionsMap: ActionMap<ContentTreeGridAction> = new Map<ActionName, ContentTreeGridAction>();
 
     private beforeActionsStashedListeners: (() => void)[] = [];
 

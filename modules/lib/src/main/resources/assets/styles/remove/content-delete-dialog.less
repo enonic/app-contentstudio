@@ -1,15 +1,8 @@
 .content-delete-dialog {
   .dialog-buttons .button-container .dropdown-dialog-menu {
     button {
-      .dialog-button(@bg: @input-red-text);
+      .button-background(@bg: @input-red-text);
 
-      &.@{_COMMON_PREFIX}dropdown-handle {
-        display: flex;
-
-        &:hover {
-          background-color: @input-red-text
-        }
-      }
     }
   }
 

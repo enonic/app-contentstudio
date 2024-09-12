@@ -81,7 +81,8 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             await studioUtils.saveScreenshot('task_published_by_user');
             // 6. Verify that the notification message appears:
             await issueDetailsDialog.waitForNotificationMessage();
-            await issueDetailsDialog.waitForReopenButtonLoaded();
+            // Reopen Issue button should appear in the Issue Details modal dialog:
+            await issueDetailsDialog.waitForReopenButtonDisplayed();
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
@@ -99,7 +100,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             // 4. Click on the task:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             // 5. Verify the status info:
-            let info = await issueDetailsDialog.getStatusInfo();
+            let info = await issueDetailsDialog.getIssueStatusInfo();
             let expectedMessage = appConst.issueClosedBy(USER.displayName);
             // 6. Verify that the info message is displayed in the status selector : "Closed by user:system:${userName}"
             assert.ok(info.includes(expectedMessage), "Expected notification message should appear");

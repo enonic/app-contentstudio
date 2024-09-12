@@ -2,82 +2,18 @@
 
 import {Issue} from '../issue/Issue';
 import {IssueType} from '../issue/IssueType';
-import {ContentPublishMenuAction, ContentPublishMenuButton, ContentPublishMenuButtonConfig} from './ContentPublishMenuButton';
-import {IssueDialogsManager} from '../issue/IssueDialogsManager';
-import {BasePublishAction} from '../wizard/action/BasePublishAction';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {ContentId} from '../content/ContentId';
-
-export interface ContentWizardPublishMenuButtonConfig extends ContentPublishMenuButtonConfig {
-    openRequestAction: Action;
-}
+import {ContentActionMenuButton} from '../ContentActionMenuButton';
 
 export class ContentWizardPublishMenuButton
-    extends ContentPublishMenuButton {
-
-    protected openRequestAction: ContentPublishMenuAction;
-
-    protected openRequestButton: ActionButton;
+    extends ContentActionMenuButton {
 
     private publishRequest: Issue;
 
     private publishRequestActionChangeListeners: ((added: boolean) => void)[] = [];
 
-    constructor(config: ContentWizardPublishMenuButtonConfig) {
-        super(config);
-        this.initMenuActionsListeners();
-    }
-
-    protected initMenuActions(config: ContentWizardPublishMenuButtonConfig) {
-        super.initMenuActions(config);
-        this.openRequestAction = new ContentPublishMenuAction(config.openRequestAction, 'open-request');
-        this.openRequestAction.getAction().onExecuted(() => {
-            if (this.publishRequest) {
-                IssueDialogsManager.get().openDetailsDialog(this.publishRequest);
-            }
-        });
-    }
-
-    protected initButtons() {
-        super.initButtons();
-        this.openRequestButton = new ActionButton(this.openRequestAction.getAction());
-    }
-
-    protected initMenuActionsListeners() {
-        const actionsWithSaveBeforeExecution: BasePublishAction[] = [
-            this.publishAction.getAction() as BasePublishAction,
-            this.requestPublishAction.getAction() as BasePublishAction
-        ];
-        actionsWithSaveBeforeExecution.forEach(action => {
-            action.onBeforeExecute(() => {
-                if (action.mustSaveBeforeExecution()) {
-                    this.collapseMenu();
-                }
-            });
-        });
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            this.openRequestButton.addClass('open-request-action-button');
-            return rendered;
-        });
-    }
-
-    protected getActions(): Action[] {
-        return [
-            this.markAsReadyAction.getAction(),
-            this.publishAction.getAction(),
-            this.unpublishAction.getAction(),
-            this.requestPublishAction.getAction(),
-            this.openRequestAction.getAction(),
-            this.createIssueAction.getAction()
-        ];
-    }
-
-    protected getButtons(): ActionButton[] {
-        return [this.markAsReadyButton, this.unpublishButton, this.requestPublishButton, this.openRequestButton, this.createIssueButton];
+    getPublishRequest(): Issue {
+        return this.publishRequest;
     }
 
     protected findIssues(contentId: ContentId): Q.Promise<Issue[]> {
@@ -87,37 +23,10 @@ export class ContentWizardPublishMenuButton
         });
     }
 
-    updateActiveClass() {
-        if (this.isItemPendingDelete() && this.publishAction.isEnabled()) {
-            this.setActiveClass(this.publishAction.getActionClass());
-        } else if (this.openRequestAction.isEnabled()) {
-            this.setActiveClass(this.openRequestAction.getActionClass());
-        } else {
-            super.updateActiveClass();
-        }
-    }
-
     private createPublishRequestAction(issues: Issue[]) {
-        const hasIssues = issues != null && issues.length > 0;
-        let publishRequestAdded = false;
-        if (hasIssues) {
-            this.publishRequest = null;
-            // Reverse to find the oldest
-            issues.reverse().some(issue => {
-                const isPublishRequest = issue.getType() === IssueType.PUBLISH_REQUEST;
-                if (isPublishRequest) {
-                    this.publishRequest = issue;
-                }
-
-                return isPublishRequest;
-            });
-
-            const hasPublishRequest = this.publishRequest != null;
-            if (hasPublishRequest) {
-                publishRequestAdded = true;
-            }
-        }
-        this.notifyPublishRequestActionChanged(publishRequestAdded);
+        // Reverse to find the oldest
+        this.publishRequest = issues.reverse().find(issue => issue.getType() === IssueType.PUBLISH_REQUEST);
+        this.notifyPublishRequestActionChanged(!!this.publishRequest);
     }
 
     public onPublishRequestActionChanged(listener: (added: boolean) => void) {

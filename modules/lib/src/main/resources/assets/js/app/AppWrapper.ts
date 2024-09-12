@@ -66,6 +66,7 @@ export class AppWrapper
 
     private initElements() {
         this.sidebar = new WidgetsSidebar();
+        this.sidebar.hide();
         this.toggleSidebarButton = new ToggleIcon();
         this.appBar = ContentAppBar.getInstance();
         this.widgetsBlock = new DivEl('widgets-block');
@@ -234,6 +235,13 @@ export class AppWrapper
 
     private toggleSidebar() {
         const isSidebarVisible: boolean = this.hasClass('sidebar-expanded');
+        if (!isSidebarVisible) {
+            this.sidebar.show();
+        } else {
+            // Hide the sidebar in DOM after collapse animation to prevent its elements from getting focus
+            setTimeout(() => this.sidebar.hide(), 500);
+        }
+
         this.toggleClass('sidebar-expanded', !isSidebarVisible);
         this.toggleSidebarButton.toggleClass('toggled', !isSidebarVisible);
         this.toggleSidebarButton.setTitle(

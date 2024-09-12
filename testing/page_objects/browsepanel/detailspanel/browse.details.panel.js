@@ -37,6 +37,11 @@ class BrowseDetailsPanel extends BaseDetailsPanel {
             })
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Details Panel should be cleared"});
     }
+
+    async waitForWidgetDropdownRoleAttribute(expectedValue) {
+        let locator = this.widgetSelectorDropdownHandle;
+        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedValue);
+    }
 }
 
 module.exports = BrowseDetailsPanel;

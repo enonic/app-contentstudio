@@ -20,7 +20,9 @@ export class MarkAsReadyContentAction
 
     constructor(grid: ContentTreeGrid) {
         super(grid, i18n('action.markAsReady'));
-        this.setEnabled(false);
+
+        this.setEnabled(false).setClass('mark-as-ready');
+
         this.canPublish = false;
 
         this.confirmDialog = new ConfirmationDialog().setQuestion(i18n('dialog.markAsReady.question'));

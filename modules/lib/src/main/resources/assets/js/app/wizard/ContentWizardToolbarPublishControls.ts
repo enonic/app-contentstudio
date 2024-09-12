@@ -3,6 +3,9 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ContentWizardPublishMenuButton} from '../browse/ContentWizardPublishMenuButton';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {BasePublishAction} from './action/BasePublishAction';
+import {IssueDialogsManager} from '../issue/IssueDialogsManager';
+import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 
 export class ContentWizardToolbarPublishControls
     extends DivEl {
@@ -18,23 +21,50 @@ export class ContentWizardToolbarPublishControls
 
         this.actions = actions;
 
-        this.publishButton = new ContentWizardPublishMenuButton({
-            publishAction: actions.getPublishAction(),
-            unpublishAction: actions.getUnpublishAction(),
-            markAsReadyAction: actions.getMarkAsReadyAction(),
-            createIssueAction: actions.getCreateIssueAction(),
-            requestPublishAction: actions.getRequestPublishAction(),
-            openRequestAction: actions.getOpenRequestAction()
-        });
-
-        actions.getPublishAction().setIconClass('publish-action');
-        this.publishButton.addClass('content-wizard-toolbar-publish-button');
+        this.createPublishButton(actions);
 
         this.initMobilePublishControls();
 
         this.initListeners();
 
         this.appendChild(this.publishButton);
+
+        this.makeTabbable();
+    }
+
+    private createPublishButton(actions: ContentWizardActions) {
+        this.publishButton = new ContentWizardPublishMenuButton({
+            defaultAction: actions.getOpenRequestAction(),
+            menuActions: [
+                actions.getMarkAsReadyAction(),
+                actions.getPublishAction(),
+                actions.getUnpublishAction(),
+                actions.getRequestPublishAction(),
+                actions.getOpenRequestAction(),
+                actions.getCreateIssueAction()
+            ],
+            dropdownPosition: MenuButtonDropdownPos.RIGHT
+        });
+
+        actions.getOpenRequestAction().onExecuted(() => {
+            if (this.publishButton.getPublishRequest()) {
+                IssueDialogsManager.get().openDetailsDialog(this.publishButton.getPublishRequest());
+            }
+        });
+
+        const actionsWithSaveBeforeExecution: BasePublishAction[] = [
+            actions.getPublishAction() as BasePublishAction,
+            actions.getRequestPublishAction() as BasePublishAction
+        ];
+        actionsWithSaveBeforeExecution.forEach(action => {
+            action.onBeforeExecute(() => {
+                if (action.mustSaveBeforeExecution()) {
+                    this.publishButton.collapseMenu();
+                }
+            });
+        });
+
+        this.publishButton.addClass('content-wizard-toolbar-publish-button');
     }
 
     protected initMobilePublishControls() {

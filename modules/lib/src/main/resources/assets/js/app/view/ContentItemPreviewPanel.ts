@@ -18,7 +18,6 @@ import {UrlHelper} from '../util/UrlHelper';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
-import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolbar';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
@@ -187,7 +186,7 @@ export class ContentItemPreviewPanel
         });
     }
 
-    createToolbar(): ItemPreviewToolbar<ViewItem> {
+    createToolbar(): ContentItemPreviewToolbar {
         return new ContentItemPreviewToolbar();
     }
 

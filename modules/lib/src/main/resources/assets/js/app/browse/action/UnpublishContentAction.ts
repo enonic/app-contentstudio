@@ -10,7 +10,7 @@ export class UnpublishContentAction extends ContentTreeGridAction {
     constructor(grid: ContentTreeGrid) {
         super(grid, i18n('action.unpublishMore'));
 
-        this.setEnabled(false);
+        this.setEnabled(false).setClass('unpublish');
     }
 
     protected handleExecuted() {

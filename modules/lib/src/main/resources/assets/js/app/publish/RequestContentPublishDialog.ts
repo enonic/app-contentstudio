@@ -99,7 +99,7 @@ export class RequestContentPublishDialog
         this.assigneesFormItem = this.createAssigneesFormItem();
         this.detailsForm = this.createForm();
 
-        this.getButtonRow().makeActionMenu(this.nextAction, []);
+        this.getButtonRow().makeActionMenu(this.nextAction);
     }
 
     private createForm(): Form {
