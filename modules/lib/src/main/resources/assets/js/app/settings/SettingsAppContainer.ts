@@ -18,7 +18,7 @@ export class SettingsAppContainer
 
         const appBar: ContentAppBar = ContentAppBar.getInstance();
         appBar.hideTabs();
-        appBar.disableHomeButton();
+        appBar.unsetHomeIconAction();
     }
 
     show() {
@@ -27,7 +27,9 @@ export class SettingsAppContainer
         const appBar: ContentAppBar = ContentAppBar.getInstance();
 
         appBar.showTabs();
-        appBar.enableHomeButton();
+        if (appBar.getTabMenu().countVisible() > 0) {
+            appBar.setHomeIconAction();
+        }
     }
 
 }

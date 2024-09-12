@@ -86,7 +86,6 @@ class EditScheduleDialog extends Page {
     }
 
     waitForValidationRecording() {
-        let dateTimeRange = new DateTimeRange();
         return this.waitForElementDisplayed(this.scheduleValidationRecord, appConst.shortTimeout);
     }
 
@@ -103,8 +102,7 @@ class EditScheduleDialog extends Page {
         try {
             await this.waitForElementNotDisplayed(xpath.container + xpath.scheduleStepFormDiv, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_schedule_form');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_schedule_form');
             throw new Error(`Error - Schedule form should not be displayed, screenshot: ${screenshot} ` + err);
         }
     }

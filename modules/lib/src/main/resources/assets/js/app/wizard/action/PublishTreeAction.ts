@@ -7,6 +7,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 export class PublishTreeAction extends BasePublishAction {
     constructor(wizard: ContentWizardPanel) {
         super({wizard, label: i18n('action.publishTreeMore'), errorMessage: i18n('notify.publish.invalidError')});
+        this.setClass('publish-tree');
     }
 
     protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {

@@ -11,6 +11,15 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
+    const SETTINGS_TOOLBAR_ROLE = 'toolbar';
+
+    // Verify Accessibility attributes in Settings Browse Panel:
+    it("WHEN settings browse panel is loaded THEN expected accessibility attributes should be set",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            // 1. Verify that Browse-Toolbar is a div with role="toolbar".
+            await settingsBrowsePanel.waitForBrowseToolbarRoleAttribute(SETTINGS_TOOLBAR_ROLE);
+        });
 
     it(`WHEN setting browse panel is opened(no selections) THEN expected button should be present in the browse toolbar`,
         async () => {

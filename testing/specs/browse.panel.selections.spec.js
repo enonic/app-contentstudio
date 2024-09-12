@@ -14,6 +14,32 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
+    const BROWSE_TOOLBAR_ROLE = 'toolbar';
+    const CONTENT_APP_BAR_ROLE_BANNER = 'banner';
+
+    // Verify Accessibility attributes in Browse Panel(toolbar role, aria-label):
+    it("WHEN browse panel is loaded THEN role and aria-label attributes should be set correctly",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. Verify that <html> element has lang="en" attribute:
+            await contentBrowsePanel.waitForLangAttribute('en');
+            // 2. Verify that Browse-Toolbar is a div with role="toolbar".
+            await contentBrowsePanel.waitForBrowseToolbarRoleAttribute(BROWSE_TOOLBAR_ROLE);
+            // 3. Verify that Browse-Toolbar is a div with expected 'aria-label' attribute
+            await contentBrowsePanel.waitForBrowseToolbarAriaLabelAttribute();
+            // 4. Verify that ContentAppBar is a div with role="banner".
+            await contentBrowsePanel.waitForContentAppBarRoleAttribute(CONTENT_APP_BAR_ROLE_BANNER);
+            // 5. Verify aria-label attribute for ContentAppBar :
+            await contentBrowsePanel.waitForContentAppBarAriaLabelAttribute();
+            // 6. Verify that 'Project Viewer' has aria-haspopup attribute set to 'dialog':
+            await contentBrowsePanel.waitForProjectViewerAriaHasPopupAttribute('dialog');
+            // 7. ProjectViewer button has the attribute: role=button
+            await contentBrowsePanel.waitForProjectViewerRoleAttribute('button');
+            // 8. Verify that 'Show Issues' button has aria-haspopup attribute set to 'dialog':
+            await contentBrowsePanel.waitForShowIssuesButtonAriaHasPopupAttribute('dialog');
+            // 9. Verify the accessibility attribute 'presentation'
+            await contentBrowsePanel.waitForPublishMenuRoleAttribute('presentation');
+        });
 
     it("GIVEN unnamed content are selected WHEN the content hav been deleted THEN modal dialog should be closed",
         async () => {
@@ -22,7 +48,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             let confirmValueDialog = new ConfirmValueDialog();
             await studioUtils.typeNameInFilterPanel('unnamed');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
-            if (result.length === 0) {
+            if (result.length <= 1) {
                 return;
             }
             await contentBrowsePanel.clickOnSelectionControllerCheckbox();

@@ -94,10 +94,10 @@ export class TogglableStatusSelectionItem
 
     private addTabIndexToTogglerAndRemoveElements() {
         if (this.toggler) {
-            AccessibilityHelper.tabIndex(this.toggler);
+            AccessibilityHelper.makeTabbable(this.toggler);
         }
         if (this.removeEl) {
-            AccessibilityHelper.tabIndex(this.removeEl);
+            AccessibilityHelper.makeTabbable(this.removeEl);
         }
     }
 }

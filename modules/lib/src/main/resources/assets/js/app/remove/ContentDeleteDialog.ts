@@ -4,7 +4,7 @@ import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
+import {MenuButton, MenuButtonConfig} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
@@ -19,6 +19,7 @@ import {ResolveDeleteRequest} from '../resource/ResolveDeleteRequest';
 import {ConfirmValueDialog} from './ConfirmValueDialog';
 import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
 import {DependantItemsWithReferencesDialog} from '../dialog/DependantItemsWithReferencesDialog';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 
 enum ActionType {
     DELETE = 'delete',
@@ -66,7 +67,10 @@ export class ContentDeleteDialog
         this.deleteNowAction = new ContentDeleteDialogAction();
         this.deleteNowAction.onExecuted(this.delete.bind(this, false, true));
 
-        this.menuButton = this.getButtonRow().makeActionMenu(this.archiveAction, [this.deleteNowAction]);
+        this.menuButton = this.getButtonRow().makeActionMenu({
+            defaultAction: this.archiveAction,
+            menuActions: [this.deleteNowAction]
+        });
         this.actionButton = this.menuButton.getActionButton();
     }
 
@@ -145,7 +149,16 @@ export class ContentDeleteDialog
         const totalItemsToProcess: number = this.totalItemsToDelete;
         const yesCallback: () => void = this.createConfirmExecutionCallback();
 
+        const lastFocusedElement = Body.get().getFocusedElement();
+        if (lastFocusedElement) {
+            Body.get().setFocusedElement(null);
+        }
+
         this.close();
+
+        if (lastFocusedElement) {
+            Body.get().setFocusedElement(lastFocusedElement);
+        }
 
         if (!this.confirmExecutionDialog) {
             this.confirmExecutionDialog = new ConfirmValueDialog();
@@ -295,8 +308,8 @@ export class ContentDeleteDialog
 export class ContentDeleteDialogButtonRow
     extends DropdownButtonRow {
 
-    makeActionMenu(mainAction: Action, menuActions: Action[], useDefault: boolean = true): MenuButton {
-        super.makeActionMenu(mainAction, menuActions, useDefault);
+    makeActionMenu(menuButtonConfig: MenuButtonConfig, useDefault: boolean = true): MenuButton {
+        super.makeActionMenu(menuButtonConfig, useDefault);
 
         return this.actionMenu.addClass('delete-dialog-menu') as MenuButton;
     }

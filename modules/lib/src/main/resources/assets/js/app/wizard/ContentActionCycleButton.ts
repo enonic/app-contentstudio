@@ -2,6 +2,7 @@ import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {assert} from '@enonic/lib-admin-ui/util/Assert';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 
 export class ContentActionCycleButton
     extends Button {

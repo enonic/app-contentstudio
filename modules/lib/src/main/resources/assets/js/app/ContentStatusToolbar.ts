@@ -2,43 +2,41 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolbar';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import * as Q from 'q';
+import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {CompareWithPublishedVersionDialog} from './dialog/CompareWithPublishedVersionDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 
-export interface ContentStatusToolbarConfig {
-    className?: string;
-}
-
-export class ContentStatusToolbar
-    extends ItemPreviewToolbar<ContentSummaryAndCompareStatus> {
+export class ContentStatusToolbar<C extends ToolbarConfig>
+    extends ItemPreviewToolbar<ContentSummaryAndCompareStatus, C> {
 
     private showChangesBtn: ButtonEl;
 
     protected status: SpanEl;
 
-    protected config: ContentStatusToolbarConfig;
+    constructor(config: C) {
+        super(config);
 
-    constructor(config: ContentStatusToolbarConfig) {
-        super('content-status-toolbar' + (config.className ? ' ' + config.className : ''));
-
-        this.config = config;
-
-        this.initElements();
-        this.initListeners();
+        this.addClass('content-status-toolbar');
     }
 
     protected initElements(): void {
-        this.status = new SpanEl('status');
+        super.initElements();
 
-        this.showChangesBtn = new ButtonEl();
-        this.showChangesBtn.setClass('show-changes').setTitle(i18n('text.versions.showChanges'));
-        this.showChangesBtn.onClicked(() => this.openShowPublishedVersionChangesDialog());
+        this.appendStatusWrapperEl();
     }
 
-    protected initListeners(): void {
-        //
+    protected appendStatusWrapperEl() {
+        this.status = new SpanEl('status');
+
+        this.showChangesBtn = new ButtonEl('show-changes', '');
+        this.showChangesBtn.setTitle(i18n('text.versions.showChanges'));
+        this.showChangesBtn.onClicked(() => this.openShowPublishedVersionChangesDialog());
+
+        const statusWrapper = new DivEl('content-status-wrapper');
+        statusWrapper.appendChildren(this.status, this.showChangesBtn);
+
+        this.addContainer(statusWrapper, [this.showChangesBtn]);
     }
 
     setItem(item: ContentSummaryAndCompareStatus): void {
@@ -77,16 +75,6 @@ export class ContentStatusToolbar
     private clearStatus(): void {
         this.status.setHtml('');
         this.showChangesBtn.setEnabled(false).hide();
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then(rendered => {
-            const statusWrapper = new DivEl('content-status-wrapper');
-            this.addElement(statusWrapper);
-            statusWrapper.appendChildren(this.status, this.showChangesBtn);
-
-            return rendered;
-        });
     }
 
     protected openShowPublishedVersionChangesDialog() {

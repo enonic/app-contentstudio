@@ -1,6 +1,7 @@
 /**
  * Created on 17.05.2018.
  */
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
@@ -16,19 +17,21 @@ describe('Wizard toolbar - shortcut spec', function () {
         webDriverHelper.setupBrowser();
     }
     let DISPLAY_NAME;
+    const WIZARD_TOOLBAR_ROLE = 'toolbar';
 
-    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+s' has been pressed THEN folder should be saved`, async () => {
-        let contentWizard = new ContentWizard();
-        DISPLAY_NAME = contentBuilder.generateRandomName('folder');
-        // 1. Open new wizard:
-        await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-        await contentWizard.typeDisplayName(DISPLAY_NAME);
-        await contentWizard.pause(1000);
-        // 2. Press 'Ctrl+S'
-        await contentWizard.hotKeySave();
-        // 3. Verify the notification message:
-        await contentWizard.waitForExpectedNotificationMessage(appConst.itemSavedNotificationMessage(DISPLAY_NAME));
-    });
+    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+s' has been pressed THEN folder should be saved`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            DISPLAY_NAME = contentBuilder.generateRandomName('folder');
+            // 1. Open new wizard:
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            await contentWizard.typeDisplayName(DISPLAY_NAME);
+            await contentWizard.pause(1000);
+            // 2. Press 'Ctrl+S'
+            await contentWizard.hotKeySave();
+            // 3. Verify the notification message:
+            await contentWizard.waitForExpectedNotificationMessage(appConst.itemSavedNotificationMessage(DISPLAY_NAME));
+        });
 
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Delete' have been pressed THEN 'Delete Dialog' should appear`,
         async () => {
@@ -56,6 +59,36 @@ describe('Wizard toolbar - shortcut spec', function () {
             await contentPublishDialog.waitForDialogOpened();
         });
 
+    // Verify Accessibility attributes in Content Wizard Panel:
+    it(`WHEN existing folder has been opened THEN role attribute should be set to 'toolbar' for wizard-toolbar div`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            // 1. Open the existing folder:
+            await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
+            // 2. Verify that role attribute is set to 'toolbar' for wizard-toolbar div:
+            await contentWizard.waitForToolbarRoleAttribute(WIZARD_TOOLBAR_ROLE);
+        });
+
+    // Verify Accessibility attributes in Content Wizard Panel:
+    it(`WHEN existing folder has been opened THEN div with expected 'aria-label' attribute ('Main menu bar') should be present`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            // 1. Open the existing folder:
+            await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
+            // 2. Verify that Browse-Toolbar is a div with expected 'aria-label' attribute ('Main menu bar')
+            await contentWizard.waitForToolbarAriaLabelAttribute();
+            // 3. Verify that expected aria-label attribute set ProjectViewer div
+            await contentWizard.waitForProjectViewerAriaLabelAttribute();
+            // 4. 'Default' project should be displayed in the viewer in wizard:
+            let actualProjectName = await contentWizard.getProjectDisplayName();
+            assert.equal(actualProjectName, appConst.PROJECTS.DEFAULT_PROJECT_NAME,
+                'Default project name should be displayed in Project Viewer bar');
+            // 5. Verify 'aria-label' attribute in the project-viewer div:
+            await contentWizard.waitForProjectViewerAriaLabelAttribute();
+            // 6. Publish menu dropdown handle:
+            await contentWizard.waitForPublishMenuDropdownRoleAttribute('button');
+        });
+
     it.skip(`GIVEN folder-wizard is opened WHEN 'Alt+w' have been pressed THEN wizard should be closed and grid is loaded`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -66,17 +99,17 @@ describe('Wizard toolbar - shortcut spec', function () {
             await contentBrowsePanel.waitForGridLoaded();
         });
 
-    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Enter' have been pressed THEN the content should be should be saved then closed AND grid is loaded`,
+    it(`GIVEN existing folder is opened AND the display name has been updated WHEN 'Ctrl+Enter' have been pressed THEN the content should be saved and the wizard closes`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
-            // 2. Open Edit Details modal dialog and select the language:
-            let editSettingsDialog = await studioUtils.openEditSettingDialog();
-            await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
+            // 2. Update the content, Save gets enabled:
+            await contentWizard.typeDisplayName(appConst.generateRandomName('test'));
             // 3. Press 'Ctrl+Enter
             await contentWizard.hotKeySaveAndCloseWizard();
+            // 4. Verify that the wizard is closed:
             await contentBrowsePanel.waitForGridLoaded();
         });
 

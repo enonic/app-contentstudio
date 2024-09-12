@@ -9,19 +9,17 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 export class TypeFilter
     extends MenuButton {
 
-    private defaultAction: Action;
-
     private currentSelection: IssuePanelFilterAction;
 
     protected menuActions: IssuePanelFilterAction[];
 
-    private selectionListeners: ((type: FilterType) => void)[];
+    private selectionListeners: ((type: FilterType) => void)[] = [];
 
     constructor() {
-        const defaultAction: Action = new Action(i18n('field.all'));
-        super(defaultAction);
-        this.defaultAction = defaultAction;
-        this.selectionListeners = [];
+        super({
+            defaultAction: new Action(i18n('field.all')),
+            dropdownPosition: MenuButtonDropdownPos.RIGHT
+        });
 
         this.initFilterOptions();
         this.initSelectionListeners();
@@ -35,14 +33,19 @@ export class TypeFilter
             i18n('field.publishRequests'));
         const filterTasksAction = new IssuePanelFilterAction(FilterType.ISSUES).setDefaultLabel(i18n('field.issues'));
 
-        this.menuActions = [filterAllIssuesAction, filterAssignedToMeAction, filterCreatedByMeAction,
-            filterPublishRequestAction, filterTasksAction];
-        this.addMenuActions(this.menuActions);
         this.currentSelection = filterAllIssuesAction;
+
+        this.addMenuActions([
+            filterAllIssuesAction,
+            filterAssignedToMeAction,
+            filterCreatedByMeAction,
+            filterPublishRequestAction,
+            filterTasksAction
+        ]);
     }
 
     private initSelectionListeners() {
-        this.menuActions.forEach((action: IssuePanelFilterAction) => {
+        this.getMenuActions().forEach((action: IssuePanelFilterAction) => {
             action.onExecuted(() => this.handleOptionSelected(action));
         });
     }
@@ -53,12 +56,12 @@ export class TypeFilter
         }
 
         this.currentSelection = action;
-        this.defaultAction.setLabel(action.getLabel());
+        this.getDefaultAction().setLabel(action.getLabel());
         this.notifySelected(action.getType());
     }
 
     selectFirstEnabledOption() {
-        this.menuActions.some((action: IssuePanelFilterAction) => {
+        this.getMenuActions().some((action: IssuePanelFilterAction) => {
             if (action.isEnabled()) {
                 action.execute();
                 return true;
@@ -81,7 +84,7 @@ export class TypeFilter
     }
 
     toggleActionsByStatus(status: IssueStatus = IssueStatus.OPEN) {
-        this.menuActions.forEach((action: IssuePanelFilterAction) => {
+        this.getMenuActions().forEach((action: IssuePanelFilterAction) => {
             action.updateByStatus(status);
         });
 
@@ -110,9 +113,5 @@ export class TypeFilter
         this.selectionListeners.forEach((listener) => {
             listener(type);
         });
-    }
-
-    protected getDropdownPosition(): MenuButtonDropdownPos {
-        return MenuButtonDropdownPos.RIGHT;
     }
 }

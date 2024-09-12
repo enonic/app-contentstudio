@@ -9,7 +9,8 @@ export class ShowNewContentDialogAction extends ContentTreeGridAction {
 
     constructor(grid: ContentTreeGrid) {
         super(grid, i18n('action.newMore'), 'alt+n');
-        this.setEnabled(true);
+
+        this.setEnabled(true).setClass('new');
     }
 
     protected handleExecuted() {

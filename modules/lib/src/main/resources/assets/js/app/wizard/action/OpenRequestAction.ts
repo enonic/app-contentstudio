@@ -6,5 +6,7 @@ export class OpenRequestAction
 
     constructor() {
         super(i18n('action.openRequest'));
+
+        this.setClass('open-request');
     }
 }

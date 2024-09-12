@@ -56,7 +56,6 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
             let accessModeStep = new ProjectWizardDialogAccessModeStep();
             let permissionsStep = new ProjectWizardDialogPermissionsStep();
             let applicationsStep = new ProjectWizardDialogApplicationsStep();
-            let nameIdStep = new ProjectWizardDialogNameAndIdStep();
             // 1. Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             // 2. Select the parent - the project with 2 apps

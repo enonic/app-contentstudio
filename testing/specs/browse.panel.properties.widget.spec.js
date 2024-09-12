@@ -96,14 +96,18 @@ describe('Browse panel, properties widget, language spec', function () {
         async () => {
             let browseDetailsPanel = new BrowseDetailsPanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            // 1. Click on the dropdown handler:
             await browseDetailsPanel.clickOnWidgetSelectorDropdownHandle();
             let actualOptions = await browseDetailsPanel.getWidgetSelectorDropdownOptions();
             await studioUtils.saveScreenshot('details_panel_widget_options');
+            // 2. Verify the options:
             assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DEPENDENCIES), 'Dependencies option should be displayed');
             assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY),
                 "'Version history' option should be displayed");
             assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS), "'Details' option should be displayed");
             assert.equal(actualOptions.length, 4, 'Four options should be in the selector');
+            // 3. Verify the accessibility attribute in Widget Selector:
+            await browseDetailsPanel.waitForWidgetDropdownRoleAttribute('button');
         });
 
     it("GIVEN existing folder is selected WHEN test widget item has been selected in widget-selector THEN expected text gets visible in the widget-view",

@@ -58,9 +58,9 @@ class ContentItemPreviewPanel extends Page {
         return this.waitForElementDisplayed(this.previewNotAvailableMessage, appConst.mediumTimeout);
     }
 
-    waitForImageDisplayed() {
+    async waitForImageDisplayed() {
         let locator = xpath.container + "//img";
-        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
     waitForPanelVisible() {
@@ -85,7 +85,8 @@ class ContentItemPreviewPanel extends Page {
             await this.waitForIssueDropDownHandleDisplayed();
             return await this.clickOnElement(this.issueDropdownHandle);
         } catch (err) {
-            throw new Error('error when clicking on the dropdown handle ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_issue_dropdown');
+            throw new Error(`error after clicking on the dropdown handle , screenshot: ${screenshot}` + err);
         }
     }
 
@@ -96,7 +97,6 @@ class ContentItemPreviewPanel extends Page {
     waitForIssueDropDownHandleNotDisplayed() {
         return this.waitForElementNotDisplayed(this.issueDropdownHandle, appConst.shortTimeout).catch(err => {
             throw new Error('Item Preview Toolbar - dropdown handle should not be displayed !  ' + err);
-
         });
     }
 
@@ -106,19 +106,19 @@ class ContentItemPreviewPanel extends Page {
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.clickOnElement(selector);
         } catch (err) {
-            this.saveScreenshot("err_issue_menu_item");
-            throw new Error("Menu item was not found! " + issueName + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_issue_menu_item');
+            throw new Error(`Menu item was not found! screenshot: ${screenshot} ` + err);
         }
     }
 
-    //When issue is closed, this button gets not visible:
+    // When issue is closed, this button gets not visible:
     async waitForIssueMenuButtonNotVisible() {
         try {
             let selector = xpath.toolbar + `//div[contains(@id,'MenuButton') and descendant::span[contains(@class,'icon-issue')]]//button`;
             await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot("err_preview_toolbar_issue_icon");
-            throw new Error("Issue icon still visible in the toolbar " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_toolbar_issue_icon');
+            throw new Error(`Issue icon should not be visible in the toolbar, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -129,7 +129,8 @@ class ContentItemPreviewPanel extends Page {
             await this.clickOnElement(selector);
             return await this.pause(400);
         } catch (err) {
-            throw new Error('issue menu button was not found!  ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_toolbar_issue_icon');
+            throw new Error(`Issue menu button was not found! screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -140,7 +141,8 @@ class ContentItemPreviewPanel extends Page {
             await this.clickOnElement(locator);
             return await this.pause(400);
         } catch (err) {
-            throw new Error('issue menu button was not found!  ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_toolbar_issue_icon');
+            throw new Error(`Issue menu button was not found! screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -184,7 +186,7 @@ class ContentItemPreviewPanel extends Page {
             await this.switchToFrame(xpath.container + "//iframe[contains(@src,'admin/site')]");
             let result = await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
             await this.switchToParentFrame();
-            return result
+            return result;
         } catch (err) {
             await this.switchToParentFrame();
             return false;
@@ -222,6 +224,23 @@ class ContentItemPreviewPanel extends Page {
         let locator = xpath.container + "//div[@class='no-preview-message']//span";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
+    }
+
+    async waitForToolbarRoleAttribute(expectedRole) {
+        let locator = xpath.toolbar;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, 'role');
+            return text === expectedRole;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Content Item preview toolbar should be with 'role=toolbar' attribute"});
+    }
+
+    // check for Accessibility attributes: aria-label
+    async waitForBrowseToolbarAriaLabelAttribute(expectedValue) {
+        let locator = xpath.toolbar;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, "aria-label");
+            return text === expectedValue;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Content Item preview toolbar should contain expected 'aria-label' attribute"});
     }
 }
 
