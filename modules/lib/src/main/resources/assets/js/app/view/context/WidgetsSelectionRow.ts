@@ -155,6 +155,14 @@ export class WidgetFilterDropdown
         super.hideDropdown();
     }
 
+    protected handleUserToggleAction(item: WidgetView): void {
+        if (this.isItemSelected(item)) {
+            return;
+        }
+
+        super.handleUserToggleAction(item);
+    }
+
 }
 
 export class WidgetSelectedOptionsView
