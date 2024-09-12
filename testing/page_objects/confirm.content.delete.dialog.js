@@ -43,7 +43,7 @@ class ConfirmValueDialog extends Page {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
             await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshot('err_confirm_delete');
+            let screenshot = await this.saveScreenshotUniqueName('err_confirm_delete');
             throw new Error("Confirm Value Dialog was not loaded, screenshot: " + screenshot + ' ' + err);
         }
     }
@@ -52,7 +52,7 @@ class ConfirmValueDialog extends Page {
         try {
             return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshot('err_confirm_value_dlg');
+            let screenshot = await this.saveScreenshotUniqueName('err_confirm_value_dlg');
             throw new Error("Confirm Value Dialog must be closed, screenshot: " + screenshot + ' ' + err);
         }
     }
@@ -61,7 +61,7 @@ class ConfirmValueDialog extends Page {
         try {
             await this.waitForElementDisabled(this.confirmButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshot('err_confirm_value_dlg');
+            let screenshot = await this.saveScreenshotUniqueName('err_confirm_value_dlg');
             throw new Error("Confirm Value Dialog - Confirm button is not disabled, screenshot: " + screenshot + ' ' + err);
         }
     }
@@ -70,7 +70,7 @@ class ConfirmValueDialog extends Page {
         try {
             await this.waitForElementEnabled(this.confirmButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshot('err_confirm_value_dlg');
+            let screenshot = await this.saveScreenshotUniqueName('err_confirm_value_dlg');
             throw new Error("Confirm Value Dialog - Confirm button should be enabled, screenshot " + screenshot + ' ' + err);
         }
     }
@@ -101,7 +101,7 @@ class ConfirmValueDialog extends Page {
             await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
             return await this.pause(1000);
         } catch (err) {
-            await this.saveScreenshot('err_confirmation_dialog');
+            await this.saveScreenshotUniqueName('err_confirmation_dialog');
             throw new Error('Confirm Value dialog - Error during clicking on Confirm button.' + err);
         }
     }

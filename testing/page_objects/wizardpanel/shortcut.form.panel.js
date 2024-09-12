@@ -123,7 +123,7 @@ class ShortcutForm extends Page {
         try {
             return await this.waitForElementDisplayed(xpath.stepForm + lib.BUTTONS.COLLAPSE_BUTTON_TOP, appConst.shortTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName("err_shortcut_collapse_link");
+            let screenshot = await this.saveScreenshotUniqueName('err_shortcut_collapse_link');
             throw new Error(`shortcut - collapse link is not visible, screenshot: ${screenshot} ` + err);
         }
     }
@@ -132,7 +132,7 @@ class ShortcutForm extends Page {
         try {
             return await this.waitForElementDisplayed(xpath.stepForm + xpath.expandButton, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName("err_shortcut_expand_link");
+            let screenshot = await this.saveScreenshotUniqueName('err_shortcut_expand_link');
             throw new Error(`shortcut - Expand link is not visible, screenshot: ${screenshot} ` + err);
         }
     }

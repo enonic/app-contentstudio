@@ -1,19 +1,18 @@
 .content-browse-toolbar {
   overflow: visible;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  align-items: flex-end;
-  align-content: stretch;
   width: 100%;
+  border-top: 1px solid @admin-bg-light-gray;
 
-  .fold-button .@{_COMMON_PREFIX}dropdown .@{_COMMON_PREFIX}:hover {
-    background-color: @admin-bg-light-gray;
-  }
+  .fold-button {
+    height: @toolbar-height - 8px;
+    padding: 0 25px 0 14px;
+    .@{_COMMON_PREFIX}dropdown {
+      top: @toolbar-height - 4;
 
-  & > * {
-    flex: 0 0 auto;
+      .@{_COMMON_PREFIX}:hover {
+        background-color: @admin-bg-light-gray;
+      }
+    }
   }
 
   &.mobile-preview-on {
@@ -21,4 +20,40 @@
       display: none;
     }
   }
+
+  > .non-mobile-details-panel-toggle-button {
+    .button(@admin-font-gray2, transparent, @admin-font-gray3, transparent, 8px);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-right: 6px;
+
+    &.expanded {
+      &::before {
+        color: @admin-button-blue1;
+      }
+
+      &:hover::before {
+        color: @admin-button-blue2;
+      }
+    }
+
+    &:focus {
+      box-shadow: none;
+    }
+
+    * {
+      vertical-align: top;
+    }
+
+    &:before {
+      font-size: 18px;
+    }
+
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-delay: 0s;
+  }
+
 }

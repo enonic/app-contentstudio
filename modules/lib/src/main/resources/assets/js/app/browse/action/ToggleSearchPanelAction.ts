@@ -8,7 +8,7 @@ export class ToggleSearchPanelAction extends ContentTreeGridAction {
     constructor(grid: ContentTreeGrid) {
         super(grid, '', 'shift+f', true);
 
-        this.setIconClass('icon-search3');
+        this.setIconClass('icon-search3').setClass('search');
     }
 
     protected handleExecuted() {

@@ -83,6 +83,7 @@ export abstract class BasePublishDialog
 
         this.scheduleFormPropertySet = new PropertySet();
         this.publishScheduleForm = new PublishScheduleForm(this.scheduleFormPropertySet);
+        this.publishScheduleForm.hide();
 
         this.scheduleFormToggle = this.publishScheduleForm.createExternalToggle();
 
@@ -91,6 +92,7 @@ export abstract class BasePublishDialog
             this.updateControls();
         });
         this.publishScheduleForm.onFormVisibilityChanged((visible) => {
+            this.publishScheduleForm.setVisible(visible);
             this.updateControls();
             this.notifyResize();
         });

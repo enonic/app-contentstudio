@@ -10,7 +10,8 @@ export class ArchiveContentAction extends ContentTreeGridAction {
 
     constructor(grid: ContentTreeGrid) {
         super(grid, i18n('action.archiveMore'), 'mod+del');
-        this.setEnabled(false);
+
+        this.setEnabled(false).setClass('archive');
     }
 
     protected handleExecuted() {

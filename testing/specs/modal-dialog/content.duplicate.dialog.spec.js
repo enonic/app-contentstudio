@@ -35,10 +35,10 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             // 3. Verify the Number in 'Duplicate' button
             let totalNumber = await contentDuplicateDialog.getNumberItemsInDuplicateButton();
             assert.equal(totalNumber, '14', "Expected number in the Duplicate button should be displayed");
-            // 4. Verify the main item to duplicate"
+            // 4. Verify the main item to duplicate
             let names = await contentDuplicateDialog.getDisplayNamesToDuplicate();
             assert.equal(names[0], appConst.TEST_FOLDER_WITH_IMAGES, `expected parent's display name should be present`);
-            // 5. Verify the list of dependant items"
+            // 5. Verify the list of dependant items
             let dependants = await contentDuplicateDialog.getDependentsName();
             assert.equal(dependants.length, 13, '13 dependants item should be displayed');
             // Checkbox 'All' should not be displayed in Duplicate modal dialog:

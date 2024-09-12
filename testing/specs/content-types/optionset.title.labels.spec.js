@@ -23,12 +23,12 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let SINGLE_SELECTION_NOTE1 = 'single test';
-    let SINGLE_SELECTION_NOTE2 = 'single test 2';
-    let MULTI_SELECTION_TITLE1 = 'Option 2';
-    let MULTI_SELECTION_TITLE2 = 'Option 1, Option 2';
-    let OPTION_SET_NAME1 = contentBuilder.generateRandomName('optionset');
-    let OPTION_SET_NAME = contentBuilder.generateRandomName('optionset');
+    const SINGLE_SELECTION_NOTE1 = 'single test';
+    const SINGLE_SELECTION_NOTE2 = 'single test 2';
+    const MULTI_SELECTION_TITLE1 = 'Option 2';
+    const MULTI_SELECTION_TITLE2 = 'Option 1, Option 2';
+    const OPTION_SET_NAME1 = contentBuilder.generateRandomName('optionset');
+    const OPTION_SET_NAME = contentBuilder.generateRandomName('optionset');
 
     it('Preconditions: new site should be created',
         async () => {

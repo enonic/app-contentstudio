@@ -1,17 +1,24 @@
-import * as Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
+import {AriaHasPopup, WCAG} from '@enonic/lib-admin-ui/ui/WCAG';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
 import {ShowIssuesDialogAction} from '../../browse/action/ShowIssuesDialogAction';
+import {ProjectContext} from '../../project/ProjectContext';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
+import {IssueStatus} from '../IssueStatus';
 import {IssueResponse} from '../resource/IssueResponse';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
-import {IssueStatus} from '../IssueStatus';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ProjectContext} from '../../project/ProjectContext';
 
-export class ShowIssuesDialogButton extends ActionButton {
+export class ShowIssuesDialogButton
+    extends ActionButton
+    implements WCAG {
+
+    [WCAG]: boolean = true;
+    ariaHasPopup: AriaHasPopup = AriaHasPopup.DIALOG;
+    tabbable: boolean = true;
 
     private countSpan: SpanEl;
 

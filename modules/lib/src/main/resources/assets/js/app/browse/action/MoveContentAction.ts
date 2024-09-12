@@ -11,7 +11,8 @@ export class MoveContentAction
 
     constructor(grid: ContentTreeGrid) {
         super(grid, i18n('action.moveMore'), 'alt+m');
-        this.setEnabled(false);
+
+        this.setEnabled(false).setClass('move');
     }
 
     protected handleExecuted() {

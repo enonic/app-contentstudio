@@ -8,7 +8,6 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const projectUtils = require('../../libs/project.utils');
 const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 

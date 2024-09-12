@@ -19,7 +19,9 @@ export class PreviewContentAction
 
     constructor(grid: ContentTreeGrid) {
         super(grid, i18n('action.preview'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
-        this.setEnabled(false);
+
+        this.setEnabled(false).setClass('preview');
+
         this.helper = new PreviewActionHelper();
     }
 

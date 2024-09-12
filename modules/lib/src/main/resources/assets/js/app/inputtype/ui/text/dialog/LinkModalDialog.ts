@@ -668,9 +668,6 @@ export class LinkModalDialog
     }
 
     private createProtocolsDropdownButton(formItem: FormItem, textInput: TextInput): MenuButton {
-        const protocolsDropdownButton = new MenuButton(new Action(i18n('field.type')));
-        protocolsDropdownButton.addClass('menu-button-type');
-
         const actions = this.urlProtocols.map(({title, prefix, validator}) => {
             const action = new Action(title);
 
@@ -690,8 +687,11 @@ export class LinkModalDialog
             return action;
         });
 
-        protocolsDropdownButton.addMenuActions(actions);
-        protocolsDropdownButton.addClass('transparent');
+        const protocolsDropdownButton = new MenuButton({
+            defaultAction: new Action(i18n('field.type')),
+            menuActions: actions
+        });
+        protocolsDropdownButton.addClass('menu-button-type transparent');
         protocolsDropdownButton.setToggleMenuOnAction(true);
 
         return protocolsDropdownButton;

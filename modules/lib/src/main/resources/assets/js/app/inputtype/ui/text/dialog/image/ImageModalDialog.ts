@@ -39,7 +39,7 @@ import {FigureEl} from '@enonic/lib-admin-ui/dom/FigureEl';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {DropzoneContainer} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {Toolbar, ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
@@ -731,7 +731,7 @@ export interface ImageModalDialogConfig
 }
 
 export class ImageDialogToolbar
-    extends Toolbar {
+    extends Toolbar<ToolbarConfig> {
 
     private contentId?: string;
 
@@ -753,7 +753,7 @@ export class ImageDialogToolbar
     private previewSizeChangeListeners: (() => void)[] = [];
 
     constructor(previewEl: FigureEl, contentId: string) {
-        super('image-toolbar');
+        super({className: 'image-toolbar'});
 
         this.previewEl = previewEl;
         this.contentId = contentId;

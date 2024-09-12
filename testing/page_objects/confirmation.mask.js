@@ -3,7 +3,6 @@
  */
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const lib = require('../libs/elements');
 const XPATH = {
     container: `//div[contains(@id,'ConfirmationMask')]`,
     cancelButton: "//button[contains(@id,'ActionButton') and descendant::span[text()='Cancel']]",
@@ -13,8 +12,6 @@ const XPATH = {
 };
 
 class ConfirmationMask extends Page {
-
-
 
     get cancelButton() {
         return XPATH.container + XPATH.cancelButton;
