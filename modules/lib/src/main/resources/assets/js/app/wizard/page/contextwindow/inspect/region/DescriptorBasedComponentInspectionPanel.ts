@@ -21,7 +21,6 @@ import {PageState} from '../../../PageState';
 import {ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
 import {ComponentDescriptorUpdatedEvent} from '../../../../../page/region/ComponentDescriptorUpdatedEvent';
 import {PageEventsManager} from '../../../../PageEventsManager';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export interface DescriptorBasedComponentInspectionPanelConfig

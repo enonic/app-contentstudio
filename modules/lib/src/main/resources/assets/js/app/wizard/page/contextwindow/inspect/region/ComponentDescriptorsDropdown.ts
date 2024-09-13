@@ -115,7 +115,9 @@ export class ComponentDescriptorsDropdown
         this.deselectAll(true);
 
         if (descriptor) {
-            this.select(descriptor);
+            this.select(descriptor, true); // must be silent, otherwise it will trigger update event
+            this.selectedViewer.setObject(descriptor);
+            this.selectedViewer.show();
         } else {
             this.selectedViewer.hide();
             this.optionFilterInput.show();

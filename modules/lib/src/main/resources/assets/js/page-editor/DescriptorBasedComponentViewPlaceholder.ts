@@ -30,6 +30,7 @@ export abstract class DescriptorBasedComponentViewPlaceholder
     protected initElements(): void {
         this.comboBox = new ComponentDescriptorsDropdown();
         this.comboBox.setComponentType(this.getType());
+        this.comboBox.hide();
         this.appendChild(this.comboBox);
     }
 
