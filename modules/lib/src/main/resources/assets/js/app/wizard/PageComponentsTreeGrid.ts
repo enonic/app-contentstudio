@@ -70,7 +70,7 @@ export class PageComponentsTreeGrid
     }
 
     load(): Q.Promise<void> {
-        if (!PageState.getState()) {
+        if (!PageState.getState() || !this.isVisible()) {
             return Q.resolve();
         }
 
@@ -345,6 +345,7 @@ export class PageComponentsListElement
         super.setItem(item);
 
         (this.itemViewer as PageComponentsItemView).setItem(item);
+        this.updateExpandableState();
     }
 
     onMenuIconClicked(handler: (event: MouseEvent) => void): void {

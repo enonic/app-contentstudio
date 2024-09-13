@@ -129,6 +129,10 @@ export class PageTemplateAndControllerSelector
         });
 
         this.onSelectionChanged((selectionChange: SelectionChange<PageTemplateAndControllerOption>) => {
+            if (!selectionChange.selected || selectionChange.selected.length === 0) {
+                return;
+            }
+
             const selectedOption: PageTemplateAndControllerOption = selectionChange.selected[0];
             const previousOption: PageTemplateAndControllerOption = this.selectedOption;
 

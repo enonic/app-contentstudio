@@ -51,10 +51,6 @@ export class TextComponentViewBuilder
 
 }
 
-enum VIEW_MODE {
-    RENDER, EDIT
-}
-
 export class TextComponentView
     extends ComponentView {
 
@@ -66,7 +62,7 @@ export class TextComponentView
 
     private focusOnInit: boolean;
 
-    private editorReadyListeners: (() => void)[] = [];
+    private editorReadyListeners: (() => void)[];
 
     private initialValue: string;
 
@@ -88,11 +84,8 @@ export class TextComponentView
     private editableSourceCode: boolean;
     private winBlurred: boolean;
 
-    private renderMode: VIEW_MODE = VIEW_MODE.EDIT;
-
     constructor(builder: TextComponentViewBuilder) {
         super(builder);
-
 
         this.setInitialValueAndRenderMode(builder.text);
         this.addTextContextMenuActions();
@@ -106,6 +99,8 @@ export class TextComponentView
 
     protected initListeners() {
         super.initListeners();
+
+        this.editorReadyListeners = [];
 
         this.onAdded(() => { // is triggered on item insert or move
             if (!this.initOnAdd) {
@@ -125,25 +120,26 @@ export class TextComponentView
             }
         };
 
+        this.onEditorReady(() => {
+           this.refreshEmptyState();
+        });
+
         this.bindWindowFocusEvents();
         LiveEditPageDialogCreatedEvent.on(handleDialogCreated.bind(this));
     }
 
     private setInitialValueAndRenderMode(initialText?: string): void {
         if (ObjectHelper.isDefined(initialText)) {
-            this.renderMode = VIEW_MODE.EDIT;
             this.initialValue = initialText;
         } else {
             const isPageTemplateMode = !PageState.getState() || PageState.getState().hasTemplate();
 
             if (isPageTemplateMode) {
                 // using html from live edit load if page is rendered using a template and no page object is present
-                this.renderMode = VIEW_MODE.RENDER;
                 this.initialValue = this.getEl().getInnerHtml();
                 // listening for customize event and updating editor value with actual data value
                 PageUnlockedEvent.on(this.handleUnlockOnCustomize.bind(this));
             } else {
-                this.renderMode = VIEW_MODE.EDIT;
                 this.initialValue = this.liveEditParams.getTextComponentData(this.getPath().toString());
             }
         }
@@ -663,7 +659,6 @@ export class TextComponentView
     }
 
     private handleUnlockOnCustomize(): void {
-        this.renderMode = VIEW_MODE.EDIT;
         const text = this.liveEditParams.getTextComponentData(this.getPath().toString());
 
         if (this.htmlAreaEditor) {

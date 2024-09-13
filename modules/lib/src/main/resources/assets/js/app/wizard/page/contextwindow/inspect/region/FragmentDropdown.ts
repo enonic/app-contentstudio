@@ -38,6 +38,7 @@ export class FragmentDropdown
         this.listBox.setLoader(this.loader);
         this.listBox.setEmptyText(i18n('field.option.noitems'));
         this.selectedViewer = new ContentSummaryViewer();
+        this.selectedViewer.hide();
     }
 
     protected initListeners(): void {
