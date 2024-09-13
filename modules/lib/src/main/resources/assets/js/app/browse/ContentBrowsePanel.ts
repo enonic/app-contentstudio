@@ -291,7 +291,6 @@ export class ContentBrowsePanel
             this.filterPanel.reset().then(() => {
                 this.hideFilterPanel();
                 this.toggleFilterPanelButton.removeClass('filtered');
-                this.treeListBox.setFilterQuery(null);
             });
         });
 
