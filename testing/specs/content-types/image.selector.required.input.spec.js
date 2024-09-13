@@ -70,7 +70,6 @@ describe('image.selector.required.input.spec tests for validation of content wit
             // 1. Open the content with an unresolvable selected image:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_2);
             // 2. Click on the option:
-            //await imageSelectorForm.clickOnSelectedImageByIndex(0);
             await imageSelectorForm.clickOnSelectedOptionByIndex(0);
             // 3. Verify that 'Edit' button is disabled:
             await imageSelectorForm.waitForEditButtonDisabled();

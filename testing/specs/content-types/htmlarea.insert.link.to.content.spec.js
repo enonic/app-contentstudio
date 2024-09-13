@@ -37,8 +37,15 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             // 2. Fill in inputs and select a target in the selector:
             await insertLinkDialog.typeInLinkTextInput('test-content-link');
             await insertLinkDialog.typeInLinkTooltip(TEST_TOOLTIP);
-            await insertLinkDialogContentPanel.selectTargetInContentSelector(TEST_CONTENT_DISPLAY_NAME);
-            // 3. Click on remove-icon and remove the selected option:
+            // 3. Insert the name of content ('Templates')
+            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(TEST_CONTENT_DISPLAY_NAME);
+            // 4. Expand the parent site in the filtered list in 'Tree mode'
+            await insertLinkDialogContentPanel.clickOnExpanderIconInOptionsList(SITE.displayName);
+            // 5. Click on 'Templates' option
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(TEST_CONTENT_DISPLAY_NAME);
+            // 6. Click on OK and apply the selection:
+            await insertLinkDialogContentPanel.clickOnApplySelectionButton();
+            // 7. Click on remove-icon and remove the selected option:
             await insertLinkDialogContentPanel.clickOnRemoveSelectedOptionIcon(TEST_CONTENT_DISPLAY_NAME);
             // 4. Verify that 'Upload' button appears in the 'Insert content link' form
             await insertLinkDialogContentPanel.waitForUploadContentButtonDisplayed();
@@ -113,7 +120,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             await insertLinkDialogContentPanel.clickOnContentSelectorModeTogglerButton();
             // 7. Verify the number of available items in the flat mode:
             let itemsFlatMode = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInFlatMode();
-            assert.equal(itemsFlatMode.length, 6, '6 Items from the current site should be present in the options');
+            assert.equal(itemsFlatMode.length, 5, '5 Items from the current site should be present in the options list in Flat mode');
         });
 
     it(`GIVEN content link is inserted in a htmlarea WHEN 'Edit link' modal dialog is opened THEN Content tab should be active and expected content should be present in selected options`,
@@ -127,19 +134,26 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             // 2. insert a content-link and close the modal dialog
             await insertLinkDialog.typeInLinkTextInput('test-content-link');
             await insertLinkDialog.typeInLinkTooltip(TEST_TOOLTIP);
-            await insertLinkDialogContentPanel.selectTargetInContentSelector(TEST_CONTENT_DISPLAY_NAME);
-            // 3. Click on Insert button in the modal dialog:
+            // 3. Insert the name of content ('Templates')
+            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(TEST_CONTENT_DISPLAY_NAME);
+            // 4. Expand the parent site in the filtered list in 'Tree mode'
+            await insertLinkDialogContentPanel.clickOnExpanderIconInOptionsList(SITE.displayName);
+            // 5. Click on 'Templates' option
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(TEST_CONTENT_DISPLAY_NAME);
+            // 6. Click on OK and apply the selection:
+            await insertLinkDialogContentPanel.clickOnApplySelectionButton();
+            // 7. Click on Insert button in the modal dialog:
             await insertLinkDialog.clickOnInsertButton();
-            // 4. toolbar remains visible after inserting the link, reopen the modal dialog  again
+            // 8. toolbar remains visible after inserting the link, reopen the modal dialog  again
             await htmlAreaForm.clickOnInsertLinkButton();
-            // 5. Verify that Content tab is active:
+            // 9. Verify that Content tab is active:
             await studioUtils.saveScreenshot('htmlarea_content_link_reopened');
             let isActive = await insertLinkDialog.isTabActive('Content');
             assert.ok(isActive, "'Content' tab should be active");
-            // 6. Verify that expected content is selected in the dropdown selector:
+            // 10. Verify that expected content is selected in the dropdown selector:
             let result = await insertLinkDialogContentPanel.getSelectedOptionDisplayName();
             assert.equal(result, TEST_CONTENT_DISPLAY_NAME, 'Expected content should be displayed in selected option');
-            // 7. Verify the text in Tooltip Text Input:
+            // 11. Verify the text in Tooltip Text Input:
             let tooltip = await insertLinkDialog.getTextInLinkTooltipInput();
             assert.equal(tooltip, TEST_TOOLTIP, "Expected text should be present in the tooltip text input");
         });
