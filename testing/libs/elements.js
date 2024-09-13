@@ -198,7 +198,7 @@ module.exports = Object.freeze({
         return `//div[contains(@id,'FormItem') and descendant::label[contains(.,'${label}')]]`
     },
 
-    EMPTY_OPTIONS_DIV: "//div[contains(@class,'empty-options') and text()='No matching items']",
+    EMPTY_OPTIONS_H5: "//h5[contains(@class,'empty-list-item') and text()='No matching items']",
     radioButtonByLabel: label => {
         return `//span[contains(@class,'radio-button') and child::label[text()='${label}']]//input`
     },

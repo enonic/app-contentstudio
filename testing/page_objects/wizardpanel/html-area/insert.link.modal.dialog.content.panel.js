@@ -166,6 +166,26 @@ class InsertLinkDialogContentPanel extends Page {
         return await contentSelector.selectFilteredContentAndClickOnOk(targetDisplayName, XPATH.container);
     }
 
+    async typeTextInFilterInputInContentSelector(targetDisplayName) {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.filterItem(targetDisplayName, XPATH.container);
+    }
+
+    async clickOnApplySelectionButton() {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.clickOnApplySelectionButton(XPATH.container);
+    }
+
+    async clickOnExpanderIconInOptionsList(optionName) {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.clickOnExpanderIconInOptionsList(optionName, XPATH.container);
+    }
+
+    async clickOnOptionByDisplayName(optionDisplayName) {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.clickOnOptionByDisplayName(optionDisplayName, XPATH.container);
+    }
+
     getSelectedOptionDisplayName() {
         let selector = XPATH.container + XPATH.contentPanel + lib.CONTENT_SELECTED_OPTION_VIEW + lib.H6_DISPLAY_NAME;
         return this.getText(selector);

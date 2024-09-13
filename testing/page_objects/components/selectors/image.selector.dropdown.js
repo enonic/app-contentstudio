@@ -66,12 +66,6 @@ class ImageSelectorDropdown extends BaseDropdown {
         await this.clickOnElement(locator);
     }
 
-    async clickOnOptionExpanderIcon(optionDisplayName) {
-        let locator = XPATH.expanderIconByName(optionDisplayName);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
-        return await this.pause(300);
-    }
 
     // Gets all content-statuses in the expanded dropdown list
     async getImagesStatusInOptions() {

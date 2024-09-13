@@ -1,7 +1,6 @@
 /**
  * Created on 03.06.2019.
  */
-
 const BaseSelectorForm = require('./base.selector.form');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
@@ -42,7 +41,7 @@ class CustomSelectorForm extends BaseSelectorForm {
 
     async waitForEmptyOptionsMessage() {
         try {
-            let locator = XPATH.container + lib.EMPTY_OPTIONS_DIV;
+            let locator = XPATH.container + lib.EMPTY_OPTIONS_H5;
             return await this.waitForElementDisplayed(locator, appConst.longTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_custom_sel');

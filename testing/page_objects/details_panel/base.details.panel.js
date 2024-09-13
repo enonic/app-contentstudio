@@ -21,7 +21,7 @@ class BaseDetailsPanel extends Page {
     }
 
     async getSelectedOptionInWidgetSelectorDropdown() {
-        let selector = this.widgetSelectorDropdown + "//div[@class='selected-option']//h6";
+        let selector = this.widgetSelectorDropdown + "//div[contains(@id,'WidgetSelectedOptionsView')]" + lib.H6_DISPLAY_NAME;
         return await this.getText(selector);
     }
 

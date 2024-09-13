@@ -83,9 +83,9 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
 
     async waitForEmptyOptionsMessage() {
         try {
-            return await this.waitForElementDisplayed(xpath.container + lib.EMPTY_OPTIONS_DIV, appConst.longTimeout);
+            return await this.waitForElementDisplayed(xpath.container + lib.EMPTY_OPTIONS_H5, appConst.longTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_empty_options"));
+            await this.saveScreenshotUniqueName('err_empty_options');
             throw new Error("Empty options text is not visible " + err);
         }
     }

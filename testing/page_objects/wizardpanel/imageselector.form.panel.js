@@ -4,6 +4,7 @@
 const BaseSelectorForm = require('./base.selector.form');
 const lib = require('../../libs/elements');
 const ImageSelectorDropdown = require('../components/selectors/image.selector.dropdown');
+const appConst = require('../../libs/app_const');
 
 const XPATH = {
     container: "//div[contains(@id,'ImageSelector')]",
@@ -14,7 +15,7 @@ const XPATH = {
     selectedOptions: "//div[contains(@id,'ImageSelectorSelectedOptionsView')]",
     editButton: "//div[contains(@id,'SelectionToolbar')]//button[child::span[contains(.,'Edit')]]",
     removeButton: "//div[contains(@id,'SelectionToolbar')]//button[child::span[contains(.,'Remove')]]",
-    selectedImageByDisplayName: function (imageDisplayName) {
+    selectedImageByDisplayName(imageDisplayName) {
         return `//div[contains(@id,'ImageSelectorSelectedOptionView') and descendant::div[contains(@class,'label') and text()='${imageDisplayName}']]`
     },
 };
@@ -37,10 +38,12 @@ class ImageSelectorForm extends BaseSelectorForm {
         return lib.FORM_VIEW + lib.inputView + lib.validationRecording;
     }
 
+    // Edit image button - SelectionToolbar
     get editButton() {
         return lib.FORM_VIEW + XPATH.editButton;
     }
 
+    // Remove image button - SelectionToolbar
     get removeButton() {
         return lib.FORM_VIEW + XPATH.removeButton;
     }
@@ -64,6 +67,22 @@ class ImageSelectorForm extends BaseSelectorForm {
         }
     }
 
+    async waitForImageNotAvailableTextDisplayed() {
+        let locator = lib.FORM_VIEW + XPATH.selectedOption + lib.itemByName('Image is not available');
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let elements = await this.findElements(locator);
+        return elements.length;
+    }
+
+    async clickOnSelectedOptionByIndex(index) {
+        let locator = lib.FORM_VIEW + XPATH.selectedOption + "//div[contains(@class,'squared-content')]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let imagesEl = await this.findElements(locator);
+        if (index > imagesEl.length) {
+            throw new Error("Image selector form, the number of selected options less than the index");
+        }
+        return await this.doTouchActionOnElement(imagesEl[index]);
+    }
     async clickOnModeTogglerButton() {
         let imageSelectorDropdown = new ImageSelectorDropdown();
         await imageSelectorDropdown.clickOnModeTogglerButton(XPATH.container);
@@ -112,6 +131,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await this.pause(1000);
     }
 
+    // Click on OK and apply selection:
     async clickOnApplyButton() {
         let imageSelectorDropdown = new ImageSelectorDropdown();
         return await imageSelectorDropdown.clickOnApplySelectionButton();
@@ -130,7 +150,7 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async waitForEmptyOptionsMessage() {
         try {
-            return await this.waitForElementDisplayed(XPATH.container + lib.EMPTY_OPTIONS_DIV, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(XPATH.container + lib.EMPTY_OPTIONS_H5, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_empty_opt');
             throw new Error("Image Selector - Empty options text should appear visible, screenshot: " + screenshot + ' ' + err);
@@ -170,6 +190,17 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await imageSelectorDropdown.pause(300);
     }
 
+    async expandDropdownAndClickOnImage(displayName) {
+        try {
+            let imageSelectorDropdown = new ImageSelectorDropdown();
+            await imageSelectorDropdown.clickOnDropdownHandle();
+            await imageSelectorDropdown.clickOnOptionByDisplayName(displayName);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_option');
+            throw new Error('Image -Selector , error during selecting the option: screenshot ' + screenshot + ' ' + err);
+        }
+    }
+
     //Remove image button:
     waitForRemoveButtonDisplayed() {
         return this.waitForElementDisplayed(this.removeButton, appConst.mediumTimeout);
@@ -198,7 +229,7 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async clickOnExpanderIconInOptionsList(displayName) {
         let imageSelectorDropdown = new ImageSelectorDropdown();
-        await imageSelectorDropdown.clickOnOptionExpanderIcon(displayName);
+        await imageSelectorDropdown.clickOnExpanderIconInOptionsList(displayName);
         await imageSelectorDropdown.pause(300);
     }
 
@@ -222,8 +253,14 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await imageSelectorDropdown.getOptionsDisplayNameInTreeMode(XPATH.container);
     }
 
-    async waitForImageNotAvailableTextDisplayed() {
+    // Wait for 'Edit image' button is enabled - SelectionToolbar
+    waitForEditButtonDisabled() {
+        return this.waitForElementDisabled(this.editButton, appConst.mediumTimeout);
+    }
 
+    // Wait for 'Remove image' button is enabled - SelectionToolbar
+    waitForRemoveButtonEnabled() {
+        return this.waitForElementEnabled(this.removeButton, appConst.mediumTimeout);
     }
 }
 
