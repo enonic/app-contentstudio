@@ -146,7 +146,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
             (this.treeRequest as ContentTreeSelectorQueryRequest<DATA>).setParentPath(
                 data?.getId() ? data.getDisplayValue().getContent().getPath() : null);
         } else {
-            this.treeRequest.setContent(data.getDisplayValue().getContent() || null);
+            this.treeRequest.setContent(data?.getDisplayValue().getContent() || null);
         }
 
         this.treeRequest.setSearchString(this.treeFilterValue);

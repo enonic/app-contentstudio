@@ -357,9 +357,13 @@ export class ContentBrowsePanel
     }
 
     private addNewItemsToList(data: ContentSummaryAndCompareStatus[]): void {
-        data.forEach((item: ContentSummaryAndCompareStatus) => {
-            this.treeListBox.findParentLists(item).forEach(list => list.addNewItems([item]));
-        });
+        if (this.treeListBox.isFiltered()) {
+            //
+        } else {
+            data.forEach((item: ContentSummaryAndCompareStatus) => {
+                this.treeListBox.findParentLists(item).forEach(list => list.addNewItems([item]));
+            });
+        }
     }
 
     private handleContentRenamed(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) {
