@@ -52,7 +52,7 @@ class BaseSelectorForm extends Page {
 
     async waitForEmptyOptionsMessage() {
         try {
-            return await this.waitForElementDisplayed(lib.EMPTY_OPTIONS_DIV, appConst.longTimeout);
+            return await this.waitForElementDisplayed(lib.EMPTY_OPTIONS_H5, appConst.longTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_empty_opt');
             throw new Error("Empty options text is not visible, screenshot: " + screenshot + ' ' + err);
