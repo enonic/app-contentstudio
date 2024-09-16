@@ -171,7 +171,7 @@ export class CompareContentVersionsDialog
     private createVersionRevertButton(dropdown: CompareDropdown): Button {
         const revertAction: Action = new Action(i18n('field.version.revert')).onExecuted(() => {
             const version: VersionHistoryItem = dropdown.getSelectedItems()[0];
-            this.revertVersionCallback(version.getSecondaryId(), version.getContentVersion().getTimestamp());
+            this.revertVersionCallback(version.getId(), version.getContentVersion().getTimestamp());
         });
         revertAction.setTitle(i18n('field.version.makeCurrent'));
 
@@ -620,7 +620,13 @@ export class CompareContentVersionsDialog
 
             const view = this.leftDropdown.getList().getItemView(option);
             const isReadonly = option.isAlias() ? isNextSelectedInRightDropdown && option.getAliasType() === AliasType.PREV : markReadOnly;
-            view.getParentElement().toggleClass('readonly', isReadonly);
+
+            if (isReadonly) {
+                view.getParentElement().addClass('readonly');
+            } else {
+                view.getParentElement().removeClass('readonly');
+            }
+
 
             if (option.getSecondaryId() === this.rightVersionId) {
                 // marking readOnly all versions after rightVersion
@@ -806,6 +812,14 @@ class CompareDropdown
         });
     }
 
+    protected handleUserToggleAction(item: VersionHistoryItem): void {
+        if (item.getSecondaryId() === this.selectedItemViewer.getObject().getSecondaryId()) {
+            return;
+        }
+
+        super.handleUserToggleAction(item);
+    }
+
 }
 
 class CompareList
@@ -818,7 +832,7 @@ class CompareList
     }
 
     protected getItemId(item: VersionHistoryItem): string {
-        return item.getSecondaryId();
+        return item?.getSecondaryId();
     }
 
 
