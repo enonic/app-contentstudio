@@ -5,7 +5,6 @@ import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import * as Q from 'q';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export interface ContentTreeSelectorDropdownOptions
@@ -25,10 +24,6 @@ export class ContentTreeSelectorDropdown
     protected modeButton: ModeTogglerButton;
 
     protected options: ContentTreeSelectorDropdownOptions;
-
-    private lastFlatSearchValue: string;
-
-    private lastTreeSearchValue: string;
 
     constructor(listBox, options: ContentSelectorDropdownOptions) {
         super(listBox, options);
@@ -73,9 +68,8 @@ export class ContentTreeSelectorDropdown
             this.applyButton.hide();
             this.handleModeChanged();
 
-            if (ObjectHelper.bothDefined(this.lastTreeSearchValue, this.lastFlatSearchValue) &&
-                !ObjectHelper.stringEquals(this.lastTreeSearchValue, this.lastFlatSearchValue)) {
-                this.search(this.treeMode ? this.lastFlatSearchValue : this.lastTreeSearchValue);
+            if (!StringHelper.isBlank(this.optionFilterInput.getValue())) {
+                this.search(this.optionFilterInput.getValue());
             }
         });
 
@@ -165,11 +159,9 @@ export class ContentTreeSelectorDropdown
         this.options.loader.setTreeFilterValue(value);
 
         if (this.treeMode) {
-            this.lastTreeSearchValue = value;
             this.treeList.clearItems();
             this.treeList.load();
         } else {
-            this.lastFlatSearchValue = value;
             super.search(value);
         }
     }
