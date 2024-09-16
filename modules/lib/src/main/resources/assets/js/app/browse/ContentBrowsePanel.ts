@@ -434,6 +434,7 @@ export class ContentBrowsePanel
             .map((item) => this.treeListBox.getItem(item.id.toString()))
             .filter((item) => !!item);
 
+        this.selectionWrapper.deselect(itemsFound);
         itemsFound.forEach((item) => {
             this.treeListBox.findParentLists(item).forEach(list => list.removeItems(item));
         });
