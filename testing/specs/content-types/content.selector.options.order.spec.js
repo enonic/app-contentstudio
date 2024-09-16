@@ -58,7 +58,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             // 6. Type the new display-name of the selected option in Options Filter Input:
             await contentSelectorForm.typeTextInOptionsFilterInput(FOLDER_NEW_DISPLAY_NAME);
             // 7. Verify that the option with updated display name is present in the filtered input:
-            let result = await contentSelectorForm.getOptionsDisplayName();
+            let result = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
             assert.ok(result[0] === FOLDER_NEW_DISPLAY_NAME, 'New display name should be present in the filtered options');
         });
 

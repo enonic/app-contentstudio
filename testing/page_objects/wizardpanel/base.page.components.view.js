@@ -23,7 +23,6 @@ const xpath = {
     componentByDescription(description) {
         return `//div[contains(@id,'PageComponentsItemViewer') and descendant::p[contains(@class,'sub-name')  and contains(.,'${description}')]]`;
     },
-    itemExpanderIcon: (name) => `//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and text()='${name}']]//span[@class='toggle icon expand']`,
 };
 
 class BasePageComponentView extends Page {
@@ -246,7 +245,7 @@ class BasePageComponentView extends Page {
 
     async waitForItemDisplayed(itemDisplayName) {
         try {
-            let locator = this.container + lib.SLICK_VIEW_PORT + xpath.pageComponentsItemViewer + lib.itemByDisplayName(itemDisplayName);
+            let locator = this.container + xpath.pageComponentsItemViewer + lib.itemByDisplayName(itemDisplayName);
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_pcv_item');
@@ -255,7 +254,8 @@ class BasePageComponentView extends Page {
     }
 
     async expandItem(item) {
-        let locator = xpath.itemExpanderIcon(item);
+        let locator = this.container + lib.itemStrictByDisplayName(item) + `//ancestor::li[contains(@class,'item-view-wrapper')]` +
+                      lib.TREE_GRID.EXPANDER_ICON_DIV;
         await this.clickOnElement(locator);
         return await this.pause(200);
     }
