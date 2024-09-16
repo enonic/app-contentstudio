@@ -88,7 +88,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             await liveFormPanel.selectLayoutByDisplayName(LAYOUT_3_COL);
             await contentWizard.waitForNotificationMessage();
-            // 4. Insert text component in the left layout's region
+            // 4. Insert text component in the left layout's region (Verify that layout item is expanded in PCV)
             await pageComponentView.openMenu('left');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.typeTextInCkeEditor(TEXT_LEFT_REGION);
