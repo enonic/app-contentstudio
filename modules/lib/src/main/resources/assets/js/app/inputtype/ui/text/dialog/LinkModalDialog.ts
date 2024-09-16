@@ -889,17 +889,6 @@ export class LinkModalDialog
         };
     }
 
-    private filterContentByParentPath(contentItem: ContentSummary | ContentTreeSelectorItem): boolean {
-        if (!this.parentSitePath || (this.showAllContentCheckboxFormItem.getInput() as Checkbox).isChecked()) {
-            return true;
-        }
-
-        const contentSummary = contentItem instanceof ContentSummary ? contentItem : contentItem.getContent();
-        const contentPath = contentSummary.getPath().toString();
-
-        return contentPath === this.parentSitePath || contentPath.startsWith(`${this.parentSitePath}/`);
-    }
-
     private createContentSelector(loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>): ContentTreeSelectorDropdown {
         const listBox = new ContentListBox({loader: loader});
         const dropdownOptions: ContentTreeSelectorDropdownOptions = {
@@ -957,6 +946,7 @@ export class LinkModalDialog
             this.contentTargetCheckBoxFormItem.hide();
             this.anchorFormItem.hide();
             this.paramsFormItem.hide();
+            this.link = null;
             return;
         }
 
