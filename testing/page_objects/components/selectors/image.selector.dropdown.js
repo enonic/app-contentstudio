@@ -12,10 +12,6 @@ const XPATH = {
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'sub-name') and contains(.,'${name}')]]` +
                `//ancestor::li[contains(@id,'ContentListElement')]//div[contains(@class,'toggle icon-arrow_drop_up')]`;
     },
-    expanderIconByDisplayName: displayName => {
-        return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]` +
-               `//ancestor::li[contains(@id,'ContentListElement')]/div[contains(@class,'toggle icon-arrow_drop_up')]`;
-    },
     imageByDisplayNameInTreeMode: displayName => {
         return lib.DROPDOWN_SELECTOR.CONTENTS_TREE_LIST_UL + lib.DROPDOWN_SELECTOR.OPTIONS_LI_ELEMENT +
                `//h6[contains(@class,'main-name') and contains(text(),'${displayName}')]`;
