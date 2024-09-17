@@ -24,7 +24,7 @@ import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {DeletedContentItem} from './DeletedContentItem';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
-import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummary, ContentSummaryBuilder} from '../content/ContentSummary';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
@@ -48,6 +48,8 @@ import {State} from './State';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {EditContentEvent} from '../event/EditContentEvent';
+import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
+import {GetContentSummaryByIdRequest} from '../resource/GetContentSummaryByIdRequest';
 import {SettingsViewItem} from '../settings/view/SettingsViewItem';
 import {SettingsTreeListElement} from '../settings/SettingsTreeList';
 import {ContentActionMenuButton} from '../ContentActionMenuButton';
@@ -359,12 +361,32 @@ export class ContentBrowsePanel
     }
 
     private addNewItemsToList(data: ContentSummaryAndCompareStatus[]): void {
-        if (this.treeListBox.isFiltered()) {
-            //
-        } else {
-            data.forEach((item: ContentSummaryAndCompareStatus) => {
-                this.treeListBox.findParentLists(item).forEach(list => list.addNewItems([item]));
-            });
+        data.forEach((item: ContentSummaryAndCompareStatus) => {
+            this.addNewItemToList(item);
+        });
+    }
+
+    private addNewItemToList(item: ContentSummaryAndCompareStatus): void {
+        this.treeListBox.findParentLists(item).forEach(list => {
+            if (!this.treeListBox.isFiltered() || list !== this.treeListBox) { // if filtered, don't add to root list
+                list.addNewItems([item]);
+                this.setListItemHasChildren(list); // if item didn't have children before then need to update it without re-fetching
+
+                if (list.getParentItem() && this.selectionWrapper.isItemSelected(list.getParentItem())) {
+                    this.updateBrowseActions();
+                }
+            }
+        });
+    }
+
+    private setListItemHasChildren(list: ContentsTreeGridList): void {
+        const listItem = list.getParentItem();
+
+        if (listItem && !listItem.hasChildren()) {
+            const newContSumm = new ContentSummaryBuilder(listItem.getContentSummary()).setHasChildren(true).build();
+            const newContSummAndCompStatus = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(newContSumm,
+                listItem.getCompareStatus(), listItem.getPublishStatus());
+            list.getParentListElement().replaceItems(newContSummAndCompStatus);
         }
     }
 
@@ -429,14 +451,30 @@ export class ContentBrowsePanel
         this.refreshFilterWithDelay();
     }
 
-    private deleteTreeItems(toDelete: DeletedContentItem[]): void {
-        const itemsFound = toDelete
-            .map((item) => this.treeListBox.getItem(item.id.toString()))
-            .filter((item) => !!item);
+    private deleteTreeItems(toDeleteItems: DeletedContentItem[]): void {
+        toDeleteItems.forEach((toDeleteItem) => {
+            this.treeListBox.findParentLists(toDeleteItem.path).forEach(parentList => {
+                if (parentList.wasAlreadyShownAndLoaded()) {
+                    const itemInList = parentList.getItems().find(item => item.getContentId().equals(toDeleteItem.id));
 
-        this.selectionWrapper.deselect(itemsFound);
-        itemsFound.forEach((item) => {
-            this.treeListBox.findParentLists(item).forEach(list => list.removeItems(item));
+                    if (itemInList) {
+                        this.selectionWrapper.deselect(itemInList);
+                        parentList.removeItems(itemInList);
+                    }
+                } else {
+                    const parentItem = parentList.getParentItem();
+
+                    new GetContentSummaryByIdRequest(parentItem.getContentId()).sendAndParse().then((updatedItem) => {
+                        if (!updatedItem.hasChildren()) {
+                            const newContSumm = new ContentSummaryBuilder(updatedItem).build();
+                            const newContSummAndCompStatus = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
+                                newContSumm,
+                                parentItem.getCompareStatus(), parentItem.getPublishStatus());
+                            parentList.getParentList().replaceItems(newContSummAndCompStatus);
+                        }
+                    }).catch(DefaultErrorHandler.handle);
+                }
+            });
         });
     }
 
