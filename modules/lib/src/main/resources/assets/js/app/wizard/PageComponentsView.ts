@@ -39,6 +39,7 @@ import {ComponentAddedEvent} from '../page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../page/region/ComponentRemovedEvent';
 import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
 import {PageComponentsViewDragHandler} from './PageComponentsViewDragHandler';
+import {LayoutComponentType} from '../page/region/LayoutComponentType';
 
 enum Modifiers {
     LOCKED = 'locked',
@@ -634,8 +635,13 @@ export class PageComponentsView
 
         if (item instanceof Component) {
             this.tree.fetchComponentItem(item).then((updatedComponent: TreeComponent) => {
-                const updatedItem = new ComponentsTreeItem(updatedComponent, +listElement.getItem().getId());
+                const oldItem = listElement.getItem();
+                const updatedItem = new ComponentsTreeItem(updatedComponent, +oldItem.getId());
                 listElement.getParentList().replaceItems(updatedItem);
+
+                if (updatedItem.getType() instanceof LayoutComponentType && listElement.hasChildren()) {
+                    listElement.expand();
+                }
             }).catch(DefaultErrorHandler.handle);
         }
     }
