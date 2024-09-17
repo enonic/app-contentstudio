@@ -48,7 +48,7 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
             // 2. Type the project's name in the filter-input:
             await studioUtils.typeNameInUsersFilterPanel(PROJECT_DISPLAY_NAME);
             // 3. select a project's role:
-            await userBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME + " - Owner");
+            await userBrowsePanel.clickOnCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME + " - Owner");
             // 4. Verify that 'Delete' button is disabled:
             await userBrowsePanel.waitForDeleteButtonDisabled();
         });
@@ -62,7 +62,7 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
             // 2. Type the project's name in the filter-input:
             await studioUtils.typeNameInUsersFilterPanel(PROJECT_DISPLAY_NAME);
             // 3. select a project's role:
-            await userBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME + " - Owner");
+            await userBrowsePanel.clickOnCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME + " - Owner");
             await userBrowsePanel.clickOnEditButton();
             await roleWizard.waitForLoaded();
             // 4. Verify that 'Delete' button is disabled:

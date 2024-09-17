@@ -9,7 +9,7 @@ const XPATH = {
 class IssueDetailsDialogAssigneesTab extends Page {
 
     get principalComboBox() {
-        return XPATH.container + lib.PRINCIPAL_COMBOBOX;
+        return XPATH.container + "//div[contains(@id,'CSPrincipalCombobox')]"
     }
 
     waitForLoaded() {

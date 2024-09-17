@@ -17,7 +17,7 @@ describe('project.delete.in.grid.panel.spec - ui-tests for saving/deleting a pro
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
 
-    it(`New project should be added`,
+    it(`Precondition: New project should be added`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             await settingsBrowsePanel.openProjectWizardDialog();
@@ -41,7 +41,7 @@ describe('project.delete.in.grid.panel.spec - ui-tests for saving/deleting a pro
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmValueDialog = new ConfirmValueDialog();
             // 1. click on the project:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME);
             // 2. Verify that Delete button gets enabled, then click on it
             await settingsBrowsePanel.clickOnDeleteButton();
             // 3. Verify that Confirmation Dialog is loaded:

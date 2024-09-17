@@ -3,6 +3,8 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ProjectApplicationsComboBox = require('../components/projects/project.applications.combobox');
 const ProjectAccessControlComboBox = require('../components/projects/project.access.control.combobox');
+const LocaleSelectorDropdown = require('../components/selectors/locale.selector.dropdown');
+const ExtendedPrincipalComboBox = require('../components/projects/extended.principal.combobox');
 
 const XPATH = {
     settingsContainer: "//div[contains(@id,'ContentAppBar')]",
@@ -47,11 +49,11 @@ class ProjectWizardPanel extends Page {
     }
 
     get customReadAccessOptionsFilterInput() {
-        return XPATH.projectReadAccessWizardStepForm + XPATH.accessFormItem + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.projectReadAccessWizardStepForm + XPATH.accessFormItem + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     get localeOptionsFilterInput() {
-        return XPATH.container + XPATH.localeComboBoxDiv + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.container + XPATH.localeComboBoxDiv + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     get projectApplicationsOptionsFilterInput() {
@@ -273,15 +275,16 @@ class ProjectWizardPanel extends Page {
     }
 
     async selectUserInCustomReadAccess(principalDisplayName) {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.projectReadAccessWizardStepForm);
+        let extendedPrincipalComboBox = new ExtendedPrincipalComboBox();
+        await extendedPrincipalComboBox.clickOnFilteredByDisplayNameUserAndClickOnOk(principalDisplayName,
+            XPATH.projectReadAccessWizardStepForm);
         console.log('Project Wizard, principal is selected: ' + principalDisplayName);
         return await this.pause(300);
     }
 
     async selectLanguage(language) {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(language, XPATH.projectReadAccessWizardStepForm + XPATH.localeComboBoxDiv);
+        let localeSelectorDropdown = new LocaleSelectorDropdown();
+        await localeSelectorDropdown.clickOnFilteredLanguageAndClickOnOk(language);
         console.log('Project Wizard, language is selected: ' + language);
         return await this.pause(300);
     }

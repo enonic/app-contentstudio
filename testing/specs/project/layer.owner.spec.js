@@ -36,7 +36,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         async () => {
             // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
-            let userName = builder.generateRandomName("layer-owner");
+            let userName = builder.generateRandomName('layer-owner');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
