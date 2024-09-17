@@ -62,21 +62,19 @@ function handleGet() {
                     application: app.name,
                     api: 'export',
                 }),
-                sagaChatServiceUrl: portal.apiUrl({
-                    application: 'com.enonic.app.saga',
-                    api: 'chat',
+                aiContentOperatorServiceUrl: portal.apiUrl({
+                    application: 'com.enonic.app.ai.contentoperator',
+                    api: 'rest',
                 }),
                 sagaTranslationServiceUrl: portal.apiUrl({
-                    application: 'com.enonic.app.saga',
-                    api: 'translation',
+                    application: 'com.enonic.app.ai.translator',
+                    api: 'rest',
                 }),
                 appServiceUrl: portal.apiUrl({
                     application: app.name,
                     api: 'applications',
                 }),
             },
-            sagaPollDelay,
-            sagaPollLimit,
             theme: 'light',
             /* Remove in CS/lib-admin-ui 5.0 */
             launcher: {
