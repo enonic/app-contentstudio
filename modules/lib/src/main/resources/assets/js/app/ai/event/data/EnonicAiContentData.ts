@@ -1,7 +1,7 @@
 import {PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
 import {FormJson} from '@enonic/lib-admin-ui/form/json/FormJson';
 
-export interface EnonicAiAssistantData {
+export interface EnonicAiContentData {
     data: ContentData;
     schema?: {
         form: FormJson;

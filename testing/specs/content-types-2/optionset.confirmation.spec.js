@@ -340,7 +340,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             assert.ok(isInvalid === false, 'Article content should be valid because required inputs are filled');
         });
 
-    // TODO add tests for Open Saga button:
+    // TODO add tests for Open AI Chat button:
     it(`GIVEN 'option 1' is selected in the single selector WHEN help text icon has been clicked THEN expected help text get visible`,
         async () => {
             let singleSelectionOptionSet = new SingleSelectionOptionSet();

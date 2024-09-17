@@ -34,12 +34,17 @@
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/contentlib.css">
     <script type="text/javascript" src="{{assetsUri}}/admin/common/js/lib.js"></script>
 
-    {{#aiAssistantAssetUrl}}
-    <!-- Append the AI Assistant -->
-    <link rel="stylesheet" type="text/css" href="{{aiAssistantAssetUrl}}/style.css">
-    <script type="text/javascript" src="{{aiAssistantAssetUrl}}/index.js" data-locales="{{aiLocales}}"
-            data-asset-url="{{aiAssistantAssetUrl}}" async></script>
-    {{/aiAssistantAssetUrl}}
+    {{#aiContentOperatorAssetsUrl}}
+    <!-- Append AI Content Operator -->
+    <link rel="stylesheet" type="text/css" href="{{aiContentOperatorAssetsUrl}}/style.css">
+    <script type="text/javascript" src="{{aiContentOperatorAssetsUrl}}/index.js" data-locales="{{aiLocales}}"
+            data-asset-url="{{aiContentOperatorAssetsUrl}}" async></script>
+    {{/aiContentOperatorAssetsUrl}}
+
+    {{#aiTranslatorAssetsUrl}}
+    <!-- Append AI Translator -->
+    <script type="text/javascript" src="{{aiTranslatorAssetsUrl}}/index.js" data-asset-url="{{aiTranslatorAssetsUrl}}" async></script>
+    {{/aiTranslatorAssetsUrl}}
 </head>
 <body>
 
