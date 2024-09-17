@@ -6,6 +6,7 @@ import * as Q from 'q';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export interface ContentTreeSelectorDropdownOptions
     extends ContentSelectorDropdownOptions {
@@ -108,15 +109,27 @@ export class ContentTreeSelectorDropdown
     }
 
     protected doShowDropdown(): void {
-        this.treeSelectionWrapper.setVisible(this.treeMode);
-        this.treeList.setVisible(this.treeMode);
-        this.listBox.setVisible(!this.treeMode);
+        this.setVisibleOnDemand(this.treeSelectionWrapper, this.treeMode);
+        this.setVisibleOnDemand(this.treeList, this.treeMode);
+        this.setVisibleOnDemand(this.listBox, !this.treeMode);
     }
 
     protected doHideDropdown() {
         this.treeSelectionWrapper.setVisible(false);
         this.treeList.setVisible(false);
         this.listBox.setVisible(false);
+    }
+
+    private setVisibleOnDemand(element: Element, value: boolean): void {
+        if (value) {
+            if (!element.isVisible()) {
+                element.show();
+            }
+        } else {
+            if (element.isVisible()) {
+                element.hide();
+            }
+        }
     }
 
     protected resetSelection(): void {
