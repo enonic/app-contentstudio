@@ -68,7 +68,7 @@ export class ImageSelector
 
                 if (item.isEmptyContent()) {
                     selectedOptionsView.removeOption(option.getOption());
-                    this.handleDeselected(option.getIndex());
+                  //  this.handleDeselected(option.getIndex());
                 } else {
                     this.contentSelectorDropdown.deselect(item);
                 }
@@ -167,6 +167,13 @@ export class ImageSelector
 
     protected getDropdownClassName(): string {
         return 'image-selector-dropdown';
+    }
+
+    protected handleSelectedOptionDeleted(selectedOption: SelectedOption<ContentTreeSelectorItem>): void {
+        const option = selectedOption.getOption();
+        const newValue = new MediaTreeSelectorItem().setMissingItemId(option.getDisplayValue().getId());
+        option.setDisplayValue(newValue);
+        selectedOption.getOptionView().setOption(option);
     }
 }
 

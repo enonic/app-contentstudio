@@ -98,7 +98,7 @@ export class ContentSelectorDropdown
 
         if (ids.length > 0) {
             new ContentSummaryAndCompareStatusFetcher().fetchByIds(ids).then((contents) => {
-                const items = contents.map((content) => this.createSelectorItem(content));
+                const items = ids.map((id) => this.createSelectorItem(contents.find((content) => content.getId() === id.toString()), id));
                 const options = items.map((item) => this.createSelectedOption(item));
                 this.selectedOptionsView.addOptions(options, true, -1);
                 this.checkSelectionLimitReached();
@@ -106,7 +106,7 @@ export class ContentSelectorDropdown
         }
     }
 
-    protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus): ContentTreeSelectorItem {
+    protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus, id: ContentId): ContentTreeSelectorItem {
         if (content instanceof ContentSummaryAndCompareStatus) {
             return new ContentAndStatusTreeSelectorItem(content);
         }

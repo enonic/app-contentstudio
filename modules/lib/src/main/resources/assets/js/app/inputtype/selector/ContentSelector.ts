@@ -134,9 +134,9 @@ export class ContentSelector
 
             paths.filter(deletedItem => !pending && selectedContentIdsMap.hasOwnProperty(deletedItem.getContentId().toString()))
                 .forEach((deletedItem) => {
-                    let option = this.getSelectedOptionsView().getById(deletedItem.getContentId().toString());
-                    if (option != null) {
-                        this.getSelectedOptionsView().removeOption(option.getOption(), false);
+                    let selectedOption = this.getSelectedOptionsView().getById(deletedItem.getContentId().toString());
+                    if (selectedOption != null) {
+                        this.handleSelectedOptionDeleted(selectedOption);
                     }
                 });
         };
@@ -147,6 +147,10 @@ export class ContentSelector
         this.onRemoved(() => {
             handler.unContentDeleted(this.contentDeletedListener);
         });
+    }
+
+    protected handleSelectedOptionDeleted(selectedOption: SelectedOption<ContentTreeSelectorItem>): void {
+        this.getSelectedOptionsView().removeOption(selectedOption.getOption(), false);
     }
 
     protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus): ContentTreeSelectorItem {
