@@ -36,9 +36,6 @@ const XPATH = {
         return `//div[contains(@id,'ProjectItemViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${id}')]]/..//..//div[contains(@id,'Checkbox')]/label`
     },
 
-    projectItemByName(name) {
-        return `//div[contains(@id,'NamesView') and descendant::span[@class='display-name' and contains(.,'${name}')]]`
-    },
     expanderIconByName: name => `${lib.PROJECTS.projectByName(name)}/..//div[contains(@class,'toggle icon-arrow_drop_up')]`,
 
     tabCloseIcon: projectDisplayName => XPATH.appBarTabMenu +
@@ -110,7 +107,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForItemDisplayed(projectName) {
         try {
-            let locator = XPATH.settingsTreeList + XPATH.projectItemByName(projectName);
+            let locator = XPATH.settingsTreeList + XPATH.projectItemByDisplayName(projectName);
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_browse_panel');
@@ -281,12 +278,12 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     getProjectDisplayName(name) {
-        let selector = XPATH.projectItemByName(name) + "//span[@class='display-name']";
+        let selector = XPATH.projectItemByDisplayName(name) + "//span[@class='display-name']";
         return this.getText(selector)
     }
 
-    getProjectIdentifier(name) {
-        let selector = XPATH.projectItemByName(name) + "//p[contains(@class,'sub-name')]";
+    getProjectIdentifier(displayName) {
+        let selector = XPATH.projectItemByDisplayName(displayName) + "//p[contains(@class,'sub-name')]";
         return this.getText(selector)
     }
 

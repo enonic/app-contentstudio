@@ -35,6 +35,16 @@ class ContentSelectorDropdown extends BaseDropdown {
         return await this.getTextInDisplayedElements(locator);
     }
 
+    async getOptionsNameInTreeMode(parentXpath) {
+        if (parentXpath === undefined) {
+            parentXpath = '';
+        }
+        let locator = parentXpath + XPATH.contentsTreeListUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.P_SUB_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.pause(500);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
     async getOptionsDisplayNameInFlatMode(parentXpath) {
         if (parentXpath === undefined) {
             parentXpath = '';

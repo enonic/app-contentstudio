@@ -89,6 +89,11 @@ class InsertLinkDialogContentPanel extends Page {
         return await contentSelectorDropdown.getOptionsDisplayNameInTreeMode(XPATH.container);
     }
 
+    async getContentSelectorOptionsNameInTreeMode() {
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        return await contentSelectorDropdown.getOptionsNameInTreeMode(XPATH.container);
+    }
+
     async getOptionsMode() {
         let contentSelector = new ContentSelectorDropdown();
         return await contentSelector.getMode(XPATH.container);
