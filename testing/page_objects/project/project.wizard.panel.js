@@ -437,7 +437,7 @@ class ProjectWizardPanel extends Page {
     }
 
     async clickOnEditProjectConfig(appName) {
-        let locator = XPATH.container + lib.selectedProjectView(appName) + lib.EDIT_ICON;
+        let locator = XPATH.container + lib.PROJECTS.selectedProjectView(appName) + lib.EDIT_ICON;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
     }

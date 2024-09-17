@@ -27,7 +27,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1. Select 'Projects' folder
-            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.PROJECTS.ROOT_FOLDER);
+            await settingsBrowsePanel.clickOnProjectsFolderCheckbox();
             await studioUtils.saveScreenshot('settings_toolbar_2');
             // 'New...' button should be enabled :
             await settingsBrowsePanel.waitForNewButtonEnabled();
