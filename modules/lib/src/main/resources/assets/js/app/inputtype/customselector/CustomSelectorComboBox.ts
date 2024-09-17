@@ -98,11 +98,13 @@ export class CustomSelectorComboBox
     }
 
     setSelectedItems(selectedIds: string[]): void {
-        this.getLoader().sendPreLoadRequest(selectedIds).then((items: CustomSelectorItem[]) => {
-            this.deselectAll(true);
-            items.sort((a, b) => selectedIds.indexOf(a.getId().toString()) - selectedIds.indexOf(b.getId().toString()));
-            this.select(items, true);
-        }).catch(DefaultErrorHandler.handle);
+        if (selectedIds?.length > 0) {
+            this.getLoader().sendPreLoadRequest(selectedIds).then((items: CustomSelectorItem[]) => {
+                this.deselectAll(true);
+                items.sort((a, b) => selectedIds.indexOf(a.getId().toString()) - selectedIds.indexOf(b.getId().toString()));
+                this.select(items, true);
+            }).catch(DefaultErrorHandler.handle);
+        }
     }
 }
 
@@ -129,5 +131,13 @@ export class CustomSelectorSelectedOptionView
         viewer.setObject(this.getOption().getDisplayValue());
 
         return viewer;
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.addClass('custom-selector-selected-option-view');
+
+            return rendered;
+        });
     }
 }
