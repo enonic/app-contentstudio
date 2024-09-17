@@ -1,20 +1,18 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 
-export class EnonicAiTranslationStartedEvent
+export class EnonicAiContentOperatorHideEvent
     extends Event {
-
-    readonly path: string;
 
     private constructor() {
         super();
     }
 
-    static on(handler: (event: EnonicAiTranslationStartedEvent) => void) {
+    static on(handler: (event: EnonicAiContentOperatorHideEvent) => void) {
         Event.bind(ClassHelper.getFullName(this), handler);
     }
 
-    static un(handler?: (event: EnonicAiTranslationStartedEvent) => void) {
+    static un(handler?: (event: EnonicAiContentOperatorHideEvent) => void) {
         Event.unbind(ClassHelper.getFullName(this), handler);
     }
 

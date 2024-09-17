@@ -4,7 +4,8 @@ const mustache = require('/lib/mustache');
 const portal = require('/lib/xp/portal');
 const i18n = require('/lib/xp/i18n');
 
-const AI_ASSISTANT_APP_KEY = 'com.enonic.app.saga';
+const AI_TRANSLATOR_APP_KEY = 'com.enonic.app.ai.translator';
+const AI_CONTENT_OPERATOR_APP_KEY = 'com.enonic.app.ai.contentoperator';
 
 exports.renderTemplate = function (params) {
     const view = resolve('./main.html');
@@ -33,8 +34,12 @@ exports.renderTemplate = function (params) {
 exports.getParams = function (path) {
     const isBrowseMode = path === admin.getToolUrl(app.name, 'main');
 
-    const aiApp = appLib.get({key: AI_ASSISTANT_APP_KEY});
-    const aiAssistantEnabled = aiApp != null && aiApp.started && !isBrowseMode;
+    const aiContentOperatorApp = appLib.get({key: AI_CONTENT_OPERATOR_APP_KEY});
+    const aiTranslatorApp = appLib.get({key: AI_TRANSLATOR_APP_KEY});
+
+    const isAiContentOperatorEnabled = aiContentOperatorApp != null && aiContentOperatorApp.started && !isBrowseMode;
+    const isAiTranslatorEnabled = aiTranslatorApp != null && aiTranslatorApp.started && !isBrowseMode;
+
     const locales = admin.getLocales();
 
     return {
@@ -44,7 +49,8 @@ exports.getParams = function (path) {
             bundles: ['i18n/phrases'],
             locale: locales
         }),
-        aiAssistantAssetUrl: aiAssistantEnabled ? portal.assetUrl({application: AI_ASSISTANT_APP_KEY}) : undefined,
+        aiContentOperatorAssetsUrl: isAiContentOperatorEnabled ? portal.assetUrl({application: AI_CONTENT_OPERATOR_APP_KEY}) : undefined,
+        aiTranslatorAssetsUrl: isAiTranslatorEnabled ? portal.assetUrl({application: AI_TRANSLATOR_APP_KEY}) : undefined,
         launcherPath: admin.getLauncherPath(),
         configServiceUrl: portal.serviceUrl({service: 'config'}),
         isBrowseMode: isBrowseMode,
