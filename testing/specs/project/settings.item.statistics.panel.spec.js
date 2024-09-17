@@ -68,6 +68,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             assert.equal(actualLanguage, appConst.LANGUAGES.EN, "Expected language should be displayed in Statistics panel.");
         });
 
+    // multiInheritance = false
     it(`GIVEN 2 projects have been checked in Settings panel WHEN new project wizard modal dialog has been opened THEN only the second selected project should be displayed in the dialog`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -79,10 +80,10 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             // 2. Press 'New' button in the toolbar:
             await settingsBrowsePanel.clickOnNewButton();
             await parentProjectStep.waitForLoaded();
-            // 3. Verify that only the second selected project is displayed in the Step:
+            // 3. Verify that only the second selected project is displayed in the Step:(multiInheritance = false)
             await studioUtils.saveScreenshot('project_apps_step_selected_app');
             let selectedProjects = await parentProjectStep.getSelectedProjects();
-            assert.equal(selectedProjects[1], 'Default', 'Default project should be selected in the parent step');
+            assert.equal(selectedProjects[0], 'Default', 'Default project should be selected in the parent step');
         });
 
     it("GIVEN user-contributor is added in Roles WHEN the project has been selected THEN this user should appear in statistics panel",
