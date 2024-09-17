@@ -124,13 +124,14 @@ export class ContentsTreeGridList
         return this.wasShownAndLoaded;
     }
 
-    findParentLists(item: ContentSummaryAndCompareStatus): ContentsTreeGridList[] {
+    findParentLists(item: ContentSummaryAndCompareStatus | ContentPath): ContentsTreeGridList[] {
         const parents: ContentsTreeGridList[] = [];
-        const itemPath = item.getPath();
+        const itemPath = item instanceof  ContentSummaryAndCompareStatus ? item.getPath() : item;
         const thisPath = this.getParentItem()?.getPath() || ContentPath.getRoot();
 
         if (itemPath.isDescendantOf(thisPath)) {
-            if (itemPath.isChildOf(thisPath)) {
+            // if the list is filtered then root may contain the item no matter what path is
+            if (itemPath.isChildOf(thisPath) || this.getItems().some(i => i.getPath().equals(itemPath))) {
                 parents.push(this);
             }
 
@@ -190,13 +191,15 @@ export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryA
         return viewer;
     }
 
-    findParentLists(item: ContentSummaryAndCompareStatus): ContentsTreeGridList[] {
+    findParentLists(item: ContentSummaryAndCompareStatus | ContentPath): ContentsTreeGridList[] {
         return this.childrenList.findParentLists(item);
     }
 
     setItem(item: ContentSummaryAndCompareStatus): void {
         super.setItem(item);
         (this.itemViewer as ContentTreeGridListViewer).setItem(item);
+        this.containsChildren = this.item.hasChildren();
+        this.updateExpandableState();
     }
 
     doRender(): Q.Promise<boolean> {
