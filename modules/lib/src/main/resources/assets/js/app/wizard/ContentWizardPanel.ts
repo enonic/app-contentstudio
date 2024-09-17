@@ -280,7 +280,7 @@ export class ContentWizardPanel
 
     private debouncedAppsChangeHandler: () => void;
 
-    private debouncedEnonicAiContentOperatorDataChangedHandler: () => void;
+    private debouncedEnonicAiDataChangedHandler: () => void;
 
     private isFirstUpdateAndRenameEventSkiped: boolean;
 
@@ -320,7 +320,7 @@ export class ContentWizardPanel
         this.displayNameResolver = new DisplayNameResolver();
         this.xDataWizardStepForms = new XDataWizardStepForms();
         this.workflowStateManager = new WorkflowStateManager(this);
-        this.debouncedEnonicAiContentOperatorDataChangedHandler = AppHelper.debounce(() => {
+        this.debouncedEnonicAiDataChangedHandler = AppHelper.debounce(() => {
             AI.get().setCurrentData({
                 fields: this.contentWizardStepForm.getData().toJson(),
                 topic: this.getWizardHeader().getDisplayName(),
@@ -453,7 +453,7 @@ export class ContentWizardPanel
         this.getWizardHeader().onPropertyChanged(this.dataChangedHandler);
         this.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
             if (event.getPropertyName() === 'displayName') {
-                this.debouncedEnonicAiContentOperatorDataChangedHandler();
+                this.debouncedEnonicAiDataChangedHandler();
             }
         });
 
@@ -485,7 +485,7 @@ export class ContentWizardPanel
             }
 
             this.updateWizardStepForms(propertyTree, false).then(() => {
-                this.debouncedEnonicAiContentOperatorDataChangedHandler();
+                this.debouncedEnonicAiDataChangedHandler();
             });
         });
     }
@@ -2027,7 +2027,7 @@ export class ContentWizardPanel
     private layoutWizardStepForms(content: Content): Q.Promise<void> {
         const contentData = content.getContentData();
         contentData.onChanged(this.dataChangedHandler);
-        contentData.onChanged(this.debouncedEnonicAiContentOperatorDataChangedHandler);
+        contentData.onChanged(this.debouncedEnonicAiDataChangedHandler);
 
         const formViewLayoutPromises: Q.Promise<void>[] = [];
         formViewLayoutPromises.push(
@@ -2517,10 +2517,10 @@ export class ContentWizardPanel
 
     private updateWizardStepForms(propertyTree: PropertyTree, unchangedOnly: boolean = true): Q.Promise<void> {
         this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
-        this.contentWizardStepForm.getData().unChanged(this.debouncedEnonicAiContentOperatorDataChangedHandler);
+        this.contentWizardStepForm.getData().unChanged(this.debouncedEnonicAiDataChangedHandler);
 
         propertyTree.onChanged(this.dataChangedHandler);
-        propertyTree.onChanged(this.debouncedEnonicAiContentOperatorDataChangedHandler);
+        propertyTree.onChanged(this.debouncedEnonicAiDataChangedHandler);
 
         return this.contentWizardStepForm.update(propertyTree, unchangedOnly).then(() => {
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);

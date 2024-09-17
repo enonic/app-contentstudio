@@ -18,7 +18,7 @@ import {EnonicAiContentOperatorShowEvent} from './event/incoming/EnonicAiContent
 import {EnonicAiTranslatorCompletedEvent} from './event/incoming/EnonicAiTranslatorCompletedEvent';
 import {EnonicAiTranslatorStartedEvent} from './event/incoming/EnonicAiTranslatorStartedEvent';
 import {EnonicAiConfigEvent} from './event/outgoing/EnonicAiConfigEvent';
-import {EnonicAiContentOperatorDataSentEvent} from './event/outgoing/EnonicAiContentOperatorDataSentEvent';
+import {EnonicAiDataSentEvent} from './event/outgoing/EnonicAiDataSentEvent';
 
 declare global {
     interface Window {
@@ -109,7 +109,7 @@ export class AI {
 
     setCurrentData(data: ContentData): void {
         this.currentData = data;
-        new EnonicAiContentOperatorDataSentEvent({data}).fire();
+        new EnonicAiDataSentEvent({data}).fire();
     }
 
     updateCustomPrompts(configs: ApplicationConfig[]): void {
@@ -165,7 +165,7 @@ export class AI {
 
     private showContentOperatorEventListener = () => {
 
-        new EnonicAiContentOperatorDataSentEvent({
+        new EnonicAiDataSentEvent({
             data: {
                 fields: this.content.getContentData().toJson(),
                 topic: this.content.getDisplayName(),
@@ -179,7 +179,7 @@ export class AI {
         }).fire();
 
         if (this.currentData) {
-            new EnonicAiContentOperatorDataSentEvent({data: this.currentData}).fire();
+            new EnonicAiDataSentEvent({data: this.currentData}).fire();
         }
     };
 
