@@ -12,9 +12,9 @@ class LocaleSelectorDropdown extends BasDropdown {
         return XPATH.container;
     }
 
-    async clickOnFilteredLanguageAndClickOnOk(language) {
+    async clickOnFilteredLanguageAndClickOnOk(language, parentLocator) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(language);
+            await this.clickOnFilteredItemAndClickOnOk(language, parentLocator);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('Content selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);

@@ -974,7 +974,7 @@ module.exports = {
         //await wizardPanel.waitForNotificationMessage();
         await wizardPanel.pause(2000);
         //Click on Close icon and close the wizard:
-        return await browsePanel.doClickOnCloseTabAndWaitGrid(displayName);
+        return await browsePanel.closeTabAndWaitForGrid(displayName);
     },
     async clickOnSystemOpenUserWizard() {
         let browsePanel = new UserBrowsePanel();
