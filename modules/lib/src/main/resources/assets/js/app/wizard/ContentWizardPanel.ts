@@ -49,6 +49,8 @@ import {ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import * as Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {Permission} from '../access/Permission';
+import {AI} from '../ai/AI';
+import {EnonicAiAppliedData} from '../ai/event/data/EnonicAiAppliedData';
 import {MovedContentItem} from '../browse/MovedContentItem';
 import {CompareStatus} from '../content/CompareStatus';
 import {Content, ContentBuilder} from '../content/Content';
@@ -94,11 +96,10 @@ import {GetApplicationsRequest} from '../resource/GetApplicationsRequest';
 import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
+import {GetLocalesRequest} from '../resource/GetLocalesRequest';
 import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {Router} from '../Router';
-import {AI} from '../saga/AI';
-import {EnonicAiAppliedData} from '../saga/event/data/EnonicAiAppliedData';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {ApplicationAddedEvent} from '../site/ApplicationAddedEvent';
 import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
@@ -148,7 +149,6 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
-import {GetLocalesRequest} from '../resource/GetLocalesRequest';
 
 export type FormContextName = 'content' | 'xdata' | 'live';
 
@@ -272,7 +272,7 @@ export class ContentWizardPanel
 
     private debouncedAppsChangeHandler: () => void;
 
-    private debouncedAIAssistantDataChangedHandler: () => void;
+    private debouncedEnonicAiContentOperatorDataChangedHandler: () => void;
 
     private isFirstUpdateAndRenameEventSkiped: boolean;
 
@@ -312,7 +312,13 @@ export class ContentWizardPanel
         this.displayNameResolver = new DisplayNameResolver();
         this.xDataWizardStepForms = new XDataWizardStepForms();
         this.workflowStateManager = new WorkflowStateManager(this);
-        this.debouncedAIAssistantDataChangedHandler = AppHelper.debounce(this.notifyChangesToAssistant.bind(this), 300);
+        this.debouncedEnonicAiContentOperatorDataChangedHandler = AppHelper.debounce(() => {
+            AI.get().setCurrentData({
+                fields: this.contentWizardStepForm.getData().toJson(),
+                topic: this.getWizardHeader().getDisplayName(),
+                language: this.peristedLanguage,
+            });
+        }, 300);
 
         this.debouncedEditorReload = AppHelper.debounce((clearInspection: boolean = true) => {
             const livePanel = this.getLivePanel();
@@ -439,7 +445,7 @@ export class ContentWizardPanel
         this.getWizardHeader().onPropertyChanged(this.dataChangedHandler);
         this.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
             if (event.getPropertyName() === 'displayName') {
-                this.debouncedAIAssistantDataChangedHandler();
+                this.debouncedEnonicAiContentOperatorDataChangedHandler();
             }
         });
 
@@ -471,7 +477,7 @@ export class ContentWizardPanel
             }
 
             this.updateWizardStepForms(propertyTree, false).then(() => {
-                this.debouncedAIAssistantDataChangedHandler();
+                this.debouncedEnonicAiContentOperatorDataChangedHandler();
             });
         });
     }
@@ -582,7 +588,7 @@ export class ContentWizardPanel
                 }
 
                 AI.get().setContentTypeContext(this.contentType);
-                AI.get().setCustomPrompt(this.fetchCustomAIPrompt());
+                AI.get().updateCustomPrompts(this.getApplicationsConfigs());
 
                 return this.loadAndSetPageState(loader.content?.getPage()?.clone());
             }).then(() => super.doLoadData());
@@ -2011,7 +2017,7 @@ export class ContentWizardPanel
     private layoutWizardStepForms(content: Content): Q.Promise<void> {
         const contentData = content.getContentData();
         contentData.onChanged(this.dataChangedHandler);
-        contentData.onChanged(this.debouncedAIAssistantDataChangedHandler);
+        contentData.onChanged(this.debouncedEnonicAiContentOperatorDataChangedHandler);
 
         const formViewLayoutPromises: Q.Promise<void>[] = [];
         formViewLayoutPromises.push(
@@ -2501,10 +2507,10 @@ export class ContentWizardPanel
 
     private updateWizardStepForms(propertyTree: PropertyTree, unchangedOnly: boolean = true): Q.Promise<void> {
         this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
-        this.contentWizardStepForm.getData().unChanged(this.debouncedAIAssistantDataChangedHandler);
+        this.contentWizardStepForm.getData().unChanged(this.debouncedEnonicAiContentOperatorDataChangedHandler);
 
         propertyTree.onChanged(this.dataChangedHandler);
-        propertyTree.onChanged(this.debouncedAIAssistantDataChangedHandler);
+        propertyTree.onChanged(this.debouncedEnonicAiContentOperatorDataChangedHandler);
 
         return this.contentWizardStepForm.update(propertyTree, unchangedOnly).then(() => {
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
@@ -2815,23 +2821,8 @@ export class ContentWizardPanel
         return !!diff.data || !!diff.pageObj || !!diff.extraData || !!diff.path || !!diff.displayName || !!diff.name || !!diff.inherit;
     }
 
-    private notifyChangesToAssistant(): void {
-        AI.get().setCurrentData({
-            fields: this.contentWizardStepForm.getData().toJson(),
-            topic: this.getWizardHeader().getDisplayName(),
-            language: this.peristedLanguage,
-        });
-    }
-
-    private fetchCustomAIPrompt(): string | undefined {
-        const siteConfigAI = this.site?.getSiteConfigs().find(this.isAIAppConfig) ||
-                             ProjectContext.get().getProject().getSiteConfigs().find(this.isAIAppConfig);
-
-        return siteConfigAI?.getConfig()?.getString('customPrompt') || undefined;
-    }
-
-    private isAIAppConfig(config: ApplicationConfig): boolean {
-        return config.getApplicationKey().getName() === 'com.enonic.app.saga';
+    private getApplicationsConfigs(): ApplicationConfig[] {
+        return [...(this.site?.getSiteConfigs() ?? []), ...ProjectContext.get().getProject().getSiteConfigs()];
     }
 
     private initFormsContexts(content: Content): void {

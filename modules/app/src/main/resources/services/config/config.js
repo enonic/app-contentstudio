@@ -13,8 +13,6 @@ function handleGet() {
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
     const hideDefaultProject = app.config['settings.hideDefaultProject'] !== 'false';
     const defaultPublishFromTime = parseTime(app.config['publishingWizard.defaultPublishFromTime']);
-    const sagaPollDelay = Number(app.config['openai.poll.delay']) || 0;
-    const sagaPollLimit = Number(app.config['openai.poll.limit']) || 0;
 
     return {
         status: 200,
@@ -46,11 +44,9 @@ function handleGet() {
                 collaborationUrl: portal.serviceUrl({service: 'collaboration'}),
                 appServiceUrl: portal.serviceUrl({service: 'applications'}),
                 exportServiceUrl: portal.serviceUrl({service: 'export'}),
-                sagaChatServiceUrl: portal.serviceUrl({service: 'chat', application: 'com.enonic.app.saga'}),
-                sagaTranslationServiceUrl: portal.serviceUrl({service: 'translation', application: 'com.enonic.app.saga'}),
+                aiContentOperatorServiceUrl: portal.serviceUrl({service: 'rest', application: 'com.enonic.app.ai.contentoperator'}),
+                aiTranslatorServiceUrl: portal.serviceUrl({service: 'rest', application: 'com.enonic.app.ai.translator'}),
             },
-            sagaPollDelay,
-            sagaPollLimit,
             theme: 'light',
             /* Remove in CS/lib-admin-ui 5.0 */
             launcher: {

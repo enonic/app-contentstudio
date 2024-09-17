@@ -5,10 +5,10 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import * as Q from 'q';
+import {AI} from '../ai/AI';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentStatusToolbar, ContentStatusToolbarConfig} from '../ContentStatusToolbar';
 import {ProjectContext} from '../project/ProjectContext';
-import {AI} from '../saga/AI';
 import {Project} from '../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
@@ -41,7 +41,7 @@ export class ContentWizardToolbar
 
     private collaborationBlock?: CollaborationEl;
 
-    private aiAssistantContainer: DivEl;
+    private aiContentOperatorContainer: DivEl;
 
     private stateIcon?: DivEl;
 
@@ -57,7 +57,7 @@ export class ContentWizardToolbar
         this.addHomeButton();
         this.addActionButtons();
         this.addPublishMenuButton();
-        this.addAIAssistantButton();
+        this.addEnonicAiContentOperatorButton();
         this.addTogglerButtons();
 
         if (!this.isCollaborationEnabled()) {
@@ -129,26 +129,17 @@ export class ContentWizardToolbar
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
         this.addElement(this.collaborationBlock);
         this.openCollaborationWSConnection();
-        this.addAssistantIntoCollaborationBlock();
+        this.addContentOperatorIntoCollaborationBlock();
     }
 
-    private addAIAssistantButton(): void {
-        if (!AI.get().isAvailable()) {
-            return;
-        }
-
+    private addEnonicAiContentOperatorButton(): void {
         AI.get().whenReady(() => {
-            this.aiAssistantContainer = new DivEl('ai-assistant-container');
-            this.addElement(this.aiAssistantContainer);
-
-            AI.get().renderAssistant(this.aiAssistantContainer.getHTMLElement(), {
-                chatServiceUrl: CONFIG.getString('services.sagaChatServiceUrl'),
-                translationServiceUrl: CONFIG.getString('services.sagaTranslationServiceUrl'),
-                pollLimit: CONFIG.getNumber('sagaPollLimit'),
-                pollDelay: CONFIG.getNumber('sagaPollDelay'),
-            });
-
-            this.addAssistantIntoCollaborationBlock();
+            if (AI.get().has('contentOperator')) {
+                this.aiContentOperatorContainer = new DivEl('ai-assistant-container');
+                this.addElement(this.aiContentOperatorContainer);
+                this.addContentOperatorIntoCollaborationBlock();
+                AI.get().renderContentOperator(this.aiContentOperatorContainer.getHTMLElement());
+            }
         });
     }
 
@@ -255,9 +246,9 @@ export class ContentWizardToolbar
         return this.stateIcon;
     }
 
-    private addAssistantIntoCollaborationBlock(): void {
-        if (this.collaborationBlock && this.aiAssistantContainer) {
-            this.collaborationBlock.prependChild(this.aiAssistantContainer);
+    private addContentOperatorIntoCollaborationBlock(): void {
+        if (this.collaborationBlock && this.aiContentOperatorContainer) {
+            this.collaborationBlock.prependChild(this.aiContentOperatorContainer);
         }
     }
 
