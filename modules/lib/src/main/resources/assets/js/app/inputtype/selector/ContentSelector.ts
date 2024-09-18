@@ -17,7 +17,7 @@ import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import {Reference} from '@enonic/lib-admin-ui/util/Reference';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {ContentSummary} from '../../content/ContentSummary';
+import {ContentSummary, ContentSummaryBuilder} from '../../content/ContentSummary';
 import {ContentId} from '../../content/ContentId';
 import {ContentPath} from '../../content/ContentPath';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
@@ -68,22 +68,10 @@ export class ContentSelector
             return;
         }
 
-        ContentServerEventsHandler.getInstance().onContentRenamed((data: ContentSummaryAndCompareStatus[]) => {
-            const isCurrentContentRenamed: boolean = data.some((item: ContentSummaryAndCompareStatus) => item.getId() === contentId);
-
-            if (isCurrentContentRenamed) {
-                this.handleContentRenamed();
-            }
-        });
-
         this.handleContentDeletedEvent();
         this.handleContentUpdatedEvent();
 
         // remove missing options via removePropertyWithId
-    }
-
-    protected handleContentRenamed() {
-        // handle content renamed
     }
 
     private handleContentUpdatedEvent() {
@@ -107,9 +95,19 @@ export class ContentSelector
             });
         };
 
+        const contentRenamedListener = (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
+            if (this.getSelectedOptions().length === 0) {
+                return;
+            }
+
+            data.forEach((renamed: ContentSummaryAndCompareStatus, index: number) => {
+                this.updateSelectedItemsPathsIfParentRenamed(renamed, oldPaths[index]);
+            });
+        };
+
         const handler: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
         handler.onContentMoved(contentMovedListener);
-        handler.onContentRenamed(contentUpdatedListener);
+        handler.onContentRenamed(contentRenamedListener);
         handler.onContentUpdated(contentUpdatedListener);
 
         this.onRemoved(() => {
@@ -448,6 +446,53 @@ export class ContentSelector
             this.addClass('single-occurrence').removeClass('multiple-occurrence');
             this.contentSelectorDropdown.addClass('single-occurrence').removeClass('multiple-occurrence');
         }
+    }
+
+    private updateSelectedItemsPathsIfParentRenamed(renamedContent: ContentSummaryAndCompareStatus, renamedItemOldPath: ContentPath): void {
+        this.getSelectedOptions().forEach((selectedOption: SelectedOption<ContentTreeSelectorItem>) => {
+            const selectedOptionPath = selectedOption.getOption().getDisplayValue().getPath();
+
+            if (selectedOptionPath?.isDescendantOf(renamedItemOldPath)) {
+                this.updatePathForRenamedItemDescendant(selectedOption, renamedItemOldPath, renamedContent);
+            }
+        });
+    }
+
+    private updatePathForRenamedItemDescendant(selectedOption: SelectedOption<ContentTreeSelectorItem>, renamedItemOldPath: ContentPath,
+                                               renamedAncestor: ContentSummaryAndCompareStatus) {
+        const selectedOptionPath = selectedOption.getOption().getDisplayValue().getPath();
+        const option = selectedOption.getOption();
+        const newPath = this.makeNewPathForRenamedItemDescendant(selectedOptionPath, renamedItemOldPath, renamedAncestor);
+        const newValue = this.makeNewItemWithUpdatedPath(option.getDisplayValue(), newPath);
+        option.setDisplayValue(newValue);
+        selectedOption.getOptionView().setOption(option);
+    }
+
+    protected makeNewPathForRenamedItemDescendant(descendantItemPath: ContentPath, renamedItemOldPath: ContentPath,
+                                                  renamedItem: ContentSummaryAndCompareStatus): ContentPath {
+        const descendantItemPathAsString = descendantItemPath.toString();
+        const renamedItemOldPathAsString = renamedItemOldPath.toString();
+        const newSelectedOptionPathAsString = descendantItemPathAsString.replace(renamedItemOldPathAsString,
+            renamedItem.getPath().toString());
+        return ContentPath.create().fromString(newSelectedOptionPathAsString).build();
+    }
+
+    private makeNewItemWithUpdatedPath(oldValue: ContentTreeSelectorItem, newPath: ContentPath): ContentTreeSelectorItem {
+        const content = oldValue.getContent();
+        const newContentSummary = new ContentSummaryBuilder(content).setPath(newPath).build();
+        const wrappedContent = this.wrapRenamedContentSummary(newContentSummary, oldValue);
+
+        return this.createSelectorItem(wrappedContent);
+    }
+
+    protected wrapRenamedContentSummary(newContentSummary: ContentSummary,
+                                        oldValue: ContentTreeSelectorItem): ContentSummary | ContentSummaryAndCompareStatus {
+        if (oldValue instanceof ContentAndStatusTreeSelectorItem) {
+            return ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(newContentSummary, oldValue.getCompareStatus(),
+                oldValue.getPublishStatus());
+        }
+
+        return newContentSummary;
     }
 
     protected getNumberOfValids(): number {
