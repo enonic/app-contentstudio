@@ -128,6 +128,7 @@ module.exports = Object.freeze({
         DROPDOWN_LIST_ITEM: "//li[contains(@class,'item-view-wrapper')]",
         WIDGET_FILTER_DROPDOWN: `//div[contains(@id,'WidgetFilterDropdown')]`,
         FILTERABLE_LISTBOX: "//div[contains(@id,'FilterableListBoxWrapper')]",
+        IMAGE_CONTENT_COMBOBOX_DIV: "//div[contains(@id,'ImageContentComboBox')]",
     },
 
     DEPENDANTS: {

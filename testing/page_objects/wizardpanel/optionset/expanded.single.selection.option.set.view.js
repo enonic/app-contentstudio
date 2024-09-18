@@ -4,6 +4,7 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
+const SingleSelectionOptionSet = require('./single.selection.option.set.view');
 const xpath = {
     container: "//div[contains(@id,'FormOptionSetOccurrenceViewSingleOption')]",
     dropDownDiv: "//div[contains(@id,'Dropdown')]",
@@ -71,11 +72,8 @@ class ExpandedSingleSelectionOptionSet extends Page {
 
     async selectOption(option) {
         try {
-            await this.waitForElementDisplayed(this.dropDownHandle, appConst.mediumTimeout);
-            await this.clickOnElement(this.dropDownHandle);
-            let optionLocator = xpath.container + xpath.dropDownDiv + lib.itemByDisplayName(option);
-            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-            await this.clickOnElement(optionLocator);
+            let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            await singleSelectionOptionSet.selectOption(option)
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_optionset');
