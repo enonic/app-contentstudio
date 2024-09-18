@@ -59,7 +59,7 @@ class LiveFormPanel extends Page {
             let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
             await contentWizard.switchToLiveEditFrame();
             await componentDescriptorsDropdown.selectFilteredComponentAndClickOnOk(displayName, parentForComboBox);
-            return await this.pause(1000);
+            return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_layout');
             throw new Error('Error when selecting the part in Live Edit, screenshot: ' + screenshot + '  ' + err);

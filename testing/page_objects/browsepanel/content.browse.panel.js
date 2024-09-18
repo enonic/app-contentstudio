@@ -14,7 +14,7 @@ const ContentUnpublishDialog = require('../content.unpublish.dialog');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
-    toolbar: "//div[contains(@id,'ContentBrowseToolbar')]",
+    toolbarDiv: "//div[contains(@id,'ContentBrowseToolbar')]",
     treeGridToolbar: "//div[contains(@id,'ListBoxToolbar') and contains(@class,'tree-grid-toolbar')]",
     selectableListBoxPanelDiv: "//div[contains(@id,'SelectableListBoxPanel')]",
     contentsTreeGridRootUL: "//ul[contains(@id,'ContentsTreeGridRootList')]",
@@ -54,39 +54,39 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get archiveButton() {
-        return XPATH.toolbar + lib.actionButton('Archive...');
+        return XPATH.toolbarDiv + lib.actionButton('Archive...');
     }
 
     get moreButton() {
-        return XPATH.toolbar + lib.BUTTONS.MORE_BUTTON;
+        return XPATH.toolbarDiv + lib.BUTTONS.MORE_BUTTON;
     }
 
     get moveButton() {
-        return XPATH.toolbar + lib.actionButton('Move...');
+        return XPATH.toolbarDiv + lib.actionButton('Move...');
     }
 
     get duplicateButton() {
-        return XPATH.toolbar + lib.actionButton('Duplicate...');
+        return XPATH.toolbarDiv + lib.actionButton('Duplicate...');
     }
 
     get previewButton() {
-        return XPATH.toolbar + lib.actionButton('Preview');
+        return XPATH.toolbarDiv + lib.actionButton('Preview');
     }
 
     get sortButton() {
-        return XPATH.toolbar + lib.actionButton('Sort...');
+        return XPATH.toolbarDiv + lib.actionButton('Sort...');
     }
 
     get localizeButton() {
-        return XPATH.toolbar + lib.actionButton('Localize');
+        return XPATH.toolbarDiv + lib.actionButton('Localize');
     }
 
     get openButton() {
-        return XPATH.toolbar + lib.actionButton('Open');
+        return XPATH.toolbarDiv + lib.actionButton('Open');
     }
 
     get searchButton() {
-        return XPATH.toolbar + XPATH.searchButton;
+        return XPATH.toolbarDiv + XPATH.searchButton;
     }
 
     get hideSearchPanelButton() {
@@ -98,23 +98,23 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get showPublishMenuButton() {
-        return XPATH.toolbar + XPATH.contentActionMenuButton + lib.DROP_DOWN_HANDLE;
+        return XPATH.toolbarDiv + XPATH.contentActionMenuButton + lib.DROP_DOWN_HANDLE;
     }
 
     get createIssueMenuItem() {
-        return XPATH.toolbar + XPATH.createIssueMenuItem;
+        return XPATH.toolbarDiv + XPATH.createIssueMenuItem;
     }
 
     get requestPublishMenuItem() {
-        return XPATH.toolbar + XPATH.requestPublishMenuItem;
+        return XPATH.toolbarDiv + XPATH.requestPublishMenuItem;
     }
 
     get markAsReadyMenuItem() {
-        return XPATH.toolbar + XPATH.markAsReadyMenuItem;
+        return XPATH.toolbarDiv + XPATH.markAsReadyMenuItem;
     }
 
     get createIssueButton() {
-        return XPATH.toolbar + lib.actionButton('Create Issue...');
+        return XPATH.toolbarDiv + lib.actionButton('Create Issue...');
     }
 
     get showIssuesListButton() {
@@ -130,11 +130,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get newButton() {
-        return `${XPATH.toolbar}/*[contains(@id, 'ActionButton') and child::span[contains(.,'New...')]]`
+        return `${XPATH.toolbarDiv}/*[contains(@id, 'ActionButton') and child::span[contains(.,'New...')]]`
     }
 
     get editButton() {
-        return `${XPATH.toolbar}/*[contains(@id, 'ActionButton') and child::span[text()='Edit']]`;
+        return `${XPATH.toolbarDiv}/*[contains(@id, 'ActionButton') and child::span[text()='Edit']]`;
     }
 
     get numberInSelectionToggler() {
@@ -164,6 +164,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get treeGrid() {
         return XPATH.container + XPATH.contentsTreeGridRootUL;
+    }
+
+    get browseToolbar() {
+        return XPATH.container + XPATH.toolbarDiv;
     }
 
     get projectViewerButton() {

@@ -137,7 +137,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             // Type the Identifier of the project
             await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME);
             await confirmValueDialog.clickOnConfirmButton();
-            // 2.Description block gets not visible in the statistics panel:
+            // 2. Description block gets not visible in the statistics panel:
             await settingsItemStatisticsPanel.waitForDescriptionNotDisplayed();
             await studioUtils.saveScreenshot("project_item_statistics_description_not_displayed");
         });

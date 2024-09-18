@@ -33,8 +33,8 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             let result = await contentBrowsePanel.isSelectionControllerSelected();
             assert.ok(result, 'Selection Controller checkBox should be selected');
             // 4. Verify that checkboxes are clickable: Unselect one item in the filtered grid:
-            await contentBrowsePanel.clickOnCheckbox(appConst.TEST_FOLDER_2_NAME);
-            await contentBrowsePanel.pause(1000);
+            await contentBrowsePanel.clickOnCheckboxByName(appConst.TEST_FOLDER_2_NAME);
+            await contentBrowsePanel.pause(500);
             await studioUtils.saveScreenshot('filtered_grid_one_item_unselected');
             // 5. Verify that only one item remains visible in the filtered grid now:
             displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
