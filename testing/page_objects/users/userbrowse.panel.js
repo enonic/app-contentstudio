@@ -5,6 +5,7 @@ const Page = require('../page');
 const ConfirmationDialog = require('../confirmation.dialog');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const PrincipalFilterPanel = require('./principal.filter.panel');
 
 const xpath = {
     container: "//div[contains(@id,'UserBrowsePanel')]",
@@ -227,6 +228,7 @@ class UserBrowsePanel extends Page {
             throw Error('Row was not found: screenshot' + screenshot + '  ' + err);
         }
     }
+
     waitForRowByDisplayNameVisible(displayName) {
         let nameXpath = xpath.rowByDisplayName(displayName);
         return this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout).catch(err => {
@@ -379,6 +381,34 @@ class UserBrowsePanel extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let attribute = await this.getAttribute(locator, 'class');
         return attribute.includes('highlight');
+    }
+
+    async findAndSelectItem(name) {
+        await this.typeNameInFilterPanel(name);
+        await this.waitForRowByNameVisible(name);
+        await this.clickOnRowByName(name);
+        return await this.pause(500);
+    }
+
+    async selectAndDeleteItem(name) {
+        let confirmationDialog = new ConfirmationDialog();
+        await this.findAndSelectItem(name);
+        await this.waitForDeleteButtonEnabled();
+        await this.clickOnDeleteButton();
+        await confirmationDialog.waitForDialogOpened();
+        await confirmationDialog.clickOnYesButton();
+        await confirmationDialog.waitForDialogClosed();
+        return await this.waitForSpinnerNotVisible();
+    }
+
+    //Opens Filter Panel and types a text in the search input
+    async typeNameInFilterPanel(name) {
+        let filterPanel = new PrincipalFilterPanel();
+        await this.clickOnSearchButton();
+        await filterPanel.waitForOpened();
+        await filterPanel.typeSearchText(name);
+        await this.pause(300);
+        await this.waitForSpinnerNotVisible();
     }
 }
 

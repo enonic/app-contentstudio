@@ -82,7 +82,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             // 4. Verify that OK(apply selection) gets visible
             await siteFormPanel.waitForApplyAppSelectionButtonDisplayed();
             // 5. Click on the OK button
-            await siteFormPanel.clickOnApplyAppSelectionButton();
+            await siteFormPanel.clickOnApplySelectionButtonInApplications();
             // 6. Verify that the selected option is removed in the form:
             let selectedApps = await siteFormPanel.getSelectedAppDisplayNames();
             assert.equal(selectedApps.length, 0, "App selected options view should be empty");
