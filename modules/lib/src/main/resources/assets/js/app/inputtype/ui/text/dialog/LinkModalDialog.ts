@@ -1002,7 +1002,14 @@ export class LinkModalDialog
 
             const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionsView().getById(item.getId());
             const option: Option<ContentTreeSelectorItem> = selectedOption.getOption();
-            option.setDisplayValue(new MediaTreeSelectorItem(createdContent));
+            const uploadedItem = new MediaTreeSelectorItem(createdContent);
+
+            if (contentSelector.isSelected(item.getId())) {
+                contentSelector.deselect(selectedOption.getOption().getDisplayValue(), true);
+                contentSelector.select(uploadedItem, true);
+            }
+
+            option.setDisplayValue(uploadedItem);
             option.setValue(createdContent.getContentId().toString());
 
             selectedOption.getOptionView().setOption(option);
