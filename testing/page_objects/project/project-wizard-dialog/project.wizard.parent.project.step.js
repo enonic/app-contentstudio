@@ -94,10 +94,11 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         }
     }
 
-    async clickOnRemoveSelectedProjectIcon() {
-        let locator = XPATH.container + XPATH.projectSelectedOptionView + lib.REMOVE_ICON;
+    async clickOnRemoveSelectedProjectIcon(displayName) {
+        let locator = XPATH.container + XPATH.projectSelectedOptionView + lib.itemByDisplayName(displayName) + '/../..' + lib.REMOVE_ICON;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
+        await this.pause(300);
     }
 
     async getSelectedProject() {
