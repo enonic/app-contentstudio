@@ -137,6 +137,7 @@ export class ProjectItemNameWizardStepForm
         }
 
         this.parentProjectsFormItem = new ParentProjectFormItem();
+        this.parentProjectsFormItem.setReadOnly();
 
         this.addFormItem(this.parentProjectsFormItem);
     }
