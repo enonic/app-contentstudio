@@ -29,7 +29,7 @@ class BaseBrowsePanel extends Page {
     async waitForGridLoaded(ms) {
         try {
             let timeout = typeof ms !== 'undefined' ? ms : appConst.mediumTimeout;
-            await this.waitForElementDisplayed(this.treeGrid, timeout);
+            await this.waitForElementDisplayed(this.browseToolbar, timeout);
             await this.waitForSpinnerNotVisible(timeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_switch');

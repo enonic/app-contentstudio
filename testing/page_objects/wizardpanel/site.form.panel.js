@@ -98,7 +98,8 @@ class SiteForm extends Page {
         await siteConfiguratorComboBox.waitForApplySelectionButtonDisplayed(XPATH.wizardSteps);
     }
 
-    async clickOnApplyAppSelectionButton() {
+    // Click on OK and apply the selected applications:
+    async clickOnApplySelectionButtonInApplications() {
         let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
         await siteConfiguratorComboBox.clickOnApplySelectionButton();
     }

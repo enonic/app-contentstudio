@@ -28,11 +28,17 @@ const xpath = {
 class BasePageComponentView extends Page {
 
     async isComponentSelected(displayName) {
-        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::li[contains(@class,'item-view-wrapper')]`;
-        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
-        let cell = await this.findElement(locator);
-        let attr = await cell.getAttribute('class');
-        return attr.includes('selected');
+        try {
+            let locator = this.container + lib.itemStrictByDisplayName(displayName) +
+                          `//ancestor::li[contains(@class,'item-view-wrapper')]`;
+            await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+            let cell = await this.findElement(locator);
+            let attr = await cell.getAttribute('class');
+            return attr.includes('selected');
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_pcv_component');
+            throw new Error(`Error occurred in 'isComponentSelected' in PCV, screenshot:${screenshot} ` + err);
+        }
     }
 
     async waitForItemSelected(displayName) {
@@ -66,7 +72,7 @@ class BasePageComponentView extends Page {
             return await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_click');
-            throw new Error("Page Component View - Error when clicking on the component, screenshot: " + screenshot + ' ' + err);
+            throw new Error(`Page Component View - Error occurred after clicking on the component, screenshot${screenshot}: ` + err);
         }
     }
 
@@ -92,7 +98,7 @@ class BasePageComponentView extends Page {
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_view');
-            throw new Error('Page Component View, Error when clicking on `toggle icon in the row` screenshot: ' + screenshot + '  ' + err);
+            throw new Error(`PCV, Error occurred after clicking on 'toggle icon' in the row screenshot:${screenshot} ` + err);
         }
     }
 
@@ -111,7 +117,7 @@ class BasePageComponentView extends Page {
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
-            throw new Error('Page Component View, open menu - Error when clicking on `Menu button`, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`PCV, open menu - Error occurred after clicking on 'Menu button', screenshot:${screenshot} ` + err);
         }
     }
 
@@ -149,7 +155,7 @@ class BasePageComponentView extends Page {
             return await this.pause(700);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
-            throw new Error("Error - Page Component View: Menu Item, screenshot " + screenshot + ' ' + err);
+            throw new Error(`Error - Page Component View: Menu Item, screenshot:${screenshot} ` + err);
         }
     }
 

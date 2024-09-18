@@ -13,7 +13,7 @@ const XPATH = {
     appBar: "//div[contains(@id,'ContentAppBar')]",
     appBarTabMenu: "//div[contains(@id,'AppBarTabMenu')]",
     homeButton: "//div[contains(@class,'home-button') and descendant::span[text()='Settings']]",
-    toolbar: `//div[contains(@id,'SettingsBrowseToolbar')]`,
+    toolbarDiv: `//div[contains(@id,'SettingsBrowseToolbar')]`,
     itemsTreeGrid: `//div[contains(@id,'SettingsItemsTreeGrid')]`,
     settingsTreeList: `//ul[contains(@id,'SettingsTreeList')]`,
     listBoxToolbarDiv: `//div[contains(@id,'ListBoxToolbar')]`,
@@ -45,7 +45,7 @@ const XPATH = {
 class SettingsBrowsePanel extends BaseBrowsePanel {
 
     get deleteButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Delete']]`;
+        return XPATH.toolbarDiv + `/*[contains(@id, 'ActionButton') and child::span[text()='Delete']]`;
     }
 
     get homeButton() {
@@ -53,19 +53,23 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get newButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='New...']]`;
+        return XPATH.toolbarDiv + `/*[contains(@id, 'ActionButton') and child::span[text()='New...']]`;
     }
 
     get editButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Edit']]`;
+        return XPATH.toolbarDiv + `/*[contains(@id, 'ActionButton') and child::span[text()='Edit']]`;
     }
 
     get syncButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Sync']]`;
+        return XPATH.toolbarDiv + `/*[contains(@id, 'ActionButton') and child::span[text()='Sync']]`;
     }
 
     get treeGrid() {
         return XPATH.container + XPATH.settingsTreeList;
+    }
+
+    get browseToolbar() {
+        return XPATH.container + XPATH.toolbarDiv;
     }
 
     get selectionControllerCheckBox() {
@@ -264,11 +268,11 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     async checkAndOpenProjectByDisplayName(displayName) {
         let projectWizard = new ProjectWizard();
         // the root folder(Projects) should be expanded:
-        //1. check the project:
+        // 1. check the project:
         await this.clickOnCheckboxAndSelectRowByName(displayName);
-        //2. wait for Edit button gets enabled:
+        // 2. wait for Edit button gets enabled:
         await this.clickOnEditButton();
-        //3. wait for Project is loaded:
+        // 3. wait for Project is loaded:
         await projectWizard.waitForLoaded();
         return projectWizard;
     }
