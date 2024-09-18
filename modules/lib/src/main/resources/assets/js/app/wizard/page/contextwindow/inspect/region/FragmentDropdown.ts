@@ -44,7 +44,7 @@ export class FragmentDropdown
     protected initListeners(): void {
         super.initListeners();
 
-        this.listBox.whenShown(() => {
+        this.listBox.onShown(() => {
             this.loader.load().catch(DefaultErrorHandler.handle);
         });
 
