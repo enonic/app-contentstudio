@@ -506,9 +506,10 @@ export class PageComponentsView
             return [];
         }
 
-        const path: ComponentPath = this.getPathByItem(item);
+
         const page: Page = PageState.getState();
-        const pageItem: PageItem = path.isRoot() ? page : page.getComponentByPath(path);
+        const path: ComponentPath = this.getPathByItem(item);
+        const pageItem: PageItem = page.getComponentByPath(path);
 
         if (pageItem instanceof Page) {
             return PageActionsHelper.getTopLevelItemActions(pageItem);
@@ -652,12 +653,7 @@ export class PageComponentsView
     }
 
     private getPathByItem(item: ComponentsTreeItem): ComponentPath | undefined {
-        if (item.getType() === 'page') {
-            return ComponentPath.root();
-        }
-
         const listElement = this.tree.getItemView(item) as PageComponentsListElement;
-
         return listElement?.getComponentPath();
     }
 

@@ -309,6 +309,10 @@ export class PageComponentsListElement
     }
 
     getPath(): string {
+        if ((this.getParentList() as PageComponentsTreeGrid)?.isRootList()) {
+            return ComponentPath.DIVIDER;
+        }
+
         const parentItemPath = (this.getParentList().getParentListElement() as PageComponentsListElement)?.getPath();
         const parentPath = (parentItemPath && parentItemPath !== ComponentPath.DIVIDER) ? parentItemPath : '';
 
