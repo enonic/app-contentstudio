@@ -26,6 +26,8 @@ export class SettingsBrowsePanel
 
     protected contextMenu: TreeGridContextMenu;
 
+    protected selectionWrapper: SelectableListBoxWrapper<SettingsViewItem>;
+
     protected selectableListBoxPanel: SelectableListBoxPanel<SettingsViewItem>;
 
     protected initListeners(): void {
@@ -63,24 +65,24 @@ export class SettingsBrowsePanel
     protected createListBoxPanel(): SelectableListBoxPanel<SettingsViewItem> {
         this.treeListBox = new SettingsTreeList();
 
-        const selectionWrapper = new SelectableListBoxWrapper<SettingsViewItem>(this.treeListBox, {
+        this.selectionWrapper = new SelectableListBoxWrapper<SettingsViewItem>(this.treeListBox, {
             className: 'settings-list-box-wrapper',
             maxSelected: 0,
             checkboxPosition: 'left',
             highlightMode: true,
         });
 
-        this.treeActions = new SettingsTreeActions(selectionWrapper);
+        this.treeActions = new SettingsTreeActions(this.selectionWrapper);
         this.contextMenu = new TreeGridContextMenu(this.treeActions);
-        this.toolbar = new ListBoxToolbar<SettingsViewItem>(selectionWrapper, {
+        this.toolbar = new ListBoxToolbar<SettingsViewItem>(this.selectionWrapper, {
             refreshAction: () => this.treeListBox.reload(),
         });
 
-        new SelectableTreeListBoxKeyNavigator(selectionWrapper);
+        new SelectableTreeListBoxKeyNavigator(this.selectionWrapper);
 
         this.toolbar.getSelectionPanelToggler().hide();
 
-        return new SelectableListBoxPanel(selectionWrapper, this.toolbar);
+        return new SelectableListBoxPanel(this.selectionWrapper, this.toolbar);
     }
 
     protected createToolbar(): SettingsBrowseToolbar {
@@ -111,6 +113,10 @@ export class SettingsBrowsePanel
         const item = this.treeListBox.getItem(id) as ProjectViewItem;
 
         if (item) {
+            if (this.selectionWrapper.isItemSelected(item)) {
+                this.selectionWrapper.deselect(item);
+            }
+
             this.treeListBox.findParentList(item)?.removeItems(item);
         }
     }
