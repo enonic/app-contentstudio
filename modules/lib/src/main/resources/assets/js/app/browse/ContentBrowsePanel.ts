@@ -518,7 +518,11 @@ export class ContentBrowsePanel
 
             if (existingItem) {
                 newItem.setReadOnly(existingItem.isReadOnly());
-                this.treeListBox.findParentLists(newItem).forEach(list => list.replaceItems(newItem));
+                const parentLists = this.treeListBox.findParentLists(newItem);
+                parentLists.forEach(list => list.replaceItems(newItem));
+            } else if (this.selectionWrapper.isItemSelected(newItem)) {
+                // Need to update selected item anyway
+                this.selectionWrapper.updateItemIfSelected(newItem);
             }
         });
 
