@@ -50,6 +50,13 @@ export class ProjectsSelector
         this.helper = helper;
     }
 
+    protected initElements(): void {
+        super.initElements();
+
+        this.selectedOptionsView.setOccurrencesSortable(true);
+        this.selectedOptionsView.setDraggable(true);
+    }
+
     protected initListeners(): void {
         super.initListeners();
 
@@ -82,6 +89,17 @@ export class ProjectsSelector
 
         this.deselectAll(true);
         this.select(projects);
+    }
+
+    getSelectedProjects(): Project[] {
+        return this.getSelectedOptions().map((selectedOption) => selectedOption.getOption().getDisplayValue());
+    }
+
+    setDraggable(value: boolean): void {
+        super.setDraggable(value);
+
+        this.selectedOptionsView.setDraggable(value);
+        this.selectedOptionsView.setOccurrencesSortable(value);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -124,6 +142,8 @@ class ProjectSelectedOptionView
 
     private option: Option<Project>;
 
+    private dragControl: DivEl;
+
     constructor(option: Option<Project>) {
         super('selected-option');
         this.setOption(option);
@@ -140,11 +160,16 @@ class ProjectSelectedOptionView
     }
 
     protected initElements(): void {
-        const dragControl = new DivEl('drag-control');
-        this.appendChild(dragControl);
+        this.dragControl = new DivEl('drag-control');
+        this.appendChild(this.dragControl);
 
         this.setEditable(true);
         this.appendRemoveButton();
+    }
+
+    setDraggable(value: boolean): void {
+        super.setDraggable(value);
+        this.dragControl.setVisible(value);
     }
 }
 
@@ -153,6 +178,11 @@ class ProjectSelectedOptionsView
 
     createSelectedOption(option: Option<Project>): SelectedOption<Project> {
         const optionView: ProjectSelectedOptionView = new ProjectSelectedOptionView(option);
+
+        if (!this.isDraggable()) {
+            optionView.setDraggable(false);
+        }
+
         return new SelectedOption<Project>(optionView, this.count());
     }
 }

@@ -13,6 +13,7 @@ export class ParentProjectFormItem
         const isMultiInheritance: boolean = ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance();
         const maxParents: number = isMultiInheritance ? 0 : 1;
         const projectSelector = new ProjectsSelector(maxParents);
+        projectSelector.addClass('parent-selector');
 
         super(new ProjectFormItemBuilder(new ParentProjectFormInputWrapper(projectSelector))
             .setHelpText(i18n('settings.projects.parent.helptext'))
@@ -27,7 +28,7 @@ export class ParentProjectFormItem
     }
 
     getSelectedProjects(): Project[] {
-        return this.projectsSelector.getSelectedItems();
+        return this.projectsSelector.getSelectedProjects();
     }
 
     onProjectValueChanged(listener: () => void): void {
@@ -42,5 +43,11 @@ export class ParentProjectFormItem
 
     getProjectsSelector(): ParentProjectFormInputWrapper {
         return this.getInput() as ParentProjectFormInputWrapper;
+    }
+
+    setReadOnly(): void {
+        this.projectsSelector.addClass('readonly');
+        this.projectsSelector.setEnabled(false);
+        this.projectsSelector.setDraggable(false);
     }
 }
