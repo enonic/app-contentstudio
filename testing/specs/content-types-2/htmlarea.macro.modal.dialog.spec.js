@@ -46,7 +46,7 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
             await insertMacroModalDialog.waitForDialogLoaded();
             // 3. Select the 'Disable macros' option:
-            await insertMacroModalDialog.selectOption("Disable macros");
+            await insertMacroModalDialog.selectOption('Disable macros');
             // 4. Insert a text in the Configuration Text Area:
             await insertMacroModalDialog.typeTextInConfigurationTextArea(TEST_TEXT);
             // . Verify the text in the 'Preview Tab' of the modal dialog:
