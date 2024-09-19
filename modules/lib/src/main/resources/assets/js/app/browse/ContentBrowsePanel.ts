@@ -449,10 +449,11 @@ export class ContentBrowsePanel
     }
 
     private deleteTreeItems(toDeleteItems: DeletedContentItem[]): void {
+        const itemsToDeselect = toDeleteItems.map(toDeleteItem => ContentSummaryAndCompareStatus.fromContentSummary(
+                new ContentSummaryBuilder().setId(toDeleteItem.id.toString()).build()));
+        this.selectionWrapper.deselect(itemsToDeselect);
+
         toDeleteItems.forEach((toDeleteItem) => {
-            const wrapper = ContentSummaryAndCompareStatus.fromContentSummary(
-                new ContentSummaryBuilder().setId(toDeleteItem.id.toString()).build());
-            this.selectionWrapper.deselect(wrapper);
             this.findAndUpdateParentsLists(toDeleteItem);
         });
     }
