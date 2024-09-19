@@ -52,7 +52,7 @@ export class ProjectRolesFormItem
 
     layoutAccessCombobox(permissions: ProjectPermissions, silent: boolean = true): Q.Promise<void> {
         return this.getPrincipalsFromPermissions(permissions).then((principals: Principal[]) => {
-            this.accessComboBox.deselectAll(true);
+            this.accessComboBox.deselectAll();
 
             const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(permissions, principals);
 
