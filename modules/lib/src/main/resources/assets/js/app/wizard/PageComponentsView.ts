@@ -40,6 +40,7 @@ import {ComponentRemovedEvent} from '../page/region/ComponentRemovedEvent';
 import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
 import {PageComponentsViewDragHandler} from './PageComponentsViewDragHandler';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
+import {PageComponentsViewExpandHelper} from './PageComponentsViewExpandHelper';
 
 enum Modifiers {
     LOCKED = 'locked',
@@ -83,6 +84,8 @@ export class PageComponentsView
 
     private animationTimeout: number;
 
+    private expandHelper: PageComponentsViewExpandHelper;
+
     private gridDragHandler: PageComponentsViewDragHandler;
 
     constructor(liveEditPage: LiveEditPageProxy) {
@@ -104,6 +107,7 @@ export class PageComponentsView
     }
 
     private initElements(): void {
+        this.expandHelper = new PageComponentsViewExpandHelper();
         this.toggleButton = new Button().addClass('minimize-button icon-newtab').setTitle(i18n('field.hideComponent')) as Button;
 
         this.toggleButton.onClicked((event: MouseEvent) => {
@@ -672,6 +676,14 @@ export class PageComponentsView
 
         if (listElement) {
             this.pageComponentsWrapper.select(listElement.getItem());
+        } else {
+            return this.expandHelper.expandToItemRecursively(path, this.tree, ComponentPath.root()).then((item: ComponentsTreeItem) => {
+                if (item) {
+                    this.pageComponentsWrapper.select(item);
+                }
+
+                return Q.resolve();
+            });
         }
 
         return Q.resolve();

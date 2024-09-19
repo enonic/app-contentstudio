@@ -31,6 +31,10 @@ import {PageComponentsItemView} from './PageComponentsItemView';
 export class PageComponentsTreeGrid
     extends TreeListBox<ComponentsTreeItem> {
 
+    private loadedListeners: (() => void)[] = [];
+
+    private wasLoaded: boolean = false;
+
     constructor(params?: TreeListBoxParams<ComponentsTreeItem>) {
         super(params);
     }
@@ -84,6 +88,9 @@ export class PageComponentsTreeGrid
                 if (items.length > 0) {
                     this.addItems(items);
                 }
+
+                this.wasLoaded = true;
+                this.notifyItemsLoaded();
             }).catch(DefaultErrorHandler.handle);
         }
     }
@@ -267,6 +274,18 @@ export class PageComponentsTreeGrid
         return super.findItemIndex(item);
     }
 
+    whenItemsLoaded(handler: () => void): void {
+        if (this.wasLoaded) {
+            handler();
+        } else {
+            this.loadedListeners.push(handler);
+        }
+    }
+
+    private notifyItemsLoaded(): void {
+        this.loadedListeners.forEach((listener) => listener());
+        this.loadedListeners = [];
+    }
 }
 
 export class PageComponentsListElement
