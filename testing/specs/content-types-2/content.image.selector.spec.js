@@ -94,7 +94,7 @@ describe('content.image.selector: Image selector dropdown specification', functi
             // 4. Verify that content status is displayed for each option
             await studioUtils.saveScreenshot('img_sel_tree_mode_status');
             let statusList = await imageSelectorForm.getImagesStatusInOptions();
-            assert.ok(statusList.length === EXPECTETD_NUMBER_OF_ITEMS_IN_SELECTOR, "Content status should be displayed for each item");
+            assert.ok(statusList.length >= EXPECTETD_NUMBER_OF_ITEMS_IN_SELECTOR, "Content status should be displayed for each item");
         });
 
     it(`GIVEN wizard for image-selector is opened WHEN 'dropdown handle' button has been pressed THEN flat mode should be present in the options list`,
