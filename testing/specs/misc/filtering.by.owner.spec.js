@@ -21,7 +21,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
         async () => {
             // Do Log in with 'SU', navigate to 'Users' and create new system user:
             await studioUtils.navigateToUsersApp();
-            let userName = contentBuilder.generateRandomName("user");
+            let userName = contentBuilder.generateRandomName('user');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_ADMIN];
             USER = contentBuilder.buildUser(userName, appConst.PASSWORD.MEDIUM, contentBuilder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
@@ -36,7 +36,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             await studioUtils.navigateToContentStudioApp(USER.displayName, USER.password);
             // 2. Open new folder wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await studioUtils.saveScreenshot("collaboration_wizard_user");
+            await studioUtils.saveScreenshot('collaboration_wizard_user');
             // 3. Verify that collaboration icon is displayed:
             let compactNames = await contentWizard.getCollaborationUserCompactName();
             assert.equal(compactNames[0], 'US', 'US - this compact name should be displayed in the toolbar');
@@ -80,6 +80,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             assert.ok(options.includes('Me'), "'Me' user should be displayed in options");
             assert.ok(options.includes(USER.displayName), 'Expected user should be displayed in options');
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doLogout();
         });
 
     it("WHEN existing user has been selected in 'Owner' selector in Filter Panel THEN only the content that were created by this user should be present in the grid",
@@ -98,6 +99,8 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             let contentNames = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.ok(contentNames.includes(FOLDER.displayName));
             assert.equal(contentNames.length, 3, 'Only three items should be present in the grid');
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doLogout();
         });
 
     it("WHEN existing user has been selected in 'Modified by' selector THEN only the content that were modified by this user should be present in the grid",
