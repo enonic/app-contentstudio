@@ -453,29 +453,43 @@ export class ContentBrowsePanel
 
     private deleteTreeItems(toDeleteItems: DeletedContentItem[]): void {
         toDeleteItems.forEach((toDeleteItem) => {
-            this.treeListBox.findParentLists(toDeleteItem.path).forEach(parentList => {
-                if (parentList.wasAlreadyShownAndLoaded()) {
-                    const itemInList = parentList.getItems().find(item => item.getContentId().equals(toDeleteItem.id));
-
-                    if (itemInList) {
-                        this.selectionWrapper.deselect(itemInList);
-                        parentList.removeItems(itemInList);
-                    }
-                } else {
-                    const parentItem = parentList.getParentItem();
-
-                    new GetContentSummaryByIdRequest(parentItem.getContentId()).sendAndParse().then((updatedItem) => {
-                        if (!updatedItem.hasChildren()) {
-                            const newContSumm = new ContentSummaryBuilder(updatedItem).build();
-                            const newContSummAndCompStatus = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
-                                newContSumm,
-                                parentItem.getCompareStatus(), parentItem.getPublishStatus());
-                            parentList.getParentList().replaceItems(newContSummAndCompStatus);
-                        }
-                    }).catch(DefaultErrorHandler.handle);
-                }
-            });
+            const wrapper = ContentSummaryAndCompareStatus.fromContentSummary(
+                new ContentSummaryBuilder().setId(toDeleteItem.id.toString()).build());
+            this.selectionWrapper.deselect(wrapper);
+            this.findAndUpdateParentsLists(toDeleteItem);
         });
+    }
+
+    private findAndUpdateParentsLists(toDeleteItem: DeletedContentItem): void {
+        this.treeListBox.findParentLists(toDeleteItem.path).forEach(parentList => {
+            if (parentList.wasAlreadyShownAndLoaded()) {
+                this.removeItemFromParentList(parentList, toDeleteItem);
+            } else {
+                this.updateParentListHasChildren(parentList);
+            }
+        });
+    }
+
+    private removeItemFromParentList(parentList: ContentsTreeGridList, toDeleteItem: DeletedContentItem): void {
+        const itemInList = parentList.getItems().find(item => item.getContentId().equals(toDeleteItem.id));
+
+        if (itemInList) {
+            parentList.removeItems(itemInList);
+        }
+    }
+
+    private updateParentListHasChildren(parentList: ContentsTreeGridList): void {
+        const parentItem = parentList.getParentItem();
+
+        new GetContentSummaryByIdRequest(parentItem.getContentId()).sendAndParse().then((updatedItem) => {
+            if (!updatedItem.hasChildren()) {
+                const newContSumm = new ContentSummaryBuilder(updatedItem).build();
+                const newContSummAndCompStatus = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
+                    newContSumm,
+                    parentItem.getCompareStatus(), parentItem.getPublishStatus());
+                parentList.getParentList().replaceItems(newContSummAndCompStatus);
+            }
+        }).catch(DefaultErrorHandler.handle);
     }
 
     private updateContextPanelOnNodesDelete(items: DeletedContentItem[]) {
