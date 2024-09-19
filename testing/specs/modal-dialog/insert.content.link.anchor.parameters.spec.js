@@ -17,13 +17,13 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
     let SITE;
 
     const ANCHOR_TXT = 'myAnchor';
-    const PARAM_NAME_WITH_SPACES = " param1  ";
-    const PARAMETER_VALUE_WITH_SPACES = " value1 ";
-    const ANCHOR_TXT_WITH_WHITESPACE = "myAnchor  ";
+    const PARAM_NAME_WITH_SPACES = ' param1  ';
+    const PARAMETER_VALUE_WITH_SPACES = ' value1 ';
+    const ANCHOR_TXT_WITH_WHITESPACE = 'myAnchor  ';
     const EXPECTED_PART_1 = "a href=\"content";
     const EXPECTED_ANCHOR_PART = "fragment=myAnchor\">";
     const EXPECTED_PARAMETERS_PART = "?query=par1";
-    const PARAMETER_VALUE = "value1";
+    const PARAMETER_VALUE = 'value1';
 
     it(`Preconditions: new site should be created`,
         async () => {

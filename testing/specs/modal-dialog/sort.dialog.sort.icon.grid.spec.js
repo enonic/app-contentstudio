@@ -33,7 +33,7 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with child items) and checks
             await sortContentDialog.clickOnSaveButton();
             await studioUtils.saveScreenshot('manually_sorted');
             // 4. The folder is selected, get sorting-type in grid:
-            let sortingType = await contentBrowsePanel.getSortingIcon(appConst.TEST_FOLDER_WITH_IMAGES);
+            let sortingType = await contentBrowsePanel.getSortingIcon(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             assert.equal(sortingType, appConst.GRID_SORTING.MANUALLY_SORTED,
                 "expected icon for Manually sorted folder should appear in grid");
         });
@@ -55,7 +55,7 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with child items) and checks
             await sortContentDialog.clickOnSaveButton();
             await studioUtils.saveScreenshot('manually_sorted');
             // 4. The folder is selected, get sorting-type in grid:
-            let sortingType = await contentBrowsePanel.getSortingIcon(appConst.TEST_FOLDER_WITH_IMAGES);
+            let sortingType = await contentBrowsePanel.getSortingIcon(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             assert.equal(sortingType, appConst.SORT_DIALOG.MENU_ITEM.MANUALLY_SORTED,
                 "expected icon for Manually sorted folder should appear");
         });
