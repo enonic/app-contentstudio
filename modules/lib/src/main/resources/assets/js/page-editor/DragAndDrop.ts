@@ -586,7 +586,7 @@ export class DragAndDrop {
         const isLayout = !isFragment && LayoutItemType.get().equals(draggingItemType);
 
         if (isFragment || isLayout) {
-            if (regionView.hasParentLayoutComponentView() && (isLayout || (this.draggedComponentView as FragmentComponentView).containsLayout())) {
+            if (regionView.hasParentLayoutComponentView() && (isLayout || (this.draggedComponentView as FragmentComponentView)?.containsLayout())) {
                 return true;
             }
         }
