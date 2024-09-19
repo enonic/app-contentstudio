@@ -908,7 +908,19 @@ export class LinkModalDialog
             .create()
             .setProject(this.config.project)
             .setAppendLoadResults(false)
-            .setAllowedContentPaths([parentSitePath ? `${parentSitePath}/` : '']);
+            .setPostFilterFn((contentItem) => this.filterContentByParentPath(contentItem))
+            .setAllowedContentPaths([parentSitePath ? `${parentSitePath}` : '']);
+    }
+
+    private filterContentByParentPath(contentItem: ContentSummary | ContentTreeSelectorItem): boolean {
+        if (!this.parentSitePath || (this.showAllContentCheckboxFormItem.getInput() as Checkbox).isChecked()) {
+            return true;
+        }
+
+        const contentSummary = contentItem instanceof ContentSummary ? contentItem : contentItem.getContent();
+        const contentPath = contentSummary.getPath().toString();
+
+        return contentPath === this.parentSitePath || contentPath.startsWith(`${this.parentSitePath}/`);
     }
 
     private createSelectorFormItem(id: string, label: string, contentSelector: ContentTreeSelectorDropdown,
