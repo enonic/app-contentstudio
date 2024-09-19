@@ -569,8 +569,9 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async getSortingIcon(contentDisplayName) {
-        let selector = this.treeGrid + lib.TREE_GRID.itemTreeGridListElementByDisplayName(contentDisplayName) +
+    async getSortingIcon(contentName) {
+
+        let selector = this.treeGrid + lib.TREE_GRID.itemTreeGridListElementByName(contentName) +
                        "//div[contains(@class,'content-tree-grid-sort')]";
         let elems = await this.findElements(selector);
         let sort;
@@ -727,7 +728,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForPublishMenuItemDisabled(menuItem) {
         try {
-            let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+            let selector = XPATH.toolbarDiv + XPATH.publishMenuItemByName(menuItem);
             return await this.waitForAttributeHasValue(selector, "class", "disabled");
         } catch (err) {
             await this.saveScreenshot('err_publish_menuItem');
@@ -736,7 +737,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async waitForPublishMenuItemEnabled(menuItem) {
-        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+        let selector = XPATH.toolbarDiv + XPATH.publishMenuItemByName(menuItem);
         return await this.waitForAttributeNotIncludesValue(selector, "class", "disabled");
     }
 
@@ -749,7 +750,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             await this.waitForShowPublishMenuDropDownVisible();
             await this.clickOnElement(this.showPublishMenuButton);
-            let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+            let selector = XPATH.toolbarDiv + XPATH.publishMenuItemByName(menuItem);
             await this.waitForPublishMenuItemEnabled(menuItem);
             await this.clickOnElement(selector);
             return await this.pause(300);
