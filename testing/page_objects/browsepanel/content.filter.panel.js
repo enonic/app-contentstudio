@@ -19,7 +19,7 @@ const XPATH = {
     selectorOptionItem: "//ul[contains(@id,'BucketListBox')]//div[contains(@class,'item-view-wrapper')]",
     selectorOptionItemByLabel: label => `//ul[contains(@id,'BucketListBox')]//div[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${label}')]]`,
     ownerAggregationGroupView: "//div[contains(@id,'FilterableAggregationGroupView') and child::h2[text()='Owner']]",
-    lastModifiedByAggregationGroupView: "//div[contains(@id,'FilterableAggregationGroupView') and child::h2[text()='Last Modified By']]",
+    lastModifiedByAggregationGroupView: "//div[contains(@id,'FilterableAggregationGroupView') and child::h2[text()='Last Modified by']]",
     aggregationGroupByName: name => `//div[contains(@id,'AggregationContainer')]//div[contains(@id,'AggregationGroupView') and child::h2[text()='${name}']]`,
     aggregationLabelByName: name => `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]//label`,
     folderAggregation: () => `//div[contains(@class,'checkbox') and child::label[contains(.,'Folder') and not(contains(.,'Template'))]]//label`,
@@ -348,11 +348,26 @@ class BrowseFilterPanel extends Page {
     async filterAndSelectLastModifiedByOption(userName) {
         try {
             let filterableListBox = new FilterableListBox();
-            await filterableListBox.clickOnFilteredItemAndClickOnOk(userName, XPATH.lastModifiedByAggregationGroupView);
+            // 1. insert the username in the filter input:
+            await this.filterItemInModifiedBy(userName);
+            let optionLocator = filterableListBox.buildLocatorForOptionByDisplayName(userName, XPATH.lastModifiedByAggregationGroupView);
+            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
+            // 2. Click on the option-item, select the user in the dropdown:
+            await this.clickOnElement(optionLocator);
+            // 3. Click on 'OK' button and apply the selection:
+            return await filterableListBox.clickOnApplySelectionButton();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_filter_modified_by');
             throw new Error("Error occurred during selecting an option in 'Modified by Selector', screenshot: " + screenshot + ' ' + err);
         }
+    }
+
+    async filterItemInModifiedBy(text) {
+        let locator = XPATH.lastModifiedByAggregationGroupView + lib.OPTION_FILTER_INPUT;
+        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
+        let elements = await this.getDisplayedElements(locator);
+        await elements[0].setValue(text);
+        return await this.pause(300);
     }
 }
 
