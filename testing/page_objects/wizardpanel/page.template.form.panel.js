@@ -8,7 +8,7 @@ const ContentTypeFilterDropdown = require('../components/selectors/content.type.
 
 const XPATH = {
     wizardStep: `//div[contains(@id,'ContentWizardStepForm')]`,
-    supportsCombobox: `//div[contains(@id,'ContentTypeComboBox')]`,
+    supportsComboboxDiv: `//div[contains(@id,'ContentTypeFilter')]`,
     supportOptionFilterInput: "//div[contains(@id,'ContentTypeFilter')]//input[contains(@class,'option-filter-input')]",
     contentTypeSelectedOptionsView: displayName => `//div[contains(@id,'ContentTypeSelectedOptionsView') and descendant::h6[text()='${displayName}']]`,
 };
@@ -45,7 +45,7 @@ class PageTemplateForm extends Page {
     }
 
     async getSupportSelectedOptions() {
-        let locator = XPATH.supportsCombobox + "//div[contains(@id,'ContentTypeSelectedOptionsView')]" + lib.H6_DISPLAY_NAME;
+        let locator = XPATH.supportsComboboxDiv + "//div[contains(@id,'ContentTypeSelectedOptionsView')]" + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
