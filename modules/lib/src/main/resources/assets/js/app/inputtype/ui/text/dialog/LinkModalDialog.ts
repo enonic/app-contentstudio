@@ -46,6 +46,7 @@ import {ContentTreeSelectorDropdown, ContentTreeSelectorDropdownOptions} from '.
 import {ContentListBox} from '../../../selector/ContentListBox';
 import {Dropdown} from '@enonic/lib-admin-ui/ui/Dropdown';
 import eventInfo = CKEDITOR.eventInfo;
+import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 export interface LinkModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -894,7 +895,7 @@ export class LinkModalDialog
         const dropdownOptions: ContentTreeSelectorDropdownOptions = {
             loader: loader,
             maxSelected: 1,
-            selectedOptionsView: new ContentSelectedOptionsView(),
+            selectedOptionsView: new LinkContentSelectedOptionsView(),
             className: 'single-occurrence',
             getSelectedItems: this.getSelectedItemsHandler.bind(this),
             treeMode: true,
@@ -943,6 +944,7 @@ export class LinkModalDialog
         };
 
         contentSelector.onSelectionChanged(callHandleSelectorValueChanged);
+        contentSelector.getSelectedOptionsView().onOptionSelected(callHandleSelectorValueChanged);
 
         return formItem;
     }
@@ -1301,5 +1303,18 @@ class ContentSelectorFormInputWrapper
 
     getValue(): string {
         return this.contentSelector.getSelectedOptions()[0]?.getOption().getDisplayValue()?.getContent()?.getId() || '';
+    }
+}
+
+class LinkContentSelectedOptionsView extends ContentSelectedOptionsView {
+
+    addOption(option: Option<ContentTreeSelectorItem>, silent: boolean, keyCode: number): boolean {
+        const result = super.addOption(option, silent, keyCode);
+
+        if (silent) { // forcing notify event, preselected item was selected silently
+            this.notifyOptionSelected(new SelectedOptionEvent(this.getSelectedOptions()[0], keyCode));
+        }
+
+        return result;
     }
 }
