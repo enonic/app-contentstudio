@@ -17,8 +17,9 @@ import {EnonicAiContentOperatorRenderEvent} from './event/incoming/EnonicAiConte
 import {EnonicAiContentOperatorShowEvent} from './event/incoming/EnonicAiContentOperatorShowEvent';
 import {EnonicAiTranslatorCompletedEvent} from './event/incoming/EnonicAiTranslatorCompletedEvent';
 import {EnonicAiTranslatorStartedEvent} from './event/incoming/EnonicAiTranslatorStartedEvent';
-import {EnonicAiConfigEvent} from './event/outgoing/EnonicAiConfigEvent';
+import {EnonicAiContentOperatorConfigEvent} from './event/outgoing/EnonicAiContentOperatorConfigEvent';
 import {EnonicAiDataSentEvent} from './event/outgoing/EnonicAiDataSentEvent';
+import {EnonicAiTranslatorConfigEvent} from './event/outgoing/EnonicAiTranslatorConfigEvent';
 
 declare global {
     interface Window {
@@ -57,7 +58,7 @@ export class AI {
 
     private contentType: ContentType;
 
-    private customPrompts: Record<EnonicAiPlugin, string | undefined>;
+    private instructions: Record<EnonicAiPlugin, string | undefined>;
 
     private resultReceivedListeners: ((data: EnonicAiAppliedData) => void)[] = [];
 
@@ -84,7 +85,7 @@ export class AI {
             const names = fullName.split(' ').map(word => word.substring(0, 1));
             const shortName = (names.length >= 2 ? names.join('') : fullName).substring(0, 2).toUpperCase();
 
-            new EnonicAiConfigEvent({
+            new EnonicAiContentOperatorConfigEvent({
                 user: {
                     fullName,
                     shortName,
@@ -112,21 +113,37 @@ export class AI {
         new EnonicAiDataSentEvent({data}).fire();
     }
 
-    updateCustomPrompts(configs: ApplicationConfig[]): void {
-        this.customPrompts = {
+    updateInstructions(configs: ApplicationConfig[]): void {
+        this.instructions = {
             contentOperator: undefined,
             translator: undefined,
         };
 
         Object.keys(PLUGIN_KEYS).forEach(plugin => {
             const appKey = PLUGIN_KEYS[plugin];
-            const pluginSiteConfig = configs.find(config => config.getApplicationKey() === appKey);
+            const pluginSiteConfig = configs.find(config => config.getApplicationKey().getName() === appKey);
             if (pluginSiteConfig) {
-                this.customPrompts[plugin] = pluginSiteConfig.getConfig()?.getString('customPrompt');
+                const instruction = pluginSiteConfig.getConfig()?.getString('instructions') ?? '';
+                if (instruction !== this.instructions[plugin]) {
+                    this.instructions[plugin] = instruction;
+                    this.notifyInstructionsChanged(plugin as EnonicAiPlugin, instruction);
+
+                }
             }
         });
 
         this.checkAndNotifyReady();
+    }
+
+    private notifyInstructionsChanged(plugin: EnonicAiPlugin, instructions: string): void {
+        switch (plugin) {
+        case 'contentOperator':
+            new EnonicAiContentOperatorConfigEvent({instructions}).fire();
+            break;
+        case 'translator':
+            new EnonicAiTranslatorConfigEvent({instructions}).fire();
+            break;
+        }
     }
 
     private getContentOperator(): EnonicAi['contentOperator'] | undefined {
@@ -164,7 +181,6 @@ export class AI {
     };
 
     private showContentOperatorEventListener = () => {
-
         new EnonicAiDataSentEvent({
             data: {
                 fields: this.content.getContentData().toJson(),
@@ -175,7 +191,6 @@ export class AI {
                 form: this.contentType.getForm().toJson(),
                 name: this.contentType.getDisplayName()
             },
-            customPrompt: this.customPrompts['contentOperator'],
         }).fire();
 
         if (this.currentData) {
@@ -210,7 +225,7 @@ export class AI {
     }
 
     private isReady(): boolean {
-        return this.content != null && this.contentType != null && this.customPrompts != null;
+        return this.content != null && this.contentType != null && this.instructions != null;
     }
 
     private checkAndNotifyReady(): void {

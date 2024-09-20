@@ -7,7 +7,6 @@ export interface EnonicAiContentData {
         form: FormJson;
         name: string;
     },
-    customPrompt?: string;
 }
 
 export interface ContentData {
