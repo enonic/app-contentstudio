@@ -596,7 +596,7 @@ export class ContentWizardPanel
                 }
 
                 AI.get().setContentTypeContext(this.contentType);
-                AI.get().updateCustomPrompts(this.getApplicationsConfigs());
+                AI.get().updateInstructions(this.getApplicationsConfigs());
 
                 return this.loadAndSetPageState(loader.content?.getPage()?.clone());
             }).then(() => super.doLoadData());
@@ -1020,7 +1020,9 @@ export class ContentWizardPanel
         let siteConfigApplyHandler = (event: ContentRequiresSaveEvent) => {
             if (this.isCurrentContentId(event.getContentId()) && this.hasUnsavedChanges()) {
                 this.setMarkedAsReady(false);
-                this.saveChanges();
+                this.saveChanges().then(() => {
+                    AI.get().updateInstructions(this.getApplicationsConfigs());
+                });
             }
         };
 

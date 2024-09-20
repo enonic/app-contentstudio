@@ -1,6 +1,7 @@
 export interface EnonicAiConfigData {
-    user: {
+    user?: {
         fullName: string;
         shortName: string;
     };
+    instructions?: string;
 }
