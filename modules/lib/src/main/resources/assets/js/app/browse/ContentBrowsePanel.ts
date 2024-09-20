@@ -49,7 +49,6 @@ import {State} from './State';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {EditContentEvent} from '../event/EditContentEvent';
-import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentSummaryByIdRequest} from '../resource/GetContentSummaryByIdRequest';
 
 export class ContentBrowsePanel
@@ -462,9 +461,9 @@ export class ContentBrowsePanel
         this.treeListBox.findParentLists(toDeleteItem.path).forEach(parentList => {
             if (parentList.wasAlreadyShownAndLoaded()) {
                 this.removeItemFromParentList(parentList, toDeleteItem);
-            } else {
-                this.updateParentListHasChildren(parentList);
             }
+
+            this.updateParentListHasChildren(parentList);
         });
     }
 
