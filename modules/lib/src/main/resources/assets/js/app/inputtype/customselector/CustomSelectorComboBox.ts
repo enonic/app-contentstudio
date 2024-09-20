@@ -102,7 +102,8 @@ export class CustomSelectorComboBox
             this.getLoader().sendPreLoadRequest(selectedIds).then((items: CustomSelectorItem[]) => {
                 this.deselectAll(true);
                 items.sort((a, b) => selectedIds.indexOf(a.getId().toString()) - selectedIds.indexOf(b.getId().toString()));
-                this.select(items, true);
+                const toSelect = items.filter((item) => selectedIds.indexOf(item.getId().toString()) >= 0);
+                this.select(toSelect, true);
             }).catch(DefaultErrorHandler.handle);
         }
     }
