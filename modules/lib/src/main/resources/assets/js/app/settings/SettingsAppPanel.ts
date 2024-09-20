@@ -174,7 +174,7 @@ export class SettingsAppPanel
             projectWizardPanel.updatePersistedSettingsDataItem(projectItem);
         }
 
-        const parentIndex = projectWizardPanel.getParentProjectsNames().indexOf(projectItem.getName());
+        const parentIndex = (projectWizardPanel.getParentProjectsNames() || []).indexOf(projectItem.getName());
         const isParent = parentIndex >= 0;
         if (isParent) {
             const projects = [...projectWizardPanel.getParentProjects()];
