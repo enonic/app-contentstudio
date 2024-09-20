@@ -478,6 +478,10 @@ export class ContentBrowsePanel
     private updateParentListHasChildren(parentList: ContentsTreeGridList): void {
         const parentItem = parentList.getParentItem();
 
+        if (!parentItem) {
+            return;
+        }
+
         new GetContentSummaryByIdRequest(parentItem.getContentId()).sendAndParse().then((updatedItem) => {
             if (!updatedItem.hasChildren()) {
                 const newContSumm = new ContentSummaryBuilder(updatedItem).build();
