@@ -6,7 +6,9 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const xpath = {
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
-    draggablePageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer') and contains(@class,'draggable')]",
+    pageComponentsItemViewerByType(componentType) {
+        return `//div[contains(@id,'PageComponentsItemViewer') and contains(@class,'${componentType}')]`
+    },
     pageComponentsTreeGrid: `//div[contains(@id,'PageComponentsTreeGrid')]`,
     fragmentsName: "//div[contains(@id,'PageComponentsItemViewer') and descendant::div[contains(@class,'icon-fragment')]]" +
                    lib.H6_DISPLAY_NAME,
@@ -243,11 +245,10 @@ class BasePageComponentView extends Page {
         return await this.getTextInDisplayedElements(locator);
     }
 
-    async getDraggablePageComponentsDisplayName() {
-        let locator = this.container + xpath.draggablePageComponentsItemViewer + lib.H6_DISPLAY_NAME;
+    async getTextComponentsDisplayName() {
+        let locator = this.container + xpath.pageComponentsItemViewerByType('text') + lib.H6_DISPLAY_NAME;
         return await this.getTextInDisplayedElements(locator);
     }
-
 
     async waitForItemDisplayed(itemDisplayName) {
         try {

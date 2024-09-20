@@ -127,7 +127,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForLanguageIconDisplayed(displayName) {
         try {
-            let locatorIcon = XPATH.settingsTreeList + lib.PROJECTS.projectNameAndIconViewDiv(displayName) + "//div[contains(@id,'Flag')]";
+            let locatorIcon = XPATH.settingsTreeList + lib.PROJECTS.projectByName(displayName) + "//div[contains(@id,'Flag')]";
             await this.waitForElementDisplayed(locatorIcon, appConst.longTimeout);
             return await this.getAttribute(locatorIcon, 'data-code');
         } catch (err) {

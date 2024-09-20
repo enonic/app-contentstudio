@@ -295,14 +295,15 @@ class InsertImageDialog extends Page {
     }
 
     waitForStyleSelectorVisible() {
-        return this.waitForElementDisplayed(this.styleSelector, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.imageStyleSelectBox, appConst.mediumTimeout);
     }
 
 
     async getStyleSelectorOptions() {
-
         let elements = await this.findElements(this.imageStyleSelectBox);
-        return await elements[0].getText()
+        let result = await elements[0].getText();
+        let options = result.split("\n");
+        return options;
     }
 
     async getSelectedStyleValue() {
@@ -311,7 +312,15 @@ class InsertImageDialog extends Page {
         //let gettext = await elements[0].getText();
         //let rr = await elements[0].getText('option:selected');
         return await elements[0].getValue();
+    }
 
+    async getSelectedStyleText() {
+        let elements = await this.findElements(this.imageStyleSelectBox);
+        let elem = await this.findElements('#ImageStyleSelector > option');
+        //let dd = await this.getBrowser().getAttribute(elem[0], 'value');
+        let dd = await elem[0].getAttribute('value');
+        let dd2 = await elem[0].getAttribute('text');
+        return await elements[0].getAttribute('value');
     }
 
     // Image style selector:

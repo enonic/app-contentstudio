@@ -108,7 +108,7 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             await insertLinkDialogContentPanel.typeInParameterNameInput('par1', 0);
             // 6. Fill in the parameter's value input:
             await insertLinkDialogContentPanel.typeInParameterValueInput(PARAMETER_VALUE, 0);
-            await studioUtils.saveScreenshot("content_link_with_param");
+            await studioUtils.saveScreenshot('content_link_with_param');
             // 7. Click on Insert button in the modal dialog:
             await insertLinkDialog.clickOnInsertButton();
             await insertLinkDialog.waitForDialogClosed();

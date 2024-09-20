@@ -14,7 +14,7 @@ const appConst = require('../../libs/app_const');
 
 describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkbox and check `image range value`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 

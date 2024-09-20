@@ -209,14 +209,14 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async clickOnRemoveSelectedOptionIcon(displayName) {
-        let locator = XPATH.contentPanel + lib.CONTENT_SELECTOR.selectedOptionByName(displayName) +lib.REMOVE_ICON;
+        let locator = XPATH.contentPanel + lib.CONTENT_SELECTOR.selectedOptionByName(displayName) + lib.REMOVE_ICON;
         await this.waitForRemoveSelectedOptionIconDisplayed(displayName);
         await this.clickOnElement(locator);
     }
 
-    waitForUploadContentButtonDisplayed(){
+    waitForUploadContentButtonDisplayed() {
         let locator = XPATH.container + "//button[contains(@id,'upload-button')]";
-        return this.waitForElementDisplayed(locator,appConst.mediumTimeout);
+        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
     async clickOnAddAnchorButton() {
@@ -242,6 +242,9 @@ class InsertLinkDialogContentPanel extends Page {
     async typeInParameterNameInput(value, index) {
         index = typeof index !== 'undefined' ? index : 0;
         let inputElements = await this.getDisplayedElements(this.parameterNameInput);
+        if (inputElements.length === 0) {
+            throw new Error('Parameter input was not found in the Insert Link modal dialog');
+        }
         await inputElements[index].setValue(value);
         return await this.pause(300);
     }
