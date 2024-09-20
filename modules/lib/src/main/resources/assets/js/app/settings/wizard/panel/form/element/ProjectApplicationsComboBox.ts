@@ -232,7 +232,15 @@ export class ProjectApplicationsComboBox
         return Option.create<Application>()
             .setValue(item.getId())
             .setDisplayValue(item)
+            .setReadOnly(this.isReadonly(item.getApplicationKey()))
             .build();
+    }
+
+    private isReadonly(key: ApplicationKey): boolean {
+        const hasParentConfigs: boolean = this.parentSiteConfigs !== undefined && this.parentSiteConfigs?.length > 0;
+        const parentAppKeys: ApplicationKey[] = hasParentConfigs ? this.parentSiteConfigs.map(
+            (config: ApplicationConfig) => config.getApplicationKey()) : [];
+        return hasParentConfigs ? !!parentAppKeys.find((appKey: ApplicationKey) => appKey.equals(key)) : false;
     }
 
     private getParentConfigsNotSelected(): ApplicationConfig[] {

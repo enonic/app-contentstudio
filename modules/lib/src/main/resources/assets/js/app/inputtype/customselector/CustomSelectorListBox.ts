@@ -3,6 +3,7 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorItemViewer} from './CustomSelectorItemViewer';
 import {CustomSelectorLoader} from './CustomSelectorLoader';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class CustomSelectorListBox
     extends LazyListBox<CustomSelectorItem> {
@@ -12,6 +13,7 @@ export class CustomSelectorListBox
     constructor(loader: CustomSelectorLoader) {
         super('custom-selector-list-box');
 
+        this.setEmptyText(i18n('field.option.noitems'));
         this.loader = loader;
     }
 
