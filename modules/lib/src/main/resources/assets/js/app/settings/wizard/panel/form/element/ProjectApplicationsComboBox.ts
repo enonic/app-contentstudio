@@ -46,8 +46,6 @@ export class ProjectApplicationsComboBox
         if (params.hasParentProjects()) {
             this.setParentProjects(params.getParentProjects());
         }
-
-        this.selectedOptionsView.setIsEditableFunc(this.isReadonly.bind(this));
     }
 
     protected initElements(): void {
@@ -106,14 +104,6 @@ export class ProjectApplicationsComboBox
         return this.layoutSelectedApps(applicationConfigs).then(() => {
             this.isLayoutInProgress = false;
         });
-    }
-
-    hasDataChanged(): boolean {
-        if (this.isLayoutInProgress) {
-            return false;
-        }
-        const selectedDisplayValues: Application[] = this.getSelectedItems();
-        return this.parentSiteConfigs.length !== selectedDisplayValues.length;
     }
 
     private handleItemSelected(item: Application): void {
@@ -243,13 +233,6 @@ export class ProjectApplicationsComboBox
             .setValue(item.getId())
             .setDisplayValue(item)
             .build();
-    }
-
-    private isReadonly(key: ApplicationKey): boolean {
-        const hasParentConfigs: boolean = this.parentSiteConfigs !== undefined && this.parentSiteConfigs?.length > 0;
-        const parentAppKeys: ApplicationKey[] = hasParentConfigs ? this.parentSiteConfigs.map(
-            (config: ApplicationConfig) => config.getApplicationKey()) : [];
-        return hasParentConfigs ? !!parentAppKeys.find((appKey: ApplicationKey) => appKey.equals(key)) : false;
     }
 
     private getParentConfigsNotSelected(): ApplicationConfig[] {
