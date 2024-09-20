@@ -295,7 +295,7 @@ class InsertImageDialog extends Page {
     }
 
     waitForStyleSelectorVisible() {
-        return this.waitForElementDisplayed(this.styleSelector, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.imageStyleSelectBox, appConst.mediumTimeout);
     }
 
 

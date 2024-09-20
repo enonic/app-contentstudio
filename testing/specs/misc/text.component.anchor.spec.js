@@ -117,7 +117,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             // 4. Open 'Insert Anchor' dialog and type the text:
             await textComponentCke.typeTextInCkeEditor(TEST_TEXT);
-            let actualComponents = await pageComponentView.getDraggablePageComponentsDisplayName();
+            let actualComponents = await pageComponentView.getTextComponentsDisplayName();
             assert.equal(actualComponents.length, 1, "Two items should be present in the PCV tree");
             // 5. Open  menu in the text component:
             await pageComponentView.openMenu(TEST_TEXT);
@@ -127,7 +127,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // 7. Save button gets disabled:
             await contentWizard.waitForSaveButtonDisabled();
             // 8. Verify the text in both text-component items:
-            actualComponents = await pageComponentView.getDraggablePageComponentsDisplayName();
+            actualComponents = await pageComponentView.getTextComponentsDisplayName();
             assert.equal(actualComponents.length, 2, "Four items should be present after the item has been duplicated");
             assert.equal(actualComponents[0], TEST_TEXT, "Expected text should be displayed in the first text-item");
             assert.equal(actualComponents[1], TEST_TEXT, "Expected text should be displayed in the second text-item");
