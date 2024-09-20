@@ -300,9 +300,10 @@ class InsertImageDialog extends Page {
 
 
     async getStyleSelectorOptions() {
-
         let elements = await this.findElements(this.imageStyleSelectBox);
-        return await elements[0].getText()
+        let result = await elements[0].getText();
+        let options = result.split("\n");
+        return options;
     }
 
     async getSelectedStyleValue() {
