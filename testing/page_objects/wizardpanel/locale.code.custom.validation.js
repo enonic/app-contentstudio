@@ -8,7 +8,7 @@ const ComboBoxListInput = require('../components/selectors/combobox.list.input')
 const XPATH = {
     localeComboboxDiv: lib.FORM_VIEW + "//div[@name='localeCode2']",
     localeInput: lib.FORM_VIEW + "//input[@name='localeCode-0']",
-    comboboxSelectedOption: value => `//div[contains(@id,'BaseSelectedOptionView') and child::div[contains(@class,'option-value') and text()='${value}']]`,
+    comboboxSelectedOption: value => `//div[contains(@id,'ComboBoxSelectedOptionView') and child::div[contains(@class,'option-value') and text()='${value}']]`,
 };
 
 class LocaleCodeCustomValidationForm extends Page {
