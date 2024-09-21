@@ -40,7 +40,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             await contentWizard.typeDisplayName(COMBO_CHILD_FALSE);
             // 2. Select a not required option:
             await comboBoxForm.typeInFilterAndClickOnOption(OPTION_A);
-            await studioUtils.saveScreenshot("combobox_not_req");
+            await studioUtils.saveScreenshot('combobox_not_req');
             // 3. Verify that options filter input remains visible and enabled after selecting this option:
             await comboBoxForm.waitForOptionFilterInputEnabled();
             // 4. Verify that the content gets valid even before clicking on the 'Save' button
