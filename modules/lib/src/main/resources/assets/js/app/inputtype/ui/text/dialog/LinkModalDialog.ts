@@ -279,6 +279,7 @@ export class LinkModalDialog
             loader.initRequests(contentSelectorBuilder);
             contentSelector.getTreeList().clearItems();
             contentSelector.getTreeList().load();
+            contentSelector.loadFlatListWhenShown();
         };
 
         const contentPanel = this.createFormPanel([

@@ -26,6 +26,8 @@ export class ContentTreeSelectorDropdown
 
     protected options: ContentTreeSelectorDropdownOptions;
 
+    private loadListOnShow: boolean;
+
     constructor(listBox, options: ContentSelectorDropdownOptions) {
         super(listBox, options);
     }
@@ -48,12 +50,7 @@ export class ContentTreeSelectorDropdown
     protected initListeners(): void {
         super.initListeners();
 
-        this.listBox.whenShown(() => {
-            // if not empty then search will be performed after finished typing
-            if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
-                this.search(this.optionFilterInput.getValue());
-            }
-        });
+        this.loadFlatListWhenShown(); // triggering load on shown
 
         this.treeList.onItemsAdded((items: ContentTreeSelectorItem[]) => {
             this.selectLoadedTreeListItems(items);
@@ -193,5 +190,21 @@ export class ContentTreeSelectorDropdown
 
             return rendered;
         });
+    }
+
+    loadFlatListWhenShown(): void {
+        if (!this.loadListOnShow) {
+            this.loadListOnShow = true;
+
+            this.listBox.whenShown(() => {
+                // if not empty then search will be performed after finished typing
+                if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
+                    this.search(this.optionFilterInput.getValue());
+                }
+
+                this.loadListOnShow = false;
+            });
+        }
+
     }
 }
