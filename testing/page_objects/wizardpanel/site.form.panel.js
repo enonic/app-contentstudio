@@ -20,7 +20,7 @@ const XPATH = {
 class SiteForm extends Page {
 
     get applicationsOptionsFilterInput() {
-        return XPATH.wizardSteps + lib.FORM_VIEW + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.wizardSteps + lib.FORM_VIEW + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     get dropdownHandle() {
@@ -56,7 +56,7 @@ class SiteForm extends Page {
             return await this.typeTextInInput(this.descriptionInput, description);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_site_description');
-            throw new Error("Error occured in Site wizard, description text area, screenshot:" + screenshot + ' ' + err);
+            throw new Error("Error occurred in Site wizard, description text area, screenshot:" + screenshot + ' ' + err);
         }
     }
 
@@ -192,12 +192,7 @@ class SiteForm extends Page {
     }
 
     async waitForSiteConfiguratorSelectorDisabled() {
-        let locator = XPATH.wizardSteps + XPATH.siteConfigComboboxDiv;
-        //return await this.waitForElementDisabled(locator, appConst.mediumTimeout);
-        await this.getBrowser().waitUntil(async () => {
-            let result = await this.getAttribute(locator, 'class');
-            return result.includes('disabled');
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Site Configurator dropdown selector should be disabled!'});
+        return await this.waitForElementDisabled(this.applicationsOptionsFilterInput, appConst.mediumTimeout);
     }
 }
 
