@@ -192,11 +192,11 @@ export class MacroModalDialog
     private makeData(): PropertySet {
         const data: PropertySet = new PropertySet();
 
-        this.selectedMacro.attributes.forEach(item => {
+        this.selectedMacro?.attributes.forEach(item => {
             data.addString(item[0], DOMPurify.sanitize(item[1]));
         });
 
-        if (this.selectedMacro.body) {
+        if (this.selectedMacro?.body) {
             data.addString('body', this.sanitize(this.selectedMacro.body));
         }
 
