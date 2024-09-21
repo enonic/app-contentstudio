@@ -45,6 +45,10 @@ class ComboBoxFormPanel extends Page {
         return this.waitForElementDisabled(this.optionFilterInput, appConst.mediumTimeout);
     }
 
+    waitForOptionFilterInputNoDisplayed() {
+        return this.waitForElementNotDisplayed(this.optionFilterInput, appConst.mediumTimeout);
+    }
+
     async getComboBoxValidationMessage() {
         let locator = lib.CONTENT_WIZARD_STEP_FORM + lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);

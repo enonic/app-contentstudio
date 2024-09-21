@@ -83,7 +83,7 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
             // 6. Change the parent project:
             await parentProjectStep.clickOnRemoveSelectedProjectIcon(PROJECT_DISPLAY_NAME);
             await parentProjectStep.selectParentProject('Default');
-            // 7. Go to pplications step:
+                // 7. Go to applications step:
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
             await accessModeStep.clickOnNextButton();
