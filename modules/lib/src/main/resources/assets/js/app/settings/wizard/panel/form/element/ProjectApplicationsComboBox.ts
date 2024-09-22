@@ -154,6 +154,7 @@ export class ProjectApplicationsComboBox
 
             configs.forEach((config: ApplicationConfig) => {
                 const appToSelect: Application = this.getOrGenerateAppByKey(selectedApps, config.getApplicationKey());
+                this.deselect(appToSelect, true);
                 this.select(appToSelect, true);
                 layoutPromises.push(this.layoutSelectedApp(config));
             });
