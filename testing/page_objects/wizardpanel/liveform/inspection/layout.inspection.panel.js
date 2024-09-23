@@ -9,7 +9,6 @@ const ComponentDescriptorsDropdown = require('../../../components/selectors/comp
 const xpath = {
     container: `//div[contains(@id,'LayoutInspectionPanel')]`,
     layoutDropdown: `//div[contains(@id,'ComponentDescriptorsDropdown')]`,
-    selectedOptionViewDiv: `//div[contains(@id,'SelectedOptionView')]`,
 };
 
 //Context Window, Inspect tab for Layout Component
@@ -57,7 +56,7 @@ class LayoutInspectionPanel extends Page {
     }
 
     async getSelectedOption() {
-        let locator = xpath.container + xpath.selectedOptionViewDiv + lib.H6_DISPLAY_NAME;
+        let locator = xpath.container + lib.INSPECT_PANEL.DESCRIPTOR_VIEWER_DIV + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }

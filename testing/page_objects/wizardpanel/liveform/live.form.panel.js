@@ -135,7 +135,7 @@ class LiveFormPanel extends Page {
         let locator = xpath.layoutComponentView;
         await contentWizard.switchToLiveEditFrame();
         let layoutComponentElements = await this.findElements(locator);
-        let filterInputElement = await layoutComponentElements[0].$$('.' + lib.COMBO_BOX_OPTION_FILTER_INPUT);
+        let filterInputElement = await layoutComponentElements[0].$$('.' + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT);
         let result = await filterInputElement[0].isDisplayed();
         await contentWizard.switchToParentFrame();
         return result;

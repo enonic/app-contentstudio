@@ -18,7 +18,7 @@ class PartInspectionPanel extends Page {
     }
 
     async getDropdownSelectedOption() {
-        let locator = xpath.container + "//div[contains(@id,'DescriptorViewer')]" + lib.H6_DISPLAY_NAME;
+        let locator = xpath.container + lib.INSPECT_PANEL.DESCRIPTOR_VIEWER_DIV + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
