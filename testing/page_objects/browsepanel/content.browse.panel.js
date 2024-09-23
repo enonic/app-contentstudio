@@ -32,7 +32,7 @@ const XPATH = {
     selectionControllerCheckBox: `//div[contains(@id,'ListSelectionController')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     contentSummaryListViewerByName(name) {
-        return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
+        return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
     publishMenuItemByName(name) {
         return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
@@ -782,7 +782,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     // finds workflow state by a display name
     async getWorkflowStateByDisplayName(displayName) {
-        let xpath = lib.TREE_GRID.contentStatusByDisplayName(XPATH.container, displayName);
+        let xpath = XPATH.selectableListBoxPanelDiv + lib.TREE_GRID.contentStatusByDisplayName(XPATH.container, displayName);
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
@@ -799,7 +799,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     // finds workflow state by a name
     async getWorkflowStateByName(name) {
-        let xpath = lib.TREE_GRID.contentStatusByName(name);
+        let xpath = XPATH.selectableListBoxPanelDiv + lib.TREE_GRID.contentStatusByName(name);
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {

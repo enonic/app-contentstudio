@@ -29,6 +29,7 @@ describe('Text Component with CKE - insert download-link specification', functio
     const TEST_CONTENT_NAME = 'server.sh';
     const CONTROLLER_NAME = 'main region';
     const EXPECTED_SRC = '<p><a href="media://download/';
+    const LINK_TEXT = 'test';
 
     it(`Precondition: new site should be added`,
         async () => {
@@ -68,21 +69,27 @@ describe('Text Component with CKE - insert download-link specification', functio
             // 4. Open Insert Link dialog:
             await textComponentCke.clickOnInsertLinkButton();
             // 5. Type a link-name and select a target:
-            await insertLinkDialog.typeInLinkTextInput('test');
+            await insertLinkDialog.typeInLinkTextInput(LINK_TEXT);
             await insertLinkDialog.clickOnBarItem('Content');
-            // 6. Select a media content in the dropdown selector - select the 'server.sh'
-            await insertLinkDialogContentPanel.selectTargetInContentSelector(TEST_CONTENT_DISPLAY_NAME);
-            // 7. Click on 'Download file' radio:
+            // 6. Filter a content in the content selector(tree mode) - (select the 'server.sh')
+            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(TEST_CONTENT_DISPLAY_NAME);
+            // 7. Expand the parent site in the filtered list ( 'Tree mode')
+            await insertLinkDialogContentPanel.clickOnExpanderIconInOptionsList(SITE.displayName);
+            // 8. Click on the content item in Tree-Mode
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(TEST_CONTENT_DISPLAY_NAME);
+            // 9. Click on OK in the content selector
+            await insertLinkDialogContentPanel.clickOnApplySelectionButton();
+            // 10. Click on 'Download file' radio:
             await insertLinkDialogContentPanel.clickOnRadioButton(appConst.INSERT_LINK_DIALOG_TABS.DOWNLOAD_FILE);
             await studioUtils.saveScreenshot('download_link_dialog');
             await insertLinkDialog.clickOnInsertButton();
             await insertLinkDialog.pause(700);
             await textComponentCke.switchToLiveEditFrame();
             await studioUtils.saveScreenshot('download_link_inserted');
-            // 8. Verify the text in CKE: 'media://download' should be present in the htmlarea
+            // 11. Verify the text in CKE: 'media://download' should be present in the htmlarea
             let actualText = await textComponentCke.getTextFromEditor();
             assert.ok(actualText.includes(EXPECTED_SRC), "Expected text should be in the text component");
-            // 9. Save the changes:
+            // 12. Save the changes:
             await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -96,7 +103,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             await contentBrowsePanel.clickOnPreviewButton();
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             // 2. Verify that new added link is present
-            let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);
+            let isDisplayed = await studioUtils.isElementDisplayed(`a=${LINK_TEXT}`);
             await studioUtils.saveScreenshot('download_link_present');
             assert.ok(isDisplayed, 'download link should be present on the page');
         });
@@ -133,7 +140,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             // 3. Open Compare versions dialog in the latest 'Moved' version item:
             await wizardVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
             await compareContentVersionsDialog.waitForDialogOpened();
-            await studioUtils.saveScreenshot("moved_version_item_compare_versions");
+            await studioUtils.saveScreenshot('moved_version_item_compare_versions');
             // 4.Verify that left revert-menu is enabled in the dialog, because the previous version is Edited:
             await compareContentVersionsDialog.waitForLeftRevertMenuButtonEnabled();
             // 5. Verify that right revert menu is disabled, because Moved item is selected in the right selector:
