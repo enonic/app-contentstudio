@@ -676,7 +676,7 @@ export class TextComponentView
             TextComponentView.lastFocusedView?.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
         }
 
-        this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS)
+        this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS);
 
         TextComponentView.lastFocusedView = this;
     }
