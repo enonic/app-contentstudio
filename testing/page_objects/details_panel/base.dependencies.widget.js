@@ -11,7 +11,7 @@ class BaseDependenciesWidget extends Page {
             await this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout);
             await this.waitForElementEnabled(this.showOutboundButton, appConst.shortTimeout);
             await this.clickOnElement(this.showOutboundButton);
-            return await this.pause(1000);
+            return await this.pause(2000);
         } catch (err) {
             await this.saveScreenshot('err_outbound_button');
             throw new Error('Show Outbound button is not visible in ' + err);
