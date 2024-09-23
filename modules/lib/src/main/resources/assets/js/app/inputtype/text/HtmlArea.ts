@@ -6,6 +6,7 @@ import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
@@ -626,7 +627,7 @@ export class HtmlArea
         super.updateInputOccurrenceElement(textAreaEl, property, unchangedOnly);
     }
 
-    isEditableByAI(): boolean {
+    isAiEditable(): boolean {
         return true;
     }
 
