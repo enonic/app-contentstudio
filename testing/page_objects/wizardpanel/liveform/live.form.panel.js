@@ -33,7 +33,7 @@ class LiveFormPanel extends Page {
     }
 
     async waitForLayoutComboBoxOptionFilterDisplayed() {
-        let locator = `//div[contains(@id,'LayoutPlaceholder')]` + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        let locator = `//div[contains(@id,'LayoutPlaceholder')]` + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
         return await this.waitForElementDisplayed(locator, appConst.mediumTimeout)
     }
 
