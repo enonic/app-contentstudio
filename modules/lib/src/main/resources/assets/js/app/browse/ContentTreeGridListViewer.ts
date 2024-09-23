@@ -6,6 +6,7 @@ import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ProgressBar} from '@enonic/lib-admin-ui/ui/ProgressBar';
 import {DateTimeFormatter} from '@enonic/lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {SortContentEvent} from './sort/SortContentEvent';
+import {ContentSummaryListViewer} from '../content/ContentSummaryListViewer';
 
 export class ContentTreeGridListViewer
     extends DivEl {
@@ -28,7 +29,7 @@ export class ContentTreeGridListViewer
     }
 
     private initElements(): void {
-        this.summaryViewer = new ContentSummaryAndCompareStatusViewer();
+        this.summaryViewer = new ContentSummaryListViewer();
         this.sortColumn = new DivEl();
         this.statusColumn = new StatusBlock();
         this.modifiedColumn = new DivEl('content-tree-grid-modified');
