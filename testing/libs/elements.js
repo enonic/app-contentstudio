@@ -276,5 +276,8 @@ module.exports = Object.freeze({
             return `//div[contains(@id,'NamesView') and descendant::p[contains(@class,'sub-name') and contains(.,'${id}')]]`
         },
         selectedProjectView: displayName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[text()='${displayName}']]`,
+    },
+    INSPECT_PANEL: {
+        DESCRIPTOR_VIEWER_DIV: "//div[contains(@id,'DescriptorViewer')]",
     }
 });
