@@ -49,8 +49,6 @@ import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {GetContentSummaryByIdRequest} from '../resource/GetContentSummaryByIdRequest';
-import {SettingsViewItem} from '../settings/view/SettingsViewItem';
-import {SettingsTreeListElement} from '../settings/SettingsTreeList';
 import {ContentActionMenuButton} from '../ContentActionMenuButton';
 import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 
@@ -626,15 +624,13 @@ export class ContentBrowsePanel
             dropdownPosition: MenuButtonDropdownPos.RIGHT
         });
 
-        let previousSelectionSize: number = this.selectionWrapper.getSelectedItems().length;
-
         this.selectionWrapper.onSelectionChanged(() => {
             const totalSelected: number = this.selectionWrapper.getSelectedItems().length;
 
             if (totalSelected === 0) {
                 contentActionMenuButton.setItem(null);
             } else if (totalSelected === 1) {
-                contentActionMenuButton.setItem(this.treeGrid.getFirstSelectedItem());
+                contentActionMenuButton.setItem(this.selectionWrapper.getSelectedItems()[0]);
             }
         });
 

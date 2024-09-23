@@ -123,12 +123,6 @@ export class FragmentDropdown
         return contentId ? this.getItemById(contentId.toString()) : null;
     }
 
-    // input is private in lib-admin Dropdown, avoiding modifying lib-admin
-    private getInputValue(): string {
-        const input: DropdownOptionFilterInput = this.getChildren().find((child) => child instanceof DropdownOptionFilterInput);
-        return input?.getValue() || '';
-    }
-
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.selectedViewer.addClass('selected-option');

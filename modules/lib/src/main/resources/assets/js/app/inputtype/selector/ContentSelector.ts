@@ -123,7 +123,7 @@ export class ContentSelector
                 return;
             }
 
-            let selectedContentIdsMap: {} = {};
+            let selectedContentIdsMap: object = {};
             this.getSelectedOptions().forEach((selectedOption: SelectedOption<ContentTreeSelectorItem>) => {
                 if (selectedOption.getOption().getDisplayValue()?.getContentId()) {
                     selectedContentIdsMap[selectedOption.getOption().getDisplayValue().getContentId().toString()] = '';
