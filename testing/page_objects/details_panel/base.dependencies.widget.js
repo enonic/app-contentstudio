@@ -61,11 +61,14 @@ class BaseDependenciesWidget extends Page {
         return this.isElementDisplayed(this.showInboundButton);
     }
 
-    waitForOutboundButtonVisible() {
-        return this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_outbound_button');
+    async waitForOutboundButtonVisible() {
+        try {
+            await this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout);
+            await this.pause(500);
+        } catch (err) {
+            await this.saveScreenshotUniqueName('err_outbound_button');
             throw new Error('showOutboundButton is not visible in ' + err);
-        });
+        }
     }
 
     waitForInboundButtonVisible() {
