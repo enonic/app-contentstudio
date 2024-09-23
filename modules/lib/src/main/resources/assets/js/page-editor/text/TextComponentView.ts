@@ -72,6 +72,8 @@ export class TextComponentView
 
     private static EDITOR_FOCUSED_CLASS: string = 'editor-focused';
 
+    private static lastFocusedView: TextComponentView;
+
     // special handling for click to allow dblclick event without triggering 2 clicks before it
     public static DBL_CLICK_TIMEOUT: number = 250;
     private singleClickTimer: number;
@@ -196,7 +198,7 @@ export class TextComponentView
 
     private initialize(): void {
         this.focusOnInit = true;
-        this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS);
+        this.setFocused();
         if (!this.isEditorPresentOrInitializing()) {
             this.initEditor();
         } else if (this.htmlAreaEditor) {
@@ -355,7 +357,7 @@ export class TextComponentView
     }
 
     private onFocusHandler(e: FocusEvent) {
-        this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS);
+        this.setFocused();
     }
 
     private onBlurHandler(e: FocusEvent) {
@@ -667,5 +669,15 @@ export class TextComponentView
         } else {
             this.initialValue = text; // will be used on editor created
         }
+    }
+
+    private setFocused(): void {
+        if (TextComponentView.lastFocusedView !== this) {
+            TextComponentView.lastFocusedView?.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
+        }
+
+        this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS)
+
+        TextComponentView.lastFocusedView = this;
     }
 }
