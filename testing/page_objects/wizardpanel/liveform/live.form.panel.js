@@ -33,8 +33,13 @@ class LiveFormPanel extends Page {
     }
 
     async waitForLayoutComboBoxOptionFilterDisplayed() {
-        let locator = `//div[contains(@id,'LayoutPlaceholder')]` + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
-        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout)
+        try {
+            let locator = `//div[contains(@id,'LayoutPlaceholder')]` + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_layout');
+            throw new Error(`Error occurred -  layout combobox, options filter input screenshot:${screenshot} ` + err);
+        }
     }
 
     async selectLayoutByDisplayName(displayName) {
