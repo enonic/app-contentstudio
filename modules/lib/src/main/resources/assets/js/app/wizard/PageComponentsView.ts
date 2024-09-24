@@ -667,6 +667,11 @@ export class PageComponentsView
 
     private deleteItemByPath(path: ComponentPath): void {
         const listElement = this.getPageComponentsListElement(path);
+
+        if (listElement?.getItem() && this.pageComponentsWrapper.isItemSelected(listElement.getItem())) {
+            this.pageComponentsWrapper.deselect(listElement.getItem());
+        }
+
         listElement?.getParentList().removeItems(listElement.getItem());
     }
 
