@@ -277,8 +277,7 @@ export class LinkModalDialog
         const showAllContentToggler = (showAllContent: boolean) => {
             contentSelectorBuilder.setAllowedContentPaths([showAllContent ? '' : this.parentSitePath]);
             loader.initRequests(contentSelectorBuilder);
-            contentSelector.getTreeList().clearItems();
-            contentSelector.getTreeList().load();
+            contentSelector.load();
         };
 
         const contentPanel = this.createFormPanel([

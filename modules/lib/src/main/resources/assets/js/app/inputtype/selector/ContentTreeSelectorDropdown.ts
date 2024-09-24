@@ -179,6 +179,10 @@ export class ContentTreeSelectorDropdown
         }
     }
 
+    load(): void {
+        this.search(this.optionFilterInput.getValue());
+    }
+
     getTreeList(): ContentsTreeList {
         return this.treeList;
     }
