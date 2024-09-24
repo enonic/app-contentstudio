@@ -689,12 +689,20 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async waitForStatus(name, expectedStatus) {
-        let locator = lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.TREE_GRID.CONTENT_STATUS;
+        let locator = XPATH.container + lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.TREE_GRID.CONTENT_STATUS;
         await this.getBrowser().waitUntil(async () => {
             let actualStatus = await this.getText(locator);
             return actualStatus === expectedStatus;
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Expected status should be " + expectedStatus});
+    }
 
+    async waitForStatusByDisplayName(displayName, expectedStatus) {
+        let locator = lib.TREE_GRID.contentSummaryByDisplayName(XPATH.container, displayName) + "/.." + lib.TREE_GRID.CONTENT_STATUS;
+        let res = await this.findElements(locator);
+        await this.getBrowser().waitUntil(async () => {
+            let actualStatus = await this.getText(locator);
+            return actualStatus === expectedStatus;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Expected status should be " + expectedStatus});
     }
 
     waitForShowPublishMenuDropDownVisible() {
@@ -790,7 +798,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     // finds workflow state by a display name
     async getWorkflowStateByDisplayName(displayName) {
-        let xpath = XPATH.selectableListBoxPanelDiv + lib.TREE_GRID.contentStatusByDisplayName(XPATH.container, displayName);
+        let xpath = XPATH.selectableListBoxPanelDiv + lib.TREE_GRID.contentSummaryByDisplayName(XPATH.container, displayName);
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
@@ -807,7 +815,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     // finds workflow state by a name
     async getWorkflowStateByName(name) {
-        let xpath = XPATH.selectableListBoxPanelDiv + lib.TREE_GRID.contentStatusByName(name);
+        let xpath = XPATH.selectableListBoxPanelDiv + lib.TREE_GRID.contentSummaryByName(name);
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
@@ -870,14 +878,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async isContentInherited(contentName) {
         await this.waitForContentDisplayed(contentName, appConst.mediumTimeout);
-        let locator = lib.TREE_GRID.contentStatusByName(contentName)
+        let locator = lib.TREE_GRID.contentSummaryByName(contentName)
         let attr = await this.getAttribute(locator, 'class');
         return attr.includes('data-inherited');
     }
 
-    async isContentByDisplayNameInherited(contentName) {
-        await this.waitForContentDisplayed(contentName, appConst.mediumTimeout);
-        let locator = lib.TREE_GRID.contentStatusByDisplayName(XPATH.container, contentName);
+    async isContentByDisplayNameInherited(contentDisplayName) {
+        await this.waitForContentDisplayed(contentDisplayName, appConst.mediumTimeout);
+        let locator = lib.TREE_GRID.contentSummaryByDisplayName(XPATH.container, contentDisplayName);
         let attr = await this.getAttribute(locator, 'class');
         return attr.includes('data-inherited');
     }

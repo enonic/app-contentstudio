@@ -794,7 +794,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
 
     async isContentByDisplayNameInherited(contentName) {
         await this.waitForContentDisplayed(contentName, appConst.mediumTimeout);
-        let locator = lib.TREE_GRID.contentStatusByDisplayName(XPATH.container, contentName);
+        let locator = lib.TREE_GRID.contentSummaryByDisplayName(XPATH.container, contentName);
         let attr = await this.getAttribute(locator, 'class');
         return attr.includes('data-inherited');
     }

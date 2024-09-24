@@ -154,10 +154,10 @@ module.exports = Object.freeze({
         itemByName: name => {
             return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
         },
-        contentStatusByDisplayName: (parent, displayName) => {
+        contentSummaryByDisplayName: (parent, displayName) => {
             return `//div[contains(@id,'ContentSummaryListViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
         },
-        contentStatusByName: name => {
+        contentSummaryByName: name => {
             return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
         },
         itemTreeGridListElementByDisplayName: displayName => {//ContentTreeGridListViewer

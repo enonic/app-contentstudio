@@ -43,6 +43,7 @@ describe("tests for 'Show Outbound' button in shortcut wizard", function () {
             // 4. Click on 'Show Outbound' button:
             await wizardDependenciesWidget.waitForOutboundButtonVisible();
             await wizardDependenciesWidget.clickOnShowOutboundButton();
+            await wizardDependenciesWidget.pause(2000);
             // 5. Switch to the new browser tab:
             await studioUtils.doSwitchToNextTab();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -51,7 +52,7 @@ describe("tests for 'Show Outbound' button in shortcut wizard", function () {
             await contentFilterPanel.waitForDependenciesSectionVisible();
             // Close 'Dependencies Section'  should be displayed:
             await contentFilterPanel.waitForCloseDependenciesSectionButtonDisplayed();
-            await studioUtils.saveScreenshot('shortcut_dependency_filtered');
+            await studioUtils.saveScreenshot('issue_shortcut_dependency_filtered');
             // 7. Single content should be filtered in the browse panel:
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             // 8. Verify the name of filtered content:

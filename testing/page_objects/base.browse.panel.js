@@ -115,11 +115,13 @@ class BaseBrowsePanel extends Page {
     }
 
     // gets list of content display names
-    getDisplayNamesInGrid() {
-        return this.getTextInElements(this.displayNames).catch(err => {
-            this.saveScreenshot('err_get_display_name_grid');
-            throw new Error(`Error when getting display names in grid` + err);
-        });
+    async getDisplayNamesInGrid() {
+        try {
+            await this.getTextInElements(this.displayNames)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_get_display_name_grid');
+            throw new Error(`Error occurred when getting display names in grid, screenshot:${screenshot} ` + err);
+        }
     }
 
     async waitForNewButtonDisabled() {
@@ -127,7 +129,7 @@ class BaseBrowsePanel extends Page {
             return await this.waitForElementDisabled(this.newButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_new_disabled_button');
-            throw Error('New... button should be disabled, timeout: ' + screenshot + ' ' + err);
+            throw Error(`New... button should be disabled, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -145,7 +147,7 @@ class BaseBrowsePanel extends Page {
             await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_new_button');
-            throw new Error('New button is not enabled , screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`New button is not enabled , screenshot:${screenshot} ` + err);
         }
     }
 
