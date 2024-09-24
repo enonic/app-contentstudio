@@ -18,8 +18,9 @@ class BaseDependenciesWidget extends Page {
         }
     }
 
-    clickOnShowInboundButton() {
-        return this.clickOnElement(this.showInboundButton);
+    async clickOnShowInboundButton() {
+        await this.clickOnElement(this.showInboundButton);
+        await this.pause(1000);
     }
 
     waitForNoOutgoingDependenciesMessage() {

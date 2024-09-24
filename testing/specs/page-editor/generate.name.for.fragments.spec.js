@@ -27,8 +27,8 @@ describe('Generate name for fragments specification', function () {
     }
 
     let SITE;
-    let CONTROLLER_NAME = 'main region';
-    let TEST_IMAGE_NAME = appConst.TEST_IMAGES.FOSS;
+    const CONTROLLER_NAME = 'main region';
+    const TEST_IMAGE_NAME = appConst.TEST_IMAGES.FOSS;
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -88,7 +88,7 @@ describe('Generate name for fragments specification', function () {
             await studioUtils.doSwitchToNextTab();
             // 'Dependencies Section' should be present, in the filter panel
             await contentFilterPanel.waitForDependenciesSectionVisible();
-            await studioUtils.saveScreenshot('text_component_inbound_section');
+            await studioUtils.saveScreenshot('issue_text_component_inbound_section');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
 
             assert.equal(result[0], SITE.displayName, 'expected display name of dependency');

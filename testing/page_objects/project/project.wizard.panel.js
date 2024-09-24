@@ -36,6 +36,10 @@ const XPATH = {
 
 class ProjectWizardPanel extends Page {
 
+    get toolbar() {
+        return XPATH.toolbar;
+    }
+
     get projectIdentifierInput() {
         return XPATH.container + lib.formItemByLabel('Identifier') + lib.TEXT_INPUT;
     }
@@ -57,7 +61,7 @@ class ProjectWizardPanel extends Page {
     }
 
     get projectApplicationsOptionsFilterInput() {
-        return XPATH.container + XPATH.projectApplicationsComboboxDiv + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.container + XPATH.projectApplicationsComboboxDiv + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     get saveButton() {

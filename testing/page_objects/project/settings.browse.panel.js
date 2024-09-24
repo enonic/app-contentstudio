@@ -45,7 +45,7 @@ const XPATH = {
 class SettingsBrowsePanel extends BaseBrowsePanel {
 
     get toolbar() {
-        return XPATH.toolbar;
+        return XPATH.container + XPATH.toolbarDiv;
     }
 
     get deleteButton() {
