@@ -50,7 +50,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get toolbar() {
-        return XPATH.toolbar;
+        return XPATH.toolbarDiv;
     }
 
     get archiveButton() {
