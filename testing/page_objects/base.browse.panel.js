@@ -298,15 +298,6 @@ class BaseBrowsePanel extends Page {
         }
     }
 
-    async waitForRowCheckboxSelected(itemName) {
-        let checkboxElement = lib.TREE_GRID.itemTreeGridListElementByName(itemName) + lib.INPUTS.CHECKBOX_INPUT;
-        await this.getBrowser().waitUntil(async () => {
-            let element = await this.findElement(checkboxElement);
-            let isSelected = await element.isSelected();
-            return isSelected;
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Checkbox is not selected"});
-    }
-
     // check for Accessibility attributes: toolbar role
     async waitForBrowseToolbarRoleAttribute(expectedRole) {
         let locator = this.toolbar;
