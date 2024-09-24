@@ -59,7 +59,6 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             let wizardDependenciesWidget = await studioUtils.openWizardDependencyWidget();
             // 6. Click on 'Show Outbound' button:
             await wizardDependenciesWidget.clickOnShowOutboundButton();
-            await wizardDependenciesWidget.pause(2000);
             await studioUtils.doSwitchToNextTab();
             // 7. 'Dependencies Section' should be present, in the filter panel'
             await contentFilterPanel.waitForDependenciesSectionVisible();

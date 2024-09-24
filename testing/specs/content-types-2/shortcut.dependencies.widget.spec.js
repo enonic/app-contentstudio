@@ -43,7 +43,6 @@ describe("tests for 'Show Outbound' button in shortcut wizard", function () {
             // 4. Click on 'Show Outbound' button:
             await wizardDependenciesWidget.waitForOutboundButtonVisible();
             await wizardDependenciesWidget.clickOnShowOutboundButton();
-            await wizardDependenciesWidget.pause(2000);
             // 5. Switch to the new browser tab:
             await studioUtils.doSwitchToNextTab();
             let contentBrowsePanel = new ContentBrowsePanel();
