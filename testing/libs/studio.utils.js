@@ -523,7 +523,8 @@ module.exports = {
         await this.switchToContentTabWindow(displayName);
         await contentWizardPanel.waitForOpened();
         await contentWizardPanel.waitForSpinnerNotVisible(appConst.longTimeout);
-        return await contentWizardPanel.waitForDisplayNameInputFocused();
+        await contentWizardPanel.waitForDisplayNameInputFocused();
+        await contentWizardPanel.pause(300);
     },
     async findContentAndClickCheckBox(displayName) {
         let browsePanel = new BrowsePanel();

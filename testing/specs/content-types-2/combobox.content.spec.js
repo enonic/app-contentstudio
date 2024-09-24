@@ -60,11 +60,11 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             // 2. Select a required option:
             await comboBoxForm.typeInFilterAndClickOnOption(OPTION_A);
-            // 3. Verify that Options filter Input gets not visible/disabled after selecting an option
-            await comboBoxForm.waitForOptionFilterInputDisabled();
+            // 3. Verify that Options filter Input gets not visible after selecting an option
+            await comboBoxForm.waitForOptionFilterInputNoDisplayed();
             // 4. Verify that the content gets valid even before clicking on the 'Save' button
             let isInValid = await contentWizard.isContentInvalid();
-            assert.ok(isInValid === false, 'the content should be valid, because the required option has been selected');
+            assert.ok(isInValid === false, 'the content should be valid, because combobox input is not required');
 
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -169,10 +169,10 @@ describe('combobox.content.spec: tests for comboBox content', function () {
     it("WHEN the content is selected AND 'allow-child-content' is 'false' THEN 'New' button should be disabled",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the existing content, 'allow-child-content' is 'false'
+            // 1. Select the existing content, 'allow-child-content' is 'false'
             await studioUtils.findAndSelectItem(COMBO_CHILD_FALSE);
             await studioUtils.saveScreenshot('allow_child_false');
-            //2. Verify that New button is disabled:
+            // 2. Verify that New button is disabled:
             await contentBrowsePanel.waitForNewButtonDisabled();
         });
 
