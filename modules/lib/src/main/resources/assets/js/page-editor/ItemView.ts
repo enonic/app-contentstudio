@@ -799,11 +799,12 @@ export abstract class ItemView
 
         Highlighter.get().hide();
         this.selectItem();
-        this.showContextMenu(config?.position, menuPosition);
 
         if (!silent && config) {
             new SelectComponentEvent(config).fire();
         }
+
+        this.showContextMenu(config?.position, menuPosition);
     }
 
     selectWithoutMenu() {
