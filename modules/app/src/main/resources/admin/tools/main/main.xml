@@ -16,6 +16,6 @@
     <api>styles</api>
     <api>com.enonic.xp.app.main:launcher</api>
     <api>com.enonic.xp.app.main:i18n</api>
-    <api>widget:</api>
+    <api>admin:widget</api>
   </apis>
 </tool>
