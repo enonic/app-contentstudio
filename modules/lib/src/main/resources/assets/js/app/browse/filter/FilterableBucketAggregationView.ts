@@ -84,6 +84,7 @@ export class FilterableBucketAggregationView
 
     removeAll(): void {
         super.removeAll();
+        this.listBoxDropdown.deselectAll(true);
         this.bucketListBox.clearItems();
     }
 
