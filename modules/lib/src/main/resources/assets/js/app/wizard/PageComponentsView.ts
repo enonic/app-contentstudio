@@ -300,7 +300,6 @@ export class PageComponentsView
         const removeHandler = () => {
             const itemViewWrapper: ComponentsTreeItem = this.pageComponentsWrapper.getSelectedItems()[0];
 
-
             if (itemViewWrapper) {
                 const path: ComponentPath = this.getPathByItem(itemViewWrapper);
                 PageEventsManager.get().notifyComponentRemoveRequested(path);
@@ -591,12 +590,16 @@ export class PageComponentsView
 
         if (event.getType() === PageNavigationEventType.SELECT) {
             const path: ComponentPath = event.getData().getPath();
-            this.lastSelectedPath = this.isItemSelected(path) ? null : path;
-            this.selectItemByPath(path).then(() => {
-                if (this.isUndocked && !this.isCollapsed()) {
-                    this.scrollToItem(path);
-                }
-            }).catch(DefaultErrorHandler.handle);
+            const isItemSelected = this.isItemSelected(path);
+            this.lastSelectedPath = isItemSelected ? null : path;
+
+            if (!isItemSelected) {
+                this.selectItemByPath(path).then(() => {
+                    if (this.isUndocked && !this.isCollapsed()) {
+                        this.scrollToItem(path);
+                    }
+                }).catch(DefaultErrorHandler.handle);
+            }
 
             return;
         }
