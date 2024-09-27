@@ -87,8 +87,6 @@ export class PageComponentsView
 
     private expandHelper: PageComponentsViewExpandHelper;
 
-    private gridDragHandler: PageComponentsViewDragHandler;
-
     constructor(liveEditPage: LiveEditPageProxy) {
         super('page-components-view');
 
@@ -669,7 +667,7 @@ export class PageComponentsView
         }
 
         return this.pageComponentsWrapper.getSelectedItems().map(item => this.getPathByItem(item)).some(
-            (selectedItemPath: ComponentPath) => selectedItemPath.equals(path));
+            (selectedItemPath: ComponentPath) => selectedItemPath?.equals(path));
     }
 
     private getPathByItem(item: ComponentsTreeItem): ComponentPath | undefined {

@@ -1,4 +1,3 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import Sortable, {MoveEvent, SortableEvent} from 'sortablejs';
 import {PageComponentsListElement, PageComponentsTreeGrid} from './PageComponentsTreeGrid';
 import {ComponentPath} from '../page/region/ComponentPath';
@@ -7,12 +6,17 @@ import {PageNavigationMediator} from './PageNavigationMediator';
 import {PageNavigationEvent} from './PageNavigationEvent';
 import {PageNavigationEventType} from './PageNavigationEventType';
 import {PageNavigationEventData} from './PageNavigationEventData';
+import {LayoutComponentType} from '../page/region/LayoutComponentType';
 
 export class PageComponentsViewDragHandler {
 
     private readonly listToSort: PageComponentsTreeGrid;
 
     private readonly rootList: PageComponentsTreeGrid;
+
+    private isLayoutDragging: boolean;
+
+    private allViews: PageComponentsListElement[] = [];
 
     constructor(root: PageComponentsTreeGrid, rootList: PageComponentsTreeGrid) {
         this.listToSort = root;
@@ -28,13 +32,13 @@ export class PageComponentsViewDragHandler {
             },
             sort: true,
             animation: 150,
+            onStart: (event: SortableEvent) => this.handleStart(event),
             onEnd: (event: SortableEvent) => this.handleEnd(event),
+            onMove: (evt: MoveEvent, originalEvent: Event) => this.handleMoveEvent(evt, originalEvent),
         });
     }
 
     private handleEnd(event: Sortable.SortableEvent): void {
-        console.log(event.from, event.to, event.oldIndex, event.newIndex);
-
         event.to.removeChild(event.item);
         event.from.insertBefore(event.item, event.from.children.item(event.oldIndex));
 
@@ -70,5 +74,50 @@ export class PageComponentsViewDragHandler {
 
     private makeComponentPath(parentPath: string, index: number): ComponentPath {
         return ComponentPath.fromString(`${parentPath}${ComponentPath.DIVIDER}${index}`);
+    }
+
+    private handleStart(event: SortableEvent): void {
+        this.isLayoutDragging = false;
+        const allItems = this.rootList.getItems(true);
+        this.allViews = allItems.map((item) => this.rootList.getItemView(item)).filter((view) => !!view) as PageComponentsListElement[];
+
+        const draggedElement = this.findListElementById(event.item.id);
+
+        if (draggedElement) {
+            this.isLayoutDragging = draggedElement.getItem().getType() instanceof LayoutComponentType;
+        }
+    }
+
+    private handleMoveEvent(evt: MoveEvent, originalEvent: Event):  boolean | -1 | 1 | void {
+        const currentlyOverList = this.findListById(evt.to.id);
+
+        if (this.isLayoutDragging && currentlyOverList) {
+            if (this.hasLayoutInParents(currentlyOverList)) {
+                return false; // to forbid drop event
+            }
+        }
+    }
+
+    private findListElementById(id: string): PageComponentsListElement {
+        return this.allViews.find((listElement: PageComponentsListElement) => listElement.getId() === id);
+    }
+
+    private findListById(id: string): PageComponentsTreeGrid {
+        return this.allViews.find((listElement: PageComponentsListElement) => listElement.getParentList()?.getId() ===
+                                                                              id)?.getParentList() as PageComponentsTreeGrid;
+    }
+
+    private hasLayoutInParents(list: PageComponentsTreeGrid): boolean {
+        let parentItem = list.getParentListElement() as PageComponentsListElement;
+
+        while (parentItem) {
+            if (parentItem.getItem().getType() instanceof LayoutComponentType) {
+                return true;
+            }
+
+            parentItem = parentItem.getParentList()?.getParentListElement() as PageComponentsListElement;
+        }
+
+        return false;
     }
 }
