@@ -41,6 +41,7 @@ import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
 import {PageComponentsViewDragHandler} from './PageComponentsViewDragHandler';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {PageComponentsViewExpandHelper} from './PageComponentsViewExpandHelper';
+import {TextComponentType} from '../page/region/TextComponentType';
 
 enum Modifiers {
     LOCKED = 'locked',
@@ -627,6 +628,14 @@ export class PageComponentsView
             parentItem.getList().addItems(item, false, index);
             this.pageComponentsWrapper.deselectAll(true);
             this.pageComponentsWrapper.select(item);
+
+            if (item.getType() instanceof TextComponentType) {
+                const path: ComponentPath = this.getPathByItem(item);
+
+                if (path) {
+                    PageEventsManager.get().notifyTextComponentEditRequested(path);
+                }
+            }
 
             return Q.resolve();
         });

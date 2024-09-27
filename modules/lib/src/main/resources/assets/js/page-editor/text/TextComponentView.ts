@@ -197,8 +197,6 @@ export class TextComponentView
     }
 
     private initialize(): void {
-        this.focusOnInit = true;
-        this.setFocused();
         if (!this.isEditorPresentOrInitializing()) {
             this.initEditor();
         } else if (this.htmlAreaEditor) {
