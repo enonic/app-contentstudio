@@ -163,6 +163,11 @@ export class WidgetFilterDropdown
         super.handleUserToggleAction(item);
     }
 
+    select(item: WidgetView[] | WidgetView, silent?: boolean) {
+        this.deselectAll(true);
+        super.select(item, silent);
+    }
+
 }
 
 export class WidgetSelectedOptionsView
