@@ -1,14 +1,9 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
-import {ShowDependenciesEvent} from '../browse/ShowDependenciesEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {StatusCheckableItem, StatusCheckableItemConfig} from './StatusCheckableItem';
-import {DependencyType} from '../browse/DependencyType';
-import {DependencyParams} from '../browse/DependencyParams';
-import {ContentId} from '../content/ContentId';
+import {ArchiveDialogHelper} from './ArchiveDialogHelper';
 
 export interface ArchiveItemConfig
     extends StatusCheckableItemConfig {
@@ -58,20 +53,8 @@ export class ArchiveCheckableItem
 
     protected initElements(): void {
         super.initElements();
-        this.initActionButton();
-    }
 
-    protected initActionButton(): void {
-        const action = new Action(i18n('action.showReferences'));
-        action.onExecuted(() => {
-            const contentId: ContentId = this.getItem().getContentSummary().getContentId();
-            const params: DependencyParams =
-                DependencyParams.create().setContentId(contentId).setDependencyType(DependencyType.INBOUND).build();
-            new ShowDependenciesEvent(params).fire();
-        });
-
-        this.showRefButton = new ActionButton(action);
-        this.showRefButton.addClass('show-ref-button');
+        this.showRefButton = ArchiveDialogHelper.createShowReferences(this.getItem().getContentSummary().getContentId());
     }
 
     protected initListeners(): void {
@@ -85,11 +68,6 @@ export class ArchiveCheckableItem
             if (!this.getItem().isPendingDelete()) {
                 new EditContentEvent([this.getItem()]).fire();
             }
-        });
-
-        this.showRefButton.onClicked(event => {
-            event.stopPropagation();
-            event.preventDefault();
         });
     }
 }

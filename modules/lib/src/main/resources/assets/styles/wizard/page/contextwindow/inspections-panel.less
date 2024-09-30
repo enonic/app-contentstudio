@@ -1,5 +1,3 @@
-@descriptor-dropdown-height: 47px;
-
 .inspections-panel {
 
   > .deck-panel {
@@ -24,12 +22,8 @@
           .form-input {
             background-color: @admin-white;
 
-            &.@{_COMMON_PREFIX}dropdown {
-              height: @descriptor-dropdown-height;
-
-              .@{_COMMON_PREFIX}dropdown-handle {
-                width: @descriptor-dropdown-height;
-              }
+            > .option-filter-input {
+              height: 37px;
             }
           }
 

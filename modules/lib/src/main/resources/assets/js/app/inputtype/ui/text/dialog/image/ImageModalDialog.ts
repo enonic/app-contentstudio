@@ -457,7 +457,7 @@ export class ImageModalDialog
             this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
             this.imageToolbar.onPreviewSizeChanged(() => setTimeout(() => this.adjustPreviewFrameHeight(), 100));
 
-            $(this.imageToolbar.getHTMLElement()).insertBefore(this.imagePreviewContainer.getHTMLElement());
+            this.imageToolbar.insertBeforeEl(this.imagePreviewContainer);
 
             image.unLoaded(onImageFirstLoad);
         };
@@ -762,13 +762,10 @@ export class ImageDialogToolbar
     }
 
     private createElements() {
-        const topLineContainer: DivEl = new DivEl('image-toolbar-top-line');
-
-        topLineContainer.appendChild(this.createAlignmentButtons());
-        topLineContainer.appendChild(this.imageStyleSelector = this.createImageStyleSelector());
-        topLineContainer.appendChild(this.customWidthCheckbox = this.createCustomWidthCheckbox());
-
-        super.addElement(topLineContainer);
+        const alignmentButtonContainer = this.createAlignmentButtons();
+        super.addContainer(alignmentButtonContainer, alignmentButtonContainer.getChildren());
+        super.addElement(this.imageStyleSelector = this.createImageStyleSelector());
+        super.addElement(this.customWidthCheckbox = this.createCustomWidthCheckbox());
         super.addElement(this.createCustomWidthRangeInput());
     }
 
@@ -786,7 +783,7 @@ export class ImageDialogToolbar
     }
 
     private createAlignmentButton(iconClass: string, styleClass: string): ActionButton {
-        const action: Action = new Action('');
+        const action: Action = new Action();
 
         action.setIconClass(iconClass);
 

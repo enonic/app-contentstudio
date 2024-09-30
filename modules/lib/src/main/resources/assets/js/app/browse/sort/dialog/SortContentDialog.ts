@@ -58,7 +58,7 @@ export class SortContentDialog
         this.sortContentMenu = new SortContentTabMenu();
         this.contentGrid = new SortContentTreeGrid();
         this.gridDragHandler = new ContentGridDragHandler(this.contentGrid);
-        this.sortAction = new SaveSortedContentAction(this);
+        this.sortAction = new SaveSortedContentAction(this).setClass('save-button');
         this.saveButton = this.addAction(this.sortAction);
         this.subHeader = new H6El();
     }
@@ -96,7 +96,6 @@ export class SortContentDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.saveButton.addClass('save-button');
             this.sortContentMenu.show();
 
             this.appendChildToHeader(this.sortContentMenu);
@@ -115,7 +114,7 @@ export class SortContentDialog
         this.contentGrid.onLoaded(this.gridLoadedHandler);
         this.contentGrid.reload();
         this.sortContentMenu.focus();
-        this.saveButton.setEnabled(false);
+        this.sortAction.setEnabled(false);
     }
 
     close() {
@@ -231,7 +230,7 @@ export class SortContentDialog
     private handleSortOrderChanged() {
         const newOrder: ChildOrder = this.getSelectedOrder();
 
-        this.saveButton.setEnabled(this.isOrderChanged());
+        this.sortAction.setEnabled(this.isOrderChanged());
         this.saveButton.giveFocus();
         this.contentGrid.setChildOrder(newOrder);
         this.contentGrid.toggleClass('inherited', this.sortContentMenu.isInheritedItemSelected());
