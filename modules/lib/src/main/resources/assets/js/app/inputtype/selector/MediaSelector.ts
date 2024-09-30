@@ -115,17 +115,20 @@ export class MediaSelector
         this.initFailedListener(uploader);
 
         this.onDragEnter((event: DragEvent) => {
+            this.addClass('dropzone-visible');
             event.stopPropagation();
             uploader.giveFocus();
             uploader.setDefaultDropzoneVisible();
         });
 
         uploader.onDropzoneDragLeave(() => {
+            this.removeClass('dropzone-visible');
             uploader.giveBlur();
             uploader.setDefaultDropzoneVisible(false);
         });
 
         uploader.onDropzoneDrop(() => {
+            this.removeClass('dropzone-visible');
             uploader.setDefaultDropzoneVisible(false);
         });
 

@@ -80,6 +80,10 @@
           background-color: @admin-context-bg-grey-opal;
           margin: -10px -10px 0;
           padding: 10px;
+
+          .@{_COMMON_PREFIX}dropdown {
+            background-color: @admin-white;
+          }
         }
 
         label {
@@ -90,10 +94,8 @@
 
       &.page-template-and-controller-form,
       &.fragment-dropdown-form {
-        text-align: center; // to center the button
-
         fieldset + button {
-          margin-top: @form-field-spacing;
+          margin: @form-field-spacing auto 0;
         }
       }
 

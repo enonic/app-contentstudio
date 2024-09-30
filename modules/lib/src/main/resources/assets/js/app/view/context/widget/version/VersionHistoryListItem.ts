@@ -104,22 +104,18 @@ export class VersionHistoryListItem
     }
 
     private createRevertButton(): ActionButton {
-        const revertButton: ActionButton = new ActionButton(new Action(i18n('field.version.revert')));
+        const revertAction = new Action(i18n('field.version.revert'));
 
         if (this.content.isReadOnly()) {
-            revertButton.setEnabled(false);
+            revertAction.setEnabled(false);
         } else {
-            revertButton.setTitle(i18n('field.version.makeCurrent'));
-            revertButton.onClicked((event: MouseEvent) => {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            revertButton.getAction().onExecuted(() => {
+            revertAction.setTitle(i18n('field.version.makeCurrent'));
+            revertAction.onExecuted(() => {
                 this.revert(this.version.getId(), this.version.getDateTime());
             });
         }
 
-        return revertButton;
+        return new ActionButton(revertAction);
     }
 
     private createCompareButton(): ActionButton {

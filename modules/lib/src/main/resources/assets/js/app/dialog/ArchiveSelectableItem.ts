@@ -1,16 +1,11 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
-import {ShowDependenciesEvent} from '../browse/ShowDependenciesEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {StatusSelectionItem} from './StatusSelectionItem';
-import {DependencyType} from '../browse/DependencyType';
-import {ContentId} from '../content/ContentId';
-import {DependencyParams} from '../browse/DependencyParams';
 import {Branch} from '../versioning/Branch';
+import {ArchiveDialogHelper} from './ArchiveDialogHelper';
 
 export interface ArchiveSelectableItemConfig {
     viewer: Viewer<ContentSummaryAndCompareStatus>;
@@ -66,26 +61,7 @@ export class ArchiveSelectableItem
     }
 
     protected initElements(): void {
-        this.initActionButton();
-    }
-
-    protected initActionButton(): void {
-        const action = new Action(i18n('action.showReferences'));
-        action.onExecuted(() => {
-            const contentId: ContentId = this.getItem().getContentSummary().getContentId();
-            const params: DependencyParams =
-                DependencyParams.create().setContentId(contentId).setDependencyType(DependencyType.INBOUND).setBranch(this.config.target).build();
-            new ShowDependenciesEvent(params).fire();
-        });
-        this.showRefButton = new ActionButton(action);
-        this.showRefButton.addClass('show-ref-button');
-
-        if (this.config.clickable ?? true) {
-            this.showRefButton.onClicked(event => {
-                event.stopPropagation();
-                event.preventDefault();
-            });
-        }
+        this.showRefButton = ArchiveDialogHelper.createShowReferences(this.getItem().getContentSummary().getContentId(), this.config.target);
     }
 
     protected initListeners(): void {
