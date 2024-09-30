@@ -7,7 +7,7 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
-const InsertLinkDialogContentPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
+const InsertContentLinkTab = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
 const InsertLinkDialogUrlPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
 
 describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlArea', function () {
@@ -31,24 +31,24 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
-            let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
+            let insertContentLinkTab = new InsertContentLinkTab();
             // 1. Open Insert Link dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 2. Fill in inputs and select a target in the selector:
             await insertLinkDialog.typeInLinkTextInput('test-content-link');
             await insertLinkDialog.typeInLinkTooltip(TEST_TOOLTIP);
             // 3. Insert the name of content ('Templates')
-            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(TEST_CONTENT_DISPLAY_NAME);
+            await insertContentLinkTab.typeTextInFilterInputInContentSelector(TEST_CONTENT_DISPLAY_NAME);
             // 4. Expand the parent site in the filtered list in 'Tree mode'
-            await insertLinkDialogContentPanel.clickOnExpanderIconInOptionsList(SITE.displayName);
+            await insertContentLinkTab.clickOnExpanderIconInOptionsList(SITE.displayName);
             // 5. Click on 'Templates' option
-            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(TEST_CONTENT_DISPLAY_NAME);
+            await insertContentLinkTab.clickOnOptionByDisplayName(TEST_CONTENT_DISPLAY_NAME);
             // 6. Click on OK and apply the selection:
-            await insertLinkDialogContentPanel.clickOnApplySelectionButton();
+            await insertContentLinkTab.clickOnApplySelectionButton();
             // 7. Click on remove-icon and remove the selected option:
-            await insertLinkDialogContentPanel.clickOnRemoveSelectedOptionIcon(TEST_CONTENT_DISPLAY_NAME);
+            await insertContentLinkTab.clickOnRemoveSelectedOptionIcon(TEST_CONTENT_DISPLAY_NAME);
             // 4. Verify that 'Upload' button appears in the 'Insert content link' form
-            await insertLinkDialogContentPanel.waitForUploadContentButtonDisplayed();
+            await insertContentLinkTab.waitForUploadContentButtonDisplayed();
         });
 
     it(`GIVEN insert link dialog is opened WHEN 'Show content from entire project' checkbox has been clicked THEN content from entire project should be present in dropdown options`,
@@ -56,43 +56,64 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
-            let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
+            let insertContentLinkTab = new InsertContentLinkTab();
             // 1. Open Insert Link dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 2. Click on 'show content from entire project' checkbox
-            await insertLinkDialogContentPanel.clickOnShowContentFromEntireProjectCheckbox();
+            await insertContentLinkTab.clickOnShowContentFromEntireProjectCheckbox();
             // 3. Click on content-dropdown handler, expand the options:
-            await insertLinkDialogContentPanel.clickOnContentDropdownHandle();
+            await insertContentLinkTab.clickOnContentDropdownHandle();
             // 4. Verify that a folder from root directory appears in the dropdown options(tree mode is default mode in the dropdown):
-            let items = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInTreeMode();
+            let items = await insertContentLinkTab.getContentSelectorOptionsDisplayNameInTreeMode();
             await studioUtils.saveScreenshot('content_link_entire_project_checked');
             assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES), "Folder from Default project should be present in the options");
             assert.ok(items.length > 3, 'Items from default project should be present in the options');
         });
 
-    it(`GIVEN insert link dialog is opened WHEN a folder from Default project has been selected in content selector THEN 'show content from entire project' checkbox gets hidden`,
+    // Verify the issue - Link dialog - selector not reloaded on mode or checkbox change #7388
+    // https://github.com/enonic/app-contentstudio/issues/7388
+    it(`GIVEN 'Show content from entire project' checkbox has been clicked WHEN dropdown has been switched to flat-mode THEN expected folder from the root directory should be present in the options in flat-mode`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
-            let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
+            let insertContentLinkTab = new InsertContentLinkTab();
+            // 1. Open 'Insert Link' modal dialog:
+            await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+            // 2. Click on 'show content from entire project' checkbox
+            await insertContentLinkTab.clickOnShowContentFromEntireProjectCheckbox();
+            // 3. Click on mode-toggle button, switch to flat mode:
+            await insertContentLinkTab.clickOnContentSelectorModeTogglerButton();
+            await insertContentLinkTab.typeTextInFilterInputInContentSelector(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
+            // 4. Verify that a folder from root directory appears in the dropdown options(tree mode is default mode in the dropdown):
+            let items = await insertContentLinkTab.getContentSelectorOptionsDisplayNameInFlatMode();
+            await studioUtils.saveScreenshot('content_link_entire_project_checked_flat_mode');
+            assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES), "Folder from Default project should be present in the options");
+        });
+
+    it(`GIVEN insert link dialog is opened WHEN a folder from 'Default' project has been selected in content selector THEN 'show content from entire project' checkbox gets hidden`,
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await htmlAreaForm.pause(1000);
+            let insertContentLinkTab = new InsertContentLinkTab();
             // 1. Open Insert Link dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 2. Click on 'show content from entire project' checkbox
-            await insertLinkDialogContentPanel.clickOnShowContentFromEntireProjectCheckbox();
+            await insertContentLinkTab.clickOnShowContentFromEntireProjectCheckbox();
             // 3. Type the folder name and select filtered folder from Default project:
-            await insertLinkDialogContentPanel.selectTargetInContentSelector(appConst.TEST_FOLDER_WITH_IMAGES);
+            await insertContentLinkTab.selectTargetInContentSelector(appConst.TEST_FOLDER_WITH_IMAGES);
 
             await studioUtils.saveScreenshot('content_link_entire_project_checkbox_hidden');
             // 4. Verify that 'show content from entire project' checkbox gets not visible now:
-            await insertLinkDialogContentPanel.waitForShowContentFromEntireProjectCheckboxNotDisplayed();
+            await insertContentLinkTab.waitForShowContentFromEntireProjectCheckboxNotDisplayed();
             // 5. Verify that 'Open in new tab' checkbox is displayed now:
-            await insertLinkDialogContentPanel.waitForOpenInNewTabCheckboxDisplayed();
+            await insertContentLinkTab.waitForOpenInNewTabCheckboxDisplayed();
             // 6. 'Open in new tab' checkbox is not selected by default:
-            let isSelected = await insertLinkDialogContentPanel.isOpenInNewTabCheckboxSelected();
+            let isSelected = await insertContentLinkTab.isOpenInNewTabCheckboxSelected();
             assert.ok(isSelected === false, "'Open in new tab' checkbox should not be selected");
 
-            let result = await insertLinkDialogContentPanel.getSelectedOptionDisplayName();
+            let result = await insertContentLinkTab.getSelectedOptionDisplayName();
             assert.equal(result, appConst.TEST_FOLDER_WITH_IMAGES, 'Expected option should be selected');
         });
 
@@ -101,26 +122,26 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
-            let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
+            let insertContentLinkTab = new InsertContentLinkTab();
             // 1. Open Insert Link dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 2. 'show content from entire project' checkbox is not selected by default:
-            let isSelected = await insertLinkDialogContentPanel.isShowContentFromEntireProjectCheckboxSelected();
+            let isSelected = await insertContentLinkTab.isShowContentFromEntireProjectCheckboxSelected();
             assert.ok(isSelected === false, 'Show content from entire project should not be selected by default');
             // 3. Click on content-dropdown handler, expand the options in tree mode(the default mode):
-            await insertLinkDialogContentPanel.clickOnContentDropdownHandle();
+            await insertContentLinkTab.clickOnContentDropdownHandle();
             // 4. get options in Tree-mode
-            let items = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInTreeMode();
-            assert.equal(items.length, 1,"Only one item should be displayed in the dropdown list");
+            let items = await insertContentLinkTab.getContentSelectorOptionsDisplayNameInTreeMode();
+            assert.equal(items.length, 1, "Only one item should be displayed in the dropdown list");
             // 5. Verify that items from root directory are not present in the options, due to show content from entire project is not selected:
             await studioUtils.saveScreenshot('content_link_entire_project_not_checked');
             assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES) === false,
                 "Folder from the root directory should not be present in the options");
             // 6. Switch to the flat mode:
-            await insertLinkDialogContentPanel.clickOnContentSelectorModeTogglerButton();
+            await insertContentLinkTab.clickOnContentSelectorModeTogglerButton();
             // 7. Verify the number of available items in the flat mode:
-            let itemsFlatMode = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInFlatMode();
-            assert.equal(itemsFlatMode.length, 6, '6 Items from the current site should be present in the options list in Flat mode');
+            let itemsFlatMode = await insertContentLinkTab.getContentSelectorOptionsDisplayNameInFlatMode();
+            assert.equal(itemsFlatMode.length, 7, '6 Items from the current site should be present in the options list in Flat mode');
         });
 
     it(`GIVEN content link is inserted in a htmlarea WHEN 'Edit link' modal dialog is opened THEN Content tab should be active and expected content should be present in selected options`,
@@ -128,20 +149,20 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
-            let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
+            let insertContentLinkTab = new InsertContentLinkTab();
             // 1. Open Insert Link dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 2. insert a content-link and close the modal dialog
             await insertLinkDialog.typeInLinkTextInput('test-content-link');
             await insertLinkDialog.typeInLinkTooltip(TEST_TOOLTIP);
             // 3. Insert the name of content ('Templates')
-            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(TEST_CONTENT_DISPLAY_NAME);
+            await insertContentLinkTab.typeTextInFilterInputInContentSelector(TEST_CONTENT_DISPLAY_NAME);
             // 4. Expand the parent site in the filtered list in 'Tree mode'
-            await insertLinkDialogContentPanel.clickOnExpanderIconInOptionsList(SITE.displayName);
+            await insertContentLinkTab.clickOnExpanderIconInOptionsList(SITE.displayName);
             // 5. Click on 'Templates' option
-            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(TEST_CONTENT_DISPLAY_NAME);
+            await insertContentLinkTab.clickOnOptionByDisplayName(TEST_CONTENT_DISPLAY_NAME);
             // 6. Click on OK and apply the selection:
-            await insertLinkDialogContentPanel.clickOnApplySelectionButton();
+            await insertContentLinkTab.clickOnApplySelectionButton();
             // 7. Click on Insert button in the modal dialog:
             await insertLinkDialog.clickOnInsertButton();
             // 8. toolbar remains visible after inserting the link, reopen the modal dialog  again
@@ -151,7 +172,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             let isActive = await insertLinkDialog.isTabActive('Content');
             assert.ok(isActive, "'Content' tab should be active");
             // 10. Verify that expected content is selected in the dropdown selector:
-            let result = await insertLinkDialogContentPanel.getSelectedOptionDisplayName();
+            let result = await insertContentLinkTab.getSelectedOptionDisplayName();
             assert.equal(result, TEST_CONTENT_DISPLAY_NAME, 'Expected content should be displayed in selected option');
             // 11. Verify the text in Tooltip Text Input:
             let tooltip = await insertLinkDialog.getTextInLinkTooltipInput();
