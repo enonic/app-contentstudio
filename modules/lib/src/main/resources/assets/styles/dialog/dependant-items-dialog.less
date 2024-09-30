@@ -51,9 +51,11 @@
 
     &.on {
       .button(@admin-button-blue1, transparent, @admin-button-blue1, transparent, 0);
+      justify-content: center;
     }
 
     width: @toggler-width;
+    justify-content: center;
   }
 
   .sub-title:not(:empty) {
@@ -159,11 +161,6 @@
     padding-bottom: 8px;
     color: @admin-button-blue2;
     cursor: pointer;
-
-    label {
-      position: relative;
-      padding-left: 27px;
-    }
 
     &:hover input:not([disabled]) + label {
       color: @admin-button-blue3;

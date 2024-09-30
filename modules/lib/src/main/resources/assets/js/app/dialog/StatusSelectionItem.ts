@@ -74,9 +74,12 @@ export class StatusSelectionItem
 
     public setObject(obj: ContentSummaryAndCompareStatus) {
         const viewer = this.getViewer();
-        this.status.removeClass(viewer.getObject().getStatusClass());
-
         viewer.setObject(obj);
+        if (!this.status) {
+            return;
+        }
+
+        this.status.removeClass(obj.getStatusClass());
         this.status.setHtml(obj.getStatusText());
         this.status.addClass(obj.getStatusClass());
     }
