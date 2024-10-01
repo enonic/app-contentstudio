@@ -27,7 +27,7 @@
   "devDependencies": {
     "@wdio/allure-reporter": "9.0.8",
     "@wdio/cli": "^9.0.9",
-    "@wdio/concise-reporter": "^9.0.8",
+    "@wdio/concise-reporter": "^9.1.2",
     "@wdio/local-runner": "^9.1.2",
     "@wdio/mocha-framework": "^9.0.8",
     "allure-commandline": "^2.30.0",
