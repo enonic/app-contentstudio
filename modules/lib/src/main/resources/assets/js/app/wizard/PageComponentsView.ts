@@ -690,9 +690,10 @@ export class PageComponentsView
         const listElement = this.getPageComponentsListElement(path);
 
         if (listElement) {
+            this.expandHelper.expandToTheTop(listElement);
             this.pageComponentsWrapper.select(listElement.getItem());
         } else {
-            return this.expandHelper.expandToItemRecursively(path, this.tree, ComponentPath.root()).then((item: ComponentsTreeItem) => {
+            return this.expandHelper.loadAndExpandToItemRecursively(path, this.tree, ComponentPath.root()).then((item: ComponentsTreeItem) => {
                 if (item) {
                     this.pageComponentsWrapper.select(item);
                 }
