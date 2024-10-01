@@ -98,9 +98,10 @@ export class CustomSelectorComboBox
     }
 
     setSelectedItems(selectedIds: string[]): void {
+        this.deselectAll(true);
+
         if (selectedIds?.length > 0) {
             this.getLoader().sendPreLoadRequest(selectedIds).then((items: CustomSelectorItem[]) => {
-                this.deselectAll(true);
                 items.sort((a, b) => selectedIds.indexOf(a.getId().toString()) - selectedIds.indexOf(b.getId().toString()));
                 const toSelect = items.filter((item) => selectedIds.indexOf(item.getId().toString()) >= 0);
                 this.select(toSelect, true);
