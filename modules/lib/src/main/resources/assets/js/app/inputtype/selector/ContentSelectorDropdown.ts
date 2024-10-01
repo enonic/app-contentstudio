@@ -5,7 +5,6 @@ import {ContentSummaryOptionDataHelper} from '../../util/ContentSummaryOptionDat
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentId} from '../../content/ContentId';
@@ -33,14 +32,11 @@ export class ContentSelectorDropdown
 
     protected options: ContentSelectorDropdownOptions;
 
-    protected readonly loadMask: LoadMask;
-
     protected readonly getSelectedItemsHandler: () => string[];
 
     constructor(listBox, options: ContentSelectorDropdownOptions) {
         super(listBox, options);
 
-        this.loadMask = new LoadMask(this);
         this.helper = new ContentSummaryOptionDataHelper();
         this.getSelectedItemsHandler = options.getSelectedItems;
         this.selectedOptionsView.setOccurrencesSortable(true);

@@ -42,11 +42,21 @@ export class LocaleComboBox
     protected initListeners(): void {
         super.initListeners();
 
+        this.loader.onLoadingData(() => {
+           this.loadMask.show();
+        });
+
         this.loader.onLoadedData((event: LoadedDataEvent<Locale>) => {
             if (this.listBox.getItemCount() === 0) {
                 this.listBox.setItems(event.getData());
             }
+
+            this.loadMask.hide();
             return null;
+        });
+
+        this.loader.onErrorOccurred(() => {
+           this.loadMask.hide();
         });
 
         this.listBox.whenShown(() => {

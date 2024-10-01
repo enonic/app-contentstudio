@@ -2,7 +2,6 @@ import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTyp
 import {ContentTypeList} from './ContentTypeList';
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {ContentTypeSelectedOptionsView} from './ContentTypeComboBox';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
@@ -23,8 +22,6 @@ export class ContentTypeFilterDropdown
 
     private readonly loader: BaseLoader<ContentTypeSummary>;
 
-    private readonly loadMask: LoadMask;
-
     private readonly getSelectedItemsHandler: () => string[];
 
     constructor(options: ContentTypeFilterDropdownOptions) {
@@ -35,7 +32,6 @@ export class ContentTypeFilterDropdown
         });
 
         this.loader = options.loader;
-        this.loadMask = new LoadMask(this);
         this.getSelectedItemsHandler = options.getSelectedItems;
     }
 
