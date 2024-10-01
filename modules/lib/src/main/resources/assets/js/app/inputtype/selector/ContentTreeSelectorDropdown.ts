@@ -7,6 +7,7 @@ import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export interface ContentTreeSelectorDropdownOptions
     extends ContentSelectorDropdownOptions {
@@ -36,6 +37,7 @@ export class ContentTreeSelectorDropdown
         this.modeButton = new ModeTogglerButton();
         this.modeButton.setActive(false);
         this.treeList = new ContentsTreeList({loader: this.options.loader});
+        this.treeList.setEmptyText(i18n('field.option.noitems'));
         this.treeSelectionWrapper = new ContentTreeSelectionWrapper(this.treeList, {
             maxSelected: this.options.maxSelected,
             checkboxPosition: this.options.checkboxPosition,
@@ -43,6 +45,7 @@ export class ContentTreeSelectorDropdown
         });
 
         this.treeMode = this.options.treeMode || false;
+
     }
 
     protected initListeners(): void {
