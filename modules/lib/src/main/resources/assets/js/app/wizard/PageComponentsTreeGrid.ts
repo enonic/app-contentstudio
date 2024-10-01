@@ -207,6 +207,7 @@ export class PageComponentsTreeGrid
             const description: string = isInvalid ? i18n('notify.fragment.component.content.notfound')
                                                   : (content?.getPage()?.getFragment()?.getType().getShortName() ||
                                                      fragmentComponent.getType().getShortName());
+            const isLayoutFragment: boolean = content?.getPage().getFragment() instanceof LayoutComponent;
 
             return TreeComponent.create()
                 .setDisplayName(content?.getDisplayName() || fragmentComponent.getName().toString())
@@ -215,6 +216,7 @@ export class PageComponentsTreeGrid
                 .setHasChildren(false)
                 .setInvalid(isInvalid)
                 .setType(FragmentComponentType.get())
+                .setLayoutFragment(isLayoutFragment)
                 .build();
         });
     }

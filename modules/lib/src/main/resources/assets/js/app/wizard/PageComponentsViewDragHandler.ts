@@ -7,6 +7,7 @@ import {PageNavigationEvent} from './PageNavigationEvent';
 import {PageNavigationEventType} from './PageNavigationEventType';
 import {PageNavigationEventData} from './PageNavigationEventData';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
+import {ComponentsTreeItem} from './ComponentsTreeItem';
 
 export class PageComponentsViewDragHandler {
 
@@ -84,8 +85,12 @@ export class PageComponentsViewDragHandler {
         const draggedElement = this.findListElementById(event.item.id);
 
         if (draggedElement) {
-            this.isLayoutDragging = draggedElement.getItem().getType() instanceof LayoutComponentType;
+            this.isLayoutDragging = this.isLayoutOrFragmentWithLayout(draggedElement.getItem());
         }
+    }
+
+    private isLayoutOrFragmentWithLayout(item: ComponentsTreeItem): boolean {
+        return item.getType() instanceof LayoutComponentType || item.getComponent().isLayoutFragment();
     }
 
     private handleMoveEvent(evt: MoveEvent, originalEvent: Event):  boolean | -1 | 1 | void {
@@ -103,7 +108,7 @@ export class PageComponentsViewDragHandler {
     }
 
     private findListById(id: string): PageComponentsTreeGrid {
-        return this.allViews.find((listElement: PageComponentsListElement) => listElement.getParentList()?.getId() ===
+        return this.allViews.find((listElement: PageComponentsListElement) => listElement.getList()?.getId() ===
                                                                               id)?.getParentList() as PageComponentsTreeGrid;
     }
 
