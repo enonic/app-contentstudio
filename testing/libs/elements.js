@@ -45,7 +45,7 @@ module.exports = Object.freeze({
     },
     COMBOBOX: {
         MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
-        APPLY_SELECTION_BUTTON:"//button[contains(@class,'apply-selection-button')]",
+        APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
     },
     INPUTS: {
         TEXT_INPUT: "//input[@type='text']",
@@ -102,6 +102,9 @@ module.exports = Object.freeze({
         contentListElementByName: (container, name) => {
             return container +
                    `//li[contains(@id,'ContentListElement') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`;
+        },
+        listItemByDisplayName: (itemName) => {
+            return `//li[contains(@class,'item-view-wrapper') and descendant::h6[contains(.,'${itemName}')]]`
         },
         // clickable option in dropdown options list
         dropdownListItemByDisplayName: (container, displayName) => {

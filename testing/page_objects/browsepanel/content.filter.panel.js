@@ -344,6 +344,21 @@ class BrowseFilterPanel extends Page {
         await filterableListBox.clickOnDropdownHandle(XPATH.lastModifiedByAggregationGroupView);
     }
 
+    async isCheckedInLastModifiedByListOptions(userName) {
+        let locator = XPATH.lastModifiedByAggregationGroupView + lib.DROPDOWN_SELECTOR.listItemByDisplayName(userName) +
+                      lib.CHECKBOX_INPUT;
+        let chElement = await this.findElements(locator);
+        return await chElement[0].isSelected();
+    }
+
+    async uncheckItemInLastModifiedByListBox(userName) {
+        let locator = XPATH.lastModifiedByAggregationGroupView + lib.DROPDOWN_SELECTOR.listItemByDisplayName(userName);
+        let chElement = await this.findElements(locator);
+        await chElement[0].click();
+        let filterableListBox = new FilterableListBox();
+        await filterableListBox.clickOnApplySelectionButton(XPATH.lastModifiedByAggregationGroupView);
+    }
+
     // Selects an option in 'Last Modified By' dropdown:
     async filterAndSelectLastModifiedByOption(userName) {
         try {
