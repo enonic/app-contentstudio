@@ -191,12 +191,13 @@ class InsertImageDialog extends Page {
 
     async clickOnCustomWidthCheckBox() {
         try {
+            let locator = this.customWidthCheckbox + "//label";
             await this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout);
-            await this.clickOnElement(this.customWidthCheckbox);
+            await this.clickOnElement(locator);
             return await this.pause(200);
         } catch (err) {
-            await this.saveScreenshotUniqueName("err_clicking_on_custom_width_checkbox");
-            throw new Error('Error when clicking on custom width checkbox! ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_clicking_on_custom_width_checkbox');
+            throw new Error(`Error when clicking on custom width checkbox! screenshot:${screenshot} ` + err);
         }
     }
 
