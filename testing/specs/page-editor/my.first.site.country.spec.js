@@ -148,6 +148,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await contentWizard.waitForNotificationMessage();
             // 2. Verify that population is not updated in master, because the content is not published now(Modified):
             await studioUtils.openResourceInMaster(SITE.displayName + '/' + USA_CONTENT_NAME);
+            await studioUtils.saveScreenshot('new_population_saved');
             let pageSource = await studioUtils.getPageSource();
             assert.ok(pageSource.includes(SF_POPULATION), "population should not be updated");
         });
@@ -163,9 +164,10 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // Verify that `Publish Content` modal dialog is opened:
             await contentPublishDialog.waitForDialogOpened();
             await contentPublishDialog.clickOnPublishNowButton();
+            await studioUtils.saveScreenshot('updated_population_published1');
             await contentPublishDialog.waitForDialogClosed();
-            await studioUtils.saveScreenshot('updated_population_published');
-            await contentBrowsePanel.pause(1000);
+            await studioUtils.saveScreenshot('updated_population_published2');
+            await contentBrowsePanel.pause(500);
             // wait for Published status:
             await contentBrowsePanel.waitForStatus(SF_DISPLAY_NAME, appConst.CONTENT_STATUS.PUBLISHED);
             // 2. Open USA country in master branch:
@@ -199,7 +201,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.selectAndOpenContentInWizard(USA_CONTENT_NAME);
             // 1. Open USA country content:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await contentWizard.pause(700);
+            await contentWizard.pause(1000);
             // 2. 'Page Component View' modal dialog should not be displayed, because the content is not customized:
             await pageComponentView.waitForNotDisplayed();
             // 3. Click on 'Customize' menu item in Live Edit frame:
