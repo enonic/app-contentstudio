@@ -44,8 +44,13 @@ export class ContentTreeSelectorDropdown
             className: 'content-tree-selector',
         });
 
-        this.treeMode = this.options.treeMode || false;
+        this.treeSelectionWrapper.hide();
 
+        this.treeSelectionWrapper
+            .setClickOutsideHandler(this.handleClickOutside.bind(this))
+            .setEnterKeyHandler(this.handlerEnterPressedInTree.bind(this));
+
+        this.treeMode = this.options.treeMode || false;
     }
 
     protected initListeners(): void {
@@ -63,10 +68,6 @@ export class ContentTreeSelectorDropdown
         });
 
         this.modeButton.onActiveChanged((active: boolean) => {
-            if (!this.treeSelectionWrapper.isRendered()) {
-                this.appendChild(this.treeSelectionWrapper);
-            }
-
             this.treeMode = active;
 
             this.applyButton.hide();
@@ -112,14 +113,18 @@ export class ContentTreeSelectorDropdown
     }
 
     protected doShowDropdown(): void {
-        this.setVisibleOnDemand(this.treeSelectionWrapper, this.treeMode);
-        this.setVisibleOnDemand(this.treeList, this.treeMode);
-        this.setVisibleOnDemand(this.listBox, !this.treeMode);
+        // doing in specific order so key listeners first detached from hidden list and then attached to the shown one
+        if (this.treeMode) {
+            this.setVisibleOnDemand(this.listBox, !this.treeMode);
+            this.setVisibleOnDemand(this.treeSelectionWrapper, this.treeMode);
+        } else {
+            this.setVisibleOnDemand(this.treeSelectionWrapper, this.treeMode);
+            this.setVisibleOnDemand(this.listBox, !this.treeMode);
+        }
     }
 
     protected doHideDropdown() {
         this.treeSelectionWrapper.setVisible(false);
-        this.treeList.setVisible(false);
         this.listBox.setVisible(false);
     }
 
@@ -195,10 +200,32 @@ export class ContentTreeSelectorDropdown
             this.modeButton.insertBeforeEl(this.optionFilterInput);
             this.treeSelectionWrapper.addClass('filterable-listbox');
             this.modeButton.insertBeforeEl(this.optionFilterInput);
+            this.treeSelectionWrapper.insertBeforeEl(this.selectedOptionsView);
 
             this.preSelectItems();
 
             return rendered;
         });
+    }
+
+    protected handlerEnterPressedInTree(): boolean {
+        if (this.applyButton.hasFocus()) {
+            this.applySelection();
+            return true;
+        }
+
+        const focusedItem = this.treeSelectionWrapper.getNavigator().getFocusedItem();
+
+        if (focusedItem) {
+            if (this.selectionDelta.size === 0) {
+                this.handleUserToggleAction(focusedItem);
+            }
+
+            if (this.selectionDelta.size !== 0) {
+                this.applySelection();
+            }
+        }
+
+        return true;
     }
 }
