@@ -5,6 +5,7 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const xpath = {
+    parentListElement: "//ancestor::div[contains(@class,'item-view-wrapper')]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
     pageComponentsItemViewerByType(componentType) {
         return `//div[contains(@id,'PageComponentsItemViewer') and contains(@class,'${componentType}')]`
@@ -44,7 +45,7 @@ class BasePageComponentView extends Page {
     }
 
     async waitForItemSelected(displayName) {
-        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::div[contains(@class,'item-view-wrapper')]`;
+        let locator = this.container + lib.itemStrictByDisplayName(displayName) + xpath.parentListElement;
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(locator, 'class');
             return result.includes('selected');
@@ -53,7 +54,7 @@ class BasePageComponentView extends Page {
     }
 
     async waitForItemNotSelected(displayName) {
-        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::div[contains(@class,'item-view-wrapper')]`;
+        let locator = this.container + lib.itemStrictByDisplayName(displayName) + xpath.parentListElement;
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(locator, 'class');
             return !result.includes('selected');
@@ -261,7 +262,7 @@ class BasePageComponentView extends Page {
     }
 
     async expandItem(item) {
-        let locator = this.container + lib.itemStrictByDisplayName(item) + `//ancestor::li[contains(@class,'item-view-wrapper')]` +
+        let locator = this.container + lib.itemStrictByDisplayName(item) + `//ancestor::div[contains(@class,'item-view-wrapper')]` +
                       lib.TREE_GRID.EXPANDER_ICON_DIV;
         await this.clickOnElement(locator);
         return await this.pause(200);
