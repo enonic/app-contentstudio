@@ -28,6 +28,7 @@ class InsertImageDialog extends Page {
     get imageStyleSelectBox() {
         return XPATH.container + XPATH.styleSelector;
     }
+
     get removeContentSelectedOptionIcon() {
         return XPATH.container + XPATH.contentSelectedOptionDiv + lib.REMOVE_ICON;
     }
@@ -247,10 +248,11 @@ class InsertImageDialog extends Page {
 
     async waitForDialogVisible() {
         try {
-            return await this.waitForElementDisplayed(this.cancelButton, appConst.mediumTimeout)
+            await this.waitForElementDisplayed(this.cancelButton, appConst.mediumTimeout)
+            await this.pause(300);
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_insert_image_dialog');
-            throw new Error('Insert Image Dialog should be opened!' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_insert_image_dialog');
+            throw new Error(`Insert Image Dialog should be opened! screenshot: ${screenshot}   ` + err);
         }
     }
 
