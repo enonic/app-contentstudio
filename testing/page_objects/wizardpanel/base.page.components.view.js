@@ -32,8 +32,7 @@ class BasePageComponentView extends Page {
 
     async isComponentSelected(displayName) {
         try {
-            let locator = this.container + lib.itemStrictByDisplayName(displayName) +
-                          `//ancestor::li[contains(@class,'item-view-wrapper')]`;
+            let locator = this.container + lib.itemStrictByDisplayName(displayName) + xpath.parentListElement;
             await this.waitForElementDisplayed(locator, appConst.shortTimeout);
             let cell = await this.findElement(locator);
             let attr = await cell.getAttribute('class');
