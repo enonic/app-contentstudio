@@ -128,7 +128,7 @@ module.exports = Object.freeze({
         APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
         CONTENT_TREE_SELECTOR: "//div[contains(@id,'ContentTreeSelectorDropdown')]",
         CONTENTS_TREE_LIST_UL: "//ul[contains(@id,'ContentsTreeList')]",
-        DROPDOWN_LIST_ITEM: "//li[contains(@class,'item-view-wrapper')]",
+        DROPDOWN_LIST_ITEM: "//*[contains(@class,'item-view-wrapper')]",
         DROPDOWN_DIV_ITEM: "//div[contains(@class,'item-view-wrapper')]",
         WIDGET_FILTER_DROPDOWN: `//div[contains(@id,'WidgetFilterDropdown')]`,
         FILTERABLE_LISTBOX: "//div[contains(@id,'FilterableListBoxWrapper')]",

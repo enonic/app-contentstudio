@@ -44,7 +44,7 @@ class BasePageComponentView extends Page {
     }
 
     async waitForItemSelected(displayName) {
-        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::li[contains(@class,'item-view-wrapper')]`;
+        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::div[contains(@class,'item-view-wrapper')]`;
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(locator, 'class');
             return result.includes('selected');
@@ -53,7 +53,7 @@ class BasePageComponentView extends Page {
     }
 
     async waitForItemNotSelected(displayName) {
-        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::li[contains(@class,'item-view-wrapper')]`;
+        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::div[contains(@class,'item-view-wrapper')]`;
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(locator, 'class');
             return !result.includes('selected');
