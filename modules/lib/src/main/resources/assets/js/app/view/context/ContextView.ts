@@ -326,10 +326,6 @@ export class ContextView
         return this.item;
     }
 
-    private getWidgetsInterfaceNames(): string[] {
-        return ['contentstudio.contextpanel'];
-    }
-
     updateActiveWidget(): Q.Promise<void> {
         if (ContextView.debug) {
             console.debug('ContextView.updateWidgetsForItem');
@@ -442,7 +438,7 @@ export class ContextView
     }
 
     protected fetchCustomWidgetViews(): Q.Promise<Widget[]> {
-        const getWidgetsByInterfaceRequest = new GetWidgetsByInterfaceRequest(this.getWidgetsInterfaceNames());
+        const getWidgetsByInterfaceRequest = new GetWidgetsByInterfaceRequest('contentstudio.contextpanel');
 
         return getWidgetsByInterfaceRequest.sendAndParse();
     }

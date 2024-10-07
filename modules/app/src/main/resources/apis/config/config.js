@@ -47,7 +47,11 @@ function handleGet() {
             /* Remove in CS/lib-admin-ui 5.0 */
             launcher: {
                 theme: 'light'
-            }
+            },
+            widgetApiUrl: portal.apiUrl({
+                application: 'admin',
+                api: 'widget',
+            }),
         }
     };
 }
