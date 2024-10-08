@@ -53,6 +53,29 @@
 
     .selected-options {
       grid-area: selected-options;
+
+      .selected-option {
+        &.content-not-found {
+          .names-and-icon-view {
+            .@{_COMMON_PREFIX}wrapper {
+              img.font-icon-default {
+                display: none;
+              }
+
+              div.font-icon-default {
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                .icon-alert();
+              }
+            }
+
+            .@{_COMMON_PREFIX}sub-name {
+              color: @input-red-text;
+            }
+          }
+        }
+      }
     }
 
     &.selection-limit-reached .extra-button {

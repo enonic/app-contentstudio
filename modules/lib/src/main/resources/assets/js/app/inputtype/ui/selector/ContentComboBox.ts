@@ -1,20 +1,17 @@
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {BaseSelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
 import {ContentPath} from '../../../content/ContentPath';
-import {ContentSummary, ContentSummaryBuilder} from '../../../content/ContentSummary';
+import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../event/EditContentEvent';
 import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
 import {Project} from '../../../settings/data/project/Project';
-import {ContentId} from '../../../content/ContentId';
-
 
 export class ContentSelectedOptionsView
     extends BaseSelectedOptionsView<ContentTreeSelectorItem> {
@@ -41,15 +38,6 @@ export class ContentSelectedOptionsView
     setContextContent(value: ContentSummary): this {
         this.contextContent = value;
         return this;
-    }
-}
-
-export class MissingContentSelectedOptionView
-    extends BaseSelectedOptionView<ContentTreeSelectorItem> {
-
-    protected getEmptyDisplayValue(id: string): ContentTreeSelectorItem {
-        const content = new ContentSummary(new ContentSummaryBuilder().setId(id).setContentId(new ContentId(id)));
-        return new ContentTreeSelectorItem(content);
     }
 }
 

@@ -8,7 +8,7 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentId} from '../../content/ContentId';
-import {ContentSummary} from '../../content/ContentSummary';
+import {ContentSummary, ContentSummaryBuilder} from '../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentAndStatusTreeSelectorItem} from '../../item/ContentAndStatusTreeSelectorItem';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
@@ -103,6 +103,10 @@ export class ContentSelectorDropdown
     }
 
     protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus, id: ContentId): ContentTreeSelectorItem {
+        if (!content) { // missing option
+            return new ContentTreeSelectorItem(new ContentSummary(new ContentSummaryBuilder().setId(id.toString()).setContentId(id)));
+        }
+
         if (content instanceof ContentSummaryAndCompareStatus) {
             return new ContentAndStatusTreeSelectorItem(content);
         }
