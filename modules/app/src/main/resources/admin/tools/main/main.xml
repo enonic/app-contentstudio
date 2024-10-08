@@ -17,5 +17,6 @@
     <api>com.enonic.xp.app.main:launcher</api>
     <api>com.enonic.xp.app.main:i18n</api>
     <api>admin:widget</api>
+    <api>com.enonic.app.contentstudio.plus:i18n</api>
   </apis>
 </tool>
