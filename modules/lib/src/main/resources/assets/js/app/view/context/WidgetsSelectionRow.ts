@@ -10,6 +10,7 @@ import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
+import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 
 export class WidgetsSelectionRow
     extends DivEl {
@@ -17,6 +18,8 @@ export class WidgetsSelectionRow
     private widgetSelectorDropdown: WidgetSelectorDropdown;
 
     private selectionWrapper: WidgetFilterDropdown;
+
+    private selectedViewer: WidgetViewer;
 
     constructor() {
         super('widgets-selection-row');
@@ -28,7 +31,7 @@ export class WidgetsSelectionRow
     private initElements(): void {
         this.widgetSelectorDropdown = new WidgetSelectorDropdown();
         this.widgetSelectorDropdown.addClass('widget-selector');
-
+        this.selectedViewer = new WidgetViewer();
         this.selectionWrapper =
             new WidgetFilterDropdown(this.widgetSelectorDropdown);
     }
@@ -38,6 +41,7 @@ export class WidgetsSelectionRow
             selectionChange.selected?.[0]?.setActive();
             this.selectionWrapper.cleanInput();
             this.selectionWrapper.hideDropdown();
+            this.selectedViewer.setObject(selectionChange.selected?.[0]);
         });
 
         this.selectionWrapper.onDropdownVisibilityChanged((visible: boolean) => {
@@ -68,6 +72,8 @@ export class WidgetsSelectionRow
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
+            this.selectedViewer.addClass('selected-viewer');
+            this.selectionWrapper.appendChild(this.selectedViewer);
             this.appendChild(this.selectionWrapper);
 
             return rendered;
@@ -130,12 +136,11 @@ export class WidgetViewer
 }
 
 export class WidgetFilterDropdown
-    extends FilterableListBoxWrapperWithSelectedView<WidgetView> {
+    extends FilterableListBoxWrapper<WidgetView> {
 
     constructor(listBox: ListBox<WidgetView>) {
         super(listBox, {
             className: 'widget-filter-dropdown',
-            selectedOptionsView: new WidgetSelectedOptionsView(),
             maxSelected: 1,
             filter: (item: WidgetView, searchString: string): boolean => {
                 return item.getWidgetName().toLowerCase().indexOf(searchString.toLowerCase()) > -1 ||

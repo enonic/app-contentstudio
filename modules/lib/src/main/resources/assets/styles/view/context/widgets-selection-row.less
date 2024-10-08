@@ -6,23 +6,25 @@
     grid-template-areas:
       "selected-view dropdown";
 
+    > .selected-viewer {
+      padding: 8px 0 8px 10px;
+    }
+
     .filter-and-list-container {
       grid-area: dropdown;
 
       .option-filter-input {
         border: none;
+        display: none;
+      }
+
+      .xp-admin-common-dropdown-handle {
+        width: 37px;
+        height: 37px;
       }
     }
 
-    &.selection-limit-reached {
-     .filter-and-list-container {
-        display: block;
-     }
-    }
-
     .item-view-wrapper {
-      padding: 6px 3px;
-
       .widget-viewer {
         .names-and-icon-view {
           .@{_COMMON_PREFIX}wrapper {
@@ -62,23 +64,21 @@
         }
       }
     }
-
-    .selected-options {
-      grid-area: selected-view;
-      overflow: auto;
-
-      .widget-viewer {
-        padding: 8px 0 8px 10px;
-      }
-    }
   }
 
   &.dropdown-visible {
     .selectable-listbox-wrapper {
       display: block;
 
-      .selected-options {
+      > .selected-viewer {
         display: none;
+      }
+
+      .filter-and-list-container {
+        .option-filter-input {
+          border: none;
+          display: block;
+        }
       }
     }
   }
