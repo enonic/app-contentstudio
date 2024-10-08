@@ -21,7 +21,8 @@ class BaseDetailsPanel extends Page {
     }
 
     async getSelectedOptionInWidgetSelectorDropdown() {
-        let selector = this.widgetSelectorDropdown + "//div[contains(@id,'WidgetSelectedOptionsView')]" + lib.H6_DISPLAY_NAME;
+        let selector = this.widgetSelectorDropdown + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         return await this.getText(selector);
     }
 
@@ -61,9 +62,11 @@ class BaseDetailsPanel extends Page {
         }
     }
 
+    // type Version History in Options filter input  then click on the filtered item
     async filterAndOpenVersionHistory() {
         try {
             let widgetSelectorDropdown = new WidgetSelectorDropdown();
+            await widgetSelectorDropdown.clickOnDropdownHandle();
             await widgetSelectorDropdown.selectFilteredWidgetItemAndClickOnOk(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_open_versions');
