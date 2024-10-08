@@ -5,6 +5,7 @@ const BaseComponentInspectionPanel = require('./base.component.inspection.panel'
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const LoaderComboBox = require('../../../components/loader.combobox');
+const ImageSelectorDropdown = require('../../../components/selectors/image.selector.dropdown');
 const xpath = {
     container: `//div[contains(@id,'PartInspectionPanel')]`,
 };
@@ -13,21 +14,21 @@ const xpath = {
 class CityCreationPartInspectionPanel extends BaseComponentInspectionPanel {
 
     get imageComboBoxDropdownHandle() {
-        return xpath.container + lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.DROP_DOWN_HANDLE;
+        return xpath.container + lib.DROPDOWN_SELECTOR.IMAGE_CONTENT_COMBOBOX_DIV + lib.DROPDOWN_SELECTOR.DROPDOWN_HANDLE;
     }
 
     get imageSelectorModeTogglerButton() {
-        return xpath.container + lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
+        return xpath.container + lib.DROPDOWN_SELECTOR.IMAGE_CONTENT_COMBOBOX_DIV + lib.DROPDOWN_SELECTOR.MODE_TOGGLER_BUTTON;
     }
 
     get imageSelectorOptionsFilterInput() {
-        return xpath.container + lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return xpath.container + lib.DROPDOWN_SELECTOR.IMAGE_CONTENT_COMBOBOX_DIV + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     async clickOnImageSelectorModeTogglerButton() {
         try {
-            await this.waitForElementDisplayed(this.imageSelectorModeTogglerButton, appConst.mediumTimeout);
-            await this.clickOnElement(this.imageSelectorModeTogglerButton);
+            let imageSelectorDropdown = new ImageSelectorDropdown();
+            await imageSelectorDropdown.clickOnModeTogglerButton(xpath.container);
             return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_inspect_panel_mode_toggler');
@@ -36,20 +37,10 @@ class CityCreationPartInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async getTreeModeOptionsImagesDisplayName() {
-        let options = xpath.container + lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(options, appConst.mediumTimeout);
-        return await this.getTextInDisplayedElements(options);
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        return await imageSelectorDropdown.getOptionsDisplayNameInTreeMode(xpath.container);
     }
 
-    async filterOptionsAndSelectImage(displayName) {
-        try {
-            let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(displayName, xpath.container);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_part_inspection');
-            throw new Error("Part Inspection Panel - Error during selecting an option, screenshot: " + screenshot + "  " + err);
-        }
-    }
 
     async removeSelectedContent(displayName) {
         let locator = xpath.container + lib.CONTENT_SELECTOR.selectedOptionByName(displayName) + lib.REMOVE_ICON;

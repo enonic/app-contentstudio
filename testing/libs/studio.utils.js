@@ -461,7 +461,7 @@ module.exports = {
             await browsePanel.pause(200);
             await browsePanel.clickOnRowByName(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await browsePanel.pause(400);
+            return await browsePanel.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_item');
             throw new Error("Select a item, error screenshot:" + screenshot + ' ' + err);
@@ -523,7 +523,8 @@ module.exports = {
         await this.switchToContentTabWindow(displayName);
         await contentWizardPanel.waitForOpened();
         await contentWizardPanel.waitForSpinnerNotVisible(appConst.longTimeout);
-        return await contentWizardPanel.waitForDisplayNameInputFocused();
+        await contentWizardPanel.waitForDisplayNameInputFocused();
+        await contentWizardPanel.pause(300);
     },
     async findContentAndClickCheckBox(displayName) {
         let browsePanel = new BrowsePanel();
@@ -580,7 +581,7 @@ module.exports = {
             }
             await filterPanel.typeSearchText(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await browsePanel.pause(1000);
+            return await browsePanel.pause(800);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_spinner'));
             throw new Error('Filter Panel-  error : ' + err);
@@ -623,7 +624,7 @@ module.exports = {
             await this.doSwitchToContentBrowsePanelAndSelectDefaultContext();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_cs');
-            throw new Error('Error navigate to Content Studio,  screenshot:  ' + screenshot + '  ' + err);
+            throw new Error(`Error occurred after clicking on  Content Studio link in Launcher Panel,  screenshot:${screenshot}  ` + err);
         }
     },
     async navigateToContentStudioAppMobile(userName, password) {
@@ -974,7 +975,7 @@ module.exports = {
         //await wizardPanel.waitForNotificationMessage();
         await wizardPanel.pause(2000);
         //Click on Close icon and close the wizard:
-        return await browsePanel.doClickOnCloseTabAndWaitGrid(displayName);
+        return await browsePanel.closeTabAndWaitForGrid(displayName);
     },
     async clickOnSystemOpenUserWizard() {
         let browsePanel = new UserBrowsePanel();

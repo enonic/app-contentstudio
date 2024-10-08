@@ -70,7 +70,6 @@ describe('image.selector.required.input.spec tests for validation of content wit
             // 1. Open the content with an unresolvable selected image:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_2);
             // 2. Click on the option:
-            //await imageSelectorForm.clickOnSelectedImageByIndex(0);
             await imageSelectorForm.clickOnSelectedOptionByIndex(0);
             // 3. Verify that 'Edit' button is disabled:
             await imageSelectorForm.waitForEditButtonDisabled();
@@ -170,7 +169,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

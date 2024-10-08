@@ -144,7 +144,7 @@ class SiteConfiguratorDialog extends Page {
 
     // Click on Add New button in the content selector:
     async clickOnAddNewButton() {
-        let locator = XPATH.container + lib.CONTENT_SELECTOR.DIV + lib.NEW_CONTENT_BUTTON;
+        let locator = XPATH.container + lib.CONTENT_SELECTOR.DIV + lib.BUTTONS.NEW_CONTENT_BUTTON;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
     }

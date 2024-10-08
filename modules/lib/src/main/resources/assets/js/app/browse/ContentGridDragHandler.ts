@@ -1,16 +1,19 @@
 import {OrderChildMovements} from '../resource/order/OrderChildMovements';
 import {OrderChildMovement} from '../resource/order/OrderChildMovement';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {GridDragHandler} from '@enonic/lib-admin-ui/ui/grid/GridDragHandler';
-import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
-import {ContentId} from '../content/ContentId';
+import {DragHandler} from './DragHandler';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 
-export class ContentGridDragHandler extends GridDragHandler<ContentSummaryAndCompareStatus> {
+export class ContentGridDragHandler extends DragHandler {
 
     private movements: OrderChildMovements;
 
-    constructor(treeGrid: TreeGrid<ContentSummaryAndCompareStatus>) {
-        super(treeGrid);
+    private listBox: ListBox<ContentSummaryAndCompareStatus>;
+
+    constructor(listBox: ListBox<ContentSummaryAndCompareStatus>) {
+        super(listBox);
+
+        this.listBox = listBox;
         this.movements = new OrderChildMovements();
     }
 
@@ -22,11 +25,10 @@ export class ContentGridDragHandler extends GridDragHandler<ContentSummaryAndCom
         this.movements = new OrderChildMovements();
     }
 
-    handleMovements(rowDataId: ContentId, moveBeforeRowDataId: ContentId) {
-        this.movements.addChildMovement(new OrderChildMovement(rowDataId, moveBeforeRowDataId));
-    }
+    handleMovements(from: number, to: number) {
+        const movedItem = this.listBox.getItems()[from];
+        const moveBeforeItem = this.listBox.getItems()[to > from ? to + 1 : to];
 
-    getModelId(model: ContentSummaryAndCompareStatus) {
-        return model ? model.getContentId() : null;
+        this.movements.addChildMovement(new OrderChildMovement(movedItem.getContentId(), moveBeforeItem?.getContentId()));
     }
 }

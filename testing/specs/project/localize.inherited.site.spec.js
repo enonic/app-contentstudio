@@ -78,7 +78,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await sortContentDialog.waitForDialogVisible();
             await sortContentDialog.clickOnMenuButton();
             // 3. Update the sorting order
-            await sortContentDialog.selectSortMenuItem(appConst.sortMenuItem.MANUALLY_SORTED);
+            await sortContentDialog.selectSortMenuItem(appConst.SORT_DIALOG.MENU_ITEM.MANUALLY_SORTED);
             // 4. Save and close the modal dialog:
             await sortContentDialog.clickOnSaveButton();
             // 5. Verify that site is displayed as 'inherited':

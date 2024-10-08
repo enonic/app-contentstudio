@@ -24,12 +24,14 @@ export class PageComponentsItemViewer
         return object.getComponent().getIconClass();
     }
 
-    doLayout(object: ComponentsTreeItem) {
+    doLayout(object: ComponentsTreeItem): void {
         super.doLayout(object);
 
         if (object.isInvalid()) {
             this.addClass('invalid');
             this.namesAndIconView.getFirstChild().addClass('icon-state-invalid');
         }
+
+        this.addClass(object.getType().toString());
     }
 }

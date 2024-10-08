@@ -836,4 +836,8 @@ export class PageView
 
         this.fragmentView = componentView;
     }
+
+    isRendered(): boolean {
+        return true;
+    }
 }

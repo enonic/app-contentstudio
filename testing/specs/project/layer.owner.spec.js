@@ -36,7 +36,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         async () => {
             // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
-            let userName = builder.generateRandomName("layer-owner");
+            let userName = builder.generateRandomName('layer-owner');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
@@ -118,7 +118,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             // 3. Verify that 'Localize' button appears in the browse toolbar:
             await contentBrowsePanel.waitForLocalizeButtonEnabled();
             // 4. Verify that workflow state the same as in the parent project:
-            let actualWorkflow = await contentBrowsePanel.getWorkflowState(SITE_NAME);
+            let actualWorkflow = await contentBrowsePanel.getWorkflowStateByName(SITE_NAME);
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 
@@ -177,7 +177,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             // 3. Verify that 'Localize' button appears in the browse toolbar:
             await contentBrowsePanel.waitForLocalizeButtonEnabled();
             // 4. Verify that workflow state the same as in the parent project:
-            let actualWorkflow = await contentBrowsePanel.getWorkflowState(SITE_NAME);
+            let actualWorkflow = await contentBrowsePanel.getWorkflowStateByName(SITE_NAME);
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
         });
 

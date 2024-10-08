@@ -7,7 +7,7 @@ export type TemplateOrController = PageTemplate | Descriptor;
 export abstract class TemplateOrControllerOption<DATA extends TemplateOrController>
     implements Equitable {
 
-    private data: DATA;
+    private readonly data: DATA;
 
     constructor(data?: DATA) {
         this.data = data;
@@ -19,6 +19,10 @@ export abstract class TemplateOrControllerOption<DATA extends TemplateOrControll
 
     isAuto(): boolean {
         return !this.data;
+    }
+
+    getKey(): string {
+        return this.isAuto() ? '__auto__' : this.data.getKey().toString();
     }
 
     abstract equals(o: Equitable): boolean;

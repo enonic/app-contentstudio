@@ -7,9 +7,9 @@ const studioUtils = require('../../../libs/studio.utils.js');
 
 const xpath = {
     widget: "//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'EmulatorWidgetItemView')]",
-    emulatorGrid: "//div[contains(@id,'EmulatorGrid')]",
-    resolutions: "//div[contains(@class,'slick-row')]//h5",
-    resolutionByName: resolution => `//div[contains(@class,'slick-row') and descendant::h5[text()='${resolution}']]//h5`,
+    emulatorGrid: "//ul[contains(@id,'EmulatorGrid')]",
+    resolutions: "//li[contains(@id,'EmulatorListElement')]//h5",
+    resolutionByName: resolution => `//li[contains(@id,'EmulatorListElement') and descendant::h5[text()='${resolution}']]//h5`,
 };
 
 class EmulatorWidget extends Page {
@@ -33,8 +33,8 @@ class EmulatorWidget extends Page {
             await this.clickOnElement(locator);
             return await this.pause(400);
         } catch (err) {
-            await studioUtils.saveScreenshot(appConst.generateRandomName("err_emulator"));
-            throw  new Error(`Error after clicking on the resolution: ${resolution} ` + err);
+            let screenshot = await studioUtils.saveScreenshotUniqueName('err_emulator');
+            throw new Error(`Error after clicking on the resolution: ${resolution} , screenshot:${screenshot} ` + err);
         }
     }
 
