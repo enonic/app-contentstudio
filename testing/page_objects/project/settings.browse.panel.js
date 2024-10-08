@@ -25,7 +25,7 @@ const XPATH = {
         return `${lib.TREE_GRID_CONTEXT_MENU}/li[contains(@id,'MenuItem') and contains(.,'${name}')]`;
     },
     projectItemByDisplayName:
-        displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
+        displayName => `//*[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
 
 
     projectCheckboxByName: name => {
@@ -238,7 +238,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async rightClickOnProjects() {
         try {
-            const nameXpath = XPATH.container + XPATH.projectItemByDisplayName('Projects');
+            const nameXpath = XPATH.container + XPATH.projectItemByDisplayName('Projects') + "//div[contains(@id,'FolderItemViewer')]";
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             return await this.doRightClick(nameXpath);
         } catch (err) {
@@ -249,7 +249,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async rightClickOnProjectItemByDisplayName(displayName) {
         try {
-            const nameXpath = XPATH.container + XPATH.projectItemByDisplayName(displayName);
+            const nameXpath = XPATH.container + XPATH.projectItemByDisplayName(displayName) + "//div[contains(@id,'ProjectItemViewer')]";
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             return await this.doRightClick(nameXpath);
         } catch (err) {
