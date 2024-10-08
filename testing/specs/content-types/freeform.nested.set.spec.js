@@ -31,7 +31,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
         async () => {
             let contentWizard = new ContentWizard();
             let freeFormNestedSet = new FreeFormNestedSet();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'freeform');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.FREE_FORM);
             // 1. Fill in the name input:
             await contentWizard.typeDisplayName(CONTENT_2);
             await studioUtils.saveScreenshot('freeform_not_scrolled');
@@ -41,7 +41,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             // 3. Add an occurrence block (the second level):
             await freeFormNestedSet.clickOnAddButton();
             await studioUtils.saveScreenshot('freeform_scrolled');
-            // 4. Select the required option in the first 'element type' dropdown-selector:  select 'Button' option:
+            // 4. Expand the dropdown selector in the first occurrence then select the required option ( select 'Button' option)
             await freeFormNestedSet.expandOptionsAndSelectElementType('Button', 0);
             await studioUtils.saveScreenshot('nested_sets_remains_invalid_0');
             await contentWizard.scrollPanel(-500);
@@ -51,7 +51,8 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             assert.ok(isInvalid, 'The content should be invalid');
             // 6. Scroll the wizard page and select 'Button' option in the second occurrence block:
             await contentWizard.scrollPanel(600);
-            await freeFormNestedSet.expandOptionsAndSelectElementType('Button', 0);
+            // expand the second occurrence of 'element type' dropdown and click on 'Button' option
+            await freeFormNestedSet.expandOptionsAndSelectElementType('Button', 1);
             await studioUtils.saveScreenshot('nested_sets_gets_valid_0');
             // 7. Verify that "Save" button gets enabled
             await contentWizard.waitForSaveButtonEnabled();
@@ -67,7 +68,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             let contentWizard = new ContentWizard();
             let freeFormNestedSet = new FreeFormNestedSet();
             CONTENT_1 = contentBuilder.generateRandomName('freeform');
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'freeform');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.FREE_FORM);
             await contentWizard.typeDisplayName(CONTENT_1);
             // save just the name:
             await contentWizard.waitAndClickOnSave();

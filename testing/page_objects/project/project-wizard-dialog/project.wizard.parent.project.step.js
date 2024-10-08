@@ -3,7 +3,7 @@
  */
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const ComboBox = require('../../components/loader.combobox');
+const ProjectsComboBox = require('../../components/projects/projects.combobox');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 
 const XPATH = {
@@ -16,7 +16,7 @@ const DESCRIPTION = "To set up synchronization of a content with another project
 class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
 
     get projectOptionsFilterInput() {
-        return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.container + lib.OPTION_FILTER_INPUT;
     }
 
     waitForProjectOptionsFilterInputDisplayed() {
@@ -33,27 +33,26 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         }
     }
 
-    async selectParentProject(projectDisplayName) {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(projectDisplayName, XPATH.container + XPATH.parentProjectComboboxDiv);
-        console.log("Project Wizard, parent project is selected: " + projectDisplayName);
-        return await this.pause(400);
-    }
-
+    // Type a text (description) in the filter input then click on filtered item then click on 'OK' button and apply selection
     async typeTextInOptionFilterInputAndSelectOption(text, projectDisplayName) {
-        let comboBox = new ComboBox();
+        let projectsComboBox = new ProjectsComboBox();
         await this.typeTextInInput(this.projectOptionsFilterInput, text);
-        await this.pause(300);
-        await comboBox.selectOption(projectDisplayName, XPATH.container + XPATH.parentProjectComboboxDiv);
+        await projectsComboBox.clickOnFilteredByDisplayNameItemAndClickOnApply(projectDisplayName, XPATH.container);
+        return await this.pause(400);
+    }
+
+    // Type a name (description) in the filter input then click on filtered item then click on OK button and apply selection
+    async selectParentProject(projectDisplayName) {
+        let projectsComboBox = new ProjectsComboBox();
+        await projectsComboBox.selectFilteredByDisplayNameAndClickOnApply(projectDisplayName);
         console.log("Project Wizard, parent project is selected: " + projectDisplayName);
         return await this.pause(400);
     }
 
-    async clickOnRemoveSelectedProjectIcon(displayName) {
-        let locator = XPATH.container + XPATH.projectSelectedOptionView + lib.itemByDisplayName(displayName) + '/../..' + lib.REMOVE_ICON;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
-        await this.pause(500);
+    async selectParentProjectById(projectId) {
+        let projectsComboBox = new ProjectsComboBox();
+        await projectsComboBox.selectFilteredByIdAndClickOnApply(projectId);
+        return await this.pause(400);
     }
 
     async getSelectedProjects() {
@@ -64,6 +63,48 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
             let screenshot = await this.saveScreenshotUniqueName('err_proj_parent_step');
             throw new Error("Project Wizard, parent step, screenshot: " + screenshot + "  " + err);
         }
+    }
+
+    // Types a text in Options Filter Input in Projects Combobox:
+    async typeTextInProjectsOptionsFilterInput(text) {
+        await this.typeTextInInput(this.projectOptionsFilterInput, text);
+    }
+
+    // Projects Combobox: selects an option in the dropdown - clicks on the filtered option:
+    async clickOnFilteredProjectsOption(projectDisplayName) {
+        try {
+            let projectsComboBox = new ProjectsComboBox();
+            let optionLocator = projectsComboBox.buildLocatorForOptionByDisplayName(projectDisplayName, XPATH.container);
+            await projectsComboBox.selectFilteredByDisplayNameAndClickOnApply(optionLocator);
+            return await this.pause(400);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('parent_proj_combobox');
+            throw new Error("Error occurred in Projects Combobox, during clicking on the filtered option:" + screenshot + ' ' + err);
+        }
+    }
+
+    // Clicks on OK button in the Projects Combobox:
+    async clickOnOKButtonInProjectsDropdown() {
+        try {
+            let projectsComboBox = new ProjectsComboBox();
+            return await projectsComboBox.clickOnApplySelectionButton();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('parent_proj_combobox');
+            throw new Error("Error occurred in Projects Combobox, screenshot:" + screenshot + ' ' + err);
+        }
+    }
+
+    async clickOnRemoveSelectedProjectIcon(displayName) {
+        let locator = XPATH.container + XPATH.projectSelectedOptionView + lib.itemByDisplayName(displayName) + '/../..' + lib.REMOVE_ICON;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        await this.pause(300);
+    }
+
+    async getSelectedProject() {
+        let locator = XPATH.container + XPATH.projectSelectedOptionView + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 
     async waitForLoaded() {

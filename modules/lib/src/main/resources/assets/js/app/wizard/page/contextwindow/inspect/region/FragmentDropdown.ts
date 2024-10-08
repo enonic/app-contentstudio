@@ -1,32 +1,87 @@
 import {FragmentContentSummaryLoader} from './FragmentContentSummaryLoader';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {RichDropdown} from '@enonic/lib-admin-ui/ui/selector/dropdown/RichDropdown';
 import {ContentSummaryViewer} from '../../../../../content/ContentSummaryViewer';
 import {ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
 import {ContentPath} from '../../../../../content/ContentPath';
-import {DropdownOptionFilterInput} from '@enonic/lib-admin-ui/ui/selector/dropdown/DropdownOptionFilterInput';
 import * as Q from 'q';
+import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
+import {FragmentDropdownList} from './FragmentDropdownList';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {Grid} from '@enonic/lib-admin-ui/ui/grid/Grid';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 
 export class FragmentDropdown
-    extends RichDropdown<ContentSummary> {
+    extends FilterableListBoxWrapper<ContentSummary> {
 
-    protected loader: FragmentContentSummaryLoader;
+    private loader: FragmentContentSummaryLoader;
+
+    private selectedViewer: ContentSummaryViewer;
+
+    private selectedFragment: ContentSummary;
+
+    protected listBox: FragmentDropdownList;
 
     constructor() {
-        super({
-            optionDisplayValueViewer: new ContentSummaryViewer(),
-            dataIdProperty: 'value'
+        super(new FragmentDropdownList(), {
+            maxSelected: 1,
+            className: 'common-page-dropdown',
         });
-
-        this.initLazyLoad();
     }
 
-    load(postLoad: boolean = false): void {
-        this.loader.setSearchString(this.getInputValue());
-        this.loader.load();
+    protected initElements(): void {
+        super.initElements();
+
+        this.loader = this.createLoader();
+        this.listBox.setLoader(this.loader);
+        this.selectedViewer = new ContentSummaryViewer();
+        this.selectedViewer.hide();
+    }
+
+    protected initListeners(): void {
+        super.initListeners();
+
+        this.listBox.onShown(() => {
+            this.loader.load().catch(DefaultErrorHandler.handle);
+        });
+
+        this.loader.onLoadedData((event: LoadedDataEvent<ContentSummary>) => {
+            if (event.isPostLoad()) {
+                this.listBox.addItems(event.getData().slice(this.listBox.getItemCount()));
+            } else {
+                this.listBox.setItems(event.getData());
+            }
+
+            // if selected fragment is loaded into dropdown, select it
+            if (this.selectedFragment) {
+                this.toggleItemWrapperSelected(this.selectedFragment.getId(), true);
+            }
+
+            return null;
+        });
+
+        this.onSelectionChanged((selection: SelectionChange<ContentSummary>) => {
+            if (selection.selected?.length > 0) {
+                this.selectedViewer.setObject(selection.selected[0]);
+                this.selectedViewer.show();
+                this.optionFilterInput.hide();
+            } else {
+                this.selectedViewer.hide();
+                this.optionFilterInput.show();
+            }
+        });
+
+        let searchValue = '';
+
+        const debouncedSearch = AppHelper.debounce(() => {
+            this.loader.search(searchValue);
+        }, 300);
+
+        this.optionFilterInput.onValueChanged((event: ValueChangedEvent) => {
+            searchValue = event.getNewValue();
+            debouncedSearch();
+        });
     }
 
     setSitePath(sitePath: string): this {
@@ -45,91 +100,53 @@ export class FragmentDropdown
         return loader;
     }
 
-    protected createOption(fragment: ContentSummary): Option<ContentSummary> {
-        let indices: string[] = [];
-        indices.push(fragment.getDisplayName());
-        indices.push(fragment.getName().toString());
-
-        return Option.create<ContentSummary>()
-            .setValue(fragment.getId().toString())
-            .setDisplayValue(fragment)
-            .setIndices(indices)
-            .build();
-    }
-
-    addFragmentOption(fragment: ContentSummary) {
-        if (fragment) {
-            this.addOption(this.createOption(fragment));
-        }
-    }
-
-    setSelection(fragment: ContentSummary) {
-        this.resetActiveSelection();
-        this.resetSelected();
+    setSelectedFragment(fragment: ContentSummary) {
+        this.selectedFragment = fragment;
+        this.hideDropdown();
+        this.deselectAll(true);
 
         if (fragment) {
-            let option = this.getOptionByValue(fragment.getId().toString());
-            if (option) {
-                this.selectOption(option, true);
-            }
+            this.select(fragment);
         } else {
-            this.reset();
-            this.hideDropdown();
+            this.selectedViewer.hide();
+            this.optionFilterInput.show();
         }
     }
 
-    getSelection(contentId: ContentId): ContentSummary {
-        let id = contentId.toString();
-        if (id) {
-            let option = this.getOptionByValue(id);
-            if (option) {
-                return option.getDisplayValue();
-            }
-        }
-        return null;
+    updateSelectedFragment(fragment: ContentSummary) {
+        this.selectedFragment = fragment;
     }
 
-    setEmptyDropdownText(label: string): void {
-        if (!this.loader.isPartiallyLoaded()) {
-            super.setEmptyDropdownText(label);
-        }
+    getSelectedFragment(): ContentSummary {
+        return this.selectedFragment;
     }
 
-    // input is private in lib-admin Dropdown, avoiding modifying lib-admin
-    private getInputValue(): string {
-        const input: DropdownOptionFilterInput = this.getChildren().find((child) => child instanceof DropdownOptionFilterInput);
-        return input?.getValue() || '';
+    getLoadedFragmentById(contentId: ContentId): ContentSummary {
+        return contentId ? this.getItemById(contentId.toString()) : null;
     }
 
-    private initLazyLoad(): void {
-        const grid = this.getGrid();
-        const gridViewport = grid.getViewportEl();
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.selectedViewer.addClass('selected-option');
+            this.filterContainer.appendChild(this.selectedViewer);
 
-        const debouncedScrollHandler = AppHelper.debounce(() => {
-            this.handleLazyLoadOnDemand(gridViewport);
-        }, 100);
-
-        gridViewport.addEventListener('scroll', debouncedScrollHandler);
-
-        this.loader.onLoadedData(() => {
-            this.handleLazyLoadOnDemand(gridViewport);
-            return Q.resolve();
+            return rendered;
         });
     }
 
-    // grid is private in lib-admin Dropdown, avoiding modifying lib-admin
-    private getGrid(): Grid<ContentSummary> {
-        return this.getChildren().find((child) => child instanceof Grid) as Grid<ContentSummary>;
+    protected doShowDropdown(): void {
+        super.doShowDropdown();
+
+        this.selectedViewer.hide();
+        this.optionFilterInput.show();
     }
 
-    private handleLazyLoadOnDemand(gridViewport: HTMLElement): void {
-        if (this.isScrolledToBottom(gridViewport)) {
-            this.loader.postLoad();
+    protected doHideDropdown(): void {
+        super.doHideDropdown();
+
+        if (this.selectedFragment) {
+            this.selectedViewer.show();
+            this.optionFilterInput.hide();
         }
-    }
-
-    private isScrolledToBottom(containerEl: HTMLElement): boolean {
-        // distance to the end of scroll is less than 50px
-        return containerEl.scrollHeight - containerEl.scrollTop - containerEl.clientHeight <= 50;
     }
 }

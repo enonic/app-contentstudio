@@ -100,7 +100,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             await contentBrowsePanel.waitForContentDisplayed(CHILD_FOLDER.displayName);
         });
 
-    it(`GIVEN existing site is selected AND Duplicate dialog is opened WHEN 'exclude child' icon has been pressed and 'Duplicate' clicked THEN copy of the site should be displayed without expander icon`,
+    it(`GIVEN existing site is selected AND Duplicate dialog is opened WHEN 'exclude child' icon has been clicked THEN copy of the site should be displayed without expand-toggle button`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
@@ -115,8 +115,8 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             // 3. Verify that site does not have expander icon:
             await studioUtils.findAndSelectItem(SITE.displayName + '-copy-2');
             await studioUtils.saveScreenshot("site_duplicated_no_child");
-            let isDisplayed = await contentBrowsePanel.isExpanderIconPresent(SITE.displayName + "-copy-2");
-            assert.ok(isDisplayed === false, 'Site should be displayed without a expander, because the site has no children');
+            // 4. Verify - 'Site should be displayed without expand-toggle, because the site has no child items'
+            await contentBrowsePanel.waitForExpandToggleNotDisplayed(SITE.displayName + "-copy-2");
         });
 
     it("GIVEN 'Confirm Value' dialog is opened WHEN required number to delete has been typed THEN 'Confirm' button gets enabled",

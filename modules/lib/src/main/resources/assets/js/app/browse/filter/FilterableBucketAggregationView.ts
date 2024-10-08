@@ -3,15 +3,15 @@ import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregat
 import {BucketAggregationView} from '@enonic/lib-admin-ui/aggregation/BucketAggregationView';
 import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
 import {BucketView} from '@enonic/lib-admin-ui/aggregation/BucketView';
-import {SelectableListBoxDropdown} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxDropdown';
 import {BucketListBox} from '@enonic/lib-admin-ui/aggregation/BucketListBox';
 import {BucketViewSelectionChangedEvent} from '@enonic/lib-admin-ui/aggregation/BucketViewSelectionChangedEvent';
 import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
+import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 
 export class FilterableBucketAggregationView
     extends BucketAggregationView {
 
-    private listBoxDropdown: SelectableListBoxDropdown<Bucket>;
+    private listBoxDropdown: FilterableListBoxWrapper<Bucket>;
 
     private bucketListBox: BucketListBox = new BucketListBox();
 
@@ -28,9 +28,9 @@ export class FilterableBucketAggregationView
         super.initElements();
 
         this.bucketListBox = new BucketListBox();
-        this.listBoxDropdown = new SelectableListBoxDropdown<Bucket>(this.bucketListBox, {
+        this.listBoxDropdown = new FilterableListBoxWrapper<Bucket>(this.bucketListBox, {
             filter: this.filterBuckets,
-            multiple: true
+            maxSelected: 0
         });
     }
 
@@ -71,7 +71,7 @@ export class FilterableBucketAggregationView
     }
 
     protected addBucket(bucket: Bucket, isSelected?: boolean) {
-        this.bucketListBox.addItem(bucket);
+        this.bucketListBox.addItems(bucket);
 
         if (isSelected || this.isBucketToBeAlwaysOnTop(bucket)) {
             super.addBucket(bucket, isSelected);
@@ -84,6 +84,7 @@ export class FilterableBucketAggregationView
 
     removeAll(): void {
         super.removeAll();
+        this.listBoxDropdown.deselectAll(true);
         this.bucketListBox.clearItems();
     }
 

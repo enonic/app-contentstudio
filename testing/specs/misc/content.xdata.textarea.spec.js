@@ -127,14 +127,13 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             assert.ok(result.includes(HTML_AREA_X_DATA_NAME), 'Html Area x-data should be present');
         });
 
-    ///
     it(`GIVEN content with optional x-data(textarea) is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area gets visible`,
         async () => {
             let contentWizard = new ContentWizard();
             let xDataTextArea = new XDataTextArea();
             // 1. Open the wizard and type a name:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_0');
-            await contentWizard.typeDisplayName('aaaa1');
+            await contentWizard.typeDisplayName(appConst.generateRandomName('aaa'));
             // 2. Do enable the x-data:
             await contentWizard.clickOnXdataTogglerByName('Text Area x-data');
             // 3. Save the content:

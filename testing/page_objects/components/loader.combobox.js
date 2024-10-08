@@ -16,7 +16,7 @@ class LoaderComboBox extends Page {
     }
 
     get modeTogglerButton() {
-        return XPATH.container + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
+        return XPATH.container + lib.DROPDOWN_SELECTOR.MODE_TOGGLER_BUTTON;
     }
 
     get applyButton() {

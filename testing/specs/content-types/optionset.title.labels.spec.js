@@ -63,7 +63,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             let contentWizard = new ContentWizard();
             let optionSetForm2 = new OptionSetForm2View();
             // 1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset2');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET2);
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('optionset'));
             // 2. Select 'Text block' option
             await optionSetForm2.selectOption('Text block');
@@ -86,7 +86,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             let contentWizard = new ContentWizard();
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
             // 1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
             await contentWizard.typeDisplayName(OPTION_SET_NAME1);
             // 2. Verify tah 'Option 2' is selected by default:
             let isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 2');
@@ -160,8 +160,8 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
     it(`GIVEN wizard for new option set is opened WHEN text in name input is updated THEN title of the single select should be updated dynamically`,
         async () => {
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
-            // 1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
+            // 1. Open the new wizard: optionset
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
             // 2. Select 'Option 1' :
             await singleSelectionOptionSet.selectOption('Option 1');
             // 3. Verify that the title is equal to text in 'Name' input
@@ -185,7 +185,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             // 1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
             await optionSetForm.selectOptionInSingleSelection('Option 1');
             await singleSelectionOptionSet.typeTextInOptionNameInput('test 1');
             await singleSelectionOptionSet.collapseForm();

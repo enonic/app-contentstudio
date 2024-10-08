@@ -40,7 +40,7 @@ export class PageInspectionPanel
 
     private initListeners() {
         this.pageTemplateAndControllerForm.onShown(() => this.saveAsTemplateAction.updateVisibility());
-        this.pageTemplateAndControllerSelector.onOptionSelected(() => {
+        this.pageTemplateAndControllerSelector.onSelectionChanged(() => {
             this.saveAsTemplateAction.updateVisibility();
         });
     }

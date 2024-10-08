@@ -1,6 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
-import {ProjectsDropdownBuilder, ProjectsSelector} from './ProjectsSelector';
+import {ParentProjectFormInputWrapper, ProjectsSelector} from './ProjectsSelector';
 import {Project} from '../../../../data/project/Project';
 import {ProjectConfigContext} from '../../../../data/project/ProjectConfigContext';
 
@@ -12,29 +12,27 @@ export class ParentProjectFormItem
     constructor() {
         const isMultiInheritance: boolean = ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance();
         const maxParents: number = isMultiInheritance ? 0 : 1;
-        const inputBuilder = new ProjectsDropdownBuilder().setMaximumOccurrences(maxParents) as ProjectsDropdownBuilder;
+        const projectSelector = new ProjectsSelector(maxParents);
+        projectSelector.addClass('parent-selector');
 
-        const projectSelector = new ProjectsSelector(inputBuilder);
-
-        const projectFormItemBuilder = new ProjectFormItemBuilder(projectSelector)
+        super(new ProjectFormItemBuilder(new ParentProjectFormInputWrapper(projectSelector))
             .setHelpText(i18n('settings.projects.parent.helptext'))
-            .setLabel(i18n(isMultiInheritance ? 'settings.field.project.parents' : 'settings.field.project.parent'));
+            .setLabel(i18n(isMultiInheritance ? 'settings.field.project.parents' : 'settings.field.project.parent')) as ProjectFormItemBuilder);
 
-        super(projectFormItemBuilder as ProjectFormItemBuilder);
 
-        this.projectsSelector = this.getInput() as ProjectsSelector;
+        this.projectsSelector = projectSelector;
     }
 
     hasData(): boolean {
-        return !!this.projectsSelector.getValue();
+        return this.projectsSelector.getSelectedItems().length > 0;
     }
 
     getSelectedProjects(): Project[] {
-        return this.projectsSelector.getSelectedDisplayValues();
+        return this.projectsSelector.getSelectedProjects();
     }
 
     onProjectValueChanged(listener: () => void): void {
-        this.projectsSelector.onValueChanged(listener);
+        this.projectsSelector.onSelectionChanged(listener);
     }
 
     setSelectedProjects(projects: Project[]): void {
@@ -43,7 +41,13 @@ export class ParentProjectFormItem
         }
     }
 
-    getProjectsSelector(): ProjectsSelector {
-        return this.projectsSelector;
+    getProjectsSelector(): ParentProjectFormInputWrapper {
+        return this.getInput() as ParentProjectFormInputWrapper;
+    }
+
+    setReadOnly(): void {
+        this.projectsSelector.addClass('readonly');
+        this.projectsSelector.setEnabled(false);
+        this.projectsSelector.setDraggable(false);
     }
 }

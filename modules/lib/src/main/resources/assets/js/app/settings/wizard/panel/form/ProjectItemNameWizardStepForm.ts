@@ -10,6 +10,7 @@ import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {SettingsType} from '../../../data/type/SettingsType';
 import {ParentProjectFormItem} from './element/ParentProjectFormItem';
 import {ProjectNameFormItem} from './element/ProjectNameFormItem';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export class ProjectItemNameWizardStepForm
     extends ProjectWizardStepForm {
@@ -53,25 +54,30 @@ export class ProjectItemNameWizardStepForm
     }
 
     getParentProjectsNames(): string[] {
-        return this.parentProjectsFormItem ? this.getProjectsComboBox().getSelectedValues() : undefined;
+        return this.getParentProjects()?.map((project: Project) => project.getName());
     }
 
-    getParentProjects(): Project[] {
-        return this.parentProjectsFormItem ? this.getProjectsComboBox().getSelectedDisplayValues() : undefined;
+    getParentProjects(): Project[] | undefined {
+        return this.parentProjectsFormItem ? this.getProjectsComboBox().getSelector().getSelectedItems() : undefined;
     }
 
     setParentProjects(projects: Project[]) {
         super.setParentProjects(projects);
 
         this.appendParentProjectDropdown();
-        this.getProjectsComboBox().updateAndSelectProjects(projects);
+        this.getProjectsComboBox().getSelector().updateAndSelectProjects(projects);
     }
 
-    onParentProjectChanged(callback: (projects: Project[]) => void) {
-        const handler = () => callback(this.getProjectsComboBox().getSelectedDisplayValues());
+    onParentProjectChanged(callback: (project: Project) => void) {
+        this.getProjectsComboBox().getSelector().onSelectionChanged((selectionChange: SelectionChange<Project>) => {
+            if (selectionChange.selected?.length > 0) {
+                callback(selectionChange.selected[0]);
+            }
 
-        this.getProjectsComboBox().onOptionSelected(handler);
-        this.getProjectsComboBox().onOptionDeselected(handler);
+            if (selectionChange.deselected?.length > 0) {
+                callback(null);
+            }
+        });
     }
 
     doRender(): Q.Promise<boolean> {
@@ -131,6 +137,7 @@ export class ProjectItemNameWizardStepForm
         }
 
         this.parentProjectsFormItem = new ParentProjectFormItem();
+        this.parentProjectsFormItem.setReadOnly();
 
         this.addFormItem(this.parentProjectsFormItem);
     }
@@ -145,7 +152,7 @@ export class ProjectItemNameWizardStepForm
     }
 
     private isParentProjectsSet(): boolean {
-        return !this.parentProjectsFormItem || this.getProjectsComboBox().getSelectedValues()?.length > 0;
+        return !this.parentProjectsFormItem || this.getProjectsComboBox().getSelector().getSelectedItems()?.length > 0;
     }
 
     private getProjectsComboBox() {

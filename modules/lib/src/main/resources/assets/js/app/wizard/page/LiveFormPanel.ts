@@ -12,7 +12,6 @@ import {DefaultModels} from './DefaultModels';
 import {LiveEditPageProxy} from './LiveEditPageProxy';
 import {TextInspectionPanel} from './contextwindow/inspect/region/TextInspectionPanel';
 import {RegionInspectionPanel} from './contextwindow/inspect/region/RegionInspectionPanel';
-import {ImageInspectionPanel} from './contextwindow/inspect/region/ImageInspectionPanel';
 import {LayoutInspectionPanel} from './contextwindow/inspect/region/LayoutInspectionPanel';
 import {FragmentInspectionPanel} from './contextwindow/inspect/region/FragmentInspectionPanel';
 import {PartInspectionPanel} from './contextwindow/inspect/region/PartInspectionPanel';
@@ -85,7 +84,6 @@ import {PageHelper} from '../../util/PageHelper';
 import {ContextPanelState} from '../../view/context/ContextPanelState';
 import {PageItemType} from '../../page/region/PageItemType';
 import {DescriptorBasedComponentInspectionPanel} from './contextwindow/inspect/region/DescriptorBasedComponentInspectionPanel';
-import {ImageComponentType} from '../../page/region/ImageComponentType';
 import {TextComponentType} from '../../page/region/TextComponentType';
 import {PartComponentType} from '../../page/region/PartComponentType';
 import {LayoutComponentType} from '../../page/region/LayoutComponentType';
@@ -412,8 +410,6 @@ export class LiveFormPanel
                 this.liveEditPageProxy?.setLocked(true);
                 this.lockPageAfterProxyLoad = false;
             }
-
-            (this.availableInspectPanels.get(ImageComponentType.get()) as ImageInspectionPanel)?.refresh();
         });
     }
 
@@ -484,7 +480,6 @@ export class LiveFormPanel
         const layoutInspectionPanel = new LayoutInspectionPanel();
         this.availableInspectPanels.set(LayoutComponentType.get(), layoutInspectionPanel);
         this.availableInspectPanels.set(PartComponentType.get(), new PartInspectionPanel());
-        this.availableInspectPanels.set(ImageComponentType.get(), new ImageInspectionPanel());
         this.availableInspectPanels.set(FragmentComponentType.get(), new FragmentInspectionPanel());
         this.availableInspectPanels.set(TextComponentType.get(), new TextInspectionPanel());
         this.availableInspectPanels.set('region', new RegionInspectionPanel());
@@ -497,7 +492,6 @@ export class LiveFormPanel
         this.availableInspectPanels.set('page', pageInspectionPanel);
         this.availableInspectPanels.set(LayoutComponentType.get(), new LayoutInspectionPanel());
         this.availableInspectPanels.set(PartComponentType.get(), new PartInspectionPanel());
-        this.availableInspectPanels.set(ImageComponentType.get(), new ImageInspectionPanel());
         this.availableInspectPanels.set(FragmentComponentType.get(), new FragmentInspectionPanel());
         this.availableInspectPanels.set(TextComponentType.get(), new TextInspectionPanel());
         this.availableInspectPanels.set('region', new RegionInspectionPanel());

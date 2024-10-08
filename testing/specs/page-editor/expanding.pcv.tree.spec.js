@@ -88,7 +88,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             await liveFormPanel.selectLayoutByDisplayName(LAYOUT_3_COL);
             await contentWizard.waitForNotificationMessage();
-            // 4. Insert text component in the left layout's region
+            // 4. Insert text component in the left layout's region (Verify that layout item is expanded in PCV)
             await pageComponentView.openMenu('left');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.typeTextInCkeEditor(TEXT_LEFT_REGION);
@@ -112,7 +112,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await liveFormPanel.doClickOnTextComponent(TEXT_LEFT_REGION);
             await contentWizard.switchToMainFrame();
             await studioUtils.saveScreenshot('left_region_selected_1');
-            // 6. Verify that the layout item is gets expanded in PCV:
+            // 4. Verify that the layout item is gets expanded in PCV:
             let isSelected = await pageComponentView.isComponentSelected(TEXT_LEFT_REGION);
             assert.ok(isSelected, 'The text in left region should be selected in PCV');
             await pageComponentView.waitForItemDisplayed('left');
@@ -135,8 +135,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await pageComponentView.openMenu(LAYOUT_3_COL);
             await pageComponentView.selectMenuItem(['Remove']);
             await studioUtils.saveScreenshot('layout_removed')
-            // 6. Verify that the layout item is gets expanded in PCV:
-            await pageComponentView.getPageComponentsDisplayName();
+            // 4. Verify that the layout item is gets expanded in PCV:
             let result = await pageComponentView.getPageComponentsDisplayName();
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
             assert.ok(result.includes('Main'), 'main item should be displayed in the modal dialog');

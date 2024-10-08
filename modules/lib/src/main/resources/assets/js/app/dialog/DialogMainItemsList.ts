@@ -42,7 +42,7 @@ export class DialogMainItemsList
 
         statusItem.setIsRemovableFn(() => this.isItemRemovable(statusItem));
         statusItem.setRemoveHandlerFn(() => {
-            this.removeItem(item);
+            this.removeItems(item);
             this.notifyItemRemoveClicked(item);
         });
 

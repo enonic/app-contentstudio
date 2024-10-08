@@ -1,11 +1,14 @@
 .media-selector {
-  &.dropzone-visible {
-    .combobox-wrapper {
-      .content-combo-box {
-        display: none;
-      }
-    }
+  .media-uploader-el {
+    grid-area: extra-button;
 
+    button {
+      width: 100%;
+      border-left: none;
+    }
+  }
+
+  &.dropzone-visible {
     .media-uploader-el {
       width: 100%;
 

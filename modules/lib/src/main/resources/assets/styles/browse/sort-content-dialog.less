@@ -25,57 +25,12 @@
     }
   }
 
-  .slick-viewport {
-    position: relative;
-  }
-
-  .slick-pane-top {
-    height: auto !important;
-  }
-
-  .drag-icon {
-    cursor: move;
-    min-width: 30px;
-    padding-left: 10px;
-  }
-
-  .slick-reorder-proxy {
-    opacity: 0;
-  }
-
-  .slick-reorder-guide {
-    display: none;
-  }
-
-  .slick-row {
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    cursor: move;
-
-    .slick-cell,
-    .slick-cell * {
-      cursor: move;
-    }
-
-    .modified {
-      text-align: right;
-    }
-  }
 
   h6 {
     font-size: 12.5px;
     margin-top: 15px;
     width: 100%;
     .ellipsis();
-  }
-
-  .grid-canvas {
-    position: static;
-    min-height: 45px;
-
-    .selected {
-      z-index: 2;
-    }
   }
 
   .no-content {
@@ -139,6 +94,15 @@
         &.inherited {
           opacity: 0.5;
           pointer-events: none;
+        }
+
+        li {
+          height: 44px;
+          cursor: move;
+
+          * {
+            cursor: move;
+          }
         }
       }
     }

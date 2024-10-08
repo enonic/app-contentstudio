@@ -64,6 +64,7 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             // 5. Select 'Project root' option, verify  Move button
             await studioUtils.saveScreenshot('move_dlg_project_root');
             await moveContentDialog.clickOnOptionInDropdown('Project root');
+            await moveContentDialog.clickOnApplySelectionButton();
             await moveContentDialog.waitForMoveButtonEnabled();
         });
 

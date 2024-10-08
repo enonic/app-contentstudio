@@ -2,7 +2,6 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
@@ -11,7 +10,7 @@ import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
-import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import {PrincipalComboBox, PrincipalComboBoxWrapper} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -26,7 +25,7 @@ import {IssueType} from '../issue/IssueType';
 import {PublishRequest} from '../issue/PublishRequest';
 import {PublishRequestItem} from '../issue/PublishRequestItem';
 import {CreateIssueRequest} from '../issue/resource/CreateIssueRequest';
-import {PrincipalLoader} from '../security/PrincipalLoader';
+import {CSPrincipalCombobox} from '../security/CSPrincipalCombobox';
 
 enum Step {
     ITEMS = 'items-step',
@@ -130,7 +129,7 @@ export class RequestContentPublishDialog
             this.nextAction.setEnabled(original);
         });
 
-        (this.assigneesFormItem.getInput() as PrincipalComboBox).onValueChanged(() => this.handleDataChanged());
+        (this.assigneesFormItem.getInput() as PrincipalComboBoxWrapper).getComboBox().onSelectionChanged(() => this.handleDataChanged());
         (this.detailsFormItem.getInput() as TextInput).onValueChanged(() => this.handleDataChanged());
     }
 
@@ -170,12 +169,14 @@ export class RequestContentPublishDialog
     }
 
     private createAssigneesFormItem(): FormItem {
-        const principalLoader = new PrincipalLoader()
-            .setAllowedTypes([PrincipalType.USER])
-            .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
-        const assigneesCombobox: PrincipalComboBox = PrincipalComboBox.create().setLoader(principalLoader).build() as PrincipalComboBox;
+        const assigneesCombobox: PrincipalComboBox = new CSPrincipalCombobox({
+            allowedTypes: [PrincipalType.USER],
+            skipPrincipals: [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()],
+        });
 
-        return new FormItemBuilder(assigneesCombobox).setLabel(i18n('dialog.requestPublish.assignees')).build();
+        return new FormItemBuilder(new PrincipalComboBoxWrapper(assigneesCombobox))
+            .setLabel(i18n('dialog.requestPublish.assignees'))
+            .build();
     }
 
     private goToStep(step: Step): void {
@@ -209,7 +210,7 @@ export class RequestContentPublishDialog
         this.publishProcessor.reloadPublishDependencies({resetDependantItems: true});
 
         (this.detailsFormItem.getInput() as TextInput).setValue('');
-        (this.assigneesFormItem.getInput() as PrincipalComboBox).clearCombobox();
+        (this.assigneesFormItem.getInput() as PrincipalComboBoxWrapper).getComboBox().setSelectedItems([]);
         this.detailsForm.removeClass(FormView.VALIDATION_CLASS);
 
         this.goToStep(Step.ITEMS);
@@ -251,7 +252,10 @@ export class RequestContentPublishDialog
     }
 
     private getApprovers(): PrincipalKey[] {
-        return (this.assigneesFormItem.getInput() as PrincipalComboBox).getSelectedDisplayValues().map((p: Principal) => p.getKey());
+        return (this.assigneesFormItem.getInput() as PrincipalComboBoxWrapper)
+            .getComboBox()
+            .getSelectedOptions()
+            .map((option) => option.getOption().getDisplayValue().getKey());
     }
 
     private createPublishRequest(): PublishRequest {

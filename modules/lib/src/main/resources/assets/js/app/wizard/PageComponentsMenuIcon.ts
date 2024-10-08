@@ -10,8 +10,4 @@ export class PageComponentsMenuIcon
     constructor() {
         super(`menu-icon icon-menu2 expand ${PageComponentsMenuIcon.ICON_CLASS}`);
     }
-
-    static isMenuIcon(elem: ElementHelper): boolean {
-        return elem.hasClass(PageComponentsMenuIcon.ICON_CLASS);
-    }
 }

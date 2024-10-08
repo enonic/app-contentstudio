@@ -175,9 +175,9 @@ describe('Browse panel, properties widget, language spec', function () {
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(TEST_FOLDER.displayName);
             let actualDisplayName = await widgetItemView.getContentName();
             assert.equal(actualDisplayName, TEST_FOLDER.displayName, 'Expected displayName should be in the widget');
-            // 2. Click on thr checkbox and unselect the row :
+            // 2. Click on the checkbox and unselect the row :
             await studioUtils.saveScreenshot('details_panel_cleared_2');
-            await contentBrowsePanel.clickOnCheckbox(TEST_FOLDER.displayName);
+            await contentBrowsePanel.clickOnCheckboxByName(TEST_FOLDER.displayName);
             // 3. Verify that Details Panel is cleared:
             await widgetItemView.waitForNotDisplayed();
         });

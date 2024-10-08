@@ -7,6 +7,7 @@ import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelect
 import {ContentType} from '../../inputtype/schema/ContentType';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PageEventsManager} from '../PageEventsManager';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export class LiveEditPagePlaceholder
     extends DivEl {
@@ -68,15 +69,21 @@ export class LiveEditPagePlaceholder
         controllerDropdown.setEnabled(this.enabled);
         controllerDropdown.addClass('page-placeholder-dropdown');
 
-        controllerDropdown.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
-            PageEventsManager.get().notifyPageControllerSetRequested(event.getOption().getDisplayValue().getKey());
+        controllerDropdown.onSelectionChanged((selectionChange: SelectionChange<Descriptor>) => {
+            if (selectionChange.selected?.length > 0) {
+                PageEventsManager.get().notifyPageControllerSetRequested(selectionChange.selected[0].getKey());
+            }
         });
 
         return controllerDropdown;
     }
 
+    hasSelectedController(): boolean {
+        return !!this.controllerDropdown?.getSelectedDescriptor();
+    }
+
     deselectOptions(): void {
-        this.controllerDropdown?.deselectOptions();
+        this.controllerDropdown?.reset();
     }
 
     setErrorTexts(message: string, description: string): void {
@@ -92,7 +99,7 @@ export class LiveEditPagePlaceholder
         this.initPagePlaceholderInfoBlock();
         this.removeClass('icon-insert-template');
         this.controllerDropdown?.hide();
-        this.controllerDropdown?.deselectOptions(true);
+        this.controllerDropdown?.reset();
         this.setErrorTexts(i18n('field.preview.failed'), i18n('field.preview.failed.description'));
         this.addClass('page-not-renderable');
     }

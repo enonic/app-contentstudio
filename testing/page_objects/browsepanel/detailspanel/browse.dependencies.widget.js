@@ -28,12 +28,17 @@ class BrowseDependenciesWidget extends BaseDependenciesWidget {
         return this.isElementDisplayed(this.dependenciesWidget);
     }
 
-    waitForWidgetLoaded() {
-        return this.waitForElementDisplayed(this.dependenciesWidget, appConst.shortTimeout).catch(err => {
-            throw new Error('Content Wizard: Dependencies Widget was not loaded in ' + appConst.shortTimeout + ' ' + err);
-        });
+    async waitForWidgetLoaded() {
+        try {
+            await this.waitForElementDisplayed(this.dependenciesWidget, appConst.shortTimeout);
+            await this.pause(400);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_widget_load');
+            throw new Error(`Content Wizard: Dependencies Widget was not screenshot:${screenshot} ` + err);
+        }
     }
 }
+
 module.exports = BrowseDependenciesWidget;
 
 

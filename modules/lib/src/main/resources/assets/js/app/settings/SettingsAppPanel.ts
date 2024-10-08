@@ -21,6 +21,8 @@ import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
 import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {ContentAppBar} from '../bar/ContentAppBar';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ProjectsUtil} from './resource/ProjectsUtil';
+import {Projects} from './resource/Projects';
 
 export class SettingsAppPanel
     extends NavigatedAppPanel {
@@ -81,7 +83,7 @@ export class SettingsAppPanel
                 type: projectItem.getType()
             });
 
-            wizard.setHasChildrenLayers(this.browsePanel.hasChildren(projectItem.getId()));
+            wizard.setHasChildrenLayers(ProjectsUtil.hasChildren(projectItem.getId()));
 
             if (projectItem.getData()?.hasParents()) {
                 const parentProjects = projectItem.getData().getParents().map(id => {
@@ -142,6 +144,8 @@ export class SettingsAppPanel
     }
 
     private addNewProject(project: Project) {
+        Projects.get().setProjects([...Projects.get().getProjects().filter(p => p.getName() !== project.getName()), project]);
+
         const item: ProjectViewItem = ProjectViewItem.create()
             .setData(project)
             .build();
@@ -155,6 +159,8 @@ export class SettingsAppPanel
     }
 
     private updateExistingProject(project: Project) {
+        Projects.get().setProjects([...Projects.get().getProjects().filter(p => p.getName() !== project.getName()), project]);
+
         const item: ProjectViewItem = ProjectViewItem.create()
             .setData(project)
             .build();
@@ -200,14 +206,15 @@ export class SettingsAppPanel
         tabMenuItem.setLabel(label);
     }
 
-    private handleItemDeleted(itemId: string) {
+    private handleItemDeleted(itemId: string): void {
+        Projects.get().setProjects(Projects.get().getProjects().filter((project: Project) => project.getName() !== itemId));
         this.deletedIds.push(itemId);
         this.browsePanel.deleteSettingsItem(itemId);
 
         this.getProjectWizards().filter((p: ProjectWizardPanel) => p.isItemPersisted()).forEach((panel: ProjectWizardPanel) => {
             if (panel.hasPersistedItemWithId(itemId)) {
                 panel.close();
-            } else if (!this.browsePanel.hasChildren(panel.getPersistedItem().getId())) {
+            } else if (!ProjectsUtil.hasChildren(panel.getPersistedItem().getId())) {
                 panel.setHasChildrenLayers(false);
             }
         });

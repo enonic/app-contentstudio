@@ -4,6 +4,7 @@
 const BaseOptionSetFormView = require('./base.option.set.form.view');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
+const FilterableListBox = require('../../components/selectors/filterable.list.box');
 
 const xpath = {
     formOptionSet: "//div[contains(@id,'FormOptionSetView') and descendant::h5[text()='Single selection']]",
@@ -29,13 +30,11 @@ class OptionSetForm2View extends BaseOptionSetFormView {
     }
 
     //Options - Text bloc or Images
-    async selectOption(option) {
-        let dropDownHandlerLocator = this.selectionDropDownHandle;
-        await this.waitForElementDisplayed(dropDownHandlerLocator, appConst.mediumTimeout);
-        await this.clickOnElement(dropDownHandlerLocator);
-        let optionLocator = xpath.formOptionSet + lib.itemByDisplayName(option);
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        return await this.clickOnElement(optionLocator);
+    async selectOption(optionDisplayName) {
+        let filterableListBox = new FilterableListBox();
+        await filterableListBox.clickOnDropdownHandle(this.formOptionSet);
+        await filterableListBox.clickOnOptionByDisplayName(optionDisplayName);
+        await filterableListBox.clickOnApplySelectionButton(this.formOptionSet);
     }
 
     async clickOnRadioButton(label) {

@@ -10,7 +10,7 @@ const appConst = require('../../libs/app_const');
 
 describe('parent.project.dialog.step.spec - ui-tests for Parent Project step in New Project Wizard Dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const DESCRIPTION = "1 of 7 - To set up synchronization of a content with another project, select it here (optional)";
@@ -33,7 +33,6 @@ describe('parent.project.dialog.step.spec - ui-tests for Parent Project step in 
             //5. Verify that Project options filter input is displayed:
             await parentProjectStep.waitForProjectOptionsFilterInputDisplayed();
         });
-
 
     it(`GIVEN Project Wizard modal dialog is opened WHEN 'Cancel Top' button has been pressed THEN the dialog should be closed`,
         async () => {
@@ -69,7 +68,7 @@ describe('parent.project.dialog.step.spec - ui-tests for Parent Project step in 
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

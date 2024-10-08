@@ -4,8 +4,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
-import {Dropdown, DropdownConfig} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {Dropdown} from '@enonic/lib-admin-ui/ui/Dropdown';
 import eventInfo = CKEDITOR.eventInfo;
 
 export abstract class ListStyleModalDialog
@@ -68,15 +67,12 @@ export abstract class ListStyleModalDialog
         return [this.typeField];
     }
 
-    private initTypeDropdown(): Dropdown<string> {
-        const typeDropdown: Dropdown<string> = new Dropdown<string>('type', {} as DropdownConfig<string>);
+    private initTypeDropdown(): Dropdown {
+        const typeDropdown: Dropdown = new Dropdown('type');
         typeDropdown.addClass('type-dropdown');
 
         this.createTypeValuesMap().forEach((value: string, key: string) => {
-            typeDropdown.addOption(Option.create<string>()
-                .setValue(key)
-                .setDisplayValue(value)
-                .build());
+            typeDropdown.addOption(key, value);
         });
 
         typeDropdown.setValue(this.getOriginalTypeFieldValue());
@@ -95,7 +91,7 @@ export abstract class ListStyleModalDialog
     }
 
     private getDropdownValue(): string {
-        const value: string = (this.typeField.getInput() as Dropdown<string>).getValue();
+        const value: string = (this.typeField.getInput() as Dropdown).getValue();
 
         return value === 'notset' ? '' : value;
     }
