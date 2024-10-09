@@ -4,7 +4,8 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
-const LoaderComboBox = require('../components/loader.combobox');
+const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdon');
+const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 const DependantsControls = require('./dependant.controls');
 
 const XPATH = {
@@ -12,9 +13,7 @@ const XPATH = {
     dialogTitle: "//div[contains(@id,'DefaultModalDialogHeader') and child::h2[@class='title']]",
     createIssueButton: `//button[contains(@class,'dialog-button') and child::span[contains(.,'Create Issue')]]`,
     titleFormItem: "//div[contains(@id,'FormItem') and child::label[text()='Title']]",
-    addItemsButton: "//button[contains(@id,'button') and child::span[text()='Add items']]",
-    assigneesComboboxDiv: "//div[contains(@id,'PrincipalComboBox')]",
-    assigneesComboBox: `//div[contains(@id,'LoaderComboBox') and @name='principalSelector']`,
+    addItemsButton: "//button[contains(@id,'Button') and child::span[text()='Add items']]",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     selectionItemByDisplayName:
@@ -48,14 +47,6 @@ class CreateIssueDialog extends Page {
         return XPATH.container + XPATH.addItemsButton;
     }
 
-    get itemsOptionFilterInput() {
-        return XPATH.container + lib.CONTENT_COMBOBOX + lib.COMBO_BOX_OPTION_FILTER_INPUT;
-    }
-
-    get assigneesOptionFilterInput() {
-        return XPATH.container + XPATH.assigneesComboBox + lib.COMBO_BOX_OPTION_FILTER_INPUT;
-    }
-
     get descriptionTextArea() {
         return XPATH.container + lib.TEXT_AREA;
     }
@@ -87,11 +78,21 @@ class CreateIssueDialog extends Page {
         }
     }
 
-    clickOnAddItemsButton() {
-        return this.clickOnElement(this.addItemsButton).catch(err => {
-            this.saveScreenshot('err_click_add_items');
-            throw new Error('click on add items button' + err);
-        });
+    waitForAddItemsButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.addItemsButton);
+    }
+
+    waitForAddItemsButtonDisplayed() {
+        return this.waitForElementDisplayed(this.addItemsButton);
+    }
+
+    async clickOnAddItemsButton() {
+        try {
+            await this.clickOnElement(this.addItemsButton)
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_click_add_items');
+            throw new Error('Error occurred in Create Issue dialog - screenshot' + screenshot + '  ' + err);
+        }
     }
 
     async clickOnCancelButton() {
@@ -111,8 +112,8 @@ class CreateIssueDialog extends Page {
             await this.clickOnElement(selector);
             await this.pause(1000);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_include_children'));
-            throw new Error("Error when clicking on 'include children' icon " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_include_children');
+            throw new Error("Error when clicking on 'include children' icon , screenshot:" + screenshot + '  ' + err);
         }
     }
 
@@ -174,18 +175,20 @@ class CreateIssueDialog extends Page {
         return this.isElementDisplayed(this.descriptionTextArea);
     }
 
-    isItemsOptionFilterDisplayed() {
-        return this.isElementDisplayed(this.itemsOptionFilterInput);
+    async isItemsOptionFilterDisplayed() {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.isOptionsFilterInputDisplayed(XPATH.container)
     }
 
-    isAssigneesOptionFilterDisplayed() {
-        return this.isElementDisplayed(this.assigneesOptionFilterInput);
+    async isAssigneesOptionFilterDisplayed() {
+        let principalComboBox = new PrincipalComboBox();
+        return await principalComboBox.isOptionsFilterInputDisplayed(XPATH.container);
     }
 
     async selectUserInAssignees(userName) {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(userName, XPATH.assigneesComboboxDiv);
+            let principalComboBox = new PrincipalComboBox();
+            return await principalComboBox.selectFilteredUserAndClickOnOk(userName, this.container);
         } catch (err) {
             throw new Error("Create issue Dialog  " + err);
         }
@@ -193,11 +196,11 @@ class CreateIssueDialog extends Page {
 
     async selectItemsInContentCombobox(contentName) {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(contentName, lib.CONTENT_COMBOBOX);
+            let contentSelector = new ContentSelectorDropdown();
+            return await contentSelector.selectFilteredContentAndClickOnOk(contentName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_items_combo');
-            throw new Error("Create issue Dialog, items combobox, screenshot:  " + screenshot + ' ' + err);
+            throw new Error("Error in Create issue Dialog, items combobox, screenshot:  " + screenshot + ' ' + err);
         }
     }
 

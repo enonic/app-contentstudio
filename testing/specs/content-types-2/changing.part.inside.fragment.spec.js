@@ -31,7 +31,7 @@ describe('changing.part.inside.fragment.spec - Tests for changing a part inside 
 
     // Verifies Changing a part inside a fragment causes console errors #7278
     // https://github.com/enonic/app-contentstudio/issues/7278
-    it(`GIVEN existing site is opened WHEN an option has been selected in selector in the part config THEN the option should be saved after clicking on 'Apply' button`,
+    it(`GIVEN a text has been inserted in Inspect Panel in the fragment wizard WHEN 'Apply' button has been pressed THEN the text should be saved in the Inspect Panel`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();

@@ -21,7 +21,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
         async () => {
             // Do Log in with 'SU', navigate to 'Users' and create new system user:
             await studioUtils.navigateToUsersApp();
-            let userName = contentBuilder.generateRandomName("user");
+            let userName = contentBuilder.generateRandomName('user');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_ADMIN];
             USER = contentBuilder.buildUser(userName, appConst.PASSWORD.MEDIUM, contentBuilder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
@@ -36,7 +36,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             await studioUtils.navigateToContentStudioApp(USER.displayName, USER.password);
             // 2. Open new folder wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await studioUtils.saveScreenshot("collaboration_wizard_user");
+            await studioUtils.saveScreenshot('collaboration_wizard_user');
             // 3. Verify that collaboration icon is displayed:
             let compactNames = await contentWizard.getCollaborationUserCompactName();
             assert.equal(compactNames[0], 'US', 'US - this compact name should be displayed in the toolbar');
@@ -72,7 +72,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             await studioUtils.navigateToContentStudioApp('su', 'password');
             // 2. Open Filter Panel
             await studioUtils.openFilterPanel();
-            // 3. Click on expand Owner selector in the Filter Panel:
+            // 3. Click on dropdown handle for 'Owner selector' in the Filter Panel:
             await filterPanel.clickOnOwnerDropdownHandle();
             await studioUtils.saveScreenshot('owner_selector_expanded');
             // 4. Verify that expected options should be present in the options:
@@ -80,9 +80,10 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             assert.ok(options.includes('Me'), "'Me' user should be displayed in options");
             assert.ok(options.includes(USER.displayName), 'Expected user should be displayed in options');
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doLogout();
         });
 
-    it("WHEN existing user has been selected in 'Owner' selector in Filter Panel THEN only content that were created by this user should be present in the grid",
+    it("WHEN existing user has been selected in 'Owner' selector in Filter Panel THEN only the content that were created by this user should be present in the grid",
         async () => {
             let filterPanel = new FilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -91,14 +92,84 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             // 2. Open Filter Panel
             await studioUtils.openFilterPanel();
             // 3. Select the existing user in Owner selector:
-            await filterPanel.expandOwnerOptionsAndSelectItem(USER.displayName);
+            await filterPanel.filterAndSelectOwnerOption(USER.displayName);
             await filterPanel.pause(2000);
             await studioUtils.saveScreenshot('owner_selected_in_selector');
             // 4. Verify that only content that were created by the user are displayed in Grid
             let contentNames = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.ok(contentNames.includes(FOLDER.displayName));
             assert.equal(contentNames.length, 3, 'Only three items should be present in the grid');
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doLogout();
         });
+
+    it("WHEN existing user has been selected in 'Modified by' selector THEN only the content that were modified by this user should be present in the grid",
+        async () => {
+            let filterPanel = new FilterPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. SU is logged in:
+            await studioUtils.navigateToContentStudioApp('su', 'password');
+            // 2. Open 'Filter Panel'
+            await studioUtils.openFilterPanel();
+            // 3. Select the existing user in 'Modified by' selector:
+            await filterPanel.filterAndSelectLastModifiedByOption(USER.displayName);
+            await filterPanel.pause(2000);
+            await studioUtils.saveScreenshot('modified_by_selected_in_selector');
+            // 4. Verify that content modified by the user are displayed in Browse panel
+            let contentNames = await contentBrowsePanel.getDisplayNamesInGrid();
+            assert.ok(contentNames.includes(FOLDER.displayName));
+            assert.equal(contentNames.length, 3, 'Only three items should be present in the grid');
+
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doLogout();
+        });
+
+    it("GIVEN 'Last Modified by' selector is expanded WHEN checkbox for the user has been unchecked in List Options THEN 'Clear Filter' icon gets not visible",
+        async () => {
+            let filterPanel = new FilterPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. SU is logged in:
+            await studioUtils.navigateToContentStudioApp('su', 'password');
+            // 2. Open 'Filter Panel'
+            await studioUtils.openFilterPanel();
+            // 3. Select the existing user in 'Last Modified by' dropdown selector:
+            await filterPanel.filterAndSelectLastModifiedByOption(USER.displayName);
+            // 4. Expand the dropdown
+            await filterPanel.clickOnLastModifiedByDropdownHandle();
+            // 5. Verify that the checkbox is checked:
+            let isChecked = await filterPanel.isCheckedInLastModifiedByListOptions(USER.displayName);
+            assert.ok(isChecked, "This checkbox should be checked in the dropdown");
+            await studioUtils.saveScreenshot('modified_by_selected_dropdown_expanded');
+            // 6. Uncheck the checkbox in the lidy-options:
+            await filterPanel.uncheckItemInLastModifiedByListBox(USER.displayName);
+            // 7. Verify that 'Clear Filter' icon is not visible in Filter Panel ( top right)
+            await filterPanel.waitForClearLinkNotDisplayed();
+
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doLogout();
+        });
+
+    it("GIVEN an user has been checked in 'Last Modified by' selector WHEN 'Clear Filter' has been clicked THEN the user-checkbox gets unchecked in List Options",
+        async () => {
+            let filterPanel = new FilterPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. SU is logged in:
+            await studioUtils.navigateToContentStudioApp('su', 'password');
+            // 2. Open 'Filter Panel'
+            await studioUtils.openFilterPanel();
+            // 3. Select the existing user in 'Last Modified by' dropdown selector:
+            await filterPanel.filterAndSelectLastModifiedByOption(USER.displayName);
+            await filterPanel.clickOnClearLink();
+            // 4. Expand the 'Last Modified by' dropdown
+            await filterPanel.clickOnLastModifiedByDropdownHandle();
+            await studioUtils.saveScreenshot('modified_by_selected_dropdown_expanded_2');
+            // 5. Verify that the checkbox is checked:
+            let isChecked = await filterPanel.isCheckedInLastModifiedByListOptions(USER.displayName);
+            assert.ok(isChecked === false, "This checkbox should not be checked in the dropdown");
+            // 6. 'Clear Filter' icon should not be displayed now
+            await filterPanel.waitForClearLinkNotDisplayed();
+        });
+
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

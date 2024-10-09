@@ -1,21 +1,17 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {Dropdown, DropdownConfig} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
-import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ImageStyleOption, ImageStyleOptions} from './ImageStyleOptions';
-import {ImageStyleOptionViewer} from './ImageStyleOptionViewer';
+import {Dropdown} from '@enonic/lib-admin-ui/ui/Dropdown';
+import {Style} from '../../styles/Style';
 
 export class ImageStyleSelector
-    extends Dropdown<ImageStyleOption> {
+    extends Dropdown {
 
     private contentId: string;
 
+    private styles: Map<string, Style> = new Map<string, Style>();
+
     constructor(contentId: string) {
-        super('imageSelector', {
-            optionDisplayValueViewer: new ImageStyleOptionViewer(),
-            inputPlaceholderText: i18n('dialog.image.style.apply'),
-            rowHeight: 26
-        } as DropdownConfig<ImageStyleOption>);
+        super('imageSelector');
 
         this.contentId = contentId;
 
@@ -26,18 +22,16 @@ export class ImageStyleSelector
 
     private initDropdown() {
         this.addOptions();
-
-        this.onOptionSelected((event: OptionSelectedEvent<ImageStyleOption>) => {
-            if ((event.getOption().getDisplayValue()).isEmpty()) {
-                this.reset();
-            }
-        });
     }
 
     private addOptions() {
         ImageStyleOptions.getOptions(this.contentId).forEach((option: Option<ImageStyleOption>) => {
-            this.addOption(option);
+            this.styles.set(option.getValue(), option.getDisplayValue().getStyle());
+            this.addOption(option.getValue(), option.getDisplayValue().getDisplayName());
         });
     }
 
+    getSelectedStyle(): Style {
+        return this.styles.get(this.getValue());
+    }
 }

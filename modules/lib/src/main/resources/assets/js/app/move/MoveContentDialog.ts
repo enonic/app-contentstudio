@@ -11,7 +11,6 @@ import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDia
 import {ModalDialogWithConfirmation} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
-import {ContentTreeGrid} from '../browse/ContentTreeGrid';
 import {SearchAndExpandItemEvent} from '../browse/SearchAndExpandItemEvent';
 import {ContentIds} from '../content/ContentIds';
 import {ContentPath} from '../content/ContentPath';
@@ -24,6 +23,7 @@ import {MoveContentRequest} from '../resource/MoveContentRequest';
 import {ContentAppHelper} from '../wizard/ContentAppHelper';
 import {ContentMoveComboBox} from './ContentMoveComboBox';
 import {ContentMovePromptEvent} from './ContentMovePromptEvent';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export class MoveContentDialog
     extends ModalDialogWithConfirmation
@@ -34,8 +34,6 @@ export class MoveContentDialog
     private movedContentSummaries: ContentSummary[] = [];
 
     private contentPathSubHeader: H6El;
-
-    private treeGrid: ContentTreeGrid;
 
     private descriptionHeader: H6El;
 
@@ -75,13 +73,15 @@ export class MoveContentDialog
     protected initListeners() {
         super.initListeners();
 
-        this.destinationSearchInput.onOptionSelected(() => {
-            this.getButtonRow().focusDefaultAction();
-            this.moveAction.setEnabled(true);
-        });
+        this.destinationSearchInput.onSelectionChanged((selectionChange: SelectionChange<ContentTreeSelectorItem>) => {
+            if (selectionChange.selected?.length > 0) {
+                this.getButtonRow().focusDefaultAction();
+                this.moveAction.setEnabled(true);
+            }
 
-        this.destinationSearchInput.onOptionDeselected(() => {
-            this.moveAction.setEnabled(false);
+            if (selectionChange.deselected?.length > 0) {
+                this.moveAction.setEnabled(false);
+            }
         });
 
         this.moveAction.onExecuted(() => {
@@ -115,9 +115,6 @@ export class MoveContentDialog
         const contents = event.getContentSummaries();
 
         this.movedContentSummaries = contents;
-        this.destinationSearchInput.clearCombobox();
-        this.treeGrid = event.getTreeGrid();
-
         this.destinationSearchInput.setFilterContents(contents);
         this.contentPathSubHeader.setHtml(contents.length === 1 ? contents[0].getPath().toString() : '');
 
@@ -196,19 +193,7 @@ export class MoveContentDialog
     }
 
     private getParentSite(content: ContentSummary): Q.Promise<ContentSummary> {
-        if (!this.treeGrid?.hasItemWithDataIdInDefault(content.getId())) {
-            return new GetNearestSiteRequest(content.getContentId()).sendAndParse();
-        }
-
-        let parentData: ContentSummaryAndCompareStatus = this.treeGrid.getParentDataById(content.getId());
-        while (parentData) {
-            if (parentData.getContentSummary().isSite()) {
-                return Q(parentData.getContentSummary());
-            }
-            parentData = this.treeGrid.getParentDataById(parentData.getId());
-        }
-
-        return Q(null);
+        return new GetNearestSiteRequest(content.getContentId()).sendAndParse();
     }
 
     private doMove(): void {
@@ -254,7 +239,7 @@ export class MoveContentDialog
     }
 
     private getParentContentItem(): ContentTreeSelectorItem {
-        return this.destinationSearchInput.getSelectedDisplayValues()[0];
+        return this.destinationSearchInput.getSelectedDisplayValue();
     }
 
     private getParentPath(): ContentPath {
@@ -271,8 +256,7 @@ export class MoveContentDialog
 
     open(reset: boolean = true): void {
         if (reset && !this.progressManager.isEnabled()) {
-            this.destinationSearchInput.clearCombobox();
-            this.destinationSearchInput.getLoader().resetParams();
+            this.destinationSearchInput.reset();
         }
         super.open();
     }
@@ -291,13 +275,13 @@ export class MoveContentDialog
     protected lockControls(): void {
         this.addClass('locked');
         this.moveAction.setEnabled(false);
-        this.destinationSearchInput.getComboBox().setEnabled(false);
+        this.destinationSearchInput.setEnabled(false);
     }
 
     protected unlockControls(): void {
         this.removeClass('locked');
         this.moveAction.setEnabled(true);
-        this.destinationSearchInput.getComboBox().setEnabled(true);
+        this.destinationSearchInput.setEnabled(true);
     }
 
     isExecuting(): boolean {

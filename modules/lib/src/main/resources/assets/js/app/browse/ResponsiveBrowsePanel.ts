@@ -9,6 +9,7 @@ import * as Q from 'q';
 import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {SelectionMode} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
@@ -33,13 +34,12 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
             Body.get().toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
             this.toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
-            this.treeGrid.toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
+            this.selectableListBoxPanel.toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
         });
 
         this.browseToolbar.onFoldClicked(() => {
             this.contextSplitPanel.hideContextPanel();
             this.toggleMobilePreviewMode(false);
-            this.treeGrid.removeHighlighting();
         });
     }
 
@@ -73,10 +73,11 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
     protected updatePreviewItem(): void {
         super.updatePreviewItem();
 
-        const item: ViewItem = this.treeGrid.getLastSelectedOrHighlightedItem();
+        const item: ViewItem = this.selectableListBoxPanel.getLastSelectedItem();
         this.updateContextView(item).catch(DefaultErrorHandler.handle);
 
-        if (this.treeGrid.hasHighlightedNode()) {
+        if (this.selectableListBoxPanel.getSelectedItems().length > 0 && this.selectableListBoxPanel.getSelectionMode() ===
+            SelectionMode.HIGHLIGHT) {
             if (this.contextSplitPanel.isMobileMode()) {
                 this.toggleMobilePreviewMode(true);
             }
@@ -90,7 +91,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
         if (isMobile) {
             this.browseToolbar.enableMobileMode();
-            this.browseToolbar.setFoldButtonLabel(this.treeGrid.getLastSelectedOrHighlightedItem().getDisplayName());
+            this.browseToolbar.setFoldButtonLabel(this.selectableListBoxPanel.getLastSelectedItem().getDisplayName());
         } else {
             this.browseToolbar.disableMobileMode();
             this.browseToolbar.updateFoldButtonLabel();

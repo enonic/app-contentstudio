@@ -4,6 +4,8 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
+const FilterableListBox = require('../components/selectors/filterable.list.box');
+
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowseFilterPanel')]",
     hitsAndClearDiv: "//div[contains(@class,'hits-and-clear')]",
@@ -17,7 +19,7 @@ const XPATH = {
     selectorOptionItem: "//ul[contains(@id,'BucketListBox')]//div[contains(@class,'item-view-wrapper')]",
     selectorOptionItemByLabel: label => `//ul[contains(@id,'BucketListBox')]//div[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${label}')]]`,
     ownerAggregationGroupView: "//div[contains(@id,'FilterableAggregationGroupView') and child::h2[text()='Owner']]",
-    aggregationListBoxDropdown: label => `//div[contains(@id,'FilterableAggregationGroupView') and child::h2[text()='${label}']]//div[contains(@id,'SelectableListBoxDropdown')]`,
+    lastModifiedByAggregationGroupView: "//div[contains(@id,'FilterableAggregationGroupView') and child::h2[text()='Last Modified by']]",
     aggregationGroupByName: name => `//div[contains(@id,'AggregationContainer')]//div[contains(@id,'AggregationGroupView') and child::h2[text()='${name}']]`,
     aggregationLabelByName: name => `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]//label`,
     folderAggregation: () => `//div[contains(@class,'checkbox') and child::label[contains(.,'Folder') and not(contains(.,'Template'))]]//label`,
@@ -48,13 +50,6 @@ class BrowseFilterPanel extends Page {
         return XPATH.container + "//div[contains(@id,'AggregationGroupView') and child::h2[text()='Content Types']]" + XPATH.showLessButton;
     }
 
-    get ownerDropdownHandle() {
-        return XPATH.aggregationListBoxDropdown('Owner') + lib.DROP_DOWN_HANDLE;
-    }
-
-    get lastModifiedByDropdownHandle() {
-        return XPATH.aggregationListBoxDropdown('Last Modified By') + lib.DROP_DOWN_HANDLE;
-    }
 
     get closeDependenciesSectionButtonLocator() {
         return XPATH.dependenciesSection + "//button[contains(@class,'btn-close')]";
@@ -64,24 +59,6 @@ class BrowseFilterPanel extends Page {
         return XPATH.container + XPATH.searchInput;
     }
 
-    waitForLastModifiedByDropdownHandleDisplayed() {
-        return this.waitForElementDisplayed(this.lastModifiedByDropdownHandle, appConst.mediumTimeout);
-    }
-
-    waitForOwnerDropdownHandleDisplayed() {
-        return this.waitForElementDisplayed(this.ownerDropdownHandle, appConst.mediumTimeout);
-    }
-
-    async clickOnOwnerDropdownHandle() {
-        await this.waitForOwnerDropdownHandleDisplayed();
-        await this.clickOnElement(this.ownerDropdownHandle);
-        await this.pause(500);
-    }
-
-    async clickOnLastModifiedByDropdownHandle() {
-        await this.waitForLastModifiedByDropdownHandleDisplayed();
-        return await this.clickOnElement(this.lastModifiedByDropdownHandle);
-    }
 
     async typeSearchText(text) {
         try {
@@ -188,7 +165,6 @@ class BrowseFilterPanel extends Page {
     async waitForCloseDependenciesSectionButtonDisplayed() {
         try {
             let el = await this.findElements(this.closeDependenciesSectionButtonLocator);
-            // let label = await el[0].getComputedLabel();
             return await this.waitForElementDisplayed(this.closeDependenciesSectionButtonLocator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_close_dependencies_section_btn');
@@ -258,7 +234,7 @@ class BrowseFilterPanel extends Page {
         return await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
     }
 
-    //clicks on a checkbox in Workflow aggregation block
+    // clicks on a checkbox in Workflow aggregation block
     async clickOnCheckboxInWorkflowBlock(checkBoxLabel) {
         try {
             let selector = XPATH.aggregationGroupByName(appConst.FILTER_PANEL_AGGREGATION_BLOCK.WORKFLOW) +
@@ -305,6 +281,7 @@ class BrowseFilterPanel extends Page {
         }
     }
 
+    // gets a number of items from a checkbox label in Folder aggregation :
     async getNumberOfItemsInFolderAggregation() {
         let locator = XPATH.folderAggregation();
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
@@ -314,13 +291,14 @@ class BrowseFilterPanel extends Page {
         return label.substring(startIndex + 1, endIndex);
     }
 
-    //Gets items in "Content Types" block:
+    // Gets display name of items in "Content Types" block:
     async geContentTypes() {
         let locator = XPATH.aggregationGroupByName('Content Types') + "//div[contains(@class,'checkbox')]//label";
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
 
+    // Gets number of items in "Last Modified" week/day/hour
     async getLastModifiedCount(timestamp) {
         let locator = XPATH.lastModifiedAggregationEntry(timestamp);
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
@@ -330,32 +308,81 @@ class BrowseFilterPanel extends Page {
         return label.substring(startIndex + 1, endIndex);
     }
 
+    // Expands the 'Owner' dropdown:
+    async clickOnOwnerDropdownHandle() {
+        let filterableListBox = new FilterableListBox();
+        await filterableListBox.clickOnDropdownHandle(XPATH.ownerAggregationGroupView);
+        await this.pause(500);
+    }
+
+    // gets options name from the 'Owner' list box:
     async getOwnerNameInSelector() {
         let owners = [];
-        let optionsLocator = XPATH.ownerAggregationGroupView + XPATH.selectorOptionItem + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(optionsLocator, appConst.shortTimeout);
-        let result = await this.getTextInDisplayedElements(optionsLocator);
-        result.map(item => {
+        let filterableListBox = new FilterableListBox();
+        let optionNames = await filterableListBox.getOptionsDisplayName(XPATH.ownerAggregationGroupView);
+        optionNames.map(item => {
             let value = item.substring(0, item.indexOf('('));
             owners.push(value.trim());
         })
         return owners;
     }
 
-    async expandOwnerOptionsAndSelectItem(ownerName) {
+    // Selects an option in 'Owner' dropdown: types the name in the filter input and clicks on the filtered option
+    async filterAndSelectOwnerOption(ownerName) {
         try {
-            await this.clickOnOwnerDropdownHandle();
-            let checkboxLocator = XPATH.ownerAggregationGroupView + XPATH.selectorOptionItemByLabel(ownerName);
-            await this.waitForElementDisplayed(checkboxLocator, appConst.mediumTimeout);
-            await this.clickOnElement(checkboxLocator);
-            let okButton = XPATH.ownerAggregationGroupView + "//button[child::span[text()='OK']]";
-            await this.waitForElementDisplayed(okButton, appConst.mediumTimeout);
-            await this.clickOnElement(okButton);
-            await this.pause(300);
+            let filterableListBox = new FilterableListBox();
+            await filterableListBox.clickOnFilteredItemAndClickOnOk(ownerName, XPATH.ownerAggregationGroupView);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_filter_owner');
-            throw new Error("Error when selecting an option in 'Owner Selector', screenshot: " + screenshot + ' ' + err);
+            throw new Error("Error occurred during selecting an option in 'Owner Selector', screenshot: " + screenshot + ' ' + err);
         }
+    }
+
+    // Expands the 'Last Modified By' dropdown:
+    async clickOnLastModifiedByDropdownHandle() {
+        let filterableListBox = new FilterableListBox();
+        await filterableListBox.clickOnDropdownHandle(XPATH.lastModifiedByAggregationGroupView);
+    }
+
+    async isCheckedInLastModifiedByListOptions(userName) {
+        let locator = XPATH.lastModifiedByAggregationGroupView + lib.DROPDOWN_SELECTOR.listItemByDisplayName(userName) +
+                      lib.CHECKBOX_INPUT;
+        let chElement = await this.findElements(locator);
+        return await chElement[0].isSelected();
+    }
+
+    async uncheckItemInLastModifiedByListBox(userName) {
+        let locator = XPATH.lastModifiedByAggregationGroupView + lib.DROPDOWN_SELECTOR.listItemByDisplayName(userName);
+        let chElement = await this.findElements(locator);
+        await chElement[0].click();
+        let filterableListBox = new FilterableListBox();
+        await filterableListBox.clickOnApplySelectionButton(XPATH.lastModifiedByAggregationGroupView);
+    }
+
+    // Selects an option in 'Last Modified By' dropdown:
+    async filterAndSelectLastModifiedByOption(userName) {
+        try {
+            let filterableListBox = new FilterableListBox();
+            // 1. insert the username in the filter input:
+            await this.filterItemInModifiedBy(userName);
+            let optionLocator = filterableListBox.buildLocatorForOptionByDisplayName(userName, XPATH.lastModifiedByAggregationGroupView);
+            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
+            // 2. Click on the option-item, select the user in the dropdown:
+            await this.clickOnElement(optionLocator);
+            // 3. Click on 'OK' button and apply the selection:
+            return await filterableListBox.clickOnApplySelectionButton();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_filter_modified_by');
+            throw new Error("Error occurred during selecting an option in 'Modified by Selector', screenshot: " + screenshot + ' ' + err);
+        }
+    }
+
+    async filterItemInModifiedBy(text) {
+        let locator = XPATH.lastModifiedByAggregationGroupView + lib.OPTION_FILTER_INPUT;
+        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
+        let elements = await this.getDisplayedElements(locator);
+        await elements[0].setValue(text);
+        return await this.pause(300);
     }
 }
 

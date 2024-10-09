@@ -6,38 +6,31 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const component = {
-    typeText: function (id, text) {
+    typeText(id, text) {
         return `CKEDITOR.instances['${id}'].setData('${text}')`;
     },
-    getText: function (id) {
+    getText(id) {
         return `return CKEDITOR.instances['${id}'].getData()`;
     }
 };
 
 class HtmlArea extends Page {
-    typeTextInHtmlArea(selector, text) {
-        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).then(() => {
-            return this.getIdOfHtmlArea(selector + lib.TEXT_AREA);
-        }).then(id => {
-            this.execute(component.typeText(id, text));
-        });
+
+    async typeTextInHtmlArea(selector, text) {
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        let id = await this.getIdOfHtmlArea(selector + lib.TEXT_AREA);
+        return await this.execute(component.typeText(id, text));
     }
 
     getIdOfHtmlArea(selector) {
         return this.getAttribute(selector, 'id');
     }
 
-    getTextFromHtmlArea(container) {
-        return this.waitForElementDisplayed(container + "//div[contains(@id,'cke_TextArea')]",
-            appConst.mediumTimeout).then(() => {
-            return this.getIdOfHtmlArea(container + lib.TEXT_AREA);
-        }).then(id => {
-            return this.execute(component.getText(id));
-        }).then(response => {
-            let res = [];
-            res.push(response.trim());
-            return res;
-        })
+    async getTextFromHtmlArea(container) {
+        await this.waitForElementDisplayed(container + lib.CKE.TEXTAREA_DIV, appConst.mediumTimeout);
+        let id = await this.getIdOfHtmlArea(container + lib.TEXT_AREA);
+        let response = await this.execute(component.getText(id));
+        return [].concat(response.trim());
     }
 }
 

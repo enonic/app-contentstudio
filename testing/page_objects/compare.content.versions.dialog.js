@@ -4,6 +4,7 @@
 const Page = require('./page');
 const lib = require('../libs/elements');
 const appConst = require('../libs/app_const');
+const CompareDropdown = require('../page_objects/components/selectors/compare.versions.dropdown');
 const XPATH = {
     container: `//div[contains(@id,'CompareContentVersionsDialog')]`,
     containerLeft: `//div[contains(@class,'container left')]`,
@@ -51,14 +52,20 @@ class CompareContentVersionsDialog extends Page {
         return XPATH.container + XPATH.showEntireContentCheckboxDiv + '//label';
     }
 
-    async expandLeftDropdownClickOnModifiedOption(index) {
+    async expandLeftDropdownAndClickOnModifiedOption(index) {
+
         let locator = XPATH.container + XPATH.containerLeft +
                       "//div[contains(@id,'NamesAndIconView') and descendant::div[contains(@class,'version-modified')]]";
         await this.clickOnElement(this.leftDropdownHandle);
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let res = await this.findElements(locator);
         await res[index].click();
-        return this.pause(500);
+        return await this.pause(500);
+    }
+
+    async clickOnOKAndApplySelection() {
+        let compareDropdown = new CompareDropdown();
+        await compareDropdown.clickOnApplySelectionButton(XPATH.container);
     }
 
     async clickOnLeftRevertMenuButton() {
@@ -154,8 +161,7 @@ class CompareContentVersionsDialog extends Page {
     }
 
     async getPermissionsUpdatedOptionsInDropdownList() {
-        let locator = XPATH.containerLeft +
-                      "//div[contains(@class,'slick-cell')]//div[contains(@id,'NamesAndIconView')]//div[contains(@class, 'icon-masks')]";
+        let locator = XPATH.containerLeft + XPATH.listItemNameAndIconView + "//div[contains(@class, 'icon-masks')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.findElements(locator);
     }

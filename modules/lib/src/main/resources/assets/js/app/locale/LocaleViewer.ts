@@ -8,7 +8,7 @@ export class LocaleViewer
 
     private readonly namesView: NamesView;
 
-    private displayNamePattern: string = '{0} ({1})';
+    private static displayNamePattern: string = '{0} ({1})';
 
     constructor(className?: string) {
         super(className);
@@ -17,10 +17,13 @@ export class LocaleViewer
     }
 
     setObject(locale: Locale) {
-        this.namesView.setMainName(
-            StringHelper.format(this.displayNamePattern, locale.getDisplayName(), locale.getProcessedTag()));
+        this.namesView.setMainName(LocaleViewer.makeDisplayName(locale));
 
         return super.setObject(locale);
+    }
+
+    static makeDisplayName(locale: Locale): string {
+        return StringHelper.format(LocaleViewer.displayNamePattern, locale.getDisplayName(), locale.getProcessedTag());
     }
 
 }

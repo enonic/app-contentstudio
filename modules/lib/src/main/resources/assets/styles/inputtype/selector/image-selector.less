@@ -1,24 +1,11 @@
 .image-selector {
   position: relative;
 
-  .combobox-wrapper {
-    .rich-combobox {
-      .selected-options {
-        .selected-option {
-          height: auto;
-        }
-      }
-
-      .tree-grid.tree-mode {
-        .slick-row {
-          max-height: 40px;
-
-          .slick-cell {
-            max-height: 40px;
-          }
-        }
-      }
-    }
+  .image-selector-dropdown.selectable-listbox-wrapper.content-selector-dropdown {
+    grid-template-areas:
+      'filter-and-list extra-button'
+      'selected-options selected-options'
+      'selection-toolbar selection-toolbar';
   }
 
   .image-uploader-el {
@@ -77,10 +64,6 @@
         margin-top: -22px;
       }
 
-      &.editing {
-        .image-selector-active-cell();
-      }
-
       .squared-content > .label {
         display: block;
         position: absolute;
@@ -111,6 +94,14 @@
           max-height: 100%;
           max-width: 100%;
           margin: auto;
+
+          &.visibility-hidden {
+            visibility: hidden;
+          }
+
+          &.visibility-visible {
+            visibility: visible;
+          }
         }
 
         > .checkbox {
@@ -175,6 +166,7 @@
     padding: 10px;
     text-align: center;
     box-sizing: border-box;
+    grid-area: selection-toolbar;
 
     button {
       margin-right: 10px;

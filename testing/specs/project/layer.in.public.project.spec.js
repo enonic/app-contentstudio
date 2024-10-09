@@ -63,19 +63,20 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let layerWizard = new LayerWizard();
-            // 1.Open the layer:
+            // 1. Open the layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await layerWizard.waitForLoaded();
             // 2. Update the language:
             await layerWizard.clickOnRemoveLanguage();
+            // 3. insert the text in Options Filter Input then click on filtered option then click on OK
             await layerWizard.selectLanguage(appConst.LANGUAGES.EN);
             await layerWizard.waitAndClickOnSave();
             await layerWizard.waitForNotificationMessage();
-            // 3. Switch to content mode and select the context:
+            // 4. Switch to content mode and select the context:
             let contentBrowsePanel = await studioUtils.switchToContentMode();
             await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
-            //4. Verify that language is updated in the browse panel - App Bar
+            // 5. Verify that language is updated in the browse panel - App Bar
             let actualLanguage = await contentBrowsePanel.getContextLanguage();
             assert.equal(actualLanguage, "(en)", "Expected language should be displayed in the App Bar");
         });
@@ -85,7 +86,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
     it("WHEN existing parent project is selected THEN Delete button should be disabled",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            // 1.Select the parent project:
+            // 1. Select the parent project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             // 2. Verify that 'Delete' button is disabled
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
@@ -100,11 +101,11 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.Open the parent project:
+            // 1.Open the parent project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            //2. Verify that 'Delete' button is disabled:
+            // 2. Verify that 'Delete' button is disabled:
             await projectWizard.waitForDeleteButtonDisabled();
         });
 
@@ -112,8 +113,8 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1.parent project and its child project are selected:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME);
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(LAYER_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(LAYER_DISPLAY_NAME);
             //2. Verify that 'Delete' button is disabled in browse-panel:
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
         });
@@ -123,8 +124,8 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1.parent project and its child project are selected:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME);
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(LAYER_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(LAYER_DISPLAY_NAME);
             // 2. Verify that 'Delete' button is disabled in browse-panel:
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.waitForContextMenuDisplayed();

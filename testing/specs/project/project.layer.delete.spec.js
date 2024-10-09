@@ -55,6 +55,8 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmValueDialog = new ConfirmValueDialog();
             let layerWizard = new LayerWizardPanel();
+            let result = await settingsBrowsePanel.isExpanderIconPresent(PROJECT_DISPLAY_NAME);
+            assert.ok(result, "Expander icon should be displayed for the parent project");
             // 1.Select 'public' project and open wizard for new layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
@@ -69,7 +71,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             // 4. Verify that the layer is deleted in Browse Panel:
             await settingsBrowsePanel.waitForProjectNotDisplayed(LAYER_DISPLAY_NAME);
             // 5. Verify that expander-icon gets not visible in the parent project
-            let result = await settingsBrowsePanel.isExpanderIconPresent(PROJECT_DISPLAY_NAME);
+            result = await settingsBrowsePanel.isExpanderIconPresent(PROJECT_DISPLAY_NAME);
             assert.ok(result === false, "Expander icon gets not displayed in the parent project");
         });
 

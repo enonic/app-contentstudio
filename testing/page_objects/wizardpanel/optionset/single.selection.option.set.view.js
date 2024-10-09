@@ -4,6 +4,8 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
+const FilterableListBox = require('../../components/selectors/filterable.list.box');
+
 const xpath = {
     container: "//div[contains(@id,'FormOptionSetOccurrenceView') and contains(@class,'single-selection')]",
     nameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='Name']]" + lib.TEXT_INPUT,
@@ -30,7 +32,7 @@ class SingleSelectionOptionSet extends Page {
     }
 
     get optionsFilterInput() {
-        return xpath.singleOptionView + lib.DROPDOWN_OPTION_FILTER_INPUT
+        return xpath.singleOptionView + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     get dropDownHandle() {
@@ -71,8 +73,8 @@ class SingleSelectionOptionSet extends Page {
             await this.clickOnElement(this.addItemSetButton);
             return await this.pause(400);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_add_button'));
-            throw new Error(err);
+            let screenshot = await this.saveScreenshotUniqueName('err_add_button');
+            throw new Error(`Error occurred in Add Item screenshot:${screenshot}` + err);
         }
     }
 
@@ -126,13 +128,12 @@ class SingleSelectionOptionSet extends Page {
     }
 
     // Expands the selector and clicks on the option
-    async selectOption(option) {
+    async selectOption(optionDisplayName) {
         try {
-            await this.waitForElementDisplayed(this.dropDownHandle, appConst.mediumTimeout);
-            await this.clickOnElement(this.dropDownHandle);
-            let optionLocator = xpath.container + lib.itemByDisplayName(option);
-            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-            await this.clickOnElement(optionLocator);
+            let filterableListBox = new FilterableListBox();
+            await filterableListBox.clickOnDropdownHandle(this.formOptionSet);
+            await filterableListBox.clickOnOptionByDisplayName(optionDisplayName);
+            await filterableListBox.clickOnApplySelectionButton(this.formOptionSet);
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_optionset');
@@ -142,11 +143,9 @@ class SingleSelectionOptionSet extends Page {
 
     async filterAndSelectOption(option) {
         try {
-            let optionLocator = xpath.container + lib.itemByDisplayName(option);
-            await this.typeTextInOptionsFilterInput(option)
-            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-            await this.clickOnElement(optionLocator);
-            return await this.pause(500);
+            let filterableListBox = new FilterableListBox();
+            await filterableListBox.clickOnFilteredItemAndClickOnOk(option);
+            return await this.pause(100);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_optionset');
             throw new Error('Error, during selecting the option in single selection, screenshot:' + screenshot + "  " + err);

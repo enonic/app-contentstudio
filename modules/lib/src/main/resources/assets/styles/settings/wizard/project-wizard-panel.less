@@ -48,20 +48,19 @@
 
     &.project-item-wizard-step-form {
       .input-view {
-        .form-input {
-          &:disabled {
-            border: none;
-          }
-
-          &.parent-selector {
-            display: block;
-            max-width: none;
-
+          .parent-selector {
             &.readonly,
             &.disabled {
-              .selected-option,
-              .option-filter-input {
-                display: none !important;
+              .filter-and-list-container {
+                display: none;
+              }
+
+              .selected-option {
+                opacity: 0.5;
+
+                .remove {
+                  display: none;
+                }
               }
             }
 
@@ -75,7 +74,6 @@
               }
             }
           }
-        }
       }
 
       .projects-selector > .loader-combobox.disabled {

@@ -1,11 +1,11 @@
 /**
  * Created on 03.06.2019.
  */
-
 const BaseSelectorForm = require('./base.selector.form');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const LoaderComboBox = require('../components/loader.combobox');
+const CustomSelectorComboBox = require('../components/selectors/custom.selector.combobox');
+
 const XPATH = {
     container: lib.FORM_VIEW + "//div[contains(@id,'CustomSelector')]",
     selectedOptionByName: option => {
@@ -14,10 +14,6 @@ const XPATH = {
 };
 
 class CustomSelectorForm extends BaseSelectorForm {
-
-    get optionsFilterInput() {
-        return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
-    }
 
     selectedOptionByDisplayName(displayName) {
         return `//div[contains(@id,'CustomSelectorSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]`
@@ -28,16 +24,24 @@ class CustomSelectorForm extends BaseSelectorForm {
         return this.getTextInElements(selector);
     }
 
+    async selectOptionByDisplayName(optionDisplayName) {
+        let customSelectorComboBox = new CustomSelectorComboBox();
+        return await customSelectorComboBox.selectFilteredOptionAndClickOnOk(optionDisplayName, XPATH.container);
+    }
+
+    async typeTextInOptionsFilterInput(text) {
+        let customSelectorComboBox = new CustomSelectorComboBox();
+        await customSelectorComboBox.filterItem(text, XPATH.container);
+    }
+
     async getDropDownListOptions() {
-        let loaderComboBox = new LoaderComboBox();
-        let optionsLocator = XPATH.container + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
-        await loaderComboBox.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
-        return await loaderComboBox.getOptionDisplayNames(XPATH.container);
+        let customSelectorComboBox = new CustomSelectorComboBox();
+        return await customSelectorComboBox.getOptionsName(XPATH.container);
     }
 
     async waitForEmptyOptionsMessage() {
         try {
-            let locator = XPATH.container + lib.EMPTY_OPTIONS_DIV;
+            let locator = XPATH.container + lib.EMPTY_OPTIONS_H5;
             return await this.waitForElementDisplayed(locator, appConst.longTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_custom_sel');
@@ -52,6 +56,10 @@ class CustomSelectorForm extends BaseSelectorForm {
         return this.pause(300);
     }
 
+    isOptionsFilterInputDisplayed() {
+        let customSelectorComboBox = new CustomSelectorComboBox();
+        return customSelectorComboBox.isOptionsFilterInputDisplayed(XPATH.container);
+    }
 }
 
 module.exports = CustomSelectorForm;

@@ -2,8 +2,8 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
-const LoaderComboBox = require('../components/loader.combobox');
 const DependantsControls = require('./dependant.controls');
+const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 
 const xpath = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
@@ -32,7 +32,7 @@ class IssueDetailsDialogItemsTab extends Page {
     }
 
     get dropdownHandle() {
-        return xpath.container + lib.CONTENT_COMBOBOX + lib.DROP_DOWN_HANDLE;
+        return xpath.container + lib.DROPDOWN_SELECTOR.CONTENT_TREE_SELECTOR + lib.DROP_DOWN_HANDLE;
     }
 
     get applySelectionButton() {
@@ -41,10 +41,6 @@ class IssueDetailsDialogItemsTab extends Page {
 
     get showExcludedItemsButton() {
         return xpath.container + lib.togglerButton('Show excluded');
-    }
-
-    get contentOptionsFilterInput() {
-        return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
     get reopenIssueButton() {
@@ -94,19 +90,19 @@ class IssueDetailsDialogItemsTab extends Page {
     }
 
     async clickOnDropdownHandle() {
-        await this.waitForElementDisplayed(this.dropdownHandle, appConst.mediumTimeout);
-        await this.clickOnElement(this.dropdownHandle);
-        await this.pause(1000);
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        await contentSelectorDropdown.clickOnDropdownHandle(xpath.container);
+        await this.pause(700);
     }
 
     async clickOnCheckboxInDropdown(index) {
-        let loaderComboBox = new LoaderComboBox();
-        await loaderComboBox.clickOnCheckboxInDropdown(index, lib.CONTENT_COMBOBOX);
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        await contentSelectorDropdown.clickOnCheckboxInDropdown(index, xpath.container);
     }
 
     async clickOnApplyButtonInCombobox() {
-        let loaderComboBox = new LoaderComboBox();
-        await loaderComboBox.clickOnApplyButton();
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        await contentSelectorDropdown.clickOnApplySelectionButton(xpath.container);
     }
 
     async waitForPublishButtonEnabled() {
@@ -122,10 +118,22 @@ class IssueDetailsDialogItemsTab extends Page {
         }
     }
 
-    waitForContentOptionsFilterInputDisplayed() {
-        return this.isElementDisplayed(this.contentOptionsFilterInput).catch(err => {
-            throw new Error('Error when checking the `Options filter input` in Issue Details ' + err)
-        })
+    async waitForContentOptionsFilterInputDisplayed() {
+        try {
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            await contentSelectorDropdown.waitForOptionFilterInputDisplayed(xpath.container);
+        } catch (err) {
+            throw new Error('`Options filter input` should be displayed in Issue Details ' + err);
+        }
+    }
+
+    async waitForContentOptionsFilterInputDisabled() {
+        try {
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            await contentSelectorDropdown.waitForOptionFilterInputDisabled(xpath.container);
+        } catch (err) {
+            throw new Error(' `Options filter input` should be disabled in Issue Details ' + err)
+        }
     }
 
     getItemDisplayNames() {
@@ -173,8 +181,8 @@ class IssueDetailsDialogItemsTab extends Page {
 
     async addItem(itemDisplayName) {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(itemDisplayName, xpath.container);
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            return await contentSelectorDropdown.selectFilteredContentAndClickOnOk(itemDisplayName, xpath.container);
         } catch (err) {
             throw new Error("Issue Details dialog -  " + err);
         }

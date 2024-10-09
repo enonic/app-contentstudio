@@ -11,15 +11,16 @@ class BaseDependenciesWidget extends Page {
             await this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout);
             await this.waitForElementEnabled(this.showOutboundButton, appConst.shortTimeout);
             await this.clickOnElement(this.showOutboundButton);
-            return await this.pause(1000);
+            return await this.pause(2000);
         } catch (err) {
             await this.saveScreenshot('err_outbound_button');
             throw new Error('Show Outbound button is not visible in ' + err);
         }
     }
 
-    clickOnShowInboundButton() {
-        return this.clickOnElement(this.showInboundButton);
+    async clickOnShowInboundButton() {
+        await this.clickOnElement(this.showInboundButton);
+        await this.pause(1000);
     }
 
     waitForNoOutgoingDependenciesMessage() {
@@ -61,11 +62,14 @@ class BaseDependenciesWidget extends Page {
         return this.isElementDisplayed(this.showInboundButton);
     }
 
-    waitForOutboundButtonVisible() {
-        return this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_outbound_button');
+    async waitForOutboundButtonVisible() {
+        try {
+            await this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout);
+            await this.pause(500);
+        } catch (err) {
+            await this.saveScreenshotUniqueName('err_outbound_button');
             throw new Error('showOutboundButton is not visible in ' + err);
-        });
+        }
     }
 
     waitForInboundButtonVisible() {

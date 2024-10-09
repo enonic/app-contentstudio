@@ -4,7 +4,7 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const LoaderComboBox = require('../components/loader.combobox');
+const ContentMoveComboBox = require('../components/selectors/content.move.combobox');
 
 const XPATH = {
     container: `//div[contains(@id,'MoveContentDialog')]`,
@@ -20,7 +20,7 @@ class MoveContentDialog extends Page {
     }
 
     get optionFilterInput() {
-        return XPATH.container + XPATH.contentMoveComboBox + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.container + XPATH.contentMoveComboBox + lib.OPTION_FILTER_INPUT;
     }
 
     get dropDownHandle() {
@@ -58,7 +58,7 @@ class MoveContentDialog extends Page {
             await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_move_dialog_dropdown');
-            throw new Error("Move Dialog - Error after clicking on Dropdown handle, screenshot: " + screenshot + "  " + err);
+            throw new Error("Error occurred in Move Dialog, screenshot: " + screenshot + "  " + err);
         }
     }
 
@@ -72,7 +72,7 @@ class MoveContentDialog extends Page {
     waitForClosed() {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(error => {
             this.saveScreenshot('err_move_content_dialog_close');
-            throw new Error('Move Content Dialog was not closed');
+            throw new Error('Error occurred in Move Content Dialog was not closed');
         });
     }
 
@@ -87,22 +87,29 @@ class MoveContentDialog extends Page {
 
     async typeTextAndClickOnOption(displayName) {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(displayName, XPATH.container);
+            let contentMoveComboBox = new ContentMoveComboBox();
+            return await contentMoveComboBox.selectFilteredContentAndClickOnOk(displayName, XPATH.container);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_move_dialog');
-            throw new Error("Move Dialog - Error during selecting an option, screenshot: " + screenshot + "  " + err);
+            throw new Error("Error occurred in Move Dialog - after selecting an option, screenshot: " + screenshot + "  " + err);
         }
     }
 
     async clickOnOptionInDropdown(displayName) {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.selectOption(displayName);
+            let contentMoveComboBox = new ContentMoveComboBox();
+            let optionLocator = contentMoveComboBox.buildLocatorForOptionByDisplayName(displayName, XPATH.container);
+            return await contentMoveComboBox.clickOnElement(optionLocator);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_click_on_option');
-            throw new Error("Move Dialog - Error during clicking on the option, screenshot: " + screenshot + "  " + err);
+            throw new Error("Error occurred in Move Dialog after clicking on the option, screenshot: " + screenshot + "  " + err);
         }
+    }
+
+
+    async clickOnApplySelectionButton() {
+        let contentMoveComboBox = new ContentMoveComboBox();
+        await contentMoveComboBox.clickOnApplySelectionButton(XPATH.container);
     }
 
     async clickOnRemoveOptionIcon() {
@@ -118,20 +125,20 @@ class MoveContentDialog extends Page {
     }
 
     async isDestinationDisabled(name) {
-        let optionLocator = lib.slickRowByName(XPATH.container, name);
+        let optionLocator = lib.DROPDOWN_SELECTOR.contentListElementByName(XPATH.container, name);
         let attr = await this.getAttribute(optionLocator, 'class')
         return attr.includes('readonly');
     }
 
     async isDestinationByDisplayNameDisabled(displayName) {
-        let optionLocator = lib.slickRowByDisplayName(XPATH.container, displayName);
+        let optionLocator = lib.DROPDOWN_SELECTOR.contentListElementByDisplayName(XPATH.container, displayName);
         await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
         let attr = await this.getAttribute(optionLocator, 'class')
         return attr.includes('readonly');
     }
 
     async getOptionsName() {
-        let locator = XPATH.container + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
+        let locator = XPATH.container + lib.DROPDOWN_SELECTOR.OPTIONS_LI_ELEMENT + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }

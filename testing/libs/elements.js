@@ -3,7 +3,6 @@
  */
 module.exports = Object.freeze({
     NOTIFICATION_TEXT: "//div[@class='notification-text']",
-    REFRESH_BUTTON: "//button[contains(@class,'icon-loop')]",
     BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",
     FORM_VIEW: `//div[contains(@id,'FormView')]`,
     FORM_ITEM: "//div[contains(@id,'FormItem')]",
@@ -11,7 +10,6 @@ module.exports = Object.freeze({
     TIME_PICKER_INPUT: "//div[contains(@id,'TimePicker')]//input[contains(@id,'TextInput')]",
     DATE_PICKER_INPUT: "//div[contains(@id,'DatePicker') and contains(@class,'date-time-picker')]//input[contains(@id,'TextInput')]",
     CONTENT_COMBOBOX: "//div[contains(@id,'ContentComboBox')]",
-    NEW_CONTENT_BUTTON: "//button[contains(@class,'new-content-button')]",
     SELECTED_LOCALE: `//div[contains(@id,'LocaleSelectedOptionView')]`,
     SLICK_VIEW_PORT: `//div[contains(@class,'slick-viewport')]`,
     SLICK_ROW: "//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row')]",
@@ -21,11 +19,10 @@ module.exports = Object.freeze({
     TEXT_AREA: "//textarea[contains(@id,'TextArea')]",
     WIDGET_SELECTOR_DROPDOWN: `//div[contains(@id,'WidgetSelectorDropdown')]`,
     DROP_DOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
-    GRID_CANVAS: `//div[contains(@class,'grid-canvas')]`,
-    DIV_GRID: "//div[contains(@id,'Grid') and contains(@class,'grid no-header')]",
     SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,
     TEXT_INPUT: "//input[@type='text']",
     DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
+    OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
     VALIDATION_RECORDING_VIEWER: "//div[contains(@id,'ValidationRecordingViewer')]//li",
     CONTENT_SUMMARY_AND_STATUS_VIEWER: "//div[contains(@id,'ContentSummaryAndCompareStatusViewer')]",
     validationRecording: "//div[contains(@id,'ValidationRecordingViewer')]//li",
@@ -48,6 +45,7 @@ module.exports = Object.freeze({
     },
     COMBOBOX: {
         MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
+        APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
     },
     INPUTS: {
         TEXT_INPUT: "//input[@type='text']",
@@ -83,6 +81,59 @@ module.exports = Object.freeze({
         MORE_BUTTON: "//button[contains(@id,'MoreButton')]",
         ADD_BUTTON: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add']]",
     },
+    CONTENT_SELECTOR: {
+        DIV: "//div[contains(@id,'ContentSelector')]",
+        selectedOptionByName: option => {
+            return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
+        }
+    },
+    FORM_VIEW_PANEL: {
+        INPUT_VIEW: "//div[contains(@id,'InputView')]",
+        HTML_AREA_INPUT: "//div[contains(@id,'InputView') and descendant::div[contains(@id,'HtmlArea')]]",
+        TEXT_LINE_INPUT: "//div[contains(@id,'InputView') and descendant::div[contains(@id,'TextLine')]]",
+        COMBOBOX_INPUT: "//div[contains(@id,'InputView') and descendant::div[contains(@id,'ComboBox')]]",
+    },
+    DROPDOWN_SELECTOR: {
+        contentListElementByDisplayName: (container, displayName) => {
+            return container +
+                   `//li[contains(@id,'ContentListElement') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
+        },
+        // non-clickable li element in options dropdown list, it is for checking read-only status
+        contentListElementByName: (container, name) => {
+            return container +
+                   `//li[contains(@id,'ContentListElement') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`;
+        },
+        listItemByDisplayName: (itemName) => {
+            return `//li[contains(@class,'item-view-wrapper') and descendant::h6[contains(.,'${itemName}')]]`
+        },
+        // clickable option in dropdown options list
+        dropdownListItemByDisplayName: (container, displayName) => {
+            return container +
+                   `//*[contains(@class,'item-view-wrapper')]//h6[contains(@class,'main-name') and contains(.,'${displayName}')]`;
+        },
+        dropdownListItemByName: (container, name) => {
+            return container +
+                   `//*[contains(@class,'item-view-wrapper')]//p[contains(@class,'sub-name') and contains(.,'${name}')]`;
+        },
+        flatModeDropdownImgItemByDisplayName: (container, displayName) => {
+            return container +
+                   `//*[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]//img`;
+        },
+        IMG_DROPDOWN_OPT_DISPLAY_NAME_FLAT_MODE: "//li[contains(@class,'item-view-wrapper')]" +
+                                                 "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
+        OPTIONS_LI_ELEMENT: "//li[contains(@id,'ContentListElement')]",
+        DROPDOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
+        OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
+        MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
+        APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
+        CONTENT_TREE_SELECTOR: "//div[contains(@id,'ContentTreeSelectorDropdown')]",
+        CONTENTS_TREE_LIST_UL: "//ul[contains(@id,'ContentsTreeList')]",
+        DROPDOWN_LIST_ITEM: "//*[contains(@class,'item-view-wrapper')]",
+        DROPDOWN_DIV_ITEM: "//div[contains(@class,'item-view-wrapper')]",
+        WIDGET_FILTER_DROPDOWN: `//div[contains(@id,'WidgetFilterDropdown')]`,
+        FILTERABLE_LISTBOX: "//div[contains(@id,'FilterableListBoxWrapper')]",
+        IMAGE_CONTENT_COMBOBOX_DIV: "//div[contains(@id,'ImageContentComboBox')]",
+    },
 
     DEPENDANTS: {
         EDIT_ENTRY: "//div[contains(@id,'DialogStateEntry') and contains(@class,'edit-entry')]",
@@ -98,6 +149,27 @@ module.exports = Object.freeze({
     slickRowByDisplayName: (container, displayName) => {
         return container +
                `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
+    },
+
+    TREE_GRID: {
+        CONTENT_STATUS: "//div[contains(@id,'StatusBlock')]/span",
+        SORT_DIALOG_TOGGLE: "//div[contains(@class,'sort-dialog-trigger')]",
+        EXPANDER_ICON_DIV: "//div[contains(@class,'toggle icon-arrow_drop_up')]",
+        itemByName: name => {
+            return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
+        },
+        contentSummaryByDisplayName: (parent, displayName) => {
+            return `//div[contains(@id,'ContentSummaryListViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
+        },
+        contentSummaryByName: name => {
+            return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
+        },
+        itemTreeGridListElementByDisplayName: displayName => {//ContentTreeGridListViewer
+            return `(//li[contains(@id,'ContentsTreeGridListElement') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]])[last()]`
+        },
+        itemTreeGridListElementByName: name => {
+            return `//li[contains(@id,'ContentsTreeGridListElement') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
+        },
     },
     checkBoxDiv: label => `//div[contains(@id,'Checkbox') and child::label[contains(.,'${label}')]]`,
     actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
@@ -121,25 +193,17 @@ module.exports = Object.freeze({
     itemStrictByName: name => {
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and text()='${name}']]`
     },
+    // TODO remove slick-row
     checkboxByName: name => {
         return `${this.itemByName(name)}` +
                `//ancestor::div[contains(@class,'slick-row')]//div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
-    projectByName: name => {
-        return `//div[contains(@id,'NamesView') and descendant::span[contains(@class,'name') and contains(.,'${name}')]]`
-    },
-    projectByIdentifier: id => {
-        return `//div[contains(@id,'NamesView') and descendant::p[contains(@class,'sub-name') and contains(.,'${id}')]]`
-    },
-    selectedProjectView: displayName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[text()='${displayName}']]`,
+
     formItemByLabel: (label) => {
         return `//div[contains(@id,'FormItem') and descendant::label[contains(.,'${label}')]]`
     },
-    expanderIconByName: name => {
-        return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]` +
-               `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
-    },
-    EMPTY_OPTIONS_DIV: "//div[contains(@class,'empty-options') and text()='No matching items']",
+
+    EMPTY_OPTIONS_H5: "//h5[contains(@class,'empty-list-item') and text()='No matching items']",
     radioButtonByLabel: label => {
         return `//span[contains(@class,'radio-button') and child::label[text()='${label}']]//input`
     },
@@ -172,13 +236,12 @@ module.exports = Object.freeze({
     APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
     SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and child::span[text()='Settings']]",
     MODE_CONTENT_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Content']",
-    IMAGE_CONTENT_COMBOBOX: {
-        DIV: "//div[contains(@id,'ImageContentComboBox')]",
-    },
+
     PUBLISH_DIALOG: {
         EXCLUDE_BTN: "//button[child::span[contains(.,'Exclude')]]",
     },
     CKE: {
+        TEXTAREA_DIV: "//div[contains(@id,'cke_TextArea')]",
         insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
         insertLinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Link')]`,
         insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,
@@ -208,4 +271,17 @@ module.exports = Object.freeze({
         decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
         formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
     },
+    PROJECTS: {
+        projectNameAndIconViewDiv: displayName => `//div[contains(@id,'NamesAndIconView') and descendant::span[contains(@class,'display-name') and contains(.,'${displayName}')]]`,
+        projectByName: name => {
+            return `//div[contains(@id,'ProjectItemViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`
+        },
+        projectByIdentifier: id => {
+            return `//div[contains(@id,'NamesView') and descendant::p[contains(@class,'sub-name') and contains(.,'${id}')]]`
+        },
+        selectedProjectView: displayName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[text()='${displayName}']]`,
+    },
+    INSPECT_PANEL: {
+        DESCRIPTOR_VIEWER_DIV: "//div[contains(@id,'DescriptorViewer')]",
+    }
 });
