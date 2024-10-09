@@ -3,8 +3,8 @@
  */
 const BaseSelectorForm = require('./base.selector.form');
 const lib = require('../../libs/elements');
+const ImageSelectorDropdown = require('../components/selectors/image.selector.dropdown');
 const appConst = require('../../libs/app_const');
-const LoaderComboBox = require('../components/loader.combobox');
 
 const XPATH = {
     container: "//div[contains(@id,'ImageSelector')]",
@@ -18,24 +18,16 @@ const XPATH = {
     selectedImageByDisplayName(imageDisplayName) {
         return `//div[contains(@id,'ImageSelectorSelectedOptionView') and descendant::div[contains(@class,'label') and text()='${imageDisplayName}']]`
     },
-    expanderIconByName(name) {
-        return lib.itemByName(name) +
-               `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
-    },
 };
 
 class ImageSelectorForm extends BaseSelectorForm {
 
     get imageComboBoxDropdownHandle() {
-        return lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.DROP_DOWN_HANDLE;
-    }
-
-    get modeTogglerButton() {
-        return lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
+        return lib.FORM_VIEW + XPATH.container + lib.DROP_DOWN_HANDLE;
     }
 
     get optionsFilterInput() {
-        return lib.FORM_VIEW + XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return lib.FORM_VIEW + XPATH.container + lib.OPTION_FILTER_INPUT;
     }
 
     get uploaderButton() {
@@ -46,16 +38,33 @@ class ImageSelectorForm extends BaseSelectorForm {
         return lib.FORM_VIEW + lib.inputView + lib.validationRecording;
     }
 
+    // Edit image button - SelectionToolbar
     get editButton() {
         return lib.FORM_VIEW + XPATH.editButton;
     }
 
+    // Remove image button - SelectionToolbar
     get removeButton() {
         return lib.FORM_VIEW + XPATH.removeButton;
     }
 
     type(contentData) {
         return this.selectImages(contentData.images);
+    }
+
+    async getSelectedImages() {
+        let locator = XPATH.selectedOption + "//div[@class='label']";
+        return await this.getTextInElements(locator);
+    }
+
+    async clickOnDropdownHandle() {
+        try {
+            await this.clickOnElement(this.imageComboBoxDropdownHandle);
+            return await this.pause(500);
+        } catch (err) {
+            await this.saveScreenshot('err_img_sel_dropdown_handle');
+            throw new Error('image combobox dropdown handle not found ' + err);
+        }
     }
 
     async waitForImageNotAvailableTextDisplayed() {
@@ -74,46 +83,22 @@ class ImageSelectorForm extends BaseSelectorForm {
         }
         return await this.doTouchActionOnElement(imagesEl[index]);
     }
-
-    async getSelectedImages() {
-        let locator = XPATH.selectedOption + "//div[@class='label']";
-        return await this.getTextInElements(locator);
-    }
-
-    async clickOnDropdownHandle() {
-        try {
-            await this.clickOnElement(this.imageComboBoxDropdownHandle);
-            return await this.pause(500);
-        } catch (err) {
-            await this.saveScreenshot('err_img_sel_dropdown_handle');
-            throw new Error('image combobox dropdown handle not found ' + err);
-        }
-    }
-
     async clickOnModeTogglerButton() {
-        await this.clickOnElement(this.modeTogglerButton);
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        await imageSelectorDropdown.clickOnModeTogglerButton(XPATH.container);
         return await this.pause(1500);
     }
 
-    // Expands a folder in Tree Mode:
-    async expandFolderInOptions(folderName) {
-        let locator = lib.expanderIconByName(folderName);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
-        return await this.pause(300);
+    async getTreeModeContentStatus(displayName) {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        return await imageSelectorDropdown.getTreeModeContentStatus(displayName)
     }
 
-    async getTreeModeOptionDisplayNames() {
-        let options = lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(options, appConst.mediumTimeout);
-        return await this.getTextInElements(options);
+    async getImagesStatusInOptions(displayName) {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        return await imageSelectorDropdown.getImagesStatusInOptions(displayName)
     }
 
-    async getTreeModeOptionStatus() {
-        let options = lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.SLICK_VIEW_PORT + "//div[contains(@class,'r1')]";
-        await this.waitForElementDisplayed(options, appConst.mediumTimeout);
-        return await this.getTextInElements(options);
-    }
 
     async getFlatModeOptionImageNames() {
         let titles = [];
@@ -134,66 +119,29 @@ class ImageSelectorForm extends BaseSelectorForm {
         return result;
     }
 
-    clickOnOptions(elements, viewport) {
-        let result = Promise.resolve();
-        let i = 0;
-        elements.forEach(el => {
-            result = result.then(() => {
-                return el.click();
-            }).then(() => {
-                return this.pause(500);
-            }).then(() => {
-                i++;
-                if (i === 3) {
-                    return this.doScroll(viewport, 180);
-                }
-            }).then(() => {
-                return this.pause(500);
-            });
-        });
-        return result;
-    }
-
-    // Expand the dropdown then click on checkboxes in the dropdown-options:
     async clickOnDropDownHandleAndSelectImages(numberImages) {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        // 1. Click on the dropdown-handler and expand the selector:
         await this.clickOnDropdownHandle();
         await this.pause(700);
-        let selector = lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.SLICK_ROW + "//div[contains(@class,'checkboxsel')]";
-        let elems = await this.findElements(selector);
-        let viewportElement = await this.findElements(
-            lib.IMAGE_CONTENT_COMBOBOX.DIV + "//div[contains(@id,'OptionsTreeGrid')]" + "//div[contains(@class, 'slick-viewport')]");
-        // Scrolls and clicks on options in the dropdown:
-        await this.clickOnOptions(elems.slice(0, numberImages), viewportElement[0]);
-        await this.clickOnApplyButton();
+        // 2. Select a number of images:
+        await imageSelectorDropdown.clickOnImagesInDropdownList(numberImages);
+        // 3. Click on "OK" and apply the selection:
+        await imageSelectorDropdown.clickOnApplySelectionButton();
         return await this.pause(1000);
     }
 
-    // Scrolls viewport in the dropdown:
-    doScroll(viewportElement, step) {
-        return this.getBrowser().execute("arguments[0].scrollTop=arguments[1]", viewportElement, step);
-    }
-
+    // Click on OK and apply selection:
     async clickOnApplyButton() {
-        let selector = lib.IMAGE_CONTENT_COMBOBOX.DIV + "//span[text()='Apply']";
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        return await this.clickOnElement(selector);
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        return await imageSelectorDropdown.clickOnApplySelectionButton();
     }
 
+    // Do filter an image then click the option (there is no Apply button):
     async filterOptionsAndSelectImage(displayName) {
-        let loaderComboBox = new LoaderComboBox();
+        let imageSelectorDropdown = new ImageSelectorDropdown();
         await this.typeTextInInput(this.optionsFilterInput, displayName);
-        return await loaderComboBox.selectOption(displayName);
-    }
-
-    async expandDropdownClickOnImage(displayName) {
-        try {
-            let loaderComboBox = new LoaderComboBox();
-            await this.clickOnDropdownHandle();
-            return await loaderComboBox.selectOption(displayName);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_option');
-            throw new Error('Image -Selector , error during selecting the option: screenshot ' + screenshot + ' ' + err);
-        }
+        return await imageSelectorDropdown.clickOnFilteredByDisplayNameItem(displayName, XPATH.container);
     }
 
     async doFilterOptions(displayName) {
@@ -203,7 +151,7 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async waitForEmptyOptionsMessage() {
         try {
-            return await this.waitForElementDisplayed(XPATH.container + lib.EMPTY_OPTIONS_DIV, appConst.longTimeout);
+            return await this.waitForElementDisplayed(XPATH.container + lib.EMPTY_OPTIONS_H5, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_empty_opt');
             throw new Error("Image Selector - Empty options text should appear visible, screenshot: " + screenshot + ' ' + err);
@@ -222,12 +170,6 @@ class ImageSelectorForm extends BaseSelectorForm {
         return this.waitForElementNotDisplayed(this.optionsFilterInput, appConst.mediumTimeout);
     }
 
-    async clickOnExpanderIconInOptions(name) {
-        let expanderIcon = lib.IMAGE_CONTENT_COMBOBOX.DIV + XPATH.expanderIconByName(name);
-        await this.clickOnElement(expanderIcon);
-        return await this.pause(700);
-    }
-
     async clickOnSelectedImage(displayName) {
         let locator = XPATH.selectedImageByDisplayName(displayName);
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -240,10 +182,24 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async selectOptionByImagePath(imagePath, imageDisplayName) {
-        let loaderComboBox = new LoaderComboBox();
-        await this.typeTextInInput(this.optionsFilterInput, imagePath);
-        await loaderComboBox.selectOption(imageDisplayName);
-        return await loaderComboBox.pause(300);
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        await imageSelectorDropdown.filterItem(imagePath);
+        // 2. Wait for the required option is displayed then click on it:
+        await imageSelectorDropdown.clickOnOptionByDisplayName(imageDisplayName);
+        // 3. Click on 'OK' button:
+        await imageSelectorDropdown.clickOnApplySelectionButton();
+        return await imageSelectorDropdown.pause(300);
+    }
+
+    async expandDropdownAndClickOnImage(displayName) {
+        try {
+            let imageSelectorDropdown = new ImageSelectorDropdown();
+            await imageSelectorDropdown.clickOnDropdownHandle();
+            await imageSelectorDropdown.clickOnOptionByDisplayName(displayName);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_option');
+            throw new Error('Image -Selector , error during selecting the option: screenshot ' + screenshot + ' ' + err);
+        }
     }
 
     //Remove image button:
@@ -261,23 +217,51 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await this.pause(300);
     }
 
-    // Edit image button
+    //Edit image button
     waitForEditButtonDisplayed() {
         return this.waitForElementDisplayed(this.editButton, appConst.mediumTimeout);
     }
 
+    async getNumberItemInRemoveButton() {
+        await this.waitForRemoveButtonDisplayed();
+        let locator = this.removeButton + "/span";
+        return await this.getText(locator);
+    }
+
+    async clickOnExpanderIconInOptionsList(displayName) {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        await imageSelectorDropdown.clickOnExpanderIconInOptionsList(displayName);
+        await imageSelectorDropdown.pause(300);
+    }
+
+    async clickOnImageOptionInTreeMode(displayName) {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        await imageSelectorDropdown.clickOnImageInDropdownListTreeMode(displayName, XPATH.container);
+    }
+
+    async clickOnOkAndApplySelectionButton() {
+        try {
+            let imageSelectorDropdown = new ImageSelectorDropdown();
+            await imageSelectorDropdown.clickOnApplySelectionButton();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
+            throw new Error("Error occurred in Content combobobox, OK button, screenshot: " + screenshot + ' ' + err);
+        }
+    }
+
+    async getTreeModeOptionDisplayNames() {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        return await imageSelectorDropdown.getOptionsDisplayNameInTreeMode(XPATH.container);
+    }
+
+    // Wait for 'Edit image' button is enabled - SelectionToolbar
     waitForEditButtonDisabled() {
         return this.waitForElementDisabled(this.editButton, appConst.mediumTimeout);
     }
 
+    // Wait for 'Remove image' button is enabled - SelectionToolbar
     waitForRemoveButtonEnabled() {
         return this.waitForElementEnabled(this.removeButton, appConst.mediumTimeout);
-    }
-
-    async getNumberItemInRemoveButton() {
-        await this.waitForRemoveButtonDisplayed();
-        let locator = this.removeButton + '/span';
-        return await this.getText(locator);
     }
 }
 

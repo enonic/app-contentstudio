@@ -1,7 +1,10 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const ComboBox = require('../components/loader.combobox');
+const ProjectApplicationsComboBox = require('../components/projects/project.applications.combobox');
+const ProjectAccessControlComboBox = require('../components/projects/project.access.control.combobox');
+const LocaleSelectorDropdown = require('../components/selectors/locale.selector.dropdown');
+const ExtendedPrincipalComboBox = require('../components/projects/extended.principal.combobox');
 
 const XPATH = {
     settingsContainer: "//div[contains(@id,'ContentAppBar')]",
@@ -33,6 +36,10 @@ const XPATH = {
 
 class ProjectWizardPanel extends Page {
 
+    get toolbar() {
+        return XPATH.toolbar;
+    }
+
     get projectIdentifierInput() {
         return XPATH.container + lib.formItemByLabel('Identifier') + lib.TEXT_INPUT;
     }
@@ -46,15 +53,15 @@ class ProjectWizardPanel extends Page {
     }
 
     get customReadAccessOptionsFilterInput() {
-        return XPATH.projectReadAccessWizardStepForm + XPATH.accessFormItem + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.projectReadAccessWizardStepForm + XPATH.accessFormItem + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     get localeOptionsFilterInput() {
-        return XPATH.container + XPATH.localeComboBoxDiv + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.container + XPATH.localeComboBoxDiv + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     get projectApplicationsOptionsFilterInput() {
-        return XPATH.container + XPATH.projectApplicationsComboboxDiv + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.container + XPATH.projectApplicationsComboboxDiv + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     get saveButton() {
@@ -215,8 +222,8 @@ class ProjectWizardPanel extends Page {
 
     // Adds a user with the default role (Contributor) in Roles step form:
     async selectProjectAccessRoles(principalDisplayName) {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container + XPATH.projectAccessControlComboBox);
+        let projectAccessControlComboBox = new ProjectAccessControlComboBox();
+        await projectAccessControlComboBox.clickOnFilteredByDisplayNamePrincipalAndClickOnApply(principalDisplayName, XPATH.container);
         console.log('Project Wizard, principal is selected: ' + principalDisplayName);
         return await this.pause(1000);
     }
@@ -272,15 +279,16 @@ class ProjectWizardPanel extends Page {
     }
 
     async selectUserInCustomReadAccess(principalDisplayName) {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.projectReadAccessWizardStepForm);
+        let extendedPrincipalComboBox = new ExtendedPrincipalComboBox();
+        await extendedPrincipalComboBox.clickOnFilteredByDisplayNameUserAndClickOnApply(principalDisplayName,
+            XPATH.projectReadAccessWizardStepForm);
         console.log('Project Wizard, principal is selected: ' + principalDisplayName);
         return await this.pause(300);
     }
 
     async selectLanguage(language) {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(language, XPATH.projectReadAccessWizardStepForm + XPATH.localeComboBoxDiv);
+        let localeSelectorDropdown = new LocaleSelectorDropdown();
+        await localeSelectorDropdown.clickOnFilteredLanguageAndClickOnOk(language);
         console.log('Project Wizard, language is selected: ' + language);
         return await this.pause(300);
     }
@@ -398,9 +406,9 @@ class ProjectWizardPanel extends Page {
 
     async selectApplication(appName) {
         try {
-            let comboBox = new ComboBox();
-            await this.waitForProjectApplicationsOptionsFilterInputDisplayed();
-            await comboBox.typeTextAndSelectOption(appName, XPATH.projectApplicationsComboboxDiv);
+            let projectApplicationsComboBox = new ProjectApplicationsComboBox();
+            //await this.waitForProjectApplicationsOptionsFilterInputDisplayed();
+            await projectApplicationsComboBox.clickFilteredByAppNameItemAndClickOnOk(appName, XPATH.container);
             console.log('Project Wizard, application is selected: ' + appName);
             return await this.pause(300);
         } catch (err) {
@@ -453,7 +461,7 @@ class ProjectWizardPanel extends Page {
     }
 
     async clickOnEditProjectConfig(appName) {
-        let locator = XPATH.container + lib.selectedProjectView(appName) + lib.EDIT_ICON;
+        let locator = XPATH.container + lib.PROJECTS.selectedProjectView(appName) + lib.EDIT_ICON;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
     }

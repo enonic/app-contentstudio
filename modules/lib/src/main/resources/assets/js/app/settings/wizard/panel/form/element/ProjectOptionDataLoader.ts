@@ -1,10 +1,9 @@
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {OptionDataLoader, OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
 import {Project} from '../../../../data/project/Project';
-import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import * as Q from 'q';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ProjectListWithMissingRequest} from '../../../../resource/ProjectListWithMissingRequest';
+import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 
 export class ProjectOptionDataLoader
     extends OptionDataLoader<Project> {
@@ -31,26 +30,6 @@ export class ProjectOptionDataLoader
         return Q([]);
     }
 
-    fetch(node: TreeNode<Option<Project>>): Q.Promise<Project> {
-        if (this.isLoaded()) {
-            return Q(this.getProjectByName(node.getData().getDisplayValue().getName()));
-        }
-
-        return this.load().then(() => {
-            return this.getProjectByName(node.getData().getDisplayValue().getName());
-        });
-    }
-
-    fetchChildren(parentNode: TreeNode<Option<Project>>, from: number = 0, size: number = -1): Q.Promise<OptionDataLoaderData<Project>> {
-        if (this.isLoaded()) {
-            return Q(this.getAndWrapDirectProjectChildren(parentNode.getData().getDisplayValue()));
-        }
-
-        return this.load().then(() => {
-            return this.getAndWrapDirectProjectChildren(parentNode.getData().getDisplayValue());
-        });
-    }
-
     private getAndWrapDirectProjectChildren(project: Project) {
         const childrenProjects: Project[] = this.getDirectProjectChildren(project);
         return new OptionDataLoaderData<Project>(childrenProjects);
@@ -68,16 +47,18 @@ export class ProjectOptionDataLoader
         this.modeChangeListener(true);
     }
 
-    notifyModeChange(isTreeMode: boolean): void {
-        this.modeChangeListener(isTreeMode);
-    }
-
     unLoadModeChanged(listener: (isTreeMode: boolean) => void): void {
     //
     }
 
-    private getProjectByName(name: string): Project {
-        return this.getResults().find((project: Project) => project.getName() === name);
+    whenLoaded(listener: (projects: Project[]) => void): void {
+        const innerListener = (event: LoadedDataEvent<Project>) => {
+            listener(event.getData());
+            this.unLoadedData(innerListener);
+            return Q.resolve();
+        };
+
+        this.onLoadedData(innerListener);
     }
 
     isPartiallyLoaded(): boolean {

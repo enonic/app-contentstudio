@@ -1,7 +1,7 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const LoaderComboBox = require('../../components/loader.combobox');
+const MacroComboBox = require('../../components/selectors/insert.macro.combobox');
 
 const XPATH = {
     container: `//div[contains(@id,'MacroModalDialog')]`,
@@ -59,8 +59,8 @@ class InsertMacroModalDialog extends Page {
     }
 
     async selectOption(option) {
-        let loaderComboBox = new LoaderComboBox();
-        return await loaderComboBox.typeTextAndSelectOption(option, XPATH.container);
+        let macroComboBox = new MacroComboBox();
+        return await macroComboBox.selectFilteredByDisplayNameItem(option, XPATH.container);
     }
 
     clickOnCancelButton() {

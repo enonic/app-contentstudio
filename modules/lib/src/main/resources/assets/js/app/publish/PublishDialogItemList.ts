@@ -37,7 +37,7 @@ export class PublishDialogItemList
             deletedItems.forEach(deletedItem => {
                 this.getItems().forEach(item => {
                     if (item.getContentId().equals(deletedItem.getContentId())) {
-                        this.removeItem(item);
+                        this.removeItems(item);
                     }
                 });
             });
@@ -124,7 +124,7 @@ export class PublishDialogItemList
             const item: ContentSummaryAndCompareStatus = this.getItem(id.toString());
 
             if (item) {
-                this.removeItem(item, true);
+                this.removeItems(item, true);
             }
         });
     }

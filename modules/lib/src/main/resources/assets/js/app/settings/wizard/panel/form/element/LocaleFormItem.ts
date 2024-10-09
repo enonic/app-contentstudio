@@ -1,5 +1,5 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {LocaleComboBox, LocaleSelectedOptionsView} from '../../../../../locale/LocaleComboBox';
+import {LocaleComboBox, LocaleFormInputElWrapper, LocaleSelectedOptionsView} from '../../../../../locale/LocaleComboBox';
 import {ProjectFormItemBuilder} from './ProjectFormItem';
 import {Flag} from '../../../../../locale/Flag';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
@@ -15,13 +15,9 @@ export class LocaleFormItem
     constructor() {
         super(
             new ProjectFormItemBuilder(
-                LocaleComboBox.create()
-                    .setSelectedOptionsView(new LocaleWithFlagSelectedOptionsView())
-                    .setMaximumOccurrences(1)
-                    .build()
-            )
-            .setHelpText(i18n('settings.projects.language.helptext'))
-            .setLabel(i18n('settings.projects.language.label')) as ProjectFormItemBuilder
+                new LocaleFormInputElWrapper(new LocaleComboBox({selectedOptionsView: new LocaleWithFlagSelectedOptionsView()})))
+                .setHelpText(i18n('settings.projects.language.helptext'))
+                .setLabel(i18n('settings.projects.language.label')) as ProjectFormItemBuilder
         );
 
         this.addClass('locale-form-item');
@@ -30,13 +26,13 @@ export class LocaleFormItem
     }
 
     protected initListeners(): void {
-        this.getLocaleCombobox().onValueChanged(() => {
+        this.getLocaleCombobox().onSelectionChanged(() => {
             this.updateCopyButtonState();
         });
     }
 
     getLocaleCombobox(): LocaleComboBox {
-        return this.getInput() as LocaleComboBox;
+        return (this.getInput() as LocaleFormInputElWrapper).getComboBox();
     }
 
     protected doCopyFromParent(): void {
@@ -44,10 +40,10 @@ export class LocaleFormItem
         const parentLanguage: string = parentProject?.getLanguage() ?? '';
         const combobox: LocaleComboBox = this.getLocaleCombobox();
 
-        combobox.getComboBox().setValue(parentLanguage);
+        combobox.setSelectedLocale(parentLanguage || '');
 
         if (combobox.countSelected() === 0) {
-            combobox.getComboBox().getInput().openForTyping();
+            combobox.openForTyping();
             combobox.setEnabled(true);
         }
 

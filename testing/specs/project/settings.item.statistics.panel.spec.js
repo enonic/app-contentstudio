@@ -40,7 +40,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
             // 1. Click on the Projects-checkbox:
-            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByIdentifier('Manage projects and layers');
+            await settingsBrowsePanel.clickOnProjectsFolderCheckbox();
             // 2. Wait for the graphic element for 'Default' project is displayed in 'Projects Graph':
             await studioUtils.saveScreenshot('project_item_statistics');
             await settingsItemStatisticsPanel.waitForGraphicElementDisplayed('Default');
@@ -68,6 +68,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             assert.equal(actualLanguage, appConst.LANGUAGES.EN, "Expected language should be displayed in Statistics panel.");
         });
 
+    // multiInheritance = false
     it(`GIVEN 2 projects have been checked in Settings panel WHEN new project wizard modal dialog has been opened THEN only the second selected project should be displayed in the dialog`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -78,7 +79,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             // 2. Press 'New' button in the toolbar:
             await settingsBrowsePanel.clickOnNewButton();
             await parentProjectStep.waitForLoaded();
-            // 3. Verify that only the second selected project is displayed in the Step:
+            // 3. Verify that only the second selected project is displayed in the Step:(multiInheritance = false)
             await studioUtils.saveScreenshot('project_apps_step_selected_app');
             let selectedProjects = await parentProjectStep.getSelectedProjects();
             assert.equal(selectedProjects[0], 'Default', 'Default project should be selected in the parent step');
@@ -136,7 +137,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             // Type the Identifier of the project
             await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME);
             await confirmValueDialog.clickOnConfirmButton();
-            // 2.Description block gets not visible in the statistics panel:
+            // 2. Description block gets not visible in the statistics panel:
             await settingsItemStatisticsPanel.waitForDescriptionNotDisplayed();
             await studioUtils.saveScreenshot("project_item_statistics_description_not_displayed");
         });

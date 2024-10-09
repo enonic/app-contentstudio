@@ -1,115 +1,85 @@
-import * as Q from 'q';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Project} from '../../../../data/project/Project';
 import {ProjectViewer} from '../../../viewer/ProjectViewer';
+import * as Q from 'q';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {ProjectsChainBlock} from './ProjectsChainBlock';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ProjectOptionDataHelper} from './ProjectOptionDataHelper';
-import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {ComboBoxConfig} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
-import {ProjectOptionDataLoader} from './ProjectOptionDataLoader';
 import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
+import {ProjectOptionDataLoader} from './ProjectOptionDataLoader';
+import {
+    FilterableListBoxWrapperWithSelectedView,
+    ListBoxInputOptions
+} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ProjectsTreeRootList} from './ProjectsTreeRootList';
+
+export interface ProjectsComboBoxOptions
+    extends ListBoxInputOptions<Project> {
+    loader: ProjectOptionDataLoader;
+}
 
 export class ProjectsSelector
-    extends RichComboBox<Project> {
+    extends FilterableListBoxWrapperWithSelectedView<Project> {
+
+    protected options: ProjectsComboBoxOptions;
+
+    protected listBox: ProjectsTreeRootList;
 
     private readonly helper: ProjectOptionDataHelper;
 
-    constructor(builder = new ProjectsDropdownBuilder()) {
-        super(builder);
+    constructor(maximumOccurrences?: number) {
+        const loader = new ProjectOptionDataLoader();
+        const helper = new ProjectOptionDataHelper();
+        const dropdownOptions: ProjectsComboBoxOptions = {
+            loader: loader,
+            maxSelected: maximumOccurrences,
+            className: maximumOccurrences === 1 ? 'single-occurrence' : 'multiple-occurrence',
+            selectedOptionsView: new ProjectSelectedOptionsView(),
+        };
 
-        this.helper = builder.optionDataHelper;
+        const list = new ProjectsTreeRootList({helper: helper, loader: loader, className: 'projects-tree-list'});
 
-        this.initListeners();
+        super(list, dropdownOptions);
 
-        this.addClass('projects-selector');
+        this.helper = helper;
     }
 
-    private initListeners(): void {
-        const loader: ProjectOptionDataLoader = this.getLoader() as ProjectOptionDataLoader;
+    protected initElements(): void {
+        super.initElements();
 
-        loader.onLoadedData(() => {
-            this.helper.setProjects(this.getLoadedResults());
+        this.selectedOptionsView.setOccurrencesSortable(true);
+        this.selectedOptionsView.setDraggable(true);
+    }
 
-            const isFlat = this.isFlatList();
-            this.toggleClass('flat', isFlat);
-            loader.notifyModeChange(!isFlat);
+    protected initListeners(): void {
+        super.initListeners();
 
-            this.updateSortable();
+        this.onSelectionChanged((selectionChange: SelectionChange<Project>) => {
+            if (selectionChange.selected?.length > 0) {
+                this.getAllProjects().then((projects: Project[]) => {
+                    const project: Project = selectionChange.selected[0];
+                    const subName: string =
+                        ProjectsChainBlock.buildProjectsChain(project.getName(), projects).map((p: Project) => p.getName()).join(' / ');
 
-            return Q.resolve();
+                    const view = this.selectedOptionsView.getSelectedOptions()[0].getOptionView() as ProjectSelectedOptionView;
+                    view?.getNamesAndIconView().setSubName(subName);
+                }).catch(DefaultErrorHandler.handle);
+            }
         });
 
-        this.onOptionSelected(() => this.updateSortable());
-        this.onOptionDeselected(() => this.updateSortable());
-    }
-
-    protected getSelectedOptionsView(): ProjectSelectedOptionsView {
-        return this.getSelectedOptionView() as ProjectSelectedOptionsView;
-    }
-
-    private updateSortable(): void {
-        const isSortable = this.countSelected() > 1;
-        const wasSortable = this.getSelectedOptionsView().hasClass('sortable');
-
-        if (wasSortable === isSortable) {
-            return;
-        }
-
-        this.toggleClass('multiple-occurrence', isSortable);
-        this.toggleClass('single-occurrence', !isSortable);
-
-        this.getSelectedOptionsView().setOccurrencesSortable(isSortable);
-    }
-
-    private isFlatList(): boolean {
-        return this.isSearchStringSet() || !this.getLoadedResults().some((p: Project) => this.helper.isExpandable(p));
-    }
-
-    protected createOption(project: Project): Option<Project> {
-        return Option.create<Project>()
-            .setValue(project.getName())
-            .setDisplayValue(project)
-            .setExpandable(!this.isSearchStringSet() && this.helper.isExpandable(project))
-            .setSelectable(this.helper.isSelectable(project))
-            .build();
+        this.optionFilterInput.onValueChanged((event: ValueChangedEvent) => {
+            this.listBox.search(event.getNewValue());
+        });
     }
 
     private isSearchStringSet(): boolean {
-        return !!this.getLoader().getSearchString();
-    }
-
-    protected createOptions(items: Project[]): Q.Promise<Option<Project>[]> {
-        this.helper.setProjects(items);
-        const result: Project[] = this.isSearchStringSet() ? items : items.filter((item: Project) => !item.hasParents());
-        return super.createOptions(result);
-    }
-
-    private updateProject(project: Project) {
-        if (!project) {
-            return;
-        }
-
-        const newOption: Option<Project> = this.createOption(project);
-        const existingOption: Option<Project> = this.getOptionByValue(project.getName());
-
-        const wasChanged = !project.equals(existingOption?.getDisplayValue());
-        if (!wasChanged) {
-            return;
-        }
-
-        if (existingOption) {
-            this.updateOption(existingOption, project);
-        } else {
-            this.addOption(newOption);
-        }
-
-        this.getSelectedOptions().forEach((selectedOption: SelectedOption<Project>) => {
-            if (selectedOption.getOption().getValue() === project.getName()) {
-                selectedOption.getOptionView().setOption(newOption);
-            }
-        });
+        return !!this.options.loader.getSearchString();
     }
 
     updateAndSelectProjects(projects: Project[]) {
@@ -117,23 +87,26 @@ export class ProjectsSelector
             return;
         }
 
-        const projectValues = projects.map(p => p.getName());
+        this.deselectAll(true);
+        this.select(projects);
+    }
 
-        projects.forEach(p => this.updateProject(p));
+    getSelectedProjects(): Project[] {
+        return this.getSelectedOptions().map((selectedOption) => selectedOption.getOption().getDisplayValue());
+    }
 
-        this.getOptions().forEach(option => {
-            const value = option.getValue();
+    setDraggable(value: boolean): void {
+        super.setDraggable(value);
 
-            const mustSelect = projectValues.indexOf(value) >= 0 && !this.isSelected(option.getDisplayValue());
-            if (mustSelect) {
-                this.selectOption(option);
-                return;
-            }
+        this.selectedOptionsView.setDraggable(value);
+        this.selectedOptionsView.setOccurrencesSortable(value);
+    }
 
-            const mustDeselect = projectValues.indexOf(value) < 0 && this.isSelected(option.getDisplayValue());
-            if (mustDeselect) {
-                this.deselect(option.getDisplayValue());
-            }
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.addClass('projects-selector');
+
+            return rendered;
         });
     }
 
@@ -141,15 +114,25 @@ export class ProjectsSelector
         return value.getName();
     }
 
-    private getLoadedResults(): Project[] {
-        return this.getLoader().getResults();
+    private getAllProjects(): Q.Promise<Project[]> {
+        if (this.options.loader.isLoaded()) {
+            return Q(this.getLoadedResults());
+        }
+
+        return this.options.loader.load();
     }
 
-    protected createComboboxConfig(builder: RichComboBoxBuilder<Project>): ComboBoxConfig<Project> {
-        const config: ComboBoxConfig<Project> = super.createComboboxConfig(builder);
-        config.treegridDropdownAllowed = true;
+    private getLoadedResults(): Project[] {
+        return this.options.loader.getResults();
+    }
 
-        return config;
+    createSelectedOption(item: Project): Option<Project> {
+        return Option.create<Project>()
+            .setValue(item.getName())
+            .setDisplayValue(item)
+            .setExpandable(!this.isSearchStringSet() && this.helper.isExpandable(item))
+            .setSelectable(this.helper.isSelectable(item))
+            .build();
     }
 }
 
@@ -158,6 +141,8 @@ class ProjectSelectedOptionView
     implements SelectedOptionView<Project> {
 
     private option: Option<Project>;
+
+    private dragControl: DivEl;
 
     constructor(option: Option<Project>) {
         super('selected-option');
@@ -175,11 +160,16 @@ class ProjectSelectedOptionView
     }
 
     protected initElements(): void {
-        const dragControl = new DivEl('drag-control');
-        this.appendChild(dragControl);
+        this.dragControl = new DivEl('drag-control');
+        this.appendChild(this.dragControl);
 
         this.setEditable(true);
         this.appendRemoveButton();
+    }
+
+    setDraggable(value: boolean): void {
+        super.setDraggable(value);
+        this.dragControl.setVisible(value);
     }
 }
 
@@ -188,21 +178,32 @@ class ProjectSelectedOptionsView
 
     createSelectedOption(option: Option<Project>): SelectedOption<Project> {
         const optionView: ProjectSelectedOptionView = new ProjectSelectedOptionView(option);
+
+        if (!this.isDraggable()) {
+            optionView.setDraggable(false);
+        }
+
         return new SelectedOption<Project>(optionView, this.count());
     }
 }
 
-export class ProjectsDropdownBuilder extends RichComboBoxBuilder<Project> {
+export class ParentProjectFormInputWrapper
+    extends FormInputEl {
 
-    comboBoxName: string = 'projectSelector';
+    private readonly projectSelector: ProjectsSelector;
 
-    optionDisplayValueViewer: ProjectViewer =  new ProjectViewer();
+    constructor(projectSelector: ProjectsSelector) {
+        super('div', 'content-selector-wrapper');
 
-    optionDataHelper: ProjectOptionDataHelper = new ProjectOptionDataHelper();
+        this.projectSelector = projectSelector;
+        this.appendChild(projectSelector);
+    }
 
-    loader: ProjectOptionDataLoader = new ProjectOptionDataLoader();
+    getSelector(): ProjectsSelector {
+        return this.projectSelector;
+    }
 
-    selectedOptionsView: ProjectSelectedOptionsView = new ProjectSelectedOptionsView();
-
-    maximumOccurrences: number = 1;
+    getValue(): string {
+        return this.projectSelector.getSelectedOptions()[0]?.getOption().getDisplayValue()?.getName() || '';
+    }
 }

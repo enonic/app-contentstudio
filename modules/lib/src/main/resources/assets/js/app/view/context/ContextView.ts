@@ -26,12 +26,10 @@ import {ShowSplitEditEvent} from '../../wizard/ShowSplitEditEvent';
 import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {CompareStatus} from '../../content/CompareStatus';
-import {ContentIds} from '../../content/ContentIds';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
-import {ContentId} from '../../content/ContentId';
 import {WidgetItemView} from './WidgetItemView';
 import {VersionContext} from './widget/version/VersionContext';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -157,7 +155,7 @@ export class ContextView
     }
 
     private initWidgetsSelectionRow() {
-        this.widgetsSelectionRow = new WidgetsSelectionRow(this);
+        this.widgetsSelectionRow = new WidgetsSelectionRow();
         this.appendChild(this.widgetsSelectionRow);
         this.widgetsSelectionRow.updateState(this.activeWidget);
     }
@@ -366,7 +364,7 @@ export class ContextView
             .setIconClass(`${StyleHelper.getCurrentPrefix()}icon-mobile`)
             .setType(InternalWidgetType.EMULATOR)
             .setContextView(this)
-            .addWidgetItemView(new EmulatorWidgetItemView({})).build();
+            .addWidgetItemView(new EmulatorWidgetItemView()).build();
 
         this.versionsWidgetView = this.createVersionsWidgetView();
 

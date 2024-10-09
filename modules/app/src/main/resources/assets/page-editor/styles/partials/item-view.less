@@ -17,9 +17,20 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      height: @placeholder-height;
 
       .empty-descriptor-block {
         position: relative; // works as setting the z-index to 1
+      }
+
+      .selectable-listbox-wrapper {
+        text-align: left;
+
+        .selectable-listbox {
+          margin: 0;
+          padding: 0;
+          z-index: @z-index-empty-component-options;
+        }
       }
     }
   }
@@ -104,11 +115,17 @@
   text-align: center;
   box-sizing: border-box;
 
+  .selectable-listbox {
+    margin: 0;
+    padding: 0;
+    z-index: @z-index-empty-component-options;
+  }
+
   .display-name {
     display: none;
     color: @page-editor-message-blue;
     margin: 0;
-    line-height: 37px;
+    line-height: 36px;
     position: relative; // set the position to appear on top of the absolutely positioned :before
 
     .ellipsis();
@@ -159,7 +176,7 @@
       input[type="text"] {
         font-family: @admin-font-family;
         font-size: 15px;
-        padding: 4px 37px 4px 10px;
+        padding: 4px 36px 4px 10px;
 
         .placeholder(1em, italic);
         .input-glow(); // need to use glow explicitly because it is used out of the form

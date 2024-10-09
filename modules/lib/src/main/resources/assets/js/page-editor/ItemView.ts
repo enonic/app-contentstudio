@@ -799,11 +799,12 @@ export abstract class ItemView
 
         Highlighter.get().hide();
         this.selectItem();
-        this.showContextMenu(config?.position, menuPosition);
 
         if (!silent && config) {
             new SelectComponentEvent(config).fire();
         }
+
+        this.showContextMenu(config?.position, menuPosition);
     }
 
     selectWithoutMenu() {
@@ -825,7 +826,9 @@ export abstract class ItemView
         // selecting anything should exit the text edit mode
         // do this before highlighting as this might change text component dimensions
         if (PageViewController.get().isTextEditMode()) {
-            PageViewController.get().setTextEditMode(false);
+            if (!this.isText()) {
+                PageViewController.get().setTextEditMode(false);
+            }
         }
 
         this.getEl().setData(ItemView.LIVE_EDIT_SELECTED, 'true');

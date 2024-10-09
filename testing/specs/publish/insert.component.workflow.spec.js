@@ -61,7 +61,7 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             await contentWizard.waitForPublishButtonDisplayed();
             // 7. Verify the workflow status in Browse Panel:
             await studioUtils.doSwitchToContentBrowsePanel();
-            actualWorkflow = await contentBrowsePanel.getWorkflowState(SITE.displayName);
+            actualWorkflow = await contentBrowsePanel.getWorkflowStateByDisplayName(SITE.displayName);
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
                 "'Ready for publishing' should be displayed in browse panel");
         });

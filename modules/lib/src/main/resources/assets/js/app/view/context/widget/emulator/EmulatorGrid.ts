@@ -1,49 +1,36 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {EmulatorDevice} from './EmulatorDevice';
 import {FontIcon} from '../../../../icon/FontIcon';
-import {Grid} from '@enonic/lib-admin-ui/ui/grid/Grid';
-import {GridOptions, GridOptionsBuilder} from '@enonic/lib-admin-ui/ui/grid/GridOptions';
-import {GridColumn, GridColumnBuilder} from '@enonic/lib-admin-ui/ui/grid/GridColumn';
 import {H5El} from '@enonic/lib-admin-ui/dom/H5El';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {EmulatorDeviceRow} from './EmulatorWidgetItemView';
+import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
 
 export class EmulatorGrid
-    extends Grid<Slick.SlickData> {
+    extends ListBox<EmulatorDeviceRow> {
 
-    protected createOptions(): GridOptions<Slick.SlickData> {
-        return new GridOptionsBuilder()
-            .setHideColumnHeaders(true)
-            .setRowHeight(50)
-            .setWidth('100%')
-            .setRerenderOnResize(false)
-            .build();
+    protected createItemView(item: EmulatorDeviceRow, readOnly: boolean): EmulatorListElement {
+        return this.createView(item);
     }
 
-    protected createColumns(): GridColumn<Slick.SlickData>[] {
-        return [
-            new GridColumnBuilder()
-                .setName('device')
-                .setField('device')
-                .setId('device')
-                .setBoundaryWidth(150, 9999)
-                .setCssClass('grid-row')
-                .setFormatter((row, cell, value) => EmulatorGrid.buildRow(value).toString())
-                .build()
-        ];
+    protected getItemId(item: EmulatorDeviceRow): string {
+        return '' + item.id;
     }
 
-    private static buildRow(data: EmulatorDevice): DivEl {
-        const rowEl = new DivEl();
+    private createView(item: EmulatorDeviceRow): EmulatorListElement {
+        const data = item.device;
+        const rowEl = new EmulatorListElement(item);
         rowEl.getEl().setData('width', data.getWidth().toString());
         rowEl.getEl().setData('height', data.getHeight().toString());
         rowEl.getEl().setData('units', data.getUnits());
 
         const icon = new FontIcon('icon-' + data.getDeviceTypeAsString());
 
-        const title = new H5El();
+        const title = new H5El('title');
         title.getEl().setInnerHtml(data.getName());
 
-        const subtitle = new H6El();
+        const subtitle = new H6El('subtitle');
         const units = data.getDisplayUnits() ? data.getUnits() : '';
         subtitle.setHtml(`${data.getWidth().toString()}${units} × ${data.getHeight().toString()}${units}`);
         rowEl.appendChild(icon);
@@ -58,6 +45,27 @@ export class EmulatorGrid
         }
 
         return rowEl;
+    }
+
+    setActive(item: EmulatorDevice): void {
+        this.getItemViews().forEach((view: EmulatorListElement) => {
+            view.toggleClass('active', view.getItem().device.getName() === item.getName());
+        });
+    }
+}
+
+export class EmulatorListElement extends LiEl {
+
+    private readonly item: EmulatorDeviceRow;
+
+    constructor(item: EmulatorDeviceRow) {
+        super('grid-row');
+
+        this.item = item;
+    }
+
+    getItem(): EmulatorDeviceRow {
+        return this.item;
     }
 
 }

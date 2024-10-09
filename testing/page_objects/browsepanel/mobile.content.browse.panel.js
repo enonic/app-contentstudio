@@ -40,27 +40,22 @@ const XPATH = {
     previewButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Preview']]`,
     publishButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Publish...']]`,
 
-    contentSummaryListViewerByName: function (name) {
+    contentSummaryListViewerByName(name) {
         return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
-    contentSummaryByName: function (name) {
+    contentSummaryByName(name) {
         return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
-    contentSummaryByDisplayName: function (displayName) {
+    contentSummaryByDisplayName(displayName) {
         return `//div[contains(@id,'ContentSummaryListViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
     },
-    publishMenuItemByName: function (name) {
+    publishMenuItemByName(name) {
         return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
     rowByDisplayName:
         displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
 
-    checkboxByName: function (name) {
-        return `${lib.itemByName(
-            name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
-    },
-
-    expanderIconByName: function (name) {
+    expanderIconByName(name) {
         return lib.itemByName(name) +
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
     },
@@ -411,9 +406,8 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             console.log("waitForContentDisplayed, timeout is:" + timeout);
             return await this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), timeout);
         } catch (err) {
-            console.log("item is not displayed:" + contentName);
-            this.saveScreenshot('err_find_' + contentName);
-            throw new Error('content is not displayed ! ' + contentName + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_find_content');
+            throw new Error(`content is not displayed ! screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -429,7 +423,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(this.previewButton);
             return await this.pause(2000);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_browsepanel_preview"));
+            await this.saveScreenshotUniqueName("err_browsepanel_preview");
             throw new Error('Error when clicking on Preview button ' + err);
         }
     }
@@ -441,28 +435,28 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
     waitForPreviewButtonDisabled() {
         return this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_preview_disabled_button');
-            throw Error('Preview button should be disabled, timeout: ' + err);
+            throw new Error('Preview button should be disabled, timeout: ' + err);
         })
     }
 
     waitForPreviewButtonEnabled() {
         return this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_preview_enabled_button');
-            throw Error('Preview button should be enabled, timeout: ' + err);
+            throw new Error('Preview button should be enabled, timeout: ' + err);
         })
     }
 
     waitForDetailsPanelToggleButtonDisplayed() {
         return this.waitForElementDisplayed(this.detailsPanelToggleButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_details_panel_displayed');
-            throw Error('Details Panel toggle button should be displayed, timeout: ' + err);
+            throw new Error('Details Panel toggle button should be displayed, timeout: ' + err);
         })
     }
 
     waitForSortButtonDisabled() {
         return this.waitForElementDisabled(this.sortButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_sort_disabled_button');
-            throw Error('Sort button should be disabled, timeout: ' + err);
+            throw new Error('Sort button should be disabled, timeout: ' + err);
         })
     }
 
@@ -495,7 +489,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(nameXpath);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_not_found'));
+            await this.saveScreenshotUniqueName('err_not_found');
             throw Error('Content was not found' + err);
         }
     }
@@ -506,7 +500,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(nameXpath, appConst.longTimeout);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_content'));
-            throw Error("Content was not found: " + err);
+            throw new Error("Content was not found: " + err);
         }
     }
 
@@ -522,25 +516,18 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(displayName);
         return this.waitForElementDisplayed(nameXpath, 3000).catch(err => {
             this.saveScreenshot('err_find_' + displayName);
-            throw Error('Content with the displayName ' + displayName + ' is not visible after ' + 3000 + 'ms')
+            throw new Error('Content with the displayName ' + displayName + ' is not visible after ' + 3000 + 'ms')
         })
     }
 
     async clickOnCheckboxAndSelectRowByName(name) {
         try {
-            await this.clickOnCheckbox(name);
+            await this.clickOnCheckboxByName(name);
             await this.waitForRowCheckboxSelected(name);
         } catch (err) {
             await this.saveScreenshot('err_select_item');
-            throw Error('Row with the name ' + name + ' was not selected ' + err)
+            throw new Error('Row with the name ' + name + ' was not selected ' + err)
         }
-    }
-
-    async clickOnCheckbox(name) {
-        let checkBox = XPATH.checkboxByName(name);
-        await this.waitForElementDisplayed(checkBox, appConst.mediumTimeout);
-        await this.clickOnElement(checkBox);
-        return await this.pause(300);
     }
 
     getNumberOfSelectedRows() {
@@ -559,18 +546,22 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         });
     }
 
-    async getSortingIcon(name) {
-        let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r2')]/span/div";
+    async getSortingIcon(contentName) {
+        let selector = this.treeGrid + lib.TREE_GRID.itemTreeGridListElementByName(contentName) +
+                       "//div[contains(@class,'content-tree-grid-sort')]";
         let elems = await this.findElements(selector);
         if (elems.length === 0) {
-            return "Default";
+            return 'Default';
         }
-        let classAttr = await elems[0].getAttribute("class");
+        let classAttr = await elems[0].getAttribute('class');
         if (classAttr.includes('num-asc')) {
             return "Date ascending";
         } else if (classAttr.includes('num-desc')) {
             return "Date descending";
-        } else if (classAttr === 'sort-dialog-trigger icon-menu') {
+        } else if (classAttr.includes('alpha-asc')) {
+            return "Name ascending";
+        }
+        if (classAttr === 'sort-dialog-trigger icon-menu') {
             return appConst.sortMenuItem.MANUALLY_SORTED;
         }
     }
@@ -610,18 +601,22 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         return this.waitUntilInvalid(xpath);
     }
 
-    getContentStatus(name) {
-        let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r3')]";
-        return this.getText(selector);
+    async getContentStatus(name) {
+        try {
+            let selector = lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.TREE_GRID.CONTENT_STATUS;
+            return await this.getText(selector);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_content_status');
+            throw new Error(`Error occurred during getting the status of the content, screenshot: ${screenshot}  ` + err);
+        }
     }
 
     async waitForStatus(name, expectedStatus) {
-        let locator = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r3')]";
+        let locator = lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.TREE_GRID.CONTENT_STATUS;
         await this.getBrowser().waitUntil(async () => {
             let actualStatus = await this.getText(locator);
             return actualStatus === expectedStatus;
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Expected status should be " + expectedStatus});
-
     }
 
     waitForShowPublishMenuDropDownVisible() {
@@ -640,7 +635,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForCreateIssueButtonDisplayed();
             return await this.clickOnElement(this.createIssueButton);
         } catch (err) {
-            this.saveScreenshot("err_click_create_issue_button");
+            await this.saveScreenshot("err_click_create_issue_button");
             throw new Error("Browse Panel. Error when click on Create Task button in the toolbar! " + err);
         }
     }
@@ -726,7 +721,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-//find workflow state by the name
+    //find workflow state by the name
     async getWorkflowStateByName(name) {
         let xpath = XPATH.contentSummaryListViewerByName(name);
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
@@ -748,7 +743,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             let selector = XPATH.contentPublishMenuButton + XPATH.defaultActionByName(actionName);
             return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            throw Error(`Publish Menu -  '${actionName}'  this default action should be visible!: ` + err);
+            throw new Error(`Publish Menu -  '${actionName}'  this default action should be visible!: ` + err);
         }
     }
 
@@ -799,7 +794,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
 
     async isContentByDisplayNameInherited(contentName) {
         await this.waitForContentDisplayed(contentName, appConst.mediumTimeout);
-        let locator = lib.slickRowByDisplayName(XPATH.treeGrid, contentName);
+        let locator = lib.TREE_GRID.contentSummaryByDisplayName(XPATH.container, contentName);
         let attr = await this.getAttribute(locator, 'class');
         return attr.includes('data-inherited');
     }
@@ -818,7 +813,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             return await this.waitForContextMenuDisplayed();
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_context_menu'));
-            throw Error(`Error when do right click on the row:` + err);
+            throw new Error(`Error when do right click on the row:` + err);
         }
     }
 
@@ -832,7 +827,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot('err_delete_button');
-            throw Error("Archive button should be enabled " + err);
+            throw new Error("Archive button should be enabled " + err);
         }
     }
 
@@ -908,7 +903,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             return await this.waitForElementEnabled(this.moveFoldedButton, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot('err_move_mobile');
-            throw Error('Move button should be disabled: ' + err);
+            throw new Error('Move button should be disabled: ' + err);
         }
     }
 
@@ -917,7 +912,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             return await this.waitForElementEnabled(this.editFoldedButton, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot('err_edit_mobile');
-            throw Error('Mobile resolution, Edit folded button should be enabled' + err);
+            throw new Error('Mobile resolution, Edit folded button should be enabled' + err);
         }
     }
 
@@ -925,9 +920,8 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         try {
             return await this.waitForElementEnabled(this.archiveFoldedButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_archive_folded_mobile');
-            await this.saveScreenshot(screenshot);
-            throw Error('Mobile resolution, Archive folded button should be enabled, screenshot:' + screenshot + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_archive_folded_mobile');
+            throw new Error('Mobile resolution, Archive folded button should be enabled, screenshot:' + screenshot + "  " + err);
         }
     }
 
@@ -936,7 +930,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             return await this.waitForElementEnabled(this.duplicateFoldedButton, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot('err_duplicate_folded_mobile');
-            throw Error('Mobile resolution, Duplicate folded button should be enabled' + err);
+            throw new Error('Mobile resolution, Duplicate folded button should be enabled' + err);
         }
     }
 
@@ -944,9 +938,8 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         try {
             return await this.waitForElementDisabled(this.moveFoldedButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_edit_mobile_disabled');
-            await this.saveScreenshot(screenshot);
-            throw Error('Mobile resolution, Edit button should be disabled, screenshot:  ' + screenshot + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_edit_mobile_disabled');
+            throw new Error('Mobile resolution, Edit button should be disabled, screenshot:  ' + screenshot + "  " + err);
         }
     }
 
@@ -954,9 +947,8 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         try {
             return await this.waitForElementEnabled(this.newFoldedButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_new_button_mobile');
-            await this.saveScreenshot(screenshot);
-            throw Error('Mobile resolution, New... button should be enabled, screenshot: ' + screenshot + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_new_button_mobile');
+            throw new Error('Mobile resolution, New... button should be enabled, screenshot: ' + screenshot + "  " + err);
         }
     }
 
@@ -966,7 +958,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         } catch (err) {
             let screenshot = appConst.generateRandomName('err_new_button_mobile');
             await this.saveScreenshot(screenshot);
-            throw Error('Mobile resolution, New... button should be enabled' + screenshot + "  " + err);
+            throw new Error('Mobile resolution, New... button should be enabled' + screenshot + "  " + err);
         }
     }
 
@@ -975,9 +967,8 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.moveFoldedButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.moveFoldedButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_move_mobile_disabled');
-            await this.saveScreenshot(screenshot);
-            throw Error('Mobile resolution, Move button should be disabled ' + screenshot + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_move_mobile_disabled');
+            throw new Error('Mobile resolution, Move button should be disabled ' + screenshot + "  " + err);
         }
     }
 
@@ -987,7 +978,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             return await this.waitForElementDisabled(this.sortFoldedButton, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot('err_sort_mobile_disabled');
-            throw Error('Mobile resolution, Sort... button should be disabled' + err);
+            throw new Error('Mobile resolution, Sort... button should be disabled' + err);
         }
     }
 
@@ -997,7 +988,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             return await this.waitForElementDisabled(this.previewFoldedButton, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot('err_preview_mobile');
-            throw Error('Mobile resolution, Preview... button should be disabled' + err);
+            throw new Error('Mobile resolution, Preview... button should be disabled' + err);
         }
     }
 
@@ -1006,9 +997,8 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.duplicateFoldedButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.duplicateFoldedButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_duplicate_mobile');
-            await this.saveScreenshot(screenshot);
-            throw Error('Mobile resolution, Duplicate... button should be disabled, screenshot: ' + screenshot + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_duplicate_mobile');
+            throw new Error('Mobile resolution, Duplicate... button should be disabled, screenshot: ' + screenshot + "  " + err);
         }
     }
 }

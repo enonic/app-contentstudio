@@ -1,11 +1,9 @@
-import {PrincipalComboBox, PrincipalComboBoxBuilder} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {ProjectFormItemBuilder} from './ProjectFormItem';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {ProjectReadAccessType} from '../../../../data/project/ProjectReadAccessType';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
-import {PrincipalLoader} from '../../../../../security/PrincipalLoader';
-import {PrincipalLoader as BasePrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {ProjectReadAccess} from '../../../../data/project/ProjectReadAccess';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
@@ -18,6 +16,8 @@ import {GetPrincipalsByKeysRequest} from '../../../../../security/GetPrincipalsB
 import {CopyFromParentFormItem} from './CopyFromParentFormItem';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {CSPrincipalCombobox} from '../../../../../security/CSPrincipalCombobox';
+import {PrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
 
 export class ProjectReadAccessFormItem
     extends CopyFromParentFormItem {
@@ -59,7 +59,7 @@ export class ProjectReadAccessFormItem
             this.updateCopyButtonState();
         });
 
-        this.principalsCombobox.onValueChanged(() => {
+        this.principalsCombobox.onSelectionChanged(() => {
             this.updateCopyButtonState();
         });
     }
@@ -70,10 +70,7 @@ export class ProjectReadAccessFormItem
         this.updateFilteredPrincipalsByPermissions(permissions);
 
         return new GetPrincipalsByKeysRequest(readAccess.getPrincipalsKeys()).sendAndParse().then((principals: Principal[]) => {
-            principals.forEach((principal: Principal) => {
-                this.getPrincipalComboBox().select(principal, false, silent);
-                this.getPrincipalComboBox().resetBaseValues();
-            });
+            this.getPrincipalComboBox().select(principals, silent);
 
             return Q(null);
         }).catch(DefaultErrorHandler.handle);
@@ -90,7 +87,7 @@ export class ProjectReadAccessFormItem
     }
 
     private filterPrincipals(principals: PrincipalKey[]) {
-        const principalsLoader: PrincipalLoader = this.getPrincipalComboBox().getLoader() as PrincipalLoader;
+        const principalsLoader = this.getPrincipalComboBox().getLoader();
         principalsLoader.skipPrincipals(principals);
     }
 
@@ -115,7 +112,7 @@ export class ProjectReadAccessFormItem
 
         if (readAccessString === ProjectReadAccessType.CUSTOM.toString()) {
             const principals: PrincipalKey[] =
-                this.principalsCombobox.getSelectedDisplayValues().map((principal: Principal) => principal.getKey());
+                this.principalsCombobox.getSelectedOptions().map((option) => option.getOption().getDisplayValue().getKey());
 
             if (principals.length === 0) {
                 return new ProjectReadAccess(ProjectReadAccessType.PRIVATE);
@@ -180,18 +177,18 @@ export class ProjectReadAccessFormItem
 
     clean(): void {
         if (this.getReadAccessType() !== ProjectReadAccessType.CUSTOM) {
-            this.principalsCombobox.clearSelection();
+            this.principalsCombobox.setSelectedItems([]);
         }
     }
 }
 
 class ExtendedPrincipalComboBox
-    extends PrincipalComboBox {
+    extends CSPrincipalCombobox {
 
     constructor() {
-        const loader: BasePrincipalLoader = new PrincipalLoader()
-            .setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
-        super(PrincipalComboBox.create().setLoader(loader) as PrincipalComboBoxBuilder);
+        super({
+            allowedTypes: [PrincipalType.USER, PrincipalType.GROUP],
+        });
     }
 
     setEnabled(enable: boolean) {

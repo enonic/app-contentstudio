@@ -7,10 +7,9 @@ const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const ContentSelector = require('../../page_objects/components/content.selector');
+const ContentSelectorForm = require('../../page_objects/wizardpanel/content.selector.form');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ArticleForm = require('../../page_objects/wizardpanel/article.form.panel');
-const CustomRelationshipForm = require('../../page_objects/wizardpanel/custom.relationship.form.panel');
 
 describe('content.selector.spec: content-selector specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -38,14 +37,14 @@ describe('content.selector.spec: content-selector specification', function () {
             await studioUtils.saveAndCloseWizard();
         });
 
-    it(`GIVEN new wizard for custom-relationship content is opened WHEN article-option has been selected THEN expected article should appear in the selected options view`,
+    it(`GIVEN new wizard for custom-relationship content is opened WHEN an article-option has been selected THEN expected article should appear in the selected options view`,
         async () => {
             let contentWizard = new ContentWizard();
-            let customRelationshipForm = new CustomRelationshipForm();
+            let customRelationshipForm = new ContentSelectorForm();
             // 1. Open new wizard for article-content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
             await contentWizard.typeDisplayName(RELATIONSHIP_NAME);
-            // 2. Select the article in options -  type the name of the article and click on the slick-row:
+            // 2. Select the article in options -  type the name of the article and click on the filtered option:
             await customRelationshipForm.selectOption(ARTICLE_NAME_1);
             await contentWizard.waitAndClickOnSave();
             // 3. Verify the selected option:
@@ -56,12 +55,12 @@ describe('content.selector.spec: content-selector specification', function () {
 
     it(`GIVEN existing content with custom-relationship selector is opened WHEN the selected option has been removed THEN the article should not be present in selected options`,
         async () => {
-            let customRelationshipForm = new CustomRelationshipForm();
-            // 1. existing content with custom-relationship selector is opened:
+            let customRelationshipForm = new ContentSelectorForm();
+            // 1. Open the existing content with selected option (custom relationship):
             await studioUtils.selectAndOpenContentInWizard(RELATIONSHIP_NAME);
-            // 2. the selected option has been removed:
+            // 2. Remove the selected option:
             await customRelationshipForm.removeSelectedOption(ARTICLE_NAME_1);
-            // 3. Verify that option is removed:
+            // 3. Verify that option is not displayed:
             await studioUtils.saveScreenshot('custom_rel_option_removed');
             let result = await customRelationshipForm.getSelectedOptions();
             assert.equal(result.length, 0, "no selected options should be in the options view");
@@ -81,36 +80,35 @@ describe('content.selector.spec: content-selector specification', function () {
 
     it(`WHEN wizard for 'custom-relationship' is opened THEN mode toggler should be present in the content-selector AND 'Flat' mode should be by default`,
         async () => {
-            let contentSelector = new ContentSelector();
+            let contentSelectorForm = new ContentSelectorForm();
             // 1. Open the wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
-            await contentSelector.waitForModeTogglerDisplayed();
-            // 2. Verify that 'Flat' mode should be by default in the selector:
-            let actualMode = await contentSelector.getMode();
+            // 2. Verify that 'Flat' mode should be by default:
+            let actualMode = await contentSelectorForm.getOptionsMode();
             await studioUtils.saveScreenshot('content_selector_default_mode');
             assert.equal(actualMode, 'flat', 'Flat mode should be by default');
         });
 
     it(`GIVEN wizard for 'custom-relationship' is opened WHEN mode toggler has been clicked THEN switches to 'Tree' mode`,
         async () => {
-            let contentSelector = new ContentSelector();
+            let contentSelectorForm = new ContentSelectorForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
             // 1. Click on mode toggler button:
-            await contentSelector.clickOnModeTogglerButton();
+            await contentSelectorForm.clickOnModeTogglerButton();
             // 2. Verify that tree mode is switched on:
-            let actualMode = await contentSelector.getMode();
+            let actualMode = await contentSelectorForm.getOptionsMode()
             await studioUtils.saveScreenshot('content_selector_tree_mode');
             assert.equal(actualMode, 'tree', "'Tree' mode should be in the selector");
         });
 
     it(`GIVEN wizard for 'custom-relationship' is opened WHEN 'mode toggler' button has been clicked THEN switches to 'Tree'-mode AND parent site should be present in the options`,
         async () => {
-            let contentSelector = new ContentSelector();
+            let contentSelectorForm = new ContentSelectorForm();
             // 1. Custom relationship has been opened:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
             // 2. Mode toggler has been clicked(switches to tree mode):
-            await contentSelector.clickOnModeTogglerButton();
-            let options = await contentSelector.getTreeModeOptionDisplayNames();
+            await contentSelectorForm.clickOnModeTogglerButton();
+            let options = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
             // 3. Only the parent site should be present in the options
             await studioUtils.saveScreenshot('content_sel_tree_mode_option');
             assert.strictEqual(options[0], SITE.displayName);
