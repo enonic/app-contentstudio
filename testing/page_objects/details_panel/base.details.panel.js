@@ -55,7 +55,6 @@ class BaseDetailsPanel extends Page {
             let widgetSelectorDropdown = new WidgetSelectorDropdown();
             await this.clickOnWidgetSelectorDropdownHandle();
             await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
-            await widgetSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_open_versions');
             throw new Error(`Error occurred in widget selector dropdown, Version History, screenshot ${screenshot}: ` + err);
@@ -78,7 +77,6 @@ class BaseDetailsPanel extends Page {
         let widgetSelectorDropdown = new WidgetSelectorDropdown();
         await this.clickOnWidgetSelectorDropdownHandle();
         await widgetSelectorDropdown.clickOnOptionByDisplayName(itemName);
-        await widgetSelectorDropdown.clickOnApplySelectionButton();
     }
 
     getWidgetSelectorDropdownOptions() {
@@ -91,7 +89,6 @@ class BaseDetailsPanel extends Page {
         let widgetSelectorDropdown = new WidgetSelectorDropdown();
         await this.clickOnWidgetSelectorDropdownHandle();
         await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.DEPENDENCIES);
-        await widgetSelectorDropdown.clickOnApplySelectionButton();
     }
 
     async openLayers() {
@@ -110,7 +107,6 @@ class BaseDetailsPanel extends Page {
             let widgetSelectorDropdown = new WidgetSelectorDropdown();
             await this.clickOnWidgetSelectorDropdownHandle();
             await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
-            await widgetSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
             throw new Error("Error occurred during opening 'Details widget'" + err);
         }
