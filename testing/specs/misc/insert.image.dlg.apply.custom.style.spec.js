@@ -19,6 +19,8 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
     let SITE;
     const IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_03;
     const HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
+    const CINEMA_STYLE = 'Cinema';
+    const CINEMA_STYLE_VALUE = 'editor-style-image-cinema'
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -27,7 +29,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN htmlarea-content, image is selected on the modal dialog WHEN click on dropdown handle in styles selector THEN custom styles should be present`,
+    it(`WHEN Insert Image modal dialog is opened THEN none option should be selected in styles-selector by default`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
@@ -38,15 +40,13 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             await insertImageDialog.waitForDialogVisible();
             // 3. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
-            // 4. Click on dropdown handle and verify style-options
-            let actualOptions = await insertImageDialog.getStyleSelectorOptions();
+            // 4. verify style-option that is selected by default
+            let actualOption = await insertImageDialog.getSelectedStyleValue();
             await studioUtils.saveScreenshot('image_dialog_custom_style_options');
-            assert.equal(actualOptions[2], 'Cinema', "'Cinema' should be present in options list");
-            assert.equal(actualOptions[3], 'Tall', "'Tall' option should be present in options list");
-            assert.equal(actualOptions.length, 7, 'Expected number of options be present in options list');
+            assert.equal(actualOption, 'none', "None is selected option by default");
         });
 
-    it(`GIVEN Insert Image modal dialog opened WHEN 'Cinema' option has been selected THEN 'Custom Width' checkbox should be enabled`,
+    it(`GIVEN Insert Image modal dialog is opened WHEN 'Cinema' option has been selected THEN 'Custom Width' checkbox should be enabled`,
         async () => {
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
@@ -59,11 +59,11 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             // 3. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
-            // 4. Type the 'Cinema' in filter input and click on the option:
-            await insertImageDialog.doFilterStyleAndClickOnOption('Cinema');
+            // 4. Select 'Cinema' in the selector:
+            await insertImageDialog.selectImageStyle(CINEMA_STYLE);
             // 5. Verify that 'Custom Width' checkbox is enabled
             await insertImageDialog.waitForCustomWidthCheckBoxEnabled();
-            //checkbox should be unselected
+            // checkbox should be unselected
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
             assert.ok(isChecked === false, 'Custom Width checkbox should be unchecked');
             // just save the changes and save the content
@@ -82,10 +82,10 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             await htmlAreaForm.doubleClickOnHtmlArea();
             await insertImageDialog.waitForDialogVisible();
             // 3. Verify the selected style option:
-            let actualStyle = await insertImageDialog.getSelectedStyleName();
+            let actualStyle = await insertImageDialog.getSelectedStyleValue();
             // Cinema style should be selected in the dialog
             await studioUtils.saveScreenshot('image_dialog_custom_style_should_be_cinema');
-            assert.equal(actualStyle, 'Cinema', "Expected style should be present in the selector");
+            assert.equal(actualStyle, CINEMA_STYLE_VALUE, "Expected style should be present in the selector");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

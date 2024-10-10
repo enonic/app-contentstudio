@@ -42,6 +42,8 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             // 1. Wizard for Custom-Selector content is opened:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_2_8);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
             // 2. one option has been selected:
             await contentSelectorForm.selectOption(FOLDER_1.displayName);
             // 3. Click on Edit-icon then switch to the new browser tab:
@@ -56,11 +58,11 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             // 6. Type the new display-name of the selected option in Options Filter Input:
             await contentSelectorForm.typeTextInOptionsFilterInput(FOLDER_NEW_DISPLAY_NAME);
             // 7. Verify that the option with updated display name is present in the filtered input:
-            let result = await contentSelectorForm.getOptionsDisplayName();
+            let result = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
             assert.ok(result[0] === FOLDER_NEW_DISPLAY_NAME, 'New display name should be present in the filtered options');
         });
 
-    it(`GIVEN content selector (1-2), dropdown has been expanded WHEN 2 options have been selected AND 'Apply' button has been pressed THEN 'Add new' button gets not visible`,
+    it(`GIVEN content selector (1-2), dropdown has been expanded WHEN 2 options have been selected AND 'OK' button has been pressed THEN 'Add new' button gets not visible`,
         async () => {
             let contentSelectorForm = new ContentSelectorForm();
             let contentWizard = new ContentWizard();
@@ -76,14 +78,13 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await studioUtils.saveScreenshot('selector_dropdown_1_option');
             await contentSelectorForm.clickOnCheckboxInDropdown(1);
             await studioUtils.saveScreenshot('selector_dropdown_2_option');
-            // 4. Verify that 'Apply' button gets visible then click on it:
-            await contentSelectorForm.clickOnApplyButton();
+            // 4. Verify that 'Ok' button gets visible then click on it:
+            await contentSelectorForm.clickOnApplySelectionButton();
             // 5. Verify the selected option:
             let selectedOptions = await contentSelectorForm.getSelectedOptions();
             assert.ok(selectedOptions.length === 2, '2 selected options should be displayed');
             // 6. Verify that Add new button is not displayed now:
             await contentSelectorForm.waitForAddNewContentButtonNotDisplayed();
-            await contentWizard.waitAndClickOnSave();
         });
 
     it(`GIVEN wizard with 'content-selector'(2:8) is opened AND three options have been selected THEN expected options should be present in the form`,
@@ -140,7 +141,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await contentSelectorForm.clickOnModeTogglerButton();
             await studioUtils.saveScreenshot('selector_modetoggler_btn');
             // 3. Verify that tree mode is switched on:
-            let options = await contentSelectorForm.getOptionsDisplayName();
+            let options = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
             assert.ok(options.includes(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME),
                 'Expected display name should be present in the options list');
         });
@@ -158,9 +159,9 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await contentSelectorForm.clickOnDropdownHandle();
             // 3. Click on a checkbox in options list:
             await contentSelectorForm.clickOnCheckboxInDropdown(1);
-            await studioUtils.saveScreenshot('selector_apply_btn');
+            await studioUtils.saveScreenshot('selector_ok_btn');
             // 4. Verify that Apply button gets visible then click on it:
-            await contentSelectorForm.clickOnApplyButton();
+            await contentSelectorForm.clickOnApplySelectionButton();
             // 5. Verify the selected option:
             let selectedOptions = await contentSelectorForm.getSelectedOptions();
             assert.ok(selectedOptions.length === 1, 'Selected option should be displayed');
@@ -178,7 +179,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             // 3. Unselect the option then click on Apply button:
             await contentSelectorForm.clickOnCheckboxInDropdown(1);
             await studioUtils.saveScreenshot('selector_option_unselected');
-            await contentSelectorForm.clickOnApplyButton();
+            await contentSelectorForm.clickOnApplySelectionButton();
             // 4. Verify that selected option is cleared:
             let selectedOptions = await contentSelectorForm.getSelectedOptions();
             assert.ok(selectedOptions.length === 0, 'There are no selected options in the selector');
@@ -197,11 +198,11 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await contentSelectorForm.clickOnDropdownHandle();
             // 3. Click on 2 checkboxes in options list:
             await contentSelectorForm.clickOnCheckboxInDropdown(0);
-            await studioUtils.saveScreenshot('dropdown_apply_btn_opt_1');
+            await studioUtils.saveScreenshot('dropdown_ok_btn_opt_1');
             await contentSelectorForm.clickOnCheckboxInDropdown(1);
-            await studioUtils.saveScreenshot('dropdown_apply_btn__opt_2');
+            await studioUtils.saveScreenshot('dropdown_ok_btn__opt_2');
             // 4. Verify that 'Apply' button gets visible then click on it:
-            await contentSelectorForm.clickOnApplyButton();
+            await contentSelectorForm.clickOnApplySelectionButton();
             // 5. Verify the selected option:
             let selectedOptions = await contentSelectorForm.getSelectedOptions();
             assert.ok(selectedOptions.length === 2, '2 selected options should be displayed');

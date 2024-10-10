@@ -36,8 +36,8 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1. Select 'Projects' folder
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.PROJECTS.ROOT_FOLDER);
-            await studioUtils.saveScreenshot("settings_toolbar_2");
+            await settingsBrowsePanel.clickOnProjectsFolderCheckbox();
+            await studioUtils.saveScreenshot('settings_toolbar_2');
             // 'New...' button should be enabled :
             await settingsBrowsePanel.waitForNewButtonEnabled();
             // 'Delete' button should be disabled
@@ -50,7 +50,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Select 'Default' folder:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.PROJECTS.DEFAULT_PROJECT_NAME);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.PROJECTS.DEFAULT_PROJECT_NAME);
             await studioUtils.saveScreenshot('settings_toolbar_2');
             // 'New...' button should be enabled :
             await settingsBrowsePanel.waitForNewButtonEnabled();

@@ -12,7 +12,7 @@ const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wi
 
 describe('wizard.details.panel.spec: Open details panel in wizard and check the widgets', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -26,15 +26,15 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check the 
             await contentWizard.openDetailsPanel();
             // 2. Version history widget should not be displayed by default!
             let isLoaded = await wizardVersionsWidget.isWidgetLoaded();
-            assert.ok(isLoaded === false, "Versions Widget should not be displayed");
-            // 3. Click on dropdown handle and open Versions widget:
-            await wizardDetailsPanel.openVersionHistory();
-            await studioUtils.saveScreenshot("wizard_versions_widget");
+            assert.ok(isLoaded === false, `'Versions Widget' should not be displayed`);
+            // 3. Filter 'Versions history' option item then click on OK:
+            await wizardDetailsPanel.filterAndOpenVersionHistory();
+            await studioUtils.saveScreenshot('wizard_versions_widget');
             // 4. Verify that "Versions Widget" should be loaded:
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 5. One version item should be present in the widget:
             let result = await wizardVersionsWidget.countVersionItems();
-            assert.equal(result, 1, "One version item should be present in wizard for unnamed content");
+            assert.equal(result, 1, 'One version item should be present in wizard for unnamed content');
         });
 
     it(`GIVEN wizard for new folder is opened WHEN 'Dependencies' menu item in 'Details panel' has been selected THEN 'Dependencies' widget should be loaded`,

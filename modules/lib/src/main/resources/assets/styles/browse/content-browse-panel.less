@@ -1,4 +1,16 @@
 .content-browse-panel {
-  //
-  .widget-selection-row();
+  //.widget-selection-row();
+
+  .tree-grid-toolbar {
+    margin-top: 0;
+
+    .selection-controller {
+      padding-left: 15px;
+    }
+  }
+
+  .content-list-box-wrapper {
+    overflow: auto;
+    height: calc(100% - 40px); // minus toolbar height
+  }
 }

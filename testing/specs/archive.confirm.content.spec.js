@@ -38,11 +38,11 @@ describe('archive.confirm.content.dialog.spec:  tests for archiving content', fu
             await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
             // 2.Click on 'Archive...' menu item in grid context menu:
             await contentBrowsePanel.rightClickOnItemByDisplayName(FOLDER1.displayName);
-            await studioUtils.saveScreenshot("archive-context-menu");
+            await studioUtils.saveScreenshot('archive-context-menu');
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.ARCHIVE);
             await contentBrowsePanel.clickOnMenuItem(appConst.GRID_CONTEXT_MENU.ARCHIVE);
             await contentBrowsePanel.pause(400);
-            await studioUtils.saveScreenshot("single_folder_archive");
+            await studioUtils.saveScreenshot('single_folder_archive');
             // 3. Verify that the modal dialog is loaded:
             await deleteContentDialog.waitForDialogOpened();
         });

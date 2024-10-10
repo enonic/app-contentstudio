@@ -4,11 +4,14 @@ import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/Selected
 import {ProjectApplicationSelectedOptionView, ProjectApplicationSelectedOptionViewBuilder} from './ProjectApplicationSelectedOptionView';
 import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export class ProjectApplicationsSelectedOptionsView
     extends BaseSelectedOptionsView<Application> {
 
     private readonly params?: ProjectApplicationsFormParams;
+
+    private isEditableFunc?: (key: ApplicationKey) => boolean;
 
     constructor(params?: ProjectApplicationsFormParams) {
         super('project-application-selected-options-view');
@@ -18,9 +21,13 @@ export class ProjectApplicationsSelectedOptionsView
         this.setOccurrencesSortable(true);
     }
 
+    setIsEditableFunc(isEditableFunc: (key: ApplicationKey) => boolean): void {
+        this.isEditableFunc = isEditableFunc;
+    }
 
     createSelectedOption(option: Option<Application>): SelectedOption<Application> {
-        const isEditable = this.params?.isConfigEditable() && option.getDisplayValue().getForm()?.getFormItems().length > 0;
+        const isEditable = this.params?.isConfigEditable() && option.getDisplayValue().getForm()?.getFormItems().length > 0 &&
+                           (this.isEditableFunc ? this.isEditableFunc(option.getDisplayValue().getApplicationKey()) : true);
         const isRemovable = !option.isReadOnly();
 
         const builder: ProjectApplicationSelectedOptionViewBuilder = new ProjectApplicationSelectedOptionViewBuilder()

@@ -164,8 +164,6 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
             assert.equal(actualResult.length, 2, '2 parent projects should be displayed in the form');
             assert.ok(actualResult.includes(PROJECT_DISPLAY_NAME), "Expected project should be displayed in the selected options");
             assert.ok(actualResult.includes('Default'), "'Default' project should be displayed in the selected options");
-            let isDisabled = await projectWizard.isProjectSelectorDisabled();
-            assert.ok(isDisabled, "'project-dropdown' should be disabled in the layer-wizard panel ");
         });
 
     it('Post conditions: the layer should be deleted',

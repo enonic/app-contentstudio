@@ -19,4 +19,8 @@ export class FolderItemViewer
     resolveIconClass(item: FolderViewItem): string {
         return super.resolveIconClass(item);
     }
+
+    setExpandedState(value: boolean): void {
+        this.namesAndIconView.setIconClass(value ? 'icon-folder-open' : 'icon-folder-closed');
+    }
 }

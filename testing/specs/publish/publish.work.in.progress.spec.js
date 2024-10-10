@@ -126,7 +126,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             assert.equal(workflowInWizard, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
             await studioUtils.doSwitchToContentBrowsePanel();
             await contentBrowsePanel.waitForStatus(SITE.displayName, appConst.CONTENT_STATUS.MODIFIED);
-            let actualState = await contentBrowsePanel.getWorkflowState(SITE.displayName);
+            let actualState = await contentBrowsePanel.getWorkflowStateByDisplayName(SITE.displayName);
             assert.equal(actualState, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "'Work in progress' should be displayed in browse panel");
         });
 

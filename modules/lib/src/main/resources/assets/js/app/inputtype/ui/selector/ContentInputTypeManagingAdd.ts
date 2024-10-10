@@ -1,5 +1,4 @@
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {RichComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {ContentInputTypeViewContext} from '../../ContentInputTypeViewContext';
@@ -10,7 +9,7 @@ import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationBasedName} from '@enonic/lib-admin-ui/application/ApplicationBasedName';
 import {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
 
-export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
+export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     extends BaseInputTypeManagingAdd {
 
     protected context: ContentInputTypeViewContext;
@@ -25,10 +24,6 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         super(context, className);
     }
 
-    protected getContentComboBox(): RichComboBox<RAW_VALUE_TYPE> {
-        throw new Error('Should be overridden by inheritor');
-    }
-
     protected getContentPath(_raw: RAW_VALUE_TYPE): ContentPath {
         throw new Error('Should be overridden by inheritor');
     }
@@ -37,9 +32,7 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         return this.getSelectedOptionsView().getSelectedOptions();
     }
 
-    protected getSelectedOptionsView(): SelectedOptionsView<RAW_VALUE_TYPE> {
-        return this.getContentComboBox().getSelectedOptionView();
-    }
+    protected abstract getSelectedOptionsView(): SelectedOptionsView<RAW_VALUE_TYPE>;
 
     private prependApplicationName(applicationKey: ApplicationKey, name: string): string {
         if (!applicationKey) {

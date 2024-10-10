@@ -38,8 +38,6 @@ export class SortContentDialog
 
     private gridDragHandler: ContentGridDragHandler;
 
-    private gridLoadedHandler: () => void;
-
     private saveButton: DialogButton;
 
     private subHeader: H6El;
@@ -56,7 +54,7 @@ export class SortContentDialog
 
         this.initTabMenu();
         this.sortContentMenu = new SortContentTabMenu();
-        this.contentGrid = new SortContentTreeGrid();
+        this.contentGrid = new SortContentTreeGrid(this.getBody());
         this.gridDragHandler = new ContentGridDragHandler(this.contentGrid);
         this.sortAction = new SaveSortedContentAction(this).setClass('save-button');
         this.saveButton = this.addAction(this.sortAction);
@@ -84,11 +82,6 @@ export class SortContentDialog
             this.handleSortApplied();
         });
 
-        this.gridLoadedHandler = () => {
-            this.notifyResize();
-            this.contentGrid.getGrid().resizeCanvas();
-        };
-
         OpenSortDialogEvent.on((event) => {
             this.handleOpenSortDialogEvent(event);
         });
@@ -111,15 +104,13 @@ export class SortContentDialog
 
     show() {
         super.show();
-        this.contentGrid.onLoaded(this.gridLoadedHandler);
-        this.contentGrid.reload();
+        this.contentGrid.load();
         this.sortContentMenu.focus();
         this.sortAction.setEnabled(false);
     }
 
     close() {
         this.remove();
-        this.contentGrid.unLoaded(this.gridLoadedHandler);
         super.close();
         this.contentGrid.reset();
         this.gridDragHandler.clearContentMovements();
@@ -236,8 +227,8 @@ export class SortContentDialog
         this.contentGrid.toggleClass('inherited', this.sortContentMenu.isInheritedItemSelected());
         this.updateSubHeaderText();
 
-        if (!newOrder.isManual()) {
-            this.contentGrid.reload();
+        if (!newOrder.isManual() && this.isOpen()) {
+            this.contentGrid.load();
             this.gridDragHandler.clearContentMovements();
         }
     }

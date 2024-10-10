@@ -1,0 +1,65 @@
+.content-type-filter {
+  .content-type-list {
+    max-height: 370px;
+    overflow: auto;
+  }
+
+  .item-view-wrapper {
+    .custom-option-viewer(26px, 13px, 11px);
+    .viewer-selected();
+  }
+
+  .filterable-listbox-wrapper-with-selected-view {
+    .selected-options .selected-option {
+      padding: 6px 8px;
+    }
+  }
+}
+
+.custom-option-viewer(@size, @main, @sub) {
+  .viewer {
+    .names-and-icon-view {
+      .@{_COMMON_PREFIX}wrapper {
+        height: @size;
+        width: @size;
+        margin-right: 10px;
+
+        .font-icon-default {
+          font-size: @size;
+
+          &::before {
+            font-size: @size;
+          }
+        }
+      }
+
+      .@{_COMMON_PREFIX}names-view {
+        .@{_COMMON_PREFIX}main-name {
+          font-size: @main;
+        }
+
+        .@{_COMMON_PREFIX}sub-name {
+          font-size: @sub;
+        }
+      }
+    }
+  }
+}
+
+.viewer-selected() {
+  &.selected {
+    .viewer {
+      .names-and-icon-view {
+        .@{_COMMON_PREFIX}names-view {
+          .@{_COMMON_PREFIX}main-name {
+            color: @admin-white;
+          }
+
+          .@{_COMMON_PREFIX}sub-name {
+            color: @admin-white;
+          }
+        }
+      }
+    }
+  }
+}

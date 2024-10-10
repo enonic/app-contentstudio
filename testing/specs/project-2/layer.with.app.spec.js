@@ -12,7 +12,7 @@ const appConst = require('../../libs/app_const');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const XDataImageSelector = require('../../page_objects/wizardpanel/wizard-step-form/xdata.image.selector.wizard.step.form');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
-const CustomRelationshipForm = require('../../page_objects/wizardpanel/custom.relationship.form.panel');
+const ContentSelectorForm = require('../../page_objects/wizardpanel/content.selector.form');
 
 describe('layer.with.app.spec - tests for layer with applications', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -45,7 +45,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             await doAddArticleContent(articleContent);
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
-            let customRelationshipForm = new CustomRelationshipForm();
+            let customRelationshipForm = new ContentSelectorForm();
             // 3. Open new wizard with Custom relationship
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();

@@ -17,7 +17,7 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const TEXT = "test text";
+    const TEXT = 'test text';
 
     let SITE;
     const CONTROLLER_NAME = 'main region';

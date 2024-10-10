@@ -4,32 +4,28 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const ComboBoxListInput = require('../components/selectors/combobox.list.input');
 
 const XPATH = {
     container: "//div[contains(@id,'ComboBox')]",
-    InputViewValidationDiv: "//div[contains(@id,'InputViewValidationViewer')]",
-    optionByName: option => {
-        return `//div[contains(@class,'slick-viewport')]//div[contains(@id,'ComboBoxDisplayValueViewer') and text()='${option}']`
-
-    },
+    comboboxUL:"//ul[contains(@id,'ComboBoxList')]",
+    inputViewValidationDiv: "//div[contains(@id,'InputViewValidationViewer')]",
+    comboBoxSelectedOptionViewDiv: "//div[contains(@id,'ComboBoxSelectedOptionView')]"
 };
 
 class ComboBoxFormPanel extends Page {
 
     get optionFilterInput() {
-        return lib.CONTENT_WIZARD_STEP_FORM + XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return lib.CONTENT_WIZARD_STEP_FORM + XPATH.container + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     get removeOptionIcon() {
-        return lib.CONTENT_WIZARD_STEP_FORM + XPATH.container + lib.BASE_SELECTED_OPTION + lib.REMOVE_ICON;
+        return lib.CONTENT_WIZARD_STEP_FORM + XPATH.container + XPATH.comboBoxSelectedOptionViewDiv + lib.REMOVE_ICON;
     }
 
     async typeInFilterAndClickOnOption(option) {
-        let optionLocator = XPATH.optionByName(option);
-        await this.typeTextInInput(this.optionFilterInput, option);
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        await this.clickOnElement(optionLocator);
-        return await this.pause(200);
+        let comboBoxListInput = new ComboBoxListInput();
+        await comboBoxListInput.selectFilteredOptionAndClickOnOk(option);
     }
 
     async clickOnRemoveSelectedOptionButton(index) {
@@ -49,8 +45,12 @@ class ComboBoxFormPanel extends Page {
         return this.waitForElementDisabled(this.optionFilterInput, appConst.mediumTimeout);
     }
 
+    waitForOptionFilterInputNoDisplayed() {
+        return this.waitForElementNotDisplayed(this.optionFilterInput, appConst.mediumTimeout);
+    }
+
     async getComboBoxValidationMessage() {
-        let locator = lib.CONTENT_WIZARD_STEP_FORM + lib.FORM_VIEW + XPATH.InputViewValidationDiv;
+        let locator = lib.CONTENT_WIZARD_STEP_FORM + lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }

@@ -22,9 +22,9 @@ describe('Move Fragment specification', function () {
     }
 
     let SITE, FOLDER;
-    let CONTROLLER_NAME = 'main region';
-    let FRAGMENT_TEXT_DESCRIPTION = 'text';
-    let TEST_TEXT_FRAGMENT = appConst.generateRandomName('text');
+    const CONTROLLER_NAME = 'main region';
+    const FRAGMENT_TEXT_DESCRIPTION = 'text';
+    const TEST_TEXT_FRAGMENT = appConst.generateRandomName('text');
 
     it(`Preconditions: new site and folder should be created`,
         async () => {

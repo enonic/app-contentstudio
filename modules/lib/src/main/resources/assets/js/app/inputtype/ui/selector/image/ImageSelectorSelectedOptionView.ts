@@ -135,13 +135,13 @@ export class ImageSelectorSelectedOptionView
     private showSpinner() {
         this.progress.hide();
         this.check.hide();
-        this.icon.getEl().setVisibility('hidden');
+        this.icon.setClass('visibility-hidden');
         this.loadMask.show();
     }
 
     private showResult() {
         this.loadMask.hide();
-        this.icon.getEl().setVisibility('visible');
+        this.icon.setClass('visibility-visible');
         this.check.show();
         this.progress.hide();
         this.error.hide();

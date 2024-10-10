@@ -63,9 +63,9 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_SELECTOR_0_2);
             await contentWizard.typeDisplayName(CONTENT_NAME);
             // 2. One option has been selected:
-            await customSelectorForm.selectOption(OPTION_1);
+            await customSelectorForm.selectOptionByDisplayName(OPTION_1);
             await contentWizard.waitAndClickOnSave();
-            let isDisplayed = await customSelectorForm.isOptionFilterDisplayed();
+            let isDisplayed = await customSelectorForm.isOptionsFilterInputDisplayed();
             assert.ok(isDisplayed, 'Option filter input should be displayed, because just one options is selected');
             let options = await customSelectorForm.getSelectedOptions();
             await studioUtils.saveScreenshot('custom_selector_1_option');
@@ -78,10 +78,10 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             let customSelectorForm = new CustomSelectorForm();
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             // 1. Select the second option:
-            await customSelectorForm.selectOption(OPTION_2);
+            await customSelectorForm.selectOptionByDisplayName(OPTION_2);
             await contentWizard.waitAndClickOnSave();
             // 2. option filter input gets not visible:
-            let isDisplayed = await customSelectorForm.isOptionFilterDisplayed();
+            let isDisplayed = await customSelectorForm.isOptionsFilterInputDisplayed();
             assert.ok(isDisplayed === false, 'Option filter input gets not visible, because 2 options are selected');
             let selectedOptions = await customSelectorForm.getSelectedOptions();
             await studioUtils.saveScreenshot('custom_selector_2_options');
@@ -127,7 +127,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             // 1. Select the second option:
             await customSelectorForm.removeSelectedOption(OPTION_2);
             // 2. option filter input gets visible again:
-            let isDisplayed = await customSelectorForm.isOptionFilterDisplayed();
+            let isDisplayed = await customSelectorForm.isOptionsFilterInputDisplayed();
             assert.ok(isDisplayed, 'Option filter input gets visible');
             let selectedOptions = await customSelectorForm.getSelectedOptions();
             await studioUtils.saveScreenshot('custom_selector_option_removed');

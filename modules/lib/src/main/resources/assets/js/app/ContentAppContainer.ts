@@ -57,16 +57,7 @@ export class ContentAppContainer
 
     private initSearchPanelListener(panel: ContentAppPanel) {
         ToggleSearchPanelWithDependenciesGlobalEvent.on((event) => {
-            if (!panel.getBrowsePanel().getTreeGrid().isEmpty()) {
-                new ToggleSearchPanelWithDependenciesEvent({item: event.getContent(), inbound: event.isInbound()}).fire();
-            } else {
-                const handler = () => {
-                    new ToggleSearchPanelWithDependenciesEvent({item: event.getContent(), inbound: event.isInbound()}).fire();
-                    panel.getBrowsePanel().getTreeGrid().unLoaded(handler);
-                };
-
-                panel.getBrowsePanel().getTreeGrid().onLoaded(handler);
-            }
+            new ToggleSearchPanelWithDependenciesEvent({item: event.getContent(), inbound: event.isInbound()}).fire();
         });
     }
 

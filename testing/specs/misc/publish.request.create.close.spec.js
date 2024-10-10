@@ -62,8 +62,8 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             // 3. Click on 'Next' button:
             await createRequestPublishDialog.clickOnNextButton();
             // 4. Click on Assignees dropdown handle:
-            await createRequestPublishDialog.clickOnAssigneesDropDownHandle();
-            let options = await createRequestPublishDialog.getAssigneesOptions();
+            await createRequestPublishDialog.clickOnDropDownHandleInAssigneesCombobox();
+            let options = await createRequestPublishDialog.getOptionsInAssigneesDropdownList();
             assert.ok(options.includes('Authenticated') === false, 'Roles should not be present in the assignees options');
         });
 

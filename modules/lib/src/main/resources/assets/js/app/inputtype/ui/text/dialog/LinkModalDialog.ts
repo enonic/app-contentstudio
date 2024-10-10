@@ -9,9 +9,7 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {Dropdown, DropdownConfig} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {UploadStartedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
 import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
@@ -19,12 +17,9 @@ import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem';
 import {MediaSelectorDisplayValue} from '../../selector/media/MediaSelectorDisplayValue';
-import {ContentComboBox} from '../../selector/ContentComboBox';
+import {ContentSelectedOptionsView} from '../../selector/ContentComboBox';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
-import {
-    ContentSummaryOptionDataLoader,
-    ContentSummaryOptionDataLoaderBuilder
-} from '../../selector/ContentSummaryOptionDataLoader';
+import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../../selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 import {Content} from '../../../../content/Content';
 import {Site} from '../../../../content/Site';
@@ -45,9 +40,13 @@ import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import eventInfo = CKEDITOR.eventInfo;
 import {Project} from '../../../../settings/data/project/Project';
 import {ContentPath} from '../../../../content/ContentPath';
+import {ContentTreeSelectorDropdown, ContentTreeSelectorDropdownOptions} from '../../../selector/ContentTreeSelectorDropdown';
+import {ContentListBox} from '../../../selector/ContentListBox';
+import {Dropdown} from '@enonic/lib-admin-ui/ui/Dropdown';
+import eventInfo = CKEDITOR.eventInfo;
+import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 export interface LinkModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -224,22 +223,22 @@ export class LinkModalDialog
 
     protected setDialogInputValues() {
         switch (this.getOriginalLinkTypeElem().getValue()) {
-            case 'email':
-                this.link = LinkModalDialog.emailPrefix + this.getOriginalEmailElem().getValue();
-                break;
-            case 'anchor':
-                this.link = LinkModalDialog.anchorPrefix + this.getOriginalAnchorElem().getValue();
-                break;
-            case 'tel':
-                this.link = LinkModalDialog.telPrefix + this.getOriginalTelElem().getValue();
-                break;
-            default: {
-                const val = this.getOriginalUrlElem().getValue();
-                const protocol: string = this.getOriginalProtocolElem().getValue();
-                this.link = StringHelper.isEmpty(val) ?
-                    StringHelper.EMPTY_STRING :
-                    protocol + this.getOriginalUrlElem().getValue();
-            }
+        case 'email':
+            this.link = LinkModalDialog.emailPrefix + this.getOriginalEmailElem().getValue();
+            break;
+        case 'anchor':
+            this.link = LinkModalDialog.anchorPrefix + this.getOriginalAnchorElem().getValue();
+            break;
+        case 'tel':
+            this.link = LinkModalDialog.telPrefix + this.getOriginalTelElem().getValue();
+            break;
+        default: {
+            const val = this.getOriginalUrlElem().getValue();
+            const protocol: string = this.getOriginalProtocolElem().getValue();
+            this.link = StringHelper.isEmpty(val) ?
+                        StringHelper.EMPTY_STRING :
+                        protocol + this.getOriginalUrlElem().getValue();
+        }
         }
     }
 
@@ -272,34 +271,13 @@ export class LinkModalDialog
     }
 
     private createContentPanel(): Panel {
-        const getContentId: () => string = () => {
-            if (!this.link) {
-                return StringHelper.EMPTY_STRING;
-            }
-
-            if (this.isInlineLink()) {
-                return this.link.replace(LinkModalDialog.mediaInlinePrefix, StringHelper.EMPTY_STRING);
-            }
-
-            if (this.isDownloadLink()) {
-                return this.link.replace(LinkModalDialog.mediaDownloadPrefix, StringHelper.EMPTY_STRING);
-            }
-
-            if (this.isContentLink()) {
-                const regex = new RegExp(/^(.*?)(\#|\?|$)/g);
-                const regexResult = regex.exec(this.link);
-                return (regexResult.length > 1 ? regexResult[1] : this.link)
-                    .replace(LinkModalDialog.contentPrefix, StringHelper.EMPTY_STRING);
-            }
-
-            return StringHelper.EMPTY_STRING;
-        };
-
         const contentSelectorBuilder = this.createContentSelectorBuilder(this.parentSitePath);
-        const contentSelector = this.createContentSelector(getContentId, contentSelectorBuilder);
+        const loader = contentSelectorBuilder.build();
+        const contentSelector: ContentTreeSelectorDropdown = this.createContentSelector(loader);
         const showAllContentToggler = (showAllContent: boolean) => {
             contentSelectorBuilder.setAllowedContentPaths([showAllContent ? '' : this.parentSitePath]);
-            contentSelector.getLoader().initRequests(contentSelectorBuilder);
+            loader.initRequests(contentSelectorBuilder);
+            contentSelector.load();
         };
 
         const contentPanel = this.createFormPanel([
@@ -314,6 +292,39 @@ export class LinkModalDialog
         contentPanel.addClass('content-panel');
 
         return contentPanel;
+    }
+
+    private getContentId(): string {
+        if (!this.link) {
+            return StringHelper.EMPTY_STRING;
+        }
+
+        if (this.isInlineLink()) {
+            return this.link.replace(LinkModalDialog.mediaInlinePrefix, StringHelper.EMPTY_STRING);
+        }
+
+        if (this.isDownloadLink()) {
+            return this.link.replace(LinkModalDialog.mediaDownloadPrefix, StringHelper.EMPTY_STRING);
+        }
+
+        if (this.isContentLink()) {
+            const regex = new RegExp(/^(.*?)(\#|\?|$)/g);
+            const regexResult = regex.exec(this.link);
+            return (regexResult.length > 1 ? regexResult[1] : this.link)
+                .replace(LinkModalDialog.contentPrefix, StringHelper.EMPTY_STRING);
+        }
+
+        return StringHelper.EMPTY_STRING;
+    }
+
+    private getSelectedItemsHandler(): string[] {
+        const selectedItem = this.getContentId();
+
+        if (selectedItem) {
+            return [selectedItem];
+        }
+
+        return [];
     }
 
 
@@ -359,19 +370,21 @@ export class LinkModalDialog
     }
 
     private createAnchorPanel(anchorList: string[]): Panel {
-        return this.createFormPanel([
+        const anchorPanel =  this.createFormPanel([
             this.createAnchorDropdown(anchorList)
         ]);
+
+        anchorPanel.addClass('anchor-panel');
+
+        return anchorPanel;
     }
 
     private createAnchorDropdown(anchorList: string[]): FormItem {
-        const dropDown = new Dropdown<string>('anchor', {} as DropdownConfig<string>);
+        const dropDown = new Dropdown('anchor');
+        dropDown.addClass('anchor-dropdown');
 
         anchorList.forEach((anchor: string) => {
-            dropDown.addOption(Option.create<string>()
-                .setValue(LinkModalDialog.anchorPrefix + anchor)
-                .setDisplayValue(anchor)
-                .build());
+            dropDown.addOption(LinkModalDialog.anchorPrefix + anchor, anchor);
         });
 
         if (this.getAnchor()) {
@@ -675,8 +688,8 @@ export class LinkModalDialog
                 const urlValue: string = textInput.getValue();
                 const usedProtocol: UrlProtocol = this.getUsedProtocolFromValue(urlValue);
                 const newUrlValue: string = !usedProtocol.prefix
-                    ? prefix + urlValue
-                    : urlValue.replace(usedProtocol.prefix, prefix);
+                                            ? prefix + urlValue
+                                            : urlValue.replace(usedProtocol.prefix, prefix);
 
                 formItem.setValidator(validator);
                 textInput.setValue(newUrlValue);
@@ -876,6 +889,29 @@ export class LinkModalDialog
         };
     }
 
+    private createContentSelector(loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>): ContentTreeSelectorDropdown {
+        const listBox = new ContentListBox({loader: loader});
+        const dropdownOptions: ContentTreeSelectorDropdownOptions = {
+            loader: loader,
+            maxSelected: 1,
+            selectedOptionsView: new LinkContentSelectedOptionsView(),
+            className: 'single-occurrence',
+            getSelectedItems: this.getSelectedItemsHandler.bind(this),
+            treeMode: true,
+        };
+
+        return new ContentTreeSelectorDropdown(listBox, dropdownOptions);
+    }
+
+    private createContentSelectorBuilder(parentSitePath: string): ContentSummaryOptionDataLoaderBuilder {
+        return ContentSummaryOptionDataLoader
+            .create()
+            .setProject(this.config.project)
+            .setAppendLoadResults(false)
+            .setPostFilterFn((contentItem) => this.filterContentByParentPath(contentItem))
+            .setAllowedContentPaths([parentSitePath ? `${parentSitePath}` : '']);
+    }
+
     private filterContentByParentPath(contentItem: ContentSummary | ContentTreeSelectorItem): boolean {
         if (!this.parentSitePath || (this.showAllContentCheckboxFormItem.getInput() as Checkbox).isChecked()) {
             return true;
@@ -887,32 +923,11 @@ export class LinkModalDialog
         return contentPath === this.parentSitePath || contentPath.startsWith(`${this.parentSitePath}/`);
     }
 
-    private createContentSelector(getValueFn: () => string,
-                           loaderBuilder: ContentSummaryOptionDataLoaderBuilder
-    ): ContentComboBox<ContentTreeSelectorItem> {
-        const selector = ContentComboBox.create()
-            .setTreegridDropdownEnabled(true)
-            .setMaximumOccurrences(1)
-            .setLoader(loaderBuilder.build())
-            .build();
-
-        selector.setValue(getValueFn.call(this));
-
-        return selector;
-    }
-
-    private createContentSelectorBuilder(parentSitePath: string): ContentSummaryOptionDataLoaderBuilder {
-        return ContentSummaryOptionDataLoader
-            .create()
-            .setProject(this.config.project)
-            .setPostFilterFn((contentItem) => this.filterContentByParentPath(contentItem))
-            .setAllowedContentPaths([parentSitePath || '']);
-    }
-
-    private createSelectorFormItem(id: string, label: string, contentSelector: ContentComboBox<ContentTreeSelectorItem>,
+    private createSelectorFormItem(id: string, label: string, contentSelector: ContentTreeSelectorDropdown,
                                    addValueValidation: boolean = false): FormItem {
+        const formInputEl = new ContentSelectorFormInputWrapper(contentSelector);
         const formItemBuilder: ModalDialogFormItemBuilder =
-            new ModalDialogFormItemBuilder(id, label).setValidator(Validators.required).setInputEl(contentSelector);
+            new ModalDialogFormItemBuilder(id, label).setValidator(Validators.required).setInputEl(formInputEl);
         const formItem: FormItem = this.createFormItem(formItemBuilder);
 
         const mediaUploader: MediaUploaderEl = this.createMediaUploader(contentSelector);
@@ -922,11 +937,13 @@ export class LinkModalDialog
             return formItem;
         }
 
-        const callHandleSelectorValueChanged = () =>
-            this.handleSelectorValueChanged(contentSelector.getSelectedContent(), formItem);
+        const callHandleSelectorValueChanged = () => {
+            const selected = contentSelector.getSelectedOptions()[0]?.getOption().getDisplayValue()?.getContent();
+            this.handleSelectorValueChanged(selected, formItem);
+        };
 
-        contentSelector.onValueLoaded(callHandleSelectorValueChanged);
-        contentSelector.onValueChanged(callHandleSelectorValueChanged);
+        contentSelector.onSelectionChanged(callHandleSelectorValueChanged);
+        contentSelector.getSelectedOptionsView().onOptionSelected(callHandleSelectorValueChanged);
 
         return formItem;
     }
@@ -942,6 +959,7 @@ export class LinkModalDialog
             this.contentTargetCheckBoxFormItem.hide();
             this.anchorFormItem.hide();
             this.paramsFormItem.hide();
+            this.link = null;
             return;
         }
 
@@ -962,7 +980,7 @@ export class LinkModalDialog
         }
     }
 
-    private createMediaUploader(contentSelector: ContentComboBox<ContentTreeSelectorItem>): MediaUploaderEl {
+    private createMediaUploader(contentSelector: ContentTreeSelectorDropdown): MediaUploaderEl {
         const mediaUploader: MediaUploaderEl = new MediaUploaderEl({
             params: {
                 parent: this.contentId?.toString() || ContentPath.getRoot().toString()
@@ -980,11 +998,7 @@ export class LinkModalDialog
                 const value: MediaTreeSelectorItem = new MediaTreeSelectorItem(null).setDisplayValue(
                     MediaSelectorDisplayValue.fromUploadItem(uploadItem));
 
-                const option: Option<MediaTreeSelectorItem> = Option.create<MediaTreeSelectorItem>()
-                    .setValue(value.getId())
-                    .setDisplayValue(value)
-                    .build();
-                contentSelector.selectOption(option);
+                contentSelector.select(value);
             });
         });
 
@@ -999,9 +1013,16 @@ export class LinkModalDialog
             const item: UploadItem<Content> = event.getUploadItem();
             const createdContent: Content = item.getModel();
 
-            const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionView().getById(item.getId());
+            const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionsView().getById(item.getId());
             const option: Option<ContentTreeSelectorItem> = selectedOption.getOption();
-            option.setDisplayValue(new MediaTreeSelectorItem(createdContent));
+            const uploadedItem = new MediaTreeSelectorItem(createdContent);
+
+            if (contentSelector.isSelected(item.getId())) {
+                contentSelector.deselect(selectedOption.getOption().getDisplayValue());
+                contentSelector.select(uploadedItem);
+            }
+
+            option.setDisplayValue(uploadedItem);
             option.setValue(createdContent.getContentId().toString());
 
             selectedOption.getOptionView().setOption(option);
@@ -1009,11 +1030,10 @@ export class LinkModalDialog
 
         mediaUploader.onUploadFailed((event: UploadFailedEvent<Content>) => {
             const item: UploadItem<Content> = event.getUploadItem();
-            const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionView().getById(item.getId());
+            const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionsView().getById(item.getId());
 
             if (!!selectedOption) {
-                (contentSelector.getSelectedOptionView() as BaseSelectedOptionsView<ContentTreeSelectorItem>).removeOption(
-                    selectedOption.getOption());
+                contentSelector.getSelectedOptionsView().removeOption(selectedOption.getOption());
             }
         });
 
@@ -1030,14 +1050,6 @@ export class LinkModalDialog
 
         mediaUploader.onDropzoneDrop(() => {
             mediaUploader.setDefaultDropzoneVisible(false);
-        });
-
-        contentSelector.getComboBox().onHidden(() => {
-            mediaUploader.hide();
-        });
-
-        contentSelector.getComboBox().onShown(() => {
-            mediaUploader.show();
         });
 
         return mediaUploader;
@@ -1106,8 +1118,8 @@ export class LinkModalDialog
         return this.generateUrlParamsForNonMedia();
     }
 
-    private getContentIdFormItemEl(): ContentComboBox<ContentTreeSelectorItem> {
-        return this.getFieldById('contentId') as ContentComboBox<ContentTreeSelectorItem>;
+    private getContentIdFormItemEl(): ContentSelectorFormInputWrapper {
+        return this.getFieldById('contentId') as ContentSelectorFormInputWrapper;
     }
 
     private generateUrlParamsForMedia(): ContentLinkParams {
@@ -1194,18 +1206,18 @@ export class LinkModalDialog
         this.getOriginalTitleElem().setValue(toolTip, false);
 
         switch (selectedTab.getLabel()) {
-            case (this.tabNames.content):
-                this.createContentLink();
-                break;
-            case (this.tabNames.url):
-                this.createUrlLink();
-                break;
-            case (this.tabNames.email):
-                this.createEmailLink();
-                break;
-            case (this.tabNames.anchor):
-                this.createAnchor();
-                break;
+        case (this.tabNames.content):
+            this.createContentLink();
+            break;
+        case (this.tabNames.url):
+            this.createUrlLink();
+            break;
+        case (this.tabNames.email):
+            this.createEmailLink();
+            break;
+        case (this.tabNames.anchor):
+            this.createAnchor();
+            break;
         }
     }
 
@@ -1219,7 +1231,7 @@ export class LinkModalDialog
 
     private getOriginalUrlElem(): CKEDITOR.ui.dialog.uiElement {
         return (this.getElemFromOriginalDialog('info', 'urlOptions') as CKEDITOR.ui.dialog.vbox)
-                .getChild([0, 1]) as unknown as CKEDITOR.ui.dialog.uiElement;
+            .getChild([0, 1]) as unknown as CKEDITOR.ui.dialog.uiElement;
     }
 
     private getOriginalEmailElem(): CKEDITOR.ui.dialog.uiElement {
@@ -1270,7 +1282,38 @@ export class LinkModalDialog
 
     isDirty(): boolean {
         return (this.textFormItem.getInput() as TextInput).isDirty() || (this.toolTipFormItem.getInput() as TextInput).isDirty() ||
-            AppHelper.isDirty(this.dockedPanel);
+               AppHelper.isDirty(this.dockedPanel);
     }
 
+}
+
+class ContentSelectorFormInputWrapper
+    extends FormInputEl {
+
+    private contentSelector: ContentTreeSelectorDropdown;
+
+    constructor(contentSelector: ContentTreeSelectorDropdown) {
+        super('div', 'content-selector-wrapper');
+
+        this.contentSelector = contentSelector;
+        this.appendChild(contentSelector);
+    }
+
+
+    getValue(): string {
+        return this.contentSelector.getSelectedOptions()[0]?.getOption().getDisplayValue()?.getContent()?.getId() || '';
+    }
+}
+
+class LinkContentSelectedOptionsView extends ContentSelectedOptionsView {
+
+    addOption(option: Option<ContentTreeSelectorItem>, silent: boolean, keyCode: number): boolean {
+        const result = super.addOption(option, silent, keyCode);
+
+        if (silent) { // forcing notify event, preselected item was selected silently
+            this.notifyOptionSelected(new SelectedOptionEvent(this.getSelectedOptions()[0], keyCode));
+        }
+
+        return result;
+    }
 }

@@ -18,10 +18,10 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let COUNTRY_LIST_CONTROLLER = "Country List";
+    const COUNTRY_LIST_CONTROLLER = 'Country List';
     const EXPECTED_QUESTION = 'Switching to a page template will discard all the custom changes made to the page. Are you sure?';
 
-    it("GIVEN new site with controller is added WHEN 'Inspect' link has been clicked THEN Inspection tab should be opened",
+    it("GIVEN new site with controller is created WHEN 'Inspect' link has been clicked THEN Inspection tab should be opened",
         async () => {
             let contentWizard = new ContentWizard();
             let contextWindow = new ContextWindow();
@@ -44,7 +44,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             assert.equal(actualController, COUNTRY_LIST_CONTROLLER, "Expected page controller should be selected");
         });
 
-    it("GIVEN 'Page Inspection' tab is opened WHEN 'Automatic' option has been selected THEN 'Confirmation Dialog' with the question should appear",
+    it("GIVEN 'Page Inspection' tab is opened WHEN another ('Automatic') option has been selected THEN 'Confirmation Dialog' with the question should appear",
         async () => {
             let contextWindow = new ContextWindow();
             let pageInspectionPanel = new PageInspectionPanel();
@@ -53,10 +53,11 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on 'Page' tab in Inspection panel:
             await contextWindow.clickOnTabBarItem('Page');
-            // 3. Select new controller(Automatic)
-            await pageInspectionPanel.selectPageTemplateOrController('Automatic');
-            // 4. Confirmation dialog appears:
+            // 3. Select another controller(Automatic) and click on OK:
+            await pageInspectionPanel.selectPageTemplateOrControllerAndOk('Automatic');
+            // 4. Confirmation dialog should appear:
             await confirmationDialog.waitForDialogOpened();
+            // 5. Verify the question:
             let question = await confirmationDialog.getQuestion();
             assert.equal(question, EXPECTED_QUESTION, 'Expected question should be displayed in the dialog');
         });
@@ -74,7 +75,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             // 2. Click on 'Page' tab in Inspection panel:
             await contextWindow.clickOnTabBarItem('Page');
             // 3. Select new controller(Automatic)
-            await pageInspectionPanel.selectPageTemplateOrController('Automatic');
+            await pageInspectionPanel.selectPageTemplateOrControllerAndOk('Automatic');
             // 4. Click on 'Yes' button
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();

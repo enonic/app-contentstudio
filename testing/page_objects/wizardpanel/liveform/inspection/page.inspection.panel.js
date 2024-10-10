@@ -4,6 +4,7 @@
 const Page = require('../../../page');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
+const InspectPanelControllerSelector = require('../../../../page_objects/components/selectors/inspect.panel.controller.selector');
 
 const xpath = {
     container: "//div[contains(@id,'InspectionsPanel')]",
@@ -21,7 +22,7 @@ class PageInspectionPanel extends Page {
     }
 
     get saveAsTemplateButton() {
-        return xpath.container + lib.actionButton("Save as Template");
+        return xpath.container + lib.actionButton('Save as Template');
     }
 
     waitForSaveAsTemplateButtonDisplayed() {
@@ -40,28 +41,33 @@ class PageInspectionPanel extends Page {
             return await this.pause(700);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_page_inspection_dropdown');
-            throw new Error('page template selector: screenshot' + screenshot + ' ' + err);
+            throw new Error(`Error occurred in page template selector: screenshot:${screenshot} ` + err);
         }
     }
 
-    async getPageTemplateDropdownOptions() {
-        await this.clickOnPageControllerDropdownHandle();
-        let selector = lib.SLICK_ROW + "//div[contains(@id,'PageTemplateAndSelectorViewer')]" + lib.P_SUB_NAME;
-        return await this.getTextInElements(selector);
+    async getOptionsNameInPageTemplateDropdown() {
+        let inspectPanelControllerSelector = new InspectPanelControllerSelector();
+        await inspectPanelControllerSelector.clickOnDropdownHandle(xpath.container);
+        return await inspectPanelControllerSelector.getOptionsName(xpath.container);
+    }
+
+    async getOptionsDescriptionInPageTemplateDropdown() {
+        let inspectPanelControllerSelector = new InspectPanelControllerSelector();
+        await inspectPanelControllerSelector.clickOnDropdownHandle(xpath.container);
+        return await inspectPanelControllerSelector.getOptionsDescription(xpath.container);
     }
 
     // clicks on dropdown handle and select an option
-    async selectPageTemplateOrController(displayName) {
+    async selectPageTemplateOrControllerAndOk(displayName) {
         try {
-            let optionSelector = lib.slickRowByDisplayName(xpath.pageTemplateSelector, displayName);
-            await this.waitForElementDisplayed(this.pageTemplateDropdownHandle, appConst.longTimeout);
+            let inspectPanelControllerSelector = new InspectPanelControllerSelector();
             await this.clickOnPageControllerDropdownHandle();
-            await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-            await this.clickOnElement(optionSelector);
-            return await this.pause(700);
+            await inspectPanelControllerSelector.clickOnOptionByDisplayName(displayName, xpath.container);
+            await inspectPanelControllerSelector.clickOnApplySelectionButton(xpath.container);
+            return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_option');
-            throw new Error('Page Inspection Panel, controller dropdown, screenshot:' + screenshot + ' ' + err);
+            throw new Error(`Error occurred in Page Inspection Panel, controller dropdown, screenshot: ${screenshot}` + err);
         }
     }
 

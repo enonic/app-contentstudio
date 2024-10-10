@@ -217,7 +217,7 @@ class TextComponent extends Page {
             return await insertImageDialog.waitForDialogVisible();
         } catch (err) {
             await this.switchToParentFrame();
-            await this.saveScreenshot(appConst.generateRandomName("err_insert_image_button"));
+            await this.saveScreenshotUniqueName('err_insert_image_button');
             throw new Error("Text Component Toolbar - Error after clicking on Insert Image button:" + err);
         }
     }

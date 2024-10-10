@@ -1,7 +1,7 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
-const ComboBox = require('./components/loader.combobox');
+const AccessControlComboBox = require('./components/selectors/access.control.combobox');
 const xpath = {
     container: `//div[contains(@id,'EditPermissionsDialog')]`,
     accessSelector: "//div[contains(@id,'AccessSelector')]",
@@ -22,10 +22,6 @@ const xpath = {
 };
 
 class EditPermissionsDialog extends Page {
-
-    get principalsOptionFilterInput() {
-        return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
-    }
 
     get cancelButton() {
         return xpath.container + xpath.cancelButton;
@@ -79,15 +75,14 @@ class EditPermissionsDialog extends Page {
         });
     }
 
-    //filters and select a principal
+    // filters and select a principal
     async filterAndSelectPrincipal(principalDisplayName) {
         try {
-            let comboBox = new ComboBox();
-            await comboBox.typeTextAndSelectOption(principalDisplayName, xpath.container);
+            let accessControlComboBox = new AccessControlComboBox();
+            await accessControlComboBox.selectFilteredPrincipalAndClickOnApply(principalDisplayName, xpath.container);
             console.log("Edit Permissions Dialog, principal is selected: " + principalDisplayName);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_perm_dlg");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_perm_dlg');
             throw new Error("Error during updating permissions, screenshot:" + screenshot + "  " + err);
         }
     }
@@ -163,7 +158,7 @@ class EditPermissionsDialog extends Page {
             await this.clickOnElement(this.inheritPermissionsCheckbox + '/label');
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_click_on_inherit_permis_dialog');
+            await this.saveScreenshot('err_click_on_inherit_permis_dialog');
             throw new Error('Error when clicking on Inherit permissions ' + err);
         }
     }

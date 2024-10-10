@@ -41,8 +41,8 @@ describe('Text Component with CKE - insert link and table specification', functi
             // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Insert a text-component:
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             // Close the details panel
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();

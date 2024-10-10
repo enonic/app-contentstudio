@@ -156,8 +156,8 @@ module.exports = Object.freeze({
         TEL: 'Tel',
         RELATIVE: 'Relative'
     },
-    LIVE_EDIT:{
-        REGION_MAIN_DISPLAY_NAME:'Main'
+    LIVE_EDIT: {
+        REGION_MAIN_DISPLAY_NAME: 'Main'
     },
 
     VALIDATION_MESSAGE: {
@@ -352,6 +352,7 @@ module.exports = Object.freeze({
         CONTENT_SELECTOR_1_2: 'content-selector1_2',
         EXPANDED_SINGLE_SELECTION_OPTION_SET: 'optionset-single-selection',
         OPTION_SET: 'optionset',
+        OPTION_SET2: 'optionset2',
         OPTION_SET_1: 'optionset1',
         OPTION_SET_UNLIM: 'opt-set-unlim',
         OPTION_SET_0_2: 'optionset0_2',
@@ -363,6 +364,7 @@ module.exports = Object.freeze({
         OPTION_SET_HELP_TEXT: 'optionset_help',
         PERSON: 'Person',
         LOCALE_CODE: 'Locale Code',
+        FREE_FORM: 'freeform',
     },
     permissions: {
         FULL_ACCESS: 'Full Access',
@@ -391,16 +393,24 @@ module.exports = Object.freeze({
         SUPER_USER: 'Super User',
         ME: "Me",
     },
-    sortMenuItem: {
-        DISPLAY_NAME: 'Display name',
+    GRID_SORTING: {
+        DATE_ASC: 'Date ascending',
+        DATE_DESC: 'Date descending',
+        NAME_ASC: 'Name ascending',
+        NAME_DESC: 'Name descending',
         MANUALLY_SORTED: 'Manually sorted',
-        MODIFIED_DATE: 'Modified date',
-        CREATED_DATE: 'Created date',
-        PUBLISHED_DATE: "Published date",
     },
-    SORT_ORDER: {
+    SORT_DIALOG: {
+        MENU_ITEM: {
+            DISPLAY_NAME: 'Display name',
+            MANUALLY_SORTED: 'Manually sorted',
+            MODIFIED_DATE: 'Modified date',
+            CREATED_DATE: 'Created date',
+            PUBLISHED_DATE: "Published date",
+        },
         ASCENDING: 'ascending',
         DESCENDING: 'descending'
+
     },
     STATUS_WIDGET: {
         NEW: 'NEW',

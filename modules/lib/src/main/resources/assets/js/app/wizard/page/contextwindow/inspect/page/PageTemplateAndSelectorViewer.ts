@@ -13,8 +13,8 @@ export class PageTemplateAndSelectorViewer
 
     private static defaultPageTemplate: PageTemplate;
 
-    constructor() {
-        super();
+    constructor(className?: string) {
+        super(className);
     }
 
     static setDefaultPageTemplate(defaultPageTemplate: PageTemplate) {

@@ -365,9 +365,9 @@ export class ProjectWizardPanel
             this.rolesWizardStepForm.setParentProjects(projects);
             this.applicationsWizardStepForm.setParentProjects(projects);
 
-            this.projectWizardStepForm.onParentProjectChanged((p: Project[]) => {
-                this.readAccessWizardStepForm.setParentProjects(p);
-                this.rolesWizardStepForm.setParentProjects(p);
+            this.projectWizardStepForm.onParentProjectChanged((p: Project) => {
+                this.readAccessWizardStepForm.setParentProjects([p]);
+                this.rolesWizardStepForm.setParentProjects([p]);
             });
         });
     }

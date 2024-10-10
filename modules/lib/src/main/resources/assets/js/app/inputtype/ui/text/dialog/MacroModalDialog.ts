@@ -6,19 +6,18 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {HtmlAreaModalDialogConfig, ModalDialog, ModalDialogFormItemBuilder} from './ModalDialog';
 import {MacroDockedPanel} from './MacroDockedPanel';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
-import {MacrosLoader} from '../../../../macro/resource/MacrosLoader';
 import {GetMacrosRequest} from '../../../../macro/resource/GetMacrosRequest';
-import {MacroComboBox} from '../../../../macro/MacroComboBox';
+import {MacroComboBox, MacroFormInputElWrapper} from '../../../../macro/MacroComboBox';
 import * as DOMPurify from 'dompurify';
-import {MacroDialogParams, Macro} from '../HtmlEditor';
+import {Macro, MacroDialogParams} from '../HtmlEditor';
 import {HTMLAreaHelper} from '../HTMLAreaHelper';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export interface MacroModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -111,27 +110,29 @@ export class MacroModalDialog
     }
 
     private createMacroFormItem(): FormItem {
-        const macroSelector: MacroComboBox =
-            MacroComboBox.create().setLoader(this.createMacrosLoader()).setMaximumOccurrences(1).build() as MacroComboBox;
+        const macroSelector: MacroComboBox = new MacroComboBox();
+        macroSelector.getLoader().setApplicationKeys(this.applicationKeys);
         const formItemBuilder = new ModalDialogFormItemBuilder('macroId', i18n('dialog.macro.formitem.macro')).setValidator(
-            Validators.required).setInputEl(macroSelector);
+            Validators.required).setInputEl(new MacroFormInputElWrapper(macroSelector));
 
         return this.createFormItem(formItemBuilder);
     }
 
     private initMacroSelectorListeners() {
-        (this.macroFormItem.getInput() as MacroComboBox).getComboBox().onOptionSelected((event: SelectedOptionEvent<MacroDescriptor>) => {
-            this.macroFormItem.addClass('selected-item-preview');
-            this.addClass('shows-preview');
+        let firstTimeSelected = true;
 
-            this.macroDockedPanel.setMacroDescriptor(event.getSelectedOption().getOption().getDisplayValue());
-        });
-
-        (this.macroFormItem.getInput() as MacroComboBox).getComboBox().onOptionDeselected(() => {
-            this.macroFormItem.removeClass('selected-item-preview');
-            this.removeClass('shows-preview');
-            this.displayValidationErrors(false);
-            ResponsiveManager.fireResizeEvent();
+        this.getMacroCombobox().onSelectionChanged((selectionChange: SelectionChange<MacroDescriptor>) => {
+            if (selectionChange.selected?.length > 0) {
+                this.macroFormItem.addClass('selected-item-preview');
+                this.addClass('shows-preview');
+                this.macroDockedPanel.setMacroDescriptor(selectionChange.selected[0], firstTimeSelected ? this.makeData() : null);
+                firstTimeSelected = false;
+            } else if (selectionChange.deselected?.length > 0) {
+                this.macroFormItem.removeClass('selected-item-preview');
+                this.removeClass('shows-preview');
+                this.displayValidationErrors(false);
+                ResponsiveManager.fireResizeEvent();
+            }
         });
     }
 
@@ -145,19 +146,14 @@ export class MacroModalDialog
                 return;
             }
 
-            (this.macroFormItem.getInput() as MacroComboBox).setValue(macro.getKey().getRefString());
+            this.getMacroCombobox().setSelectedMacro(macro);
             this.macroFormItem.addClass('selected-item-preview');
             this.addClass('shows-preview');
-
-            this.macroDockedPanel.setMacroDescriptor(macro, this.makeData());
         });
     }
 
-    private createMacrosLoader(): MacrosLoader {
-        const loader = new MacrosLoader();
-        loader.setApplicationKeys(this.applicationKeys);
-
-        return loader;
+    private getMacroCombobox(): MacroComboBox {
+        return (this.macroFormItem.getInput() as MacroFormInputElWrapper).getComboBox();
     }
 
     private getSelectedMacroDescriptor(): Q.Promise<MacroDescriptor> {
@@ -177,7 +173,7 @@ export class MacroModalDialog
     }
 
     private sanitize(value: string): string {
-        const macroName = (this.macroFormItem.getInput() as MacroComboBox).getValue().toUpperCase();
+        const macroName = this.getMacroCombobox().getValue().toUpperCase();
 
         if (macroName === 'SYSTEM:DISABLE') {
             return value;
@@ -196,11 +192,11 @@ export class MacroModalDialog
     private makeData(): PropertySet {
         const data: PropertySet = new PropertySet();
 
-        this.selectedMacro.attributes.forEach(item => {
+        this.selectedMacro?.attributes.forEach(item => {
             data.addString(item[0], DOMPurify.sanitize(item[1]));
         });
 
-        if (this.selectedMacro.body) {
+        if (this.selectedMacro?.body) {
             data.addString('body', this.sanitize(this.selectedMacro.body));
         }
 
@@ -246,7 +242,7 @@ export class MacroModalDialog
     }
 
     isDirty(): boolean {
-        return (this.macroFormItem.getInput() as MacroComboBox).isDirty();
+        return (this.macroFormItem.getInput() as MacroFormInputElWrapper).isDirty();
     }
 
     open(): void {

@@ -28,7 +28,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1. Open project wizard dialog and create new project:
+            // 1. Open project wizard dialog and create new project:
             await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.EN, null,
                 appConst.PROJECT_ACCESS_MODE.PRIVATE, null, PROJ_IDENTIFIER);
             // 2. Select the project and click on 'Edit' button
@@ -87,7 +87,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.waitForLoaded();
             // 2. click on 'Custom' radio:
             await projectWizard.clickOnAccessModeRadio('Custom');
-            // 3. Select SU in the selector's options:
+            // 3. Select SU in the Principal combobox
             await projectWizard.selectUserInCustomReadAccess(appConst.systemUsersDisplayName.SUPER_USER);
             await projectWizard.waitAndClickOnSave();
             // 4. Verify that SU is added in 'Custom Read Access'

@@ -1,4 +1,5 @@
 import * as Q from 'q';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {UserAccessListItemView} from './UserAccessListItemView';
 import {AccessControlEntry} from '../access/AccessControlEntry';
@@ -26,6 +27,14 @@ export class UserAccessListView
 
     setItemViews(userAccessListItemViews: UserAccessListItemView[]) {
         this.userAccessListItemViews = userAccessListItemViews;
+    }
+
+    protected createItemView(item: AccessControlEntry, readOnly: boolean): Element {
+        return null;
+    }
+
+    protected getItemId(_item: AccessControlEntry): string {
+        return '';
     }
 
 }

@@ -85,7 +85,7 @@ export class IssueCommentsList
                     this.confirmDialog.setYesCallback(() => {
                         new DeleteIssueCommentRequest(activeItem.getId()).sendAndParse().done(result => {
                             if (result) {
-                                this.removeItem(activeItem);
+                                this.removeItems(activeItem);
                                 const messageKey = this.isPublishRequest() ?
                                                    'notify.publishRequest.commentDeleted' :
                                                    'notify.issue.commentDeleted';
