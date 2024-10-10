@@ -7,7 +7,6 @@ import {WidgetItemView} from './WidgetItemView';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {UrlHelper} from '../../util/UrlHelper';
 
 export enum InternalWidgetType {
     INFO,
@@ -108,7 +107,7 @@ export class WidgetView
     }
 
     private getWidgetUrl() {
-        return UrlHelper.buildWidgetUri(this.widget.getUrl());
+        return this.widget.getUrl();
     }
 
     private updateCustomWidgetItemViews(): Q.Promise<void>[] {
