@@ -182,7 +182,7 @@ class IssueDetailsDialogItemsTab extends Page {
     async addItem(itemDisplayName) {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown();
-            return await contentSelectorDropdown.selectFilteredContentAndClickOnOk(itemDisplayName, xpath.container);
+            return await contentSelectorDropdown.selectFilteredByDisplayNameContent(itemDisplayName, xpath.container);
         } catch (err) {
             throw new Error("Issue Details dialog -  " + err);
         }

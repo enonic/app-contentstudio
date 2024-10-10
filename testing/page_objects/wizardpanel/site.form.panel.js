@@ -111,11 +111,11 @@ class SiteForm extends Page {
     async filterOptionsAndSelectApplication(displayName) {
         try {
             let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
-            await siteConfiguratorComboBox.selectFilteredApplicationAndClickOnOk(displayName, XPATH.wizardSteps);
+            await siteConfiguratorComboBox.selectFilteredApplicationAndClickOnApply(displayName, XPATH.wizardSteps);
             await this.pause(700);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_app_option');
-            throw new Error('Error occurred in Site wizard, application selector, screenshot :' + screenshot + "  " + err);
+            throw new Error(`Error occurred in Site wizard, application selector, screenshot : ${screenshot} ` + err);
         }
     }
 

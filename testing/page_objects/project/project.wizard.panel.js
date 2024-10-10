@@ -223,7 +223,7 @@ class ProjectWizardPanel extends Page {
     // Adds a user with the default role (Contributor) in Roles step form:
     async selectProjectAccessRoles(principalDisplayName) {
         let projectAccessControlComboBox = new ProjectAccessControlComboBox();
-        await projectAccessControlComboBox.clickOnFilteredByDisplayNamePrincipalAndClickOnOk(principalDisplayName, XPATH.container);
+        await projectAccessControlComboBox.clickOnFilteredByDisplayNamePrincipalAndClickOnApply(principalDisplayName, XPATH.container);
         console.log('Project Wizard, principal is selected: ' + principalDisplayName);
         return await this.pause(1000);
     }
@@ -280,7 +280,7 @@ class ProjectWizardPanel extends Page {
 
     async selectUserInCustomReadAccess(principalDisplayName) {
         let extendedPrincipalComboBox = new ExtendedPrincipalComboBox();
-        await extendedPrincipalComboBox.clickOnFilteredByDisplayNameUserAndClickOnOk(principalDisplayName,
+        await extendedPrincipalComboBox.clickOnFilteredByDisplayNameUserAndClickOnApply(principalDisplayName,
             XPATH.projectReadAccessWizardStepForm);
         console.log('Project Wizard, principal is selected: ' + principalDisplayName);
         return await this.pause(300);

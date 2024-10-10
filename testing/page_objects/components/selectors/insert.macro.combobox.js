@@ -15,9 +15,9 @@ class MacroComboBox extends BaseDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredAndClickOnOk(displayName, parent) {
+    async selectFilteredByDisplayNameItem(displayName, parent) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(displayName, parent);
+            await this.clickOnFilteredByDisplayNameItem(displayName, parent);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('Macro selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);

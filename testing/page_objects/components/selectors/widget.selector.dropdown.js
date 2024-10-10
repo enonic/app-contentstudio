@@ -16,9 +16,9 @@ class WidgetSelectorDropdown extends BaseDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredWidgetItemAndClickOnOk(widgetName, parentElement) {
+    async selectFilteredWidgetItem(widgetDisplayName, parentElement) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(widgetName, parentElement);
+            await this.clickOnFilteredByDisplayNameItem(widgetDisplayName, parentElement);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('WidgetSelectorDropdown - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);

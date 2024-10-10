@@ -133,7 +133,6 @@ class SingleSelectionOptionSet extends Page {
             let filterableListBox = new FilterableListBox();
             await filterableListBox.clickOnDropdownHandle(this.formOptionSet);
             await filterableListBox.clickOnOptionByDisplayName(optionDisplayName);
-            await filterableListBox.clickOnApplySelectionButton(this.formOptionSet);
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_optionset');
@@ -144,7 +143,7 @@ class SingleSelectionOptionSet extends Page {
     async filterAndSelectOption(option) {
         try {
             let filterableListBox = new FilterableListBox();
-            await filterableListBox.clickOnFilteredItemAndClickOnOk(option);
+            await filterableListBox.clickOnFilteredByDisplayNameItem(option);
             return await this.pause(100);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_optionset');

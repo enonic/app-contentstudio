@@ -88,7 +88,7 @@ class MoveContentDialog extends Page {
     async typeTextAndClickOnOption(displayName) {
         try {
             let contentMoveComboBox = new ContentMoveComboBox();
-            return await contentMoveComboBox.selectFilteredContentAndClickOnOk(displayName, XPATH.container);
+            return await contentMoveComboBox.selectFilteredContent(displayName, XPATH.container);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_move_dialog');
             throw new Error("Error occurred in Move Dialog - after selecting an option, screenshot: " + screenshot + "  " + err);

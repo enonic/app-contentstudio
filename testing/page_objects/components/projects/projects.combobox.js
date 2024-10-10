@@ -13,17 +13,18 @@ class ProjectsSelector extends BasDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredByIdAndClickOnOk(projectId, parentElement) {
+    async selectFilteredByIdAndClickOnApply(projectId, parentElement) {
         try {
-            await this.clickOnFilteredByNameItemAndClickOnOk(projectId, parentElement);
+            await this.clickOnFilteredByNameItemAndClickOnApply(projectId, parentElement);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('Error occurred in Projects Selector selector, screenshot: ' + screenshot + ' ' + err);
         }
     }
-    async selectFilteredByDisplayNameAndClickOnOk(displayName, parentElement) {
+
+    async selectFilteredByDisplayNameAndClickOnApply(displayName, parentElement) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(displayName, parentElement);
+            await this.clickOnFilteredByDisplayNameItemAndClickOnApply(displayName, parentElement);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('Error occurred in Project Selector selector, screenshot: ' + screenshot + ' ' + err);

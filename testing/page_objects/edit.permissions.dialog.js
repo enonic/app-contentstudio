@@ -79,7 +79,7 @@ class EditPermissionsDialog extends Page {
     async filterAndSelectPrincipal(principalDisplayName) {
         try {
             let accessControlComboBox = new AccessControlComboBox();
-            await accessControlComboBox.selectFilteredPrincipalAndClickOnOk(principalDisplayName, xpath.container);
+            await accessControlComboBox.selectFilteredPrincipalAndClickOnApply(principalDisplayName, xpath.container);
             console.log("Edit Permissions Dialog, principal is selected: " + principalDisplayName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_perm_dlg');

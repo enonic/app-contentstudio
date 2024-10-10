@@ -135,7 +135,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     async doAddItem(displayName) {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown();
-            return await contentSelectorDropdown.selectFilteredContentAndClickOnOk(displayName, xpath.container);
+            return await contentSelectorDropdown.selectFilteredByDisplayNameContent(displayName, xpath.container);
         } catch (err) {
             throw new Error("Request Tab - Items were not added: " + err);
         }

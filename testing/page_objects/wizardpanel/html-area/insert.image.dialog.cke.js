@@ -94,6 +94,7 @@ class InsertImageDialog extends Page {
     async clickOnDecorativeImageRadioButton() {
         try {
             await this.waitForDecorativeImageRadioButtonDisplayed();
+            await this.pause(500);
             await this.clickOnElement(this.accessibilityDecorativeImageRadioButton);
             return await this.pause(200);
         } catch (err) {
@@ -285,15 +286,17 @@ class InsertImageDialog extends Page {
         let imageSelectorDropdown = new ImageSelectorDropdown();
         // parent locator = ImageModalDialog
         await imageSelectorDropdown.selectFilteredImageInFlatMode(imageDisplayName, XPATH.container);
-        return await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
+        await this.pause(400);
+        //return await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
     }
 
     async filterAndSelectImageByPath(path) {
         let imageSelectorDropdown = new ImageSelectorDropdown();
         await this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.imageOptionsFilterInput, path);
-        await imageSelectorDropdown.clickOnFilteredItemAndClickOnOk(path, XPATH.container);
-        return await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
+        await imageSelectorDropdown.clickOnFilteredByDisplayNameItem(path, XPATH.container);
+        await this.pause(400);
+        //return await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
     }
 
     waitForStyleSelectorVisible() {

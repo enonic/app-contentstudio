@@ -16,7 +16,7 @@ class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
     // Adds a user with the default role (Contributor) in Roles step form:
     async selectProjectAccessRole(principalDisplayName) {
         let projectAccessControlComboBox = new ProjectAccessControlComboBox();
-        await projectAccessControlComboBox.clickOnFilteredByDisplayNamePrincipalAndClickOnOk(principalDisplayName, XPATH.container);
+        await projectAccessControlComboBox.clickOnFilteredByDisplayNamePrincipalAndClickOnApply(principalDisplayName, XPATH.container);
     }
 
     addPrincipalsInRolesForm(memberDisplayNames) {

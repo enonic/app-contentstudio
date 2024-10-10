@@ -66,7 +66,7 @@ class BaseDetailsPanel extends Page {
         try {
             let widgetSelectorDropdown = new WidgetSelectorDropdown();
             await widgetSelectorDropdown.clickOnDropdownHandle();
-            await widgetSelectorDropdown.selectFilteredWidgetItemAndClickOnOk(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
+            await widgetSelectorDropdown.selectFilteredWidgetItem(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_open_versions');
             throw new Error(`Error occurred in widget selector dropdown, Version History, screenshot ${screenshot}: ` + err);
@@ -96,7 +96,6 @@ class BaseDetailsPanel extends Page {
             let widgetSelectorDropdown = new WidgetSelectorDropdown();
             await this.clickOnWidgetSelectorDropdownHandle();
             await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.LAYERS);
-            await widgetSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
             throw new Error("Error during opening 'Layers widget'" + err);
         }
@@ -115,7 +114,6 @@ class BaseDetailsPanel extends Page {
     async clickOnEmulatorOptionsItem() {
         let widgetSelectorDropdown = new WidgetSelectorDropdown();
         await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.EMULATOR);
-        await widgetSelectorDropdown.clickOnApplySelectionButton();
     }
 
     async openEmulatorWidget() {

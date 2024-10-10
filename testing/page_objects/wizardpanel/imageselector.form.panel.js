@@ -137,10 +137,11 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await imageSelectorDropdown.clickOnApplySelectionButton();
     }
 
+    // Do filter an image then click the option (there is no Apply button):
     async filterOptionsAndSelectImage(displayName) {
         let imageSelectorDropdown = new ImageSelectorDropdown();
         await this.typeTextInInput(this.optionsFilterInput, displayName);
-        return await imageSelectorDropdown.clickOnFilteredItemAndClickOnOk(displayName, XPATH.container);
+        return await imageSelectorDropdown.clickOnFilteredByDisplayNameItem(displayName, XPATH.container);
     }
 
     async doFilterOptions(displayName) {

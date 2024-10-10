@@ -16,9 +16,9 @@ class PrincipalComboBox extends BasDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredUserAndClickOnOk(userDisplayName, parentElement) {
+    async selectFilteredUser(userDisplayName, parentElement) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(userDisplayName, parentElement);
+            await this.clickOnFilteredItem(userDisplayName, parentElement);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('Principal Comboboox selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);

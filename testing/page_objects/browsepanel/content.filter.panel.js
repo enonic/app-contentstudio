@@ -331,7 +331,7 @@ class BrowseFilterPanel extends Page {
     async filterAndSelectOwnerOption(ownerName) {
         try {
             let filterableListBox = new FilterableListBox();
-            await filterableListBox.clickOnFilteredItemAndClickOnOk(ownerName, XPATH.ownerAggregationGroupView);
+            await filterableListBox.clickOnFilteredByDisplayNameItemAndClickOnApply(ownerName, XPATH.ownerAggregationGroupView);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_filter_owner');
             throw new Error("Error occurred during selecting an option in 'Owner Selector', screenshot: " + screenshot + ' ' + err);

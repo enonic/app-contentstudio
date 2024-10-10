@@ -15,10 +15,10 @@ class ProjectApplicationsCombobox extends BasDropdown {
 
     async clickFilteredByAppNameItemAndClickOnOk(appDisplayName, parentElement) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(appDisplayName, parentElement);
+            await this.clickOnFilteredByDisplayNameItemAndClickOnApply(appDisplayName, parentElement);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Error occurred in Project Applications Comboboox selector, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Error occurred in Project Applications Comboboox selector, screenshot:${screenshot} ` + err);
         }
     }
 }

@@ -86,11 +86,11 @@ class ContentSelectorForm extends BaseSelectorForm {
         return await this.clickOnElement(this.addNewContentButton);
     }
 
-    // Selects an option by the display-name then click on OK (Apply selection  button):
+    // Selects an option by the display-name then click on Apply selection  button:
     async selectOption(optionDisplayName) {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown();
-            await contentSelectorDropdown.clickOnFilteredItemAndClickOnOk(optionDisplayName);
+            await contentSelectorDropdown.clickOnFilteredByDisplayNameItemAndClickOnApply(optionDisplayName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_combobox');
             throw new Error("Error occurred in content combobox, screenshot:" + screenshot + " " + err)

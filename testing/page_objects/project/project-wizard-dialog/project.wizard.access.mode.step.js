@@ -30,7 +30,7 @@ class ProjectWizardDialogAccessModeStep extends ProjectWizardDialog {
 
     async selectUserInCustomReadAccessSelector(principalDisplayName) {
         let extendedPrincipalComboBox = new ExtendedPrincipalComboBox();
-        await extendedPrincipalComboBox.clickOnFilteredByDisplayNameUserAndClickOnOk(principalDisplayName, XPATH.container);
+        await extendedPrincipalComboBox.clickOnFilteredByDisplayNameUserAndClickOnApply(principalDisplayName, XPATH.container);
         console.log("Project Wizard, principal is selected: " + principalDisplayName);
         return await this.pause(300);
     }

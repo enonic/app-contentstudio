@@ -85,21 +85,21 @@ class EditSettingDialog extends Page {
     async filterOptionsAndSelectLanguage(language) {
         try {
             let localeSelectorDropdown = new LocaleSelectorDropdown();
-            await localeSelectorDropdown.clickOnFilteredLanguageAndClickOnOk(language);
+            await localeSelectorDropdown.clickOnFilteredLanguage(language);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_option');
-            throw new Error('Error occurred in Edit Setting dialog, language selector , screenshot:' + screenshot + ' ' + err);
+            throw new Error(`Error occurred in Edit Setting dialog, language selector , screenshot: ${screenshot} ` + err);
         }
     }
 
     async filterOptionsAndSelectOwner(owner) {
         try {
             let principalComboBox = new PrincipalComboBox();
-            await principalComboBox.selectFilteredUserAndClickOnOk(owner, xpath.container);
+            await principalComboBox.selectFilteredUser(owner, xpath.container);
             return await this.pause(200);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_option');
-            throw new Error('Error occured in Settings form, language selector, screenshot :' + screenshot + ' ' + err);
+            throw new Error(`Error occurred in Settings form, language selector, screenshot : ${screenshot}` + err);
         }
     }
 

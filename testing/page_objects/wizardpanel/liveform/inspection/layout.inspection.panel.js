@@ -25,7 +25,7 @@ class LayoutInspectionPanel extends Page {
     async typeNameAndSelectLayout(displayName) {
         try {
             let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
-            await componentDescriptorsDropdown.selectFilteredComponentAndClickOnOk(displayName, xpath.container);
+            await componentDescriptorsDropdown.selectFilteredComponent(displayName, xpath.container);
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_layout_inspect_panel');

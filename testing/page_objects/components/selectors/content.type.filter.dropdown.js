@@ -12,12 +12,12 @@ class ContentTypeFilterDropdown extends BaseDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredContentTypeAndClickOnOk(item) {
+    async selectFilteredContentTypeAndClickOnApply(item) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(item);
+            await this.clickOnFilteredByNameItemAndClickOnApply(item);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Content type selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Content type selector - Error during selecting the option, screenshot: ${screenshot} ` + err);
         }
     }
 }

@@ -12,9 +12,9 @@ class ContentMoveComboBox extends BaseDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredContentAndClickOnOk(displayName, parent) {
+    async selectFilteredContent(displayName, parent) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(displayName, parent);
+            await this.clickOnFilteredByDisplayNameItem(displayName, parent);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('Error occurred in Content Move combobox, screenshot: ' + screenshot + ' ' + err);

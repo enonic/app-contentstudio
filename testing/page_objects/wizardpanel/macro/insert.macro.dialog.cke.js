@@ -60,7 +60,7 @@ class InsertMacroModalDialog extends Page {
 
     async selectOption(option) {
         let macroComboBox = new MacroComboBox();
-        return await macroComboBox.selectFilteredAndClickOnOk(option, XPATH.container);
+        return await macroComboBox.selectFilteredByDisplayNameItem(option, XPATH.container);
     }
 
     clickOnCancelButton() {

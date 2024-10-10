@@ -16,12 +16,21 @@ class ContentSelectorDropdown extends BaseDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredContentAndClickOnOk(displayName, parent) {
+    async selectFilteredByDisplayNameContent(displayName, parent) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(displayName, parent);
+            await this.clickOnFilteredByDisplayNameItem(displayName, parent);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Content selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Content selector - Error during selecting the option, screenshot:${screenshot} ` + err);
+        }
+    }
+
+    async selectFilteredByNameContent(name, parent) {
+        try {
+            await this.clickOnFilteredByNameItem(name, parent);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
+            throw new Error(`Content selector - Error during selecting the option, screenshot:${screenshot} ` + err);
         }
     }
 

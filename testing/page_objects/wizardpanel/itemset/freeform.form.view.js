@@ -51,7 +51,7 @@ class FreeFormView extends Page {
         await this.scrollPanel(800);
         await this.pause(300);
         let filterableListBox = new FilterableListBox();
-        await filterableListBox.clickOnFilteredItemAndClickOnOk(inputTypeName, xpath.itemSet);
+        await filterableListBox.clickOnFilteredByDisplayNameItem(inputTypeName, xpath.itemSet);
         return await this.pause(200);
     }
 
@@ -104,7 +104,6 @@ class FreeFormView extends Page {
         let optionElements = await occurrences[0].$$('.' + optionLocator);
         let displayedElements = await this.doFilterDisplayedElements(optionElements);
         await displayedElements[0].click();
-        await filterableListBox.clickOnApplySelectionButton();
         return await this.pause(300);
     }
 }

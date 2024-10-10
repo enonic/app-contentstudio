@@ -37,21 +37,21 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
     async typeTextInOptionFilterInputAndSelectOption(text, projectDisplayName) {
         let projectsComboBox = new ProjectsComboBox();
         await this.typeTextInInput(this.projectOptionsFilterInput, text);
-        await projectsComboBox.clickOnFilteredItemAndClickOnOk(projectDisplayName, XPATH.container);
+        await projectsComboBox.clickOnFilteredByDisplayNameItemAndClickOnApply(projectDisplayName, XPATH.container);
         return await this.pause(400);
     }
 
     // Type a name (description) in the filter input then click on filtered item then click on OK button and apply selection
     async selectParentProject(projectDisplayName) {
         let projectsComboBox = new ProjectsComboBox();
-        await projectsComboBox.selectFilteredByDisplayNameAndClickOnOk(projectDisplayName);
+        await projectsComboBox.selectFilteredByDisplayNameAndClickOnApply(projectDisplayName);
         console.log("Project Wizard, parent project is selected: " + projectDisplayName);
         return await this.pause(400);
     }
 
     async selectParentProjectById(projectId) {
         let projectsComboBox = new ProjectsComboBox();
-        await projectsComboBox.selectFilteredByIdAndClickOnOk(projectId);
+        await projectsComboBox.selectFilteredByIdAndClickOnApply(projectId);
         return await this.pause(400);
     }
 
@@ -75,7 +75,7 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         try {
             let projectsComboBox = new ProjectsComboBox();
             let optionLocator = projectsComboBox.buildLocatorForOptionByDisplayName(projectDisplayName, XPATH.container);
-            await projectsComboBox.selectFilteredByDisplayNameAndClickOnOk(optionLocator);
+            await projectsComboBox.selectFilteredByDisplayNameAndClickOnApply(optionLocator);
             return await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('parent_proj_combobox');

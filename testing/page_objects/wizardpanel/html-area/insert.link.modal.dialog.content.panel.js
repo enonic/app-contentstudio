@@ -168,7 +168,7 @@ class InsertLinkDialogContentPanel extends Page {
 
     async selectTargetInContentSelector(targetDisplayName) {
         let contentSelector = new ContentSelectorDropdown();
-        return await contentSelector.selectFilteredContentAndClickOnOk(targetDisplayName, XPATH.container);
+        return await contentSelector.selectFilteredByDisplayNameContent(targetDisplayName, XPATH.container);
     }
 
     async typeTextInFilterInputInContentSelector(targetDisplayName) {

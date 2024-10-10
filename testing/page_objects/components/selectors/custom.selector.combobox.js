@@ -19,9 +19,9 @@ class CustomSelectorComboBox extends BaseDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredOptionAndClickOnOk(optionName, parentElement) {
+    async selectFilteredOptionAndClickOnApply(optionName, parentElement) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(optionName, parentElement);
+            await this.clickOnFilteredByDisplayNameItemAndClickOnApply(optionName, parentElement);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('CustomSelectorComboBox - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);

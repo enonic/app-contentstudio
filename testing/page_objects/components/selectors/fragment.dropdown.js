@@ -16,9 +16,9 @@ class FragmentDropdown extends BaseDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredFragmentAndClickOnOk(optionName, parentElement) {
+    async selectFilteredFragment(optionName, parentElement) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(optionName, parentElement);
+            await this.clickOnFilteredByDisplayNameItem(optionName, parentElement);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('CustomSelectorComboBox - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);

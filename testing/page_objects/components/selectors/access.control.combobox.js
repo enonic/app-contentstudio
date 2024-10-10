@@ -12,12 +12,12 @@ class AccessControlCombobox extends BasDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredPrincipalAndClickOnOk(principal, parentElement) {
+    async selectFilteredPrincipalAndClickOnApply(principal, parentElement) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(principal, parentElement);
+            await this.clickOnFilteredByDisplayNameItemAndClickOnApply(principal, parentElement);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('AccessControlComboBox selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`AccessControlComboBox selector - Error during selecting the option, screenshot: ${screenshot} ` + err);
         }
     }
 }

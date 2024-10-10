@@ -188,7 +188,7 @@ class CreateIssueDialog extends Page {
     async selectUserInAssignees(userName) {
         try {
             let principalComboBox = new PrincipalComboBox();
-            return await principalComboBox.selectFilteredUserAndClickOnOk(userName, this.container);
+            return await principalComboBox.selectFilteredUser(userName, this.container);
         } catch (err) {
             throw new Error("Create issue Dialog  " + err);
         }
@@ -197,7 +197,7 @@ class CreateIssueDialog extends Page {
     async selectItemsInContentCombobox(contentName) {
         try {
             let contentSelector = new ContentSelectorDropdown();
-            return await contentSelector.selectFilteredContentAndClickOnOk(contentName);
+            return await contentSelector.selectFilteredByDisplayNameContent(contentName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_items_combo');
             throw new Error("Error in Create issue Dialog, items combobox, screenshot:  " + screenshot + ' ' + err);

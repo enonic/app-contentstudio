@@ -10,16 +10,16 @@ const XPATH = {
 
 class PageDescriptorDropdown extends BaseDropdown {
 
-    get container(){
+    get container() {
         return XPATH.container;
     }
 
     async selectFilteredControllerAndClickOnOk(controllerDisplayName) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk( controllerDisplayName);
+            await this.clickOnFilteredByDisplayNameItem(controllerDisplayName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Page descriptor selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Page descriptor selector - Error during selecting the option, screenshot: ${screenshot} ` + err);
         }
     }
 }

@@ -19,9 +19,9 @@ class ProjectAccessControlComboBox extends BasDropdown {
         return XPATH.container;
     }
 
-    async clickOnFilteredByDisplayNamePrincipalAndClickOnOk(displayName, parentElement) {
+    async clickOnFilteredByDisplayNamePrincipalAndClickOnApply(displayName, parentElement) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(displayName, parentElement);
+            await this.clickOnFilteredByDisplayNameItemAndClickOnApply(displayName, parentElement);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('Error occurred in ProjectAccessControlComboBox, screenshot: ' + screenshot + ' ' + err);

@@ -29,7 +29,7 @@ class PageTemplateForm extends Page {
 
     async filterOptionsAndSelectSupport(contentTypeDisplayName) {
         let contentTypeFilterDropdown = new ContentTypeFilterDropdown();
-        await contentTypeFilterDropdown.selectFilteredContentTypeAndClickOnOk(contentTypeDisplayName);
+        await contentTypeFilterDropdown.selectFilteredContentTypeAndClickOnApply(contentTypeDisplayName);
         return await this.pause(500);
     }
     async clickOnRemoveSupportIcon(displayName) {

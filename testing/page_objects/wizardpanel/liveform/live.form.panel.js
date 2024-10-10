@@ -48,7 +48,7 @@ class LiveFormPanel extends Page {
             let contentWizard = new ContentWizard();
             let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
             await contentWizard.switchToLiveEditFrame();
-            await componentDescriptorsDropdown.selectFilteredComponentAndClickOnOk(displayName, parentForComboBox);
+            await componentDescriptorsDropdown.selectFilteredComponent(displayName, parentForComboBox);
             await contentWizard.switchToParentFrame();
             return await this.pause(1000);
         } catch (err) {
@@ -63,7 +63,7 @@ class LiveFormPanel extends Page {
             let contentWizard = new ContentWizard();
             let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
             await contentWizard.switchToLiveEditFrame();
-            await componentDescriptorsDropdown.selectFilteredComponentAndClickOnOk(displayName, parentForComboBox);
+            await componentDescriptorsDropdown.selectFilteredComponent(displayName, parentForComboBox);
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_layout');
@@ -231,7 +231,7 @@ class LiveFormPanel extends Page {
     async clickOnOptionInFragmentDropdown(option) {
         let fragmentDropdown = new FragmentDropdown();
         await fragmentDropdown.clickOnDropdownHandle(xpath.fragmentPlaceHolderDiv);
-        await fragmentDropdown.selectFilteredFragmentAndClickOnOk(option);
+        await fragmentDropdown.selectFilteredFragment(option);
         return await this.pause(1000);
     }
 
@@ -240,7 +240,7 @@ class LiveFormPanel extends Page {
             let contentWizard = new ContentWizard();
             let fragmentDropdown = new FragmentDropdown();
             await contentWizard.switchToLiveEditFrame();
-            await fragmentDropdown.selectFilteredFragmentAndClickOnOk(displayName);
+            await fragmentDropdown.selectFilteredFragment(displayName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_fragment_selector');
             throw new Error('Error after selecting the fragment in Live Edit -screenshot ' + screenshot + ' ' + err);

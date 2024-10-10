@@ -26,7 +26,7 @@ class CustomSelectorForm extends BaseSelectorForm {
 
     async selectOptionByDisplayName(optionDisplayName) {
         let customSelectorComboBox = new CustomSelectorComboBox();
-        return await customSelectorComboBox.selectFilteredOptionAndClickOnOk(optionDisplayName, XPATH.container);
+        return await customSelectorComboBox.selectFilteredOptionAndClickOnApply(optionDisplayName, XPATH.container);
     }
 
     async typeTextInOptionsFilterInput(text) {
