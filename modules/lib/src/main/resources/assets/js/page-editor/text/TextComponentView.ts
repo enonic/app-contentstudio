@@ -19,7 +19,7 @@ import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import * as Q from 'q';
-import {SelectComponentEvent} from '../event/outgoing/navigation/SelectComponentEvent';
+import {ItemViewSelectedEventConfig, SelectComponentEvent} from '../event/outgoing/navigation/SelectComponentEvent';
 import {SelectedHighlighter} from '../SelectedHighlighter';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
@@ -30,9 +30,9 @@ import {UpdateTextComponentEvent} from '../event/outgoing/manipulation/UpdateTex
 import {ContentContext} from '../../app/wizard/ContentContext';
 import {CreateTextComponentViewConfig} from '../CreateTextComponentViewConfig';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Content} from '../../app/content/Content';
 import {PageUnlockedEvent} from '../event/outgoing/manipulation/PageUnlockedEvent';
 import {PageState} from '../../app/wizard/page/PageState';
+import {ItemViewContextMenuPosition} from '../ItemViewContextMenuPosition';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder {
@@ -369,6 +369,7 @@ export class TextComponentView
         setTimeout(() => {
             if (!this.anyEditorHasFocus()) {
                 if (PageViewController.get().isTextEditMode()) {
+                    console.log(e);
                     PageViewController.get().setTextEditMode(false);
                     // preventing mouse click event that triggered blur from further processing in ItemView
                     PageViewController.get().setNextClickDisabled(true);
@@ -677,5 +678,9 @@ export class TextComponentView
         this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS);
 
         TextComponentView.lastFocusedView = this;
+    }
+
+    protected isFocusToFrameRequired(): boolean {
+        return !this.anyEditorHasFocus();
     }
 }
