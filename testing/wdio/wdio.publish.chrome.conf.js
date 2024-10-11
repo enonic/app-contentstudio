@@ -31,7 +31,7 @@ exports.config = {
     // Enables colors for log output.
     coloredLogs: true,
 
-    baseUrl: 'http://localhost:8080/admin/tool',
+    baseUrl: 'http://localhost:8080/admin',
     //
     // Default timeout for all waitForXXX commands.
     waitforTimeout: 3000,
