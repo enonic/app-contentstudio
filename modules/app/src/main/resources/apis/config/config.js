@@ -16,7 +16,6 @@ function handleGet() {
         app.name,
         'main'
     );
-    const serviceBaseUrl = `${toolUri}/_/${app.name}`;
     return {
         status: 200,
         contentType: 'application/json',
@@ -36,18 +35,40 @@ function handleGet() {
             defaultPublishFromTime,
             locale: admin.getLocale(),
             services: {
-                contentUrl: `${serviceBaseUrl}/content`,
-                i18nUrl: `${serviceBaseUrl}/i18n`,
-                licenseUrl: `${serviceBaseUrl}/license`,
-                stylesUrl: `${serviceBaseUrl}/styles`,
-                collaborationUrl: `${serviceBaseUrl}/collaboration`,
-                exportServiceUrl: `${serviceBaseUrl}/export`,
+                contentUrl: portal.apiUrl({
+                    application: app.name,
+                    api: 'content',
+                }),
+                i18nUrl: portal.apiUrl({
+                    application: app.name,
+                    api: 'i18n',
+                }),
+                licenseUrl: portal.apiUrl({
+                    application: app.name,
+                    api: 'license',
+                }),
+                stylesUrl: portal.apiUrl({
+                    application: app.name,
+                    api: 'styles',
+                }),
+                collaborationUrl: portal.apiUrl({
+                    application: app.name,
+                    api: 'collaboration',
+                }),
+                exportServiceUrl: portal.apiUrl({
+                    application: app.name,
+                    api: 'export',
+                }),
             },
             theme: 'light',
             /* Remove in CS/lib-admin-ui 5.0 */
             launcher: {
                 theme: 'light'
-            }
+            },
+            widgetApiUrl: portal.apiUrl({
+                application: 'admin',
+                api: 'widget',
+            }),
         }
     };
 }

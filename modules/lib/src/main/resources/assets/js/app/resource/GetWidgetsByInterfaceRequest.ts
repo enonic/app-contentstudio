@@ -7,17 +7,18 @@ import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 export class GetWidgetsByInterfaceRequest
     extends WidgetDescriptorResourceRequest<Widget[]> {
 
-    private widgetInterfaces: string[];
+    private readonly widgetInterface: string;
 
-    constructor(widgetInterfaces: string[]) {
+    constructor(widgetInterface: string) {
         super();
-        this.setMethod(HttpMethod.POST);
-        this.widgetInterfaces = widgetInterfaces;
-        this.addRequestPathElements('list', 'byinterfaces');
+        this.setMethod(HttpMethod.GET);
+        this.widgetInterface = widgetInterface;
     }
 
     getParams(): object {
-        return this.widgetInterfaces;
+        return {
+            widgetInterface: this.widgetInterface,
+        };
     }
 
     protected parseResponse(response: JsonResponse<WidgetDescriptorJson[]>): Widget[] {

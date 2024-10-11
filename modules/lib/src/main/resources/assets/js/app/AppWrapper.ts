@@ -192,7 +192,7 @@ export class AppWrapper
             return;
         }
 
-        fetch(UrlHelper.buildWidgetUri(widget.getUrl()))
+        fetch(widget.getUrl())
             .then(response => response.text())
             .then((html: string) => {
                 const injectedWidgetElem: MenuWidgetInjectionResult = WidgetHelper.injectWidgetHtml(html,
@@ -263,7 +263,7 @@ export class AppWrapper
     }
 
     private updateSidebarWidgets() {
-        new GetWidgetsByInterfaceRequest(['contentstudio.menuitem']).sendAndParse().then((widgets: Widget[]) => {
+        new GetWidgetsByInterfaceRequest('contentstudio.menuitem').sendAndParse().then((widgets: Widget[]) => {
             widgets.push(this.widgets[0]); // default studio widget
             this.removeStaleWidgets(widgets);
             this.addMissingWidgets(widgets);
