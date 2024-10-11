@@ -113,6 +113,10 @@ export class FragmentDropdown
         }
     }
 
+    updateSelectedFragment(fragment: ContentSummary) {
+        this.selectedFragment = fragment;
+    }
+
     getSelectedFragment(): ContentSummary {
         return this.selectedFragment;
     }

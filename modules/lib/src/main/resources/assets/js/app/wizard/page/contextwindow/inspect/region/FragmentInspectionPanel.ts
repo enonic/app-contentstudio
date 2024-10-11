@@ -186,22 +186,32 @@ export class FragmentInspectionPanel
     private initSelectorListeners() {
         this.fragmentSelector.onSelectionChanged((selectionChange: SelectionChange<ContentSummary>) => {
             if (selectionChange.selected?.length > 0) {
-                const fragmentContent = selectionChange.selected[0];
+                const selectedFragment = selectionChange.selected[0];
+                this.fragmentSelector.updateSelectedFragment(selectedFragment);
 
                 if (this.isInsideLayout()) {
-                    new GetContentByIdRequest(fragmentContent.getContentId()).sendAndParse().done((content: Content) => {
+                    new GetContentByIdRequest(selectedFragment.getContentId()).sendAndParse().done((content: Content) => {
                         const fragmentComponent = content.getPage() ? content.getPage().getFragment() : null;
 
                         if (fragmentComponent?.getType() instanceof LayoutComponentType) {
                             showWarning(i18n('notify.nestedLayouts'));
+
+                            const deselected = selectionChange.deselected[0];
+
+                            if (deselected) {
+                                this.fragmentSelector.deselect(selectedFragment);
+                                this.fragmentSelector.select(deselected);
+                            } else {
+                                this.fragmentSelector.deselectAll();
+                            }
                         } else {
                             PageEventsManager.get().notifySetFragmentComponentRequested(this.component.getPath(),
-                                fragmentContent.getContentId().toString());
+                                selectedFragment.getContentId().toString());
                         }
                     });
                 } else {
                     PageEventsManager.get().notifySetFragmentComponentRequested(this.component.getPath(),
-                        fragmentContent.getContentId().toString());
+                        selectedFragment.getContentId().toString());
                 }
             }
         });
