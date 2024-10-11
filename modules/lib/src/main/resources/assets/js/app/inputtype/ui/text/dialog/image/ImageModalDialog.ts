@@ -908,7 +908,7 @@ export class ImageDialogToolbar
         const imageStyleSelector: ImageStyleSelector = new ImageStyleSelector(this.contentId);
 
         this.initSelectedStyle(imageStyleSelector);
-        imageStyleSelector.onValueChanged(() => {
+        imageStyleSelector.onSelectionChanged(() => {
             if (StyleHelper.isOriginalImage(this.getProcessingStyleCls())) {
                 this.customWidthCheckbox.setChecked(false).setEnabled(false);
                 this.rangeInputContainer.hide();
@@ -934,7 +934,7 @@ export class ImageDialogToolbar
         const imageStyles = Styles.getForImageAsString(this.contentId);
         stylesApplied.forEach(style => {
             if (imageStyles.indexOf(style) > -1) {
-                imageStyleSelector.setValue(style);
+                imageStyleSelector.selectStyleByName(style);
 
                 return;
             }
