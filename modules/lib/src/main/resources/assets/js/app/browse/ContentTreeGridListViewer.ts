@@ -49,6 +49,8 @@ export class ContentTreeGridListViewer
         this.sortColumn.setClass(this.calcSortIconCls());
         this.statusColumn.setItem(item);
         this.modifiedColumn.setHtml(DateTimeFormatter.createHtml(item.getContentSummary().getModifiedTime()));
+        this.toggleClass('data-inherited', item.isDataInherited());
+        this.toggleClass('sort-inherited', item.isSortInherited());
     }
 
     doRender(): Q.Promise<boolean> {

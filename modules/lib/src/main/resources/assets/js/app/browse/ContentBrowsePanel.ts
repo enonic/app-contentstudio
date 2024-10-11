@@ -150,7 +150,7 @@ export class ContentBrowsePanel
         this.treeListBox = new ContentsTreeGridRootList({scrollParent: this});
 
         this.selectionWrapper = new SelectableListBoxWrapper<ContentSummaryAndCompareStatus>(this.treeListBox, {
-            className: 'content-list-box-wrapper',
+            className: 'content-list-box-wrapper content-tree-grid',
             maxSelected: 0,
             checkboxPosition: 'left',
             highlightMode: true,
