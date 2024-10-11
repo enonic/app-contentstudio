@@ -1,7 +1,7 @@
 .content-tree-grid {
   .content-tree-grid-list {
     .content-tree-grid-list-viewer {
-      &.data-inherited {
+      &.data-inherited:not(.readonly) {
         .names-and-icon-viewer {
           opacity: 0.5;
         }
@@ -10,6 +10,16 @@
       &.sort-inherited {
         .sort-dialog-trigger {
           opacity: 0.5;
+        }
+      }
+
+      &.readonly {
+        > * {
+          opacity: 0.25;
+        }
+        
+        .display-name {
+          font-style: italic;
         }
       }
     }
