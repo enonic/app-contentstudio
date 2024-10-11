@@ -81,7 +81,6 @@
     flex-wrap: wrap;
 
     .alignment-container,
-    .image-style-selector,
     .custom-width-checkbox {
       margin: 5px;
       box-sizing: border-box;
@@ -223,36 +222,70 @@
 
     .image-style-selector {
       flex: 1 1 calc(40% - 10px);
+      margin: 0 5px;
+      box-sizing: border-box;
+      width: 220px;
+      display: flex;
+      justify-content: center;
 
-      .option-filter-input {
-        .placeholder(1em, normal);
-        height: @image-style-selector-height - 2;
-      }
+      .image-style-selector-filter {
+        width: 220px;
 
-      .@{_COMMON_PREFIX}dropdown-handle {
-        width: @image-style-selector-height - 2;
-        height: @image-style-selector-height - 2;
-      }
+        .filter-container {
+          height: 28px;
+          border: 1px solid @admin-medium-gray-border;
+          box-sizing: border-box;
 
-      .selected-option {
-        padding: 4px;
-        padding-left: 8px;
+          .option-filter-input {
+            .placeholder(1em, normal);
+            height: 26px;
+            border: none;
+            min-height: auto;
+          }
 
-        .option-value {
-          margin: 0;
-          width: 100%;
+          .@{_COMMON_PREFIX}dropdown-handle {
+            width: @image-style-selector-height - 2;
+            height: @image-style-selector-height - 2;
+          }
+
+          .selected-item-view {
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            height: 26px;
+          }
         }
-      }
 
-      .@{_COMMON_PREFIX}names-view {
-        .@{_COMMON_PREFIX}main-name {
-          font-size: 12px;
+        .style-list-box {
+          .item-view-wrapper {
+            height: 28px;
+
+            .item-view {
+              margin: auto 0;
+            }
+          }
         }
-      }
 
-      &.disabled {
-        opacity: 0.5;
-        pointer-events: none;
+        .selected-option {
+          padding: 4px;
+          padding-left: 8px;
+
+          .option-value {
+            margin: 0;
+            width: 100%;
+          }
+        }
+
+        .@{_COMMON_PREFIX}names-view {
+          .@{_COMMON_PREFIX}main-name {
+            font-size: 12px;
+          }
+        }
+
+        &.disabled {
+          opacity: 0.5;
+          pointer-events: none;
+        }
       }
     }
   }
