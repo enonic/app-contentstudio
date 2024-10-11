@@ -45,7 +45,10 @@ exports.getParams = function () {
             locale: admin.getLocales()
         }),
         launcherPath: admin.getLauncherPath(),
-        configServiceUrl: `${toolUrlBase}/_/${app.name}/config`,
+        configServiceUrl: portal.apiUrl({
+            application: app.name,
+            api: 'config',
+        }),
         toolBaseUrl: toolUrlBase,
         toolAppName: app.name,
     }
