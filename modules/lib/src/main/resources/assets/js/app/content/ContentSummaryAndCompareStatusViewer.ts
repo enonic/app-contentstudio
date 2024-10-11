@@ -75,6 +75,7 @@ export class ContentSummaryAndCompareStatusViewer
         this.toggleClass('invalid', invalid);
         this.toggleClass('has-origin-project', object.hasOriginProject());
         this.toggleClass('data-inherited', object.isDataInherited());
+        this.toggleClass('sort-inherited', object.isSortInherited());
         this.toggleClass('icon-variant', object.isVariant());
 
         if (object.isReadOnly()) {
