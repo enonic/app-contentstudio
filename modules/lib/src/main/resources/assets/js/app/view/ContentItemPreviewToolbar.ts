@@ -12,6 +12,8 @@ import {IssueType} from '../issue/IssueType';
 import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentId} from '../content/ContentId';
+import {GetWidgetsByInterfaceRequest} from '../resource/GetWidgetsByInterfaceRequest';
+import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {
@@ -21,6 +23,7 @@ export class ContentItemPreviewToolbar
     private mainAction: Action;
     private issueActionsList: Action[];
     private debouncedFetch: (id: ContentId) => void;
+    private liveViewWidgets: Promise<Widget[]>;
 
     constructor() {
         super({className: 'content-item-preview-toolbar'});
@@ -28,6 +31,8 @@ export class ContentItemPreviewToolbar
 
     protected initElements(): void {
         super.initElements();
+
+        this.liveViewWidgets = this.fetchLiveViewWidgets();
 
         this.mainAction = new Action();
         this.issueButton = new MenuButton(this.mainAction);
@@ -64,10 +69,26 @@ export class ContentItemPreviewToolbar
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then(rendered => {
+
+            this.liveViewWidgets.then((widgets: Widget[]) => {
+                console.log('Live view widgets:', widgets);
+            });
+
             this.issueButton.addClass('transparent');
             this.addContainer(this.issueButton, this.issueButton.getChildControls());
             return rendered;
         });
+    }
+
+    private async fetchLiveViewWidgets(): Promise<Widget[]> {
+        return new GetWidgetsByInterfaceRequest('contentstudio.preview').sendAndParse()
+            .then((widgets: Widget[]) => {
+                return widgets.sort((a: Widget, b: Widget) => a.getConfig()['order'] - b.getConfig()['order']);
+            })
+            .catch((e) => {
+                DefaultErrorHandler.handle(e);
+                return [];
+            });
     }
 
 
@@ -86,7 +107,7 @@ export class ContentItemPreviewToolbar
     }
 
     protected foldOrExpand(): void {
-    //
+        //
     }
 
     private fetchIssues(id: ContentId): Q.Promise<void> {
