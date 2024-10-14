@@ -30,7 +30,6 @@ import {UpdateTextComponentEvent} from '../event/outgoing/manipulation/UpdateTex
 import {ContentContext} from '../../app/wizard/ContentContext';
 import {CreateTextComponentViewConfig} from '../CreateTextComponentViewConfig';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Content} from '../../app/content/Content';
 import {PageUnlockedEvent} from '../event/outgoing/manipulation/PageUnlockedEvent';
 import {PageState} from '../../app/wizard/page/PageState';
 
@@ -677,5 +676,9 @@ export class TextComponentView
         this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS);
 
         TextComponentView.lastFocusedView = this;
+    }
+
+    protected isFocusToFrameRequired(): boolean {
+        return !this.anyEditorHasFocus();
     }
 }
