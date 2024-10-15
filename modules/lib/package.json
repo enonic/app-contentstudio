@@ -14,7 +14,7 @@
     "build:dev:js": "swc src --out-dir build/tmp/src",
     "build:dev:types": "tsc --skipLibCheck --emitDeclarationOnly --declaration",
     "build:lib": "webpack --color --stats-error-details",
-    "prebuild:lib": "npm list --include dev",
+    "prebuild:lib": "ls -R node_modules/@swc",
     "typecheck": "tsc --pretty --skipLibCheck --noEmit",
     "lint": "eslint **/*.ts --quiet --cache",
     "fix": "eslint --fix **/*.ts --cache"
