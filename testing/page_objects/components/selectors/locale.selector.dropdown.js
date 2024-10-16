@@ -14,10 +14,10 @@ class LocaleSelectorDropdown extends BasDropdown {
 
     async clickOnFilteredLanguage(language, parentLocator) {
         try {
-            await this.clickOnFilteredItem(language, parentLocator);
+            await this.clickOnFilteredByDisplayNameItem(language, parentLocator);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Content selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Content selector - Error during selecting the option, screenshot: ${screenshot}` + err);
         }
     }
 }

@@ -83,6 +83,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         }
         return await this.doTouchActionOnElement(imagesEl[index]);
     }
+
     async clickOnModeTogglerButton() {
         let imageSelectorDropdown = new ImageSelectorDropdown();
         await imageSelectorDropdown.clickOnModeTogglerButton(XPATH.container);
@@ -114,7 +115,7 @@ class ImageSelectorForm extends BaseSelectorForm {
     selectImages(imgNames) {
         let result = Promise.resolve();
         imgNames.forEach(name => {
-            result = result.then(() => this.filterOptionsAndSelectImage(name));
+            result = result.then(() => this.filterOptionsSelectImageAndClickOnApply(name));
         });
         return result;
     }
@@ -142,6 +143,12 @@ class ImageSelectorForm extends BaseSelectorForm {
         let imageSelectorDropdown = new ImageSelectorDropdown();
         await this.typeTextInInput(this.optionsFilterInput, displayName);
         return await imageSelectorDropdown.clickOnFilteredByDisplayNameItem(displayName, XPATH.container);
+    }
+
+    async filterOptionsSelectImageAndClickOnApply(displayName, nonMultiselect) {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        await this.typeTextInInput(this.optionsFilterInput, displayName);
+        return await imageSelectorDropdown.clickOnFilteredByDisplayNameItemAndClickOnApply(displayName, XPATH.container);
     }
 
     async doFilterOptions(displayName) {

@@ -67,7 +67,7 @@ class BaseDropdown extends Page {
         if (parentLocator === undefined) {
             parentLocator = '';
         }
-        await this.waitUntilDisplayed(parentLocator + this.applySelectionButton, appConst.mediumTimeout);
+        await this.waitUntilDisplayed(parentLocator + this.applySelectionButton, appConst.shortTimeout);
         await this.pause(200);
     }
 

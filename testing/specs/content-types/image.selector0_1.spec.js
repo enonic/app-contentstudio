@@ -40,8 +40,6 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await imageSelectorForm.waitForOptionsFilterInputDisplayed();
             // 2. Expand the image-selector and click on an image-item:
             await imageSelectorForm.expandDropdownAndClickOnImage(appConst.TEST_IMAGES.TELK);
-            // 3. Click on OK button and apply the selection:
-            await imageSelectorForm.clickOnApplyButton();
             await contentWizard.pause(500);
             // 3. Verify the selected image:
             let selectedOptions = await imageSelectorForm.getSelectedImages();
