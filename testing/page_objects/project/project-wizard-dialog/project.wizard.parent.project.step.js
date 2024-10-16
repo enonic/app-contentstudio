@@ -37,18 +37,24 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
     async typeTextInOptionFilterInputAndSelectOption(text, projectDisplayName) {
         let projectsComboBox = new ProjectsComboBox();
         await this.typeTextInInput(this.projectOptionsFilterInput, text);
-        await projectsComboBox.clickOnFilteredByDisplayNameItemAndClickOnApply(projectDisplayName, XPATH.container);
+        await projectsComboBox.clickOnFilteredByDisplayNameItem(projectDisplayName, XPATH.container);
         return await this.pause(400);
     }
 
     // Type a name (description) in the filter input then click on filtered item then click on OK button and apply selection
     async selectParentProject(projectDisplayName) {
         let projectsComboBox = new ProjectsComboBox();
-        await projectsComboBox.selectFilteredByDisplayNameAndClickOnApply(projectDisplayName);
+        await projectsComboBox.selectFilteredByDisplayName(projectDisplayName);
         console.log("Project Wizard, parent project is selected: " + projectDisplayName);
         return await this.pause(400);
     }
 
+    async selectParentProjectMulti(projectDisplayName) {
+        let projectsComboBox = new ProjectsComboBox();
+        await projectsComboBox.selectFilteredByDisplayNameAndClickOnApply(projectDisplayName);
+        console.log("Project Wizard, parent project is selected: " + projectDisplayName);
+        return await this.pause(400);
+    }
     async selectParentProjectById(projectId) {
         let projectsComboBox = new ProjectsComboBox();
         await projectsComboBox.selectFilteredByIdAndClickOnApply(projectId);

@@ -26,8 +26,17 @@ class ProjectsSelector extends BasDropdown {
         try {
             await this.clickOnFilteredByDisplayNameItemAndClickOnApply(displayName, parentElement);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Error occurred in Project Selector selector, screenshot: ' + screenshot + ' ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_project_selector_dropdown');
+            throw new Error(`Error occurred in Project Selector selector, screenshot:${screenshot} ` + err);
+        }
+    }
+
+    async selectFilteredByDisplayName(displayName, parentElement) {
+        try {
+            await this.clickOnFilteredByDisplayNameItem(displayName, parentElement);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_project_selector_dropdown');
+            throw new Error(`Error occurred in Project Selector selector, screenshot:${screenshot} ` + err);
         }
     }
 }

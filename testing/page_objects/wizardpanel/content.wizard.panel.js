@@ -754,7 +754,7 @@ class ContentWizardPanel extends Page {
     }
 
     async waitForMarkAsReadyButtonVisible() {
-        let selector = XPATH.container + XPATH.markAsReadyButton;
+        let selector = XPATH.container + XPATH.publishMenuButton + XPATH.markAsReadyButton;
         return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
@@ -840,7 +840,8 @@ class ContentWizardPanel extends Page {
 
     async clickOnMarkAsReadyButton() {
         try {
-            let selector = XPATH.container + XPATH.markAsReadyButton;
+            let selector = XPATH.container + XPATH.publishMenuButton + XPATH.markAsReadyButton;
+            let aa = await this.findElements(selector);
             await this.waitForMarkAsReadyButtonVisible();
             await this.clickOnElement(selector);
             return await this.pause(1000);
