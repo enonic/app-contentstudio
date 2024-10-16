@@ -1024,9 +1024,7 @@ export class ContentWizardPanel
         let siteConfigApplyHandler = (event: ContentRequiresSaveEvent) => {
             if (this.isCurrentContentId(event.getContentId()) && this.hasUnsavedChanges()) {
                 this.setMarkedAsReady(false);
-                this.saveChanges().then(() => {
-                    AI.get().updateInstructions(this.getApplicationsConfigs());
-                });
+                this.saveChanges();
             }
         };
 
@@ -2063,6 +2061,7 @@ export class ContentWizardPanel
         this.siteModel.update(site);
         this.site = site;
         this.initSiteModelListeners();
+        AI.get().updateInstructions(this.getApplicationsConfigs());
     }
 
     private initSiteModel(site: Site): SiteModel {
