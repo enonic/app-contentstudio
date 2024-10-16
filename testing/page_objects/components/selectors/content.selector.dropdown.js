@@ -18,9 +18,10 @@ class ContentSelectorDropdown extends BaseDropdown {
 
     async selectFilteredByDisplayNameContent(displayName, parent) {
         try {
+            // doesn't click on Apply - just click on the option:
             await this.clickOnFilteredByDisplayNameItem(displayName, parent);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
+            let screenshot = await this.saveScreenshotUniqueName('err_content_selector_dropdown');
             throw new Error(`Content selector - Error during selecting the option, screenshot:${screenshot} ` + err);
         }
     }

@@ -22,7 +22,7 @@ class XDataContentSelector extends Page {
     async filterOptionsAndSelectContent(displayName) {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown();
-            await contentSelectorDropdown.selectFilteredContentAndClickOnOk(displayName);
+            await contentSelectorDropdown.selectFilteredByDisplayNameContent(displayName);
             return await this.pause(500);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_xdata_content_selector"));

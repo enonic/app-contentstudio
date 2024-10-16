@@ -14,7 +14,7 @@ class ContentTypeFilterDropdown extends BaseDropdown {
 
     async selectFilteredContentTypeAndClickOnApply(item) {
         try {
-            await this.clickOnFilteredByNameItemAndClickOnApply(item);
+            await this.clickOnFilteredByDisplayNameItemAndClickOnApply(item);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error(`Content type selector - Error during selecting the option, screenshot: ${screenshot} ` + err);

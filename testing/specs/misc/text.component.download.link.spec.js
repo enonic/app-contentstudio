@@ -77,19 +77,18 @@ describe('Text Component with CKE - insert download-link specification', functio
             await insertLinkDialogContentPanel.clickOnExpanderIconInOptionsList(SITE.displayName);
             // 8. Click on the content item in Tree-Mode
             await insertLinkDialogContentPanel.clickOnOptionByDisplayName(TEST_CONTENT_DISPLAY_NAME);
-            // 9. Click on OK in the content selector
-            await insertLinkDialogContentPanel.clickOnApplySelectionButton();
-            // 10. Click on 'Download file' radio:
+            // Apply button should not appear here!
+            // 9. Click on 'Download file' radio:
             await insertLinkDialogContentPanel.clickOnRadioButton(appConst.INSERT_LINK_DIALOG_TABS.DOWNLOAD_FILE);
             await studioUtils.saveScreenshot('download_link_dialog');
             await insertLinkDialog.clickOnInsertButton();
             await insertLinkDialog.pause(700);
             await textComponentCke.switchToLiveEditFrame();
             await studioUtils.saveScreenshot('download_link_inserted');
-            // 11. Verify the text in CKE: 'media://download' should be present in the htmlarea
+            // 10. Verify the text in CKE: 'media://download' should be present in the htmlarea
             let actualText = await textComponentCke.getTextFromEditor();
             assert.ok(actualText.includes(EXPECTED_SRC), "Expected text should be in the text component");
-            // 12. Save the changes:
+            // 11. Save the changes:
             await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();

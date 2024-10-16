@@ -18,7 +18,7 @@ class PrincipalComboBox extends BasDropdown {
 
     async selectFilteredUser(userDisplayName, parentElement) {
         try {
-            await this.clickOnFilteredItem(userDisplayName, parentElement);
+            await this.clickOnFilteredByDisplayNameItem(userDisplayName, parentElement);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('Principal Comboboox selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
