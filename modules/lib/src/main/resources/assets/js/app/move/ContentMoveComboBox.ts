@@ -62,6 +62,7 @@ export class ContentMoveComboBox
     private static createRootContent(): ContentSummary {
         return new ContentSummaryBuilder()
             .setId(ContentMoveComboBox.ROOT_ID)
+            .setHasChildren(false)
             .setContentId(new ContentId(ContentMoveComboBox.ROOT_ID))
             .setName(new ContentName(ContentMoveComboBox.ROOT_ID))
             .setDisplayName(i18n('field.root'))
