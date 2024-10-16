@@ -26,6 +26,16 @@ class ContentSelectorDropdown extends BaseDropdown {
         }
     }
 
+    async selectFilteredByDisplayNameContentMulti(displayName, parent) {
+        try {
+            // Selects then clicks on Apply button:
+            await this.clickOnFilteredByDisplayNameItemAndClickOnApply(displayName, parent);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_content_selector_dropdown');
+            throw new Error(`Content selector - Error during selecting the option, screenshot:${screenshot} ` + err);
+        }
+    }
+
     async selectFilteredByNameContent(name, parent) {
         try {
             await this.clickOnFilteredByNameItem(name, parent);

@@ -197,7 +197,7 @@ class CreateIssueDialog extends Page {
     async selectItemsInContentCombobox(contentName) {
         try {
             let contentSelector = new ContentSelectorDropdown();
-            return await contentSelector.selectFilteredByDisplayNameContent(contentName);
+            return await contentSelector.selectFilteredByDisplayNameContentMulti(contentName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_items_combo');
             throw new Error("Error in Create issue Dialog, items combobox, screenshot:  " + screenshot + ' ' + err);
