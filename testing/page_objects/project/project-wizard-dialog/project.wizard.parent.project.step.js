@@ -29,7 +29,7 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
 
     async selectParentParentProjects(names) {
         for (let name of names) {
-            await this.selectParentProject(name);
+            await this.selectParentProjectMulti(name);
         }
     }
 
