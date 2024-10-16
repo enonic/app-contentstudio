@@ -5,15 +5,17 @@ const Page = require('../page');
 const ConfirmationDialog = require('../confirmation.dialog');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const PrincipalFilterPanel = require('./principal.filter.panel');
 
 const xpath = {
     container: "//div[contains(@id,'UserBrowsePanel')]",
-    selectionToggler: "//button[contains(@id,'SelectionPanelToggler')]",
+    selectionToggler: "//button[contains(@id,'ListSelectionPanelToggler')]",
+    userItemsTreeGridRootUL: "//ul[contains(@id,'UserItemsTreeRootList')]",
     selectionControllerCheckBox: "//div[contains(@id,'SelectionController')]",
     toolbar: "//div[contains(@id,'UserBrowseToolbar')]",
-    grid: "//div[contains(@class,'grid-canvas')]",
-    treeGridToolbar: `//div[contains(@id,'TreeGridToolbar')]`,
+    highlightedRow: `//li[contains(@class,'checkbox-left selected') and not(contains(@class,'checked')) ]`,
+    checkedRowLi: `//li[contains(@class,'checkbox-left selected checked')]`,
+    userItemsTreeRootList: "//ul[contains(@id,'UserItemsTreeRootList')]",
+    listBoxToolbarDiv: `//div[contains(@id,'ListBoxToolbar')]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
     hideFilterPanelButton: "//span[contains(@class, 'hide-filter-panel-button')]",
     appHomeButton: "//div[contains(@id,'TabbedAppBar')]/div[contains(@class,'home-button')]",
@@ -22,18 +24,7 @@ const xpath = {
     },
     rowByDisplayName:
         displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
-    checkboxByName(name) {
-        return `${lib.itemByName(name)}` +
-               `/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
-    },
-    checkboxByDisplayName(displayName) {
-        return `${lib.itemByDisplayName(displayName)}` +
-               `/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
-    },
-    expanderIconByName(name) {
-        return this.rowByName(name) +
-               `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
-    },
+
     closeItemTabButton(name) {
         return `//div[contains(@id,'AppBar')]//li[contains(@id,'AppBarTabMenuItem') and child::a[@class='label' and text() ='${name}']]/button`;
     },
@@ -42,6 +33,11 @@ const xpath = {
 };
 
 class UserBrowsePanel extends Page {
+
+    get treeGrid() {
+        return xpath.container + xpath.userItemsTreeRootList;
+    }
+
     get newButton() {
         return xpath.toolbar + "/*[contains(@id, 'ActionButton') and child::span[contains(.,'New')]]";
     }
@@ -71,7 +67,7 @@ class UserBrowsePanel extends Page {
     }
 
     get selectionControllerCheckBox() {
-        return xpath.treeGridToolbar + xpath.selectionControllerCheckBox;
+        return xpath.listBoxToolbarDiv + xpath.selectionControllerCheckBox;
     }
 
     waitForPanelVisible(ms) {
@@ -85,14 +81,14 @@ class UserBrowsePanel extends Page {
             await this.waitForElementEnabled(this.newButton, appConst.mediumTimeout)
             return await this.clickOnElement(this.newButton);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_new_btn'));
-            throw new Error("Error during clicking on New button!" + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_new_btn');
+            throw new Error(`Error occurred during clicking on New button! ${screenshot} ` + err);
         }
     }
 
     async waitForUsersGridLoaded(ms) {
         try {
-            await this.waitForElementDisplayed(xpath.grid, ms);
+            await this.waitForElementDisplayed(this.treeGrid, ms);
             await this.waitForSpinnerNotVisible();
             console.log('user browse panel is loaded');
         } catch (err) {
@@ -113,7 +109,7 @@ class UserBrowsePanel extends Page {
             await this.waitForElementNotDisplayed(xpath.rowByName(itemName), appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_item');
-            throw new Error('The item should not be displayed, screenshot:' + screenshot + '  ' + err);
+            throw new Error(`The item should not be displayed, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -122,7 +118,7 @@ class UserBrowsePanel extends Page {
             await this.waitForElementNotDisplayed(xpath.rowByDisplayName(itemDisplayName), appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_item');
-            throw new Error("The item should not be displayed, screenshot:" + screenshot + "  " + err);
+            throw new Error(`The item should not be displayed, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -131,7 +127,7 @@ class UserBrowsePanel extends Page {
             await this.waitForElementDisplayed(xpath.rowByDisplayName(itemDisplayName), appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_item');
-            throw new Error('The item should be displayed, screenshot:' + screenshot + "  " + err);
+            throw new Error(`The item should be displayed, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -143,7 +139,7 @@ class UserBrowsePanel extends Page {
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_find_item');
-            throw new Error('Item was not found. screenshot: ' + screenshot + ' ' + err);
+            throw Error(`Item was not found. screenshot:${screenshot} ` + err);
         }
     }
 
@@ -152,7 +148,7 @@ class UserBrowsePanel extends Page {
             return this.waitForElementDisplayed(xpath.rowByName('users'), appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_users_folder');
-            throw new Error(`Users folder was not found! screenshot: ` + screenshot + ' ' + err);
+            throw new Error(`Users folder was not found! screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -165,7 +161,7 @@ class UserBrowsePanel extends Page {
             await this.clickOnElement(this.hideFilterPanelButton)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_hide_filter_button');
-            throw new Error('Error,screenshot: ' + screenshot + '  ' + err);
+            throw new Error(`Error, hide filter button, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -200,15 +196,22 @@ class UserBrowsePanel extends Page {
         });
     }
 
-    waitForDeleteButtonEnabled() {
-        return this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_delete_button_not_enabled');
-            throw new Error('Delete button is not enabled ! ' + err);
-        });
+    async waitForDeleteButtonEnabled() {
+        try {
+            await this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_delete_button_not_enabled');
+            throw new Error(`Delete button is not enabled ! Screenshot: ${screenshot} ` + err);
+        }
     }
 
-    waitForDeleteButtonDisabled() {
-        return this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
+    async waitForDeleteButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_delete_btn');
+            throw new Error(`Delete button should be disabled! screenshot: ${screenshot}` + err);
+        }
     }
 
     isEditButtonEnabled() {
@@ -229,22 +232,15 @@ class UserBrowsePanel extends Page {
         }
     }
 
-    waitForRowByDisplayNameVisible(displayName) {
-        let nameXpath = xpath.rowByDisplayName(displayName);
-        return this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout).catch(err => {
-            throw Error('Row with the name ' + displayName + ' is not visible in ' + appConst.mediumTimeout + 'ms')
-        })
-    }
-
-    async clickOnCheckboxAndSelectRowByDisplayName(displayName) {
+    async clickCheckboxAndSelectRowByDisplayName(displayName) {
         try {
-            let displayNameXpath = xpath.checkboxByDisplayName(displayName);
-            await this.waitForElementDisplayed(displayNameXpath, appConst.mediumTimeout);
-            await this.clickOnElement(displayNameXpath);
-            return await this.pause(300);
+            let checkboxElement = lib.TREE_GRID.itemTreeGridListElementByDisplayName(displayName) + lib.DIV.CHECKBOX_DIV + '/label';
+            await this.waitForElementDisplayed(checkboxElement, appConst.mediumTimeout);
+            await this.clickOnElement(checkboxElement);
+            return await this.pause(200);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_find_item');
-            throw Error('Row checkbox, screenshot: ' + screenshot + ' ' + err);
+            throw Error(`Row checkbox, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -256,7 +252,7 @@ class UserBrowsePanel extends Page {
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_close');
-            throw new Error('itemTabButton was not found! screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`itemTabButton was not found! screenshot:${screenshot} ` + err);
         }
     }
 
@@ -301,13 +297,13 @@ class UserBrowsePanel extends Page {
     }
 
     clickOnExpanderIcon(name) {
-        let expanderIcon = xpath.expanderIconByName(name);
+        let expanderIcon = this.treeGrid + lib.TREE_GRID.UserTreeGridItemViewerByName(name) + "/.." + lib.TREE_GRID.EXPANDER_ICON_DIV;
         return this.clickOnElement(expanderIcon);
     }
 
     getGridItemDisplayNames() {
-        let selector = xpath.container + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
-        return this.getTextInElements(selector);
+        let locator = xpath.userItemsTreeGridRootUL + lib.H6_DISPLAY_NAME;
+        return this.getTextInElements(locator);
     }
 
     waitForSelectionTogglerVisible() {
@@ -345,7 +341,7 @@ class UserBrowsePanel extends Page {
             return await this.doRightClick(selector);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_right_click');
-            throw Error(`Error during right click on the row, screenshot:  ` + screenshot + '  ' + err);
+            throw Error(`Error occurred during right click on the row, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -355,7 +351,7 @@ class UserBrowsePanel extends Page {
         await this.getBrowser().waitUntil(async () => {
             let text = await this.getAttribute(selector, 'class');
             return text.includes('partial');
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Selection Controller checkBox should displayed as partial'});
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Selection Controller checkBox should be displayed as partial'});
         return true;
     }
 
@@ -375,40 +371,11 @@ class UserBrowsePanel extends Page {
         }
     }
 
-    async isRowHighlighted(name) {
-        let locator = `${lib.itemByDisplayName(name)}` +
-                      `/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]`;
+    async isRowHighlighted(displayName) {
+        let locator = lib.TREE_GRID.listItemByDisplayName(displayName);
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let attribute = await this.getAttribute(locator, 'class');
-        return attribute.includes('highlight');
-    }
-
-    async findAndSelectItem(name) {
-        await this.typeNameInFilterPanel(name);
-        await this.waitForRowByNameVisible(name);
-        await this.clickOnRowByName(name);
-        return await this.pause(500);
-    }
-
-    async selectAndDeleteItem(name) {
-        let confirmationDialog = new ConfirmationDialog();
-        await this.findAndSelectItem(name);
-        await this.waitForDeleteButtonEnabled();
-        await this.clickOnDeleteButton();
-        await confirmationDialog.waitForDialogOpened();
-        await confirmationDialog.clickOnYesButton();
-        await confirmationDialog.waitForDialogClosed();
-        return await this.waitForSpinnerNotVisible();
-    }
-
-    //Opens Filter Panel and types a text in the search input
-    async typeNameInFilterPanel(name) {
-        let filterPanel = new PrincipalFilterPanel();
-        await this.clickOnSearchButton();
-        await filterPanel.waitForOpened();
-        await filterPanel.typeSearchText(name);
-        await this.pause(300);
-        await this.waitForSpinnerNotVisible();
+        return attribute.includes('selected') && !attribute.includes('checked');
     }
 }
 
