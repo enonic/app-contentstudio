@@ -345,6 +345,7 @@ export class ImageModalDialog
         return new ImageOptionDataLoaderBuilder()
             .setContent(this.content)
             .setProject(this.config.project)
+            .setAppendLoadResults(false)
             .build();
     }
 
