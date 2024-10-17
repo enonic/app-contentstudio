@@ -58,7 +58,7 @@ module.exports = {
         try {
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
             let selectedItems = await parentProjectStep.getSelectedProjects();
-            let isSelected = this.isProjectSelected(selectedItems, parent)
+            let isSelected = selectedItems.includes(parent);
             if (!isSelected) {
                 await parentProjectStep.selectParentProject(parent);
             }
