@@ -36,6 +36,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
             await insertImageDialog.waitForDialogVisible();
             // 3. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
+            await insertImageDialog.clickOnStyleSelectorDropDownHandle();
             // 4. Verify expected styles in the selector:
             let actualOptions = await insertImageDialog.getStyleSelectorOptions();
             // styles are not specified in the styles.xml, so 2 items should be displayed:

@@ -62,10 +62,9 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
         await fragmentDropdown.selectFilteredFragment(displayName, xpath.container);
     }
 
-    async clickOnOptionInFragmentDropdownAndOk(optionDisplayName) {
+    async clickOnOptionInFragmentDropdown(optionDisplayName) {
         let fragmentDropdown = new FragmentDropdown();
         await fragmentDropdown.clickOnOptionByDisplayName(optionDisplayName, xpath.container);
-        await fragmentDropdown.clickOnApplySelectionButton(xpath.container);
         await this.waitForSpinnerNotVisible();
     }
 

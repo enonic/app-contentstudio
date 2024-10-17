@@ -21,8 +21,8 @@ describe('combobox.content.spec: tests for comboBox content', function () {
     const CONTENT_NAME_1 = contentBuilder.generateRandomName('combo');
     const CONTENT_NAME_2 = contentBuilder.generateRandomName('combo');
     const COMBO_CHILD_FALSE = contentBuilder.generateRandomName('child-false');
-    const OPTION_A = "option A";
-    const OPTION_B = "option B";
+    const OPTION_A = 'option A';
+    const OPTION_B = 'option B';
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -96,8 +96,8 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.COMBOBOX_2_4);
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
             // 2. Select 2 required options:
-            await comboBoxForm.typeInFilterAndClickOnOption(OPTION_A);
-            await comboBoxForm.typeInFilterAndClickOnOption(OPTION_B);
+            await comboBoxForm.typeInFilterClickOnOptionAndApply(OPTION_A);
+            await comboBoxForm.typeInFilterClickOnOptionAndApply(OPTION_B);
             // 3. Verify that Options filter Input remains visible/disabled after selecting 2 options
             await comboBoxForm.waitForOptionFilterInputEnabled();
             // 4. Verify that the content gets valid even before clicking on the 'Save' button

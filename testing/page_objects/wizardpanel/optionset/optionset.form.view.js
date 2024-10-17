@@ -17,7 +17,6 @@ class OptionSetFormView extends Page {
             let filterableListBox = new FilterableListBox();
             await filterableListBox.clickOnDropdownHandle(xpath.singleSelectionView);
             await filterableListBox.clickOnOptionByDisplayName(optionDisplayName);
-            await filterableListBox.clickOnApplySelectionButton(xpath.singleSelectionView);
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_optionset');

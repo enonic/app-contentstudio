@@ -316,7 +316,8 @@ class InsertImageDialog extends Page {
     async clickOnStyleSelectorDropDownHandle() {
         try {
             await this.waitForElementDisplayed(this.styleSelectorDropDownHandle, appConst.mediumTimeout);
-            await this.clickOnElement(this.styleSelectorDropDownHandle)
+            await this.clickOnElement(this.styleSelectorDropDownHandle);
+            await this.pause(900);
         } catch (err) {
             await this.saveScreenshot('err_style_selector_drop_down_handle');
             throw new Error('Error occurred during clicking on style drop down handle! ' + err);
@@ -356,6 +357,11 @@ class InsertImageDialog extends Page {
 
     waitForJustifyButtonDisplayed() {
         return this.waitForElementDisplayed(XPATH.container + XPATH.justifyButton);
+    }
+
+    async selectImageStyle(style) {
+        let imageStyleSelectorDropdown = new ImageStyleSelectorDropdown();
+        await imageStyleSelectorDropdown.clickOnFilteredStyle(style);
     }
 }
 

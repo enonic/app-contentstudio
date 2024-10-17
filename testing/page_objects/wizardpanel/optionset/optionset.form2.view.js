@@ -34,7 +34,6 @@ class OptionSetForm2View extends BaseOptionSetFormView {
         let filterableListBox = new FilterableListBox();
         await filterableListBox.clickOnDropdownHandle(this.formOptionSet);
         await filterableListBox.clickOnOptionByDisplayName(optionDisplayName);
-        await filterableListBox.clickOnApplySelectionButton(this.formOptionSet);
     }
 
     async clickOnRadioButton(label) {

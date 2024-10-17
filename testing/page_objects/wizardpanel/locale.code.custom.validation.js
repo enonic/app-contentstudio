@@ -37,7 +37,7 @@ class LocaleCodeCustomValidationForm extends Page {
     //Inserts a text in the filter input  then selects an option by the display name
     async typeInFilterAndClickOnOption(option) {
         let comboBoxListInput = new ComboBoxListInput();
-        return await comboBoxListInput.selectFilteredOptionAndClickOnOk(option);
+        return await comboBoxListInput.selectFilteredOption(option);
     }
 
     async typeTextInTextInput(text) {

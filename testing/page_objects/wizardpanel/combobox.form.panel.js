@@ -25,7 +25,12 @@ class ComboBoxFormPanel extends Page {
 
     async typeInFilterAndClickOnOption(option) {
         let comboBoxListInput = new ComboBoxListInput();
-        await comboBoxListInput.selectFilteredOptionAndClickOnOk(option);
+        await comboBoxListInput.selectFilteredOption(option);
+    }
+
+    async typeInFilterClickOnOptionAndApply(option) {
+        let comboBoxListInput = new ComboBoxListInput();
+        await comboBoxListInput.selectFilteredOptionAndClickOnApply(option);
     }
 
     async clickOnRemoveSelectedOptionButton(index) {

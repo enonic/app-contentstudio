@@ -175,7 +175,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await fragmentInspectionPanel.waitForOpened();
             // 3. Expand the dropdown and click on the option:
             await fragmentInspectionPanel.clickOnFragmentDropdownHandle();
-            await fragmentInspectionPanel.clickOnOptionInFragmentDropdownAndOk(LAYOUT_3_COL);
+            await fragmentInspectionPanel.clickOnOptionInFragmentDropdown(LAYOUT_3_COL);
             let message = await contentWizard.waitForNotificationMessage();
             assert.equal(message, appConst.itemSavedNotificationMessage(SITE_1_NAME),
                 "Item is saved - this notification message should appear");

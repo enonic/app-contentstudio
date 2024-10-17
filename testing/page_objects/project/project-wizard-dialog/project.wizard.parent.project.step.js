@@ -89,14 +89,14 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         }
     }
 
-    // Clicks on OK button in the Projects Combobox:
-    async clickOnOKButtonInProjectsDropdown() {
+    // Clicks on Apply button in the Projects Combobox:
+    async clickOnApplyButtonInProjectsDropdown() {
         try {
             let projectsComboBox = new ProjectsComboBox();
             return await projectsComboBox.clickOnApplySelectionButton();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('parent_proj_combobox');
-            throw new Error("Error occurred in Projects Combobox, screenshot:" + screenshot + ' ' + err);
+            throw new Error(`Error occurred in Projects Combobox, screenshot:${screenshot} ` + err);
         }
     }
 

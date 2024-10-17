@@ -58,12 +58,11 @@ class PageInspectionPanel extends Page {
     }
 
     // clicks on dropdown handle and select an option
-    async selectPageTemplateOrControllerAndOk(displayName) {
+    async selectPageTemplateOrController(displayName) {
         try {
             let inspectPanelControllerSelector = new InspectPanelControllerSelector();
             await this.clickOnPageControllerDropdownHandle();
             await inspectPanelControllerSelector.clickOnOptionByDisplayName(displayName, xpath.container);
-            await inspectPanelControllerSelector.clickOnApplySelectionButton(xpath.container);
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_option');

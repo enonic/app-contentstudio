@@ -36,7 +36,7 @@ class CityListPartInspectionPanel extends BaseComponentInspectionPanel {
     async selectContentInSelector(displayName) {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown();
-            return await contentSelectorDropdown.selectFilteredContentAndClickOnOk(displayName, xpath.container);
+            return await contentSelectorDropdown.selectFilteredByDisplayNameContentMulti(displayName, xpath.container);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_part_inspection');
             throw new Error("Part Inspection Panel - Error during selecting an option, screenshot: " + screenshot + "  " + err);

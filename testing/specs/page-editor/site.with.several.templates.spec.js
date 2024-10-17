@@ -21,9 +21,9 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
     let SITE;
     let TEMPLATE1;
     let TEMPLATE2;
-    let SUPPORT_SITE = 'Site';
-    let CONTROLLER_NAME1 = 'main region';
-    let CONTROLLER_NAME2 = 'default';
+    const SUPPORT_SITE = 'Site';
+    const CONTROLLER_NAME1 = 'main region';
+    const CONTROLLER_NAME2 = 'default';
 
     it(`Precondition 1: new site should be created`,
         async () => {
@@ -96,7 +96,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToParentFrame();
             // 2. Select the controller:
-            await pageInspectionPanel.selectPageTemplateOrControllerAndOk(TEMPLATE1.displayName);
+            await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE1.displayName);
             // 3. Confirmation dialog appears:
             await confirmationDialog.waitForDialogOpened();
             // 4. Confirm it:
@@ -127,7 +127,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
             assert.ok(result.includes('Main'), 'Main item should be displayed in the modal dialog');
             // 4. Select another template:
-            await pageInspectionPanel.selectPageTemplateOrControllerAndOk(TEMPLATE2.displayName);
+            await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE2.displayName);
             // 5. Confirmation dialog appears:
             await confirmationDialog.waitForDialogOpened();
             // 6. Confirm it:
@@ -151,7 +151,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Select the controller:
-            await pageInspectionPanel.selectPageTemplateOrControllerAndOk('main region');
+            await pageInspectionPanel.selectPageTemplateOrController('main region');
             await studioUtils.saveScreenshot('controller_switched_pcv_gets_enabled');
             // 3. PCV should not be disabled (not locked):
             await pageComponentsWizardStepForm.waitForNotLocked()

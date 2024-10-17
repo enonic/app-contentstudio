@@ -70,7 +70,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
             // 2. Open Project Wizard Dialog:
             await settingsBrowsePanel.openProjectWizardDialog();
             // 3. Select the parent project in the first step:
-            let projectWizardDialogStep2 = await projectUtils.fillParentNameStep(MULTI_PROJECTS);
+            let projectWizardDialogStep2 = await projectUtils.selectParentProjectsByName(MULTI_PROJECTS);
             await projectWizardDialogStep2.waitForLoaded();
             // 4. Click on Skip button in the second step:
             let accessModeStep = await projectUtils.fillLanguageStep(null);

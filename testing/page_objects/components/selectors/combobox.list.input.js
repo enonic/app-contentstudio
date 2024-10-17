@@ -19,7 +19,7 @@ class ComboBoxListInput extends BasDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredOptionAndClickOnOk(option) {
+    async selectFilteredOptionAndClickOnApply(option) {
         try {
             await this.filterItem(option, this.container);
             // 2. Wait for the required option is displayed then click on it:
@@ -28,6 +28,17 @@ class ComboBoxListInput extends BasDropdown {
             return await this.clickOnApplySelectionButton(this.container);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
+            throw new Error('Error occurred in ComboBoxListInput, screenshot: ' + screenshot + ' ' + err);
+        }
+    }
+
+    async selectFilteredOption(option) {
+        try {
+            await this.filterItem(option, this.container);
+            // 2. Wait for the required option is displayed then click on it:
+            await this.clickOnOptionByDisplayName(option, this.container);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_cocmbobox_dropdown');
             throw new Error('Error occurred in ComboBoxListInput, screenshot: ' + screenshot + ' ' + err);
         }
     }

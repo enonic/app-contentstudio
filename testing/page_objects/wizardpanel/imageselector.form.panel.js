@@ -145,7 +145,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await imageSelectorDropdown.clickOnFilteredByDisplayNameItem(displayName, XPATH.container);
     }
 
-    async filterOptionsSelectImageAndClickOnApply(displayName, nonMultiselect) {
+    async filterOptionsSelectImageAndClickOnApply(displayName) {
         let imageSelectorDropdown = new ImageSelectorDropdown();
         await this.typeTextInInput(this.optionsFilterInput, displayName);
         return await imageSelectorDropdown.clickOnFilteredByDisplayNameItemAndClickOnApply(displayName, XPATH.container);

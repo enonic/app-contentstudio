@@ -36,16 +36,32 @@ module.exports = {
         await summaryStep.waitForDialogClosed();
         return await settingsBrowsePanel.pause(500);
     },
-    async fillParentNameStep(parents) {
+    async selectParentProjectsByName(parents) {
         try {
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
             parents = [].concat(parents);
             let selectedItems = await parentProjectStep.getSelectedProjects();
             for (let name of parents) {
                 if (selectedItems.length === 0 || this.isProjectSelected(selectedItems, name)) {
+                    // select a project and click on Apply button
                     await parentProjectStep.selectParentProjectMulti(name);
                 }
             }
+            await parentProjectStep.clickOnNextButton();
+            return new ProjectWizardDialogLanguageStep();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_parent_proj_step');
+            throw new Error(`Error occurred in parent project step, screenshot:${screenshot} ` + err);
+        }
+    },
+    async selectSingleParentProjectsByName(parent) {
+        try {
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let selectedItems = await parentProjectStep.getSelectedProjects();
+            if (this.isProjectSelected(selectedItems, parent)) {
+                await parentProjectStep.selectParentProject(parent);
+            }
+
             await parentProjectStep.clickOnNextButton();
             return new ProjectWizardDialogLanguageStep();
         } catch (err) {
@@ -131,7 +147,13 @@ module.exports = {
                 let parentProjectStep = new ProjectWizardDialogParentProjectStep();
                 await parentProjectStep.clickOnSkipButton();
             } else {
-                let languageStep = await this.fillParentNameStep(project.parents);
+                let languageStep;
+                if (Array.isArray(project.parents)) {
+                    languageStep = await this.selectParentProjectsByName(project.parents);
+                } else {
+                    languageStep = await this.selectSingleParentProjectsByName(project.parents);
+                }
+
                 await languageStep.waitForLoaded();
             }
             let accessModeStep = await this.fillLanguageStep(project.language);

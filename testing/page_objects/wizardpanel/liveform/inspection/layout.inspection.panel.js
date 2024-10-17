@@ -51,7 +51,6 @@ class LayoutInspectionPanel extends Page {
     async clickOnOptionInLayoutDropdown(optionDisplayName) {
         let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
         await componentDescriptorsDropdown.clickOnOptionByDisplayName(optionDisplayName, xpath.container);
-        await componentDescriptorsDropdown.clickOnApplySelectionButton(xpath.container);
         return await this.pause(1000);
     }
 

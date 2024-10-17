@@ -43,11 +43,9 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             await insertContentLinkTab.clickOnExpanderIconInOptionsList(SITE.displayName);
             // 5. Click on 'Templates' option
             await insertContentLinkTab.clickOnOptionByDisplayName(TEST_CONTENT_DISPLAY_NAME);
-            // 6. Click on OK and apply the selection:
-            await insertContentLinkTab.clickOnApplySelectionButton();
-            // 7. Click on remove-icon and remove the selected option:
+            // 6. Click on remove-icon and remove the selected option:
             await insertContentLinkTab.clickOnRemoveSelectedOptionIcon(TEST_CONTENT_DISPLAY_NAME);
-            // 4. Verify that 'Upload' button appears in the 'Insert content link' form
+            // 7. Verify that 'Upload' button appears in the 'Insert content link' form
             await insertContentLinkTab.waitForUploadContentButtonDisplayed();
         });
 
@@ -161,8 +159,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             await insertContentLinkTab.clickOnExpanderIconInOptionsList(SITE.displayName);
             // 5. Click on 'Templates' option
             await insertContentLinkTab.clickOnOptionByDisplayName(TEST_CONTENT_DISPLAY_NAME);
-            // 6. Click on OK and apply the selection:
-            await insertContentLinkTab.clickOnApplySelectionButton();
+            // 6. 'Apply' button should not appear here!
             // 7. Click on Insert button in the modal dialog:
             await insertLinkDialog.clickOnInsertButton();
             // 8. toolbar remains visible after inserting the link, reopen the modal dialog  again
