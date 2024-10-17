@@ -31,6 +31,10 @@ const xpath = {
     },
     itemTabByDisplayName:
         displayName => `//div[contains(@id,'AppBar')]//li[contains(@id,'AppBarTabMenuItem') and child::a[@class='label' and text() ='${displayName}']]`,
+
+    itemTreeGridListElementByDisplayName: displayName => {
+        return `(//*[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]])`
+    },
 };
 
 class UserBrowsePanel extends Page {
@@ -233,9 +237,9 @@ class UserBrowsePanel extends Page {
         }
     }
 
-    async clickCheckboxAndSelectRowByDisplayName(displayName) {
+    async clickOnCheckboxAndSelectRowByDisplayName(displayName) {
         try {
-            let checkboxElement = lib.TREE_GRID.itemTreeGridListElementByDisplayName(displayName) + lib.DIV.CHECKBOX_DIV + '/label';
+            let checkboxElement = xpath.itemTreeGridListElementByDisplayName(displayName) + '/..' + lib.DIV.CHECKBOX_DIV + '/label';
             await this.waitForElementDisplayed(checkboxElement, appConst.mediumTimeout);
             await this.clickOnElement(checkboxElement);
             return await this.pause(200);
@@ -404,6 +408,16 @@ class UserBrowsePanel extends Page {
         await confirmationDialog.clickOnYesButton();
         await confirmationDialog.waitForDialogClosed();
         return await this.waitForSpinnerNotVisible();
+    }
+
+    async waitForRowByDisplayNameVisible(displayName) {
+        try {
+            let nameXpath = xpath.rowByDisplayName(displayName);
+            await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_user_item');
+            throw new Error(`Row with the name  is not visible in , Screenshot: ${screenshot} ` + err);
+        }
     }
 }
 

@@ -4,7 +4,6 @@
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
-const LoaderComboBox = require('../../../components/loader.combobox');
 const ImageSelectorDropdown = require('../../../components/selectors/image.selector.dropdown');
 const xpath = {
     container: `//div[contains(@id,'PartInspectionPanel')]`,

@@ -11,8 +11,6 @@ module.exports = Object.freeze({
     DATE_PICKER_INPUT: "//div[contains(@id,'DatePicker') and contains(@class,'date-time-picker')]//input[contains(@id,'TextInput')]",
     CONTENT_COMBOBOX: "//div[contains(@id,'ContentComboBox')]",
     SELECTED_LOCALE: `//div[contains(@id,'LocaleSelectedOptionView')]`,
-    SLICK_VIEW_PORT: `//div[contains(@class,'slick-viewport')]`,
-    SLICK_ROW: "//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row')]",
     H6_DISPLAY_NAME: "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
     P_SUB_NAME: "//p[contains(@class,'sub-name')]",
     RICH_TEXT_EDITOR: `//div[contains(@id,'TextComponentView') and contains(@class,'editor-focused')]`,
@@ -146,10 +144,6 @@ module.exports = Object.freeze({
     tabBarItemByName: name => {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
     },
-    slickRowByDisplayName: (container, displayName) => {
-        return container +
-               `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
-    },
 
     TREE_GRID: {
         CONTENT_STATUS: "//div[contains(@id,'StatusBlock')]/span",
@@ -177,10 +171,6 @@ module.exports = Object.freeze({
     dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[contains(.,'${label}')]]`,
     dialogButtonStrict: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
     togglerButton: (label) => `//button[contains(@id,'TogglerButton') and child::span[text()='${label}']]`,
-    slickRowByName: (container, name) => {
-        return container +
-               `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`;
-    },
     itemByDisplayName: displayName => {
         return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
     },
@@ -192,11 +182,6 @@ module.exports = Object.freeze({
     },
     itemStrictByName: name => {
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and text()='${name}']]`
-    },
-    // TODO remove slick-row
-    checkboxByName: name => {
-        return `${this.itemByName(name)}` +
-               `//ancestor::div[contains(@class,'slick-row')]//div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
 
     formItemByLabel: (label) => {
