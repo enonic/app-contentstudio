@@ -55,6 +55,7 @@ class BaseDetailsPanel extends Page {
             let widgetSelectorDropdown = new WidgetSelectorDropdown();
             await this.clickOnWidgetSelectorDropdownHandle();
             await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
+            await this.pause(900);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_open_versions');
             throw new Error(`Error occurred in widget selector dropdown, Version History, screenshot ${screenshot}: ` + err);

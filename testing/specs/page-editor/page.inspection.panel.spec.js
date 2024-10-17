@@ -54,7 +54,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             // 2. Click on 'Page' tab in Inspection panel:
             await contextWindow.clickOnTabBarItem('Page');
             // 3. Select another controller(Automatic) and click on OK:
-            await pageInspectionPanel.selectPageTemplateOrControllerAndOk('Automatic');
+            await pageInspectionPanel.selectPageTemplateOrController('Automatic');
             // 4. Confirmation dialog should appear:
             await confirmationDialog.waitForDialogOpened();
             // 5. Verify the question:

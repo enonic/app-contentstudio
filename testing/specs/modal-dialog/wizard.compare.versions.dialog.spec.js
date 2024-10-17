@@ -43,9 +43,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await compareContentVersionsDialog.waitForDialogOpened();
             // 4. Expand the left dropdown and click on the edited-option:
             await compareContentVersionsDialog.expandLeftDropdownAndClickOnModifiedOption(0);
-            // 5. Click on OK button
-            await compareContentVersionsDialog.clickOnOKAndApplySelection();
-            // 6. Verify that 'Versions are identical' message appears in the dialog:
+            // 5. Verify that 'Versions are identical' message appears in the dialog:
             let actualMessage = await compareContentVersionsDialog.waitForVersionsIdenticalMessage();
             assert.equal(actualMessage, 'Versions are identical', "'Versions are identical' message should be displayed");
         });
