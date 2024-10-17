@@ -55,6 +55,7 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         console.log("Project Wizard, parent project is selected: " + projectDisplayName);
         return await this.pause(400);
     }
+
     async selectParentProjectById(projectId) {
         let projectsComboBox = new ProjectsComboBox();
         await projectsComboBox.selectFilteredByIdAndClickOnApply(projectId);
@@ -64,10 +65,11 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
     async getSelectedProjects() {
         try {
             let locator = XPATH.container + XPATH.projectSelectedOptionView + lib.H6_DISPLAY_NAME;
+            await this.pause(1000);
             return await this.getTextInDisplayedElements(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_proj_parent_step');
-            throw new Error("Project Wizard, parent step, screenshot: " + screenshot + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_proj_parent_step_selected_tems');
+            throw new Error(`Project Wizard, parent step, screenshot:${screenshot} ` + err);
         }
     }
 

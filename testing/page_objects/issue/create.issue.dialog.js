@@ -188,9 +188,10 @@ class CreateIssueDialog extends Page {
     async selectUserInAssignees(userName) {
         try {
             let principalComboBox = new PrincipalComboBox();
-            return await principalComboBox.selectFilteredUser(userName, this.container);
+            await principalComboBox.selectFilteredUser(userName, this.container);
+            await principalComboBox.clickOnApplySelectionButton(this.container);
         } catch (err) {
-            throw new Error("Create issue Dialog  " + err);
+            throw new Error("Error occurred in Create issue Dialog  " + err);
         }
     }
 
