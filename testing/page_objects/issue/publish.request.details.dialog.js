@@ -2,7 +2,7 @@ const BaseDetailsDialog = require('./base.details.dialog')
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
-const LoaderComboBox = require('../components/loader.combobox');
+const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 
 const xpath = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
@@ -21,14 +21,10 @@ const xpath = {
     selectionItemStatusByDisplayName:
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]//div[@class='status']`,
 };
-//Dialog loads :
+// Dialog loads :
 // 1. after clicking on 'Create request' button in "Create request dialog"
 // 2. after clicking on a request in Issues List dialog
 class PublishRequestDetailsDialog extends BaseDetailsDialog {
-
-    get contentOptionsFilterInput() {
-        return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
-    }
 
     get publishNowButton() {
         return xpath.container + xpath.buttonRow + lib.dialogButton('Publish Now');
@@ -63,7 +59,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             await this.clickOnElement(selector);
             return this.pause(1000);
         } catch (err) {
-            this.saveScreenshot('err_click_on_include_children');
+            await this.saveScreenshot('err_click_on_include_children');
             throw new Error('Error when clicking on Include Child ' + displayName + ' ' + err);
         }
     }
@@ -71,13 +67,11 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     // clicks on Publish... button and  opens 'Publishing Wizard'
     async clickOnPublishAndOpenPublishWizard() {
         try {
-            let res = await this.findElements(this.publishButton);
             await this.clickOnElement(this.publishButton);
             let publishContentDialog = new ContentPublishDialog();
             await publishContentDialog.waitForDialogOpened();
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_publish_button');
-            this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_publish_button');
             throw new Error('Error when clicking on Publish button, screenshot: ' + screenshot + "  " + err);
         }
     }
@@ -94,10 +88,13 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         return this.waitForElementDisabled(this.publishNowButton, appConst.mediumTimeout);
     }
 
-    waitContentOptionsFilterInputDisplayed() {
-        return this.waitForElementDisplayed(this.contentOptionsFilterInput, appConst.mediumTimeout).catch(err => {
-            throw new Error('Error when checking the `Options filter input` in Issue Details ' + err)
-        })
+    async waitForContentOptionsFilterInputDisplayed() {
+        try {
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            await contentSelectorDropdown.waitForOptionFilterInputDisplayed(xpath.container);
+        } catch (err) {
+            throw new Error('`Options filter input` should be displayed in Issue Details ' + err);
+        }
     }
 
     getItemDisplayNames() {
@@ -112,15 +109,15 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         return await this.getBrowser().getElementText(result[0].elementId);
     };
 
-    clickOnIncludeChildItems(displayName) {
-        let includeIcon = xpath.selectionItemByDisplayName(displayName) + xpath.includeChildrenToggler;
-        return this.waitForElementDisplayed(includeIcon, appConst.shortTimeout).then(() => {
-            return this.clickOnElement(includeIcon)
-        }).then(() => {
+    async clickOnIncludeChildItems(displayName) {
+        try {
+            let includeIcon = xpath.selectionItemByDisplayName(displayName) + xpath.includeChildrenToggler;
+            await this.waitForElementDisplayed(includeIcon, appConst.shortTimeout);
+            await this.clickOnElement(includeIcon)
             return this.pause(2000);
-        }).catch(err => {
-            throw new Error('error when clicking on `Include Child items`: ' + err)
-        })
+        } catch (err) {
+            throw new Error('error occurred during clicking on `Include Child items`: ' + err)
+        }
     }
 
     async excludeItem(displayName) {
@@ -130,16 +127,15 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             await this.clickOnElement(removeIcon)
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_schedule_button');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_remove');
             throw new Error('error when clicking on `remove icon`: ' + err)
         }
     }
 
     async doAddItem(displayName) {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(displayName, xpath.container);
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            return await contentSelectorDropdown.selectFilteredByDisplayNameContentMulti(displayName, xpath.container);
         } catch (err) {
             throw new Error("Request Tab - Items were not added: " + err);
         }
@@ -156,8 +152,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             await this.waitForAddScheduleButtonDisplayed();
             return await this.clickOnElement(this.addScheduleButton);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_schedule_button');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_schedule_button');
             throw new Error('`Request Publish dialog` Error when clicking Add Schedule button, screenshot  ' + screenshot + " " + err);
         }
     }
@@ -166,9 +161,9 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         try {
             await this.waitForElementDisplayed(this.closeRequestButton, appConst.shortTimeout);
             await this.clickOnElement(this.closeRequestButton);
-            return this.pause(1000);
+            return await this.pause(1000);
         } catch (err) {
-            this.saveScreenshot('err_click_on_close_request');
+            await this.saveScreenshot('err_click_on_close_request');
             throw new Error('Error when clicking on Close Request ' + err);
         }
     }
@@ -179,7 +174,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             await this.clickOnElement(this.reopenRequestButton);
             return this.pause(1000);
         } catch (err) {
-            this.saveScreenshot('err_click_on_reopen_request');
+            await this.saveScreenshot('err_click_on_reopen_request');
             throw new Error('Error when clicking on Reopen Request ' + err);
         }
     }
@@ -190,7 +185,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             await this.clickOnElement(this.publishNowButton);
             return this.pause(1000);
         } catch (err) {
-            this.saveScreenshot('err_click_on_publish_request_now');
+            await this.saveScreenshot('err_click_on_publish_request_now');
             throw new Error('Error when clicking on Publish Now (Request) ' + err);
         }
     }

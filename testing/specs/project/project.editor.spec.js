@@ -30,7 +30,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
         async () => {
             // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
-            let userName = builder.generateRandomName("editor");
+            let userName = builder.generateRandomName('editor');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);

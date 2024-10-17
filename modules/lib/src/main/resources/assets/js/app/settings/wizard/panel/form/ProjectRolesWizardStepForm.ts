@@ -28,7 +28,7 @@ export class ProjectRolesWizardStepForm
     }
 
     protected initListeners() {
-        this.getAccessComboBox().onValueChanged(() => {
+        this.getAccessComboBox().onSelectionChanged(() => {
             this.notifyDataChanged();
         });
 

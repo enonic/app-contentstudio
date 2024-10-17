@@ -6,7 +6,7 @@ import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
 import {ApplyContentPermissionsRequest} from '../resource/ApplyContentPermissionsRequest';
-import {AccessControlComboBox, AccessControlComboBoxBuilder} from './AccessControlComboBox';
+import {AccessControlComboBox} from './AccessControlComboBox';
 import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
 import {Content} from '../content/Content';
@@ -100,7 +100,7 @@ export class EditPermissionsDialog
         this.subTitle = new H6El('sub-title').setHtml(`${i18n('dialog.permissions.applying')}...`);
         this.inheritPermissionsCheck = Checkbox.create().setLabelText(i18n('dialog.permissions.inherit')).build();
         this.inheritPermissionsCheck.addClass('inherit-perm-check');
-        this.comboBox = new AccessControlComboBoxBuilder().build();
+        this.comboBox = new AccessControlComboBox();
         this.comboBox.addClass('principal-combobox');
         this.overwriteChildPermissionsCheck = Checkbox.create().setLabelText(i18n('dialog.permissions.overwrite')).build();
         this.overwriteChildPermissionsCheck.addClass('overwrite-child-check');
@@ -143,7 +143,6 @@ export class EditPermissionsDialog
                 this.layoutOriginalPermissions();
             }
 
-            this.comboBox.getComboBox().setVisible(!this.inheritPermissions);
             this.comboBox.setEnabled(!this.inheritPermissions);
 
             this.comboBoxChangeListener();
@@ -156,8 +155,7 @@ export class EditPermissionsDialog
         });
 
         this.comboBox.onOptionValueChanged(this.comboBoxChangeListener);
-        this.comboBox.onOptionSelected(this.comboBoxChangeListener);
-        this.comboBox.onOptionDeselected(this.comboBoxChangeListener);
+        this.comboBox.onSelectionChanged(this.comboBoxChangeListener);
         this.overwriteChildPermissionsCheck.onValueChanged(this.comboBoxChangeListener);
     }
 
@@ -208,25 +206,22 @@ export class EditPermissionsDialog
     }
 
     private layoutInheritedPermissions() {
-        this.comboBox.clearSelection(true);
+        this.comboBox.deselectAll(true);
         this.parentPermissions.forEach((item) => {
-            if (!this.comboBox.isSelected(item)) {
-                this.comboBox.select(item);
-            }
+            this.comboBox.select(item, true);
         });
     }
 
     private layoutOriginalPermissions() {
-        this.comboBox.clearSelection(true);
+        this.comboBox.deselectAll(true);
+
         this.originalValues.forEach((item) => {
-            if (!this.comboBox.isSelected(item)) {
-                this.comboBox.select(item);
-            }
+            this.comboBox.select(item, true);
         });
     }
 
     private getEntries(): AccessControlEntry[] {
-        return this.comboBox.getSelectedDisplayValues();
+        return this.comboBox.getSelectedOptions().map((item) => item.getOption().getDisplayValue());
     }
 
     private getParentPermissions(): Q.Promise<AccessControlList> {
@@ -258,7 +253,7 @@ export class EditPermissionsDialog
         }
         super.show();
 
-        if (this.comboBox.getComboBox().isVisible()) {
+        if (this.comboBox.isVisible()) {
             this.comboBox.giveFocus();
         } else {
             this.inheritPermissionsCheck.giveFocus();

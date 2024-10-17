@@ -1,15 +1,14 @@
 import * as Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import {PrincipalComboBox, PrincipalComboBoxWrapper} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {RichComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {Issue} from '../Issue';
-import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
+import {ContentSelectedOptionsView} from '../../inputtype/ui/selector/ContentComboBox';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
@@ -17,7 +16,13 @@ import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentId} from '../../content/ContentId';
-import {PrincipalLoader} from '../../security/PrincipalLoader';
+import {ContentTreeSelectorDropdown} from '../../inputtype/selector/ContentTreeSelectorDropdown';
+import {ContentSummaryOptionDataLoader} from '../../inputtype/ui/selector/ContentSummaryOptionDataLoader';
+import {ContentListBox} from '../../inputtype/selector/ContentListBox';
+import {ContentSelectorDropdownOptions} from '../../inputtype/selector/ContentSelectorDropdown';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {CSPrincipalCombobox} from '../../security/CSPrincipalCombobox';
 
 export class IssueDialogForm
     extends Form {
@@ -26,7 +31,7 @@ export class IssueDialogForm
 
     private description: TextArea;
 
-    private contentItemsSelector: RichComboBox<ContentTreeSelectorItem>;
+    private contentItemsSelector: ContentTreeSelectorDropdown;
 
     private title: TextInput;
 
@@ -58,29 +63,41 @@ export class IssueDialogForm
     }
 
     private initElements() {
-
         this.title = new TextInput('title');
 
         this.description = new TextArea('description');
         this.description.addClass('description');
 
-        const principalLoader = new PrincipalLoader()
-            .setAllowedTypes([PrincipalType.USER])
-            .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
-
-        this.approversSelector = PrincipalComboBox.create().setLoader(principalLoader).setMaximumOccurrences(0).build() as PrincipalComboBox;
-
-        this.contentItemsSelector = ContentComboBox.create().build();
-
-        this.contentItemsSelector.onOptionSelected((option) => {
-            this.notifyContentItemsAdded(
-                [option.getSelectedOption().getOption().getDisplayValue()]);
+        this.approversSelector = new CSPrincipalCombobox({
+            maxSelected: 0,
+            allowedTypes: [PrincipalType.USER],
+            skipPrincipals: [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()],
         });
 
-        this.contentItemsSelector.onOptionDeselected((option) => {
-            this.notifyContentItemsRemoved(
-                [option.getSelectedOption().getOption().getDisplayValue()]);
+        this.contentItemsSelector = this.createContentSelector();
+        this.contentItemsSelector.onSelectionChanged((selectionChange: SelectionChange<ContentTreeSelectorItem>): void => {
+            if (selectionChange.selected?.length > 0) {
+                this.notifyContentItemsAdded(selectionChange.selected.slice());
+            }
+
+            if (selectionChange.deselected?.length > 0) {
+                this.notifyContentItemsRemoved(selectionChange.deselected.slice());
+            }
         });
+    }
+
+    private createContentSelector(): ContentTreeSelectorDropdown {
+        const loader = new ContentSummaryOptionDataLoader<ContentTreeSelectorItem>();
+        const listBox = new ContentListBox({loader: loader});
+        const dropdownOptions: ContentSelectorDropdownOptions = {
+            loader: loader,
+            selectedOptionsView: new ContentSelectedOptionsView(),
+            maxSelected: 0,
+            className: 'multiple-occurrence',
+            getSelectedItems: () => [],
+        };
+
+        return new ContentTreeSelectorDropdown(listBox, dropdownOptions);
     }
 
     private initFormView() {
@@ -93,11 +110,13 @@ export class IssueDialogForm
         const descriptionFormItem = new FormItemBuilder(this.description).setLabel(i18n('field.description')).build();
         fieldSet.add(descriptionFormItem);
 
-        const selectorFormItem = new FormItemBuilder(this.approversSelector).setLabel(i18n('field.assignees')).build();
+        const selectorFormItem =
+            new FormItemBuilder(new PrincipalComboBoxWrapper(this.approversSelector)).setLabel(i18n('field.assignees')).build();
         selectorFormItem.addClass('issue-approver-selector');
         fieldSet.add(selectorFormItem);
 
-        this.contentItemsFormItem = new FormItemBuilder(this.contentItemsSelector).setLabel(i18n('field.items')).build();
+        const selectorWrapper = new ContentSelectorFormInputWrapper(this.contentItemsSelector);
+        this.contentItemsFormItem = new FormItemBuilder(selectorWrapper).setLabel(i18n('field.items')).build();
         fieldSet.add(this.contentItemsFormItem);
 
         this.addItemsButtonItem = new Button(i18n('dialog.issue.addItems'));
@@ -110,7 +129,7 @@ export class IssueDialogForm
             this.validate(true);
         });
 
-        this.approversSelector.onValueChanged(() => {
+        this.approversSelector.onSelectionChanged(() => {
             this.validate(true);
         });
 
@@ -149,7 +168,7 @@ export class IssueDialogForm
             this.contentItemsFormItem.hide();
             this.addItemsButtonItem.hide();
         } else {
-            this.toggleContentItemsSelector(this.contentItemsSelector.getSelectedValues().length > 0);
+            this.toggleContentItemsSelector(this.contentItemsSelector.getSelectedOptions().length > 0);
         }
     }
 
@@ -182,7 +201,7 @@ export class IssueDialogForm
     }
 
     public getApprovers(): PrincipalKey[] {
-        return this.approversSelector.getSelectedValues().map(value => PrincipalKey.fromString(value));
+        return this.approversSelector.getSelectedOptions().map(value => value.getOption().getDisplayValue().getKey());
     }
 
     public giveFocus(): boolean {
@@ -195,19 +214,22 @@ export class IssueDialogForm
     public reset() {
         this.title.setValue('');
         this.description.setValue('');
-        this.approversSelector.clearCombobox();
-        this.approversSelector.setValue('');
+        this.approversSelector.setSelectedItems([]);
 
-        this.contentItemsSelector.clearCombobox();
-        this.contentItemsSelector.clearSelection();
+        this.contentItemsSelector.clear();
+        this.contentItemsSelector.deselectAll();
         this.lockContentItemsSelector(false);
     }
 
     public setContentItems(ids: ContentId[], silent: boolean = false) {
         this.toggleContentItemsSelector(ids && ids.length > 0);
-        this.contentItemsSelector.clearSelection();
+
         ids.forEach((id) => {
-            this.contentItemsSelector.selectOptionByValue(id.toString(), silent);
+            const item = this.contentItemsSelector.getItemById(id.toString());
+
+            if (item) {
+                this.contentItemsSelector.select(item, silent);
+            }
         });
     }
 
@@ -217,7 +239,7 @@ export class IssueDialogForm
         }
         this.toggleContentItemsSelector(contents && contents.length > 0);
         contents.forEach((value) =>
-            this.contentItemsSelector.select(new ContentTreeSelectorItem(value), false, silent)
+            this.contentItemsSelector.select(new ContentTreeSelectorItem(value), silent)
         );
     }
 
@@ -228,13 +250,12 @@ export class IssueDialogForm
         contents.forEach((value) =>
             this.contentItemsSelector.deselect(new ContentTreeSelectorItem(value), silent)
         );
-        this.toggleContentItemsSelector(this.contentItemsSelector.getSelectedValues().length > 0);
+        this.toggleContentItemsSelector(this.contentItemsSelector.getSelectedOptions().length > 0);
     }
 
     private setApprovers(approvers: PrincipalKey[]) {
-
         if (approvers) {
-            this.approversSelector.setValue(approvers.map(key => key.toString()).join(';'));
+            this.approversSelector.setSelectedItems(approvers);
         }
     }
 
@@ -268,5 +289,23 @@ export class IssueDialogForm
         this.contentItemsRemovedListeners.forEach((listener) => {
             listener(items);
         });
+    }
+}
+
+class ContentSelectorFormInputWrapper
+    extends FormInputEl {
+
+    private contentSelector: ContentTreeSelectorDropdown;
+
+    constructor(contentSelector: ContentTreeSelectorDropdown) {
+        super('div', 'content-selector-wrapper');
+
+        this.contentSelector = contentSelector;
+        this.appendChild(contentSelector);
+    }
+
+
+    getValue(): string {
+        return this.contentSelector.getSelectedOptions()[0]?.getOption().getDisplayValue()?.getContent()?.getId() || '';
     }
 }

@@ -1,131 +1,25 @@
 .content-tree-grid {
-  .grid .slick-row {
-    .slick-cell {
-      &.name {
-        flex-grow: 1;
-
-        .viewer {
-          .@{_COMMON_PREFIX}wrapper {
-            flex-shrink: 0;
-          }
+  .content-tree-grid-list {
+    .content-tree-grid-list-viewer {
+      &.data-inherited:not(.readonly) {
+        .names-and-icon-viewer {
+          opacity: 0.5;
         }
       }
 
-      &.status {
-        display: flex;
-        align-items: center;
-        text-align: center;
-        justify-content: center;
-        line-height: unset;
-        flex-shrink: 0;
-
-        .pending_delete {
-          font-size: 0.8em;
-        }
-
-        padding-left: 0;
-        font-size: 0.9em;
-        flex-basis: 90px;
-
-        span {
-          .ellipsis();
-          white-space: pre-wrap;
-          padding-right: 2px;
+      &.sort-inherited {
+        .sort-dialog-trigger {
+          opacity: 0.5;
         }
       }
 
-      &.modified {
-        padding-left: 8px;
-        flex-basis: 135px;
-        flex-shrink: 0;
-      }
-
-      &.order {
-        flex-basis: 25px;
-        flex-shrink: 0;
-      }
-    }
-
-    .toggle {
-      z-index: 1;
-    }
-
-    &.readonly {
-      > * {
-        opacity: 0.25;
-      }
-      .display-name {
-        font-style: italic;
-      }
-    }
-
-    &:not(.readonly) .names-and-icon-viewer.data-inherited {
-      opacity: 0.5;
-    }
-
-    &.sort-inherited {
-      .order .sort-dialog-trigger {
-        opacity: 0.5;
-      }
-    }
-
-    &:not(.selected) {
-      .slick-cell {
-        &.status {
-          .content-status-mixin();
+      &.readonly {
+        > * {
+          opacity: 0.25;
         }
-
-        &.selected, &.highlight {
-          &.status > * {
-            color: @admin-white;
-          }
-        }
-      }
-    }
-  }
-
-  .icon-menu,
-  .icon-sort-alpha-asc,
-  .icon-sort-alpha-desc,
-  .icon-sort-num-asc,
-  .icon-sort-num-desc {
-    line-height: 37px;
-  }
-
-  &._0-240,
-  &._240-360,
-  &._360-540,
-  &._540-720 {
-    .grid .slick-row {
-      .slick-cell {
-        &.modified {
-          display: none;
-        }
-      }
-    }
-  }
-
-  &._0-240,
-  &._240-360 {
-    .grid .slick-row {
-      .slick-cell {
-        &.status,
-        &.modified {
-          display: none;
-        }
-      }
-    }
-  }
-
-  &.mobile-mode {
-    .grid .slick-viewport .grid-canvas .slick-row {
-      .slick-cell {
-        &.slick-cell-checkboxsel {
-          order: 5;
-        }
-
-        &.name {
-          padding-left: 8px;
+        
+        .display-name {
+          font-style: italic;
         }
       }
     }

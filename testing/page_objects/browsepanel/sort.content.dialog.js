@@ -36,8 +36,8 @@ class SortContentDialog extends Page {
             await this.waitForDialogClosed();
             return await this.pause(1200);
         } catch (err) {
-            await this.saveScreenshot('err_click_sort_save_button');
-            throw new Error(err);
+            let screenshot = await this.saveScreenshotUniqueName('err_click_sort_save_button');
+            throw new Error(`Error occurred in Sort Content dialog, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -53,11 +53,13 @@ class SortContentDialog extends Page {
         return this.waitForElementEnabled(XPATH.saveButton, appConst.shortTimeout);
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout).catch(err => {
-            this.saveScreenshot('err_close_sort_content_dialog');
-            throw new Error('Sort content dialog must be closed' + err);
-        })
+    async waitForDialogClosed() {
+        try {
+            await this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_close_sort_dialog');
+            throw new Error(`Sort content dialog must be closed, screenshot: ${screenshot} ` + err);
+        }
     }
 
     clickOnCancelButton() {
@@ -93,13 +95,13 @@ class SortContentDialog extends Page {
 
     async getSelectedOrder() {
         let selector = XPATH.container + XPATH.menuButton + "//a";
-        //await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        return await this.getAttribute(selector, "title");
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+        return await this.getAttribute(selector, 'title');
     }
 
     async swapItems(sourceContentName, destinationContentName) {
-        let sourceLocator = lib.slickRowByDisplayName(XPATH.container, sourceContentName) + "//div[contains(@class,'slick-cell l0')]";
-        let destLocator = lib.slickRowByDisplayName(XPATH.container, destinationContentName) + "//div[contains(@class,'slick-cell l0')]";
+        let sourceLocator = lib.TREE_GRID.itemByName(sourceContentName);
+        let destLocator = lib.TREE_GRID.itemByName(destinationContentName);
         let source = await this.findElement(sourceLocator);
         let destination = await this.findElement(destLocator);
         await source.dragAndDrop(destination);
@@ -121,7 +123,7 @@ class SortContentDialog extends Page {
     async doSort(by, order) {
         let menuItem = XPATH.container + `//li[contains(@id,'SortContentTabMenuItem') and child::a[text()='${by}']]`;
         let locator;
-        if (order === appConst.SORT_ORDER.ASCENDING) {
+        if (order === appConst.SORT_DIALOG.ASCENDING) {
             locator = menuItem + "//button[contains(@class,'asc')]";
         } else {
             locator = menuItem + "//button[contains(@class,'desc')]";
@@ -131,7 +133,7 @@ class SortContentDialog extends Page {
         return await this.pause(500);
     }
 
-    getContentName() {
+    getContentNamesInTreeGrid() {
         let locator = XPATH.container + lib.H6_DISPLAY_NAME;
         return this.getTextInDisplayedElements(locator);
     }

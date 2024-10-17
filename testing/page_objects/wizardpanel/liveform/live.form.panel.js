@@ -5,7 +5,8 @@ const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
 const ContentWizard = require('../content.wizard.panel');
-const LoaderComboBox = require('../../../page_objects/components/loader.combobox');
+const FragmentDropdown = require('../../../page_objects/components/selectors/fragment.dropdown');
+const ComponentDescriptorsDropdown = require('../../components/selectors/component.descriptors.dropdown');
 const xpath = {
     container: "//div[contains(@id,'LiveFormPanel')]",
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
@@ -32,17 +33,22 @@ class LiveFormPanel extends Page {
     }
 
     async waitForLayoutComboBoxOptionFilterDisplayed() {
-        let locator = `//div[contains(@id,'LayoutPlaceholder')]` + lib.COMBO_BOX_OPTION_FILTER_INPUT;
-        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout)
+        try {
+            let locator = `//div[contains(@id,'LayoutPlaceholder')]` + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_layout');
+            throw new Error(`Error occurred -  layout combobox, options filter input screenshot:${screenshot} ` + err);
+        }
     }
 
     async selectLayoutByDisplayName(displayName) {
         try {
             let parentForComboBox = `//div[contains(@id,'LayoutPlaceholder')]`;
             let contentWizard = new ContentWizard();
-            let loaderComboBox = new LoaderComboBox();
+            let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
             await contentWizard.switchToLiveEditFrame();
-            await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
+            await componentDescriptorsDropdown.selectFilteredComponent(displayName, parentForComboBox);
             await contentWizard.switchToParentFrame();
             return await this.pause(1000);
         } catch (err) {
@@ -55,10 +61,10 @@ class LiveFormPanel extends Page {
         try {
             let parentForComboBox = `//div[contains(@id,'PartPlaceholder')]`;
             let contentWizard = new ContentWizard();
-            let loaderComboBox = new LoaderComboBox();
+            let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
             await contentWizard.switchToLiveEditFrame();
-            await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
-            return await this.pause(1000);
+            await componentDescriptorsDropdown.selectFilteredComponent(displayName, parentForComboBox);
+            return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_layout');
             throw new Error('Error when selecting the part in Live Edit, screenshot: ' + screenshot + '  ' + err);
@@ -134,7 +140,7 @@ class LiveFormPanel extends Page {
         let locator = xpath.layoutComponentView;
         await contentWizard.switchToLiveEditFrame();
         let layoutComponentElements = await this.findElements(locator);
-        let filterInputElement = await layoutComponentElements[0].$$('.' + lib.COMBO_BOX_OPTION_FILTER_INPUT);
+        let filterInputElement = await layoutComponentElements[0].$$('.' + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT);
         let result = await filterInputElement[0].isDisplayed();
         await contentWizard.switchToParentFrame();
         return result;
@@ -223,21 +229,18 @@ class LiveFormPanel extends Page {
     }
 
     async clickOnOptionInFragmentDropdown(option) {
-        let optionSelector = lib.slickRowByDisplayName(xpath.fragmentPlaceHolderDiv + lib.DIV.FRAGMENT_DROPDOWN_DIV, option);
-        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-        await this.clickOnElement(optionSelector);
-        await this.waitForSpinnerNotVisible();
-        return await this.pause(2000);
+        let fragmentDropdown = new FragmentDropdown();
+        await fragmentDropdown.clickOnDropdownHandle(xpath.fragmentPlaceHolderDiv);
+        await fragmentDropdown.selectFilteredFragment(option);
+        return await this.pause(1000);
     }
 
     async selectFragmentByDisplayName(displayName) {
         try {
             let contentWizard = new ContentWizard();
-            let locatorFilterInput = xpath.fragmentPlaceHolderDiv + lib.DIV.FRAGMENT_DROPDOWN_DIV + lib.DROPDOWN_OPTION_FILTER_INPUT
+            let fragmentDropdown = new FragmentDropdown();
             await contentWizard.switchToLiveEditFrame();
-            await this.waitForElementDisplayed(locatorFilterInput, appConst.mediumTimeout);
-            await this.typeTextInInput(locatorFilterInput, displayName);
-            await this.clickOnOptionInFragmentDropdown(displayName);
+            await fragmentDropdown.selectFilteredFragment(displayName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_fragment_selector');
             throw new Error('Error after selecting the fragment in Live Edit -screenshot ' + screenshot + ' ' + err);
@@ -245,8 +248,13 @@ class LiveFormPanel extends Page {
     }
 
     async waitForCaptionDisplayed(text) {
-        let locator = xpath.captionByText(text);
-        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        try {
+            let locator = xpath.captionByText(text);
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_img_caption_live_edit');
+            throw new Error("Expected caption is not displayed in LiveEdit frame. screenshot:" + screenshot + ' ' + err);
+        }
     }
 
     async getFragmentsNumber() {

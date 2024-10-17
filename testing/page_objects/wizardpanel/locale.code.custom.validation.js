@@ -4,19 +4,14 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const ComboBoxListInput = require('../components/selectors/combobox.list.input');
 const XPATH = {
     localeComboboxDiv: lib.FORM_VIEW + "//div[@name='localeCode2']",
     localeInput: lib.FORM_VIEW + "//input[@name='localeCode-0']",
-    comboboxSelectedOption: value => `//div[contains(@id,'BaseSelectedOptionView') and child::div[contains(@class,'option-value') and text()='${value}']]`,
-    comboboxOptionByName: value => `//div[contains(@class,'slick-viewport')]//div[contains(@id,'ComboBoxDisplayValueViewer') and text()='${value}']`,
+    comboboxSelectedOption: value => `//div[contains(@id,'ComboBoxSelectedOptionView') and child::div[contains(@class,'option-value') and text()='${value}']]`,
 };
 
 class LocaleCodeCustomValidationForm extends Page {
-
-    //Locales combobox, options filter input:
-    get optionsFilterInput() {
-        return XPATH.localeComboboxDiv + lib.COMBO_BOX_OPTION_FILTER_INPUT;
-    }
 
     get selectorValidationRecording() {
         return lib.FORM_VIEW_PANEL.COMBOBOX_INPUT + lib.INPUT_VALIDATION_VIEW;
@@ -39,11 +34,10 @@ class LocaleCodeCustomValidationForm extends Page {
         return await this.getTextInElements(XPATH.comboboxSelectedOption);
     }
 
-    //Selects an option by the display name
-    async typeTextAndSelectOption(optionDisplayName) {
-        await this.typeTextInInput(this.optionsFilterInput, optionDisplayName);
-        await this.selectOption(optionDisplayName);
-        return await this.pause(300);
+    //Inserts a text in the filter input  then selects an option by the display name
+    async typeInFilterAndClickOnOption(option) {
+        let comboBoxListInput = new ComboBoxListInput();
+        return await comboBoxListInput.selectFilteredOption(option);
     }
 
     async typeTextInTextInput(text) {
@@ -54,17 +48,6 @@ class LocaleCodeCustomValidationForm extends Page {
             let screenshotName = await this.saveScreenshotUniqueName('err_custom_validation');
             throw new Error("Custom validation in text input, screenshot:  " + screenshotName + "  " + err);
         }
-    }
-
-    // Select an option in filtered/expanded combobox
-    async selectOption(optionDisplayName) {
-        let optionSelector = XPATH.comboboxOptionByName(optionDisplayName);
-        await this.getBrowser().waitUntil(async () => {
-            return await this.isElementDisplayed(optionSelector);
-        }, {timeout: appConst.longTimeout, timeoutMsg: 'option was not found! ' + optionDisplayName});
-        let optionElement = await this.getDisplayedElements(optionSelector);
-        await optionElement[0].click();
-        return await this.pause(300);
     }
 
     async removeSelectedOption(option) {

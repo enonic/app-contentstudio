@@ -9,7 +9,7 @@ import {ContentTypeJson} from './json/ContentTypeJson';
 export class GetContentTypeByNameRequest
     extends ContentTypeResourceRequest<ContentType> {
 
-    private name: ContentTypeName;
+    private readonly name: ContentTypeName;
 
     private inlineMixinsToFormItems: boolean = true;
 

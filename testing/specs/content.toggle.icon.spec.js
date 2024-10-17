@@ -12,7 +12,7 @@ const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialo
 
 describe('content.toggle.icon.spec: tests for expand/collapse icon', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let PARENT_FOLDER;
@@ -83,9 +83,9 @@ describe('content.toggle.icon.spec: tests for expand/collapse icon', function ()
             // 3. Verify that both folders are not displayed:
             await contentBrowsePanel.waitForContentNotDisplayed(CHILD_FOLDER_1.displayName);
             await contentBrowsePanel.waitForContentNotDisplayed(CHILD_FOLDER_2.displayName);
-            await studioUtils.saveScreenshot("toggle_icon_content_deleted");
-            // 4. Verify that the parent folder does not have 'toggle icon'
-            await contentBrowsePanel.waitForExpanderIconNotDisplayed(PARENT_FOLDER.displayName);
+            await studioUtils.saveScreenshot('toggle_icon_content_deleted');
+            // 4. Verify that the parent folder does not have 'toggle button', child items were removed:
+            await contentBrowsePanel.waitForExpandToggleNotDisplayed(PARENT_FOLDER.displayName);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

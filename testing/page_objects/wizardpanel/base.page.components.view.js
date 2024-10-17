@@ -5,8 +5,11 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const xpath = {
+    parentListElement: "//ancestor::div[contains(@class,'item-view-wrapper')]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
-    draggablePageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer') and contains(@class,'draggable')]",
+    pageComponentsItemViewerByType(componentType) {
+        return `//div[contains(@id,'PageComponentsItemViewer') and contains(@class,'${componentType}')]`
+    },
     pageComponentsTreeGrid: `//div[contains(@id,'PageComponentsTreeGrid')]`,
     fragmentsName: "//div[contains(@id,'PageComponentsItemViewer') and descendant::div[contains(@class,'icon-fragment')]]" +
                    lib.H6_DISPLAY_NAME,
@@ -23,13 +26,25 @@ const xpath = {
     componentByDescription(description) {
         return `//div[contains(@id,'PageComponentsItemViewer') and descendant::p[contains(@class,'sub-name')  and contains(.,'${description}')]]`;
     },
-    itemExpanderIcon: (name) => `//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and text()='${name}']]//span[@class='toggle icon expand']`,
 };
 
 class BasePageComponentView extends Page {
 
+    async isComponentSelected(displayName) {
+        try {
+            let locator = this.container + lib.itemStrictByDisplayName(displayName) + xpath.parentListElement;
+            await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+            let cell = await this.findElement(locator);
+            let attr = await cell.getAttribute('class');
+            return attr.includes('selected');
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_pcv_component');
+            throw new Error(`Error occurred in 'isComponentSelected' in PCV, screenshot:${screenshot} ` + err);
+        }
+    }
+
     async waitForItemSelected(displayName) {
-        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::div[contains(@class,'slick-cell')]`;
+        let locator = this.container + lib.itemStrictByDisplayName(displayName) + xpath.parentListElement;
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(locator, 'class');
             return result.includes('selected');
@@ -38,7 +53,7 @@ class BasePageComponentView extends Page {
     }
 
     async waitForItemNotSelected(displayName) {
-        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::div[contains(@class,'slick-cell')]`;
+        let locator = this.container + lib.itemStrictByDisplayName(displayName) + xpath.parentListElement;
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(locator, 'class');
             return !result.includes('selected');
@@ -59,7 +74,7 @@ class BasePageComponentView extends Page {
             return await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_click');
-            throw new Error("Page Component View - Error when clicking on the component, screenshot: " + screenshot + ' ' + err);
+            throw new Error(`Page Component View - Error occurred after clicking on the component, screenshot${screenshot}: ` + err);
         }
     }
 
@@ -85,7 +100,7 @@ class BasePageComponentView extends Page {
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_view');
-            throw new Error('Page Component View, Error when clicking on `toggle icon in the row` screenshot: ' + screenshot + '  ' + err);
+            throw new Error(`PCV, Error occurred after clicking on 'toggle icon' in the row screenshot:${screenshot} ` + err);
         }
     }
 
@@ -104,7 +119,7 @@ class BasePageComponentView extends Page {
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
-            throw new Error('Page Component View, open menu - Error when clicking on `Menu button`, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`PCV, open menu - Error occurred after clicking on 'Menu button', screenshot:${screenshot} ` + err);
         }
     }
 
@@ -116,16 +131,8 @@ class BasePageComponentView extends Page {
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
-            throw new Error('Page Component View, open menu - Error when clicking on `Menu button`, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Page Component View, Error occurred after clicking on 'Menu button', screenshot:${screenshot} ` + err);
         }
-    }
-
-    async isComponentSelected(displayName) {
-        let rowXpath = lib.slickRowByDisplayName(this.container, displayName) + "//div[contains(@class,'slick-cell')]";
-        await this.waitForElementDisplayed(rowXpath, appConst.shortTimeout);
-        let cell = await this.findElement(rowXpath);
-        let attr = await cell.getAttribute('class');
-        return attr.includes('selected');
     }
 
     waitForMenuItemNotDisplayed(menuItem) {
@@ -150,7 +157,7 @@ class BasePageComponentView extends Page {
             return await this.pause(700);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
-            throw new Error("Error - Page Component View: Menu Item, screenshot " + screenshot + ' ' + err);
+            throw new Error(`Error - Page Component View: Menu Item, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -234,19 +241,18 @@ class BasePageComponentView extends Page {
     }
 
     async getPageComponentsDisplayName() {
-        let locator = this.container + lib.SLICK_VIEW_PORT + xpath.pageComponentsItemViewer + lib.H6_DISPLAY_NAME;
+        let locator = this.container + xpath.pageComponentsItemViewer + lib.H6_DISPLAY_NAME;
         return await this.getTextInDisplayedElements(locator);
     }
 
-    async getDraggablePageComponentsDisplayName() {
-        let locator = this.container + lib.SLICK_VIEW_PORT + xpath.draggablePageComponentsItemViewer + lib.H6_DISPLAY_NAME;
+    async getTextComponentsDisplayName() {
+        let locator = this.container + xpath.pageComponentsItemViewerByType('text') + lib.H6_DISPLAY_NAME;
         return await this.getTextInDisplayedElements(locator);
     }
-
 
     async waitForItemDisplayed(itemDisplayName) {
         try {
-            let locator = this.container + lib.SLICK_VIEW_PORT + xpath.pageComponentsItemViewer + lib.itemByDisplayName(itemDisplayName);
+            let locator = this.container + xpath.pageComponentsItemViewer + lib.itemByDisplayName(itemDisplayName);
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_pcv_item');
@@ -255,7 +261,8 @@ class BasePageComponentView extends Page {
     }
 
     async expandItem(item) {
-        let locator = xpath.itemExpanderIcon(item);
+        let locator = this.container + lib.itemStrictByDisplayName(item) + `//ancestor::div[contains(@class,'item-view-wrapper')]` +
+                      lib.TREE_GRID.EXPANDER_ICON_DIV;
         await this.clickOnElement(locator);
         return await this.pause(200);
     }

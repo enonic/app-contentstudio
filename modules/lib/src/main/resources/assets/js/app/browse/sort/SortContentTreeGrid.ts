@@ -1,16 +1,17 @@
-import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
-import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
-import {TreeGridBuilder} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridBuilder';
-import {DateTimeFormatter} from '@enonic/lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentResponse} from '../../resource/ContentResponse';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 import {ContentId} from '../../content/ContentId';
 import {ChildOrder} from '../../resource/order/ChildOrder';
-import {ResultMetadata} from '../../resource/ResultMetadata';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
 
-export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus> {
+export class SortContentTreeGrid extends LazyListBox<ContentSummaryAndCompareStatus> {
+
+    static MAX_FETCH_SIZE: number = 30;
 
     private contentId: ContentId;
 
@@ -18,98 +19,47 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
-    static MAX_FETCH_SIZE: number = 30;
+    private scrollContainer: Element;
 
-    constructor() {
-        super(new TreeGridBuilder<ContentSummaryAndCompareStatus>()
-            .setColumnConfig([{
-                name: 'Name',
-                id: 'displayName',
-                field: 'contentSummary.displayName',
-                formatter: SortContentTreeGrid.nameFormatter,
-                style: {minWidth: 130},
-                behavior: 'selectAndMove'
-            }, {
-                name: 'ModifiedTime',
-                id: 'modifiedTime',
-                field: 'contentSummary.modifiedTime',
-                formatter: DateTimeFormatter.format,
-                style: {cssClass: 'modified', minWidth: 150, maxWidth: 170},
-                behavior: 'selectAndMove'
-            }])
-            .setPartialLoadEnabled(true)
-            .setLoadBufferSize(20)
-            .setAutoLoad(false)
-            .setCheckableRows(false)
-            .setShowToolbar(false)
-            .setDragAndDrop(true)
-            .disableMultipleSelection(true)
-            .prependClasses('content-tree-grid')
-            .setSelectedCellCssClass('selected-sort-row')
-        );
+    constructor(scrollContainer: Element) {
+        super('sort-content-tree-grid');
 
+        this.scrollContainer = scrollContainer;
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
-        this.getOptions().setHeight('100%');
     }
 
-    public static nameFormatter(row: number, cell: number, value: unknown, columnDef: Slick.Column<ContentSummaryAndCompareStatus>, node: TreeNode<ContentSummaryAndCompareStatus>) {
-        const data = node.getData();
-        if (data.getContentSummary()) {
-            let viewer: ContentSummaryViewer = node.getViewer('name') as ContentSummaryViewer;
-            if (!viewer) {
-                viewer = new ContentSummaryViewer();
-                viewer.setIsRelativePath(node.calcLevel() > 1);
-                viewer.setObject(node.getData().getContentSummary());
-                node.setViewer('name', viewer);
-            }
-            return viewer.toString();
-
-        }
-
-        return '';
+    protected createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): Element {
+        const liEl = new LiEl('');
+        const viewer = new ContentSummaryViewer();
+        viewer.setObject(item.getContentSummary());
+        liEl.appendChild(viewer);
+        return liEl;
     }
 
-    isEmptyNode(node: TreeNode<ContentSummaryAndCompareStatus>): boolean {
-        const data = node.getData();
-        return !data.getContentSummary();
-    }
+    protected handleLazyLoad(): void {
+        const from: number = this.getItemCount();
 
-    sortNodeChildren(node: TreeNode<ContentSummaryAndCompareStatus>) {
-        this.initData(this.getRoot().getCurrentRoot().treeToList());
-    }
-
-    fetchChildren(): Q.Promise<ContentSummaryAndCompareStatus[]> {
-        let parentNode = this.getRoot().getCurrentRoot();
-        if (parentNode.getData()) {
-            parentNode.setData(null);
-        }
-
-        let from = parentNode.getChildren().length;
-        if (from > 0 && !parentNode.getChildren()[from - 1].getData().getContentSummary()) {
-            parentNode.getChildren().pop();
-            from--;
-        }
-
-        return this.contentFetcher.fetchChildren(this.contentId, from, SortContentTreeGrid.MAX_FETCH_SIZE, this.curChildOrder).then(
+        this.contentFetcher.fetchChildren(this.contentId, from, SortContentTreeGrid.MAX_FETCH_SIZE, this.curChildOrder).then(
             (data: ContentResponse<ContentSummaryAndCompareStatus>) => {
-                const contents: ContentSummaryAndCompareStatus[] = parentNode.getChildren().map((el) => {
-                    return el.getData();
-                }).slice(0, from).concat(data.getContents());
-                const meta: ResultMetadata = data.getMetadata();
-                parentNode.setMaxChildren(meta.getTotalHits());
-                if (from + meta.getHits() < meta.getTotalHits()) {
-                    contents.push(new ContentSummaryAndCompareStatus());
+                const items = data.getContents();
+
+                if (items.length > 0) {
+                    this.addItems(items);
                 }
-                return contents;
-            });
+            }).catch(DefaultErrorHandler.handle);
     }
 
-    hasChildren(data: ContentSummaryAndCompareStatus): boolean {
-        return data.hasChildren();
+    protected getScrollContainer(): Element {
+        return this.scrollContainer;
     }
 
-    getDataId(data: ContentSummaryAndCompareStatus): string {
-        return data.getId();
+    load(): void {
+        this.clearItems();
+        this.handleLazyLoad();
+    }
+
+    protected getItemId(item: ContentSummaryAndCompareStatus): string {
+        return item.getContentId().toString();
     }
 
     setContentId(value: ContentId) {
@@ -126,8 +76,7 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
 
     reset() {
         this.setChildOrder(null);
-        this.getGrid().getDataView().setItems([]);
-        this.getGrid().resizeCanvas();
+        this.clearItems();
     }
 
 }

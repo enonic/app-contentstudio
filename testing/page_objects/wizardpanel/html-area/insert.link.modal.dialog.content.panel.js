@@ -1,7 +1,7 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const LoaderComboBox = require('../../components/loader.combobox');
+const ContentSelectorDropdown = require('../../components/selectors/content.selector.dropdown');
 
 const XPATH = {
     container: `//div[contains(@id,'LinkModalDialog')]`,
@@ -26,11 +26,11 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     get contentDropDownHandler() {
-        return XPATH.contentPanel + lib.CONTENT_COMBOBOX + lib.DROP_DOWN_HANDLE;
+        return XPATH.contentPanel + lib.DROPDOWN_SELECTOR.CONTENT_TREE_SELECTOR + lib.DROPDOWN_SELECTOR.DROPDOWN_HANDLE;
     }
 
     get contentSelectorModeTogglerButton() {
-        return XPATH.contentPanel + lib.CONTENT_COMBOBOX + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
+        return XPATH.contentPanel + lib.CONTENT_COMBOBOX + lib.DROPDOWN_SELECTOR.MODE_TOGGLER_BUTTON;
     }
 
     get addAnchorButton() {
@@ -54,43 +54,49 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async typeTextInContentOptionsFilterInput(text) {
-        let locator = XPATH.container + lib.CONTENT_COMBOBOX + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        let locator = XPATH.container + lib.DROPDOWN_SELECTOR.CONTENT_TREE_SELECTOR + lib.OPTION_FILTER_INPUT;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.typeTextInInput(locator, text);
         return await this.pause(1000);
     }
 
     async clickOnContentDropdownHandle() {
-        await this.waitForElementDisplayed(this.contentDropDownHandler, appConst.mediumTimeout);
-        await this.clickOnElement(this.contentDropDownHandler);
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        await contentSelectorDropdown.clickOnDropdownHandle(XPATH.container);
         await this.pause(700);
     }
 
     async clickOnContentSelectorModeTogglerButton() {
-        await this.waitForElementDisplayed(this.contentSelectorModeTogglerButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.contentSelectorModeTogglerButton);
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        await contentSelectorDropdown.clickOnModeTogglerButton(XPATH.container);
         await this.pause(700);
     }
 
-    // returns the list of options display name:
-    async getDropdownListOptions() {
-        let loaderComboBox = new LoaderComboBox();
-        let optionsLocator = XPATH.container + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
-        await loaderComboBox.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
-        return await loaderComboBox.getOptionDisplayNames(XPATH.container);
+    // returns the list of options name:
+    async getContentSelectorOptionsName() {
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        return await contentSelectorDropdown.getOptionsName(XPATH.container);
     }
 
-    // returns the list of options name:
-    async getDropdownListOptionsName() {
-        let loaderComboBox = new LoaderComboBox();
-        let optionsLocator = XPATH.container + lib.SLICK_ROW + lib.P_SUB_NAME;
-        await loaderComboBox.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
-        return await loaderComboBox.getOptionsName(XPATH.container);
+    // returns the list of options display-name(flat mode):
+    async getContentSelectorOptionsDisplayNameInFlatMode() {
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        return await contentSelectorDropdown.getOptionsDisplayNameInFlatMode(XPATH.container);
+    }
+
+    async getContentSelectorOptionsDisplayNameInTreeMode() {
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        return await contentSelectorDropdown.getOptionsDisplayNameInTreeMode(XPATH.container);
+    }
+
+    async getContentSelectorOptionsNameInTreeMode() {
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        return await contentSelectorDropdown.getOptionsNameInTreeMode(XPATH.container);
     }
 
     async getOptionsMode() {
-        let loaderComboBox = new LoaderComboBox();
-        return await loaderComboBox.getMode(XPATH.container);
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.getMode(XPATH.container);
     }
 
     waitForShowContentFromEntireProjectCheckboxDisplayed() {
@@ -161,8 +167,28 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async selectTargetInContentSelector(targetDisplayName) {
-        let loaderComboBox = new LoaderComboBox();
-        return await loaderComboBox.typeTextAndSelectOption(targetDisplayName, lib.CONTENT_COMBOBOX);
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.selectFilteredByDisplayNameContent(targetDisplayName, XPATH.container);
+    }
+
+    async typeTextInFilterInputInContentSelector(targetDisplayName) {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.filterItem(targetDisplayName, XPATH.container);
+    }
+
+    async clickOnApplySelectionButton() {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.clickOnApplySelectionButton(XPATH.container);
+    }
+
+    async clickOnExpanderIconInOptionsList(optionName) {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.clickOnExpanderIconInOptionsList(optionName, XPATH.container);
+    }
+
+    async clickOnOptionByDisplayName(optionDisplayName) {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.clickOnOptionByDisplayName(optionDisplayName, XPATH.container);
     }
 
     getSelectedOptionDisplayName() {
@@ -183,14 +209,14 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async clickOnRemoveSelectedOptionIcon(displayName) {
-        let locator = XPATH.contentPanel + lib.CONTENT_SELECTOR.selectedOptionByName(displayName) +lib.REMOVE_ICON;
+        let locator = XPATH.contentPanel + lib.CONTENT_SELECTOR.selectedOptionByName(displayName) + lib.REMOVE_ICON;
         await this.waitForRemoveSelectedOptionIconDisplayed(displayName);
         await this.clickOnElement(locator);
     }
 
-    waitForUploadContentButtonDisplayed(){
+    waitForUploadContentButtonDisplayed() {
         let locator = XPATH.container + "//button[contains(@id,'upload-button')]";
-        return this.waitForElementDisplayed(locator,appConst.mediumTimeout);
+        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
     async clickOnAddAnchorButton() {
@@ -216,6 +242,9 @@ class InsertLinkDialogContentPanel extends Page {
     async typeInParameterNameInput(value, index) {
         index = typeof index !== 'undefined' ? index : 0;
         let inputElements = await this.getDisplayedElements(this.parameterNameInput);
+        if (inputElements.length === 0) {
+            throw new Error('Parameter input was not found in the Insert Link modal dialog');
+        }
         await inputElements[index].setValue(value);
         return await this.pause(300);
     }

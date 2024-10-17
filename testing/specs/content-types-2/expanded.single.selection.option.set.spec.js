@@ -10,11 +10,11 @@ const appConst = require('../../libs/app_const');
 
 describe("expanded.single.selection.option.set.spec: tests for single-select option-sets with expanded property", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const CONTENT_NAME = appConst.generateRandomName("set");
+    const CONTENT_NAME = appConst.generateRandomName('set');
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -32,8 +32,8 @@ describe("expanded.single.selection.option.set.spec: tests for single-select opt
             await contentWizard.typeDisplayName(CONTENT_NAME);
             await contentWizard.pause(1000);
             //2. Select 'Option 1' in single selection dropdown:
-            await expandedSingleSelectionOptionSet.selectOption("Option 1");
-            await studioUtils.saveScreenshot("single_selection_option_1_selected");
+            await expandedSingleSelectionOptionSet.selectOption('Option 1');
+            await studioUtils.saveScreenshot('single_selection_option_1_selected');
             //3. Verify that inputs from 'option 2'-form are not displayed:
             await expandedSingleSelectionOptionSet.waitForOption1TextInputDisplayed();
             await expandedSingleSelectionOptionSet.waitForOption2FilterInputNotDisplayed();
@@ -49,7 +49,7 @@ describe("expanded.single.selection.option.set.spec: tests for single-select opt
             let expandedSingleSelectionOptionSet = new ExpandedSingleSelectionOptionSet();
             //1. Open the existing content with single-select option-sets with <expanded>true</expanded>:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
-            await studioUtils.saveScreenshot("single_selection_option_1_reopened");
+            await studioUtils.saveScreenshot('single_selection_option_1_reopened');
             //2. Verify that only input from 'Option 1' is displayed
             await expandedSingleSelectionOptionSet.waitForOption1TextInputDisplayed();
             await expandedSingleSelectionOptionSet.waitForOption2FilterInputNotDisplayed();
@@ -67,10 +67,10 @@ describe("expanded.single.selection.option.set.spec: tests for single-select opt
             await expandedSingleSelectionOptionSet.expandOptionSetMenu();
             await expandedSingleSelectionOptionSet.clickOnResetMenuItem();
             await expandedSingleSelectionOptionSet.pause(500);
-            await expandedSingleSelectionOptionSet.selectOption("Option 2");
+            await expandedSingleSelectionOptionSet.selectOption('Option 2');
             //3. Save the content
             await contentWizard.waitAndClickOnSave();
-            await studioUtils.saveScreenshot("single_selection_option_2_saved");
+            await studioUtils.saveScreenshot('single_selection_option_2_saved');
             //4. Verify that input from 'Option 1' is not displayed after the saving:
             await expandedSingleSelectionOptionSet.waitForOption1TextInputNotDisplayed();
             await expandedSingleSelectionOptionSet.waitForOption2FilterInputDisplayed();
@@ -80,7 +80,7 @@ describe("expanded.single.selection.option.set.spec: tests for single-select opt
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

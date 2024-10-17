@@ -10,7 +10,6 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
@@ -22,7 +21,6 @@ import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from '../ModalDia
 import {ImageStyleSelector} from './ImageStyleSelector';
 import {MediaTreeSelectorItem} from '../../../selector/media/MediaTreeSelectorItem';
 import {ImageUploaderEl} from '../../../selector/image/ImageUploaderEl';
-import {ImageContentComboBox} from '../../../selector/image/ImageContentComboBox';
 import {ContentSelectedOptionsView} from '../../../selector/ContentComboBox';
 import {MediaUploaderElOperation} from '../../../upload/MediaUploaderEl';
 import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
@@ -46,19 +44,22 @@ import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {LinkEl} from '@enonic/lib-admin-ui/dom/LinkEl';
 import {ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {Project} from '../../../../../settings/data/project/Project';
-import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
-import eventInfo = CKEDITOR.eventInfo;
 import {ContentPath} from '../../../../../content/ContentPath';
+import {ImageSelectorDropdown} from '../../../../selector/ImageSelectorDropdown';
+import {ContentSelectorDropdownOptions} from '../../../../selector/ContentSelectorDropdown';
+import {ImageContentListBox} from '../../../../selector/ImageContentListBox';
+import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from '../../../selector/image/ImageOptionDataLoader';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import eventInfo = CKEDITOR.eventInfo;
 
 enum ImageAccessibilityType {
     DECORATIVE = 'decorative',
@@ -74,8 +75,9 @@ export class ImageModalDialog
     private imageAltTextRadioFormItem: FormItem;
     private imageUploaderEl: ImageUploaderEl;
     private presetImageEl: HTMLElement;
+    private presetImageId: string;
     private content?: ContentSummary;
-    private imageSelector: ImageContentComboBox;
+    private imageSelector: ImageSelectorDropdown;
     private progress: ProgressBar;
     private error: DivEl;
     private figure: FigureEl;
@@ -209,6 +211,7 @@ export class ImageModalDialog
     }
 
     private presetImage(presetStyles: string) {
+        this.presetImageId = this.extractImageId();
         const altTextValue = this.getOriginalAltTextElem().getValue();
 
         if (StringHelper.isBlank(altTextValue)) {
@@ -220,14 +223,10 @@ export class ImageModalDialog
 
         const imageId: string = this.extractImageId();
 
-        new GetContentByIdRequest(new ContentId(imageId)).setRequestProject(this.config.project).sendAndParse().then(
+        new GetContentByIdRequest(new ContentId(this.presetImageId)).setRequestProject(this.config.project).sendAndParse().then(
             (imageContent: Content) => {
-                this.imageSelector.setValue(imageContent.getId());
-                this.imageSelector.getComboBox().onValueLoaded((options: Option<MediaTreeSelectorItem>[]) => {
-                    if (options.length === 1 && options[0].getId() === imageContent.getId()) {
-                        this.imageSelector.show();
-                    }
-                });
+                this.imageSelector.updateSelectedItems();
+                this.imageSelector.show();
                 this.previewImage(imageContent, presetStyles);
                 this.imageSelectorFormItem.addClass('selected-item-preview');
             }).catch((reason) => {
@@ -280,63 +279,74 @@ export class ImageModalDialog
     }
 
     private createImageSelector(id: string): FormItem {
-        const imageSelector = (ImageContentComboBox.create()
-            .setProject(this.config.project)
-            .setMaximumOccurrences(1))
-            .setContent(this.content)
-            .setSelectedOptionsView(new ContentSelectedOptionsView() as unknown as SelectedOptionsView<MediaTreeSelectorItem>)
-            .build();
+        const loader = this.createImageLoader();
+        const listBox = new ImageContentListBox({loader: loader});
+        const dropdownOptions: ContentSelectorDropdownOptions = {
+            loader: loader,
+            maxSelected: 1,
+            selectedOptionsView: new ContentSelectedOptionsView(),
+            className: 'single-occurrence',
+            getSelectedItems: () => this.presetImageId ? [this.presetImageId] : [],
+        };
+
+        const imageSelector = new ImageSelectorDropdown(listBox, dropdownOptions);
 
         const formItemBuilder = new ModalDialogFormItemBuilder(id, i18n('dialog.image.formitem.image')).setValidator(
-            Validators.required).setInputEl(imageSelector);
+            Validators.required).setInputEl(new ImageSelectorFormInputWrapper(imageSelector));
 
         const formItem = this.createFormItem(formItemBuilder);
-        const imageSelectorComboBox = imageSelector.getComboBox();
-
-        imageSelector.getComboBox().getInput().setPlaceholder(i18n('field.image.option.placeholder'));
 
         this.imageSelector = imageSelector;
 
         formItem.addClass('image-selector');
 
-        imageSelectorComboBox.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
-            const imageSelectorItem: MediaTreeSelectorItem = event.getSelectedOption().getOption().getDisplayValue();
-            if (!imageSelectorItem.getContentId()) {
-                return;
-            }
-
-            this.previewImage(imageSelectorItem.getContent());
-            formItem.addClass('selected-item-preview');
-
-            new GetContentByIdRequest(imageSelectorItem.getContent().getContentId()).setRequestProject(
-                this.config.project).sendAndParse().then((content: Content) => {
-
-                const altTextValue = ImageHelper.getImageAltText(content);
-
-                if (!StringHelper.isBlank(altTextValue)) {
-                    this.imageAltTextInput.setValue(altTextValue, true);
+        this.imageSelector.onSelectionChanged((selectionChange: SelectionChange<MediaTreeSelectorItem>): void => {
+            if (selectionChange.selected?.length > 0) {
+                const imageSelectorItem: MediaTreeSelectorItem = selectionChange.selected[0];
+                if (!imageSelectorItem.getContentId()) {
+                    return;
                 }
 
-                this.setCaptionFieldValue(ImageHelper.getImageCaption(content));
-            }).catch(DefaultErrorHandler.handle).done();
-        });
+                this.previewImage(imageSelectorItem.getContent());
+                formItem.addClass('selected-item-preview');
 
-        imageSelectorComboBox.onOptionDeselected(() => {
-            formItem.removeClass('selected-item-preview');
-            this.displayValidationErrors(false);
-            this.removePreview();
-            this.imageToolbar.unStylesChanged();
-            this.imageToolbar.unPreviewSizeChanged();
-            this.imageToolbar.remove();
-            this.imageAltTextInput.setValue('');
-            this.secondaryForm.hide();
-            this.getImageAltTextRadioInput().setValue('');
-            this.imageUploaderEl.show();
-            this.figure.getEl().removeAttribute('style');
-            ResponsiveManager.fireResizeEvent();
+                new GetContentByIdRequest(imageSelectorItem.getContent().getContentId()).setRequestProject(
+                    this.config.project).sendAndParse().then((content: Content) => {
+                        const altTextValue = ImageHelper.getImageAltText(content);
+
+                    if (!StringHelper.isBlank(altTextValue)) {
+                        this.imageAltTextInput.setValue(altTextValue, true);
+                    }
+
+                    this.setCaptionFieldValue(ImageHelper.getImageCaption(content));
+                }).catch(DefaultErrorHandler.handle).done();
+            }
+
+            if (selectionChange.deselected?.length > 0) {
+                formItem.removeClass('selected-item-preview');
+                this.displayValidationErrors(false);
+                this.removePreview();
+                this.imageToolbar.unStylesChanged();
+                this.imageToolbar.unPreviewSizeChanged();
+                this.imageToolbar.remove();
+                this.imageAltTextInput.setValue('');
+                this.secondaryForm.hide();
+                this.getImageAltTextRadioInput().setValue('');
+                this.imageUploaderEl.show();
+                this.figure.getEl().removeAttribute('style');
+                ResponsiveManager.fireResizeEvent();
+            }
         });
 
         return formItem;
+    }
+
+    private createImageLoader(): ImageOptionDataLoader {
+        return new ImageOptionDataLoaderBuilder()
+            .setContent(this.content)
+            .setProject(this.config.project)
+            .setAppendLoadResults(false)
+            .build();
     }
 
     private createAltTextOptionRadio(id: string): FormItem {
@@ -591,7 +601,7 @@ export class ImageModalDialog
             const item = event.getUploadItem();
             const createdContent = item.getModel();
 
-            this.imageSelector.setContent(createdContent);
+            this.imageSelector.select(new MediaTreeSelectorItem(createdContent));
         });
 
         uploader.onUploadFailed(() => {
@@ -706,7 +716,7 @@ export class ImageModalDialog
     }
 
     private updateImageSrc(imageEl: HTMLElement, width: number) {
-        const imageContent = this.imageSelector.getSelectedContent();
+        const imageContent = this.imageSelector.getSelectedOptions()[0].getOption().getDisplayValue().getContent();
         const processingStyle = this.imageToolbar.getProcessingStyle();
 
         const imageUrlBuilder = this.createImageUrlResolver(imageContent, width, processingStyle);
@@ -899,7 +909,7 @@ export class ImageDialogToolbar
         const imageStyleSelector: ImageStyleSelector = new ImageStyleSelector(this.contentId);
 
         this.initSelectedStyle(imageStyleSelector);
-        imageStyleSelector.onOptionSelected(() => {
+        imageStyleSelector.onSelectionChanged(() => {
             if (StyleHelper.isOriginalImage(this.getProcessingStyleCls())) {
                 this.customWidthCheckbox.setChecked(false).setEnabled(false);
                 this.rangeInputContainer.hide();
@@ -925,7 +935,7 @@ export class ImageDialogToolbar
         const imageStyles = Styles.getForImageAsString(this.contentId);
         stylesApplied.forEach(style => {
             if (imageStyles.indexOf(style) > -1) {
-                imageStyleSelector.setValue(style);
+                imageStyleSelector.selectStyleByName(style);
 
                 return;
             }
@@ -956,7 +966,7 @@ export class ImageDialogToolbar
 
     private getProcessingStyleCls(): string {
         if (this.isProcessingStyleSelected()) {
-            return this.imageStyleSelector.getSelectedOption().getDisplayValue().getName();
+            return this.imageStyleSelector.getSelectedStyle().getName();
         }
 
         return '';
@@ -970,14 +980,13 @@ export class ImageDialogToolbar
     }
 
     private isProcessingStyleSelected(): boolean {
-        return (!!this.imageStyleSelector &&
-                !!this.imageStyleSelector.getSelectedOption() &&
-                !this.imageStyleSelector.getSelectedOption().getDisplayValue().isEmpty());
+        const selectedStyle = this.imageStyleSelector.getSelectedStyle();
+        return selectedStyle && !selectedStyle.isEmpty();
     }
 
     getProcessingStyle(): Style {
         if (this.isProcessingStyleSelected()) {
-            return this.imageStyleSelector.getSelectedOption().getDisplayValue().getStyle();
+            return this.imageStyleSelector.getSelectedStyle();
         }
 
         return;
@@ -1030,3 +1039,20 @@ export class ImageDialogToolbar
     }
 }
 
+class ImageSelectorFormInputWrapper
+    extends FormInputEl {
+
+    private readonly imageSelector: ImageSelectorDropdown;
+
+    constructor(imageSelector: ImageSelectorDropdown) {
+        super('div', 'content-selector-wrapper');
+
+        this.imageSelector = imageSelector;
+        this.appendChild(this.imageSelector);
+    }
+
+
+    getValue(): string {
+        return this.imageSelector.getSelectedOptions()[0]?.getOption().getDisplayValue()?.getContent()?.getId() || '';
+    }
+}

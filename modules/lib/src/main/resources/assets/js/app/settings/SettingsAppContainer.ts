@@ -1,12 +1,19 @@
 import {AppContainer} from '../AppContainer';
 import {SettingsAppPanel} from './SettingsAppPanel';
 import {ContentAppBar} from '../bar/ContentAppBar';
+import {Projects} from './resource/Projects';
 
 export class SettingsAppContainer
     extends AppContainer {
 
     constructor() {
         super();
+    }
+
+    protected initElements(): void {
+        super.initElements();
+
+        Projects.get().reloadProjects();
     }
 
     protected createAppPanel(): SettingsAppPanel {

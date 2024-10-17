@@ -4,6 +4,7 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
+const FilterableListBox = require('../../components/selectors/filterable.list.box');
 
 const xpath = {
     singleSelectionView: "//div[contains(@id,'FormOptionSetOccurrenceView') and contains(@class,'single-selection')]",
@@ -11,22 +12,15 @@ const xpath = {
 
 class OptionSetFormView extends Page {
 
-    get dropDownHandleInSingleSelection() {
-        return xpath.singleSelectionView + lib.DIV.DROPDOWN_DIV + lib.DROP_DOWN_HANDLE;
-    }
-
-    async selectOptionInSingleSelection(option) {
+    async selectOptionInSingleSelection(optionDisplayName) {
         try {
-            await this.waitForElementDisplayed(this.dropDownHandleInSingleSelection, appConst.mediumTimeout);
-            await this.clickOnElement(this.dropDownHandleInSingleSelection);
-            let optionLocator = xpath.singleSelectionView + lib.itemByDisplayName(option);
-            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-            await this.clickOnElement(optionLocator);
+            let filterableListBox = new FilterableListBox();
+            await filterableListBox.clickOnDropdownHandle(xpath.singleSelectionView);
+            await filterableListBox.clickOnOptionByDisplayName(optionDisplayName);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_optionset");
-            await this.saveScreenshot(screenshot);
-            throw new Error("Error,after selecting the option in single selection, screenshot:" + screenshot + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_optionset');
+            throw new Error(`Error,after selecting the option in single selection, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -36,9 +30,8 @@ class OptionSetFormView extends Page {
             let elements = await this.findElements(locator).click();
             return await elements[0].click();
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_optionset");
-            await this.saveScreenshot(screenshot);
-            throw new Error("Error after expanding the forms, screenshot:" + screenshot + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_optionset');
+            throw new Error(`Error after expanding the forms, screenshot:${screenshot} ` + err);
         }
     }
 }

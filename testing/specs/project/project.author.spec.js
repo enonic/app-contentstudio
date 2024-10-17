@@ -137,7 +137,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
         });
 
-    it("WHEN user with 'Author' role opened the site THEN applications selector should be disabled, PCV should not be locked",
+    it("WHEN user with 'Author' role opened the site THEN Edit icon in applications selector should not be displayed, PCV should not be locked",
         async () => {
             let siteFormPanel = new SiteFormPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
@@ -145,9 +145,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             // 2. Select the site and click on 'Edit' button
             await studioUtils.selectAndOpenContentInWizard(SITE_NAME);
-            // 3. Verify that Site Configurator combobox is disabled
-            await siteFormPanel.waitForSiteConfiguratorSelectorDisabled();
-            await siteFormPanel.waitForSiteConfiguratorSelectorDisabled();
+            // 3. Verify that Edit icon for Site Configurator is not displayed
             await siteFormPanel.waitForEditApplicationIconNotDisplayed(appConst.APP_CONTENT_TYPES);
             // 4. PCV is not locked in the wizard step form:
             await pageComponentsWizardStepForm.waitForNotLocked();

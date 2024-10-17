@@ -19,6 +19,8 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
     let SITE;
     const IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_03;
     const HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
+    const CINEMA_STYLE = 'Cinema';
+
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -27,43 +29,42 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN htmlarea-content, image is selected on the modal dialog WHEN click on dropdown handle in styles selector THEN custom styles should be present`,
+    it(`WHEN Insert Image modal dialog is opened THEN none option should be selected in styles-selector by default`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             // 1. Open new wizard with html-area:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             // 2. Open 'Insert Image' dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 3. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
-            // 4. Click on dropdown handle and verify style-options
-            let actualOptions = await insertImageDialog.getStyleSelectorOptions();
+            await insertImageDialog.clickOnStyleSelectorDropDownHandle()
             await studioUtils.saveScreenshot('image_dialog_custom_style_options');
-            assert.equal(actualOptions[2], 'Cinema', "'Cinema' should be present in options list");
-            assert.equal(actualOptions[3], 'Tall', "'Tall' option should be present in options list");
-            assert.equal(actualOptions.length, 7, 'Expected number of options be present in options list');
+            let actualOptions = await insertImageDialog.getStyleSelectorOptions();
+            assert.equal(actualOptions[0], "<None>", "First option should be '<None>' ");
+            assert.equal(actualOptions[1], appConst.IMAGE_STYLE_ORIGINAL, "one available option should be present in options list");
         });
 
-    it(`GIVEN Insert Image modal dialog opened WHEN 'Cinema' option has been selected THEN 'Custom Width' checkbox should be enabled`,
+    it(`GIVEN Insert Image modal dialog is opened WHEN 'Cinema' option has been selected THEN 'Custom Width' checkbox should be enabled`,
         async () => {
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             // 1. Open new wizard with html-area and open Insert Image dialog:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(HTML_AREA_CONTENT_NAME);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 3. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
-            // 4. Type the 'Cinema' in filter input and click on the option:
-            await insertImageDialog.doFilterStyleAndClickOnOption('Cinema');
+            // 4. Select 'Cinema' in the selector:
+            await insertImageDialog.doFilterStyleAndClickOnOption(CINEMA_STYLE);
             // 5. Verify that 'Custom Width' checkbox is enabled
             await insertImageDialog.waitForCustomWidthCheckBoxEnabled();
-            //checkbox should be unselected
+            // checkbox should be unselected
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
             assert.ok(isChecked === false, 'Custom Width checkbox should be unchecked');
             // just save the changes and save the content
@@ -82,10 +83,10 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             await htmlAreaForm.doubleClickOnHtmlArea();
             await insertImageDialog.waitForDialogVisible();
             // 3. Verify the selected style option:
-            let actualStyle = await insertImageDialog.getSelectedStyleName();
+            let actualStyle = await insertImageDialog.getSelectedStyleValue();
             // Cinema style should be selected in the dialog
             await studioUtils.saveScreenshot('image_dialog_custom_style_should_be_cinema');
-            assert.equal(actualStyle, 'Cinema', "Expected style should be present in the selector");
+            assert.equal(actualStyle, CINEMA_STYLE, "'Cinema' style should be present in the selector");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

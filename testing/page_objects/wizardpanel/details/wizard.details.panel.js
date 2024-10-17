@@ -13,11 +13,11 @@ const xpath = {
 class WizardDetailsPanel extends BaseDetailsPanel {
 
     get widgetSelectorDropdown() {
-        return xpath.container + lib.WIDGET_SELECTOR_DROPDOWN;
+        return xpath.container + lib.DROPDOWN_SELECTOR.WIDGET_FILTER_DROPDOWN;
     }
 
     get widgetSelectorDropdownHandle() {
-        return xpath.container + lib.WIDGET_SELECTOR_DROPDOWN + lib.DROP_DOWN_HANDLE;
+        return xpath.container + lib.DROPDOWN_SELECTOR.WIDGET_FILTER_DROPDOWN + lib.DROP_DOWN_HANDLE;
     }
 
     async isContentInvalid() {
@@ -35,7 +35,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
             }, {timeout: appConst.mediumTimeout, timeoutMsg: "Details Panel was not loaded in " + appConst.mediumTimeout});
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_load_details');
-            throw new Error("Deatils Panel was not loaded, screenshot:" + screenshot + ' ' + err);
+            throw new Error("Details Panel was not loaded, screenshot:" + screenshot + ' ' + err);
         }
     }
 
@@ -58,7 +58,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
             return await super.openVersionHistory();
         } catch (err) {
             //Workaround for issue with the empty selector:
-            await this.saveScreenshot(appConst.generateRandomName("err_versions"));
+            await this.saveScreenshotUniqueName('err_versions');
             await this.refresh();
             await this.pause(4000);
             await super.openVersionHistory();
@@ -70,7 +70,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
             return await super.openDependencies();
         } catch (err) {
             //Workaround for issue with the empty selector:
-            await this.saveScreenshot(appConst.generateRandomName("err_dependencies"));
+            await this.saveScreenshotUniqueName('err_dependencies');
             await this.refresh();
             await this.pause(4000);
             await super.openDependencies();

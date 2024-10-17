@@ -22,7 +22,6 @@
             "core-js",
             "hasher",
             "jquery",
-            "slickgrid",
             "jqueryui"
         ]
     },

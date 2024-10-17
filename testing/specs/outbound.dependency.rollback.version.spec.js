@@ -41,11 +41,11 @@ describe('Check Outbound dependencies after rollback a version of content with i
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
             await contentWizard.typeDisplayName(CONTENT_NAME);
             //select the first image
-            await imageSelectorForm.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME1);
+            await imageSelectorForm.filterOptionsSelectImageAndClickOnApply(IMAGE_DISPLAY_NAME1);
             // first version is saved(one image is selected)
             await contentWizard.waitAndClickOnSave();
             //select the second image
-            await imageSelectorForm.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME2);
+            await imageSelectorForm.filterOptionsSelectImageAndClickOnApply(IMAGE_DISPLAY_NAME2);
             // the second version is saved(2 images are selected)
             await contentWizard.waitAndClickOnSave();
         });
@@ -65,7 +65,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
             await studioUtils.doSwitchToNextTab();
             // Verify that one image should be present in the grid:
             let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
-            await studioUtils.saveScreenshot("outbound_should_be_updated");
+            await studioUtils.saveScreenshot('issue_outbound_should_be_updated');
             assert.equal(displayNames.length, 1, "One image should be present in browse grid, after rollback the required version");
         });
 

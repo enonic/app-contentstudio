@@ -5,7 +5,6 @@ const WizardPanel = require('./wizard.panel').WizardPanel;
 const baseXpath = require('./wizard.panel').XPATH;
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const LoaderComboBox = require('../components/loader.combobox');
 
 const xpath = {
     container: `//div[contains(@id,'RoleWizardPanel')]`,
@@ -67,12 +66,6 @@ class RoleWizard extends WizardPanel {
         return this.getTextInElements(selectedOptions).catch(err => {
             throw new Error('Error when getting text from elements ')
         });
-    }
-
-
-    async filterOptionsAndAddMember(displayName) {
-        let loaderComboBox = new LoaderComboBox();
-        return await loaderComboBox.typeTextAndSelectOption(displayName, xpath.container);
     }
 }
 

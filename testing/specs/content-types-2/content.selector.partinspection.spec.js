@@ -30,7 +30,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
 
     // verify  https://github.com/enonic/app-contentstudio/issues/7315
     // Disable "Apply" button in the Inspections panel when there are no changes to apply #7315
-    it(`GIVEN existing site is opened WHEN an option has been selected in selector in the part config THEN the option should be saved after clicking on 'Apply' button`,
+    it(`GIVEN 'City list' part has been inserted WHEN an image has been selected in image-selector in Inspect Panel THEN the option should be saved after clicking on 'Apply' button`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();

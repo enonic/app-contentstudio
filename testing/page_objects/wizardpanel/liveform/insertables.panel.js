@@ -7,7 +7,8 @@ const appConst = require('../../../libs/app_const');
 
 const xpath = {
     container: "//div[contains(@id,'InsertablesPanel')]",
-    components: "//div[contains(@class,'grid-row')]//div[contains(@class,'comp ui-draggable')]//h5",
+    gridUL: "//ul[contains(@id,'InsertablesGrid')]",
+    components: "//li[contains(@class,'comp ui-draggable')]//h5",
     title: "Drag and drop components into the page",
 };
 
@@ -24,9 +25,16 @@ class InsertablesPanel extends Page {
         });
     }
 
-    getItems() {
-        let locator = xpath.container + xpath.components;
-        return this.getTextInDisplayedElements(locator);
+    async getItems() {
+        try {
+            let locator = xpath.container + xpath.components;
+            let result = await this.findElements(xpath.container);
+            let result2 = await this.findElements(locator);
+            return await this.getTextInDisplayedElements(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_insertables_panel');
+            throw new Error(`Insertables panel, items, screenshot:${screenshot}` + err);
+        }
     }
 }
 

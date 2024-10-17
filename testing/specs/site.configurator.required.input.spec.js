@@ -98,7 +98,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             await secondAppSiteConfiguratorDialog.waitForApplyButtonDisabled();
         });
 
-    it(`GIVEN existing site with the configurator WHEN required input in the config is filled THEN the site should be valid in Browse Panel`,
+    it(`GIVEN existing site with the configurator WHEN the required input is filled in  THEN the site should be valid in Browse Panel`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(SITE.displayName);
