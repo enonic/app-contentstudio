@@ -16,6 +16,8 @@ export class TreeComponent {
 
     private readonly invalid: boolean;
 
+    private readonly layoutFragment: boolean;
+
     constructor(builder: TreeComponentBuilder) {
         this.displayName = builder.displayName;
         this.description = builder.description;
@@ -24,6 +26,7 @@ export class TreeComponent {
         this.type = builder.type;
         this.children = builder.children;
         this.invalid = builder.invalid;
+        this.layoutFragment = !!builder.layoutFragment;
     }
 
     getDisplayName(): string {
@@ -54,6 +57,10 @@ export class TreeComponent {
         return this.invalid;
     }
 
+    isLayoutFragment(): boolean {
+        return this.layoutFragment;
+    }
+
     static create(): TreeComponentBuilder {
         return new TreeComponentBuilder();
     }
@@ -74,6 +81,8 @@ export class TreeComponentBuilder {
     children: boolean;
 
     invalid: boolean;
+
+    layoutFragment: boolean;
 
     setDisplayName(displayName: string): this {
         this.displayName = displayName;
@@ -107,6 +116,11 @@ export class TreeComponentBuilder {
 
     setInvalid(invalid: boolean): this {
         this.invalid = invalid;
+        return this;
+    }
+
+    setLayoutFragment(layoutFragment: boolean): this {
+        this.layoutFragment = layoutFragment;
         return this;
     }
 

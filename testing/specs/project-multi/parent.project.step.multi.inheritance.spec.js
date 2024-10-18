@@ -38,6 +38,7 @@ describe('parent.project.step.multi.inheritance.spec - ui-tests for parent proje
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName('Default');
             // 2. Press 'New' button in the toolbar:
             await settingsBrowsePanel.clickOnNewButton();
+            await studioUtils.saveScreenshot('project_2_selected');
             await parentProjectStep.waitForLoaded();
             // 3. Verify that both projects are displayed in the Parent step:
             await studioUtils.saveScreenshot('project_apps_step_selected_app');

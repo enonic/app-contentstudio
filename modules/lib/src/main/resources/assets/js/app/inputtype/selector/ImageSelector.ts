@@ -5,13 +5,10 @@ import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeMan
 import {Class} from '@enonic/lib-admin-ui/Class';
 import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
 import {UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
 import {MediaSelector} from './MediaSelector';
-import {ImageContentComboBox, ImageContentComboBoxBuilder} from '../ui/selector/image/ImageContentComboBox';
 import {ImageSelectorSelectedOptionsView} from '../ui/selector/image/ImageSelectorSelectedOptionsView';
 import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
 import {ImageSelectorSelectedOptionView} from '../ui/selector/image/ImageSelectorSelectedOptionView';
@@ -19,15 +16,18 @@ import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem'
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {Content} from '../../content/Content';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
-import {ImageOptionDataLoader} from '../ui/selector/image/ImageOptionDataLoader';
+import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from '../ui/selector/image/ImageOptionDataLoader';
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentPath} from '../../content/ContentPath';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ContentSummary} from '../../content/ContentSummary';
-import {ContentId} from '../../content/ContentId';
+import {ImageContentListBox} from './ImageContentListBox';
+import {ImageSelectorDropdown} from './ImageSelectorDropdown';
+import {ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
+import {ContentListBox} from './ContentListBox';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 
 export class ImageSelector
     extends MediaSelector {
@@ -43,10 +43,6 @@ export class ImageSelector
         this.onRemoved(() => ResponsiveManager.unAvailableSizeChanged(this));
     }
 
-    public getContentComboBox(): ImageContentComboBox {
-        return this.contentComboBox as ImageContentComboBox;
-    }
-
     protected getContentPath(raw: MediaTreeSelectorItem): ContentPath {
         return raw.getContentSummary()?.getPath();
     }
@@ -55,7 +51,7 @@ export class ImageSelector
         return super.getSelectedOptionsView() as ImageSelectorSelectedOptionsView;
     }
 
-    private createSelectedOptionsView(): ImageSelectorSelectedOptionsView {
+    protected createSelectedOptionsView(): ImageSelectorSelectedOptionsView {
         let selectedOptionsView = new ImageSelectorSelectedOptionsView();
 
         selectedOptionsView.onEditSelectedOptions((options: SelectedOption<MediaTreeSelectorItem>[]) => {
@@ -72,9 +68,9 @@ export class ImageSelector
 
                 if (item.isEmptyContent()) {
                     selectedOptionsView.removeOption(option.getOption());
-                    this.handleDeselected(option.getIndex());
+                  //  this.handleDeselected(option.getIndex());
                 } else {
-                    this.contentComboBox.deselect(item);
+                    this.contentSelectorDropdown.deselect(item);
                 }
 
             });
@@ -84,51 +80,12 @@ export class ImageSelector
         return selectedOptionsView;
     }
 
-    protected createOptionDataLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
-        return ImageOptionDataLoader.build(this.createOptionDataLoaderBuilder());
+    createLoader(): ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {
+        return ImageOptionDataLoader.build(this.createOptionDataLoaderBuilder().setAppendLoadResults(false));
     }
 
-    protected doCreateContentComboBoxBuilder(): ImageContentComboBoxBuilder {
-        return ImageContentComboBox.create().setProject(this.context.project);
-    }
-
-    protected createContentComboBoxBuilder(input: Input, propertyArray: PropertyArray): ImageContentComboBoxBuilder {
-        return super.createContentComboBoxBuilder(input, propertyArray)
-            .setSelectedOptionsView(this.createSelectedOptionsView())
-            .setDisplayMissingSelectedOptions(true)
-            .setRemoveMissingSelectedOptions(false) as ImageContentComboBoxBuilder;
-    }
-
-    protected initEvents(contentComboBox: ImageContentComboBox) {
-        const comboBox: ComboBox<MediaTreeSelectorItem> = contentComboBox.getComboBox();
-
-        comboBox.onOptionDeselected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
-            // property not found.
-            const option = event.getSelectedOption();
-            if (option.getOption().getDisplayValue().getContentSummary()) {
-                this.handleDeselected(option.getIndex());
-            }
-            this.handleValueChanged(false);
-        });
-
-        comboBox.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
-            this.fireFocusSwitchEvent(event);
-
-            if (!this.isLayoutInProgress()) {
-                let contentId = event.getSelectedOption().getOption().getDisplayValue().getContentId();
-                if (!contentId) {
-                    return;
-                }
-
-                this.setContentIdProperty(contentId);
-            }
-            this.handleValueChanged(false);
-        });
-
-        comboBox.onOptionMoved((moved: SelectedOption<MediaTreeSelectorItem>, fromIndex: number) => {
-            this.handleMoved(moved, fromIndex);
-            this.handleValueChanged(false);
-        });
+    protected createOptionDataLoaderBuilder(): ImageOptionDataLoaderBuilder {
+        return new ImageOptionDataLoaderBuilder();
     }
 
     layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
@@ -199,18 +156,24 @@ export class ImageSelector
         return new MediaTreeSelectorItem(content, selectable, expandable);
     }
 
-    protected createMissingContentItem(id: ContentId): MediaTreeSelectorItem {
-        return new MediaTreeSelectorItem().setMissingItemId(id.toString());
+    protected createContentListBox(loader: ContentSummaryOptionDataLoader<MediaTreeSelectorItem>): ImageContentListBox {
+        return new ImageContentListBox({loader: loader});
     }
 
-    protected updateSelectedOptionIsEditable(selectedOption: SelectedOption<ContentTreeSelectorItem>) {
-        // different behavior for image selector
+    protected doCreateSelectorDropdown(listBox: ContentListBox<ContentTreeSelectorItem>,
+                                       dropdownOptions: ContentSelectorDropdownOptions): ImageSelectorDropdown {
+        return new ImageSelectorDropdown(listBox, dropdownOptions);
     }
 
-    protected handleOptionUpdated(optionsUpdated: SelectedOption<ContentTreeSelectorItem>[]) {
-        super.handleOptionUpdated(optionsUpdated);
+    protected getDropdownClassName(): string {
+        return 'image-selector-dropdown';
+    }
 
-        this.getSelectedOptionsView().updateSelectionToolbarLayout();
+    protected handleSelectedOptionDeleted(selectedOption: SelectedOption<ContentTreeSelectorItem>): void {
+        const option = selectedOption.getOption();
+        const newValue = new MediaTreeSelectorItem().setMissingItemId(option.getDisplayValue().getId());
+        option.setDisplayValue(newValue);
+        selectedOption.getOptionView().setOption(option);
     }
 }
 

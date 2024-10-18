@@ -24,7 +24,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddFolder(TEST_FOLDER);
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            let state = await contentBrowsePanel.getWorkflowState(TEST_FOLDER.displayName);
+            let state = await contentBrowsePanel.getWorkflowStateByDisplayName(TEST_FOLDER.displayName);
             assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "'Work in progress' icon should be displayed in browse panel");
         });
 
@@ -56,7 +56,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            let state = await contentBrowsePanel.getWorkflowState(TEST_FOLDER.displayName);
+            let state = await contentBrowsePanel.getWorkflowStateByDisplayName(TEST_FOLDER.displayName);
             assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
                 "'Ready for publishing' icon should be displayed in browse panel");
         });

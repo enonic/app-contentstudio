@@ -4,16 +4,19 @@
 const lib = require('../../libs/elements');
 const BaseSelectorForm = require('./base.selector.form');
 const appConst = require('../../libs/app_const');
-const LoaderComboBox = require('../components/loader.combobox');
+const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 
 const XPATH = {
     container: lib.FORM_VIEW + "//div[contains(@id,'ContentSelector')]",
+    selectedOptionByName: option => {
+        return `//div[contains(@id,'ContentSelector') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
+    },
 };
 
-class ContentSelector extends BaseSelectorForm {
+class ContentSelectorForm extends BaseSelectorForm {
 
     get optionsFilterInput() {
-        return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.container + lib.OPTION_FILTER_INPUT;
     }
 
     get dropdownHandle() {
@@ -41,8 +44,8 @@ class ContentSelector extends BaseSelectorForm {
     }
 
     async clickOnCheckboxInDropdown(index) {
-        let loaderComboBox = new LoaderComboBox();
-        await loaderComboBox.clickOnCheckboxInDropdown(index, XPATH.container);
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        await contentSelectorDropdown.clickOnCheckboxInDropdown(index, XPATH.container);
         await this.pause(500);
     }
 
@@ -82,6 +85,44 @@ class ContentSelector extends BaseSelectorForm {
         await this.waitForAddNewContentButtonDisplayed();
         return await this.clickOnElement(this.addNewContentButton);
     }
+
+    // Selects an option by the display-name then click on Apply selection  button:
+    async selectOption(optionDisplayName) {
+        try {
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            await contentSelectorDropdown.clickOnFilteredByDisplayNameItemAndClickOnApply(optionDisplayName);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_combobox');
+            throw new Error("Error occurred in content combobox, screenshot:" + screenshot + " " + err)
+        }
+    }
+
+    async clickOnApplySelectionButton() {
+        try {
+            let contentSelector = new ContentSelectorDropdown();
+            await contentSelector.clickOnApplySelectionButton();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
+            throw new Error("Error occurred in Content combobobox, OK button, screenshot: " + screenshot + ' ' + err);
+        }
+    }
+
+    async getOptionsDisplayNameInTreeMode() {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.getOptionsDisplayNameInTreeMode(XPATH.container);
+    }
+
+    async removeSelectedOption(option) {
+        let locator = XPATH.selectedOptionByName(option) + lib.REMOVE_ICON;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        return await this.pause(500);
+    }
+
+    async getOptionsMode() {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.getMode(XPATH.container);
+    }
 }
 
-module.exports = ContentSelector;
+module.exports = ContentSelectorForm;

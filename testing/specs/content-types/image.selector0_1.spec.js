@@ -39,8 +39,8 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await contentWizard.typeDisplayName(appConst.generateRandomName('selector'));
             await imageSelectorForm.waitForOptionsFilterInputDisplayed();
             // 2. Expand the image-selector and click on an image-item:
-            await imageSelectorForm.expandDropdownClickOnImage(appConst.TEST_IMAGES.TELK);
-            await contentWizard.pause(1000);
+            await imageSelectorForm.expandDropdownAndClickOnImage(appConst.TEST_IMAGES.TELK);
+            await contentWizard.pause(500);
             // 3. Verify the selected image:
             let selectedOptions = await imageSelectorForm.getSelectedImages();
             assert.equal(selectedOptions[0], appConst.TEST_IMAGES.TELK, "Expected image should be displayed in selected options");

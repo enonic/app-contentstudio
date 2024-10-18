@@ -1,6 +1,7 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('./../../libs/elements');
+const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdon');
 const DependantsControls = require('./dependant.controls');
 
 const xpath = {
@@ -11,7 +12,6 @@ const xpath = {
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
     warningMessagePart2: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part2']",
-    assigneesComboBox: "//div[contains(@id,'LoaderComboBox') and @name='principalSelector']",
     invalidIcon: "//span[contains(@class,'icon-state-invalid')]",
     errorEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'error-entry')]",
     excludeInvalidItems: "//button[child::span[contains(.,'Exclude')]]",
@@ -44,10 +44,6 @@ class CreateRequestPublishDialog extends Page {
 
     get nextButton() {
         return xpath.container + lib.actionButton('Next');
-    }
-
-    get assigneesDropDownHandle() {
-        return xpath.container + "//div[contains(@id,'PrincipalComboBox')]" + lib.DROP_DOWN_HANDLE;
     }
 
     get cancelButtonTop() {
@@ -253,20 +249,19 @@ class CreateRequestPublishDialog extends Page {
         }
     }
 
-    async clickOnAssigneesDropDownHandle() {
+    async clickOnDropDownHandleInAssigneesCombobox() {
         try {
-            let result = await this.getDisplayedElements(this.assigneesDropDownHandle);
-            await result[0].click();
+            let principalComboBox = new PrincipalComboBox();
+            await principalComboBox.clickOnDropdownHandle(xpath.container);
             return await this.pause(300);
         } catch (err) {
             throw new Error('Request Publish Dialog -Error when clicking on Assignees button:' + err);
         }
     }
 
-    async getAssigneesOptions() {
-        let selector = xpath.container + xpath.assigneesComboBox + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
-        return await this.getTextInDisplayedElements(selector);
-
+    async getOptionsInAssigneesDropdownList() {
+        let principalComboBox = new PrincipalComboBox();
+        return await principalComboBox.getPrincipalsDisplayNameInOptions(xpath.container);
     }
 
     async clickOnPreviousButton() {

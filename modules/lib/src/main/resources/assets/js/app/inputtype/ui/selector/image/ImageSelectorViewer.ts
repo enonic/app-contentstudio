@@ -29,6 +29,12 @@ export class ImageSelectorViewer
         return object.getPath() ? object.getPath().toString() : '';
     }
 
+    doLayout(object: MediaTreeSelectorItem): void {
+        super.doLayout(object);
+
+        this.namesAndIconView?.getIconImageEl()?.getEl().setAttribute('draggable', 'false');
+    }
+
     protected getHintTargetEl(): ElementHelper {
         return this.getEl();
     }

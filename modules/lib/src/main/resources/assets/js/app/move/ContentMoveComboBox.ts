@@ -1,56 +1,68 @@
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentId} from '../content/ContentId';
 import {ContentName} from '../content/ContentName';
 import {ContentPath} from '../content/ContentPath';
 import {ContentState} from '../content/ContentState';
 import {ContentSummary, ContentSummaryBuilder} from '../content/ContentSummary';
-import {ContentComboBox, ContentComboBoxBuilder, ContentSelectedOptionsView} from '../inputtype/ui/selector/ContentComboBox';
+import {ContentSelectedOptionsView} from '../inputtype/ui/selector/ContentComboBox';
 import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
-import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
-import {ContentTreeSelectorItemViewer} from '../item/ContentTreeSelectorItemViewer';
+import {ContentSelectorDropdown} from '../inputtype/selector/ContentSelectorDropdown';
+import {ContentsTreeList} from '../browse/ContentsTreeList';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export class ContentMoveComboBox
-    extends ContentComboBox<ContentTreeSelectorItem> {
+    extends ContentSelectorDropdown {
 
     private static readonly ROOT_ID = 'root';
 
     private readonly readonlyChecker: MoveReadOnlyChecker;
 
+    private readonly loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
+
     constructor() {
-        const contentComboBoxBuilder: ContentComboBoxBuilder<ContentTreeSelectorItem> =
-            new ContentComboBoxBuilder<ContentTreeSelectorItem>();
+        const loader = ContentSummaryOptionDataLoader.create()
+            .setSmartTreeMode(false)
+            .setFakeRoot(ContentMoveComboBox.createRootContent())
+            .build();
 
-        contentComboBoxBuilder
-            .setMaximumOccurrences(1)
-            .setComboBoxName('contentSelector')
-            .setLoader(ContentSummaryOptionDataLoader.create()
-                .setSmartTreeMode(false)
-                .setFakeRoot(ContentMoveComboBox.createRootContent())
-                .build())
-            .setSelectedOptionsView(new ContentSelectedOptionsView() as SelectedOptionsView<ContentTreeSelectorItem>)
-            .setOptionDisplayValueViewer(new ContentTreeSelectorItemViewer())
-            .setDelayedInputValueChangedHandling(500)
-            .setSkipAutoDropShowOnValueChange(true)
-            .setTreegridDropdownEnabled(true)
-            .setTreeModeTogglerAllowed(false);
+        loader.setTreeLoadMode(true);
 
-        super(contentComboBoxBuilder);
+        const treeList = new ContentsTreeList({loader: loader});
+        const dropdownOptions = {
+            loader: loader,
+            maxSelected: 1,
+            className: 'single-occurrence',
+            selectedOptionsView: new ContentSelectedOptionsView(),
+            getSelectedItems: () => [],
+        };
+
+        super(treeList, dropdownOptions);
+
+        this.loader = loader;
         this.readonlyChecker = new MoveReadOnlyChecker();
+    }
 
-        this.getComboBox().getComboBoxDropdownGrid().setReadonlyChecker(this.readonlyChecker.isReadOnly.bind(this.readonlyChecker));
-        this.optionsFactory.setReadonlyChecker(this.readonlyChecker.isReadOnly.bind(this.readonlyChecker));
+    protected initListeners(): void {
+        super.initListeners();
 
-        this.onOptionDeselected(() => {
-            this.getComboBox().getInput().reset();
+        this.listBox.onItemsAdded((items: ContentTreeSelectorItem[]) => {
+            items.forEach((item: ContentTreeSelectorItem) => {
+                this.listBox.getItemView(item).toggleClass('readonly', this.readonlyChecker.isReadOnly(item.getContent()));
+            });
         });
+    }
+
+    protected handleSelectionLimitIsNoLongerReached(): void {
+        this.clear();
+        super.handleSelectionLimitIsNoLongerReached();
     }
 
     private static createRootContent(): ContentSummary {
         return new ContentSummaryBuilder()
             .setId(ContentMoveComboBox.ROOT_ID)
+            .setHasChildren(false)
             .setContentId(new ContentId(ContentMoveComboBox.ROOT_ID))
             .setName(new ContentName(ContentMoveComboBox.ROOT_ID))
             .setDisplayName(i18n('field.root'))
@@ -73,14 +85,29 @@ export class ContentMoveComboBox
         this.readonlyChecker.setFilterExactPaths(parentPaths);
     }
 
-    clearCombobox() {
-        super.clearCombobox();
-        this.getComboBox().getComboBoxDropdownGrid().removeAllOptions();
-        this.getComboBox().getInput().openForTyping();
+    reset(): void {
+        this.clear();
+        this.deselectAll();
+        this.loader.resetParams();
+
+        this.listBox.whenShown(() => {
+            if (!this.loader.isLoading()) { // when listbox is shown first time it also triggers loading
+                this.search();
+            }
+        });
     }
 
-    getSelectedDisplayValues(): ContentAndStatusTreeSelectorItem[] {
-        return (super.getSelectedDisplayValues() as ContentAndStatusTreeSelectorItem[]);
+    getSelectedDisplayValue(): ContentTreeSelectorItem {
+        return this.getSelectedOptions()[0]?.getOption().getDisplayValue();
+    }
+
+    protected search(value?: string): void {
+        if (StringHelper.isBlank(value)) {
+            this.listBox.clearItems();
+            (this.listBox as ContentsTreeList).load();
+        } else {
+            super.search(value);
+        }
     }
 }
 

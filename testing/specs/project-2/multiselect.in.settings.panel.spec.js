@@ -16,8 +16,8 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         webDriverHelper.setupBrowser();
     }
 
-    const PROJECT_DISPLAY_NAME_1 = studioUtils.generateRandomName("project");
-    const PROJECT_DISPLAY_NAME_2 = studioUtils.generateRandomName("project");
+    const PROJECT_DISPLAY_NAME_1 = studioUtils.generateRandomName('project');
+    const PROJECT_DISPLAY_NAME_2 = studioUtils.generateRandomName('project');
     const DESCRIPTION = "Test description";
 
 
@@ -41,7 +41,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             // 2. Verify that 'Delete' button is disabled in settings toolbar:
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
@@ -53,7 +53,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             // 2. Click on 'Edit' button:
             await settingsBrowsePanel.clickOnEditButton();
@@ -73,7 +73,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             // 'New...' button should be enabled :
             await settingsBrowsePanel.waitForNewButtonEnabled();
@@ -87,7 +87,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1. Click on both just created project's checkboxes:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             // 2. Open context menu:
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(PROJECT_DISPLAY_NAME_2);
@@ -108,7 +108,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             // 2. Open context menu:
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(PROJECT_DISPLAY_NAME_2);
             await settingsBrowsePanel.waitForContextMenuDisplayed();
-            await studioUtils.saveScreenshot("multiselect_context_menu_2");
+            await studioUtils.saveScreenshot('multiselect_context_menu_2');
             // Verify that New.. item is enabled:
             await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             // Verify that Edit menu item is disabled:
@@ -124,7 +124,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             let confirmValueDialog = new ConfirmValueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Delete the project:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnDeleteButton();
             await confirmValueDialog.waitForDialogOpened();
             await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME_1);

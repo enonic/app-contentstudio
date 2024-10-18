@@ -17,13 +17,13 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
     let SITE;
 
     const ANCHOR_TXT = 'myAnchor';
-    const PARAM_NAME_WITH_SPACES = " param1  ";
-    const PARAMETER_VALUE_WITH_SPACES = " value1 ";
-    const ANCHOR_TXT_WITH_WHITESPACE = "myAnchor  ";
+    const PARAM_NAME_WITH_SPACES = ' param1  ';
+    const PARAMETER_VALUE_WITH_SPACES = ' value1 ';
+    const ANCHOR_TXT_WITH_WHITESPACE = 'myAnchor  ';
     const EXPECTED_PART_1 = "a href=\"content";
     const EXPECTED_ANCHOR_PART = "fragment=myAnchor\">";
     const EXPECTED_PARAMETERS_PART = "?query=par1";
-    const PARAMETER_VALUE = "value1";
+    const PARAMETER_VALUE = 'value1';
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -108,7 +108,7 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             await insertLinkDialogContentPanel.typeInParameterNameInput('par1', 0);
             // 6. Fill in the parameter's value input:
             await insertLinkDialogContentPanel.typeInParameterValueInput(PARAMETER_VALUE, 0);
-            await studioUtils.saveScreenshot("content_link_with_param");
+            await studioUtils.saveScreenshot('content_link_with_param');
             // 7. Click on Insert button in the modal dialog:
             await insertLinkDialog.clickOnInsertButton();
             await insertLinkDialog.waitForDialogClosed();

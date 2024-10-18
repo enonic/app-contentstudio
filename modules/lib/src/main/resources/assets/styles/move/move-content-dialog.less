@@ -25,9 +25,24 @@
         display: none;
       }
 
-      .loader-combobox {
-        &:not(.followed-by-options) {
-          margin-top: 18px;
+      .status .unknown {
+        display: none;
+      }
+
+      .content-tree-list-element.readonly {
+        > .item-view-wrapper {
+          pointer-events: none;
+
+          .toggle-and-item-wrapper {
+
+            > *:not(.toggle) {
+              opacity: 0.5;
+            }
+
+            .toggle {
+              pointer-events: all;
+            }
+          }
         }
       }
     }

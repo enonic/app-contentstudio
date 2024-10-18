@@ -226,11 +226,17 @@ export class ComponentView
     }
 
     select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
-        Element.fromHtmlElement(window.frameElement as HTMLElement).giveFocus();
+        if (this.isFocusToFrameRequired()) {
+            Element.fromHtmlElement(window.frameElement as HTMLElement).giveFocus();
+        }
 
         super.select(config, menuPosition);
         KeyBindings.get().bindKeys(this.keyBinding);
 
+    }
+
+    protected isFocusToFrameRequired(): boolean {
+        return true;
     }
 
     deselect(silent?: boolean) {

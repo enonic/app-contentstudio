@@ -4,7 +4,7 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const LoaderComboBox = require('../components/loader.combobox');
+const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 const xpath = {
     stepForm: `//div[contains(@id,'ContentWizardStepForm')]`,
     parametersSet: "//div[contains(@id,'FormItemSetView') and descendant::h5[contains(.,'Parameters')]]",
@@ -21,7 +21,7 @@ const xpath = {
 class ShortcutForm extends Page {
 
     get targetOptionsFilterInput() {
-        return xpath.stepForm + lib.FORM_VIEW + lib.CONTENT_SELECTOR.DIV + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return xpath.stepForm + lib.FORM_VIEW + lib.CONTENT_SELECTOR.DIV + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     get addNewContentButton() {
@@ -197,9 +197,8 @@ class ShortcutForm extends Page {
     }
 
     async filterOptionsAndSelectTarget(displayName) {
-        let loaderComboBox = new LoaderComboBox();
-        await this.typeTextInInput(this.targetOptionsFilterInput, displayName);
-        return await loaderComboBox.selectOption(displayName);
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        return await contentSelectorDropdown.selectFilteredByDisplayNameContent(displayName, xpath.stepForm);
     }
 
     async getSelectedTargetDisplayName() {

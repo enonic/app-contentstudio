@@ -24,7 +24,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
         webDriverHelper.setupBrowser();
     }
 
-    let FRAGMENT_LAYOUT_DESCRIPTION = 'layout';
+    const FRAGMENT_LAYOUT_DESCRIPTION = 'layout';
     const MAIN_REGION_CONTROLLER = 'main region';
     const MAIN_COMPONENT_NAME = 'main';
     const SITE_1_NAME = contentBuilder.generateRandomName('site');
@@ -72,7 +72,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await contentWizardPanel.waitAndClickOnSave();
             await contentWizardPanel.waitForSpinnerNotVisible();
             // wait for the description is refreshing:
-            await contentWizardPanel.pause(3000);
+            await contentWizardPanel.pause(2000);
             await studioUtils.saveScreenshot('fragment_path_updated');
             // 7. Fragment Inspection Panel should be loaded automatically in the site wizard. Verify that path is updated in the dropdown:
             let actualPath = await fragmentInspectionPanel.getSelectedOptionPath();
@@ -101,9 +101,9 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await pageComponentView.openMenu(LAYOUT_3_COL);
             // 4. Click on 'Save as Fragment' menu item. (Save the layout as fragment)
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
-            await contentWizardPanel.pause(7000);
+            await contentWizardPanel.pause(3000);
             await contentWizardPanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
-            // 5. Fragment Inspection Panel should be loaded automatically. Verify that path is updated in the dropdown:
+            // 5. Click on DropdownHandle in Fragment Inspection Panel:
             await fragmentInspectionPanel.clickOnFragmentDropdownHandle();
             await studioUtils.saveScreenshot('fragment_inspect_panel_options');
             let actualOptions = await fragmentInspectionPanel.getFragmentDropdownOptions();
@@ -124,7 +124,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.clickOnComponent(LAYOUT_2_COL);
             await fragmentInspectionPanel.waitForOpened();
-            // 3. Click on Edit Fragment in Inspect Panel:
+            // 3. Click on 'Edit Fragment' in Inspect Panel:
             await fragmentInspectionPanel.clickOnEditFragmentButton();
             await studioUtils.doSwitchToNextTab();
             // Verify the wizard-step:
@@ -133,11 +133,11 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             // Verify the display name
             let displayName = await contentWizard.getDisplayName();
             assert.equal(displayName, LAYOUT_2_COL, 'Expected display name should be present');
-            // Verify 'Preview' button:
+            // Verify 'Preview' button is displayed:
             await contentWizard.waitForPreviewButtonDisplayed();
         });
 
-    it("GIVEN existing site with 2 fragments is opened WHEN 'Show Outbound' dependencies button has been pressed THEN 2 fragments should be filtered in the grid",
+    it("GIVEN existing site with 2 fragments is opened WHEN 'Show Outbound' dependencies button has been pressed THEN 2 fragments should be filtered in new browser tab",
         async () => {
             let contentWizard = new ContentWizardPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -195,17 +195,18 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let layoutInspectionPanel = new LayoutInspectionPanel();
             let contentWizard = new ContentWizardPanel();
             let liveFormPanel = new LiveFormPanel();
-            // 1. Open the existing site with a fragment:
+            // 1. Open the fragment:
             await studioUtils.openContentAndSwitchToTabByDisplayName(FRAGMENT_2_COL_GENERATED_NAME, "25/75");
             // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Click on the layout component in Page Components View:
             await pageComponentView.clickOnComponent(LAYOUT_2_COL);
             await layoutInspectionPanel.waitForOpened();
-            // 4. Expand the dropdown and click on the option:
+            // 4. Expand the dropdown and select another option:
             await layoutInspectionPanel.clickOnLayoutDropdownHandle();
             await layoutInspectionPanel.clickOnOptionInLayoutDropdown(LAYOUT_3_COL);
             await contentWizard.waitForNotificationMessage();
+            // 5. Verify that new layout is displayed in the Live Edit:
             let actualColumnNumber = await liveFormPanel.getLayoutColumnNumber();
             assert.equal(actualColumnNumber, 3, "Three column should be present in the layout")
         });
@@ -217,7 +218,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let siteFormPanel = new SiteFormPanel();
             let wizardDetailsPanel = new WizardDetailsPanel();
             let contentWizardPanel = new ContentWizardPanel();
-            // 1. Open new site-wizard, select an application and controller:
+            // 1. Open new site-wizard, select the application and controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizardPanel.typeDisplayName(SITE_2_NAME);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
@@ -225,11 +226,11 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await wizardDetailsPanel.waitForDetailsPanelLoaded();
             // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
+            // 3. Insert the fragment-component:
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
             await studioUtils.saveScreenshot("fragment_layout_inspection1");
-            // 3. Save the layout component as fragment
             await pageComponentView.selectMenuItem(["Insert", "Fragment"]);
-            // 4. Verify that Edit Fragment button is disabled
+            // 4. Verify that 'Edit Fragment' button is disabled
             await studioUtils.saveScreenshot("fragment_layout_inspection2");
             await fragmentInspectionPanel.waitForEditFragmentButtonDisabled();
             // 5. Expand the fragment dropdown options and verify that the list of options is empty:'No matching items'

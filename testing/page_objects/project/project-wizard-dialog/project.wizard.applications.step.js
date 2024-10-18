@@ -3,8 +3,8 @@
  */
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const ComboBox = require('../../components/loader.combobox');
 const ProjectWizardDialog = require('./project.wizard.dialog');
+const ProjectApplicationsComboBox = require('../../components/projects/project.applications.combobox');
 
 const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
@@ -22,18 +22,17 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
 
     //types an application name and click on the filtered option
     async selectApplication(appName) {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(appName, XPATH.container + XPATH.projectApplicationsComboBox);
+        let projectApplicationsComboBox = new ProjectApplicationsComboBox();
+        await projectApplicationsComboBox.clickFilteredByAppNameItemAndClickOnOk(appName, XPATH.container);
         return await this.pause(500);
     }
 
     //expand the dropdown and click on an option
     async expandDropdownListAndSelectApplication(appName) {
-        await this.waitForElementDisplayed(this.appSelectorDropDownHandler, appConst.shortTimeout);
-        await this.clickOnElement(this.appSelectorDropDownHandler);
-        let optionXpath = lib.slickRowByDisplayName(XPATH.container, appName);
-        await this.waitForElementDisplayed(optionXpath, appConst.shortTimeout);
-        await this.clickOnElement(optionXpath);
+        let projectApplicationsComboBox = new ProjectApplicationsComboBox();
+        await projectApplicationsComboBox.clickOnDropdownHandle(XPATH.container);
+        await projectApplicationsComboBox.clickOnOptionByDisplayName(appName, XPATH.container);
+        await projectApplicationsComboBox.clickOnApplySelectionButton(XPATH.container);
         return await this.pause(500);
     }
 

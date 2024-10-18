@@ -6,7 +6,6 @@
         "types": [
             "ckeditor",
             "jquery",
-            "slickgrid",
             "jqueryui",
             "q"
         ],

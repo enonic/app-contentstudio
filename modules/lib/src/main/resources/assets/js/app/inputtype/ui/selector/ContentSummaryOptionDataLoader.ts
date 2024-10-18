@@ -1,7 +1,6 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {OptionDataLoader, OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
-import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import * as Q from 'q';
 import {ContentId} from '../../../content/ContentId';
 import {ContentSummary} from '../../../content/ContentSummary';
@@ -52,7 +51,8 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
         this.fakeRoot = builder?.fakeRoot;
 
-        this.flatRequest = new ContentSelectorQueryRequest().setRequestProject(this.project);
+        this.flatRequest =
+            new ContentSelectorQueryRequest().setAppendLoadResults(builder?.appendLoadResults).setRequestProject(this.project);
         this.treeRequest = this.smartTreeMode ? new ContentTreeSelectorQueryRequest<DATA>().setRequestProject(this.project) :
                            new ListByIdSelectorRequest<DATA>().setRequestProject(this.project);
 
@@ -84,11 +84,6 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     initRequests(builder: ContentSummaryOptionDataLoaderBuilder) {
         this.initRequest(builder, this.treeRequest);
         this.initRequest(builder, this.flatRequest);
-    }
-
-    fetch(node: TreeNode<Option<DATA>>): Q.Promise<DATA> {
-        this.treeRequest.setContent(node.getDataId() ? node.getData().getDisplayValue().getContent() : null);
-        return this.loadItems().then(items => items[0]);
     }
 
     protected sendPreLoadRequest(ids: string): Q.Promise<DATA[]> {
@@ -136,32 +131,27 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         return this.sendAndParseFlatRequest();
     }
 
-    fetchChildren(parentNode: TreeNode<Option<DATA>>, from: number = 0,
+    fetchChildren(data: Option<ContentTreeSelectorItem>, from: number = 0,
                   size: number = -1): Q.Promise<OptionDataLoaderData<DATA>> {
 
         const postLoad: boolean = from > 0;
-
-        if (parentNode.getRoot().getId() === parentNode.getId()) {
-            this.notifyLoadingData(postLoad);
-        }
 
         this.isTreeLoadMode = true;
 
         this.treeRequest.setFrom(from);
         this.treeRequest.setSize(size);
-
-        this.treeRequest.setChildOrder(parentNode.getDataId() ? parentNode.getData().getDisplayValue().getContent().getChildOrder() : null);
+        this.treeRequest.setChildOrder(data?.getId() ? data.getDisplayValue().getContent().getChildOrder() : null);
 
         if (this.smartTreeMode) {
             (this.treeRequest as ContentTreeSelectorQueryRequest<DATA>).setParentPath(
-                parentNode.getDataId() ? parentNode.getData().getDisplayValue().getContent().getPath() : null);
+                data?.getId() ? data.getDisplayValue().getContent().getPath() : null);
         } else {
-            this.treeRequest.setContent(parentNode.getDataId() ? parentNode.getData().getDisplayValue().getContent() : null);
+            this.treeRequest.setContent(data?.getDisplayValue().getContent() || null);
         }
 
         this.treeRequest.setSearchString(this.treeFilterValue);
 
-        const hasFakeRoot = this.fakeRoot && parentNode.getDataId() == null && !this.treeFilterValue;
+        const needsFakeRoot = this.fakeRoot && data?.getId() == null && !this.treeFilterValue && from === 0;
 
         return this.loadItems().then((result: DATA[]) => {
             result = result.filter(this.postFilterFn);
@@ -169,11 +159,16 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
             this.notifyLoadedData([], postLoad, true);
 
             return this.createOptionData(
-                hasFakeRoot ? [new ContentTreeSelectorItem(this.fakeRoot, true, false) as DATA, ...result] : result,
+                needsFakeRoot ? [this.wrapFakeRoot(), ...result] : result,
                 this.treeRequest.getMetadata().getHits(),
                 this.treeRequest.getMetadata().getTotalHits(),
             );
         });
+    }
+
+    protected wrapFakeRoot(): DATA {
+        const item = ContentSummaryAndCompareStatus.fromContentSummary(this.fakeRoot);
+        return new ContentAndStatusTreeSelectorItem(item, true, false) as ContentTreeSelectorItem as DATA;
     }
 
     protected createRequest(): ContentSelectorRequest<DATA> {
@@ -257,6 +252,14 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     isPartiallyLoaded(): boolean {
         return this.isTreeLoadMode ? this.treeRequest.isPartiallyLoaded() : this.flatRequest.isPartiallyLoaded();
     }
+
+    setTreeLoadMode(value: boolean): void {
+        this.isTreeLoadMode = !!value;
+    }
+
+    isSmartTreeMode(): boolean {
+        return this.smartTreeMode;
+    }
 }
 
 export class ContentSummaryOptionDataLoaderBuilder {
@@ -277,50 +280,57 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     applicationKey: ApplicationKey;
 
+    appendLoadResults: boolean = true;
+
     postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean = () => true;
 
-    setContentTypeNames(contentTypeNames: string[]): ContentSummaryOptionDataLoaderBuilder {
+    setContentTypeNames(contentTypeNames: string[]): this {
         this.contentTypeNames = contentTypeNames;
         return this;
     }
 
-    setAllowedContentPaths(allowedContentPaths: string[]): ContentSummaryOptionDataLoaderBuilder {
+    setAllowedContentPaths(allowedContentPaths: string[]): this {
         this.allowedContentPaths = allowedContentPaths;
         return this;
     }
 
-    setRelationshipType(relationshipType: string): ContentSummaryOptionDataLoaderBuilder {
+    setRelationshipType(relationshipType: string): this {
         this.relationshipType = relationshipType;
         return this;
     }
 
-    setContent(content: ContentSummary): ContentSummaryOptionDataLoaderBuilder {
+    setContent(content: ContentSummary): this {
         this.content = content;
         return this;
     }
 
-    setSmartTreeMode(smartTreeMode: boolean): ContentSummaryOptionDataLoaderBuilder {
+    setSmartTreeMode(smartTreeMode: boolean): this {
         this.smartTreeMode = smartTreeMode;
         return this;
     }
 
-    setFakeRoot(fakeRoot: ContentSummary): ContentSummaryOptionDataLoaderBuilder {
+    setFakeRoot(fakeRoot: ContentSummary): this {
         this.fakeRoot = fakeRoot;
         return this;
     }
 
-    setProject(project: Project): ContentSummaryOptionDataLoaderBuilder {
+    setProject(project: Project): this {
         this.project = project;
         return this;
     }
 
-    setApplicationKey(key: ApplicationKey): ContentSummaryOptionDataLoaderBuilder {
+    setApplicationKey(key: ApplicationKey): this {
         this.applicationKey = key;
         return this;
     }
 
-    setPostFilterFn(postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean): ContentSummaryOptionDataLoaderBuilder {
+    setPostFilterFn(postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean): this {
         this.postFilterFn = postFilterFn;
+        return this;
+    }
+
+    setAppendLoadResults(appendLoadResults: boolean): this {
+        this.appendLoadResults = appendLoadResults;
         return this;
     }
 
