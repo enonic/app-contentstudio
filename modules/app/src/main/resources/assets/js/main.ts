@@ -65,6 +65,7 @@ import {UrlAction} from 'lib-contentstudio/app/UrlAction';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import * as Q from 'q';
+import {JSONObject} from '@enonic/lib-admin-ui/types';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -638,12 +639,11 @@ function initProjectContext(application: Application): Q.Promise<void> {
     if (!document.currentScript) {
         throw Error('Legacy browsers are not supported');
     }
-    const configServiceUrl = document.currentScript.getAttribute('data-config-service-url');
-    if (!configServiceUrl) {
+    const configScriptId = document.currentScript.getAttribute('data-config-script-id');
+    if (!configScriptId) {
         throw Error('Unable to fetch app config');
     }
-
-    await CONFIG.init(configServiceUrl);
+    CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as JSONObject);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     await i18nInit(CONFIG.getString('services.i18nUrl'));
