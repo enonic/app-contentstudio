@@ -1,4 +1,3 @@
-import {i18nInit} from '@enonic/lib-admin-ui/util/MessagesInitializer';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {PageView, PageViewBuilder} from './PageView';
@@ -69,6 +68,7 @@ import {ResetComponentViewEvent} from './event/incoming/manipulation/ResetCompon
 import {PageStateEvent} from './event/incoming/common/PageStateEvent';
 import {PageState} from '../app/wizard/page/PageState';
 import {PageBuilder} from '../app/page/Page';
+import {Messages} from '@enonic/lib-admin-ui/util/Messages';
 
 export class LiveEditPage {
 
@@ -141,6 +141,8 @@ export class LiveEditPage {
         }
 
         CONFIG.setConfig(event.getConfig());
+        Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
+
         ProjectContext.get().setProject(Project.fromJson(event.getProjectJson()));
         PageState.setState(event.getPageJson() ? new PageBuilder().fromJson(event.getPageJson()).build() : null);
 
@@ -152,9 +154,7 @@ export class LiveEditPage {
                 ContentContext.get().setContent(content);
             });
 
-        const initPromise: Q.Promise<void> = i18nInit(CONFIG.getString('services.i18nUrl'), ['i18n/page-editor']);
-
-        Q.all([initPromise, contentPromise]).then(() => {
+        Q.all([contentPromise]).then(() => {
             const body = Body.get().loadExistingChildren();
             try {
                 this.pageView = new PageViewBuilder()
