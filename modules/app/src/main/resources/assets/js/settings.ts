@@ -4,7 +4,7 @@ import {ElementEvent} from '@enonic/lib-admin-ui/dom/ElementEvent';
 import {SettingsAppContainer} from 'lib-contentstudio/app/settings/SettingsAppContainer';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {ProjectConfigContext} from 'lib-contentstudio/app/settings/data/project/ProjectConfigContext';
-import * as Q from 'q';
+import {JSONObject} from '@enonic/lib-admin-ui/types';
 
 const waitForWidgetElemAttached = (elemId: string): void => {
     const body: Body = Body.get();
@@ -24,8 +24,8 @@ const appendHtml = (widgetElem: Element): void => {
     widgetElem.appendChild(c);
 };
 
-const init = async (configUri: string, elemId: string): Promise<void> => {
-    await CONFIG.init(configUri);
+const init = async (configScriptId: string, elemId: string): Promise<void> => {
+    CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as JSONObject);
     await ProjectConfigContext.get().init();
 
     const body: Body = Body.get();
@@ -43,12 +43,12 @@ void (async (currentScript: HTMLOrSVGScriptElement) => {
         throw Error('Legacy browsers are not supported');
     }
 
-    const configUri: string = currentScript.getAttribute('data-config-service-url');
+    const configScriptId: string = currentScript.getAttribute('data-config-script-id');
     const elemId: string = currentScript.getAttribute('data-widget-id');
 
-    if (!configUri || !elemId) {
+    if (!configScriptId || !elemId) {
         throw Error('Missing attributes on inject script');
     }
 
-    await init(configUri, elemId);
+    await init(configScriptId, elemId);
 })(document.currentScript);
