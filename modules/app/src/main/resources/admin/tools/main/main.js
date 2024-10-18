@@ -4,6 +4,7 @@ const admin = require('/lib/xp/admin');
 const mustache = require('/lib/mustache');
 const portal = require('/lib/xp/portal');
 const i18n = require('/lib/xp/i18n');
+const configLib = require('/lib/config');
 
 exports.renderTemplate = function (path, params) {
     const view = resolve('./main.html');
@@ -45,10 +46,8 @@ exports.getParams = function () {
             locale: admin.getLocales()
         }),
         launcherPath: admin.getLauncherPath(),
-        configServiceUrl: portal.apiUrl({
-            application: app.name,
-            api: 'config',
-        }),
+        configScriptId: configLib.generateScriptConfigId(),
+        configAsJson: JSON.stringify(configLib.getConfig(), null, 4).replace(/<(\/?script|!--)/gi, "\\u003C$1"),
         toolBaseUrl: toolUrlBase,
         toolAppName: app.name,
     }
