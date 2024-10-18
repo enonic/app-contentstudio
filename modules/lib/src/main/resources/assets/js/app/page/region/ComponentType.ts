@@ -27,4 +27,8 @@ export abstract class ComponentType {
     getIconCls(): string {
         return '';
     }
+
+    toString(): string {
+        return this.shortName;
+    }
 }

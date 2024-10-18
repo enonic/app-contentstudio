@@ -1,4 +1,18 @@
 .projects-selector {
+  .item-view-wrapper.selected {
+    .viewer {
+      .@{_COMMON_PREFIX}names-view {
+        .@{_COMMON_PREFIX}main-name {
+          color: @admin-white;
+        }
+
+        .@{_COMMON_PREFIX}sub-name {
+          color: @admin-white;
+        }
+      }
+    }
+  }
+
   .@{_COMMON_PREFIX}wrapper {
     .font-icon-default {
       width: 100%;
@@ -13,7 +27,7 @@
 
   &.multiple-occurrence {
     .selected-option {
-      padding-left: 0;
+      padding: 4px 10px 4px 0;
 
       &.placeholder {
         outline: 2px dashed @admin-medium-gray-border;
@@ -31,16 +45,6 @@
 
   &.flat {
     .tree-grid.tree-mode {
-      .grid {
-        .slick-row {
-          .slick-cell {
-            .toggle.icon {
-              display: none;
-            }
-          }
-        }
-      }
-
       .tree-grid-toolbar {
         .selection-controller {
           display: none;

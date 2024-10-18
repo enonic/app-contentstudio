@@ -3,7 +3,7 @@
  */
 const appConst = require('../../../libs/app_const');
 const ProjectWizardDialog = require('./project.wizard.dialog');
-const ComboBox = require('../../components/loader.combobox');
+const ExtendedPrincipalComboBox = require('../../components/projects/extended.principal.combobox');
 
 const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
@@ -27,9 +27,10 @@ class ProjectWizardDialogAccessModeStep extends ProjectWizardDialog {
             return actualDescription.includes(DESCRIPTION);
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 3 is not loaded"});
     }
+
     async selectUserInCustomReadAccessSelector(principalDisplayName) {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.projectReadAccessWizardStepForm );
+        let extendedPrincipalComboBox = new ExtendedPrincipalComboBox();
+        await extendedPrincipalComboBox.clickOnFilteredByDisplayNameUserAndClickOnApply(principalDisplayName, XPATH.container);
         console.log("Project Wizard, principal is selected: " + principalDisplayName);
         return await this.pause(300);
     }

@@ -24,8 +24,8 @@ describe('page.component.view.layout.items.spec - tests for page component view 
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let CONTROLLER_NAME = 'main region';
-    const LAYOUT_NAME = "3-col";
+    const CONTROLLER_NAME = 'main region';
+    const LAYOUT_NAME = '3-col';
 
     it(`Preconditions: new site should be created`,
         async () => {

@@ -169,7 +169,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.saveScreenshot('updated_population_published2');
             await contentBrowsePanel.pause(500);
             // wait for Published status:
-            await contentBrowsePanel.waitForStatus(SF_DISPLAY_NAME, appConst.CONTENT_STATUS.PUBLISHED);
+            await contentBrowsePanel.waitForStatus(SF_NAME, appConst.CONTENT_STATUS.PUBLISHED);
             // 2. Open USA country in master branch:
             await studioUtils.openResourceInMaster(SITE.displayName + '/' + USA_CONTENT_NAME);
             await studioUtils.saveScreenshot('master_population_updated');

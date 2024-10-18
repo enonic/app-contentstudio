@@ -118,7 +118,7 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             let validationRecording = await imageSelectorForm.getSelectorValidationMessage();
             assert.equal(validationRecording, "Min 2 valid occurrence(s) required", "Expected validation message should be displayed");
             // 3. The second image has been selected:
-            await imageSelectorForm.selectOption(appConst.TEST_IMAGES.SPUMANS);
+            await imageSelectorForm.filterOptionsSelectImageAndClickOnApply(appConst.TEST_IMAGES.SPUMANS);
             // 4. Validation recording gets not visible:
             await imageSelectorForm.waitForSelectorValidationMessageNotDisplayed();
             // 5. Click on checkboxes and select both images:

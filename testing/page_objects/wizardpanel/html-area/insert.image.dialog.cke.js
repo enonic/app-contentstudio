@@ -1,7 +1,8 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const ComboBox = require('../../components/loader.combobox');
+const ImageSelectorDropdown = require('../../components/selectors/image.selector.dropdown');
+const ImageStyleSelectorDropdown = require('../../components/selectors/image.style.selector');
 
 const XPATH = {
     container: `//div[contains(@id,'ImageModalDialog')]`,
@@ -14,17 +15,20 @@ const XPATH = {
     alignLeftButton: "//button[contains(@class,'icon-paragraph-left')]",
     alignCenterButton: "//button[contains(@class,'icon-paragraph-center')]",
     styleSelector: `//div[contains(@id,'ImageStyleSelector')]`,
-    styleOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
+    styleSelectedOptionItem: "//div[contains(@class,'selected-item')]",
     customWidthCheckbox: "//div[contains(@class,'custom-width-checkbox')]",
     imageRangeValue: "//div[contains(@class,'custom-width-range-container')]//span[contains(@class,'custom-width-board')]",
     selectedOptionView: "//div[contains(@id,'ImageStyleSelector')]//div[contains(@id,'SelectedOptionView')]",
     captionInput: "//div[contains(@id,'FormItem') and contains(@class,'caption')]//input",
-    defaultActionByName: name => `//button[contains(@id, 'ActionButton') and child::span[contains(.,'${name}')]]`,
     accessibilityForm: "//div[contains(@class,'input-view image-accessibility')]",
     contentSelectedOptionDiv: "//div[contains(@id,'ContentSelectedOptionView')]",
 };
 
 class InsertImageDialog extends Page {
+
+    get imageStyleSelector() {
+        return XPATH.container + XPATH.styleSelector;
+    }
 
     get removeContentSelectedOptionIcon() {
         return XPATH.container + XPATH.contentSelectedOptionDiv + lib.REMOVE_ICON;
@@ -32,10 +36,6 @@ class InsertImageDialog extends Page {
 
     get editContentSelectedOptionIcon() {
         return XPATH.container + XPATH.contentSelectedOptionDiv + lib.EDIT_ICON;
-    }
-
-    get styleOptionsFilterInput() {
-        return XPATH.container + XPATH.styleSelector + lib.DROPDOWN_OPTION_FILTER_INPUT;
     }
 
     get accessibilityDecorativeImageRadioButton() {
@@ -51,12 +51,9 @@ class InsertImageDialog extends Page {
     }
 
     get imageOptionsFilterInput() {
-        return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.container + lib.OPTION_FILTER_INPUT;
     }
 
-    get styleSelector() {
-        return XPATH.container + XPATH.styleSelector;
-    }
 
     get captionInput() {
         return XPATH.container + XPATH.captionInput;
@@ -66,9 +63,6 @@ class InsertImageDialog extends Page {
         return XPATH.container + XPATH.customWidthCheckbox;
     }
 
-    get styleSelectorDropDownHandle() {
-        return XPATH.container + XPATH.styleSelector + lib.DROP_DOWN_HANDLE;
-    }
 
     get cancelButton() {
         return XPATH.container + XPATH.cancelButton;
@@ -90,6 +84,10 @@ class InsertImageDialog extends Page {
         return XPATH.container + XPATH.updateButton;
     }
 
+    get styleSelectorDropDownHandle() {
+        return XPATH.container + XPATH.styleSelector + lib.DROP_DOWN_HANDLE;
+    }
+
     async waitForAlternativeTextRadioButtonDisplayed() {
         return await this.waitForElementDisplayed(this.accessibilityAlternativeTextRadioButton, appConst.shortTimeout);
     }
@@ -101,6 +99,7 @@ class InsertImageDialog extends Page {
     async clickOnDecorativeImageRadioButton() {
         try {
             await this.waitForDecorativeImageRadioButtonDisplayed();
+            await this.pause(500);
             await this.clickOnElement(this.accessibilityDecorativeImageRadioButton);
             return await this.pause(200);
         } catch (err) {
@@ -201,13 +200,14 @@ class InsertImageDialog extends Page {
         }
     }
 
-    isCustomWidthCheckBoxSelected() {
-        return this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout).then(() => {
-            return this.isSelected(this.customWidthCheckbox + lib.CHECKBOX_INPUT);
-        }).catch(err => {
-            this.saveScreenshot("err_clicking_on_custom_width_checkbox");
-            throw new Error('Error when clicking on custom width checkbox! ' + err);
-        })
+    async isCustomWidthCheckBoxSelected() {
+        try {
+            await this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout);
+            return await this.isSelected(this.customWidthCheckbox + lib.CHECKBOX_INPUT);
+        } catch (err) {
+            await this.saveScreenshot('err_custom_width_checkbox');
+            throw new Error('Error occurred during checking the custom width checkbox! ' + err);
+        }
     }
 
     waitForCustomWidthCheckBoxDisabled() {
@@ -227,36 +227,8 @@ class InsertImageDialog extends Page {
         return this.waitForElementEnabled(this.customWidthCheckbox + lib.CHECKBOX_INPUT, appConst.shortTimeout);
     }
 
-    // Click on dropdown handle in Image style selector:
-    clickOnStyleSelectorDropDownHandle() {
-        return this.clickOnElement(this.styleSelectorDropDownHandle).catch(err => {
-            this.saveScreenshot("err_style_selector_drop_down_handle");
-            throw new Error('Error when clicking on drop down handle! ' + err);
-        })
-    }
-
-    // Image style selector:
-    async doFilterStyleAndClickOnOption(styleOption) {
-        let optionSelector = lib.slickRowByDisplayName(XPATH.container, styleOption);
-        try {
-            await this.waitForElementDisplayed(this.styleOptionsFilterInput, appConst.longTimeout);
-            await this.typeTextInInput(this.styleOptionsFilterInput, styleOption);
-            await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-            await this.clickOnElement(optionSelector);
-            return await this.pause(400);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_select_option');
-            throw new Error(`Insert Image Dialog, Style selector , screenshot: ${screenshot} ` + err);
-        }
-    }
-
-    async clickOnCancelButton() {
-        try {
-            return await this.clickOnElement(this.cancelButton);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_insert_image_button');
-            throw new Error(`Insert Image Dialog, error occurred after clicking on the Cancel button, screenshot:${screenshot}  ` + err);
-        }
+    clickOnCancelButton() {
+        return this.clickOnElement(this.cancelButton);
     }
 
     async clickOnInsertButton() {
@@ -277,16 +249,17 @@ class InsertImageDialog extends Page {
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_click_on_update_image_button');
             await this.clickOnCancelButton();
-            throw new Error(`Insert Image Dialog, error when click on the Update button, screenshot:${screenshot}  ` + err);
+            throw new Error(`Insert Image Dialog, error occurred after  clicking on the Update button, screenshot:${screenshot}  ` + err);
         }
     }
 
     async waitForDialogVisible() {
         try {
-            return await this.waitForElementDisplayed(this.cancelButton, appConst.mediumTimeout)
+            await this.waitForElementDisplayed(this.cancelButton, appConst.mediumTimeout)
+            await this.pause(300);
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_insert_image_dialog');
-            throw new Error('Insert Image Dialog should be opened!' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_insert_image_dialog');
+            throw new Error(`Insert Image Dialog should be opened! screenshot: ${screenshot}   ` + err);
         }
     }
 
@@ -314,35 +287,60 @@ class InsertImageDialog extends Page {
         return this.waitForElementNotDisplayed(XPATH.imageRangeValue, appConst.mediumTimeout);
     }
 
+    // Insert a displayName in Options Filter input then click on the filtered option(Flat mode):
     async filterAndSelectImage(imageDisplayName) {
-        let comboBox = new ComboBox();
-        await this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.mediumTimeout);
-        await comboBox.typeTextAndSelectOption(imageDisplayName, XPATH.container);
-        return await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        // parent locator = ImageModalDialog
+        await imageSelectorDropdown.selectFilteredImageInFlatMode(imageDisplayName, XPATH.container);
+        await this.pause(400);
     }
 
-    async filterAndSelectImageByPath(imageName) {
-        let comboBox = new ComboBox();
+    async filterAndSelectImageByPath(path) {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
         await this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.mediumTimeout);
-        await this.typeTextInInput(this.imageOptionsFilterInput, imageName);
-        await comboBox.selectOptionByName(imageName, XPATH.container);
-        return await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
+        await this.typeTextInInput(this.imageOptionsFilterInput, path);
+        await imageSelectorDropdown.clickOnFilteredByDisplayNameItem(path, XPATH.container);
+        await this.pause(400);
     }
 
     waitForStyleSelectorVisible() {
-        return this.waitForElementDisplayed(this.styleSelector, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.imageStyleSelector, appConst.mediumTimeout);
     }
 
     async getStyleSelectorOptions() {
-        await this.clickOnStyleSelectorDropDownHandle();
-        await this.pause(1000);
-        let selector = lib.SLICK_ROW + "//div[contains(@id,'ImageStyleNameView')]" + "//h6[contains(@class,'main-name')]";
-        return await this.getTextInElements(selector);
+        let imageStyleSelectorDropdown = new ImageStyleSelectorDropdown();
+        return await imageStyleSelectorDropdown.getOptionsName();
     }
 
-    getSelectedStyleName() {
-        let selectedOption = XPATH.container + XPATH.selectedOptionView + "//h6[contains(@class,'main-name')]";
-        return this.getText(selectedOption);
+    // Click on dropdown handle in Image style selector:
+    async clickOnStyleSelectorDropDownHandle() {
+        try {
+            await this.waitForElementDisplayed(this.styleSelectorDropDownHandle, appConst.mediumTimeout);
+            await this.clickOnElement(this.styleSelectorDropDownHandle);
+            await this.pause(900);
+        } catch (err) {
+            await this.saveScreenshot('err_style_selector_drop_down_handle');
+            throw new Error('Error occurred during clicking on style drop down handle! ' + err);
+        }
+    }
+
+    async getSelectedStyleValue() {
+        let locator = XPATH.container + XPATH.styleSelector + XPATH.styleSelectedOptionItem;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+
+    }
+
+    // Image style selector:
+    async doFilterStyleAndClickOnOption(styleOption) {
+        let imageStyleSelectorDropdown = new ImageStyleSelectorDropdown();
+        try {
+            await imageStyleSelectorDropdown.clickOnFilteredStyle(styleOption)
+            return await this.pause(400);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_select_option');
+            throw new Error(`Insert Image Dialog, Style selector , screenshot: ${screenshot} ` + err);
+        }
     }
 
     waitForAlignRightButtonDisplayed() {
@@ -359,6 +357,11 @@ class InsertImageDialog extends Page {
 
     waitForJustifyButtonDisplayed() {
         return this.waitForElementDisplayed(XPATH.container + XPATH.justifyButton);
+    }
+
+    async selectImageStyle(style) {
+        let imageStyleSelectorDropdown = new ImageStyleSelectorDropdown();
+        await imageStyleSelectorDropdown.clickOnFilteredStyle(style);
     }
 }
 

@@ -32,6 +32,11 @@ export class CustomSelectorLoader
         }, 200);
     }
 
+    search(searchString: string): Q.Promise<CustomSelectorItem[]> {
+        this.setSearchString(searchString);
+        return this.load();
+    }
+
     load(postLoad: boolean = false): Q.Promise<CustomSelectorItem[]> {
         this.getRequest().setPostLoading(postLoad);
 
@@ -66,11 +71,14 @@ export class CustomSelectorLoader
         return deferred.promise;
     }
 
-    protected sendPreLoadRequest(ids: string): Q.Promise<CustomSelectorItem[]> {
+    sendPreLoadRequest(ids: string | string[]): Q.Promise<CustomSelectorItem[]> {
         if (!this.request.hasRequestPath()) {
             return Q.reject(i18n('field.customSelector.noService'));
         }
-        return this.getRequest().setIds(ids.split(';')).sendAndParse().then((results) => {
+
+        const idsToLoad = Array.isArray(ids) ? ids : ids.split(';');
+
+        return this.getRequest().setIds(idsToLoad).sendAndParse().then((results) => {
             this.getRequest().setIds([]);
             return results;
         });

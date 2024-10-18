@@ -4,6 +4,8 @@
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
+const FragmentDropdown = require('../../../components/selectors/fragment.dropdown');
+
 const xpath = {
     container: `//div[contains(@id,'FragmentInspectionPanel')]`,
     selectedOptionView: `//div[contains(@id,'SelectedOptionView')]`,
@@ -46,28 +48,24 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
             return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_fragment_inspect');
-            throw new Error("Frgament dropdown handle, screenshot:" + screenshot + ' ' + err);
+            throw new Error("Fragment dropdown handle, screenshot:" + screenshot + ' ' + err);
         }
     }
 
     async getFragmentDropdownOptions() {
-        let locator = this.fragmentDropdown + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
-        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
-        return await this.getTextInDisplayedElements(locator);
+        let fragmentDropdown = new FragmentDropdown();
+        return await fragmentDropdown.getOptionsDisplayName();
     }
 
     async typeNameAndSelectFragment(displayName) {
-        await this.waitForElementDisplayed(this.fragmentDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, appConst.TIMEOUT_5);
-        await this.typeTextInInput(this.fragmentDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, displayName);
-        return await this.clickOnOptionInFragmentDropdown(displayName);
+        let fragmentDropdown = new FragmentDropdown();
+        await fragmentDropdown.selectFilteredFragment(displayName, xpath.container);
     }
 
-    async clickOnOptionInFragmentDropdown(option) {
-        let optionSelector = lib.slickRowByDisplayName(this.fragmentDropdown, option);
-        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-        await this.clickOnElement(optionSelector);
+    async clickOnOptionInFragmentDropdown(optionDisplayName) {
+        let fragmentDropdown = new FragmentDropdown();
+        await fragmentDropdown.clickOnOptionByDisplayName(optionDisplayName, xpath.container);
         await this.waitForSpinnerNotVisible();
-        return await this.pause(2000);
     }
 
     waitForOpened() {
@@ -78,15 +76,15 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async getSelectedOptionPath() {
-        let selector = xpath.container + "//form[contains(@id,'FragmentSelectorForm')]" + xpath.selectedOptionView + lib.P_SUB_NAME;
-        return await this.getText(selector);
+        let fragmentDropdown = new FragmentDropdown();
+        return await fragmentDropdown.getSelectedOptionPath(xpath.container)
     }
 
     async waitForEmptyOptionsMessage() {
         try {
-            return await this.waitForElementDisplayed(xpath.container + lib.EMPTY_OPTIONS_DIV, appConst.longTimeout);
+            return await this.waitForElementDisplayed(xpath.container + lib.EMPTY_OPTIONS_H5, appConst.longTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_empty_options"));
+            await this.saveScreenshotUniqueName('err_empty_options');
             throw new Error("Empty options text is not visible " + err);
         }
     }

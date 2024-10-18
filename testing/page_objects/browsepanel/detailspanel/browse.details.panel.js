@@ -12,11 +12,11 @@ const xpath = {
 class BrowseDetailsPanel extends BaseDetailsPanel {
 
     get widgetSelectorDropdownHandle() {
-        return xpath.container + lib.WIDGET_SELECTOR_DROPDOWN + lib.DROP_DOWN_HANDLE;
+        return xpath.container + lib.DROPDOWN_SELECTOR.WIDGET_FILTER_DROPDOWN + lib.DROP_DOWN_HANDLE;
     }
 
     get widgetSelectorDropdown() {
-        return xpath.container + lib.WIDGET_SELECTOR_DROPDOWN;
+        return xpath.container + lib.DROPDOWN_SELECTOR.WIDGET_FILTER_DROPDOWN;
     }
 
     isPanelVisible() {

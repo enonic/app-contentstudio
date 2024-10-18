@@ -45,7 +45,7 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             let actualMode = await insertLinkDialogContentPanel.getOptionsMode();
             assert.equal(actualMode, 'tree', 'Content selector should be in tree mode');
             // 4. Verify - content name that starts the same as the current site(duplicated content) should not be present in the options:
-            let items = await insertLinkDialogContentPanel.getDropdownListOptionsName();
+            let items = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayNameInTreeMode()
             await studioUtils.saveScreenshot('duplicated_content_is_not_present_in_options');
             // Only one item should be present in the list of options in Tree mode:
             assert.equal(items.length, 1, 'Only one item should be present in the list of options');
@@ -67,7 +67,7 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             await insertLinkDialogContentPanel.pause(1000);
             await studioUtils.saveScreenshot('duplicated_content_is_present_in_options');
             // 4. Verify - content name that starts the same as the current site(duplicated content) should be present in the options:
-            let items = await insertLinkDialogContentPanel.getDropdownListOptionsName();
+            let items = await insertLinkDialogContentPanel.getContentSelectorOptionsNameInTreeMode();
             assert.ok(items.includes('/' + DUPLICATED_SITE_NAME), 'Duplicated site should be present in the options');
         });
 

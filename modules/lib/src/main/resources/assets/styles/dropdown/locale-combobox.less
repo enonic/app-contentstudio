@@ -1,0 +1,32 @@
+.locale-combobox {
+  .locale-list-box {
+    max-height: 370px;
+    overflow: auto;
+
+    .item-view-wrapper {
+      padding: 0;
+      height: 30px;
+
+      .viewer {
+        height: 30px;
+        padding: 0 8px;
+        display: flex;
+        align-items: center;
+      }
+
+      &.selected {
+        .viewer {
+            .@{_COMMON_PREFIX}names-view {
+              .@{_COMMON_PREFIX}main-name {
+                color: @admin-white;
+              }
+
+              .@{_COMMON_PREFIX}sub-name {
+                color: @admin-white;
+              }
+            }
+        }
+      }
+    }
+  }
+}

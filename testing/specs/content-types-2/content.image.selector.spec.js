@@ -8,7 +8,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ImageSelectorForm = require('../../page_objects/wizardpanel/imageselector.form.panel');
 const appConst = require('../../libs/app_const');
 
-describe('content.image.selector: Image content specification', function () {
+describe('content.image.selector: Image selector dropdown specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -16,12 +16,32 @@ describe('content.image.selector: Image content specification', function () {
 
     let SITE;
     const FOLDER_WITH_FILES = 'selenium-tests-folder';
+    const EXPECTETD_NUMBER_OF_ITEMS_IN_SELECTOR = 15;
 
     it(`Preconditions: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
+        });
+
+    it(`GIVEN display name of an image has been typed in option filter input (tree mode) WHEN the image has been clicked THEN then the option should be selected after clicking on OK button`,
+        async () => {
+            let imageSelectorForm = new ImageSelectorForm();
+            // 1. Open wizard with Image Selector:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
+            // 2. switch the selector to tree mode:
+            await imageSelectorForm.clickOnModeTogglerButton();
+            // 3. Type the image display-name in the filter input:
+            await imageSelectorForm.doFilterOptions(appConst.TEST_IMAGES.KOTEY);
+            // 4. Click on the filtered image:
+            // TODO - check it : Click on the expander-icon for the folder-item in the dropdown-list and expand the folder:
+            await imageSelectorForm.clickOnExpanderIconInOptionsList(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
+            await imageSelectorForm.clickOnImageOptionInTreeMode(appConst.TEST_IMAGES.KOTEY);
+            await imageSelectorForm.clickOnOkAndApplySelectionButton();
+            // 5. Verify that the selected image is displayed in the selected options:
+            let result = await imageSelectorForm.getSelectedImages();
+            assert.equal(result[0], appConst.TEST_IMAGES.KOTEY, "Expected image should be displayed in the selected options");
         });
 
     it(`GIVEN wizard for image-selector is opened WHEN 'zzzzzz' typed in the filter input THEN 'No matching items' should appear`,
@@ -70,11 +90,11 @@ describe('content.image.selector: Image content specification', function () {
             // 2. Switch the selector to Tree-mode and expand the test folder:
             await imageSelectorForm.clickOnModeTogglerButton();
             // 3. Expand a folder with images:
-            await imageSelectorForm.expandFolderInOptions(appConst.TEST_FOLDER_NAME);
-            // 4. Verify that content status is displayed in each option
+            await imageSelectorForm.clickOnExpanderIconInOptionsList(appConst.TEST_FOLDER_NAME);
+            // 4. Verify that content status is displayed for each option
             await studioUtils.saveScreenshot('img_sel_tree_mode_status');
-            let statusList = await imageSelectorForm.getTreeModeOptionStatus();
-            assert.ok(statusList.length > 0, "Content status should be displayed in each row");
+            let statusList = await imageSelectorForm.getImagesStatusInOptions();
+            assert.ok(statusList.length >= EXPECTETD_NUMBER_OF_ITEMS_IN_SELECTOR, "Content status should be displayed for each item");
         });
 
     it(`GIVEN wizard for image-selector is opened WHEN 'dropdown handle' button has been pressed THEN flat mode should be present in the options list`,
@@ -102,7 +122,7 @@ describe('content.image.selector: Image content specification', function () {
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_1_1);
             // 2. Type the folder-name:
             await imageSelectorForm.doFilterOptions(FOLDER_WITH_FILES);
-            // 3. Verify that expected options are present in the expanded list:
+            // 3. Verify that expected images (options) are present in the expanded list: there are only 2 images in this folder.
             let optionsName = await imageSelectorForm.getFlatModeOptionImageNames();
             await studioUtils.saveScreenshot('img_sel_filtered');
             assert.equal(optionsName.length, 2, 'one option should be present in options, because text files should be filtered');

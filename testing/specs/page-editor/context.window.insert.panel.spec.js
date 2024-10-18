@@ -19,7 +19,7 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = 'main region';
 
     it(`GIVEN wizard for new site is opened WHEN 2 applications haven checked in the app-dropdown AND 'Apply' button has been pressed THEN the site should be automatically saved`,
         async () => {
@@ -76,6 +76,7 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             await insertablesPanel.waitForOpened();
             // 2. Verify items in the panel:
             let items = await insertablesPanel.getItems();
+            await studioUtils.saveScreenshot('insertables_options');
             assert.equal(items.length, 4, 'Four items should be present in the panel');
             assert.ok(items.includes('Part'), "'Part' item should be displayed");
             assert.ok(items.includes('Layout'), "'Layout' item should be displayed");

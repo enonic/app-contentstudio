@@ -20,8 +20,8 @@ describe('Test for updating text in fragment', function () {
 
     const SITE_NAME = appConst.generateRandomName('site');
     let CONTROLLER_NAME = 'main region';
-    const GENERATED_TEXT_2 = appConst.generateRandomName('test');
-    const GENERATED_TEXT_1 = appConst.generateRandomName('test');
+    const GENERATED_TEXT_2 = appConst.generateRandomName('second');
+    const GENERATED_TEXT_1 = appConst.generateRandomName('first');
 
     it(`GIVEN new fragment has been saved WHEN the text has been updated THEN text in the site's Live Form should be updated as well`,
         async () => {
@@ -110,7 +110,6 @@ describe('Test for updating text in fragment', function () {
             await contentWizard.switchToMainFrame();
             await contentWizard.waitForSaveButtonEnabled();
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
