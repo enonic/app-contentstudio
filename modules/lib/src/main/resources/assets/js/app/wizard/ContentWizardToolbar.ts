@@ -5,6 +5,7 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import * as Q from 'q';
+import {AI} from '../ai/AI';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ProjectContext} from '../project/ProjectContext';
@@ -23,6 +24,7 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 
+
 export interface ContentWizardToolbarConfig extends ToolbarConfig {
     actions: ContentWizardActions;
     workflowStateIconsManager: WorkflowStateManager;
@@ -40,7 +42,9 @@ export class ContentWizardToolbar
 
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
 
-    private collaborationBlock?: DivEl;
+    private collaborationBlock?: CollaborationEl;
+
+    private aiContentOperatorContainer: DivEl;
 
     private stateIcon?: DivEl;
 
@@ -60,6 +64,7 @@ export class ContentWizardToolbar
         }
 
         this.addPublishMenuButton();
+        this.addEnonicAiContentOperatorButton();
         this.addTogglerButtons();
 
         this.fetchProjectInfo();
@@ -134,13 +139,40 @@ export class ContentWizardToolbar
         return !this.collaborationBlock && !!this.getItem() && this.isCollaborationEnabled();
     }
 
+    private fetchProjectInfo() {
+        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+            this.initProjectViewer(projects);
+            return Q.resolve();
+        }).catch((reason) => {
+            this.initProjectViewer([
+                Project.create()
+                    .setName(ProjectContext.get().getProject().getName())
+                    .build()
+            ]);
+            DefaultErrorHandler.handle(reason);
+            return Q.reject(reason);
+        });
+    }
+
     private addCollaboration(): void {
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
         this.addElement(this.collaborationBlock, false);
         this.openCollaborationWSConnection();
+        this.addContentOperatorIntoCollaborationBlock();
     }
 
-    private fetchProjectInfo() {
+    private addEnonicAiContentOperatorButton(): void {
+        AI.get().whenReady(() => {
+            if (AI.get().has('contentOperator')) {
+                this.aiContentOperatorContainer = new DivEl('ai-assistant-container');
+                this.addElement(this.aiContentOperatorContainer);
+                this.addContentOperatorIntoCollaborationBlock();
+                AI.get().renderContentOperator(this.aiContentOperatorContainer.getHTMLElement());
+            }
+        });
+    }
+
+    private addHomeButton(): void {
         new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
             this.initProjectViewer(projects);
             return Q.resolve();
@@ -250,6 +282,12 @@ export class ContentWizardToolbar
 
     getStateIcon(): DivEl {
         return this.stateIcon;
+    }
+
+    private addContentOperatorIntoCollaborationBlock(): void {
+        if (this.collaborationBlock && this.aiContentOperatorContainer) {
+            this.collaborationBlock.prependChild(this.aiContentOperatorContainer);
+        }
     }
 
     protected openShowPublishedVersionChangesDialog() {

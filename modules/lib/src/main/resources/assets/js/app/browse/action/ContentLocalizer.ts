@@ -1,13 +1,13 @@
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import * as Q from 'q';
-import {ProjectContext} from '../../project/ProjectContext';
-import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentId} from '../../content/ContentId';
-import {LocalizeContentsRequest} from '../../resource/LocalizeContentsRequest';
 import {ContentSummary} from '../../content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentEventsProcessor} from '../../ContentEventsProcessor';
+import {EditContentEvent} from '../../event/EditContentEvent';
+import {ProjectContext} from '../../project/ProjectContext';
+import {LocalizeContentsRequest} from '../../resource/LocalizeContentsRequest';
 
-export class ContentsLocalizer {
+export class ContentLocalizer {
 
     private contents: ContentSummaryAndCompareStatus[];
 

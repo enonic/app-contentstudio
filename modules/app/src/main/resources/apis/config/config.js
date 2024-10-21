@@ -16,6 +16,9 @@ function handleGet() {
         app.name,
         'main'
     );
+    const sagaPollDelay = Number(app.config['openai.poll.delay']) || 0;
+    const sagaPollLimit = Number(app.config['openai.poll.limit']) || 0;
+
     return {
         status: 200,
         contentType: 'application/json',
@@ -58,6 +61,18 @@ function handleGet() {
                 exportServiceUrl: portal.apiUrl({
                     application: app.name,
                     api: 'export',
+                }),
+                aiContentOperatorServiceUrl: portal.apiUrl({
+                    application: 'com.enonic.app.ai.contentoperator',
+                    api: 'rest',
+                }),
+                aiTranslatorServiceUrl: portal.apiUrl({
+                    application: 'com.enonic.app.ai.translator',
+                    api: 'rest',
+                }),
+                appServiceUrl: portal.apiUrl({
+                    application: app.name,
+                    api: 'applications',
                 }),
             },
             theme: 'light',

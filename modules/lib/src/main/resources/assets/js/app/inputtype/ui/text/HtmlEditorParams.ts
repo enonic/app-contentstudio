@@ -19,7 +19,7 @@ export class HtmlEditorParams {
     private readonly keydownHandler: (e: KeyboardEvent) => void;
     private readonly nodeChangeHandler: () => void;
     private readonly editorLoadedHandler: () => void;
-    private readonly editorReadyHandler: () => void;
+    private readonly editorReadyHandler: (eventInfo: CKEDITOR.eventInfo) => void;
     private readonly saveHandler?: () => void;
     private readonly createDialogHandler: (event: CreateHtmlAreaDialogEvent) => void;
     private readonly inline: boolean = false;
@@ -31,6 +31,7 @@ export class HtmlEditorParams {
     private readonly disabledTools: string[];
     private readonly allowedHeadings: string;
     private readonly langDirection: LangDirection;
+    private readonly label: string;
 
     constructor(builder: HtmlEditorParamsBuilder) {
         if (!builder.assetsUri || !builder.editorContainerId) {
@@ -61,6 +62,7 @@ export class HtmlEditorParams {
         this.disabledTools = builder.disabledTools;
         this.allowedHeadings = builder.allowedHeadings;
         this.langDirection = builder.langDirection;
+        this.label = builder.label;
     }
 
     getContent(): ContentSummary {
@@ -131,7 +133,7 @@ export class HtmlEditorParams {
         return !!this.editorReadyHandler;
     }
 
-    getEditorReadyHandler(): () => void {
+    getEditorReadyHandler(): (eventInfo: CKEDITOR.eventInfo) => void {
         return this.editorReadyHandler;
     }
 
@@ -187,6 +189,10 @@ export class HtmlEditorParams {
         return this.project;
     }
 
+    getLabel(): string {
+        return this.label;
+    }
+
     public static create(): HtmlEditorParamsBuilder {
         return new HtmlEditorParamsBuilder();
     }
@@ -214,7 +220,7 @@ export class HtmlEditorParamsBuilder {
 
     editorLoadedHandler: () => void;
 
-    editorReadyHandler: () => void;
+    editorReadyHandler: (eventInfo: CKEDITOR.eventInfo) => void;
 
     saveHandler: () => void;
 
@@ -239,6 +245,8 @@ export class HtmlEditorParamsBuilder {
     langDirection: LangDirection = LangDirection.AUTO;
 
     project: Project;
+
+    label: string;
 
     setEditableSourceCode(value: boolean): HtmlEditorParamsBuilder {
         this.editableSourceCode = value;
@@ -296,7 +304,7 @@ export class HtmlEditorParamsBuilder {
         return this;
     }
 
-    setEditorReadyHandler(editorReadyHandler: () => void): HtmlEditorParamsBuilder {
+    setEditorReadyHandler(editorReadyHandler: (eventInfo: CKEDITOR.eventInfo) => void): HtmlEditorParamsBuilder {
         this.editorReadyHandler = editorReadyHandler;
         return this;
     }
@@ -353,6 +361,11 @@ export class HtmlEditorParamsBuilder {
 
     setProject(value: Project): HtmlEditorParamsBuilder {
         this.project = value;
+        return this;
+    }
+
+    setLabel(value: string): HtmlEditorParamsBuilder {
+        this.label = value;
         return this;
     }
 

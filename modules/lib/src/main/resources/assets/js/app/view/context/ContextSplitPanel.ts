@@ -1,18 +1,18 @@
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from '@enonic/lib-admin-ui/ui/panel/SplitPanel';
 import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {DockedContextPanel} from './DockedContextPanel';
-import {ContextView} from './ContextView';
-import {InspectEvent} from '../../event/InspectEvent';
-import {ToggleContextPanelEvent} from './ToggleContextPanelEvent';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ContextPanelState} from './ContextPanelState';
-import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveRange} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {InspectEvent} from '../../event/InspectEvent';
+import {ContextPanelState} from './ContextPanelState';
 import {ContextPanelStateEvent} from './ContextPanelStateEvent';
+import {ContextView} from './ContextView';
+import {DockedContextPanel} from './DockedContextPanel';
+import {ToggleContextPanelEvent} from './ToggleContextPanelEvent';
 
 export enum ContextPanelMode {
     DOCKED = 'docked',
@@ -58,7 +58,12 @@ export class ContextSplitPanel
             }
         });
 
-        ToggleContextPanelEvent.on(() => {
+        ToggleContextPanelEvent.on((event) => {
+            const canToggle = this.getState() !== event.getState();
+            if (!canToggle) {
+                return;
+            }
+
             if (this.isExpanded()) {
                 this.hideContextPanel();
             } else {
@@ -216,7 +221,7 @@ export class ContextSplitPanel
     }
 
     isExpanded(): boolean {
-        return !this.isCollapsed();
+        return this.contextPanelState === ContextPanelState.EXPANDED;
     }
 
     isCollapsed(): boolean {
