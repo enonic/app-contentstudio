@@ -2414,7 +2414,7 @@ export class ContentWizardPanel
             this.formContext = ContentFormContext.create()
                 .setContentTypeName(type)
                 .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
-                .build() as ContentFormContext;
+                .build();
         }
 
         this.formContext
