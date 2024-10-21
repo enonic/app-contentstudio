@@ -3,6 +3,24 @@
 const admin = require('/lib/xp/admin');
 const portal = require('/lib/xp/portal');
 const contextLib = require('/lib/xp/context');
+const i18n = require('/lib/xp/i18n');
+
+function getPhrases() {
+    const locales = admin.getLocales();
+    const phrases = {};
+    const bundles = ['i18n/common', 'i18n/common_wcag', 'i18n/phrases', 'i18n/dialogs', 'i18n/wcag', 'i18n/page-editor'];
+
+    bundles.forEach(function (bundle) {
+        const bundlePhrases = i18n.getPhrases(locales, [bundle]);
+        for (const key in bundlePhrases) {
+            if (Object.prototype.hasOwnProperty.call(bundlePhrases, key)) {
+                phrases[key] = bundlePhrases[key];
+            }
+        }
+    });
+
+    return phrases;
+}
 
 function getConfig() {
     const context = contextLib.get();
@@ -35,9 +53,6 @@ function getConfig() {
             contentUrl: portal.apiUrl({
                 api: 'content',
             }),
-            i18nUrl: portal.apiUrl({
-                api: 'i18n',
-            }),
             licenseUrl: portal.apiUrl({
                 api: 'license',
             }),
@@ -60,6 +75,7 @@ function getConfig() {
             application: 'admin',
             api: 'widget',
         }),
+        phrasesAsJson: JSON.stringify(getPhrases(), null, 4),
     };
 }
 
