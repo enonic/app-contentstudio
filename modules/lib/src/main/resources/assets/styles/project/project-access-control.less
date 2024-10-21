@@ -10,12 +10,6 @@
   }
 
   .project-access-control-entry.selected-option {
-    position: relative;
-    padding: 5px;
-    display: flex;
-    flex-flow: row;
-    .clearfix();
-
     &.dirty {
       .access-selector {
         .tab-menu-button {
@@ -35,13 +29,6 @@
       }
     }
 
-    .names-and-icon-view {
-      float: left;
-      margin: 0 10px 0 0;
-      min-width: 200px;
-      flex: 1 auto;
-    }
-
     .icon-close-mixin();
 
     .permission-selector {
@@ -50,10 +37,7 @@
     }
 
     .access-selector {
-      float: left;
       min-width: 150px;
-      margin: 0 10px 0 0;
-      flex-shrink: 0;
 
       &.expanded {
         .tab-menu-button {
@@ -80,9 +64,8 @@
         }
       }
 
-      ul {
-        padding: 36px 4px 4px;
-        top: -8px;
+      .menu {
+        top: -87px;
       }
     }
 

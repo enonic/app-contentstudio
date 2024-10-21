@@ -1,21 +1,19 @@
-import {Access} from './Access';
-
 export class AccessChangedEvent {
 
-    private oldValue: Access;
+    private readonly oldValue: string;
 
-    private newValue: Access;
+    private readonly newValue: string;
 
-    constructor(oldValue: Access = Access.READ, newValue: Access = Access.READ) {
+    constructor(oldValue: string, newValue: string) {
         this.oldValue = oldValue;
         this.newValue = newValue;
     }
 
-    getOldValue(): Access {
+    getOldValue(): string {
         return this.oldValue;
     }
 
-    getNewValue(): Access {
+    getNewValue(): string {
         return this.newValue;
     }
 
