@@ -66,7 +66,7 @@ function handleGet() {
                     application: 'com.enonic.app.ai.contentoperator',
                     api: 'rest',
                 }),
-                sagaTranslationServiceUrl: portal.apiUrl({
+                aiTranslatorServiceUrl: portal.apiUrl({
                     application: 'com.enonic.app.ai.translator',
                     api: 'rest',
                 }),

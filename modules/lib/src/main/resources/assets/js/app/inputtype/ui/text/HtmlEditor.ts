@@ -185,12 +185,6 @@ export class HtmlEditor {
 
         });
 
-        this.editor.on('openSaga', (event: eventInfo) => {
-            const data = event.data satisfies SagaHtmlEditorEventData;
-            new ToggleContextPanelEvent(ContextPanelState.EXPANDED).fire();
-            new UpdateSagaWidgetItemView({...data, editor: this}).fire();
-        });
-
         this.editor.on('saveSnapshot', (evt: CKEDITOR.eventInfo) => {
             if (!this.isSaveSnapshotAllowed) {
                 evt.cancel();

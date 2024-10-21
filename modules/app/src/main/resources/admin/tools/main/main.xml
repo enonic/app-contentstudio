@@ -18,5 +18,7 @@
     <api>com.enonic.xp.app.main:i18n</api>
     <api>admin:widget</api>
     <api>com.enonic.app.contentstudio.plus:i18n</api>
+    <api>com.enonic.app.ai.contentoperator:rest</api>
+    <api>com.enonic.app.ai.translator:rest</api>
   </apis>
 </tool>

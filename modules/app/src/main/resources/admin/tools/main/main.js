@@ -33,7 +33,7 @@ exports.renderTemplate = function (params) {
     return response;
 }
 
-exports.getParams = function () {
+exports.getParams = function (path) {
     const toolUrlBase = admin.getToolUrl(
         app.name,
         'main'

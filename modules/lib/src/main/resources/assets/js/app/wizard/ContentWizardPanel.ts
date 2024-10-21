@@ -35,7 +35,6 @@ import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
@@ -55,7 +54,6 @@ import {CompareStatus} from '../content/CompareStatus';
 import {Content, ContentBuilder} from '../content/Content';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {ContentId} from '../content/ContentId';
-import {ContentIds} from '../content/ContentIds';
 import {ContentName} from '../content/ContentName';
 import {ContentPath} from '../content/ContentPath';
 import {ContentPathPrettifier} from '../content/ContentPathPrettifier';
@@ -144,18 +142,12 @@ import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {PageTemplate} from '../content/PageTemplate';
-import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {InspectEvent} from '../event/InspectEvent';
 import {PageNavigationEventSource} from './PageNavigationEventData';
 import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
 import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
 import {ContentDiffHelper} from '../util/ContentDiffHelper';
 import {ContentDiff} from '../content/ContentDiff';
-import {AIAssistantEventsMediator} from '../saga/AIAssistantEventsMediator';
-import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
-import {GetLocalesRequest} from '../resource/GetLocalesRequest';
 
 export type FormContextName = 'content' | 'xdata' | 'live';
 
@@ -229,6 +221,8 @@ export class ContentWizardPanel
     private persistedCompareStatus: CompareStatus;
 
     private persistedPublishStatus: PublishStatus;
+
+    private persistedLanguage: string;
 
     private contentAfterLayout: Content;
 
@@ -321,7 +315,7 @@ export class ContentWizardPanel
             AI.get().setCurrentData({
                 fields: this.contentWizardStepForm.getData().toJson(),
                 topic: this.getWizardHeader().getDisplayName(),
-                language: this.peristedLanguage,
+                language: this.persistedLanguage,
             });
         }, 300);
 
@@ -581,6 +575,7 @@ export class ContentWizardPanel
                 this.persistedPublishStatus = loader.publishStatus;
                 this.currentCompareStatus = loader.compareStatus;
                 this.currentPublishStatus = loader.publishStatus;
+                this.persistedLanguage = loader.content?.getLanguage();
 
                 this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNameLabel());
                 this.wizardHeader.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
@@ -2639,6 +2634,7 @@ export class ContentWizardPanel
         ContentContext.get().setContent(content);
         this.persistedPublishStatus = content.getPublishStatus();
         this.persistedCompareStatus = content.getCompareStatus();
+        this.persistedLanguage = content.getLanguage();
 
         this.wizardHeader?.setOnline(!content.isNew());
         this.wizardHeader?.setPath(this.getWizardHeaderPath());

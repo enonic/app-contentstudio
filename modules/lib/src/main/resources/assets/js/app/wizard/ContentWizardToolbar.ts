@@ -139,6 +139,21 @@ export class ContentWizardToolbar
         return !this.collaborationBlock && !!this.getItem() && this.isCollaborationEnabled();
     }
 
+    private fetchProjectInfo() {
+        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+            this.initProjectViewer(projects);
+            return Q.resolve();
+        }).catch((reason) => {
+            this.initProjectViewer([
+                Project.create()
+                    .setName(ProjectContext.get().getProject().getName())
+                    .build()
+            ]);
+            DefaultErrorHandler.handle(reason);
+            return Q.reject(reason);
+        });
+    }
+
     private addCollaboration(): void {
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
         this.addElement(this.collaborationBlock, false);
