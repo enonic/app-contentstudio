@@ -2,7 +2,7 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {EnonicAiConfigData} from '../data/EnonicAiConfigData';
 
-export class EnonicAiTranslatorConfigEvent
+export class AiContentOperatorConfigureEvent
     extends Event {
 
     private readonly payload: EnonicAiConfigData;
@@ -17,11 +17,11 @@ export class EnonicAiTranslatorConfigEvent
         return this.payload;
     }
 
-    static on(handler: (event: EnonicAiTranslatorConfigEvent) => void) {
+    static on(handler: (event: AiContentOperatorConfigureEvent) => void) {
         Event.bind(ClassHelper.getFullName(this), handler);
     }
 
-    static un(handler?: (event: EnonicAiTranslatorConfigEvent) => void) {
+    static un(handler?: (event: AiContentOperatorConfigureEvent) => void) {
         Event.unbind(ClassHelper.getFullName(this), handler);
     }
 
