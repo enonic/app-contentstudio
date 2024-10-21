@@ -635,7 +635,7 @@ function initProjectContext(application: Application): Q.Promise<void> {
     });
 }
 
-(async () => {
+(() => {
     if (!document.currentScript) {
         throw Error('Legacy browsers are not supported');
     }
