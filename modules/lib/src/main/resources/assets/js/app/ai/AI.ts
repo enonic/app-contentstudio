@@ -12,14 +12,14 @@ import {EnonicAiAppliedData} from './event/data/EnonicAiAppliedData';
 import {ContentData} from './event/data/EnonicAiContentData';
 import {EnonicAiContentOperatorSetupData} from './event/data/EnonicAiContentOperatorSetupData';
 import {EnonicAiTranslatorSetupData} from './event/data/EnonicAiTranslatorSetupData';
-import {EnonicAiContentOperatorApplyEvent} from './event/incoming/EnonicAiContentOperatorApplyEvent';
-import {EnonicAiContentOperatorRenderEvent} from './event/incoming/EnonicAiContentOperatorRenderEvent';
-import {EnonicAiContentOperatorShowEvent} from './event/incoming/EnonicAiContentOperatorShowEvent';
-import {EnonicAiTranslatorCompletedEvent} from './event/incoming/EnonicAiTranslatorCompletedEvent';
-import {EnonicAiTranslatorStartedEvent} from './event/incoming/EnonicAiTranslatorStartedEvent';
-import {EnonicAiContentOperatorConfigEvent} from './event/outgoing/EnonicAiContentOperatorConfigEvent';
-import {EnonicAiDataSentEvent} from './event/outgoing/EnonicAiDataSentEvent';
-import {EnonicAiTranslatorConfigEvent} from './event/outgoing/EnonicAiTranslatorConfigEvent';
+import {AiContentOperatorDialogShownEvent} from './event/incoming/AiContentOperatorDialogShownEvent';
+import {AiContentOperatorRenderedEvent} from './event/incoming/AiContentOperatorRenderedEvent';
+import {AiContentOperatorResultAppliedEvent} from './event/incoming/AiContentOperatorResultAppliedEvent';
+import {AiTranslatorCompletedEvent} from './event/incoming/AiTranslatorCompletedEvent';
+import {AiTranslatorStartedEvent} from './event/incoming/AiTranslatorStartedEvent';
+import {AiContentOperatorConfigureEvent} from './event/outgoing/AiContentOperatorConfigureEvent';
+import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigureEvent';
+import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
 
 declare global {
     interface Window {
@@ -36,6 +36,7 @@ interface EnonicAi {
     };
     translator?: {
         setup(setupData: EnonicAiTranslatorSetupData): void;
+        render(container: HTMLElement): void;
         translate(language?: string): Promise<boolean>;
         isAvailable(): boolean;
     }
@@ -70,11 +71,11 @@ export class AI {
             return;
         }
 
-        EnonicAiContentOperatorRenderEvent.on(this.showContentOperatorEventListener);
-        EnonicAiContentOperatorShowEvent.on(this.showContentOperatorEventListener);
-        EnonicAiContentOperatorApplyEvent.on(this.applyContentOperatorEventListener);
-        EnonicAiTranslatorStartedEvent.on(this.translatorStartedEventListener);
-        EnonicAiTranslatorCompletedEvent.on(this.translatorCompletedEventListener);
+        AiContentOperatorRenderedEvent.on(this.showContentOperatorEventListener);
+        AiContentOperatorDialogShownEvent.on(this.showContentOperatorEventListener);
+        AiContentOperatorResultAppliedEvent.on(this.applyContentOperatorEventListener);
+        AiTranslatorStartedEvent.on(this.translatorStartedEventListener);
+        AiTranslatorCompletedEvent.on(this.translatorCompletedEventListener);
 
         this.getContentOperator()?.setup({serviceUrl: CONFIG.getString('services.aiContentOperatorServiceUrl')});
         this.getTranslator()?.setup({serviceUrl: CONFIG.getString('services.aiTranslatorServiceUrl')});
@@ -85,7 +86,7 @@ export class AI {
             const names = fullName.split(' ').map(word => word.substring(0, 1));
             const shortName = (names.length >= 2 ? names.join('') : fullName).substring(0, 2).toUpperCase();
 
-            new EnonicAiContentOperatorConfigEvent({
+            new AiContentOperatorConfigureEvent({
                 user: {
                     fullName,
                     shortName,
@@ -110,7 +111,7 @@ export class AI {
 
     setCurrentData(data: ContentData): void {
         this.currentData = data;
-        new EnonicAiDataSentEvent({data}).fire();
+        new AiUpdateDataEvent({data}).fire();
     }
 
     updateInstructions(configs: ApplicationConfig[]): void {
@@ -138,10 +139,10 @@ export class AI {
     private notifyInstructionsChanged(plugin: EnonicAiPlugin, instructions: string): void {
         switch (plugin) {
         case 'contentOperator':
-            new EnonicAiContentOperatorConfigEvent({instructions}).fire();
+            new AiContentOperatorConfigureEvent({instructions}).fire();
             break;
         case 'translator':
-            new EnonicAiTranslatorConfigEvent({instructions}).fire();
+            new AiTranslatorConfigureEvent({instructions}).fire();
             break;
         }
     }
@@ -170,18 +171,18 @@ export class AI {
         return this.getTranslator()?.isAvailable() ?? false;
     }
 
-    private translatorStartedEventListener = (event: EnonicAiTranslatorStartedEvent) => {
+    private translatorStartedEventListener = (event: AiTranslatorStartedEvent) => {
         AiHelper.getAiHelperByPath(event.path)?.setState(AiHelperState.PROCESSING);
     };
 
-    private translatorCompletedEventListener = (event: EnonicAiTranslatorCompletedEvent) => {
+    private translatorCompletedEventListener = (event: AiTranslatorCompletedEvent) => {
         const helper = AiHelper.getAiHelperByPath(event.path);
         helper?.setValue(event.value);
         helper?.setState(AiHelperState.COMPLETED);
     };
 
     private showContentOperatorEventListener = () => {
-        new EnonicAiDataSentEvent({
+        new AiUpdateDataEvent({
             data: {
                 fields: this.content.getContentData().toJson(),
                 topic: this.content.getDisplayName(),
@@ -194,11 +195,11 @@ export class AI {
         }).fire();
 
         if (this.currentData) {
-            new EnonicAiDataSentEvent({data: this.currentData}).fire();
+            new AiUpdateDataEvent({data: this.currentData}).fire();
         }
     };
 
-    private applyContentOperatorEventListener = (event: EnonicAiContentOperatorApplyEvent) => {
+    private applyContentOperatorEventListener = (event: AiContentOperatorResultAppliedEvent) => {
         const {topic} = event.result;
         const hasDisplayNameChanged = !StringHelper.isEmpty(topic) && topic !== this.content.getDisplayName();
         const displayName = hasDisplayNameChanged ? topic : undefined;
