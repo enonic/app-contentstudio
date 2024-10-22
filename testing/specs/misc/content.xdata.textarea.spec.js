@@ -132,8 +132,8 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let contentWizard = new ContentWizard();
             let xDataTextArea = new XDataTextArea();
             // 1. Open the wizard and type a name:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_0');
-            await contentWizard.typeDisplayName(appConst.generateRandomName('aaa'));
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_0_0);
+            await contentWizard.typeDisplayName(appConst.generateRandomName('atest'));
             // 2. Do enable the x-data:
             await contentWizard.clickOnXdataTogglerByName('Text Area x-data');
             // 3. Save the content:
@@ -149,7 +149,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let contentWizard = new ContentWizard();
             let xDataTextArea = new XDataTextArea();
             // 1. Open the wizard and type a name:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_0');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_0_0);
             await contentWizard.typeDisplayName(DOUBLE_0_0_CONTENT);
             // 2. Do enable the x-data:
             await contentWizard.clickOnXdataTogglerByName('Text Area x-data');

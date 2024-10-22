@@ -22,7 +22,7 @@ const XPATH = {
     localeComboBoxDiv: "//div[contains(@id,'LocaleComboBox')]",
     projectApplicationsComboboxDiv: "//div[contains(@id, 'ProjectApplicationsComboBox')]",
     languageSelectedOption: "//div[contains(@id,'LocaleSelectedOptionView')]",
-    projectAccessSelectorTabMenu: "//div[contains(@id,'ProjectAccessSelector') and contains(@class,'tab-menu access-selector')]",
+    projectAccessSelectorTabMenu: "//div[contains(@id,'AccessSelector') and contains(@class,'tab-menu access-selector')]",
     selectedAppView: "//div[contains(@id,'ProjectSelectedApplicationViewer')]",
     accessItemByName:
         name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`,
@@ -372,7 +372,7 @@ class ProjectWizardPanel extends Page {
         await this.clickOnElement(selector);
         await this.waitForProjectAccessSelectorTabMenuExpanded(principalName);
         await this.pause(1000);
-        return await this.getTextInElements(selector + "//li[contains(@id,'TabMenuItem')]//a");
+        return await this.getTextInDisplayedElements(selector + "//li[contains(@id,'TabMenuItem')]//a");
     }
 
     async clickOnWizardStep(title) {
@@ -434,7 +434,7 @@ class ProjectWizardPanel extends Page {
             await this.waitForElementNotDisplayed(removeIconLocator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_proj_wizard_page_remove_icon');
-            throw new Error("Project wizard page - 'remove app' icon should not be displayed, screenshot: " + screenshot + ' ' + err);
+            throw new Error(`Project wizard page - 'remove app' icon should not be displayed, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -444,7 +444,7 @@ class ProjectWizardPanel extends Page {
             await this.waitForElementDisplayed(removeIconLocator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_proj_wizard_page_remove_icon');
-            throw new Error("Project wizard page - 'remove app' icon should be displayed, screenshot: " + screenshot + ' ' + err);
+            throw new Error(`Project wizard page - 'remove app' icon should be displayed, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -456,7 +456,7 @@ class ProjectWizardPanel extends Page {
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_project_remove_icon');
-            throw new Error('Error during clicking on remove application icon, screenshot: ' + screenshot + "  " + err);
+            throw new Error(`Error during clicking on remove application icon, screenshot: ${screenshot}` + err);
         }
     }
 

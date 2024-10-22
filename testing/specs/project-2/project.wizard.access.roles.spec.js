@@ -40,6 +40,8 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
             assert.equal(actualRole, appConst.PROJECT_ROLES.CONTRIBUTOR, "Contributor role should be set by default");
         });
 
+    // Verify https://github.com/enonic/app-contentstudio/issues/7978
+    // Refactor AccessSelector #7978
     it(`GIVEN existing project(with project access entry) is opened WHEN Project Access Menu has been expanded THEN expected roles should be present in the menu`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -48,13 +50,13 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
+            await projectWizard.clickOnWizardStep('Roles');
             let result = await projectWizard.getAvailableProjectAccessRoles('su');
-            // 2. Verify that expected roles are displayed in the menu:
-            assert.equal(result[0], appConst.PROJECT_ROLES.CONTRIBUTOR, "'Contributor' role should be in the options");
-            assert.equal(result[1], appConst.PROJECT_ROLES.AUTHOR, "'Author' role should be in the options");
-            assert.equal(result[2], appConst.PROJECT_ROLES.EDITOR, "'Editor' role should be in the options");
-            assert.equal(result[3], appConst.PROJECT_ROLES.OWNER, "'Owner' role should be in the options");
-            assert.equal(result.length, 4, "4 roles should be in the options");
+            // 2. Verify that 3 expected options (roles) are displayed in the menu:
+            assert.equal(result[0], appConst.PROJECT_ROLES.OWNER, "'Owner' role should be in the options");
+            assert.equal(result[1], appConst.PROJECT_ROLES.EDITOR, "'Editor' role should be in the options");
+            assert.equal(result[2], appConst.PROJECT_ROLES.AUTHOR, "'Author' role should be in the options");
+            assert.equal(result.length, 3, "3 options (roles) should be in the options");
         });
 
     it(`GIVEN existing project(with project access entry) is opened WHEN default role has been changed THEN 'Save' button gets enabled`,
