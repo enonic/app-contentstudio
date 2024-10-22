@@ -135,7 +135,7 @@ export class ContentWizardToolbar
     private addEnonicAiContentOperatorButton(): void {
         AI.get().whenReady(() => {
             if (AI.get().has('contentOperator')) {
-                this.aiContentOperatorContainer = new DivEl('ai-assistant-container');
+                this.aiContentOperatorContainer = new DivEl('ai-content-operator-container');
                 this.addElement(this.aiContentOperatorContainer);
                 this.addContentOperatorIntoCollaborationBlock();
                 AI.get().renderContentOperator(this.aiContentOperatorContainer.getHTMLElement());

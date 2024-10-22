@@ -1,19 +1,19 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {EnonicAiContentData} from '../data/EnonicAiContentData';
+import {AiData} from '../data/AiData';
 
 export class AiUpdateDataEvent
     extends Event {
 
-    private readonly payload: EnonicAiContentData;
+    private readonly payload: AiData;
 
-    constructor(data: EnonicAiContentData) {
+    constructor(data: AiData) {
         super();
 
         this.payload = data;
     }
 
-    getData(): EnonicAiContentData {
+    getData(): AiData {
         return this.payload;
     }
 
