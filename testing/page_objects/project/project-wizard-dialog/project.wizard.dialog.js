@@ -46,7 +46,7 @@ class ProjectWizardDialog extends Page {
             return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
-            throw new Error('Copy from parent button is displayed: screenshot ' + screenshot + "  " + err);
+            throw new Error(`Copy from parent button is displayed: screenshot ${screenshot} ` + err);
         }
     }
 
@@ -56,7 +56,7 @@ class ProjectWizardDialog extends Page {
             return await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
-            throw new Error('Copy from parent button is not displayed, screenshot: ' + screenshot + '  ' + err);
+            throw new Error(`Copy from parent button is not displayed, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -69,7 +69,7 @@ class ProjectWizardDialog extends Page {
                 {timeout: appConst.mediumTimeout, reverse: true, timeoutMsg: 'Copy button should be disabled!'});
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
-            throw new Error('Copy from parent button is not disabled, screenshot: ' + screenshot + '  ' + err);
+            throw new Error(`Copy from parent button is not disabled, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -82,7 +82,7 @@ class ProjectWizardDialog extends Page {
                 {timeout: appConst.mediumTimeout, timeoutMsg: 'Copy button should be enabled!'});
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
-            throw new Error('Copy from parent button is not enabled, screenshot: ' + screenshot + '  ' + err);
+            throw new Error(`Copy from parent button is not enabled, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -94,7 +94,7 @@ class ProjectWizardDialog extends Page {
             return await elements[0].click();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
-            throw new Error("Click on 'Copy from parent' button, screenshot: " + screenshot + "  " + err);
+            throw new Error(`Click on 'Copy from parent' button, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -103,8 +103,8 @@ class ProjectWizardDialog extends Page {
             await this.waitForSkipButtonDisplayed();
             return await this.waitForElementEnabled(this.skipButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_skip_button'));
-            throw new Error('Skip button is not enabled: ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_skip_button');
+            throw new Error(`Skip button is not enabled: screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -124,7 +124,7 @@ class ProjectWizardDialog extends Page {
             return await this.waitUntilDisplayed(this.nextButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_next_button');
-            throw new Error("'Next' button is not displayed:screenshot " + screenshot + ' ' + err);
+            throw new Error(`'Next' button is not displayed:screenshot ${screenshot} ` + err);
         }
     }
 
@@ -172,8 +172,8 @@ class ProjectWizardDialog extends Page {
             await this.clickOnElement(this.cancelButtonTop);
             return await this.waitForDialogClosed();
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_cancel_button'));
-            throw new Error('Layers Content Tree dialog, error when clicking on Cancel(Top) button  ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_cancel_button');
+            throw new Error('Project Wizard dialog, error when clicking on Cancel(Top) button  ' + err);
         }
     }
 
@@ -182,7 +182,7 @@ class ProjectWizardDialog extends Page {
             return await this.waitForElementNotDisplayed(XPATH.container, appConst.saveProjectTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_wizard_not_closed');
-            throw new Error('Layers Content Tree dialog should be closed, screenshot ' + screenshot + '  ' + err);
+            throw new Error('Project Wizard dialog should be closed, screenshot ' + screenshot + '  ' + err);
         }
     }
 
@@ -190,7 +190,7 @@ class ProjectWizardDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.cancelButtonTop, appConst.shortTimeout);
         } catch (err) {
-            throw new Error('Layers Content Tree dialog dialog - Cancel button is not displayed :' + err);
+            throw new Error('Project Wizard dialog - Cancel button is not displayed :' + err);
         }
     }
 

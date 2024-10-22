@@ -170,7 +170,7 @@ export class UserAccessWidgetItemView
     private getEveryoneAccessDescription(content: Content): string {
         const everyoneAccess: Access = this.getEveryoneAccessValue(content);
 
-        return everyoneAccess ? i18n(`field.access.${everyoneAccess}.everyone`) : i18n('widget.useraccess.restricted');
+        return everyoneAccess ? i18n(`field.access.${everyoneAccess.toLowerCase()}.everyone`) : i18n('widget.useraccess.restricted');
 
     }
 }

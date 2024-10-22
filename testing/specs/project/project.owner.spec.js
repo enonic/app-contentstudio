@@ -88,6 +88,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
+            await projectWizard.clickOnWizardStep('Roles');
             await studioUtils.saveScreenshot('project_owner_1');
             // 12. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
