@@ -7,6 +7,7 @@ import {EffectivePermissionMember} from './EffectivePermissionMember';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {ACCESS_OPTIONS} from './Access';
 
 export class UserAccessListItemView
     extends Viewer<EffectivePermission> {
@@ -51,7 +52,8 @@ export class UserAccessListItemView
         }
 
         if (object) {
-            const status: string = i18n(`security.access.${object.getAccess()}`);
+            const access = object.getAccess().toString();
+            const status = ACCESS_OPTIONS.find((option) => option.id === access).displayName;
             this.accessLine.setHtml(status).setTitle(status);
 
             object.getMembers().map((epm: EffectivePermissionMember) => epm.toPrincipal()).forEach((principal: Principal) => {

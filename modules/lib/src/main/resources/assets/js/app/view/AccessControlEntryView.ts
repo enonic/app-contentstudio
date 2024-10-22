@@ -1,7 +1,7 @@
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {AccessSelector} from '../security/AccessSelector';
 import {PermissionSelector} from '../security/PermissionSelector';
-import {Access} from '../security/Access';
+import {Access, ACCESS_OPTIONS} from '../security/Access';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
@@ -45,7 +45,7 @@ export class AccessControlEntryView
     }
 
     private initAccessSelector(): void {
-        this.accessSelector = new AccessSelector();
+        this.accessSelector = new AccessSelector(ACCESS_OPTIONS);
         this.accessSelector.setEnabled(this.isEditable());
         this.appendChild(this.accessSelector);
     }
@@ -63,7 +63,7 @@ export class AccessControlEntryView
     }
 
     private initSelectorListeners(): void {
-        if (this.accessSelector.getValue() === Access.CUSTOM) {
+        if (this.accessSelector.getValue() === Access.CUSTOM.toString()) {
             this.permissionSelector.onAdded(() => {
                 this.permissionSelector.show();
             });
@@ -78,13 +78,13 @@ export class AccessControlEntryView
         });
 
         this.accessSelector.onValueChanged((event: AccessChangedEvent) => {
-            if (event.getNewValue() === Access.CUSTOM) {
+            if (event.getNewValue() === Access.CUSTOM.toString()) {
                 this.permissionSelector.show();
             } else {
-                if (event.getOldValue() === Access.CUSTOM) {
+                if (event.getOldValue() === Access.CUSTOM.toString()) {
                     this.permissionSelector.hide();
                 }
-                this.permissionSelector.setValue(this.getPermissionsValueFromAccess(event.getNewValue()));
+                this.permissionSelector.setValue(this.getPermissionsValueFromAccess(Access[event.getNewValue()]));
             }
         });
     }
@@ -122,7 +122,7 @@ export class AccessControlEntryView
         return ace;
     }
 
-     
+
     public static getAccessValueFromEntry(ace: AccessControlEntry): Access {
         if (ace.getDeniedPermissions().length > 0) {
             return Access.CUSTOM;
@@ -189,7 +189,7 @@ export class AccessControlEntryView
         };
     }
 
-     
+
     private getPermissionsByAccess(access: Access): Permission[] {
         if (access === Access.FULL) {
             return this.getFullPermissions();

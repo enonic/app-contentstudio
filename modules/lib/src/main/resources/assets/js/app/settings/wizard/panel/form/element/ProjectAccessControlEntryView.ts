@@ -1,13 +1,14 @@
 import {ProjectAccessControlEntry} from '../../../../access/ProjectAccessControlEntry';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {ProjectAccessSelector} from './ProjectAccessSelector';
 import {PrincipalContainerSelectedEntryView} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
-import {ProjectAccessValueChangedEvent} from '../../../../event/ProjectAccessValueChangedEvent';
+import {PROJECT_ACCESS_OPTIONS} from '../../../../access/ProjectAccess';
+import {AccessSelector} from '../../../../../security/AccessSelector';
+import {AccessChangedEvent} from '../../../../../security/AccessChangedEvent';
 
 export class ProjectAccessControlEntryView
     extends PrincipalContainerSelectedEntryView<ProjectAccessControlEntry> {
 
-    private accessSelector: ProjectAccessSelector;
+    private accessSelector: AccessSelector;
 
     public static debug: boolean = false;
 
@@ -45,9 +46,9 @@ export class ProjectAccessControlEntryView
         // permissions will be set on access selector value change
 
         if (!this.accessSelector) {
-            this.accessSelector = new ProjectAccessSelector();
+            this.accessSelector = new AccessSelector(PROJECT_ACCESS_OPTIONS, 'project-access-selector');
             this.accessSelector.setEnabled(this.isEditable());
-            this.accessSelector.onValueChanged((event: ProjectAccessValueChangedEvent) => {
+            this.accessSelector.onValueChanged((event: AccessChangedEvent) => {
                 this.item.setAccess(event.getNewValue());
                 this.notifyValueChanged(this.getItem());
             });

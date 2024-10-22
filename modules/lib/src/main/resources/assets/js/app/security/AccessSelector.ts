@@ -1,26 +1,29 @@
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {TabMenuItem, TabMenuItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
-import {Access, ACCESS_OPTIONS} from './Access';
+import {Access, ACCESS_OPTIONS, AccessOption} from './Access';
 import {TabMenu} from '@enonic/lib-admin-ui/ui/tab/TabMenu';
 import {NavigatorEvent} from '@enonic/lib-admin-ui/ui/NavigatorEvent';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AccessChangedEvent} from './AccessChangedEvent';
 
 export class AccessSelector
     extends TabMenu {
 
-    private value: Access;
+    private value: string;
+    private options: AccessOption[];
     private valueChangedListeners: ((event: AccessChangedEvent) => void)[] = [];
 
-    constructor() {
-        super('access-selector');
+    constructor(options: AccessOption[], cls?: string) {
+        super(`access-selector ${cls || ''}`.trim());
 
-        ACCESS_OPTIONS.forEach((option: Access) => {
+        this.options = options;
+
+        this.options.forEach((option: AccessOption) => {
             let menuItem = (new TabMenuItemBuilder()
-                .setLabel(i18n(`security.access.${option}`))
+                .setLabel(option.displayName)
                 .setAddLabelTitleAttribute(false))
                 .build();
+
             this.addNavigationItem(menuItem);
         });
 
@@ -30,7 +33,7 @@ export class AccessSelector
     initEventHandlers() {
         this.onNavigationItemSelected((event: NavigatorEvent) => {
             let item: TabMenuItem = event.getItem() as TabMenuItem;
-            this.setValue(ACCESS_OPTIONS[item.getIndex()]);
+            this.setValue(this.options[item.getIndex()].id);
         });
 
         this.getTabMenuButtonEl().onKeyDown((event: KeyboardEvent) => {
@@ -64,19 +67,19 @@ export class AccessSelector
         });
     }
 
-    getValue(): Access {
+    getValue(): string {
         return this.value;
     }
 
-    setValue(value: Access, silent?: boolean): AccessSelector {
-        const option: Access = ACCESS_OPTIONS.filter((accessOption: Access) => accessOption === value)[0];
-        if (option) {
-            this.selectNavigationItem(ACCESS_OPTIONS.indexOf(option));
-            if (!silent) {
-                this.notifyValueChanged(new AccessChangedEvent(this.value, value));
-            }
-            this.value = value;
+    setValue(value: string, silent?: boolean): AccessSelector {
+        this.selectNavigationItem(this.options.findIndex((option) => option.id === value));
+
+        if (!silent) {
+            this.notifyValueChanged(new AccessChangedEvent(this.value, value));
         }
+
+        this.value = value;
+
         return this;
     }
 
@@ -86,7 +89,6 @@ export class AccessSelector
     }
 
     showMenu() {
-
         if (this.getSelectedNavigationItem().isVisibleInMenu()) {
             this.resetItemsVisibility();
             this.getSelectedNavigationItem().setVisibleInMenu(false);
