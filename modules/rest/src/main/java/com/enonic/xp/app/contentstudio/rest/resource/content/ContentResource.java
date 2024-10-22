@@ -121,7 +121,6 @@ import com.enonic.xp.attachment.CreateAttachment;
 import com.enonic.xp.attachment.CreateAttachments;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.branch.Branches;
-import com.enonic.xp.content.ActiveContentVersionEntry;
 import com.enonic.xp.content.CompareContentResult;
 import com.enonic.xp.content.CompareContentResults;
 import com.enonic.xp.content.CompareContentsParams;
@@ -152,6 +151,7 @@ import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
 import com.enonic.xp.content.FindContentVersionsParams;
 import com.enonic.xp.content.FindContentVersionsResult;
+import com.enonic.xp.content.GetActiveContentVersionParams;
 import com.enonic.xp.content.GetActiveContentVersionsParams;
 import com.enonic.xp.content.GetActiveContentVersionsResult;
 import com.enonic.xp.content.GetContentByIdsParams;
@@ -1659,16 +1659,8 @@ public final class ContentResource
 
         final Content revertedContent = contentService.update( prepareUpdateContentParams( versionedContent, contentVersionId ) );
 
-        final ContentVersion contentVersion = contentService.getActiveVersions( GetActiveContentVersionsParams.create()
-                                                                                    .branches(
-                                                                                        Branches.from( ContentConstants.BRANCH_DRAFT ) )
-                                                                                    .contentId( revertedContent.getId() )
-                                                                                    .build() )
-            .getActiveContentVersions()
-            .stream()
-            .findAny()
-            .map( ActiveContentVersionEntry::getContentVersion )
-            .orElse( null );
+        final ContentVersion contentVersion = contentService.getActiveVersion(
+            GetActiveContentVersionParams.create().branch( ContentConstants.BRANCH_DRAFT ).contentId( revertedContent.getId() ).build() );
 
         if ( contentVersion != null )
         {
@@ -1696,7 +1688,8 @@ public final class ContentResource
             edit.owner = versionedContent.getOwner();
             edit.thumbnail = versionedContent.getThumbnail();
             edit.workflowInfo = WorkflowInfo.inProgress();
-//            edit.permissions = versionedContent.getPermissions();   // check - Do not copy permissions
+            edit.permissions = versionedContent.getPermissions();
+            edit.inheritPermissions = versionedContent.inheritsPermissions();
         } );
 
         updateAttachments( versionedContent, contentVersionId, updateParams );

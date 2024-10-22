@@ -4,11 +4,9 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.ApplyPermissionsPro
 import com.enonic.xp.content.ApplyContentPermissionsParams;
 import com.enonic.xp.content.ApplyContentPermissionsResult;
 import com.enonic.xp.content.ApplyPermissionsListener;
-import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentIdsByParentResult;
-import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.task.AbstractRunnableTask;
 import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskId;
@@ -36,46 +34,25 @@ public class ApplyPermissionsRunnableTask
         final ApplyPermissionsListener listener = new ApplyPermissionsProgressListener( progressReporter );
 
         final FindContentIdsByParentResult children = this.contentService.findIdsByParent(
-            FindContentByParentParams.create().size( -1 ).recursive( true ).parentId( params.getContentId() ).build() );
+            FindContentByParentParams.create().size( /*ContentResource.GET_ALL_SIZE_FLAG*/-1 ).recursive( true ).parentId(
+                params.getContentId() ).build() );
 
         listener.setTotal( ( (Long) children.getTotalHits() ).intValue() + 1 );
 
-        final ApplyContentPermissionsResult result = contentService.applyPermissions( ApplyContentPermissionsParams.create()
-                                                                                          .contentId( params.getContentId() )
-                                                                                          .permissions( params.getPermissions() )
-                                                                                          .addPermissions( params.getAddPermissions() )
-                                                                                          .removePermissions(
-                                                                                              params.getRemovePermissions() )
-                                                                                          .applyPermissionsScope( params.getScope() )
-                                                                                          .applyContentPermissionsListener( listener )
-                                                                                          .build() );
+        final ApplyPermissionsRunnableTaskResult.Builder resultBuilder = ApplyPermissionsRunnableTaskResult.create();
 
-        final ApplyPermissionsRunnableTaskResult taskResult = createTaskResult( result );
+        final ApplyContentPermissionsResult result = contentService.applyPermissions( ApplyContentPermissionsParams.create().
+            contentId( params.getContentId() ).
+            permissions( params.getPermissions() ).
+            inheritPermissions( params.isInheritPermissions() ).
+            overwriteChildPermissions( params.isOverwriteChildPermissions() ).
+            applyContentPermissionsListener( listener ).
+            build() );
 
-        progressReporter.info( taskResult.toJson() );
-    }
+        resultBuilder.succeeded( result.getSucceedContents() );
+        resultBuilder.failed( result.getSkippedContents() );
 
-    private ApplyPermissionsRunnableTaskResult createTaskResult( final ApplyContentPermissionsResult result )
-    {
-        final ApplyPermissionsRunnableTaskResult.Builder builder = ApplyPermissionsRunnableTaskResult.create();
-
-        result.getResults().entrySet().forEach( branchResultEntry -> {
-            branchResultEntry.getValue().forEach( branchResult -> {
-                if ( ContextAccessor.current().getBranch().equals( branchResult.getBranch() ) )
-                {
-                    if ( branchResult.getContent() != null )
-                    {
-                        builder.succeeded( branchResult.getContent().getPath() );
-                    }
-                    else
-                    {
-                        builder.failed( ContentIds.from( branchResultEntry.getKey() ) );
-                    }
-                }
-            } );
-        } );
-
-        return builder.build();
+        progressReporter.info( resultBuilder.build().toJson() );
     }
 
     public static class Builder

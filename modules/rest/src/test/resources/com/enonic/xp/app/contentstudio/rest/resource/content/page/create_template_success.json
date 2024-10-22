@@ -24,7 +24,7 @@
     "iconUrl": "/admin/rest-v2/cs/schema/content/icon/portal:page-template?hash=e24f8e81ae8d1899b6b48a537174bb62",
     "id": "template-id",
     "inherit": [],
-    "inheritPermissions": false,
+    "inheritPermissions": true,
     "isPage": true,
     "isRoot": false,
     "isValid": false,

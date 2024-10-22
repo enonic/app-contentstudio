@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.DeleteContentJson;
 import com.enonic.xp.branch.Branch;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
@@ -32,6 +33,14 @@ public class DeleteRunnableTaskTest
     public void setUp()
         throws Exception
     {
+        final Content child = Content.create().
+            id( ContentId.from( "id4" ) ).
+            path( "/content/content1/content4" ).
+            name( "content4" ).
+            displayName( "Content 4" ).
+            parentPath( ContentPath.from( "/content/content1" ) ).
+            build();
+        this.contents.add( child );
         this.params = Mockito.mock( DeleteContentJson.class );
 
         Mockito.when( this.contentService.findIdsByParent( Mockito.isA( FindContentByParentParams.class ) ) )
@@ -61,7 +70,7 @@ public class DeleteRunnableTaskTest
             .thenReturn( contents.stream().map( content -> content.getPath().toString() ).collect( Collectors.toSet() ) );
         Mockito.when( contentService.deleteWithoutFetch( Mockito.isA( DeleteContentParams.class ) ) ).
             thenReturn(
-            DeleteContentsResult.create().addDeleted( contents.get( 0 ).getId() ).addDeleted( ContentId.from( "id4" ) ).build() ).
+                DeleteContentsResult.create().addDeleted( contents.get( 0 ).getId() ).addDeleted( contents.get( 3 ).getId() ).build() ).
             thenReturn( DeleteContentsResult.create().addPending( contents.get( 1 ).getId() ).build() ).
             thenThrow( new ContentNotFoundException( contents.get( 2 ).getPath(), Branch.from( "master" ) ) );
         Mockito.when( contentService.getByPath( Mockito.isA( ContentPath.class ) ) ).thenReturn( contents.get( 2 ) );
@@ -84,9 +93,9 @@ public class DeleteRunnableTaskTest
         throws Exception
     {
         Mockito.when( params.getContentPaths() )
-            .thenReturn( contents.subList( 2, 3 ).stream().map( content -> content.getPath().toString() ).collect( Collectors.toSet() ) );
-        Mockito.when( contentService.deleteWithoutFetch( Mockito.isA( DeleteContentParams.class ) ) ).thenReturn(
-            DeleteContentsResult.create().addDeleted( contents.get( 2 ).getId() ).build() );
+            .thenReturn( contents.subList( 3, 4 ).stream().map( content -> content.getPath().toString() ).collect( Collectors.toSet() ) );
+        Mockito.when( contentService.deleteWithoutFetch( Mockito.isA( DeleteContentParams.class ) ) ).
+            thenReturn( DeleteContentsResult.create().addDeleted( contents.get( 3 ).getId() ).build() );
 
         createAndRunTask();
 
@@ -94,7 +103,7 @@ public class DeleteRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 
-        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content3\\\" is deleted.\"}", resultMessage );
+        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content4\\\" is deleted.\"}", resultMessage );
     }
 
     @Test
@@ -102,14 +111,14 @@ public class DeleteRunnableTaskTest
         throws Exception
     {
         final ContentPaths contentPaths = ContentPaths.from(
-            contents.subList( 2, 3 ).stream().map( content -> content.getPath().toString() ).collect( Collectors.toSet() ) );
+            contents.subList( 3, 4 ).stream().map( content -> content.getPath().toString() ).collect( Collectors.toSet() ) );
 
         Mockito.when( params.getContentPaths() )
             .thenReturn( contentPaths.stream().map( ContentPath::toString ).collect( Collectors.toSet() ) );
-        Mockito.when( contentService.deleteWithoutFetch( Mockito.isA( DeleteContentParams.class ) ) ).thenReturn(
-            DeleteContentsResult.create().addDeleted( contents.get( 2 ).getId() ).build() );
+        Mockito.when( contentService.deleteWithoutFetch( Mockito.isA( DeleteContentParams.class ) ) ).
+            thenReturn( DeleteContentsResult.create().addDeleted( contents.get( 3 ).getId() ).build() );
         Mockito.when( params.isDeleteOnline() ).thenReturn( true );
-        Mockito.when( contentService.getByPaths( contentPaths ) ).thenReturn( Contents.from( contents.subList( 2, 3 ) ) );
+        Mockito.when( contentService.getByPaths( contentPaths ) ).thenReturn( Contents.from( contents.subList( 3, 4 ) ) );
 
         createAndRunTask();
 
@@ -117,7 +126,7 @@ public class DeleteRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 
-        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content3\\\" is deleted.\"}", resultMessage );
+        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content4\\\" is deleted.\"}", resultMessage );
     }
 
     @Test
@@ -125,10 +134,10 @@ public class DeleteRunnableTaskTest
         throws Exception
     {
         Mockito.when( params.getContentPaths() )
-            .thenReturn( contents.subList( 2, 3 ).stream().map( content -> content.getPath().toString() ).collect( Collectors.toSet() ) );
-        Mockito.when( contentService.deleteWithoutFetch( Mockito.isA( DeleteContentParams.class ) ) ).thenThrow(
-            new ContentNotFoundException( contents.get( 2 ).getPath(), Branch.from( "master" ) ) );
-        Mockito.when( contentService.getByPath( Mockito.isA( ContentPath.class ) ) ).thenReturn( contents.get( 2 ) );
+            .thenReturn( contents.subList( 3, 4 ).stream().map( content -> content.getPath().toString() ).collect( Collectors.toSet() ) );
+        Mockito.when( contentService.deleteWithoutFetch( Mockito.isA( DeleteContentParams.class ) ) ).
+            thenThrow( new ContentNotFoundException( contents.get( 3 ).getPath(), Branch.from( "master" ) ) );
+        Mockito.when( contentService.getByPath( Mockito.isA( ContentPath.class ) ) ).thenReturn( contents.get( 3 ) );
 
         createAndRunTask();
 
@@ -136,7 +145,7 @@ public class DeleteRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 
-        assertEquals( "{\"state\":\"ERROR\",\"message\":\"Item \\\"content3\\\" could not be deleted.\"}", resultMessage );
+        assertEquals( "{\"state\":\"ERROR\",\"message\":\"Item \\\"content4\\\" could not be deleted.\"}", resultMessage );
     }
 
     @Test

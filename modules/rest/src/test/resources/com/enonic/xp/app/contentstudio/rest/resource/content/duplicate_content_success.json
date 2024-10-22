@@ -46,7 +46,7 @@
   "hasChildren": false,
   "iconUrl": "/admin/rest-v2/cs/schema/content/icon/myapplication:my_type?hash=f95b70fdc3088560732a5ac135644506",
   "id": "1",
-    "inheritPermissions": false,
+  "inheritPermissions": true,
   "isPage": false,
   "isRoot": true,
   "isValid": true,

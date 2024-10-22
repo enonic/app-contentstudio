@@ -287,6 +287,7 @@ public class PageTemplateResourceTest
             owner( PrincipalKey.from( "user:myStore:me" ) ).
             data( data ).
             type( ContentTypeName.pageTemplate() ).
+            inheritPermissions( true ).
             parentPath( ContentPath.from( "/site/_templates" ) ).
             page( page ).
             build();

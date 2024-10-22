@@ -6,12 +6,14 @@ import org.mockito.Mockito;
 
 import com.enonic.xp.content.ApplyContentPermissionsParams;
 import com.enonic.xp.content.ApplyContentPermissionsResult;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
+import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.content.ContentPaths;
 import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.UpdateContentParams;
-import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
@@ -30,9 +32,19 @@ public class ApplyPermissionsRunnableTaskTest
     public void setUp()
         throws Exception
     {
+        final Content child = Content.create().
+            id( ContentId.from( "content-id" ) ).
+            path( "/content/content1/content4" ).
+            name( "content4" ).
+            displayName( "Content 4" ).
+            parentPath( ContentPath.from( "/content/content1" ) ).
+            build();
+        this.contents.add( child );
+
         this.params = ApplyContentPermissionsParams.create().
             contentId( ContentId.from( "content-id" ) ).
             permissions( getTestPermissions() ).
+            inheritPermissions( true ).
             build();
 
         final FindContentIdsByParentResult res =
@@ -79,10 +91,11 @@ public class ApplyPermissionsRunnableTaskTest
     public void message_multiple_success()
         throws Exception
     {
+
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( this.contents.get( 0 ).getId(), ContextAccessor.current().getBranch(), this.contents.get( 0 ) )
-                             .addResult( this.contents.get( 1 ).getId(), ContextAccessor.current().getBranch(), this.contents.get( 1 ) )
+                             .setSucceedContents(
+                                 ContentPaths.from( ContentPath.from( "a/b/content-id1" ), ContentPath.from( "a/b/content-id2" ) ) )
                              .build() );
 
         final ApplyPermissionsRunnableTask task = createAndRunTask();
@@ -101,9 +114,10 @@ public class ApplyPermissionsRunnableTaskTest
     public void single_success()
         throws Exception
     {
+
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( this.contents.get( 0 ).getId(), ContextAccessor.current().getBranch(), this.contents.get( 0 ) )
+                             .setSucceedContents( ContentPaths.from( ContentPath.from( "a/b/content-id1" ) ) )
                              .build() );
 
         final ApplyPermissionsRunnableTask task = createAndRunTask();
@@ -115,16 +129,17 @@ public class ApplyPermissionsRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
-        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Permissions for \\\"content1\\\" are applied.\"}", resultMessage );
+        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Permissions for \\\"content-id1\\\" are applied.\"}", resultMessage );
     }
 
     @Test
     public void create_message_single_failed()
         throws Exception
     {
+
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( this.contents.get( 0 ).getId(), ContextAccessor.current().getBranch(), null )
+                             .setSkippedContents( ContentPaths.from( this.contents.get( 0 ).getPath() ) )
                              .build() );
 
         final ApplyPermissionsRunnableTask task = createAndRunTask();
@@ -136,7 +151,7 @@ public class ApplyPermissionsRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
-        assertEquals( "{\"state\":\"ERROR\",\"message\":\"Permissions for \\\"id1\\\" could not be applied.\"}", resultMessage );
+        assertEquals( "{\"state\":\"ERROR\",\"message\":\"Permissions for \\\"content1\\\" could not be applied.\"}", resultMessage );
     }
 
     @Test
@@ -145,9 +160,7 @@ public class ApplyPermissionsRunnableTaskTest
     {
 
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
-            .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( ContentId.from( "root-content-id" ), ContextAccessor.current().getBranch(), null )
-                             .build() );
+            .thenReturn( ApplyContentPermissionsResult.create().setSkippedContents( ContentPaths.from( ContentPath.ROOT ) ).build() );
 
         final ApplyPermissionsRunnableTask task = createAndRunTask();
         task.createTaskResult();
@@ -158,8 +171,7 @@ public class ApplyPermissionsRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
-        assertEquals( "{\"state\":\"ERROR\",\"message\":\"Permissions for \\\"root-content-id\\\" could not be applied.\"}",
-                      resultMessage );
+        assertEquals( "{\"state\":\"ERROR\",\"message\":\"Permissions for \\\"/\\\" could not be applied.\"}", resultMessage );
     }
 
 
@@ -170,10 +182,9 @@ public class ApplyPermissionsRunnableTaskTest
 
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) ).
             thenReturn( ApplyContentPermissionsResult.
-                create().addResult( this.contents.get( 0 ).getId(), ContextAccessor.current().getBranch(), this.contents.get( 0 ) )
-                            .addResult( this.contents.get( 1 ).getId(), ContextAccessor.current().getBranch(), null )
-                            .addResult( this.contents.get( 2 ).getId(), ContextAccessor.current().getBranch(), null )
-                            .
+                create().
+                setSkippedContents( ContentPaths.from( this.contents.get( 0 ).getPath(), ContentPath.from( "id2" ) ) ).
+                setSucceedContents( ContentPaths.create().add( ContentPath.from( "a/b/content1" ) ).build() ).
                 build() );
 
         final ApplyPermissionsRunnableTask task = createAndRunTask();

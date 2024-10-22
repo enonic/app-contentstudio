@@ -62,7 +62,7 @@
     "iconUrl": "/admin/rest-v2/cs/schema/content/icon/portal:site?hash=85c1537f2ca690ae18093ff406706abd",
     "id": "aaa",
     "inherit": [],
-    "inheritPermissions": false,
+    "inheritPermissions": true,
     "isPage": false,
     "isRoot": true,
     "isValid": true,

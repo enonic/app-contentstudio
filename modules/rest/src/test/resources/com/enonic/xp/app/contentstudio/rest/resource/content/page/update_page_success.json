@@ -14,7 +14,7 @@
     "iconUrl": "/admin/rest-v2/cs/schema/content/icon/myapplication:content-type?hash=f95b70fdc3088560732a5ac135644506",
     "id": "content-id",
     "inherit": [],
-    "inheritPermissions": false,
+    "inheritPermissions": true,
     "isPage": true,
     "isRoot": true,
     "isValid": true,

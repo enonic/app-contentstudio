@@ -13,7 +13,6 @@ import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.ContentAccessException;
 import com.enonic.xp.content.ContentAlreadyExistsException;
 import com.enonic.xp.content.ContentAlreadyMovedException;
-import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentQuery;
@@ -192,6 +191,9 @@ public class MoveRunnableTaskTest
         ids.addAll( List.of( "id4", "id5", "id6", "id7", "id8", "id9" ) );
         Mockito.when( params.getContentIds() ).thenReturn( ids );
 
+        contents.addAll( contents.subList( 0, 3 ) );
+        contents.addAll( contents.subList( 0, 3 ) );
+
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) )
             .thenReturn( Contents.from( Contents.from( contents ) ) );
 
@@ -205,16 +207,23 @@ public class MoveRunnableTaskTest
                 thenThrow( new ContentNotFoundException( contents.get( 1 ).getPath(), Branch.from( "master" ) ) )
             .
                 thenThrow( new ContentAccessException( User.ANONYMOUS, contents.get( 2 ).getPath(), Permission.MODIFY ) )
-            .thenThrow( new ContentAlreadyMovedException( "Content already moved", ContentPath.from( "/id4" ) ) )
-            .thenThrow( new ContentAlreadyExistsException( ContentPath.from( "/id5" ), RepositoryId.from( "some.repo" ),
-                                                              Branch.from( "draft" ) ) )
-            .thenThrow( new ContentAlreadyExistsException( ContentPath.from( "/id6" ), RepositoryId.from( "some.repo" ),
+            .
+                thenThrow( new ContentAlreadyMovedException( "Content already moved", contents.get( 3 ).getPath() ) )
+            .
+                thenThrow( new ContentAlreadyExistsException( contents.get( 4 ).getPath(), RepositoryId.from( "some.repo" ),
                                                               Branch.from( "draft" ) ) )
             .
-                thenReturn( MoveContentsResult.create().addMoved( ContentId.from( "id7" ) ).setContentName( "content 7" )
+                thenThrow( new ContentAlreadyExistsException( contents.get( 5 ).getPath(), RepositoryId.from( "some.repo" ),
+                                                              Branch.from( "draft" ) ) )
+            .
+                thenReturn( MoveContentsResult.create()
+                                .addMoved( contents.get( 6 ).getId() )
+                                .setContentName( contents.get( 6 ).getDisplayName() )
                                 .build() )
-            .thenThrow( new ContentAccessException( User.ANONYMOUS, ContentPath.from( "/id8" ), Permission.READ ) )
-            .thenThrow( new ContentNotFoundException( ContentPath.from( "/id9" ), Branch.from( "master" ) ) );
+            .
+                thenThrow( new ContentAccessException( User.ANONYMOUS, contents.get( 7 ).getPath(), Permission.READ ) )
+            .
+                thenThrow( new ContentNotFoundException( contents.get( 8 ).getPath(), Branch.from( "master" ) ) );
 
         createAndRunTask();
 

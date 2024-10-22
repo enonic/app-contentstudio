@@ -2,6 +2,7 @@ import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {ExtraData} from '../content/ExtraData';
+import {AccessControlList} from '../access/AccessControlList';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
@@ -31,6 +32,12 @@ export class UpdateContentRequest
     private publishFrom: Date;
 
     private publishTo: Date;
+
+    private permissions: AccessControlList;
+
+    private inheritPermissions: boolean;
+
+    private overwritePermissions: boolean;
 
     private workflow: Workflow;
 
@@ -92,6 +99,20 @@ export class UpdateContentRequest
         return this;
     }
 
+    setPermissions(permissions: AccessControlList): UpdateContentRequest {
+        this.permissions = permissions;
+        return this;
+    }
+
+    setInheritPermissions(inheritPermissions: boolean): UpdateContentRequest {
+        this.inheritPermissions = inheritPermissions;
+        return this;
+    }
+
+    setOverwritePermissions(overwritePermissions: boolean): UpdateContentRequest {
+        this.overwritePermissions = overwritePermissions;
+        return this;
+    }
 
     setWorkflow(workflow: Workflow): UpdateContentRequest {
         this.workflow = workflow;
@@ -108,6 +129,9 @@ export class UpdateContentRequest
             .setLanguage(content.getLanguage())
             .setPublishFrom(content.getPublishFromTime())
             .setPublishTo(content.getPublishToTime())
+            .setPermissions(content.getPermissions())
+            .setInheritPermissions(content.isInheritPermissionsEnabled())
+            .setOverwritePermissions(content.isOverwritePermissionsEnabled())
             .setWorkflow(content.getWorkflow());
     }
 
@@ -125,6 +149,9 @@ export class UpdateContentRequest
             owner: this.owner ? this.owner.toString() : undefined,
             publishFrom: this.publishFrom,
             publishTo: this.publishTo,
+            permissions: this.permissions ? this.permissions.toJson() : undefined,
+            inheritPermissions: this.inheritPermissions,
+            overwriteChildPermissions: this.overwritePermissions,
             workflow: this.workflow.toJson()
         };
     }
