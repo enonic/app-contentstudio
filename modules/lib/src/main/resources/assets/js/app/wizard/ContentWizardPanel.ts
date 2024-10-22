@@ -10,6 +10,7 @@ import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyTreeComparator} from '@enonic/lib-admin-ui/data/PropertyTreeComparator';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
@@ -50,6 +51,7 @@ import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {Permission} from '../access/Permission';
 import {AI} from '../ai/AI';
 import {EnonicAiAppliedData} from '../ai/event/data/EnonicAiAppliedData';
+import {AiTranslatorOpenDialogEvent} from '../ai/event/outgoing/AiTranslatorOpenDialogEvent';
 import {MovedContentItem} from '../browse/MovedContentItem';
 import {CompareStatus} from '../content/CompareStatus';
 import {Content, ContentBuilder} from '../content/Content';
@@ -93,7 +95,6 @@ import {GetApplicationsRequest} from '../resource/GetApplicationsRequest';
 import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
-import {GetLocalesRequest} from '../resource/GetLocalesRequest';
 import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {Router} from '../Router';
@@ -324,7 +325,6 @@ export class ContentWizardPanel
             AI.get().setCurrentData({
                 fields: this.contentWizardStepForm.getData().toJson(),
                 topic: this.getWizardHeader().getDisplayName(),
-                language: this.peristedLanguage,
             });
         }, 300);
 
@@ -595,7 +595,7 @@ export class ContentWizardPanel
                     this.wizardHeader.setName(existing.getName().toString());
                 }
 
-                AI.get().setContentTypeContext(this.contentType);
+                AI.get().setContentType(this.contentType);
                 AI.get().updateInstructions(this.getApplicationsConfigs());
 
                 return this.loadAndSetPageState(loader.content?.getPage()?.clone());
@@ -1937,10 +1937,7 @@ export class ContentWizardPanel
                         if (this.params.localized) {
                             this.onRendered(() => {
                                 NotifyManager.get().showFeedback(i18n('notify.content.localized'));
-
-                                if (this.isTranslatable()) {
-                                    this.openTranslateConfirmationDialog();
-                                }
+                                this.renderAndOpenTranslatorDialog();
                             });
                         }
 
@@ -2632,7 +2629,7 @@ export class ContentWizardPanel
         this.contentAfterLayout = this.getPersistedItem();
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
-        AI.get().setContentContext(newPersistedItem);
+        AI.get().setContent(newPersistedItem);
     }
 
     isHeaderValidForSaving(): boolean {
@@ -2708,10 +2705,7 @@ export class ContentWizardPanel
     }
 
     isTranslatable(): boolean {
-        const content = this.getContent();
-
-        return AI.get().canTranslate() &&
-               (this.isContentExistsInParentProject() && content.hasOriginProject()) &&
+        return this.isContentExistsInParentProject() && this.getContent().hasOriginProject() &&
                !!ProjectContext.get().getProject().getLanguage();
     }
 
@@ -2862,19 +2856,17 @@ export class ContentWizardPanel
         this.formsContexts.set('live', liveFormContext);
     }
 
-    openTranslateConfirmationDialog(): void {
-        new GetLocalesRequest().sendAndParse().then((locales) => {
-            const layerLang = ProjectContext.get().getProject().getLanguage();
-            const locale = locales.find(l => l.getTag() === layerLang);
-            const displayLang = locale ? StringHelper.format('{0} ({1})', locale.getDisplayName(), locale.getProcessedTag()) : layerLang;
-            const translateDialog = new ConfirmationDialog();
-            translateDialog.setQuestion(i18n('dialog.translate.question', displayLang));
-            translateDialog.setYesCallback(() => {
-                if (AI.get().canTranslate()) {
-                    void AI.get().translate(layerLang);
-                }
-            });
-            translateDialog.open();
-        }).catch(DefaultErrorHandler.handle);
+    renderAndOpenTranslatorDialog(): void {
+        if (!this.isTranslatable()) {
+            return;
+        }
+
+        const aiTranslatorContainer = new DivEl('ai-translator-container');
+        Body.get().appendChild(aiTranslatorContainer);
+        AI.get().renderTranslator(aiTranslatorContainer.getHTMLElement());
+
+        AI.get().whenReady(() => {
+            new AiTranslatorOpenDialogEvent().fire();
+        });
     }
 }

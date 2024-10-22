@@ -2,18 +2,19 @@ import {AiHelper} from '@enonic/lib-admin-ui/ai/AiHelper';
 import {AiHelperState} from '@enonic/lib-admin-ui/ai/AiHelperState';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Content} from '../content/Content';
 import {ContentType} from '../inputtype/schema/ContentType';
+import {GetLocalesRequest} from '../resource/GetLocalesRequest';
+import {ContentData, ContentLanguage, ContentSchema} from './event/data/AiData';
 import {EnonicAiAppliedData} from './event/data/EnonicAiAppliedData';
-import {ContentData} from './event/data/EnonicAiContentData';
 import {EnonicAiContentOperatorSetupData} from './event/data/EnonicAiContentOperatorSetupData';
 import {EnonicAiTranslatorSetupData} from './event/data/EnonicAiTranslatorSetupData';
-import {AiContentOperatorDialogShownEvent} from './event/incoming/AiContentOperatorDialogShownEvent';
-import {AiContentOperatorRenderedEvent} from './event/incoming/AiContentOperatorRenderedEvent';
 import {AiContentOperatorResultAppliedEvent} from './event/incoming/AiContentOperatorResultAppliedEvent';
 import {AiTranslatorCompletedEvent} from './event/incoming/AiTranslatorCompletedEvent';
 import {AiTranslatorStartedEvent} from './event/incoming/AiTranslatorStartedEvent';
@@ -38,7 +39,6 @@ interface EnonicAi {
         setup(setupData: EnonicAiTranslatorSetupData): void;
         render(container: HTMLElement): void;
         translate(language?: string): Promise<boolean>;
-        isAvailable(): boolean;
     }
 }
 
@@ -53,11 +53,13 @@ export class AI {
 
     private static instance: AI;
 
-    private content: Content;
-
     private currentData: ContentData | undefined;
 
+    private content: Content;
+
     private contentType: ContentType;
+
+    private locales: Locale[];
 
     private instructions: Record<EnonicAiPlugin, string | undefined>;
 
@@ -71,8 +73,6 @@ export class AI {
             return;
         }
 
-        AiContentOperatorRenderedEvent.on(this.showContentOperatorEventListener);
-        AiContentOperatorDialogShownEvent.on(this.showContentOperatorEventListener);
         AiContentOperatorResultAppliedEvent.on(this.applyContentOperatorEventListener);
         AiTranslatorStartedEvent.on(this.translatorStartedEventListener);
         AiTranslatorCompletedEvent.on(this.translatorCompletedEventListener);
@@ -85,33 +85,42 @@ export class AI {
             const fullName = currentUser.getDisplayName();
             const names = fullName.split(' ').map(word => word.substring(0, 1));
             const shortName = (names.length >= 2 ? names.join('') : fullName).substring(0, 2).toUpperCase();
+            const user = {fullName, shortName} as const;
+            new AiContentOperatorConfigureEvent({user}).fire();
+        }).catch(DefaultErrorHandler.handle);
 
-            new AiContentOperatorConfigureEvent({
-                user: {
-                    fullName,
-                    shortName,
-                }
-            }).fire();
-        });
+        new GetLocalesRequest().sendAndParse().then((locales) => {
+            this.setLocales(locales);
+        }).catch(DefaultErrorHandler.handle);
     }
 
     static get(): AI {
         return AI.instance ?? (AI.instance = new AI());
     }
 
-    setContentContext(content: Content): void {
+    setContent(content: Content): void {
         this.content = content;
+        new AiUpdateDataEvent({
+            data: this.createContentData(),
+            language: this.createContentLanguage(),
+        }).fire();
         this.checkAndNotifyReady();
     }
 
-    setContentTypeContext(contentType: ContentType): void {
+    setContentType(contentType: ContentType): void {
         this.contentType = contentType;
+        new AiUpdateDataEvent({schema: this.createContentSchema()}).fire();
         this.checkAndNotifyReady();
     }
 
     setCurrentData(data: ContentData): void {
         this.currentData = data;
-        new AiUpdateDataEvent({data}).fire();
+        new AiUpdateDataEvent({data: this.createContentData()}).fire();
+    }
+
+    setLocales(locales: Locale[]): void {
+        this.locales = locales;
+        new AiUpdateDataEvent({language: this.createContentLanguage()}).fire();
     }
 
     updateInstructions(configs: ApplicationConfig[]): void {
@@ -163,12 +172,12 @@ export class AI {
         this.getContentOperator()?.render(container);
     }
 
-    translate(language: string): Promise<boolean> {
-        return this.getTranslator()?.translate(language) ?? Promise.resolve(false);
+    renderTranslator(container: HTMLElement): void {
+        this.getTranslator()?.render(container);
     }
 
-    canTranslate(): boolean {
-        return this.getTranslator()?.isAvailable() ?? false;
+    translate(language: string): Promise<boolean> {
+        return this.getTranslator()?.translate(language) ?? Promise.resolve(false);
     }
 
     private translatorStartedEventListener = (event: AiTranslatorStartedEvent) => {
@@ -181,23 +190,32 @@ export class AI {
         helper?.setState(AiHelperState.COMPLETED);
     };
 
-    private showContentOperatorEventListener = () => {
-        new AiUpdateDataEvent({
-            data: {
-                fields: this.content.getContentData().toJson(),
-                topic: this.content.getDisplayName(),
-                language: this.content.getLanguage(),
-            },
-            schema: {
-                form: this.contentType.getForm().toJson(),
-                name: this.contentType.getDisplayName()
-            },
-        }).fire();
+    private createContentData(): ContentData | undefined {
+        // TODO: Add structuredClone, when target upgraded to ES2022
+        return this.currentData || (this.content && {
+            fields: this.content.getContentData().toJson(),
+            topic: this.content.getDisplayName(),
+        });
+    }
 
-        if (this.currentData) {
-            new AiUpdateDataEvent({data: this.currentData}).fire();
+    private createContentLanguage(): ContentLanguage | undefined {
+        if (!this.content) {
+            return;
         }
-    };
+
+        const tag = this.content.getLanguage();
+        const locale = this.locales?.find(l => l.getTag() === tag);
+        const name = locale ? locale.getDisplayName() : tag;
+
+        return {tag, name};
+    }
+
+    private createContentSchema(): ContentSchema | undefined {
+        return this.contentType && {
+            form: this.contentType.getForm().toJson(),
+            name: this.contentType.getDisplayName(),
+        };
+    }
 
     private applyContentOperatorEventListener = (event: AiContentOperatorResultAppliedEvent) => {
         const {topic} = event.result;
@@ -226,7 +244,7 @@ export class AI {
     }
 
     private isReady(): boolean {
-        return this.content != null && this.contentType != null && this.instructions != null;
+        return this.content != null && this.contentType != null && this.instructions != null && this.locales != null;
     }
 
     private checkAndNotifyReady(): void {
