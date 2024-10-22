@@ -313,6 +313,7 @@ module.exports = Object.freeze({
         DOUBLE_MIN_MAX: 'double_max',
         DOUBLE_DEFAULT_2_4: 'double2_4_def',
         DOUBLE_0_1: 'double0_1',
+        DOUBLE_0_0: 'double0_0',
         DOUBLE_1_1_X_DATA: "double1_1",
         DOUBLE_2_4: 'double2_4',
         LONG_MIN_MAX: 'long_max',
