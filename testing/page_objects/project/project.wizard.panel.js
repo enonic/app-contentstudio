@@ -372,7 +372,7 @@ class ProjectWizardPanel extends Page {
         await this.clickOnElement(selector);
         await this.waitForProjectAccessSelectorTabMenuExpanded(principalName);
         await this.pause(1000);
-        return await this.getTextInElements(selector + "//li[contains(@id,'TabMenuItem')]//a");
+        return await this.getTextInDisplayedElements(selector + "//li[contains(@id,'TabMenuItem')]//a");
     }
 
     async clickOnWizardStep(title) {
