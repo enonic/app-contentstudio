@@ -36,7 +36,7 @@
   "devDependencies": {
     "@enonic/eslint-config": "^2.0.0",
     "@swc/cli": "^0.4.0",
-    "@swc/core": "1.7.26",
+    "@swc/core": "1.7.36",
     "@types/ckeditor": "^4.9.10",
     "@types/core-js": "^2.5.8",
     "@types/hasher": "0.0.35",
