@@ -39,7 +39,7 @@ public class ContentListTitleResolver
             final PropertyTree propertyTree = new PropertyTree();
             if ( content.getData() != null )
             {
-                propertyTree.addSet( "data", content.getData().getRoot().copy( propertyTree ) );
+                propertyTree.addSet( "data", content.getData().getRoot().detach() );
             }
             propertyTree.addString( "displayName", content.getDisplayName() );
 

@@ -500,8 +500,9 @@ public final class IssueResource
     {
         final ProjectName projectName = ProjectName.from( ContextAccessor.current().getRepositoryId() );
 
-        final PrincipalKeys issuePublisherRoles =
-            PrincipalKeys.from( doCreateRoleKey( projectName, ProjectRole.OWNER ), doCreateRoleKey( projectName, ProjectRole.EDITOR ) );
+        final PrincipalKeys issuePublisherRoles = ProjectConstants.DEFAULT_PROJECT_NAME.equals( projectName )
+            ? PrincipalKeys.empty()
+            : PrincipalKeys.from( doCreateRoleKey( projectName, ProjectRole.OWNER ), doCreateRoleKey( projectName, ProjectRole.EDITOR ) );
 
         return PrincipalKeys.from( assignees.
             stream().
@@ -529,10 +530,17 @@ public final class IssueResource
             final ProjectName projectName = ProjectName.from( ContextAccessor.current().getRepositoryId() );
             final PrincipalKeys membershipKeys = securityService.getAllMemberships( principalKey );
 
-            final ProjectPermissions projectPermissions = projectService.getPermissions( projectName );
+            if ( ProjectConstants.DEFAULT_PROJECT_NAME.equals( projectName ) )
+            {
+                return membershipKeys.stream().anyMatch( this::hasManagerAccess );
+            }
+            else
+            {
+                final ProjectPermissions projectPermissions = projectService.getPermissions( projectName );
 
-            return membershipKeys.stream().anyMatch(
-                membershipKey -> this.hasProjectIssuePermissions( membershipKey, issuePublisherRoles ) );
+                return membershipKeys.stream().
+                    anyMatch( membershipKey -> this.hasProjectIssuePermissions( membershipKey, issuePublisherRoles ) );
+            }
         }
 
         return false;

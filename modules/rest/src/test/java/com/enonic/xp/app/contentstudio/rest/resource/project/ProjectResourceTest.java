@@ -49,7 +49,6 @@ import com.enonic.xp.security.acl.AccessControlList;
 import com.enonic.xp.security.acl.Permission;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
-import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.multipart.MultipartForm;
 import com.enonic.xp.web.multipart.MultipartItem;
 
@@ -500,13 +499,15 @@ public class ProjectResourceTest
     }
 
     @Test
-    public void delete_default_project_not_fails()
+    public void delete_default_project_fails()
         throws Exception
     {
-        MockRestResponse mockRestResponse =
-            request().path( "project/delete" ).entity( "{\"name\" : \"default\"}", MediaType.APPLICATION_JSON_TYPE ).post();
+        MockRestResponse mockRestResponse = request().
+            path( "project/delete" ).
+            entity( "{\"name\" : \"" + ProjectConstants.PROJECT_REPO_ID_DEFAULT + "\"}", MediaType.APPLICATION_JSON_TYPE ).
+            post();
 
-        assertEquals( HttpStatus.OK.value(), mockRestResponse.getStatus() );
+        assertEquals( 405, mockRestResponse.getStatus() );
     }
 
     @Test

@@ -20,8 +20,6 @@ import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.context.ContextAccessor;
-import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.core.impl.schema.content.BuiltinContentTypesAccessor;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.form.Form;
@@ -309,14 +307,9 @@ class FilterByContentResolverTest
         builder.addSiteConfig(
             SiteConfig.create().application( ApplicationKey.from( "application2" ) ).config( new PropertyTree() ).build() );
 
-        final Project project = builder.build();
+        when( projectService.get( ProjectName.from( "default" ) ) ).thenReturn( builder.build() );
 
-        when( projectService.get( ProjectName.from( "default" ) ) ).thenReturn( project );
-
-        final Stream<ContentType> contentTypes =
-            ContextBuilder.from( ContextAccessor.current() ).repositoryId( project.getName().getRepoId() ).build().callWith(
-                () -> filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() ) );
-
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
         assertThat( contentTypes.map( ContentType::getName ).map( ContentTypeName::toString ) ).containsExactly( "base:folder",
                                                                                                                  "portal:site",
                                                                                                                  "base:shortcut",

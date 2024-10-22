@@ -48,6 +48,7 @@ import com.enonic.xp.security.PrincipalKeys;
 import com.enonic.xp.security.SecurityService;
 import com.enonic.xp.security.User;
 
+import static com.enonic.xp.content.ContentConstants.CONTENT_REPO_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -243,7 +244,7 @@ public class IssueNotificationsSenderImplTest
     private void verifyIssueLink( final SendMailParams msg )
         throws Exception
     {
-        assertTrue( msg.getBody().contains( "url/main#/myproject/issue" ) );
+        assertTrue( msg.getBody().contains( "url/main#/default/issue" ) );
     }
 
     private void verifyIssueLink( final SendMailParams msg, final String link )
@@ -663,7 +664,10 @@ public class IssueNotificationsSenderImplTest
 
     private void resetContextRepo()
     {
-        final Context context = ContextBuilder.from( ContextAccessor.current() ).repositoryId( "com.enonic.cms.myproject" ).build();
+        final Context context = ContextBuilder.
+            from( ContextAccessor.current() ).
+            repositoryId( CONTENT_REPO_ID ).
+            build();
         ContextAccessor.INSTANCE.set( context );
     }
 
