@@ -11,7 +11,7 @@
     "build:prod": "run-p build:prod:js build:lib",
     "build:prod:js": "tsc",
     "build:dev": "run-p build:dev:types build:dev:js build:lib",
-    "build:dev:js": "swc src --out-dir build/tmp/src",
+    "build:dev:js": "swc src --out-dir build/tmp",
     "build:dev:types": "tsc --skipLibCheck --emitDeclarationOnly --declaration",
     "build:lib": "webpack --color --stats-error-details",
     "typecheck": "tsc --pretty --skipLibCheck --noEmit",
