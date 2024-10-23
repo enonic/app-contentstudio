@@ -113,6 +113,39 @@ describe('emulator.widget.spec: tests for emulator widget', function () {
             assert.equal(actualHeight, '768px', 'Expected height of Page Editor is present');
         });
 
+    // Verify Two items are selected in Widget selector #7897
+    // https://github.com/enonic/app-contentstudio/issues/7897
+    it(`GIVEN existing site is opened WHEN WidgetSelector dropdown has been expanded THEN the only one item is selected in the options list (Components)`,
+        async () => {
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            // 1. Open the existing site:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            // 2. Click on Widget selector dropdown handle and expand the ListBox:
+            await wizardDetailsPanel.clickOnWidgetSelectorDropdownHandle();
+            // 3. Verify that the only one item is selected in the options list
+            let items = await wizardDetailsPanel.getSelectedOptionsDisplayName();
+            assert.equal(items.length, 1, 'The only one item should be selected in the ListBox');
+            assert.equal(items[0], 'Components', "'Components' option item should be selected in the ListBox");
+        });
+
+    // Verify Two items are selected in Widget selector #7897
+    // https://github.com/enonic/app-contentstudio/issues/7897
+    it(`GIVEN Select 'Emulator' option in the widget selector WHEN ListBox has been expanded THEN 'Emulator' option item should be selected in the ListBox options`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            let emulatorWidget = new EmulatorWidget();
+            // 1. Open the existing site:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            // 2. Select Emulator option in the widget selector
+            await wizardDetailsPanel.openEmulatorWidget();
+            await wizardDetailsPanel.clickOnWidgetSelectorDropdownHandle();
+            // 3. Verify that the only one item is selected in the options list
+            let items = await wizardDetailsPanel.getSelectedOptionsDisplayName();
+            assert.equal(items.length, 1, 'The only one item should be selected in the ListBox');
+            assert.equal(items[0], 'Emulator', "'Emulator' option item should be selected in the ListBox");
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
