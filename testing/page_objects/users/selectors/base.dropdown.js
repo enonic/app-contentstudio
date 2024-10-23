@@ -4,6 +4,7 @@
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const Page = require('../../page');
+
 const XPATH = {
     rightCheckBoxDiv: "//li[contains(@class,'checkbox-right')]//div[contains(@id,'Checkbox')]",
     rightCheckboxByDisplayName: displayName => `//li[contains(@class,'checkbox-right') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]//div[contains(@id,'Checkbox')]`,
@@ -62,7 +63,7 @@ class BaseDropdown extends Page {
         if (parentLocator === undefined) {
             parentLocator = '';
         }
-        await this.waitUntilDisplayed(parentLocator + this.applySelectionButton, appConst.mediumTimeout);
+        await this.waitUntilDisplayed(parentLocator + this.applySelectionButton, appConst.shortTimeout);
         await this.pause(200);
     }
 
@@ -127,7 +128,7 @@ class BaseDropdown extends Page {
     // 1. Insert a text in Filter input
     // 2. Click on the filtered by name item (p[contains(@class,'sub-name'))
     // 3. Click on OK button and apply the selection.
-    async clickOnFilteredByNameItemAndClickOnOk(optionName, parentLocator) {
+    async clickOnFilteredByNameItemAndClickOnApply(optionName, parentLocator) {
         // parent locator - it is locator for parent modal dialog or wizard form,
         // 1. type the text in Options Filter Input:
         await this.filterItem(optionName, parentLocator);
@@ -192,6 +193,10 @@ class BaseDropdown extends Page {
         return attr.includes('folder-closed') ? 'flat' : 'tree';
     }
 
+    async getSelectedOptionsDisplayName() {
+        let locator = this.container + "//li[contains(@class,'item-view-wrapper') and contains(@class,'selected')]" + lib.H6_DISPLAY_NAME;
+        return await this.getTextInDisplayedElements(locator);
+    }
 }
 
 module.exports = BaseDropdown;
