@@ -25,13 +25,17 @@ function handleGet(req) {
             content = portalLib.getContent();
         }
 
+        const project = repository.substring('com.enonic.cms.'.length);
+
+        const url = `/admin/site/inline/${project}/${branch}` + content._path;
+
         return {
-            contentType: 'application/json',
-            status: content ? 200 : 404,
-            body: content
+            contentType: 'text/html',
+            status: 200,
+            body: `<iframe src="${url}"></iframe>`
         };
     }, function (e) {
-        log.error('JSON preview failed to render content: ' + e.message);
+        log.error('Site engine preview failed to render content: ' + e.message);
 
         return {
             status: 500,
