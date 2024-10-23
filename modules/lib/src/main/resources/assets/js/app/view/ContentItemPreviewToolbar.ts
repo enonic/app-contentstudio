@@ -14,6 +14,7 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentId} from '../content/ContentId';
 import {GetWidgetsByInterfaceRequest} from '../resource/GetWidgetsByInterfaceRequest';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
 
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {
@@ -24,6 +25,7 @@ export class ContentItemPreviewToolbar
     private issueActionsList: Action[];
     private debouncedFetch: (id: ContentId) => void;
     private liveViewWidgets: Promise<Widget[]>;
+    private widgetSelector: PreviewWidgetDropdown;
 
     constructor() {
         super({className: 'content-item-preview-toolbar'});
@@ -36,6 +38,8 @@ export class ContentItemPreviewToolbar
 
         this.mainAction = new Action();
         this.issueButton = new MenuButton(this.mainAction);
+
+        this.widgetSelector = new PreviewWidgetDropdown();
     }
 
     protected initListeners(): void {
@@ -72,7 +76,11 @@ export class ContentItemPreviewToolbar
 
             this.liveViewWidgets.then((widgets: Widget[]) => {
                 console.log('Live view widgets:', widgets);
+
+                this.widgetSelector.setWidgets(widgets);
             });
+
+            this.addElement(this.widgetSelector);
 
             this.issueButton.addClass('transparent');
             this.addContainer(this.issueButton, this.issueButton.getChildControls());
@@ -82,9 +90,6 @@ export class ContentItemPreviewToolbar
 
     private async fetchLiveViewWidgets(): Promise<Widget[]> {
         return new GetWidgetsByInterfaceRequest('contentstudio.preview').sendAndParse()
-            .then((widgets: Widget[]) => {
-                return widgets.sort((a: Widget, b: Widget) => a.getConfig()['order'] - b.getConfig()['order']);
-            })
             .catch((e) => {
                 DefaultErrorHandler.handle(e);
                 return [];
