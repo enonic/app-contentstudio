@@ -95,7 +95,6 @@ import {GetApplicationsRequest} from '../resource/GetApplicationsRequest';
 import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
-import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {Router} from '../Router';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
@@ -152,12 +151,6 @@ import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel
 import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
 import {ContentDiffHelper} from '../util/ContentDiffHelper';
 import {ContentDiff} from '../content/ContentDiff';
-import {SagaInputEventsListener} from '../saga/SagaInputEventsListener';
-import {AIAssistantEventsMediator} from '../saga/AIAssistantEventsMediator';
-import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
-import {GetLocalesRequest} from '../resource/GetLocalesRequest';
 
 export type FormContextName = 'content' | 'xdata' | 'live';
 
@@ -473,10 +466,6 @@ export class ContentWizardPanel
             this.isRename = true;
             saveAction.setEnabled(true);
             saveAction.execute();
-        });
-
-        AIAssistantEventsMediator.get().onResultReceived((propertyTree: PropertyTree) => {
-            this.updateWizardStepForms(propertyTree, false);
         });
 
         this.onPageStateChanged(() => {

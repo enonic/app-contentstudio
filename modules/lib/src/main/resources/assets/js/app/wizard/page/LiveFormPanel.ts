@@ -1,4 +1,3 @@
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {BrEl} from '@enonic/lib-admin-ui/dom/BrEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
@@ -35,7 +34,6 @@ import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/LiveEdi
 import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEditEvent';
 import {Content, ContentBuilder} from '../../content/Content';
 import {ContentId} from '../../content/ContentId';
-import {ContentIds} from '../../content/ContentIds';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Site} from '../../content/Site';
 import {ContentDeletedEvent} from '../../event/ContentDeletedEvent';

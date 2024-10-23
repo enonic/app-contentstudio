@@ -4,7 +4,6 @@ import {ElementEvent} from '@enonic/lib-admin-ui/dom/ElementEvent';
 import {SettingsAppContainer} from 'lib-contentstudio/app/settings/SettingsAppContainer';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {ProjectConfigContext} from 'lib-contentstudio/app/settings/data/project/ProjectConfigContext';
-import * as Q from 'q';
 
 const waitForWidgetElemAttached = (elemId: string): void => {
     const body: Body = Body.get();
