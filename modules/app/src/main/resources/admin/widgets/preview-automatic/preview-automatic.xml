@@ -1,0 +1,11 @@
+<widget xmlns="urn:enonic:xp:model:1.0">
+  <display-name>Automatic</display-name>
+  <description>Use best preview widget</description>
+  <interfaces>
+    <interface>contentstudio.preview</interface>
+  </interfaces>
+  <config>
+    <property name="auto" value="false"/>
+    <property name="order" value="0"/>
+  </config>
+</widget>
