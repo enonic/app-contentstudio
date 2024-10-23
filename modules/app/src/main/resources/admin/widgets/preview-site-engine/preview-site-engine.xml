@@ -1,0 +1,13 @@
+<widget xmlns="urn:enonic:xp:model:1.0">
+  <display-name>Site engine</display-name>
+  <description>Render using site engine</description>
+  <interfaces>
+    <interface>contentstudio.preview</interface>
+  </interfaces>
+  <config>
+    <property name="auto" value="true"/>
+    <property name="order" value="50"/>
+    <property name="allowContentType" value="*"/>
+    <property name="allowPath" value="${site}/*"/>
+  </config>
+</widget>

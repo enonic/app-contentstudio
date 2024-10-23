@@ -43,23 +43,25 @@ public class AutomaticPreviewBean
 
     public Object renderByInterface( final String interfaceName )
     {
+        final PortalRequestMapper portalRequestMapper = new PortalRequestMapper( this.portalRequestSupplier.get() );
+
         final ScriptExports matchingScript = this.widgetDescriptorSupplier.get()
             .getByInterfaces( interfaceName ).stream()
             .filter( widget -> Boolean.parseBoolean( widget.getConfig().get( AUTO_CONFIG_FIELD ) ) )
             .sorted( Comparator.comparingInt( widget -> parseInt( widget.getConfig().get( ORDER_CONFIG_FIELD ) ) ) )
-            .map( this::toScriptExports )
+            .map( ( descriptor ) -> this.toScriptExports( descriptor, portalRequestMapper ) )
             .filter( Objects::nonNull ).findFirst().orElse( null );
 
         if ( matchingScript != null && matchingScript.hasMethod( "get" ) )
         {
-            final ScriptValue response = matchingScript.executeMethod( "get", new PortalRequestMapper( this.portalRequestSupplier.get() ) );
+            final ScriptValue response = matchingScript.executeMethod( "get", portalRequestMapper );
             return new WidgetResponseMapper( response );
         }
 
         throw new WebException( HttpStatus.IM_A_TEAPOT, "No widget found for interface: " + interfaceName );
     }
 
-    private ScriptExports toScriptExports( WidgetDescriptor widgetDescriptor )
+    private ScriptExports toScriptExports( WidgetDescriptor widgetDescriptor, final PortalRequestMapper portalRequestMapper )
     {
 
         ResourceKey script = ResourceKey.from( widgetDescriptor.getApplicationKey(),
@@ -71,7 +73,7 @@ public class AutomaticPreviewBean
             ScriptExports scriptExports = this.scriptServiceSupplier.get().execute( script );
 
             boolean canRender = scriptExports.hasMethod( CAN_RENDER_METHOD_NAME ) &&
-                scriptExports.executeMethod( CAN_RENDER_METHOD_NAME ).getValue( Boolean.class );
+                scriptExports.executeMethod( CAN_RENDER_METHOD_NAME, portalRequestMapper ).getValue( Boolean.class );
 
             if ( canRender )
             {
