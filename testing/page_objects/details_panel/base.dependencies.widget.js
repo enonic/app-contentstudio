@@ -10,6 +10,7 @@ class BaseDependenciesWidget extends Page {
         try {
             await this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout);
             await this.waitForElementEnabled(this.showOutboundButton, appConst.shortTimeout);
+            await this.pause(500);
             await this.clickOnElement(this.showOutboundButton);
             return await this.pause(2000);
         } catch (err) {
