@@ -22,6 +22,8 @@ describe('publish.wizard.dialog.time.picker.popup.spec - tests for configured ti
         async () => {
             let displayName = contentBuilder.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(displayName);
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await contentBrowsePanel.pause(1000);
             await studioUtils.doAddReadyFolder(FOLDER);
         });
 

@@ -32,6 +32,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES],
                 appConst.CONTROLLER_NAME.MAIN_REGION);
             await studioUtils.doAddSite(SITE);
+            await studioUtils.saveScreenshot('issue_open2');
             let folderName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(folderName);
             await studioUtils.doAddReadyFolder(TEST_FOLDER);

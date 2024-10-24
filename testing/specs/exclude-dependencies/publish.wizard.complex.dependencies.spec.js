@@ -33,10 +33,12 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES],
                 appConst.CONTROLLER_NAME.MAIN_REGION);
             await studioUtils.doAddSite(SITE);
+            await studioUtils.saveScreenshot('issue1');
             let folderName = contentBuilder.generateRandomName('child-folder');
             CHILD_FOLDER = contentBuilder.buildFolder(folderName);
             // Select the site and add a child folder:
             await studioUtils.findAndSelectItem(SITE.displayName);
+            await studioUtils.saveScreenshot('issue2');
             await studioUtils.doAddReadyFolder(CHILD_FOLDER);
         });
 
