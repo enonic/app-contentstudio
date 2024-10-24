@@ -2,6 +2,7 @@
 
 const portal = require('/lib/xp/portal');
 const mustache = require('/lib/mustache');
+const configLib = require('../../../lib/config');
 
 function handleGet() {
     const view = resolve('./settings.html');
@@ -9,10 +10,8 @@ function handleGet() {
         assetsUri: portal.assetUrl({
             path: 'js/settings.js'
         }),
-        configServiceUrl: portal.apiUrl({
-            application: app.name,
-            api: 'config',
-        }),
+        configScriptId: configLib.generateScriptConfigId(),
+        configAsJson: JSON.stringify(configLib.getConfig(), null, 4).replace(/<(\/?script|!--)/gi, "\\u003C$1"),
     };
 
     return {

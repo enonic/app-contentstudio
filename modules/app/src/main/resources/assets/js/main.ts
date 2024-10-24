@@ -22,7 +22,6 @@ import {ConnectionDetector} from '@enonic/lib-admin-ui/system/ConnectionDetector
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {i18nInit} from '@enonic/lib-admin-ui/util/MessagesInitializer';
 import * as $ from 'jquery';
 import {AppContext} from 'lib-contentstudio/app/AppContext';
 import {ContentDeletePromptEvent} from 'lib-contentstudio/app/browse/ContentDeletePromptEvent';
@@ -65,6 +64,8 @@ import {UrlAction} from 'lib-contentstudio/app/UrlAction';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import * as Q from 'q';
+import {JSONObject} from '@enonic/lib-admin-ui/types';
+import {Messages} from '@enonic/lib-admin-ui/util/Messages';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -634,19 +635,17 @@ function initProjectContext(application: Application): Q.Promise<void> {
     });
 }
 
-(async () => {
+(() => {
     if (!document.currentScript) {
         throw Error('Legacy browsers are not supported');
     }
-    const configServiceUrl = document.currentScript.getAttribute('data-config-service-url');
-    if (!configServiceUrl) {
+    const configScriptId = document.currentScript.getAttribute('data-config-script-id');
+    if (!configScriptId) {
         throw Error('Unable to fetch app config');
     }
 
-    await CONFIG.init(configServiceUrl);
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    await i18nInit(CONFIG.getString('services.i18nUrl'));
+    CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as JSONObject);
+    Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
 
     const body = Body.get();
 

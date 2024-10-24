@@ -1,3 +1,4 @@
 <widget id="widget-settings">
-    <script src="{{assetsUri}}" data-config-service-url="{{configServiceUrl}}" data-widget-id="widget-settings"></script>
+    <script type="application/json" id="{{configScriptId}}">{{{configAsJson}}}</script>
+    <script src="{{assetsUri}}" data-config-script-id="{{configScriptId}}" data-widget-id="widget-settings"></script>
 </widget>
