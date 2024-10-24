@@ -24,7 +24,7 @@ describe("user.access.widget.spec:  test for user access widget and Edit Permiss
             await studioUtils.doAddFolder(FOLDER);
         });
 
-    it.skip(`WHEN just created folder is selected THEN expected default principal should be displayed in the user access widget`,
+    it(`WHEN just created folder is selected THEN expected default principal should be displayed in the user access widget`,
         async () => {
             let userAccessWidget = new UserAccessWidget();
             //1. Select the just created folder:
@@ -42,7 +42,7 @@ describe("user.access.widget.spec:  test for user access widget and Edit Permiss
             assert.equal(actualHeader, appConst.ACCESS_WIDGET_HEADER.RESTRICTED_ACCESS, "Restricted access should be displayed");
         });
 
-    it.skip(`WHEN new acl entry has been added in the folder THEN user access widget should be updated`,
+    it(`WHEN new acl entry has been added in the folder THEN user access widget should be updated`,
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             let userAccessWidget = new UserAccessWidget();

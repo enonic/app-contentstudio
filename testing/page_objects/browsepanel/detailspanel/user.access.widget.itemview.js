@@ -39,7 +39,7 @@ class UserAccessWidgetItemView extends Page {
 
     async clickOnEditPermissionsLink() {
         try {
-            await this.waitForSpinnerNotVisible(appConst.TIMEOUT_4);
+            //await this.waitForSpinnerNotVisible(appConst.TIMEOUT_4);
             await this.waitForElementDisplayed(this.editPermissionsLink, appConst.shortTimeout);
             return await this.clickOnElement(this.editPermissionsLink);
         } catch (err) {

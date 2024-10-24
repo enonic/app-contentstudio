@@ -60,15 +60,15 @@ describe('project.wizard.dialog.access.mode.step.spec - ui-tests for Access mode
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
             // 5. Verify that Next button gets enabled:
             await accessModeStep.waitForNextButtonEnabled();
-            // 6. Verify that 'Copy from parent' button is disabled:
-            await accessModeStep.waitForCopyFromParentButtonDisabled(PARENT_DEFAULT);
+            // 6. Verify that 'Copy from parent' button is enabled:
+            await accessModeStep.waitForCopyFromParentButtonEnabled(PARENT_DEFAULT);
             // 7.Click on 'Private' radio button
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PRIVATE);
             await studioUtils.saveScreenshot('access_mode_the_same_in_default');
             // 8. Verify that 'Next' button gets enabled:
             await accessModeStep.waitForNextButtonEnabled();
-            // 9. Verify that 'Copy from parent' button gets enabled again:
-            await accessModeStep.waitForCopyFromParentButtonEnabled(PARENT_DEFAULT);
+            // 9. Verify that 'Copy from parent' button gets disabled again:
+            await accessModeStep.waitForCopyFromParentButtonDisabled(PARENT_DEFAULT);
         });
 
     beforeEach(async () => {

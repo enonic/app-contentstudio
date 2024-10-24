@@ -30,13 +30,13 @@ describe('edit.permissions.dialog.spec: tests for Edit Permissions dialog that i
             // 2. Click on 'Edit Permissions' link:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             let isSelected = await editPermissionsDialog.isInheritPermissionsCheckBoxSelected();
-            assert.ok(isSelected === false, '`Inherit permissions` checkbox should not be selected by default');
-            // "Overwrite child permissions" checkbox should be not selected as well
+            assert.ok(isSelected, '`Inherit permissions` checkbox should be selected by default');
+            // "Overwrite child permissions" checkbox should not be selected:
             isSelected = await editPermissionsDialog.isOverwriteChildPermissionsCheckBoxSelected();
             assert.ok(isSelected === false, "Overwrite child permissions checkbox should not be selected");
         });
 
-    it(`GIVEN 'Inherit permissions' checkbox has been selected AND 'Apply' button has been pressed WHEN the modal dialog is reopened THEN checkbox should not be checked`,
+    it(`GIVEN 'Inherit permissions' checkbox has been unchecked AND 'Apply' button has been pressed WHEN the modal dialog is reopened THEN checkbox should not be checked`,
         async () => {
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
@@ -47,7 +47,7 @@ describe('edit.permissions.dialog.spec: tests for Edit Permissions dialog that i
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
             let isChecked = await editPermissionsDialog.isInheritPermissionsCheckBoxSelected();
-            assert.ok(isChecked, 'the checkbox gets checked');
+            assert.ok(isChecked === false, 'the checkbox gets unchecked');
             await studioUtils.saveScreenshot('inherit_perm_is_checked');
             // 3. Click on 'Apply' and close the modal dialog:
             await editPermissionsDialog.clickOnApplyButton();

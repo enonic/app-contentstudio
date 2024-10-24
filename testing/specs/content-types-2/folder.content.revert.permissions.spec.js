@@ -28,7 +28,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             await studioUtils.doAddFolder(testFolder);
         });
 
-    it.skip(`WHEN new acl-entry has been added in wizard THEN 'Permissions updated' item should appear in the widget`,
+    it(`WHEN new acl-entry has been added in wizard THEN 'Permissions updated' item should appear in the widget`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
@@ -70,7 +70,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             assert.ok(isDisplayed, "'Show changes' button should be displayed in Edit-item");
         });
 
-    it.skip(`WHEN 'Permissions updated' item has been clicked THEN 'Revert' button should not be visible in the item`,
+    it(`WHEN 'Permissions updated' item has been clicked THEN 'Revert' button should not be visible in the item`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
@@ -96,7 +96,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             await wizardVersionsWidget.waitForRevertButtonNotDisplayed();
         });
 
-    it.skip(`GIVEN existing folder with updated permissions WHEN the previous version has been reverted THEN acl entries should be updated`,
+    it(`GIVEN existing folder with updated permissions WHEN the previous version has been reverted THEN acl entries should be updated`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
@@ -123,7 +123,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
                 'Permissions should not be updated after the reverting');
         });
 
-    it.skip(`GIVEN existing folder is opened WHEN one more acl-entry has been added THEN the number of 'Permissions updated' items should be increased to 2`,
+    it(`GIVEN existing folder is opened WHEN one more acl-entry has been added THEN the number of 'Permissions updated' items should be increased to 2`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
@@ -152,7 +152,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             assert.equal(numberItems, 2, "Two 'Permissions updated'  items should be present in the widget");
         });
 
-    it.skip(`GIVEN existing folder with updated permissions is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN options with 'Permissions updated' icon should be present in the list`,
+    it(`GIVEN existing folder with updated permissions is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN options with 'Permissions updated' icon should be present in the list`,
         async () => {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();

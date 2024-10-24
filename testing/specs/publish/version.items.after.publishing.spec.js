@@ -54,7 +54,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             assert.ok(actualResult[0] === PUBLISH_MSG, 'Expected publish mesage should be displayed in Published version item');
         });
 
-    it.skip(`GIVEN existing published folder is opened WHEN permissions have been updated THEN 'Permissions updated' item should appear in Versions Widget, the content gets Modified`,
+    it(`GIVEN existing published folder is opened WHEN permissions have been updated THEN 'Permissions updated' item should appear in Versions Widget, the content gets Modified`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardDetailsPanel = new WizardDetailsPanel();
@@ -87,7 +87,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             assert.equal(permissionsUpdatedItems, 1, "One 'Permissions updated' item should be present in the widget");
         });
 
-    it.skip(`WHEN existing folder with updated permissions is selected THEN the folder remains 'Ready for publishing'`,
+    it(`WHEN existing folder with updated permissions is selected THEN the folder remains 'Ready for publishing'`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the folder:
@@ -97,7 +97,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content should be 'Ready for publishing'");
         });
 
-    it.skip("GIVEN modified folder with updated permissions is opened WHEN 'Show changes' button has been clicked THEN 'inheritPermissions' should be present in 'Compare With Published Version'",
+    it("GIVEN modified folder with updated permissions is opened WHEN 'Show changes' button has been clicked THEN 'inheritPermissions' should be present in 'Compare With Published Version'",
         async () => {
             let contentWizard = new ContentWizard();
             let compareWithPublishedVersionDialog = new CompareWithPublishedVersionDialog();
@@ -114,7 +114,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             assert.equal(value, 'false', 'inheritPermissions:false  should be displayed in the dialog');
         });
 
-    it.skip(`GIVEN existing folder with 'Permissions updated' is opened WHEN the folder has been published THEN 'Permissions updated' item should be present in Versions Widget`,
+    it(`GIVEN existing folder with 'Permissions updated' is opened WHEN the folder has been published THEN 'Permissions updated' item should be present in Versions Widget`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardDetailsPanel = new WizardDetailsPanel();
@@ -142,8 +142,8 @@ describe('version.items.after.publishing.spec tests for version items', function
             // 7. Verify that one 'Permissions updated' item is present in the widget
             let permissionsUpdatedItems = await wizardVersionsWidget.countPermissionsUpdatedItems();
             assert.equal(permissionsUpdatedItems, 1, "One 'Permissions updated' item should be present in the widget");
-
         });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {

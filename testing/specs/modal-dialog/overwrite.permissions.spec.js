@@ -21,7 +21,7 @@ describe('overwrite.permissions.spec: tests for permissions in parent and child 
     let CHILD_FOLDER;
     const NOTIFICATION_MESSAGE = 'Permissions for 2 items are applied.';
 
-    it.skip(`Preconditions: parent and child folder should be created with default permissions`,
+    it(`Preconditions: parent and child folder should be created with default permissions`,
         async () => {
             let displayName1 = contentBuilder.generateRandomName('folder');
             let displayName2 = contentBuilder.generateRandomName('folder');
@@ -32,7 +32,7 @@ describe('overwrite.permissions.spec: tests for permissions in parent and child 
             await studioUtils.doAddFolder(CHILD_FOLDER);
         });
 
-    it.skip(`GIVEN permissions is updated in the child folder WHEN 'Inherit permissions' checkbox has been selected in the child permissions dialog THEN child folder permissions returned to initial state`,
+    it(`GIVEN permissions is updated in the child folder WHEN 'Inherit permissions' checkbox has been selected in the child permissions dialog THEN child folder permissions returned to initial state`,
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             // 1 Select the child folder and click on 'Edit Permissions' link in userAccessWidget
@@ -55,7 +55,7 @@ describe('overwrite.permissions.spec: tests for permissions in parent and child 
         });
 
     // verifies XP-4932 Impossible to save changes when 'Overwrite child permissions' was set to true
-    it.skip(`GIVEN parent folder is selected  'Overwrite Child Permissions' checkbox has been clicked AND Apply button pressed WHEN try to close the wizard THEN Alert should not appear`,
+    it(`GIVEN parent folder is selected  'Overwrite Child Permissions' checkbox has been clicked AND Apply button pressed WHEN try to close the wizard THEN Alert should not appear`,
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             let contentWizard = new ContentWizard();
@@ -77,7 +77,7 @@ describe('overwrite.permissions.spec: tests for permissions in parent and child 
             assert.ok(result === false, 'Alert should not appear after trying to close the wizard with updated permissions');
         });
 
-    it.skip(`GIVEN 'Edit Permissions' dialog for parent folder is opened WHEN default permissions for 'Anonymous' user has been added THEN correct notification message should appear`,
+    it(`GIVEN 'Edit Permissions' dialog for parent folder is opened WHEN default permissions for 'Anonymous' user has been added THEN correct notification message should appear`,
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -92,7 +92,7 @@ describe('overwrite.permissions.spec: tests for permissions in parent and child 
             assert.equal(result, NOTIFICATION_MESSAGE, 'Permissions for 2 items are applied.')
         });
 
-    it.skip(`WHEN 'Edit Permissions' dialog is opened in the child folder THEN default permissions for 'Anonymous' user should be inherited from the parent folder`,
+    it(`WHEN 'Edit Permissions' dialog is opened in the child folder THEN default permissions for 'Anonymous' user should be inherited from the parent folder`,
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             // 1 Select the child folder and click on Edit Permissions link in userAccessWidget
@@ -103,7 +103,7 @@ describe('overwrite.permissions.spec: tests for permissions in parent and child 
                 "permissions for `Anonymous User` should be applied from parent folder");
         });
 
-    it.skip(`GIVEN 'Inherit permissions' is unchecked in child folder WHEN permissions for 'Anonymous user' has been removed in parent folder THEN permissions for child should not be updated`,
+    it(`GIVEN 'Inherit permissions' is unchecked in child folder WHEN permissions for 'Anonymous user' has been removed in parent folder THEN permissions for child should not be updated`,
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             // 1. Open 'Edit Permissions Dialog' and uncheck  'Inherit Permissions' checkbox
@@ -127,7 +127,7 @@ describe('overwrite.permissions.spec: tests for permissions in parent and child 
 
     // Default merging strategy:
     // if permission is set in parent entry, use the value from the parent entry
-    it.skip(`GIVEN 'Inherit permissions' is unchecked in child folder WHEN default permissions for 'Everyone' has been added in parent THEN default permissions for 'Everyone' should  be added in child content as well`,
+    it(`GIVEN 'Inherit permissions' is unchecked in child folder WHEN default permissions for 'Everyone' has been added in parent THEN default permissions for 'Everyone' should  be added in child content as well`,
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             // 1. Select parent folder:

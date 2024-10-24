@@ -21,7 +21,7 @@ describe('display.source.button.spec - tests for Display Source button in html a
     let USER;
     let SITE;
 
-    it.skip(`Precondition 1: new user with 'Content Manager Expert'  role should be created`,
+    it(`Precondition 1: new user with 'Content Manager Expert'  role should be created`,
         async () => {
             // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
@@ -31,7 +31,7 @@ describe('display.source.button.spec - tests for Display Source button in html a
             await studioUtils.addSystemUser(USER);
         });
 
-    it.skip('Precondition 2: new site should be created by SU',
+    it('Precondition 2: new site should be created by SU',
         async () => {
             let contentWizard = new ContentWizard();
             let editPermissionsDialog = new EditPermissionsDialog();
@@ -57,7 +57,7 @@ describe('display.source.button.spec - tests for Display Source button in html a
             await studioUtils.doLogout();
         });
 
-    it.skip("GIVEN user with role 'Content Manager Expert' is logged in WHEN content with html area has been opened THEN 'Source' button should be displayed in the htmlArea toolbar",
+    it("GIVEN user with role 'Content Manager Expert' is logged in WHEN content with html area has been opened THEN 'Source' button should be displayed in the htmlArea toolbar",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let sourceCodeDialog = new SourceCodeDialog();
@@ -72,7 +72,7 @@ describe('display.source.button.spec - tests for Display Source button in html a
 
     // Verifies issue Edit/Delete icons in the Site configurator should be hidden for non-admin users #3496
     // https://github.com/enonic/app-contentstudio/issues/3496
-    it.skip("GIVEN user with role 'Content Manager Expert' is signing in WHEN existing site has been opened THEN 'Edit configurator' and 'remove application' icons should be hidden",
+    it("GIVEN user with role 'Content Manager Expert' is signing in WHEN existing site has been opened THEN 'Edit configurator' and 'remove application' icons should be hidden",
         async () => {
             let siteFormPanel = new SiteFormPanel();
             await studioUtils.navigateToContentStudioApp(USER.displayName, appConst.PASSWORD.MEDIUM);
