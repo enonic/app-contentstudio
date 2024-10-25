@@ -122,14 +122,6 @@ export class ContentBrowsePanel
 
         this.handleGlobalEvents();
 
-        this.selectableListBoxPanel.onSelectionChanged(() => {
-            const previewPanel: ContentItemPreviewPanel = this.getPreviewPanel();
-            const selectedItem: ContentSummaryAndCompareStatus = this.selectableListBoxPanel.getLastSelectedItem();
-            if (!!selectedItem && previewPanel.isPreviewUpdateNeeded(selectedItem)) {
-                previewPanel.showMask();
-            }
-        });
-
         this.treeListBox.onItemsAdded((items: ContentSummaryAndCompareStatus[], itemViews: ContentsTreeGridListElement[]) => {
             items.forEach((item: ContentSummaryAndCompareStatus, index) => {
                 const listElement = itemViews[index]?.getDataView();
