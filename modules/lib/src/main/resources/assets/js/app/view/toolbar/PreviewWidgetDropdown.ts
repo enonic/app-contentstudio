@@ -34,8 +34,18 @@ export class PreviewWidgetDropdown
         if (widgets.length === 0) {
             return;
         }
-        this.getList().setItems(widgets.map(widget => new PreviewWidgetOptionBuilder(widget).build()));
+        const sortedOptions = widgets
+            .sort((a, b) => {
+                const orderA = a.getConfig().getProperty('order');
+                const orderB = b.getConfig().getProperty('order');
+                return (parseInt(orderA) || 999) - (parseInt(orderB) || 999);
+            }).map(widget => new PreviewWidgetOptionBuilder(widget).build());
+        this.getList().setItems(sortedOptions);
         this.doSelect(this.getList().getItems()[0]);
+    }
+
+    getSelectedWidget(): Widget {
+        return this.selectedOption?.getObject();
     }
 
     protected handleUserToggleAction(item: PreviewWidgetOption): void {
@@ -47,7 +57,7 @@ export class PreviewWidgetDropdown
     }
 
     protected doSelect(item: PreviewWidgetOption) {
-        this.selectedOption.doLayout(item);
+        this.selectedOption.setObject(item);
         this.selectedOption.show();
         super.doSelect(item);
     }
