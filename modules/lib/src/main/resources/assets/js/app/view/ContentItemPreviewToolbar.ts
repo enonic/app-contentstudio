@@ -96,6 +96,9 @@ export class ContentItemPreviewToolbar
             });
     }
 
+    public getWidgetSelector(): PreviewWidgetDropdown {
+        return this.widgetSelector;
+    }
 
     setItem(item: ContentSummaryAndCompareStatus): void {
         if (this.getItem() !== item) {
