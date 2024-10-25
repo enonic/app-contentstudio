@@ -80,7 +80,7 @@ publishingWizard.allowContentUpdate = false
 
 === Default Online From time
 
-Default Online From time is set to 08:00 by default. This default value can be changed by setting the `publishingWizard.defaultPublishFromTime` config property.
+Default Online From time is set to 12:00 by default. This default value can be changed by setting the `publishingWizard.defaultPublishFromTime` config property.
 
 image::pubwiz-online-from.png[Default Online From time in the Publishing Wizard, 75%]
 
@@ -88,7 +88,7 @@ image::pubwiz-online-from.png[Default Online From time in the Publishing Wizard,
 .Default Online From time in the Publishing Wizard
 [source,properties]
 ----
-publishingWizard.defaultPublishFromTime = 08:00
+publishingWizard.defaultPublishFromTime = 12:00
 ----
 
 === Exclude optional dependencies
