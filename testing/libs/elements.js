@@ -228,7 +228,9 @@ module.exports = Object.freeze({
     CKE: {
         TEXTAREA_DIV: "//div[contains(@id,'cke_TextArea')]",
         insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
+        pasteModeButton: `//a[contains(@class,'cke_button') and contains(@title,'Paste mode')]`,
         insertLinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Link')]`,
+        unlinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Unlink')]`,
         insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,
         findAndReplaceButton: "//a[contains(@class,'cke_button') and @title='Find and replace']",
         insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
