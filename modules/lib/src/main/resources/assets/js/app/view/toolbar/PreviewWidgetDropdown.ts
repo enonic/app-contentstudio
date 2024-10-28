@@ -38,7 +38,7 @@ export class PreviewWidgetDropdown
             .sort((a, b) => {
                 const orderA = a.getConfig().getProperty('order');
                 const orderB = b.getConfig().getProperty('order');
-                return (parseInt(orderA) || 999) - (parseInt(orderB) || 999);
+                return (parseInt(orderA) ?? 999) - (parseInt(orderB) ?? 999);
             }).map(widget => new PreviewWidgetOptionBuilder(widget).build());
         this.getList().setItems(sortedOptions);
         this.doSelect(this.getList().getItems()[0]);
