@@ -15,15 +15,26 @@ const xpath = {
 class OptionSetHelpFormView extends OptionSetFormView {
 
     async clickOnHelpTextToggler(inputLabel) {
-        let locator = xpath.inputInOption(inputLabel) + xpath.helpTextToggler;
-        let res= await this.findElements(xpath.inputInOption(inputLabel));
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
+        try {
+            let locator = xpath.inputInOption(inputLabel) + xpath.helpTextToggler;
+            let res = await this.findElements(xpath.inputInOption(inputLabel));
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_help_text_toggler');
+            throw new Error(`Error occurred in optionSet help-text toggler: ${err} \nScreenshot: ${screenshot}`);
+        }
     }
 
     async getHelpText(inputLabel) {
-        let locator = xpath.inputInOption(inputLabel) + "//div[@class='help-text visible']/p";
-        return this.getText(locator);
+        try {
+            let locator = xpath.inputInOption(inputLabel) + "//div[@class='help-text visible']/p";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_help_text');
+            throw new Error(`Error occurred in optionSet help-text: ${err} \nScreenshot: ${screenshot}`);
+        }
     }
 }
 
