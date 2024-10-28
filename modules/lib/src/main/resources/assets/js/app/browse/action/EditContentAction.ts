@@ -3,14 +3,10 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {EditContentEvent} from '../../event/EditContentEvent';
-import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentLocalizer} from './ContentLocalizer';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ContentsLocalizer} from './ContentsLocalizer';
+
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class EditContentAction

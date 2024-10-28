@@ -36,7 +36,6 @@ import {WidgetItemView} from './WidgetItemView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {InternalWidgetType, WidgetView} from './WidgetView';
 import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
-import {StartSagaWidgetEvent} from './widget/saga/event/StartSagaWidgetEvent';
 
 export class ContextView
     extends DivEl {
