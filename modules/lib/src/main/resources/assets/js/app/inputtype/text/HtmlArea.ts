@@ -36,10 +36,6 @@ import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
 import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
-import {ProjectContext} from '../../project/ProjectContext';
-import {EnonicAiToggleDialogEvent} from '../../saga/event/outgoing/EnonicAiToggleDialogEvent';
-import {EnonicAiOpenDialogEvent} from '../../saga/event/outgoing/EnonicAiOpenDialogEvent';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
