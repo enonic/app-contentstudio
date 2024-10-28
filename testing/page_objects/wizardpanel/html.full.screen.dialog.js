@@ -78,11 +78,11 @@ class HtmlFullScreenDialog extends Page {
     }
 
     get insertLinkButton() {
-        return xpath.container + lib.CKE.insertLinkButton
+        return xpath.container + lib.CKE.insertLinkButton;
     }
 
     get unlinkButton() {
-        return xpath.container + lib.CKE.unlinkButton
+        return xpath.container + lib.CKE.unlinkButton;
     }
 
     get insertTableButton() {
