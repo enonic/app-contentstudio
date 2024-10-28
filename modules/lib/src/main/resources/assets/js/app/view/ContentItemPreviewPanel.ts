@@ -150,8 +150,6 @@ export class ContentItemPreviewPanel
             }
         });
 
-        this.widgetCanvas.onClicked(this.frameClickHandler);
-
         (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().onSelectionChanged(() => {
             this.fetchPreviewForPath(this.viewItemToContent(this.item).getContentSummary().getContentId().toString());
         });
@@ -203,25 +201,23 @@ export class ContentItemPreviewPanel
         return contentPreviewPath.indexOf('attachment/download') > 0;
     }
 
-    private frameClickHandler(event: UIEvent) {
+    private frameClickHandler(frameWindow: Window, event: MouseEvent) {
         const linkClicked: string = this.getLinkClicked(event);
         if (linkClicked) {
-            const frameWindow = this.frame.getHTMLElement()['contentWindow'];
             if (!!frameWindow && !UriHelper.isNavigatingOutsideOfXP(linkClicked, frameWindow)) {
                 const contentPreviewPath = UriHelper.trimUrlParams(
                     UriHelper.trimAnchor(UriHelper.trimWindowProtocolAndPortFromHref(linkClicked,
                         frameWindow)));
                 if (!this.isNavigatingWithinSamePage(contentPreviewPath, frameWindow) && !this.isDownloadLink(contentPreviewPath)) {
-                    event.preventDefault();
-                    const clickedLinkRelativePath = '/' + UriHelper.trimWindowProtocolAndPortFromHref(linkClicked, frameWindow);
-                    this.skipNextSetItemCall = true;
+                    // event.preventDefault();
+                    // const clickedLinkRelativePath = '/' + UriHelper.trimWindowProtocolAndPortFromHref(linkClicked, frameWindow);
+                    // this.skipNextSetItemCall = true;
                     new ContentPreviewPathChangedEvent(contentPreviewPath).fire();
-                    this.showMask();
-                    setTimeout(() => {
-                        this.item = null; // we don't have ref to content under contentPreviewPath and there is no point in figuring it out
-                        this.skipNextSetItemCall = false;
-                        this.fetchPreviewForPath(clickedLinkRelativePath);
-                    }, 500);
+                    // setTimeout(() => {
+                    //     this.item = null; // we don't have ref to content under contentPreviewPath and there is no point in figuring it out
+                    //     this.skipNextSetItemCall = false;
+                    //     this.fetchPreviewForPath(clickedLinkRelativePath);
+                    // }, 500);
                 }
             }
         }
@@ -258,7 +254,6 @@ export class ContentItemPreviewPanel
         }
 
         this.previewType = previewType;
-        this.hideMask();
     }
 
     private showPreviewMessages(messages: string[]) {
@@ -274,6 +269,7 @@ export class ContentItemPreviewPanel
         const type = response.headers.get('Content-Type')
         let escape = true;
         let body: string;
+        let callback: (canvas: DivEl) => void;
         switch (type) {
         case 'application/json':
             escape = false;
@@ -282,6 +278,7 @@ export class ContentItemPreviewPanel
         case 'text/html':
             escape = false;
             body = await response.text();
+            callback = this.bindIframeEvents.bind(this);
             break;
         default:
             body = await response.text();
@@ -289,7 +286,23 @@ export class ContentItemPreviewPanel
         }
 
         this.widgetCanvas.setHtml(body, escape);
+
         this.setPreviewType(PREVIEW_TYPE.WIDGET);
+        this.hideMask();
+
+        if (callback) {
+            callback(this.widgetCanvas);
+        }
+    }
+
+    private bindIframeEvents(canvas: DivEl) {
+        const iframe = canvas.getHTMLElement().querySelector('iframe');
+
+        const frameWindow = iframe?.['contentWindow'];
+
+        if (frameWindow) {
+            frameWindow.addEventListener('click', (event: MouseEvent) => this.frameClickHandler(frameWindow, event));
+        }
     }
 
     private highlightJson(json) {
@@ -330,6 +343,7 @@ export class ContentItemPreviewPanel
         }
 
         this.setPreviewType(PREVIEW_TYPE.EMPTY);
+        this.hideMask();
     }
 
     public showMask() {
