@@ -67,7 +67,8 @@ class WizardDetailsPanel extends BaseDetailsPanel {
 
     async openDependencies() {
         try {
-            return await super.openDependencies();
+            await super.openDependencies();
+            await this.pause(1000);
         } catch (err) {
             //Workaround for issue with the empty selector:
             await this.saveScreenshotUniqueName('err_dependencies');

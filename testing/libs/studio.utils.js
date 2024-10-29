@@ -523,7 +523,6 @@ module.exports = {
         //switch to the opened wizard:
         await this.switchToContentTabWindow(displayName);
         await contentWizardPanel.waitForOpened();
-        await contentWizardPanel.waitForSpinnerNotVisible(appConst.longTimeout);
         await contentWizardPanel.waitForDisplayNameInputFocused();
         await contentWizardPanel.pause(300);
     },
