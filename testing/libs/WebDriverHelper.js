@@ -49,7 +49,6 @@ WebDriverHelper.prototype.setupBrowser = function setupBrowser(w, h) {
                 "wdio:enforceWebDriverClassic": true,
                 browserName: browser_name,
                 browserVersion: browser_version,
-                "wdio:enforceWebDriverClassic": true,
                 'goog:chromeOptions': makeChromeOptions(isHeadless, width, height)
             }
         };

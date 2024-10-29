@@ -799,27 +799,15 @@ module.exports = {
         }
         await this.doSwitchToHome();
     },
-    doCloseAllWindowTabsAndSwitchToHome() {
-        return this.getBrowser().getWindowHandles().then(tabIds => {
-            let result = Promise.resolve();
-            tabIds.forEach(tabId => {
-                result = result.then(() => {
-                    return this.switchAndCheckTitle(tabId, "Enonic XP Home");
-                }).then(result => {
-                    if (!result) {
-                        //this.getBrowser().execute('window.close();').then(() => {
-                        return this.getBrowser().closeWindow().then(() => {
-                            console.log(tabId + ' was closed');
-                        }).catch(err => {
-                            console.log(tabId + ' was not closed ' + err);
-                        });
-                    }
-                });
-            });
-            return result;
-        }).then(() => {
-            return this.doSwitchToHome();
-        });
+    async doCloseAllWindowTabsAndSwitchToHome() {
+        let handles = await this.getBrowser().getWindowHandles();
+        for (const item of handles) {
+            let result = await this.switchAndCheckTitle(item, "Enonic XP Home");
+            if (!result) {
+                await this.getBrowser().closeWindow();
+            }
+        }
+        return this.doSwitchToHome();
     },
     switchAndCheckTitle(handle, reqTitle) {
         return this.getBrowser().switchToWindow(handle).then(() => {
