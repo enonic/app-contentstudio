@@ -3,6 +3,7 @@
  */
 const BaseDependenciesWidget = require('../../details_panel/base.dependencies.widget');
 const appConst = require('../../../libs/app_const');
+const lib = require('../../../libs/elements');
 
 const xpath = {
     widget: "//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'DependenciesWidgetItemView')]",
@@ -17,7 +18,7 @@ class BrowseDependenciesWidget extends BaseDependenciesWidget {
     }
 
     get showOutboundButton() {
-        return xpath.widget + xpath.showOutboundButton;
+        return xpath.widget + lib.actionButton('Show Outbound');
     }
 
     get showInboundButton() {

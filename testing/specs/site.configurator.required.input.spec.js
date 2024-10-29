@@ -20,6 +20,21 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
 
     let SITE;
 
+    it(`GIVEN wizard for new site has been opened WHEN an application that does not have controllers has been selected THEN Save button remains enabled`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let siteFormPanel = new SiteFormPanel();
+            // 1. Open site-wizard
+            await studioUtils.openContentWizard(appConst.contentTypes.SITE);
+            await contentWizard.typeDisplayName(appConst.generateRandomName('site'));
+            // 2. Select an application that does not have controllers:
+            await siteFormPanel.filterOptionsAndSelectApplication(appConst.APP_WITH_CONFIGURATOR);
+            await contentWizard.pause(1000);
+            await studioUtils.saveScreenshot('site_app_has_no_controllers');
+            // 3. Verify that Save button remains enabled after selecting this application:
+            await contentWizard.waitForSaveButtonEnabled();
+        });
+
     it(`GIVEN existing site is opened WHEN 'edit' button in the 'selected-option-view' has been clicked THEN 'site configurator dialog should appear'`,
         async () => {
             let siteFormPanel = new SiteFormPanel();

@@ -292,7 +292,7 @@ class InsertImageDialog extends Page {
         let imageSelectorDropdown = new ImageSelectorDropdown();
         // parent locator = ImageModalDialog
         await imageSelectorDropdown.selectFilteredImageInFlatMode(imageDisplayName, XPATH.container);
-        await this.pause(400);
+        await this.pause(1000);
     }
 
     async filterAndSelectImageByPath(path) {

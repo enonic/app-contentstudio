@@ -43,7 +43,8 @@ class SiteForm extends Page {
             }
             if (siteData.applications) {
                 await this.addApplications(siteData.applications);
-                await this.waitForNotificationMessage();
+                // Applications may not have controllers, so autosaving does not occur in this case
+                // await this.waitForNotificationMessage();
             }
         } catch (err) {
             throw new Error("Error during creating site(Site form panel)  " + err);
@@ -112,7 +113,7 @@ class SiteForm extends Page {
         try {
             let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
             await siteConfiguratorComboBox.selectFilteredApplicationAndClickOnApply(displayName, XPATH.wizardSteps);
-            await this.pause(700);
+            await this.pause(900);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_app_option');
             throw new Error(`Error occurred in Site wizard, application selector, screenshot : ${screenshot} ` + err);

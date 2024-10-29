@@ -61,7 +61,7 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
             await htmlAreaForm.doubleClickOnHtmlArea();
             await insertImageDialog.waitForDialogVisible();
             // 3. Verify the selected style option in styles selector:
-            let actualStyle = await insertImageDialog.getSelectedStyleName();
+            let actualStyle = await insertImageDialog.getSelectedStyleValue();
             // 4. Verify that 'Avatar' option should be selected in the styles dropdown selector
             await studioUtils.saveScreenshot('image_dialog_custom_style_avatar');
             assert.equal(actualStyle, 'Avatar', "'Avatar' style should be selected in the dropdown");
