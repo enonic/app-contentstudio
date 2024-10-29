@@ -56,6 +56,7 @@ describe('Generate name for fragments specification', function () {
             // 3. Open 'Insert Image' dialog and insert an image in htmlArea:
             await textComponentCke.clickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
+            await insertImageDialog.pause(1000);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             // 4. Save the text-component as fragment:

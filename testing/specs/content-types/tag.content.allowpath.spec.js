@@ -14,7 +14,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const MY_TAGS_FOLDER = 'mytags';
+    const MY_TAGS_FOLDER_NAME = 'mytags';// "${site}/mytags/"
     let FOLDER;
     let SITE;
     const TAG_TEXT1 = 'enonic';
@@ -24,7 +24,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            FOLDER = contentBuilder.buildFolder("mytags");
+            FOLDER = contentBuilder.buildFolder(MY_TAGS_FOLDER_NAME);
             await studioUtils.doAddSite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
             await studioUtils.doAddFolder(FOLDER);
@@ -50,8 +50,8 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
             let tagForm = new TagForm();
             let contentWizard = new ContentWizard();
             // select 'mytags' folder and open wizard for tag-content
-            await studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5');
-            await contentWizard.typeDisplayName("test-tag2");
+            await studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER_NAME, 'tag0_5');
+            await contentWizard.typeDisplayName('test-tag2');
             // type 'test-enonic' in the input and save this tag:
             await tagForm.doAddTag(TAG_TEXT2);
             await contentWizard.waitAndClickOnSave();
@@ -66,9 +66,9 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
             let tagForm = new TagForm();
             let contentWizard = new ContentWizard();
             // 1. open new wizard in "${site}/mytags/"
-            await studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5');
+            await studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER_NAME, 'tag0_5');
             // 2. type a name
-            await contentWizard.typeDisplayName("test-tag3");
+            await contentWizard.typeDisplayName('test-tag3');
             // 3. type the text-part of existing tag(the tag is not in allowed folder)
             await tagForm.typeInTagInput('enon');
             // Verify that the suggestion is not visible because tag is not in 'allowPath'
@@ -82,7 +82,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
             let tagForm = new TagForm();
             let contentWizard = new ContentWizard();
             // 1. open new wizard in "${site}/mytags/"
-            await studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5');
+            await studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER_NAME, 'tag0_5');
             // 2. type a name:
             await contentWizard.typeDisplayName('test-tag3');
             // 3. type the part of text of existing tag(the tag is in allowed folder)
