@@ -151,11 +151,13 @@ class BaseBrowsePanel extends Page {
         }
     }
 
-    waitForEditButtonDisabled() {
-        return this.waitForElementDisabled(this.editButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_edit_disabled_button');
-            throw Error('Edit button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms' + ' ' + err)
-        })
+    async waitForEditButtonDisabled() {
+        try {
+            await this.waitForElementDisabled(this.editButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_edit_disabled_button');
+            throw Error(`Edit button should be disabled screenshot: ${screenshot} ` + err);
+        }
     }
 
     async waitForEditButtonEnabled() {
@@ -164,7 +166,7 @@ class BaseBrowsePanel extends Page {
             return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_edit_button');
-            throw Error('Edit button is not enabled, screenshot: ' + screenshot + " " + err);
+            throw Error(`Edit button is not enabled, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -185,7 +187,7 @@ class BaseBrowsePanel extends Page {
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_browse_panel_edit_button');
-            throw new Error('Browse Panel: Edit button is not enabled! screenshot:  ' + screenshot + ' ' + err);
+            throw new Error(`Browse Panel: Edit button is not enabled! screenshot:${screenshot}  ` + err);
         }
     }
 

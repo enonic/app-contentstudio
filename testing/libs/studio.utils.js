@@ -325,7 +325,7 @@ module.exports = {
     async doCloseWizardAndSwitchContentStudioTab() {
         await this.doCloseCurrentBrowserTab();
         let browsePanel = new BrowsePanel();
-        await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+        await this.switchToTab(appConst.BROWSER_TITLES.CONTENT_STUDIO);
         await browsePanel.pause(400);
     },
     async doAddSite(site, noControllers) {
@@ -625,7 +625,7 @@ module.exports = {
             await this.doSwitchToContentBrowsePanelAndSelectDefaultContext();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_cs');
-            throw new Error(`Error occurred after clicking on  Content Studio link in Launcher Panel,  screenshot:${screenshot}  ` + err);
+            throw new Error(`Error occurred after clicking on Content Studio link in Launcher Panel,  screenshot:${screenshot}  ` + err);
         }
     },
     async navigateToContentStudioAppMobile(userName, password) {
@@ -708,6 +708,7 @@ module.exports = {
                 return handle;
             }
         }
+        throw new Error('Browser tab with title ' + title + ' was not found');
     },
     async doSwitchToContentBrowsePanelAndSelectDefaultContext() {
         try {
@@ -806,8 +807,8 @@ module.exports = {
                     return this.switchAndCheckTitle(tabId, "Enonic XP Home");
                 }).then(result => {
                     if (!result) {
-                        this.getBrowser().execute('window.close();').then(() => {
-                            //return this.getBrowser().closeWindow().then(() => {
+                        //this.getBrowser().execute('window.close();').then(() => {
+                        return this.getBrowser().closeWindow().then(() => {
                             console.log(tabId + ' was closed');
                         }).catch(err => {
                             console.log(tabId + ' was not closed ' + err);
