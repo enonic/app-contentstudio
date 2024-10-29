@@ -144,7 +144,8 @@ module.exports = {
     async doCloseCurrentBrowserTab() {
         let title = await this.getBrowser().getTitle();
         if (title != 'Enonic XP Home') {
-            return await this.getBrowser().closeWindow();
+            //return await this.getBrowser().closeWindow();
+            return await this.getBrowser().execute('window.close();')
         }
     },
     async openIssuesListDialog() {
@@ -686,7 +687,11 @@ module.exports = {
     async doSwitchToContentBrowsePanel() {
         try {
             let browsePanel = new BrowsePanel();
-            await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+            let result = await this.getBrowser().getWindowHandles();
+
+
+            // await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+            await this.switchToTab(appConst.BROWSER_TITLES.CONTENT_STUDIO);
             console.log('switched to content browse panel...');
             await browsePanel.waitForGridLoaded(appConst.longTimeout);
             return browsePanel;
@@ -694,11 +699,21 @@ module.exports = {
             throw new Error('Error when switching to Content Studio App ' + err);
         }
     },
+    async switchToTab(title) {
+        let handles = await this.getBrowser().getWindowHandles();
+        for (const handle of handles) {
+            await this.getBrowser().switchToWindow(handle);
+            let currentTitle = await this.getBrowser().getTitle();
+            if (currentTitle === title) {
+                return handle;
+            }
+        }
+    },
     async doSwitchToContentBrowsePanelAndSelectDefaultContext() {
         try {
             let projectSelectionDialog = new ProjectSelectionDialog();
             let browsePanel = new BrowsePanel();
-            await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+            await this.switchToTab(appConst.BROWSER_TITLES.CONTENT_STUDIO);
             console.log('switched to content browse panel...');
             let isLoaded = await projectSelectionDialog.isDialogLoaded();
             if (isLoaded) {
@@ -715,7 +730,7 @@ module.exports = {
     async doSwitchToHome() {
         console.log('testUtils:switching to Home page...');
         let homePage = new HomePage();
-        await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.XP_HOME);
+        await this.switchToTab(appConst.BROWSER_TITLES.XP_HOME);
         return await homePage.waitForLoaded(appConst.mediumTimeout);
 
     },
@@ -791,7 +806,8 @@ module.exports = {
                     return this.switchAndCheckTitle(tabId, "Enonic XP Home");
                 }).then(result => {
                     if (!result) {
-                        return this.getBrowser().closeWindow().then(() => {
+                        this.getBrowser().execute('window.close();').then(() => {
+                            //return this.getBrowser().closeWindow().then(() => {
                             console.log(tabId + ' was closed');
                         }).catch(err => {
                             console.log(tabId + ' was not closed ' + err);
