@@ -28,7 +28,7 @@
     "@wdio/allure-reporter": "9.2.2",
     "@wdio/cli": "^9.2.4",
     "@wdio/concise-reporter": "^9.2.2",
-    "@wdio/local-runner": "^9.2.1",
+    "@wdio/local-runner": "^9.2.4",
     "@wdio/mocha-framework": "^9.2.2",
     "allure-commandline": "^2.31.0",
     "properties-reader": "2.3.0",
