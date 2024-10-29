@@ -16,16 +16,16 @@ describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + te
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let folder1;
-    let folder2;
+    let FOLDER_1;
+    let FOLDER_2;
     it(`Precondition:two folders has been added`,
         async () => {
             let displayName1 = contentBuilder.generateRandomName('folder');
             let displayName2 = contentBuilder.generateRandomName('folder');
-            folder2 = contentBuilder.buildFolder(displayName2);
-            folder1 = contentBuilder.buildFolder(displayName1);
-            await studioUtils.doAddFolder(folder1);
-            await studioUtils.doAddFolder(folder2);
+            FOLDER_2 = contentBuilder.buildFolder(displayName2);
+            FOLDER_1 = contentBuilder.buildFolder(displayName1);
+            await studioUtils.doAddFolder(FOLDER_1);
+            await studioUtils.doAddFolder(FOLDER_2);
         });
 
     //verifies :
@@ -34,13 +34,13 @@ describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + te
     it(`GIVEN two folders(New) in the root directory WHEN both folders have been selected and deleted THEN 'Archive...' button gets disabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            await studioUtils.typeNameInFilterPanel(folder1.displayName);
-            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(folder1.displayName);
+            await studioUtils.typeNameInFilterPanel(FOLDER_1.displayName);
+            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(FOLDER_1.displayName);
             // 1. Select the first folder:
-            await studioUtils.typeNameInFilterPanel(folder2.displayName);
+            await studioUtils.typeNameInFilterPanel(FOLDER_2.displayName);
             await contentBrowsePanel.pause(1000);
             // 2. Select the second folder:
-            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(folder2.displayName);
+            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(FOLDER_2.displayName);
             // 3. Delete folders:
             await studioUtils.doDeleteNowAndConfirm(2);
             // 4. Delete button should be disabled now:
