@@ -710,6 +710,17 @@ module.exports = {
         }
         throw new Error('Browser tab with title ' + title + ' was not found');
     },
+    async switchToTabContains(text) {
+        let handles = await this.getBrowser().getWindowHandles();
+        for (const handle of handles) {
+            await this.getBrowser().switchToWindow(handle);
+            let currentTitle = await this.getBrowser().getTitle();
+            if (currentTitle.includes(text)) {
+                return handle;
+            }
+        }
+        throw new Error('Browser tab with title ' + title + ' was not found');
+    },
     async doSwitchToContentBrowsePanelAndSelectDefaultContext() {
         try {
             let projectSelectionDialog = new ProjectSelectionDialog();
@@ -749,7 +760,8 @@ module.exports = {
 
     async switchToContentTabWindow(contentDisplayName) {
         try {
-            await this.getBrowser().switchWindow(contentDisplayName);
+            //await this.getBrowser().switchWindow(contentDisplayName);
+            await this.switchToTabContains(contentDisplayName);
             let contentWizardPanel = new ContentWizardPanel();
             return await contentWizardPanel.waitForSpinnerNotVisible();
         } catch (err) {
