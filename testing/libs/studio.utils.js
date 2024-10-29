@@ -659,7 +659,7 @@ module.exports = {
     async navigateToContentStudioCloseProjectSelectionDialog(userName, password) {
         try {
             await this.clickOnContentStudioLink(userName, password);
-            await this.getBrowser().switchWindow('Content Studio - Enonic XP Admin');
+            await this.switchToTab(appConst.BROWSER_TITLES.CONTENT_STUDIO);
             await this.closeProjectSelectionDialog();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
