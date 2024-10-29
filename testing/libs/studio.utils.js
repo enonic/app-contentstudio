@@ -330,10 +330,10 @@ module.exports = {
     },
     async doAddSite(site, noControllers) {
         let contentWizardPanel = new ContentWizardPanel();
-        //1. Open new site-wizard:
+        // 1. Open new site-wizard:
         await this.openContentWizard(appConst.contentTypes.SITE);
         await contentWizardPanel.typeData(site);
-        //2. Type the data and save:
+        // 2. Type the data and save:
         if (site.data.controller) {
             await contentWizardPanel.selectPageDescriptor(site.data.controller);
         }
@@ -698,17 +698,6 @@ module.exports = {
             throw new Error('Error when switching to Content Studio App ' + err);
         }
     },
-    async switchToTab(title) {
-        let handles = await this.getBrowser().getWindowHandles();
-        for (const handle of handles) {
-            await this.getBrowser().switchToWindow(handle);
-            let currentTitle = await this.getBrowser().getTitle();
-            if (currentTitle === title) {
-                return handle;
-            }
-        }
-        throw new Error('Browser tab with title ' + title + ' was not found');
-    },
     async switchToTabContains(text) {
         let handles = await this.getBrowser().getWindowHandles();
         for (const handle of handles) {
@@ -718,8 +707,9 @@ module.exports = {
                 return handle;
             }
         }
-        throw new Error('Browser tab with title ' + title + ' was not found');
+        throw new Error('Browser tab with title ' + text + ' was not found');
     },
+
     async doSwitchToContentBrowsePanelAndSelectDefaultContext() {
         try {
             let projectSelectionDialog = new ProjectSelectionDialog();
@@ -759,13 +749,11 @@ module.exports = {
 
     async switchToContentTabWindow(contentDisplayName) {
         try {
-            //await this.getBrowser().switchWindow(contentDisplayName);
             await this.switchToTabContains(contentDisplayName);
             let contentWizardPanel = new ContentWizardPanel();
             return await contentWizardPanel.waitForSpinnerNotVisible();
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_switch_window');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_switch_window');
             await this.getBrowser().pause(1500);
             await this.getBrowser().switchWindow(contentDisplayName);
         }

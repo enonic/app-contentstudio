@@ -166,7 +166,7 @@ class BaseBrowsePanel extends Page {
             return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_edit_button');
-            throw Error(`Edit button is not enabled, screenshot:${screenshot} ` + err);
+            throw Error(`Edit button is not enabled, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -184,7 +184,7 @@ class BaseBrowsePanel extends Page {
         try {
             await this.waitForElementEnabled(this.editButton, appConst.mediumTimeout);
             await this.clickOnElement(this.editButton);
-            return await this.pause(500);
+            return await this.pause(1500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_browse_panel_edit_button');
             throw new Error(`Browse Panel: Edit button is not enabled! screenshot:${screenshot}  ` + err);

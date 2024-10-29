@@ -146,9 +146,10 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await cityForm.typePopulation(NEW_SF_POPULATION);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
+            await studioUtils.saveScreenshot('new_population_saving');
             // 2. Verify that population is not updated in master, because the content is not published now(Modified):
             await studioUtils.openResourceInMaster(SITE.displayName + '/' + USA_CONTENT_NAME);
-            await studioUtils.saveScreenshot('new_population_saved');
+            await studioUtils.saveScreenshot('new_population_in_master');
             let pageSource = await studioUtils.getPageSource();
             assert.ok(pageSource.includes(SF_POPULATION), "population should not be updated");
         });
