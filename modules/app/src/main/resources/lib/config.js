@@ -29,7 +29,7 @@ function getConfig() {
     const excludeDependencies = app.config['publishingWizard.excludeDependencies'] === 'true' || false;
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
-    const defaultPublishFromTime = parseTime(app.config['publishingWizard.defaultPublishFromTime']);
+    const defaultPublishFromTime = parseTime(app.config['publishingWizard.defaultPublishFromTime'] || '12:00');
     const toolUri = admin.getToolUrl(
         app.name,
         'main'
