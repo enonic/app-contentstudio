@@ -50,11 +50,12 @@ public final class ContentMediaResource
 {
     private ContentService contentService;
 
-    private static final Set<String> ALLOWED_PREVIEW_TYPES = Stream.concat( ContentTypeFromMimeTypeResolver.resolveMimeTypes(
-        ContentTypeNames.from( ContentTypeName.audioMedia(), ContentTypeName.videoMedia(), ContentTypeName.textMedia() ) ).stream(),
-                                                                            Set.of( "application/pdf", "application/postscript" ).stream() )
-        .
-            collect( Collectors.toSet() );
+    private static final Set<String> ALLOWED_PREVIEW_TYPES =
+        Stream.concat( ContentTypeFromMimeTypeResolver.resolveMimeTypes(
+                           ContentTypeNames.from( ContentTypeName.audioMedia(), ContentTypeName.videoMedia(),
+                                                  ContentTypeName.textMedia(), ContentTypeName.imageMedia() ) ).stream(),
+                       Set.of( "application/pdf", "application/postscript", "image/svg+xml" ).stream() )
+            .collect( Collectors.toSet() );
 
     @GET
     @Path("{contentId}")
