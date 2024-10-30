@@ -1,6 +1,6 @@
 {
   "name": "lib-contentstudio",
-  "version": "6.0.0",
+  "version": "5.3.0",
   "description": "Enonix XP - Content Studio Library",
   "license": "GPL-3.0",
   "repository": {
@@ -8,13 +8,12 @@
     "url": "https://github.com/enonic/app-contentstudio"
   },
   "scripts": {
-    "build:prod": "concurrently -c auto -g --timings npm:build:prod:*",
+    "build:prod": "run-p build:prod:js build:lib",
     "build:prod:js": "tsc",
-    "build:prod:lib": "webpack --color --stats-error-details",
-    "build:dev": "concurrently -c auto -g --timings npm:build:dev:*",
+    "build:dev": "run-p build:dev:types build:dev:js build:lib",
     "build:dev:js": "swc src --out-dir build/tmp",
     "build:dev:types": "tsc --skipLibCheck --emitDeclarationOnly --declaration",
-    "build:dev:lib": "webpack --color --stats-error-details",
+    "build:lib": "webpack --color --stats-error-details",
     "typecheck": "tsc --pretty --skipLibCheck --noEmit",
     "lint": "eslint **/*.ts --quiet --cache",
     "fix": "eslint --fix **/*.ts --cache"
@@ -23,6 +22,7 @@
     "@enonic/lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
     "d3": "^7.9.0",
     "d3-dag": "^0.11.5",
+    "dompurify": "^3.0.6",
     "enonic-admin-artifacts": "^2.2.0",
     "flag-icons": "^7.2.3",
     "hasher": "^1.2.0",
@@ -35,6 +35,8 @@
   },
   "devDependencies": {
     "@enonic/eslint-config": "^2.0.0",
+    "@swc/cli": "^0.4.0",
+    "@swc/core": "1.7.36",
     "@types/ckeditor": "^4.9.10",
     "@types/core-js": "^2.5.8",
     "@types/hasher": "0.0.35",
@@ -43,12 +45,13 @@
     "@types/q": "^1.5.8",
     "@types/sortablejs": "^1.15.8",
     "circular-dependency-plugin": "^5.2.2",
-    "concurrently": "^9.1.0",
-    "eslint": "^9.15.0",
-    "globals": "^15.12.0",
+    "eslint": "^9.10.0",
+    "globals": "^15.11.0",
     "mini-css-extract-plugin": "^2.9.1",
     "minimist": "^1.2.8",
+    "npm-run-all": "^4.1.5",
     "postcss-loader": "^8.1.1",
+    "swc-loader": "^0.2.6",
     "terser-webpack-plugin": "^5.3.10",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.11.0"

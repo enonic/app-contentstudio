@@ -46,6 +46,7 @@ dependencies {
     include "com.enonic.lib:lib-license:3.1.0"
     include "com.enonic.xp:lib-auth:${xpVersion}"
     include "com.enonic.xp:lib-node:${xpVersion}"
+    include "com.enonic.lib:lib-http-client:3.2.1"
     include project( ':lib-contentstudio' )
     include project( ':rest' )
     devResources project( path: ':lib-contentstudio', configuration: 'devResources' )
