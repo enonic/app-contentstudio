@@ -1,51 +1,46 @@
 /*global app, resolve*/
 
-const portalLib = require('/lib/xp/portal');
-const contentLib = require('/lib/xp/content');
-const contextLib = require('/lib/export/context');
+const widgetLib = require('/lib/export/widget');
 
 function handleGet(req) {
-    const key = req.params.contentId;
-    const branch = req.params.branch || 'master';
-    const repository = req.params.repo;
 
-    if (!key || !repository) {
+    let params;
+    try {
+        params = widgetLib.validateParams(req.params);
+    } catch (e) {
         return {
             status: 400,
             contentType: 'text/plain',
-            body: 'Missing required parameter: ' + (!key ? 'contentId' : 'repo')
+            body: e.message
         };
     }
 
-    return contextLib.switchContext(repository, branch, function () {
-        let content;
-        if (key) {
-            content = contentLib.get({key});
-        } else {
-            content = portalLib.getContent();
-        }
+    try {
+        const content = widgetLib.fetchContent(params.repository, params.branch, params.id || params.path);
 
         return {
             contentType: 'application/json',
             status: content ? 200 : 404,
             body: content
         };
-    }, function (e) {
-        log.error('JSON preview failed to render content: ' + e.message);
-
+    } catch (e) {
         return {
             status: 500,
             contentType: 'text/plain',
-            body: 'Failed to render content: ' + e.message
+            body: 'Failed to render json: ' + e.message
         }
-    });
+    }
 }
 
 exports.get = handleGet;
 
 exports.canRender = function (req) {
-    const key = req.params.contentId;
-    const repository = req.params.repo;
+    try {
+        const params = widgetLib.validateParams(req.params);
+        const content = widgetLib.fetchContent(params.repository, params.branch, params.id || params.path);
 
-    return !!(key && repository);
+        return !!content;
+    } catch (e) {
+        return false;
+    }
 }
