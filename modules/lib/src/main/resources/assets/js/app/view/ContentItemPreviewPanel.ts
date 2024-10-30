@@ -111,15 +111,17 @@ export class ContentItemPreviewPanel
     }
 
     protected update(item: ContentSummaryAndCompareStatus) {
-        this.fetchPreviewForPath(item.getContentSummary().getContentId().toString());
+        let contentSummary = item.getContentSummary();
+        this.fetchPreviewForPath(contentSummary.getContentId().toString(), contentSummary.getPath().toString());
     }
 
-    private async fetchPreviewForPath(path: string): Promise<void> {
+    private async fetchPreviewForPath(id: string, path: string): Promise<void> {
         const previewWidget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
         if (previewWidget) {
             this.showMask();
             const params = new URLSearchParams({
-                contentId: path,
+                contentPath: path,
+                contentId: id,
                 repo: `${RepositoryId.CONTENT_REPO_PREFIX}${ProjectContext.get().getProject().getName()}`,
                 branch: CONFIG.getString('branch'),
             })
@@ -151,7 +153,8 @@ export class ContentItemPreviewPanel
         });
 
         (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().onSelectionChanged(() => {
-            this.fetchPreviewForPath(this.viewItemToContent(this.item).getContentSummary().getContentId().toString());
+            let contentSummary = this.viewItemToContent(this.item).getContentSummary();
+            this.fetchPreviewForPath(contentSummary.getContentId().toString(), contentSummary.getPath().toString());
         });
 
         EmulatedEvent.on((event: EmulatedEvent) => {
@@ -269,6 +272,7 @@ export class ContentItemPreviewPanel
         const type = response.headers.get('Content-Type')
         let escape = true;
         let body: string;
+        let hideMask = true;
         let callback: (canvas: DivEl) => void;
         switch (type) {
         case 'application/json':
@@ -279,6 +283,7 @@ export class ContentItemPreviewPanel
             escape = false;
             body = await response.text();
             callback = this.bindIframeEvents.bind(this);
+            hideMask = false;
             break;
         default:
             body = await response.text();
@@ -288,8 +293,10 @@ export class ContentItemPreviewPanel
         this.widgetCanvas.setHtml(body, escape);
 
         this.setPreviewType(PREVIEW_TYPE.WIDGET);
-        this.hideMask();
 
+        if (hideMask) {
+            this.hideMask();
+        }
         if (callback) {
             callback(this.widgetCanvas);
         }
@@ -298,11 +305,15 @@ export class ContentItemPreviewPanel
     private bindIframeEvents(canvas: DivEl) {
         const iframe = canvas.getHTMLElement().querySelector('iframe');
 
-        const frameWindow = iframe?.['contentWindow'];
+        iframe.addEventListener('load', () => {
+            const frameWindow = iframe?.['contentWindow'];
 
-        if (frameWindow) {
-            frameWindow.addEventListener('click', (event: MouseEvent) => this.frameClickHandler(frameWindow, event));
-        }
+            if (frameWindow) {
+                frameWindow.addEventListener('click', (event: MouseEvent) => this.frameClickHandler(frameWindow, event));
+            }
+
+            this.hideMask();
+        });
     }
 
     private highlightJson(json) {
