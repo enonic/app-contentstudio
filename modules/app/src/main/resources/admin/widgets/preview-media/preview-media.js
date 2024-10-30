@@ -20,16 +20,16 @@ exports.get = function (req) {
     return {
         status: 200,
         contentType: 'text/html',
-        body: `<iframe src="${url}"></iframe>`
-    };
+        body: `<iframe class="media" src="${url}"></iframe>`
+    }
 }
 
 exports.canRender = function (req) {
     try {
         const params = widgetLib.validateParams(req.params);
-        const url = createUrl(params);
-        const response = widgetLib.fetchHttp(url, 'HEAD', req.headers);
-        return !!response && response.status === 200;
+        const content = widgetLib.fetchContent(params.repository, params.branch, params.id);
+
+        return !!content && content.type.startsWith('media:');
     } catch (e) {
         return false;
     }
@@ -37,5 +37,5 @@ exports.canRender = function (req) {
 
 function createUrl(params) {
     const project = params.repository.substring('com.enonic.cms.'.length);
-    return `http://localhost:8080/admin/site/inline/${project}/${params.branch}` + params.path;   //TODO: use real domain
+    return `/admin/rest-v2/cs/cms/${project}/content/content/media/${params.id}?download=false`;
 }
