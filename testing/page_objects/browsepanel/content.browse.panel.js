@@ -31,7 +31,6 @@ const XPATH = {
     contentPublishMenuButton: `//div[contains(@id,'ContentBrowsePublishMenuButton')]`,
     selectionControllerCheckBox: `//div[contains(@id,'ListSelectionController')]`,
     contentActionMenuButton: `//div[contains(@id,'ContentActionMenuButton')]`,
-    selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     contentSummaryListViewerByName(name) {
         return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`

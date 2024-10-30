@@ -11,7 +11,7 @@ const XPATH = {
     header: `//div[contains(@id,'NewContentDialogHeader')]`,
     typesList: `//ul[contains(@id,'FilterableItemsList')]`,
     mostPopularBlock: "//div[contains(@id,'MostPopularItemsBlock')]",
-    contentTypeByName: function (name) {
+    contentTypeByName(name) {
         return `//div[@class='content-types-content']//li[contains(@class,'content-types-list-item') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`;
     },
 };
@@ -30,32 +30,32 @@ class NewContentDialog extends Page {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
 
-    get applicationsLink() {
-        return XPATH.container + `//a[contains(@data-id,'app.applications')]`;
-    }
 
-    clickOnCancelButtonTop() {
-        return this.clickOnElement(this.cancelButton).catch(err => {
-            this.saveScreenshot('err_cancel_new_content_dlg');
-            throw new Error('Error when clicking on Cancel button ' + err);
-        })
+    async clickOnCancelButtonTop() {
+        try {
+            await this.waitForElementDisplayed(this.cancelButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.cancelButton);
+        } catch (err) {
+            await this.saveScreenshot('err_cancel_new_content_dlg');
+            throw new Error('Error occurred after clicking on Cancel button ' + err);
+        }
     }
 
     async waitForOpened() {
         try {
             await this.waitForElementDisplayed(XPATH.typesList, appConst.mediumTimeout)
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_new_content'));
-            throw new Error('New Content dialog was not loaded! ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_new_content');
+            throw new Error(`New Content dialog was not loaded! Screenshot: ${screenshot} ` + err);
         }
     }
 
     async waitForClosed() {
         try {
             await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout)
-        } catch (error) {
-            await this.saveScreenshot(appConst.generateRandomName('err_new_content_close'));
-            throw new Error('New Content Dialog was not closed');
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_new_content_close');
+            throw new Error(`New Content Dialog was not closed, screenshot: ${screenshot}` + err);
         }
     }
 
@@ -68,13 +68,14 @@ class NewContentDialog extends Page {
         return this.getText(this.header);
     }
 
-    //type Search Text In Hidden Input
+    // type Search Text In Hidden Input
     async typeSearchText(text) {
         try {
             await this.getBrowser().keys(text)
             return await this.pause(200);
         } catch (err) {
-            throw new Error("New Content Dialog- error when typing the text in search input! " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_new_content_close');
+            throw new Error(`New Content Dialog- error occurred during typing the text in search input! screenshot: ${screenshot} ` + err);
         }
     }
 
