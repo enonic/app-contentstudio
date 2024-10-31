@@ -5,7 +5,7 @@
     <interface>contentstudio.preview</interface>
   </interfaces>
   <config>
-    <property name="auto" value="true"/>
+    <property name="auto" value="false"/>
     <property name="order" value="100"/>
   </config>
 </widget>
