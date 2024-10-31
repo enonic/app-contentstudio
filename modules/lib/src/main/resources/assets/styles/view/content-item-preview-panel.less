@@ -22,22 +22,12 @@
       }
     }
 
-    .widget-canvas {
-      flex-direction: column;
+    > iframe {
       display: none;
       width: 100%;
       height: 100%;
       border: 0 none;
-      margin: auto;
-      padding: 0;
-      transition: width 0.1s ease-in-out;
-
-      > iframe {
-        width: 100%;
-        height: 100%;
-        border: 0 none;
-        margin: 0;
-      }
+      margin: 0;
     }
   }
 
@@ -70,37 +60,8 @@
 
   &.widget-preview {
     .wrapper {
-      .widget-canvas {
-        display: flex;
-      }
-    }
-
-    pre.json {
-      flex: 1;
-      padding: 20px;
-      font-size: 16px;
-      overflow: auto;
-      color: #b3bac6;
-      background-color: #333842;
-
-      .string {
-        color: #98c379;
-      }
-
-      .number {
-        color: #61aeee;
-      }
-
-      .boolean {
-        color: #c678dd;
-      }
-
-      .null {
-        color: #c678dd;
-      }
-
-      .key {
-        color: inherit;
+      > iframe {
+        display: block;
       }
     }
   }
