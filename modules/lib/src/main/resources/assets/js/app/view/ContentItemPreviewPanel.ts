@@ -16,6 +16,7 @@ import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAnd
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {RepositoryId} from '../repository/RepositoryId';
 import {ProjectContext} from '../project/ProjectContext';
+import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 
 enum PREVIEW_TYPE {
     WIDGET,
@@ -28,7 +29,6 @@ enum PREVIEW_TYPE {
 export class ContentItemPreviewPanel
     extends ItemPreviewPanel<ViewItem> {
 
-    protected widgetCanvas: DivEl;
     protected item: ViewItem;
     protected skipNextSetItemCall: boolean = false;
     protected previewType: PREVIEW_TYPE;
@@ -49,12 +49,8 @@ export class ContentItemPreviewPanel
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.wrapper.appendChildren(this.noSelectionMessage, this.previewMessage, this.widgetCanvas);
+            this.wrapper.appendChildren(this.noSelectionMessage, this.previewMessage);
             this.mask.addClass('content-item-preview-panel-load-mask');
-
-            // we don't need the iframe
-            this.frame.remove();
-
             return rendered;
         });
     }
@@ -69,8 +65,6 @@ export class ContentItemPreviewPanel
         previewText.setHtml(i18n('field.preview.notAvailable'));
         this.previewMessage = new DivEl('no-preview-message');
         this.previewMessage.appendChild(previewText);
-
-        this.widgetCanvas = new DivEl('widget-canvas');
     }
 
     public setItem(item: ViewItem) {
@@ -117,27 +111,26 @@ export class ContentItemPreviewPanel
 
     private async fetchPreviewForPath(id: string, path: string): Promise<void> {
         const previewWidget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
-        if (previewWidget) {
-            this.showMask();
-            const params = new URLSearchParams({
-                contentPath: path,
-                contentId: id,
-                repo: `${RepositoryId.CONTENT_REPO_PREFIX}${ProjectContext.get().getProject().getName()}`,
-                branch: CONFIG.getString('branch'),
-            })
-            return fetch(previewWidget.getUrl() + '?' + params.toString()).then((response) => {
-                if (response.ok) {
-                    this.handlePreviewSuccess(response);
-                } else {
-                    this.handlePreviewFailure(response.status);
-                }
-            }).catch((e) => {
-                this.handlePreviewFailure(500);
-            })
-        } else {
+        if (!previewWidget) {
             this.setPreviewType(PREVIEW_TYPE.EMPTY);
-            return Promise.resolve();
+            return;
         }
+
+        this.showMask();
+        const params = new URLSearchParams({
+            contentPath: path,
+            contentId: id,
+            repo: `${RepositoryId.CONTENT_REPO_PREFIX}${ProjectContext.get().getProject().getName()}`,
+            branch: CONFIG.getString('branch'),
+        })
+        return fetch(previewWidget.getUrl() + '?' + params.toString(), {method: 'HEAD'})
+            .then((response) => {
+                if (this.isResponseOk(response, previewWidget)) {
+                    return this.handlePreviewSuccess(response);
+                } else {
+                    return this.handlePreviewFailure(response);
+                }
+            })
     }
 
     public clearItem() {
@@ -150,6 +143,20 @@ export class ContentItemPreviewPanel
             if (this.mask.isVisible()) {
                 this.hideMask();
             }
+        });
+
+        this.frame.onLoaded((event: UIEvent) => {
+            if (this.previewType === PREVIEW_TYPE.EMPTY) {
+                return;
+            }
+            const frameWindow = this.frame.getHTMLElement()['contentWindow'];
+            this.hideMask();
+
+            try {
+                if (frameWindow) {
+                    frameWindow.addEventListener('click', this.frameClickHandler.bind(this));
+                }
+            } catch (error) { /* error */ }
         });
 
         (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().onSelectionChanged(() => {
@@ -268,76 +275,14 @@ export class ContentItemPreviewPanel
         });
     }
 
-    private async handlePreviewSuccess(response: Response) {
-        const type = response.headers.get('Content-Type')
-        let escape = true;
-        let body: string;
-        let hideMask = true;
-        let callback: (canvas: DivEl) => void;
-        switch (type) {
-        case 'application/json':
-            escape = false;
-            body = `<pre class="json">${this.highlightJson(await response.json())}</pre>`;
-            break;
-        case 'text/html':
-            escape = false;
-            body = await response.text();
-            callback = this.bindIframeEvents.bind(this);
-            hideMask = false;
-            break;
-        default:
-            body = await response.text();
-            break;
-        }
-
-        this.widgetCanvas.setHtml(body, escape);
-
+    private handlePreviewSuccess(response: Response) {
         this.setPreviewType(PREVIEW_TYPE.WIDGET);
 
-        if (hideMask) {
-            this.hideMask();
-        }
-        if (callback) {
-            callback(this.widgetCanvas);
-        }
+        this.frame.setSrc(response.url);
     }
 
-    private bindIframeEvents(canvas: DivEl) {
-        const iframe = canvas.getHTMLElement().querySelector('iframe');
-
-        iframe.addEventListener('load', () => {
-            const frameWindow = iframe?.['contentWindow'];
-
-            if (frameWindow) {
-                frameWindow.addEventListener('click', (event: MouseEvent) => this.frameClickHandler(frameWindow, event));
-            }
-
-            this.hideMask();
-        });
-    }
-
-    private highlightJson(json) {
-        let str = JSON.stringify(json, undefined, 4);
-        str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        return str.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
-            function (match) {
-                let cls = 'number';
-                if (/^"/.test(match)) {
-                    if (/:$/.test(match)) {
-                        cls = 'key';
-                    } else {
-                        cls = 'string';
-                    }
-                } else if (/true|false/.test(match)) {
-                    cls = 'boolean';
-                } else if (/null/.test(match)) {
-                    cls = 'null';
-                }
-                return '<span class="' + cls + '">' + match + '</span>';
-            });
-    }
-
-    private handlePreviewFailure(statusCode?: number): void {
+    private handlePreviewFailure(response?: Response): void {
+        const statusCode = response.status;
         if (statusCode > 0) {
             switch (statusCode) {
             case StatusCode.NOT_FOUND:
@@ -350,6 +295,7 @@ export class ContentItemPreviewPanel
                 this.setPreviewType(PREVIEW_TYPE.FAILED);
                 break;
             }
+            this.hideMask();
             return;
         }
 
@@ -373,4 +319,8 @@ export class ContentItemPreviewPanel
         return this.mask.isVisible();
     }
 
+    private isResponseOk(response: Response, previewWidget: Widget) {
+        const isAuto = previewWidget?.getWidgetDescriptorKey().getName() === 'preview-automatic';
+        return response.ok || !isAuto && response.status !== StatusCode.I_AM_A_TEAPOT;
+    }
 }

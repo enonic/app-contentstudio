@@ -8,6 +8,7 @@ function validateParams(params) {
     const path = params.contentPath;
     const branch = params.branch || 'master';
     const repository = params.repo;
+    const auto = params.auto || false;
 
     const idOrPath = id || path;
     if (!idOrPath || !repository) {
@@ -16,7 +17,7 @@ function validateParams(params) {
         throw new Error(text);
     }
 
-    return {id, path, branch, repository};
+    return {id, path, branch, repository, auto};
 }
 
 function switchContext(repository, branch, successCallback, errorCallback) {
@@ -61,21 +62,16 @@ function fetchContent(repository, branch, key) {
 
 
 function fetchHttp(url, method, headers) {
-    try {
-        return httpClient.request({
-            url,
-            method,
-            headers: {
-                "Cookie": headers["Cookie"],
-                "Cache-Control": "no-cache",
-            },
-            connectionTimeout: 1000,
-            readTimeout: 5000,
-        });
-    } catch (e) {
-        log.error('Request failed: ' + e.message);
-        return null;
-    }
+    return httpClient.request({
+        url,
+        method,
+        headers: {
+            "Cookie": headers["Cookie"],
+            "Cache-Control": "no-cache",
+        },
+        connectionTimeout: 1000,
+        readTimeout: 5000,
+    });
 }
 
 exports.validateParams = validateParams;
