@@ -8,7 +8,7 @@ const i18n = require('/lib/xp/i18n');
 function getPhrases() {
     const locales = admin.getLocales();
     const phrases = {};
-    const bundles = ['i18n/common', 'i18n/common_wcag', 'i18n/phrases', 'i18n/dialogs', 'i18n/wcag', 'i18n/page-editor'];
+    const bundles = ['i18n/common', 'i18n/phrases', 'i18n/cs-plus', 'i18n/dialogs', 'i18n/page-editor', 'i18n/wcag'];
 
     bundles.forEach(function (bundle) {
         const bundlePhrases = i18n.getPhrases(locales, [bundle]);
@@ -51,20 +51,20 @@ function getConfig() {
         locale: admin.getLocale(),
         services: {
             contentUrl: portal.apiUrl({
-                api: 'content',
+                api: 'content'
             }),
             licenseUrl: portal.apiUrl({
-                api: 'license',
+                api: 'license'
             }),
             stylesUrl: portal.apiUrl({
-                api: 'styles',
+                api: 'styles'
             }),
             collaborationUrl: portal.apiUrl({
-                api: 'collaboration',
+                api: 'collaboration'
             }),
             exportServiceUrl: portal.apiUrl({
-                api: 'export',
-            }),
+                api: 'export'
+            })
         },
         theme: 'light',
         /* Remove in CS/lib-admin-ui 5.0 */
@@ -73,15 +73,14 @@ function getConfig() {
         },
         widgetApiUrl: portal.apiUrl({
             application: 'admin',
-            api: 'widget',
+            api: 'widget'
         }),
-        phrasesAsJson: JSON.stringify(getPhrases()),
+        phrasesAsJson: JSON.stringify(getPhrases())
     };
 }
 
 function parseTime(value) {
-    const timeRegex = /^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/;
-    return timeRegex.test(value) ? value : null;
+    return /^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/.test(value) ? value : null;
 }
 
 function generateScriptConfigId() {
