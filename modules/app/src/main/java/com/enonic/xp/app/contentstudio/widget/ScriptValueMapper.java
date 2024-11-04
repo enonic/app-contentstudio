@@ -4,12 +4,12 @@ import com.enonic.xp.script.ScriptValue;
 import com.enonic.xp.script.serializer.MapGenerator;
 import com.enonic.xp.script.serializer.MapSerializable;
 
-public final class WidgetResponseMapper
+public final class ScriptValueMapper
     implements MapSerializable
 {
     private final ScriptValue value;
 
-    public WidgetResponseMapper( final ScriptValue value )
+    public ScriptValueMapper( final ScriptValue value )
     {
         this.value = value;
     }
