@@ -2,6 +2,8 @@
 
 const widgetLib = require('/lib/export/widget');
 
+const bean = __.newBean('com.enonic.xp.app.contentstudio.widget.MediaRenderingBean');
+
 exports.get = function (req) {
 
     let params;
@@ -28,14 +30,20 @@ exports.get = function (req) {
     }
 
     try {
-        const url = createUrl(params);
+        log.info('Media [GET]: ' + params.id + ', type: ' + params.type);
+        let response;
 
-        log.info('Media [GET]: ' + url);
-
-        return {
-            redirect: url,
+        if (bean.isImageContent(params.type)) {
+            response = __.toNativeObject(bean.image(params.id, params.repository, params.branch));
+        } else {
+            response = __.toNativeObject(bean.media(params.id, params.repository, params.branch));
         }
+
+        log.info('Media [GET] response: ' + response.status + ', ' + response.mimeType + '\n' + JSON.stringify(response.headers, null, 2));
+
+        return response;
     } catch (e) {
+        log.error('Media [GET] error: ' + e.message);
         return {
             status: 500,
             contentType: 'text/plain',
@@ -56,9 +64,4 @@ exports.canRender = function (req) {
     } catch (e) {
         return false;
     }
-}
-
-function createUrl(params) {
-    const project = params.repository.substring('com.enonic.cms.'.length);
-    return `/admin/rest-v2/cs/cms/${project}/content/content/media/${params.id}?download=false`;
 }
