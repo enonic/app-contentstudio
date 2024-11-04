@@ -21,39 +21,4 @@
       display: none;
     }
   }
-
-  > .non-mobile-details-panel-toggle-button {
-    .button(@admin-font-gray2, transparent, @admin-font-gray3, transparent, 7px);
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    &.expanded {
-      &::before {
-        color: @admin-button-blue1;
-      }
-
-      &:hover::before {
-        color: @admin-button-blue2;
-      }
-    }
-
-    &:focus {
-      box-shadow: none;
-    }
-
-    * {
-      vertical-align: top;
-    }
-
-    &:before {
-      font-size: 18px;
-    }
-
-    animation-duration: 0.5s;
-    animation-timing-function: linear;
-    animation-delay: 0s;
-  }
-
 }
