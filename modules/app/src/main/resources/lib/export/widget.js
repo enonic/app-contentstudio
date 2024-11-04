@@ -6,6 +6,7 @@ const httpClient = require('/lib/http-client');
 function validateParams(params) {
     const id = params.contentId;
     const path = params.contentPath;
+    const type = params.type;
     const branch = params.branch || 'master';
     const repository = params.repo;
     const auto = params.auto || false;
@@ -17,7 +18,7 @@ function validateParams(params) {
         throw new Error(text);
     }
 
-    return {id, path, branch, repository, auto};
+    return {id, path, type, branch, repository, auto};
 }
 
 function switchContext(repository, branch, successCallback, errorCallback) {

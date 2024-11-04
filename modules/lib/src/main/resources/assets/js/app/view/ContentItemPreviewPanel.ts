@@ -17,6 +17,7 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {RepositoryId} from '../repository/RepositoryId';
 import {ProjectContext} from '../project/ProjectContext';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {ContentSummary} from '../content/ContentSummary';
 
 enum PREVIEW_TYPE {
     WIDGET,
@@ -106,20 +107,21 @@ export class ContentItemPreviewPanel
 
     protected update(item: ContentSummaryAndCompareStatus) {
         let contentSummary = item.getContentSummary();
-        this.fetchPreviewForPath(contentSummary.getContentId().toString(), contentSummary.getPath().toString());
+        this.fetchPreviewForPath(contentSummary);
     }
 
-    private async fetchPreviewForPath(id: string, path: string): Promise<void> {
+    private async fetchPreviewForPath(summary: ContentSummary): Promise<void> {
         const previewWidget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
-        if (!previewWidget) {
+        if (!previewWidget || !summary) {
             this.setPreviewType(PREVIEW_TYPE.EMPTY);
             return;
         }
 
         this.showMask();
         const params = new URLSearchParams({
-            contentPath: path,
-            contentId: id,
+            contentPath: summary.getPath().toString(),
+            contentId: summary.getContentId().toString(),
+            type: summary.getType().toString(),
             repo: `${RepositoryId.CONTENT_REPO_PREFIX}${ProjectContext.get().getProject().getName()}`,
             branch: CONFIG.getString('branch'),
         })
@@ -149,19 +151,29 @@ export class ContentItemPreviewPanel
             if (this.previewType === PREVIEW_TYPE.EMPTY) {
                 return;
             }
-            const frameWindow = this.frame.getHTMLElement()['contentWindow'];
+
             this.hideMask();
 
-            try {
-                if (frameWindow) {
+            const previewWidget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
+
+            const widgetName = previewWidget.getWidgetDescriptorKey().getName();
+            const isAuto = widgetName === 'preview-automatic';
+            const frameWindow = this.frame.getHTMLElement()['contentWindow'];
+            if (isAuto || widgetName === 'preview-media') {
+
+                this.applyImageStyles(frameWindow);
+            }
+            if (isAuto || widgetName === 'preview-site-engine') {
+
+                try {
                     frameWindow.addEventListener('click', this.frameClickHandler.bind(this));
-                }
-            } catch (error) { /* error */ }
+                } catch (error) { /* error */ }
+            }
         });
 
         (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().onSelectionChanged(() => {
             let contentSummary = this.viewItemToContent(this.item).getContentSummary();
-            this.fetchPreviewForPath(contentSummary.getContentId().toString(), contentSummary.getPath().toString());
+            this.fetchPreviewForPath(contentSummary);
         });
 
         EmulatedEvent.on((event: EmulatedEvent) => {
@@ -322,5 +334,20 @@ export class ContentItemPreviewPanel
     private isResponseOk(response: Response, previewWidget: Widget) {
         const isAuto = previewWidget?.getWidgetDescriptorKey().getName() === 'preview-automatic';
         return response.ok || !isAuto && response.status !== StatusCode.I_AM_A_TEAPOT;
+    }
+
+    private applyImageStyles(frameWindow: Window) {
+        const body = frameWindow.document.body;
+        if (body) {
+            body.style.display = 'flex';
+            body.style.justifyContent = 'center';
+            body.style.alignItems = 'center';
+        }
+
+        const img = frameWindow.document.querySelector('img');
+        if (img) {
+            img.style.maxWidth = '100%';
+            img.style.maxHeight = '100%';
+        }
     }
 }
