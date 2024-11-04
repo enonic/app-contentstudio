@@ -33,12 +33,12 @@ declare global {
 interface EnonicAi {
     contentOperator?: {
         setup(setupData: EnonicAiContentOperatorSetupData): void;
-        render(container: HTMLElement): void;
+        render(buttonContainer: HTMLElement, dialogContainer: HTMLElement): void;
     };
     translator?: {
         setup(setupData: EnonicAiTranslatorSetupData): void;
         render(container: HTMLElement): void;
-        translate(language?: string): Promise<boolean>;
+        translate(instructions?: string, language?: string): Promise<boolean>;
     }
 }
 
@@ -168,8 +168,8 @@ export class AI {
         return window.Enonic?.AI?.[plugin] != null;
     }
 
-    renderContentOperator(container: HTMLElement): void {
-        this.getContentOperator()?.render(container);
+    renderContentOperator(buttonContainer: HTMLElement, dialogContainer: HTMLElement): void {
+        this.getContentOperator()?.render(buttonContainer, dialogContainer);
     }
 
     renderTranslator(container: HTMLElement): void {
