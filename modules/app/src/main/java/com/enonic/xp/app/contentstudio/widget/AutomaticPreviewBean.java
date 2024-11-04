@@ -55,7 +55,7 @@ public class AutomaticPreviewBean
         if ( matchingScript != null && matchingScript.hasMethod( "get" ) )
         {
             final ScriptValue response = matchingScript.executeMethod( "get", portalRequestMapper );
-            return new WidgetResponseMapper( response );
+            return new ScriptValueMapper( response );
         }
 
         throw new WebException( HttpStatus.IM_A_TEAPOT, "No widget found for interface: " + interfaceName );
