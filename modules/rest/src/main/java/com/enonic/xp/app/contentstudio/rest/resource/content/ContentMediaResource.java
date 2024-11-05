@@ -78,23 +78,6 @@ public final class ContentMediaResource
         return doServeMedia( contentId, identifier, download );
     }
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("isAllowPreview")
-    public boolean isAllowPreview( @QueryParam("contentId") final String contentIdAsString,
-                                   @QueryParam("identifier") final String identifier )
-    {
-        final ContentId contentId = ContentId.from( contentIdAsString );
-        final Attachment attachment = resolveAttachment( identifier, contentId );
-
-        if ( attachment == null )
-        {
-            return false;
-        }
-
-        return attachmentAllowsPreview( attachment );
-    }
-
     private Response doServeMedia( final ContentId contentId, final String identifier, final Boolean download )
         throws IOException
     {

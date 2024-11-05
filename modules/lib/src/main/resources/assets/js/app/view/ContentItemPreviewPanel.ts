@@ -154,20 +154,17 @@ export class ContentItemPreviewPanel
 
             this.hideMask();
 
-            const previewWidget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
-
-            const widgetName = previewWidget.getWidgetDescriptorKey().getName();
-            const isAuto = widgetName === 'preview-automatic';
             const frameWindow = this.frame.getHTMLElement()['contentWindow'];
-            if (isAuto || widgetName === 'preview-media') {
 
+            switch (this.frame.getClass()) {
+            case 'image':
                 this.applyImageStyles(frameWindow);
-            }
-            if (isAuto || widgetName === 'preview-site-engine') {
-
+                break;
+            case 'text':
                 try {
-                    frameWindow.addEventListener('click', this.frameClickHandler.bind(this));
+                    frameWindow.addEventListener('click', (event) => this.frameClickHandler(frameWindow, event));
                 } catch (error) { /* error */ }
+                break;
             }
         });
 
@@ -290,6 +287,13 @@ export class ContentItemPreviewPanel
     private handlePreviewSuccess(response: Response) {
         this.setPreviewType(PREVIEW_TYPE.WIDGET);
 
+        const contentType = response.headers.get('content-type');
+        let mainType = 'other';
+        if (contentType) {
+            mainType = contentType.split('/')[0];
+        }
+
+        this.frame.setClass(mainType);
         this.frame.setSrc(response.url);
     }
 

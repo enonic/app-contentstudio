@@ -379,15 +379,7 @@ public class MediaRenderingBean
             r.encoding( "gzip" );
         }
 
-        if ( "image/svg+xml".equals( mimeType ) )
-        {
-            r.header( "Content-Security-Policy",
-                      "default-src 'none'; base-uri 'none'; form-action 'none'; style-src 'self' 'unsafe-inline'" );
-        }
-        else
-        {
-            r.header( "Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'none'" );
-        }
+        r.header( "Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'none'; style-src 'self' 'unsafe-inline'" );
 
         return r;
     }
@@ -408,7 +400,7 @@ public class MediaRenderingBean
             response = response.header( "X-Frame-Options", "SAMEORIGIN" );
         }
 
-        response.header( "Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'none'" );
+        response.header( "Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'none'; media-src 'self'" );
 
         return response;
     }
