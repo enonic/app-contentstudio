@@ -1,2 +1,6 @@
 <?xml version="1.0"?>
-<api xmlns="urn:enonic:xp:model:1.0"/>
+<api xmlns="urn:enonic:xp:model:1.0">
+  <allow>
+    <principal>role:system.admin.login</principal>
+  </allow>
+</api>
