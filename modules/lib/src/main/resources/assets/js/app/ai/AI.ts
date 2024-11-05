@@ -78,7 +78,10 @@ export class AI {
         AiTranslatorCompletedEvent.on(this.translatorCompletedEventListener);
 
         this.getContentOperator()?.setup({serviceUrl: CONFIG.getString('services.aiContentOperatorServiceUrl')});
-        this.getTranslator()?.setup({serviceUrl: CONFIG.getString('services.aiTranslatorServiceUrl')});
+        this.getTranslator()?.setup({
+            restServiceUrl: CONFIG.getString('services.aiTranslatorRestServiceUrl'),
+            wsServiceUrl: CONFIG.getString('services.aiTranslatorWsServiceUrl')
+        });
 
         void new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             const currentUser = loginResult.getUser();
@@ -193,6 +196,7 @@ export class AI {
     private createContentData(): ContentData | undefined {
         // TODO: Add structuredClone, when target upgraded to ES2022
         return this.currentData || (this.content && {
+            contentId: this.content.getContentId().toString(),
             fields: this.content.getContentData().toJson(),
             topic: this.content.getDisplayName(),
         });

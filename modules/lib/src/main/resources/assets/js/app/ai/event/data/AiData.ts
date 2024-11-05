@@ -8,6 +8,7 @@ export interface AiData {
 }
 
 export interface ContentData {
+    contentId: string;
     fields: PropertyArrayJson[];
     topic: string;
 }
