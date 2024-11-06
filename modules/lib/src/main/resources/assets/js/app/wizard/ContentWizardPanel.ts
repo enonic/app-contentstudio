@@ -317,6 +317,7 @@ export class ContentWizardPanel
                 contentId: this.getPersistedItem()?.getContentId().toString() ?? '',
                 fields: this.contentWizardStepForm.getData().toJson(),
                 topic: this.getWizardHeader().getDisplayName(),
+                project: ProjectContext.get().getProject().getName(),
             });
         }, 300);
 

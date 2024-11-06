@@ -21,6 +21,7 @@ import {AiTranslatorStartedEvent} from './event/incoming/AiTranslatorStartedEven
 import {AiContentOperatorConfigureEvent} from './event/outgoing/AiContentOperatorConfigureEvent';
 import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigureEvent';
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
+import {ProjectContext} from '../project/ProjectContext';
 
 declare global {
     interface Window {
@@ -189,7 +190,7 @@ export class AI {
 
     private translatorCompletedEventListener = (event: AiTranslatorCompletedEvent) => {
         const helper = AiHelper.getAiHelperByPath(event.path);
-        helper?.setValue(event.value);
+        helper?.setValue(event.text);
         helper?.setState(AiHelperState.COMPLETED);
     };
 
@@ -199,6 +200,7 @@ export class AI {
             contentId: this.content.getContentId().toString(),
             fields: this.content.getContentData().toJson(),
             topic: this.content.getDisplayName(),
+            project: ProjectContext.get().getProject().getName(),
         });
     }
 

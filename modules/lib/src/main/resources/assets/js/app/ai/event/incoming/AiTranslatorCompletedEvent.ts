@@ -6,7 +6,7 @@ export class AiTranslatorCompletedEvent
 
     readonly path: string;
 
-    readonly value: string;
+    readonly text: string;
 
     private constructor() {
         super();
