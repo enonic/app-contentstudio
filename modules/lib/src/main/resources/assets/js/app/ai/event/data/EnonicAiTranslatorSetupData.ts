@@ -1,3 +1,4 @@
 export interface EnonicAiTranslatorSetupData {
-    serviceUrl: string;
+    restServiceUrl: string;
+    wsServiceUrl: string;
 }
