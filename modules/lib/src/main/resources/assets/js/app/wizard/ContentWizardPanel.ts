@@ -2,6 +2,7 @@ import {MinimizeWizardPanelEvent} from '@enonic/lib-admin-ui/app/wizard/Minimize
 import {WizardHeader} from '@enonic/lib-admin-ui/app/wizard/WizardHeader';
 import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
+import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
 import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
@@ -54,6 +55,7 @@ import {AiTranslatorOpenDialogEvent} from '../ai/event/outgoing/AiTranslatorOpen
 import {MovedContentItem} from '../browse/MovedContentItem';
 import {CompareStatus} from '../content/CompareStatus';
 import {Content, ContentBuilder} from '../content/Content';
+import {ContentDiff} from '../content/ContentDiff';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {ContentId} from '../content/ContentId';
 import {ContentName} from '../content/ContentName';
@@ -63,6 +65,7 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 import {ExtraData} from '../content/ExtraData';
+import {PageTemplate} from '../content/PageTemplate';
 import {Site} from '../content/Site';
 import {WorkflowState} from '../content/WorkflowState';
 import {XData} from '../content/XData';
@@ -73,6 +76,7 @@ import {ContentNamedEvent} from '../event/ContentNamedEvent';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {InspectEvent} from '../event/InspectEvent';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {ImageErrorEvent} from '../inputtype/ui/selector/image/ImageErrorEvent';
 import {Descriptor} from '../page/Descriptor';
@@ -101,6 +105,7 @@ import {ApplicationAddedEvent} from '../site/ApplicationAddedEvent';
 import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
 import {SiteModel} from '../site/SiteModel';
 import {UrlAction} from '../UrlAction';
+import {ContentDiffHelper} from '../util/ContentDiffHelper';
 import {ContentHelper} from '../util/ContentHelper';
 import {PageHelper} from '../util/PageHelper';
 import {UrlHelper} from '../util/UrlHelper';
@@ -120,6 +125,7 @@ import {ContentWizardHeader} from './ContentWizardHeader';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentWizardStep} from './ContentWizardStep';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
+import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
 import {ContentWizardToolbar} from './ContentWizardToolbar';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {DisplayNameResolver} from './DisplayNameResolver';
@@ -134,6 +140,7 @@ import {PageComponentsView} from './PageComponentsView';
 import {PageComponentsWizardStep} from './PageComponentsWizardStep';
 import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
 import {PageEventsManager} from './PageEventsManager';
+import {PageNavigationEventSource} from './PageNavigationEventData';
 import {PermissionHelper} from './PermissionHelper';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
@@ -142,13 +149,6 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
-import {PageTemplate} from '../content/PageTemplate';
-import {InspectEvent} from '../event/InspectEvent';
-import {PageNavigationEventSource} from './PageNavigationEventData';
-import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
-import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
-import {ContentDiffHelper} from '../util/ContentDiffHelper';
-import {ContentDiff} from '../content/ContentDiff';
 
 export type FormContextName = 'content' | 'xdata' | 'live';
 
@@ -314,8 +314,10 @@ export class ContentWizardPanel
         this.workflowStateManager = new WorkflowStateManager(this);
         this.debouncedEnonicAiDataChangedHandler = AppHelper.debounce(() => {
             AI.get().setCurrentData({
+                contentId: this.getPersistedItem()?.getContentId().toString() ?? '',
                 fields: this.contentWizardStepForm.getData().toJson(),
                 topic: this.getWizardHeader().getDisplayName(),
+                project: ProjectContext.get().getProject().getName(),
             });
         }, 300);
 
