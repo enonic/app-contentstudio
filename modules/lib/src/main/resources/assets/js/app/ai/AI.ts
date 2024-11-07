@@ -21,6 +21,7 @@ import {AiTranslatorStartedEvent} from './event/incoming/AiTranslatorStartedEven
 import {AiContentOperatorConfigureEvent} from './event/outgoing/AiContentOperatorConfigureEvent';
 import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigureEvent';
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
+import {ProjectContext} from '../project/ProjectContext';
 
 declare global {
     interface Window {
@@ -78,7 +79,10 @@ export class AI {
         AiTranslatorCompletedEvent.on(this.translatorCompletedEventListener);
 
         this.getContentOperator()?.setup({serviceUrl: CONFIG.getString('services.aiContentOperatorServiceUrl')});
-        this.getTranslator()?.setup({serviceUrl: CONFIG.getString('services.aiTranslatorServiceUrl')});
+        this.getTranslator()?.setup({
+            restServiceUrl: CONFIG.getString('services.aiTranslatorRestServiceUrl'),
+            wsServiceUrl: CONFIG.getString('services.aiTranslatorWsServiceUrl')
+        });
 
         void new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             const currentUser = loginResult.getUser();
@@ -186,15 +190,17 @@ export class AI {
 
     private translatorCompletedEventListener = (event: AiTranslatorCompletedEvent) => {
         const helper = AiHelper.getAiHelperByPath(event.path);
-        helper?.setValue(event.value);
+        helper?.setValue(event.text);
         helper?.setState(AiHelperState.COMPLETED);
     };
 
     private createContentData(): ContentData | undefined {
         // TODO: Add structuredClone, when target upgraded to ES2022
         return this.currentData || (this.content && {
+            contentId: this.content.getContentId().toString(),
             fields: this.content.getContentData().toJson(),
             topic: this.content.getDisplayName(),
+            project: ProjectContext.get().getProject().getName(),
         });
     }
 
