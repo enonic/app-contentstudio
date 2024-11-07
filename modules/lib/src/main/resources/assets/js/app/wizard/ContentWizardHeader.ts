@@ -11,6 +11,8 @@ import {ContentPath} from '../content/ContentPath';
 import * as Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {AiHelper} from '@enonic/lib-admin-ui/ai/AiHelper';
+import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {
@@ -44,6 +46,7 @@ export class ContentWizardHeader
 
         this.loadSpinner = new DivEl('icon-spinner');
         this.loadSpinner.hide();
+        this.setupAIHandler();
     }
 
     protected initListeners() {
@@ -276,4 +279,14 @@ export class ContentWizardHeader
         this.setPath(path);
     }
 
+    private setupAIHandler(): void {
+        new AiHelper({
+            dataPathElement: this.displayNameEl,
+            getPathFunc: () => PropertyPath.fromString('__topic__'),
+            setValueFunc: (val: string) => {
+                this.setDisplayName(val);
+            },
+            label: i18n('field.displayName'),
+        });
+    }
 }
