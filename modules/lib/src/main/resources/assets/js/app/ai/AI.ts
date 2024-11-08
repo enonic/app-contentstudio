@@ -22,6 +22,7 @@ import {AiContentOperatorConfigureEvent} from './event/outgoing/AiContentOperato
 import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigureEvent';
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
 import {ProjectContext} from '../project/ProjectContext';
+import {XDataWizardStepForm} from '../wizard/XDataWizardStepForm';
 
 declare global {
     interface Window {
@@ -53,6 +54,8 @@ const PLUGIN_KEYS: Readonly<Record<EnonicAiPlugin, `com.enonic.app.ai.${string}`
 export class AI {
 
     private static instance: AI;
+
+    private static XDATA_PREFIX = '__xdata__';
 
     private currentData: ContentData | undefined;
 
@@ -185,11 +188,12 @@ export class AI {
     }
 
     private translatorStartedEventListener = (event: AiTranslatorStartedEvent) => {
-        AiHelper.getAiHelperByPath(event.path)?.setState(AiHelperState.PROCESSING);
+        const helper = this.isXDataPath(event.path) ? this.getAiHelperByXData(event.path) : AiHelper.getAiHelperByPath(event.path);
+        helper?.setState(AiHelperState.PROCESSING);
     };
 
     private translatorCompletedEventListener = (event: AiTranslatorCompletedEvent) => {
-        const helper = AiHelper.getAiHelperByPath(event.path);
+        const helper = this.isXDataPath(event.path) ? this.getAiHelperByXData(event.path) : AiHelper.getAiHelperByPath(event.path);
         helper?.setValue(event.text);
         helper?.setState(AiHelperState.COMPLETED);
     };
@@ -258,5 +262,20 @@ export class AI {
             this.readyListeners.forEach(l => l());
             this.readyListeners = [];
         }
+    }
+
+    private isXDataPath(path: string): boolean {
+        return path.startsWith(AI.XDATA_PREFIX);
+    }
+
+    private getAiHelperByXData(path: string): AiHelper | undefined {
+        const pathParts = path.split('/');
+        const appName = pathParts[1];
+        const xDataName = pathParts[2];
+        const key = `${appName.replace(/-/g, '.')}:${xDataName}`;
+        const xDataStepForm = XDataWizardStepForm.getXDataWizardStepForm(key);
+        const xDataPath = `/${pathParts.slice(3).join('/')}`;
+
+        return xDataStepForm ? AiHelper.getAiHelpersByParent(xDataStepForm).find(aiHelper => aiHelper.getDataPath() === xDataPath) : undefined;
     }
 }

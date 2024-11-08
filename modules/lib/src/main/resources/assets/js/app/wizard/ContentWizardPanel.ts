@@ -2834,7 +2834,7 @@ export class ContentWizardPanel
 
         const xDataFormContext = ContentFormContext.create()
             .setContentTypeName(type)
-            .setAiEditable(false)
+            .setAiEditable(true)
             .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
             .build();
 
