@@ -231,21 +231,9 @@ class ImageEditor extends Page {
         return await this.pause(500);
     }
 
-    async doDragFocus(offset1, offset2) {
-        let xOffset = offset1 === undefined ? 0 : offset1;
-        let yOffset = offset1 === undefined ? 0 : offset2;
-        await this.waitForFocusCircleDisplayed();
-        await this.pause(1000);
-        let el = await this.findElement(this.focusCircle);
-        //let yValue = await el.getAttribute('cy');
-        // let xValue = await el.getAttribute('cx');
-
-        let yValue = await el.getLocation('y');
-        let xValue = await el.getLocation('x');
-
-        let y1 = parseInt(yValue) + yOffset;
-        let x1 = parseInt(xValue) + xOffset;
-        await el.dragAndDrop({x: x1, y: y1});
+    async doDragFocus(cx, cy) {
+        let circle = await this.findElement(this.focusCircle);
+        await circle.dragAndDrop({x: cx, y: cy});
         return await this.pause(500);
     }
 
