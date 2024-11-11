@@ -35,18 +35,10 @@
     <script type="text/javascript" src="{{assetsUri}}/admin/common/js/lib.js"></script>
 </head>
 <body>
-
 <!-- App javascript -->
 <script type="text/javascript" src="{{assetsUri}}/lib/ckeditor.js" data-asset-url="{{assetsUri}}"></script>
 <script type="text/javascript" src="{{assetsUri}}/js/vendors.main~editor.js"></script>
 <script type="application/json" id="{{configScriptId}}">{{{configAsJson}}}</script>
 <script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-script-id="{{configScriptId}}"></script>
-
-{{#isBrowseMode}}
-<!-- Append the launcher -->
-<script type="text/javascript" src="{{launcherPath}}" data-config-theme="light" data-config-tool-base-url="{{toolBaseUrl}}"
-        data-config-app-name="{{toolAppName}}" async></script>
-{{/isBrowseMode}}
-
 </body>
 </html>

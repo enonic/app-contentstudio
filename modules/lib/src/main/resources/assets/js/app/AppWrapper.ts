@@ -13,29 +13,23 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {GetWidgetsByInterfaceRequest} from './resource/GetWidgetsByInterfaceRequest';
 import {Widget, WidgetConfig} from '@enonic/lib-admin-ui/content/Widget';
-import {WidgetHelper} from './util/WidgetHelper';
+import {WidgetHelper, WidgetElement} from '@enonic/lib-admin-ui/widget/WidgetHelper';
 import {ContentAppContainer} from './ContentAppContainer';
 import {Router} from './Router';
 import {UrlAction} from './UrlAction';
 import {ContentAppBar} from './bar/ContentAppBar';
 import {WidgetsSidebar} from './widget/WidgetsSidebar';
-import {WidgetInjectionResult} from './util/WidgetInjectionResult';
-import {UrlHelper} from './util/UrlHelper';
-
-interface MenuWidgetInjectionResult extends WidgetInjectionResult {
-    isEnabled: boolean;
-}
 
 export class AppWrapper
     extends DivEl {
-
-    private static INTERNAL_WIDGET_PREFIX: string = 'com.enonic.app.contentstudio';
 
     private sidebar: WidgetsSidebar;
 
     private widgets: Widget[] = [];
 
-    private widgetElements: Map<string, MenuWidgetInjectionResult> = new Map<string, MenuWidgetInjectionResult>();
+    private widgetElements: Map<string, WidgetElement> = new Map<string, WidgetElement>();
+
+    private activeWidgets: string[] = [];
 
     private toggleSidebarButton: Button;
 
@@ -125,9 +119,9 @@ export class AppWrapper
 
     selectWidget(widget: Widget) {
         const widgetToSelectKey: string = widget.getWidgetDescriptorKey().toString();
-        this.widgetElements.forEach((value: MenuWidgetInjectionResult, key: string) => {
+        this.widgetElements.forEach((widgetEl: WidgetElement, key: string) => {
             if (key !== widgetToSelectKey) {
-                this.setWidgetActive(key, value, false);
+                this.setWidgetActive(key, widgetEl, false);
             }
         });
         AppContext.get().setWidget(widget);
@@ -182,12 +176,7 @@ export class AppWrapper
     private fetchAndAppendWidget(widget: Widget): void {
         if (this.isDefaultWidget(widget)) { // default studio app
             const widgetEl: Element = this.createStudioWidgetEl();
-            this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), {
-                widgetContainer: widgetEl,
-                scriptElements: [],
-                linkElements: [],
-                isEnabled: true,
-            });
+            this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), {el: widgetEl});
             this.widgetsBlock.appendChild(widgetEl);
             return;
         }
@@ -195,10 +184,12 @@ export class AppWrapper
         fetch(widget.getUrl())
             .then(response => response.text())
             .then((html: string) => {
-                const injectedWidgetElem: MenuWidgetInjectionResult = WidgetHelper.injectWidgetHtml(html,
-                    this.widgetsBlock) as MenuWidgetInjectionResult;
-                injectedWidgetElem.isEnabled = true;
-                this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), injectedWidgetElem);
+                WidgetHelper.createFromHtmlAndAppend(html, this.widgetsBlock)
+                    .then((widgetEl: WidgetElement) => {
+                        const widgetKey = widget.getWidgetDescriptorKey().toString();
+                        this.widgetElements.set(widgetKey, widgetEl);
+                        this.activeWidgets.push(widgetKey);
+                    });
             })
             .catch(err => {
                 throw new Error('Failed to fetch widget: ' + err);
@@ -337,20 +328,26 @@ export class AppWrapper
         });
     }
 
-    private setWidgetActive(key: string, widgetData: MenuWidgetInjectionResult, active: boolean): void {
-        widgetData.widgetContainer.setVisible(active);
+    private setWidgetActive(key: string, widgetEl: WidgetElement, active: boolean): void {
+        widgetEl.el.setVisible(active);
+        if (this.isInternalWidget(key)) {
+            return;
+        }
 
-        if (!this.isInternalWidget(key) && widgetData.isEnabled !== active) {
-            widgetData.linkElements.forEach((linkElement: HTMLLinkElement) => {
-                linkElement.disabled = !active;
-            });
-
-            widgetData.isEnabled = active;
+        const isWidgetActive = this.activeWidgets.findIndex((activeWidgetKey: string) => activeWidgetKey === key) > -1;
+        if (isWidgetActive !== active) {
+            if (isWidgetActive) {
+                widgetEl.assets?.forEach((asset: HTMLElement) => asset.remove());
+                this.activeWidgets = this.activeWidgets.filter((activeWidgetKey: string) => activeWidgetKey !== key);
+            } else {
+                widgetEl.assets?.forEach((asset: HTMLElement) => document.head.appendChild(asset));
+                this.activeWidgets.push(key);
+            }
         }
     }
 
     private isInternalWidget(key: string): boolean {
-        return key.startsWith(AppWrapper.INTERNAL_WIDGET_PREFIX);
+        return key === CONFIG.get('appId');
     }
 }
 

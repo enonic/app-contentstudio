@@ -10,8 +10,7 @@ function handleGet() {
         assetsUri: portal.assetUrl({
             path: 'js/settings.js'
         }),
-        configScriptId: configLib.generateScriptConfigId(),
-        configAsJson: JSON.stringify(configLib.getConfig(), null, 4).replace(/<(\/?script|!--)/gi, "\\u003C$1"),
+        configScriptId: configLib.configJsonId
     };
 
     return {

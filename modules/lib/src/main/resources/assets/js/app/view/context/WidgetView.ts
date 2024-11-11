@@ -228,9 +228,10 @@ export class WidgetView
             console.debug('WidgetView.setInactive: ', this.getWidgetName());
         }
 
-        this.widgetItemViews.forEach((itemView: WidgetItemView) => {
-            itemView.reset();
-        });
+        if (this.isExternal()) {
+            this.widgetItemViews.forEach((itemView: WidgetItemView) => itemView.removeChildren());
+        }
+
         this.contextView.resetActiveWidget();
         this.slideOut();
     }
