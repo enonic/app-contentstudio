@@ -66,6 +66,7 @@ import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWiza
 import * as Q from 'q';
 import {JSONObject} from '@enonic/lib-admin-ui/types';
 import {Messages} from '@enonic/lib-admin-ui/util/Messages';
+import {LauncherHelper} from '@enonic/lib-admin-ui/util/LauncherHelper';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -329,9 +330,7 @@ async function startApplication() {
     startServerEventListeners(application);
     initApplicationEventListener();
 
-    ProjectContext.get().onNoProjectsAvailable(() => {
-        handleNoProjectsAvailable();
-    });
+    ProjectContext.get().onNoProjectsAvailable(() => handleNoProjectsAvailable());
 
     initProjectContext(application)
         .then(() => {
@@ -557,6 +556,7 @@ async function startContentBrowser() {
         }, 3000);
     }
 
+    LauncherHelper.appendLauncherPanel();
     Body.get().appendChild(commonWrapper);
 
     const NewContentDialog = (await import ('lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;
@@ -572,9 +572,8 @@ async function startContentBrowser() {
 
                     // TODO: remove pyramid of doom
                     if (parentContent.hasParent() && parentContent.getType().isTemplateFolder()) {
-                        new GetContentByPathRequest(parentContent.getPath().getParentPath()).sendAndParse().then(
-                            (grandParent: Content) => {
-
+                        new GetContentByPathRequest(parentContent.getPath().getParentPath()).sendAndParse()
+                            .then(() => {
                                 newContentDialog.setParentContent(newParentContent);
                                 newContentDialog.open();
                             }).catch((reason) => {

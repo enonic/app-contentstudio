@@ -27,11 +27,11 @@ exports.renderTemplate = function (path, params) {
         }
         response.headers = {
             'Content-Security-Policy': securityPolicy
-        }
+        };
     }
 
     return response;
-}
+};
 
 exports.getParams = function () {
     const toolUrlBase = admin.getToolUrl(
@@ -46,12 +46,12 @@ exports.getParams = function () {
             locale: admin.getLocales()
         }),
         launcherPath: admin.getLauncherPath(),
-        configScriptId: configLib.generateScriptConfigId(),
+        configScriptId: configLib.configJsonId,
         configAsJson: JSON.stringify(configLib.getConfig(), null, 4).replace(/<(\/?script|!--)/gi, "\\u003C$1"),
         toolBaseUrl: toolUrlBase,
-        toolAppName: app.name,
-    }
-}
+        toolAppName: app.name
+    };
+};
 
 function handleGet(req) {
     return exports.renderTemplate(req.path, exports.getParams());

@@ -34,6 +34,7 @@ function getConfig() {
         app.name,
         'main'
     );
+    const theme = 'light';
     return {
         allowContentUpdate,
         excludeDependencies,
@@ -66,16 +67,20 @@ function getConfig() {
                 api: 'export'
             })
         },
-        theme: 'light',
-        /* Remove in CS/lib-admin-ui 5.0 */
-        launcher: {
-            theme: 'light'
-        },
+        theme,
         widgetApiUrl: portal.apiUrl({
             application: 'admin',
             api: 'widget'
         }),
-        phrasesAsJson: JSON.stringify(getPhrases())
+        phrasesAsJson: JSON.stringify(getPhrases()),
+        launcherUrl: admin.widgetUrl({
+            application: 'com.enonic.xp.app.main',
+            widget: 'launcher',
+            params: {
+                appName: app.name,
+                theme,
+            }
+        })
     };
 }
 
@@ -89,3 +94,4 @@ function generateScriptConfigId() {
 
 exports.getConfig = getConfig;
 exports.generateScriptConfigId = generateScriptConfigId;
+exports.configJsonId = "contentstudio-config-json";

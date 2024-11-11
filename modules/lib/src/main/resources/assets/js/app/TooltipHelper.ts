@@ -47,7 +47,7 @@ export class TooltipHelper {
             }
             $(`#${ID}`).remove();
             $(`<div id='${ID}' />`).text(tooltipText).css({
-                position: 'absolute', top, left, whiteSpace: 'pre-line'
+                position: 'absolute', top, left, whiteSpace: 'nowrap'
             }).appendTo('body').show();
         }
 

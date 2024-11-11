@@ -4,17 +4,14 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {RepositoryId} from '../../repository/RepositoryId';
 import {ProjectContext} from '../../project/ProjectContext';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {WidgetHelper} from '../../util/WidgetHelper';
+import {WidgetHelper} from '@enonic/lib-admin-ui/widget/WidgetHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {WidgetInjectionResult} from '../../util/WidgetInjectionResult';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 
 export class WidgetItemView
     extends DivEl {
 
     public static debug: boolean = false;
-
-    private injectedNodes: HTMLElement[] = [];
 
     private loadMask?: LoadMask;
 
@@ -43,12 +40,6 @@ export class WidgetItemView
         return `${url}?${contentIdParam}${repositoryParam}${branchParam}t=${new Date().getTime()}`;
     }
 
-    private injectWidget(html: string) {
-        const result: WidgetInjectionResult = WidgetHelper.injectWidgetHtml(html, this);
-        this.injectedNodes.push(...result.scriptElements);
-        this.injectedNodes.push(...result.linkElements);
-    }
-
     public fetchWidgetContents(url: string, contentId: string): Q.Promise<void> {
         const deferred: Q.Deferred<void> = Q.defer<void>();
         const fullUrl: string = WidgetItemView.getFullWidgetUrl(url, contentId);
@@ -57,9 +48,7 @@ export class WidgetItemView
             .then(response => response.text())
             .then((html: string) => {
                 this.removeChildren();
-                this.reset();
-                this.injectWidget(html);
-                deferred.resolve();
+                WidgetHelper.createFromHtmlAndAppend(html, this).then(() => deferred.resolve());
             })
             .catch(() => {
                 deferred.reject();
@@ -73,12 +62,6 @@ export class WidgetItemView
         const errorElement: DivEl = new DivEl('widget-error');
         errorElement.setHtml(i18n('widget.render.error'));
         this.appendChild(errorElement);
-    }
-
-    public reset() {
-        const documentHead = document.getElementsByTagName('head')[0];
-        this.injectedNodes.forEach((injectedNode: HTMLElement) => documentHead.removeChild(injectedNode));
-        this.injectedNodes = [];
     }
 
     protected showLoadMask(): void {
