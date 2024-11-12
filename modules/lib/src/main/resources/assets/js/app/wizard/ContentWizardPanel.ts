@@ -479,6 +479,7 @@ export class ContentWizardPanel
 
             this.updateWizardStepForms(propertyTree, false).then(() => {
                 this.debouncedEnonicAiDataChangedHandler();
+                this.dataChangedHandler();
             });
         });
     }
