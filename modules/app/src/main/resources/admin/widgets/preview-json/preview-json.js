@@ -80,6 +80,7 @@ function buildBody(content) {
                     body {
                         background-color: #333842;
                         margin: 0;
+                        display: flex;
                     }
                     pre.json {
                       flex: 1;
