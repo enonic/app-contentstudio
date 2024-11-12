@@ -348,7 +348,13 @@ export class ContentItemPreviewPanel
             body.style.alignItems = 'center';
         }
 
-        const img = frameWindow.document.querySelector('img');
+        let img: HTMLImageElement | SVGElement = frameWindow.document.querySelector('svg');
+        if (img) {
+            img.style.margin = '0 auto';
+            img.style.height = '100%';
+        } else {
+            img = frameWindow.document.querySelector('body > img');
+        }
         if (img) {
             img.style.maxWidth = '100%';
             img.style.maxHeight = '100%';
