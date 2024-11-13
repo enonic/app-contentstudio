@@ -45,7 +45,7 @@ public final class ResponseMapper
         headers.forEach( ( key, values ) -> {
             if ( values.size() == 1 )
             {
-                gen.value( key, values.getFirst() );
+                gen.value( key, values.get( 0 ) );
             }
             else
             {
