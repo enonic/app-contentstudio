@@ -524,8 +524,7 @@ class Page {
         try {
             await this.waitUntilDisplayed(selector, appConst.mediumTimeout);
             let el = await this.findElement(selector);
-            //return await this.browser.switchToFrame(el.elementId); // Fail! Firefox and Chrome
-            return await this.getBrowser().switchToFrame(el);
+            return await this.getBrowser().switchFrame(el);
         } catch (err) {
             console.log('Error when switch to frame ' + selector);
             throw new Error('Error when switch to frame  ' + err);
