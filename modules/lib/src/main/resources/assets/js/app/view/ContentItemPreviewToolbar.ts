@@ -89,7 +89,7 @@ export class ContentItemPreviewToolbar
     }
 
     private async fetchLiveViewWidgets(): Promise<Widget[]> {
-        return new GetWidgetsByInterfaceRequest('contentstudio.preview').sendAndParse()
+        return new GetWidgetsByInterfaceRequest('contentstudio.liveview').sendAndParse()
             .catch((e) => {
                 DefaultErrorHandler.handle(e);
                 return [];
