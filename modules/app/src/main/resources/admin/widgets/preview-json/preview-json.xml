@@ -2,7 +2,7 @@
   <display-name>JSON</display-name>
   <description>Display in JSON format</description>
   <interfaces>
-    <interface>contentstudio.preview</interface>
+    <interface>contentstudio.liveview</interface>
   </interfaces>
   <config>
     <property name="auto" value="false"/>
