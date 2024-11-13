@@ -2,7 +2,7 @@
   <display-name>Site engine</display-name>
   <description>Render using site engine</description>
   <interfaces>
-    <interface>contentstudio.preview</interface>
+    <interface>contentstudio.liveview</interface>
   </interfaces>
   <config>
     <property name="auto" value="true"/>
