@@ -105,7 +105,7 @@ export class DisplayNameResolver
 
     private parseExpression(): string {
         let parsedExpression = this.expression;
-        this.expression.match(/[^{}]+(?=\})/g).forEach(
+        this.expression.match(/[^{}]+(?=\})/g)?.forEach(
             (variable: string) => parsedExpression = parsedExpression.replace(variable, this.sanitiseName(variable))
         );
         return parsedExpression;
