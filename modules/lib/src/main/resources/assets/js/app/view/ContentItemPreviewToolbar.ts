@@ -12,6 +12,9 @@ import {IssueType} from '../issue/IssueType';
 import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentId} from '../content/ContentId';
+import {GetWidgetsByInterfaceRequest} from '../resource/GetWidgetsByInterfaceRequest';
+import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
 
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {
@@ -21,6 +24,8 @@ export class ContentItemPreviewToolbar
     private mainAction: Action;
     private issueActionsList: Action[];
     private debouncedFetch: (id: ContentId) => void;
+    private liveViewWidgets: Promise<Widget[]>;
+    private widgetSelector: PreviewWidgetDropdown;
 
     constructor() {
         super({className: 'content-item-preview-toolbar'});
@@ -29,8 +34,12 @@ export class ContentItemPreviewToolbar
     protected initElements(): void {
         super.initElements();
 
+        this.liveViewWidgets = this.fetchLiveViewWidgets();
+
         this.mainAction = new Action();
         this.issueButton = new MenuButton(this.mainAction);
+
+        this.widgetSelector = new PreviewWidgetDropdown();
     }
 
     protected initListeners(): void {
@@ -64,12 +73,32 @@ export class ContentItemPreviewToolbar
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then(rendered => {
+
+            this.liveViewWidgets.then((widgets: Widget[]) => {
+                console.log('Live view widgets:', widgets);
+
+                this.widgetSelector.setWidgets(widgets);
+            });
+
+            this.addElement(this.widgetSelector);
+
             this.issueButton.addClass('transparent');
             this.addContainer(this.issueButton, this.issueButton.getChildControls());
             return rendered;
         });
     }
 
+    private async fetchLiveViewWidgets(): Promise<Widget[]> {
+        return new GetWidgetsByInterfaceRequest(['contentstudio.liveview']).sendAndParse()
+            .catch((e) => {
+                DefaultErrorHandler.handle(e);
+                return [];
+            });
+    }
+
+    public getWidgetSelector(): PreviewWidgetDropdown {
+        return this.widgetSelector;
+    }
 
     setItem(item: ContentSummaryAndCompareStatus): void {
         if (this.getItem() !== item) {
@@ -86,7 +115,7 @@ export class ContentItemPreviewToolbar
     }
 
     protected foldOrExpand(): void {
-    //
+        //
     }
 
     private fetchIssues(id: ContentId): Q.Promise<void> {

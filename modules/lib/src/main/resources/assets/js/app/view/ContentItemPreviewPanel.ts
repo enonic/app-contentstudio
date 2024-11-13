@@ -4,30 +4,23 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
 import {ContentItemPreviewToolbar} from './ContentItemPreviewToolbar';
-import {RenderingMode} from '../rendering/RenderingMode';
-import {UriHelper as RenderingUriHelper} from '../rendering/UriHelper';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ImageUrlResolver} from '../util/ImageUrlResolver';
-import {MediaAllowsPreviewRequest} from '../resource/MediaAllowsPreviewRequest';
 import {EmulatedEvent} from '../event/EmulatedEvent';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ItemPreviewPanel} from '@enonic/lib-admin-ui/app/view/ItemPreviewPanel';
-import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
-import {UrlHelper} from '../util/UrlHelper';
-import {ContentSummary} from '../content/ContentSummary';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
-import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {RepositoryId} from '../repository/RepositoryId';
+import {ProjectContext} from '../project/ProjectContext';
+import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {ContentSummary} from '../content/ContentSummary';
 
 enum PREVIEW_TYPE {
-    IMAGE,
-    SVG,
-    PAGE,
-    MEDIA,
+    WIDGET,
     EMPTY,
     FAILED,
     MISSING,
@@ -37,7 +30,6 @@ enum PREVIEW_TYPE {
 export class ContentItemPreviewPanel
     extends ItemPreviewPanel<ViewItem> {
 
-    protected image: ImgEl;
     protected item: ViewItem;
     protected skipNextSetItemCall: boolean = false;
     protected previewType: PREVIEW_TYPE;
@@ -58,16 +50,13 @@ export class ContentItemPreviewPanel
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.wrapper.appendChildren(this.image, this.noSelectionMessage, this.previewMessage);
+            this.wrapper.appendChildren(this.noSelectionMessage, this.previewMessage);
             this.mask.addClass('content-item-preview-panel-load-mask');
-
             return rendered;
         });
     }
 
     private initElements() {
-        this.image = new ImgEl();
-
         const selectorText: SpanEl = new SpanEl();
         selectorText.setHtml(i18n('panel.noselection'));
         this.noSelectionMessage = new DivEl('no-selection-message');
@@ -117,12 +106,33 @@ export class ContentItemPreviewPanel
     }
 
     protected update(item: ContentSummaryAndCompareStatus) {
-        // fire the request anyway, if it's not renderable 418 will be returned
-        this.setPagePreviewMode(item);
+        let contentSummary = item.getContentSummary();
+        this.fetchPreviewForPath(contentSummary);
     }
 
-    protected isImageForPreview(content: ContentSummary): boolean {
-        return content.getType().isImage() || content.getType().isVectorMedia();
+    private async fetchPreviewForPath(summary: ContentSummary): Promise<void> {
+        const previewWidget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
+        if (!previewWidget || !summary) {
+            this.setPreviewType(PREVIEW_TYPE.EMPTY);
+            return;
+        }
+
+        this.showMask();
+        const params = new URLSearchParams({
+            contentPath: summary.getPath().toString(),
+            contentId: summary.getContentId().toString(),
+            type: summary.getType().toString(),
+            repo: `${RepositoryId.CONTENT_REPO_PREFIX}${ProjectContext.get().getProject().getName()}`,
+            branch: CONFIG.getString('branch'),
+        })
+        return fetch(previewWidget.getUrl() + '?' + params.toString(), {method: 'HEAD'})
+            .then((response) => {
+                if (this.isResponseOk(response, previewWidget)) {
+                    return this.handlePreviewSuccess(response);
+                } else {
+                    return this.handlePreviewFailure(response);
+                }
+            })
     }
 
     public clearItem() {
@@ -130,19 +140,6 @@ export class ContentItemPreviewPanel
     }
 
     private setupListeners() {
-        this.image.onLoaded((event: UIEvent) => {
-            this.hideMask();
-        });
-
-        this.image.onError((event: UIEvent) => {
-            this.setPreviewType(PREVIEW_TYPE.FAILED);
-        });
-
-        this.onShown((event) => {
-            if (this.item && this.hasClass('image-preview')) {
-                this.appendImageSizeToUrl(this.viewItemToContent(this.item));
-            }
-        });
 
         this.onHidden((event) => {
             if (this.mask.isVisible()) {
@@ -154,22 +151,29 @@ export class ContentItemPreviewPanel
             if (this.previewType === PREVIEW_TYPE.EMPTY) {
                 return;
             }
-            const frameWindow = this.frame.getHTMLElement()['contentWindow'];
+
             this.hideMask();
 
-            try {
-                if (frameWindow) {
-                    frameWindow.addEventListener('click', this.frameClickHandler.bind(this));
-                }
-            } catch (error) { /* error */ }
+            const frameWindow = this.frame.getHTMLElement()['contentWindow'];
+
+            switch (this.frame.getClass()) {
+            case 'image':
+                this.applyImageStyles(frameWindow);
+                break;
+            case 'text':
+                try {
+                    frameWindow.addEventListener('click', (event) => this.frameClickHandler(frameWindow, event));
+                } catch (error) { /* error */ }
+                break;
+            }
+        });
+
+        (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().onSelectionChanged(() => {
+            let contentSummary = this.viewItemToContent(this.item).getContentSummary();
+            this.fetchPreviewForPath(contentSummary);
         });
 
         EmulatedEvent.on((event: EmulatedEvent) => {
-            this.frame.getEl().setMaxWidth(event.getWidthWithUnits());
-            this.frame.getEl().setMaxHeight(event.getHeightWithUnits());
-
-            this.image.getEl().setMaxWidth(event.getWidthWithUnits());
-            this.image.getEl().setMaxHeight(event.getHeightWithUnits());
 
             if (this.previewMessage) {
                 this.previewMessage.getEl().setWidth(event.getWidthWithUnits());
@@ -216,68 +220,37 @@ export class ContentItemPreviewPanel
         return contentPreviewPath.indexOf('attachment/download') > 0;
     }
 
-    private frameClickHandler(event: UIEvent) {
+    private frameClickHandler(frameWindow: Window, event: MouseEvent) {
         const linkClicked: string = this.getLinkClicked(event);
         if (linkClicked) {
-            const frameWindow = this.frame.getHTMLElement()['contentWindow'];
             if (!!frameWindow && !UriHelper.isNavigatingOutsideOfXP(linkClicked, frameWindow)) {
                 const contentPreviewPath = UriHelper.trimUrlParams(
                     UriHelper.trimAnchor(UriHelper.trimWindowProtocolAndPortFromHref(linkClicked,
                         frameWindow)));
                 if (!this.isNavigatingWithinSamePage(contentPreviewPath, frameWindow) && !this.isDownloadLink(contentPreviewPath)) {
-                    event.preventDefault();
-                    const clickedLinkRelativePath = '/' + UriHelper.trimWindowProtocolAndPortFromHref(linkClicked, frameWindow);
-                    this.skipNextSetItemCall = true;
+                    // event.preventDefault();
+                    // const clickedLinkRelativePath = '/' + UriHelper.trimWindowProtocolAndPortFromHref(linkClicked, frameWindow);
+                    // this.skipNextSetItemCall = true;
                     new ContentPreviewPathChangedEvent(contentPreviewPath).fire();
-                    this.showMask();
-                    setTimeout(() => {
-                        this.item = null; // we don't have ref to content under contentPreviewPath and there is no point in figuring it out
-                        this.skipNextSetItemCall = false;
-                        this.frame.setSrc(clickedLinkRelativePath);
-                    }, 500);
+                    // setTimeout(() => {
+                    //     this.item = null; // we don't have ref to content under contentPreviewPath and there is no point in figuring it out
+                    //     this.skipNextSetItemCall = false;
+                    //     this.fetchPreviewForPath(clickedLinkRelativePath);
+                    // }, 500);
                 }
             }
         }
-    }
-
-    private appendImageSizeToUrl(item: ContentSummaryAndCompareStatus) {
-        const content = item.getContentSummary();
-
-        const imgUrlResolver: ImageUrlResolver = new ImageUrlResolver(this.contentRootPath)
-            .setContentId(content.getContentId())
-            .setTimestamp(content.getModifiedTime())
-            .setSize(this.getImageSize());
-
-        this.image.setSrc(imgUrlResolver.resolveForPreview());
-    }
-
-    private getImageSize(): number {
-        const imgWidth: number = this.getEl().getWidth();
-        const imgHeight: number = this.getEl().getHeight() - this.toolbar.getEl().getHeight();
-        return Math.max(imgWidth, imgHeight);
     }
 
     private setPreviewType(previewType: PREVIEW_TYPE) {
 
         if (this.previewType !== previewType) {
 
-            this.getEl().removeClass('image-preview page-preview svg-preview media-preview no-preview');
+            this.getEl().removeClass('widget-preview no-preview');
 
             switch (previewType) {
-            case PREVIEW_TYPE.PAGE: {
-                this.getEl().addClass('page-preview');
-                break;
-            }
-            case PREVIEW_TYPE.IMAGE: {
-                this.getEl().addClass('image-preview');
-                break;
-            }
-            case PREVIEW_TYPE.SVG: {
-                this.getEl().addClass('svg-preview');
-                break;
-            }
-            case PREVIEW_TYPE.MEDIA: {
-                this.getEl().addClass('media-preview');
+            case PREVIEW_TYPE.WIDGET: {
+                this.getEl().addClass('widget-preview');
                 break;
             }
             case PREVIEW_TYPE.EMPTY: {
@@ -300,22 +273,6 @@ export class ContentItemPreviewPanel
         }
 
         this.previewType = previewType;
-
-        if (PREVIEW_TYPE.FAILED === previewType ||
-            PREVIEW_TYPE.EMPTY === previewType ||
-            PREVIEW_TYPE.MISSING === previewType ||
-            PREVIEW_TYPE.NOT_CONFIGURED === previewType) {
-            this.hideMask();
-        }
-    }
-
-    protected isMediaForPreview(content: ContentSummary) {
-        const type: ContentTypeName = content.getType();
-
-        return type.isAudioMedia() ||
-               type.isDocumentMedia() ||
-               type.isTextMedia() ||
-               type.isVideoMedia();
     }
 
     private showPreviewMessages(messages: string[]) {
@@ -325,104 +282,41 @@ export class ContentItemPreviewPanel
         messages.forEach((message: string) => {
             this.previewMessage.appendChild(SpanEl.fromText(message));
         });
-
-        this.frame.setSrc('about:blank');
     }
 
-    protected setMediaPreviewMode(item: ContentSummaryAndCompareStatus) {
-        const contentSummary = item.getContentSummary();
+    private handlePreviewSuccess(response: Response) {
+        this.setPreviewType(PREVIEW_TYPE.WIDGET);
 
-        new MediaAllowsPreviewRequest(contentSummary.getContentId()).setContentRootPath(this.contentRootPath).sendAndParse().then(
-            (allows: boolean) => {
-                if (allows) {
-                    this.setPreviewType(PREVIEW_TYPE.MEDIA);
-                    if (this.isVisible()) {
-                        this.frame.setSrc(UrlHelper.getCmsRestUri(
-                            `${UrlHelper.getCMSPath(
-                                this.contentRootPath)}/content/media/${contentSummary.getId()}?download=false#view=fit`));
-                    }
-                } else {
-                    this.setPreviewType(PREVIEW_TYPE.EMPTY);
-                }
-            });
+        const contentType = response.headers.get('content-type');
+        let mainType = 'other';
+        if (contentType) {
+            mainType = contentType.split('/')[0];
+        }
+
+        this.frame.setClass(mainType);
+        this.frame.setSrc(response.url);
     }
 
-    protected setImagePreviewMode(item: ContentSummaryAndCompareStatus) {
-        const contentSummary: ContentSummary = item.getContentSummary();
-
-        if (this.isVisible()) {
-            const imgUrlResolver: ImageUrlResolver = new ImageUrlResolver(this.contentRootPath)
-                .setContentId(contentSummary.getContentId())
-                .setTimestamp(contentSummary.getModifiedTime());
-
-            if (contentSummary.getType().isVectorMedia()) {
-                this.setPreviewType(PREVIEW_TYPE.SVG);
-            } else {
-                imgUrlResolver.setSize(this.getImageSize());
-                this.setPreviewType(PREVIEW_TYPE.IMAGE);
-            }
-
-            this.image.setSrc(imgUrlResolver.resolveForPreview());
-        } else {
-            this.setPreviewType(PREVIEW_TYPE.IMAGE);
-        }
-        if (!this.image.isLoaded()) {
-            this.showMask();
-        }
-    }
-
-    private handlePreviewSuccess(src: string): void {
-        this.frame.setSrc(src);
-        this.setPreviewType(PREVIEW_TYPE.PAGE);
-    }
-
-    private handlePreviewFailure(item: ContentSummaryAndCompareStatus, statusCode?: number): void {
-        const contentSummary: ContentSummary = item.getContentSummary();
-        if (this.isMediaForPreview(contentSummary)) {
-            this.setMediaPreviewMode(item);
-            return;
-        }
-
-        if (this.isImageForPreview(contentSummary)) {
-            this.setImagePreviewMode(item);
-            return;
-        }
-
+    private handlePreviewFailure(response?: Response): void {
+        const statusCode = response.status;
         if (statusCode > 0) {
             switch (statusCode) {
-                case StatusCode.NOT_FOUND:
-                    this.setPreviewType(PREVIEW_TYPE.EMPTY);
-                    break;
-                case StatusCode.I_AM_A_TEAPOT:
-                    this.setPreviewType(PREVIEW_TYPE.NOT_CONFIGURED);
-                    break;
-                default:
-                    this.setPreviewType(PREVIEW_TYPE.FAILED);
-                    break;
+            case StatusCode.NOT_FOUND:
+                this.setPreviewType(PREVIEW_TYPE.EMPTY);
+                break;
+            case StatusCode.I_AM_A_TEAPOT:
+                this.setPreviewType(PREVIEW_TYPE.NOT_CONFIGURED);
+                break;
+            default:
+                this.setPreviewType(PREVIEW_TYPE.FAILED);
+                break;
             }
+            this.hideMask();
             return;
         }
 
         this.setPreviewType(PREVIEW_TYPE.EMPTY);
-    }
-
-    protected async setPagePreviewMode(item: ContentSummaryAndCompareStatus) {
-        if (item.getType().isShortcut()) {
-            // Special handling for Shortcuts as we don't want to show preview of the target item
-            this.handlePreviewFailure(item);
-            return;
-        }
-
-        await new IsRenderableRequest(item.getContentSummary(), RenderingMode.INLINE)
-            .sendAndParse()
-            .then((statusCode: number) => {
-                if (statusCode === StatusCode.OK) {
-                    const src: string = RenderingUriHelper.getPortalUri(!!item.getPath() ? item.getPath().toString() : '', RenderingMode.INLINE);
-                    this.handlePreviewSuccess(src);
-                } else {
-                    this.handlePreviewFailure(item, statusCode);
-                }
-            });
+        this.hideMask();
     }
 
     public showMask() {
@@ -441,4 +335,29 @@ export class ContentItemPreviewPanel
         return this.mask.isVisible();
     }
 
+    private isResponseOk(response: Response, previewWidget: Widget) {
+        const isAuto = previewWidget?.getWidgetDescriptorKey().getName() === 'preview-automatic';
+        return response.ok || !isAuto && response.status !== StatusCode.I_AM_A_TEAPOT;
+    }
+
+    private applyImageStyles(frameWindow: Window) {
+        const body = frameWindow.document.body;
+        if (body) {
+            body.style.display = 'flex';
+            body.style.justifyContent = 'center';
+            body.style.alignItems = 'center';
+        }
+
+        let img: HTMLImageElement | SVGElement = frameWindow.document.querySelector('svg');
+        if (img) {
+            img.style.margin = '0 auto';
+            img.style.height = '100%';
+        } else {
+            img = frameWindow.document.querySelector('body > img');
+        }
+        if (img) {
+            img.style.maxWidth = '100%';
+            img.style.maxHeight = '100%';
+        }
+    }
 }
