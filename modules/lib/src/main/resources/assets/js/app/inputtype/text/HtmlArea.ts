@@ -235,7 +235,6 @@ export class HtmlArea
             this.scrollToSelected(textAreaWrapper, e);
 
             textAreaWrapper.getHTMLElement().dispatchEvent(new CustomEvent('focus')); // for AI Assistant
-            textAreaWrapper.addClass('focused'); // for AI Assistant
             AppHelper.dispatchCustomEvent('focusin', this);
         };
 
@@ -250,8 +249,8 @@ export class HtmlArea
 
         const blurHandler = (e) => {
             //checking if remove occurence button clicked or not
-            textAreaWrapper.removeClass('focused'); // for AI Assistant
             AppHelper.dispatchCustomEvent('focusout', this);
+            textAreaWrapper.getHTMLElement().dispatchEvent(new CustomEvent('blur')); // for AI Assistant
 
             this.notifyBlurred(e);
         };
