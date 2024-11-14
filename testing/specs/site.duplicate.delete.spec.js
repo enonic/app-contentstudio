@@ -113,10 +113,11 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             await contentDuplicateDialog.clickOnDuplicateButton();
             await contentDuplicateDialog.waitForDialogClosed();
             // 3. Verify that site does not have expander icon:
+            // TODO  Verify the issue  https://github.com/enonic/app-contentstudio/issues/7071
             await studioUtils.findAndSelectItem(SITE.displayName + '-copy-2');
-            await studioUtils.saveScreenshot("site_duplicated_no_child");
+            await studioUtils.saveScreenshot('site_duplicated_no_child');
             // 4. Verify - 'Site should be displayed without expand-toggle, because the site has no child items'
-            await contentBrowsePanel.waitForExpandToggleNotDisplayed(SITE.displayName + "-copy-2");
+            await contentBrowsePanel.waitForExpandToggleNotDisplayed(SITE.displayName + '-copy-2');
         });
 
     it("GIVEN 'Confirm Value' dialog is opened WHEN required number to delete has been typed THEN 'Confirm' button gets enabled",

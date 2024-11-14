@@ -94,7 +94,7 @@ module.exports = {
             let selector = `//iframe[contains(@src,'${src}')]`;
             let el = await this.getBrowser().$(selector);
             await el.waitForDisplayed({timeout: 2000});
-            await this.getBrowser().switchToFrame(el);
+            await this.getBrowser().switchFrame(el);
         } catch (err) {
             throw new Error('Error when switch to frame  ' + err);
         }
@@ -583,7 +583,7 @@ module.exports = {
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
             return await browsePanel.pause(800);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_spinner'));
+            await this.saveScreenshotUniqueName('err_spinner');
             throw new Error('Filter Panel-  error : ' + err);
         }
     },
