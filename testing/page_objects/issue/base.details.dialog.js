@@ -114,7 +114,7 @@ class BaseDetailsDialog extends Page {
         let statusSelectorButton = this.issueStatusSelector + "//div[contains(@id,'TabMenuButton')]";
         await this.waitForElementDisplayed(statusSelectorButton, appConst.mediumTimeout);
         await this.clickOnElement(statusSelectorButton);
-        return await this.pause(200);
+        return await this.pause(300);
     }
 
     async clickOnIssueStatusSelectorAndCloseIssue() {
