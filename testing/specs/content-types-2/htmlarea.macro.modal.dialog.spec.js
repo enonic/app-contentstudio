@@ -51,7 +51,7 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
             await insertMacroModalDialog.typeTextInConfigurationTextArea(TEST_TEXT);
             // 5. Verify the text in the 'Preview Tab' of the modal dialog:
             await insertMacroModalDialog.clickOnPreviewTabItem();
-            await studioUtils.saveScreenshot("macro_is_completed");
+            await studioUtils.saveScreenshot('macro_is_completed');
             let text = await insertMacroModalDialog.getTextInPreviewTab();
             assert.equal(text, TEST_TEXT, "Expected text should be displayed in the Preview tab");
             // 6. Click on Insert button
@@ -66,18 +66,18 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             let insertMacroModalDialog = new InsertMacroModalDialog();
-            //1. Open wizard for new htmlArea content:
+            // 1. Open wizard for new htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
-            //2. Click on 'Insert Macro' button
+            // 2. Click on 'Insert Macro' button
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
             await insertMacroModalDialog.waitForDialogLoaded();
-            //3. Select the 'Disable macros' option:
-            await insertMacroModalDialog.selectOption("Disable macros");
-            //4. Do not fill the text area but click on Insert button
+            // 3. Select the 'Disable macros' option:
+            await insertMacroModalDialog.selectOption('Disable macros');
+            // 4. Do not fill the text area but click on Insert button
             await insertMacroModalDialog.clickOnInsertButton();
-            await studioUtils.saveScreenshot("macro_is_not_completed");
-            //5. Verify that expected validation recording gets visible:
+            await studioUtils.saveScreenshot('macro_is_not_completed');
+            // 5. Verify that expected validation recording gets visible:
             let recording = await insertMacroModalDialog.getValidationRecording();
             assert.equal(recording, appConst.THIS_FIELD_IS_REQUIRED, "Expected recording should be displayed");
             await insertMacroModalDialog.clickOnPreviewTabItem();
@@ -145,10 +145,10 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
             await insertMacroModalDialog.waitForDialogLoaded();
             // 3. Select the 'Disable macros' option:
-            await insertMacroModalDialog.selectOption("Disable macros");
+            await insertMacroModalDialog.selectOption('Disable macros');
             // 4. insert a macro with parameters:
             await insertMacroModalDialog.typeTextInConfigurationTextArea(MACRO_WIT_ATTRIBUTE);
-            await studioUtils.saveScreenshot("macro_attributes_is_completed");
+            await studioUtils.saveScreenshot('macro_attributes_is_completed');
             // 5.Click on 'Insert' button
             await insertMacroModalDialog.clickOnInsertButton();
             await insertMacroModalDialog.waitForDialogClosed();
