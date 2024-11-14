@@ -111,6 +111,7 @@ class IssueDetailsDialog extends BaseDetailsDialog {
 
     async clickOncloseTabMenuItem() {
         await this.waitForElementDisplayed(XPATH.closeTabMenuItem, appConst.mediumTimeout);
+        await this.pause(200);
         await this.clickOnElement(XPATH.closeTabMenuItem);
     }
 
