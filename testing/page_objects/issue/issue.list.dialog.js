@@ -227,19 +227,19 @@ class IssuesListDialog extends Page {
         //})
     }
 
-    //Scrolls the modal dialog and clicks on the issue:
-    clickOnIssue(issueName) {
-        let issueXpath = xpath.issueByName(issueName);
-        return this.isElementDisplayed(issueXpath).then(result => {
+    // Scrolls the modal dialog and clicks on the issue:
+    async clickOnIssue(issueName) {
+        try {
+            let issueXpath = xpath.issueByName(issueName);
+            let result = await this.isElementDisplayed(issueXpath);
             if (!result) {
-                return this.scrollToIssue(issueXpath);
+                await this.scrollToIssue(issueXpath);
             }
-        }).then(() => {
-            return this.clickOnElement(issueXpath);
-        }).catch(err => {
-            this.saveScreenshot('err_click_on_issue');
-            throw new Error('error when clicked on issue' + err)
-        })
+            return await this.clickOnElement(issueXpath);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_issue');
+            throw new Error(`error when clicked on issue, screenshot: ${screenshot} ` + err);
+        }
     }
 
     async waitForIssueNotPresent(issueName) {
