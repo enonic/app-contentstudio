@@ -51,7 +51,7 @@ export class ContentWizardHeader
                 dataPathElement: this.displayNameEl,
                 getPath: () => PropertyPath.fromString('__topic__'),
                 setValue: val => this.setDisplayName(val),
-                controls: {
+                stateControl: {
                     stateContainer: this.displayNameEl.getParentElement(),
                     label: i18n('field.displayName'),
                 }
