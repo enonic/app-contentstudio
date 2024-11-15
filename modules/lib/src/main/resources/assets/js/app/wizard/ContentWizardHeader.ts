@@ -52,7 +52,7 @@ export class ContentWizardHeader
                 getPath: () => PropertyPath.fromString('__topic__'),
                 setValue: val => this.setDisplayName(val),
                 controls: {
-                    container: this.displayNameEl.getParentElement(),
+                    stateContainer: this.displayNameEl.getParentElement(),
                     label: i18n('field.displayName'),
                 }
             });
