@@ -75,6 +75,14 @@ function getConfig() {
             application: 'admin',
             api: 'widget'
         }),
+        statusApiUrl: portal.apiUrl({
+            application: 'admin',
+            api: 'status'
+        }),
+        eventApiUrl: portal.apiUrl({
+            application: 'admin',
+            api: 'event'
+        }),
         phrasesAsJson: JSON.stringify(getPhrases())
     };
 }
