@@ -190,6 +190,10 @@ export class ContentItemPreviewPanel
         });
     }
 
+    protected getToolbar(): ContentItemPreviewToolbar {
+        return this.toolbar as ContentItemPreviewToolbar;
+    }
+
     createToolbar(): ContentItemPreviewToolbar {
         return new ContentItemPreviewToolbar();
     }
@@ -285,6 +289,7 @@ export class ContentItemPreviewPanel
     }
 
     private handlePreviewSuccess(response: Response) {
+        this.getToolbar().getPreviewButton().setEnabled(true);
         this.setPreviewType(PREVIEW_TYPE.WIDGET);
 
         const contentType = response.headers.get('content-type');
@@ -298,6 +303,9 @@ export class ContentItemPreviewPanel
     }
 
     private handlePreviewFailure(response?: Response): void {
+
+        this.getToolbar().getPreviewButton().setEnabled(false);
+
         const statusCode = response.status;
         if (statusCode > 0) {
             switch (statusCode) {
