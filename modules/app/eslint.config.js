@@ -42,6 +42,7 @@ module.exports = [
             '@typescript-eslint/no-empty-function': ['off'],
             '@typescript-eslint/no-empty-interface': ['off'],
             '@typescript-eslint/restrict-template-expressions': ['off'],
+            '@typescript-eslint/no-base-to-string': ['off'],
 
             // === CUSTOM RULES ===
 
