@@ -4,7 +4,6 @@ import {ServerEventAggregator} from './ServerEventAggregator';
 import {ServerEventsListener} from '@enonic/lib-admin-ui/event/ServerEventsListener';
 import {Application} from '@enonic/lib-admin-ui/app/Application';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerEventsTranslator} from './ContentServerEventsTranslator';
 import {ContentServerEvent} from './ContentServerEvent';
 import {ContentServerChangeItem} from './ContentServerChangeItem';
@@ -13,15 +12,14 @@ import {IssueServerEvent} from './IssueServerEvent';
 import {NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
 import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
-import {CollaborationServerEvent} from './CollaborationServerEvent';
 
 export class AggregatedServerEventsListener
     extends ServerEventsListener {
 
     private aggregator: ServerEventAggregator;
 
-    constructor(applications: Application[]) {
-        super(applications);
+    constructor(applications: Application[], eventApiUrl: string) {
+        super(applications, eventApiUrl);
 
         this.aggregator = new ServerEventAggregator();
 
