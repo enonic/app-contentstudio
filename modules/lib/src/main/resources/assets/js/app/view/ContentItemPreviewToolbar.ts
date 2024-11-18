@@ -5,9 +5,10 @@ import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {GetWidgetsByInterfaceRequest} from '../resource/GetWidgetsByInterfaceRequest';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
-import {PreviewContentAction} from '../browse/action/PreviewContentAction';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {PreviewActionHelper} from '../action/PreviewActionHelper';
 
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {
@@ -25,11 +26,10 @@ export class ContentItemPreviewToolbar
 
         this.liveViewWidgets = this.fetchLiveViewWidgets();
 
-        const previewAction = new PreviewContentAction(null);
-        this.previewButton = new ActionButton(previewAction);
-        this.previewButton.addClass('icon-newtab');
-
         this.widgetSelector = new PreviewWidgetDropdown();
+
+        this.previewButton = new ActionButton(new WidgetPreviewAction(this));
+        this.previewButton.addClass('icon-newtab');
     }
 
     doRender(): Q.Promise<boolean> {
@@ -70,11 +70,28 @@ export class ContentItemPreviewToolbar
         return this.widgetSelector;
     }
 
-    public getPreviewButton(): ActionButton {
-        return this.previewButton;
+    public getPreviewAction(): Action {
+        return this.previewButton.getAction();
     }
 
     protected foldOrExpand(): void {
         //
+    }
+}
+
+class WidgetPreviewAction
+    extends Action {
+    private toolbar: ContentItemPreviewToolbar;
+    private helper: PreviewActionHelper;
+
+    constructor(toolbar: ContentItemPreviewToolbar) {
+        super();
+        this.toolbar = toolbar;
+        this.helper = new PreviewActionHelper();
+        this.onExecuted(this.handleExecuted.bind(this));
+    }
+
+    protected handleExecuted() {
+        this.helper.openWindow(this.toolbar.getItem().getContentSummary(), this.toolbar.getWidgetSelector().getSelectedWidget());
     }
 }
