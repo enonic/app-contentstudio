@@ -13,11 +13,9 @@ import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {RepositoryId} from '../repository/RepositoryId';
-import {ProjectContext} from '../project/ProjectContext';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {ContentSummary} from '../content/ContentSummary';
+import {PreviewActionHelper} from '../action/PreviewActionHelper';
 
 enum PREVIEW_TYPE {
     WIDGET,
@@ -37,12 +35,14 @@ export class ContentItemPreviewPanel
     protected noSelectionMessage: DivEl;
     protected debouncedSetItem: (item: ViewItem) => void;
     protected readonly contentRootPath: string;
+    private previewHelper: PreviewActionHelper;
 
     constructor(contentRootPath?: string) {
         super('content-item-preview-panel');
 
         this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
+        this.previewHelper = new PreviewActionHelper();
 
         this.initElements();
         this.setupListeners();
@@ -118,14 +118,8 @@ export class ContentItemPreviewPanel
         }
 
         this.showMask();
-        const params = new URLSearchParams({
-            contentPath: summary.getPath().toString(),
-            contentId: summary.getContentId().toString(),
-            type: summary.getType().toString(),
-            repo: `${RepositoryId.CONTENT_REPO_PREFIX}${ProjectContext.get().getProject().getName()}`,
-            branch: CONFIG.getString('branch'),
-        })
-        return fetch(previewWidget.getUrl() + '?' + params.toString(), {method: 'HEAD'})
+
+        return fetch(this.previewHelper.getUrl(summary, previewWidget), {method: 'HEAD'})
             .then((response) => {
                 if (this.isResponseOk(response, previewWidget)) {
                     return this.handlePreviewSuccess(response);
@@ -289,7 +283,7 @@ export class ContentItemPreviewPanel
     }
 
     private handlePreviewSuccess(response: Response) {
-        this.getToolbar().getPreviewButton().setEnabled(true);
+        this.getToolbar().getPreviewAction().setEnabled(true);
         this.setPreviewType(PREVIEW_TYPE.WIDGET);
 
         const contentType = response.headers.get('content-type');
@@ -304,7 +298,7 @@ export class ContentItemPreviewPanel
 
     private handlePreviewFailure(response?: Response): void {
 
-        this.getToolbar().getPreviewButton().setEnabled(false);
+        this.getToolbar().getPreviewAction().setEnabled(false);
 
         const statusCode = response.status;
         if (statusCode > 0) {
