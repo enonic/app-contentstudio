@@ -102,7 +102,7 @@ function startLostConnectionDetector(): ConnectionDetector {
     let readonlyMessageId: string;
 
     const connectionDetector: ConnectionDetector =
-        ConnectionDetector.get()
+        ConnectionDetector.get(CONFIG.getString('statusApiUrl'))
             .setAuthenticated(true)
             .setSessionExpireRedirectUrl(CONFIG.getString('toolUri'))
             .setNotificationMessage(i18n('notify.connection.loss'));
@@ -230,21 +230,22 @@ function preLoadApplication() {
     }
 }
 
-function startServerEventListeners(application: Application) {
-    const serverEventsListener: AggregatedServerEventsListener = new AggregatedServerEventsListener([application]);
+function startServerEventListeners(application: Application, eventApiUrl: string) {
+    const serverEventsListener: AggregatedServerEventsListener = new AggregatedServerEventsListener([application], eventApiUrl);
     let wsConnectionErrorId: string;
 
     serverEventsListener.onConnectionError(() => {
         if (!wsConnectionErrorId) {
+            const connectionDetector: ConnectionDetector = ConnectionDetector.get(CONFIG.getString('statusApiUrl'));
             const pollHandler: () => void = () => {
-                if (ConnectionDetector.get().isConnected()) {
+                if (connectionDetector.isConnected()) {
                     wsConnectionErrorId = showError(i18n('notify.websockets.error'), false);
                 }
 
-                ConnectionDetector.get().unPoll(pollHandler);
+                connectionDetector.unPoll(pollHandler);
             };
 
-            ConnectionDetector.get().onPoll(pollHandler);
+            connectionDetector.onPoll(pollHandler);
         }
     });
 
@@ -257,7 +258,7 @@ function startServerEventListeners(application: Application) {
 
     serverEventsListener.start();
 
-    new SettingsServerEventsListener([application]);
+    new SettingsServerEventsListener([application], eventApiUrl);
 }
 
 const handleProjectDeletedEvent = (projectName: string) => {
@@ -327,7 +328,7 @@ async function startApplication() {
     connectionDetector = startLostConnectionDetector();
     Store.instance().set('application', application);
 
-    startServerEventListeners(application);
+    startServerEventListeners(application, CONFIG.getString('eventApiUrl'));
     initApplicationEventListener();
 
     ProjectContext.get().onNoProjectsAvailable(() => handleNoProjectsAvailable());
