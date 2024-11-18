@@ -1,11 +1,18 @@
 import {Diff} from '../Diff';
 
+export interface InheritDiff extends Diff {
+    content?: boolean;
+    parent?: boolean;
+    name?: boolean;
+    sort?: boolean;
+}
+
 export interface ContentSummaryDiff extends Diff {
     id?: boolean;
     contentId?: boolean;
     name?: boolean;
     displayName?: boolean;
-    inherit?: boolean;
+    inherit?: InheritDiff;
     path?: boolean;
     children?: boolean;
     type?: boolean;
