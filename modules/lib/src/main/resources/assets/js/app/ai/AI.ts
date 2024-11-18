@@ -23,6 +23,7 @@ import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigure
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
 import {ProjectContext} from '../project/ProjectContext';
 import {XDataWizardStepForm} from '../wizard/XDataWizardStepForm';
+import {AiTranslatorFailedEvent} from './event/incoming/AiTranslatorFailedEvent';
 
 declare global {
     interface Window {
@@ -80,6 +81,7 @@ export class AI {
         AiContentOperatorResultAppliedEvent.on(this.applyContentOperatorEventListener);
         AiTranslatorStartedEvent.on(this.translatorStartedEventListener);
         AiTranslatorCompletedEvent.on(this.translatorCompletedEventListener);
+        AiTranslatorFailedEvent.on(this.translatorFailedEventListener);
 
         this.getContentOperator()?.setup({serviceUrl: CONFIG.getString('services.aiContentOperatorServiceUrl')});
         this.getTranslator()?.setup({
@@ -196,6 +198,11 @@ export class AI {
         const helper = this.isXDataPath(event.path) ? this.getAiHelperByXData(event.path) : AiHelper.getAiHelperByPath(event.path);
         helper?.setValue(event.text);
         helper?.setState(AiHelperState.COMPLETED);
+    };
+
+    private translatorFailedEventListener = (event: AiTranslatorFailedEvent) => {
+        const helper = this.isXDataPath(event.path) ? this.getAiHelperByXData(event.path) : AiHelper.getAiHelperByPath(event.path);
+        helper?.setState(AiHelperState.FAILED, {text: event.text});
     };
 
     private createContentData(): ContentData | undefined {
