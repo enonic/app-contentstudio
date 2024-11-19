@@ -186,7 +186,7 @@ export class MacroModalDialog
             config.ADD_ATTR = ['allow', 'allowfullscreen'];
         }
 
-        return DOMPurify.sanitize(value, config) as string;
+        return DOMPurify.sanitize(value, config);
     }
 
     private makeData(): PropertySet {
