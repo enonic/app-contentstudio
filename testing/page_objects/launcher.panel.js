@@ -6,15 +6,11 @@ const appConst = require('../libs/app_const');
 const XPATH = {
     container: `//div[contains(@class,'launcher-panel')]`,
     userName: "//div[@class='user-info']//p",
-    activeLink: "//div[@class='app-row active']",
+    activeAppName: "//div[@class='app-row active']//p[@class='app-name']",
     launcherToggler: "//button[contains(@class,'launcher-button')]"
 };
 
 class LauncherPanel extends Page {
-
-    get homeLink() {
-        return XPATH.container + `//a[contains(@data-id,'home')]`;
-    }
 
     get launcherToggler() {
         return XPATH.launcherToggler;
@@ -49,11 +45,16 @@ class LauncherPanel extends Page {
     }
 
     async clickOnContentStudioLink() {
-        await this.waitForElementDisplayed(this.contentStudioLink, appConst.longTimeout);
-        await this.waitForElementEnabled(this.contentStudioLink, appConst.longTimeout);
-        await this.pause(300);
-        await this.clickOnElement(this.contentStudioLink);
-        return await this.pause(1000);
+        try {
+            await this.waitForElementDisplayed(this.contentStudioLink, appConst.longTimeout);
+            await this.waitForElementEnabled(this.contentStudioLink, appConst.longTimeout);
+            await this.pause(300);
+            await this.clickOnElement(this.contentStudioLink);
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_launcher_panel_content_studio_link');
+            throw new Error(`Error occurred in Launcher Panel screenshot: ${screenshot} ` + err);
+        }
     }
 
     clickOnLogoutLink() {
@@ -104,16 +105,26 @@ class LauncherPanel extends Page {
         return await this.getText(this.userName);
     }
 
-    async getActiveRowId() {
-        let locator = XPATH.container + XPATH.activeLink;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getAttribute(locator, 'id');
+    async getActiveRowName() {
+        try {
+            let locator = XPATH.container + XPATH.activeAppName;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_launcher_panel_active_row');
+            throw new Error(`Error occurred in Launcher Panel screenshot: ${screenshot} ` + err);
+        }
     }
 
     async clickOnLauncherToggler() {
-        await this.waitForElementDisplayed(this.launcherToggler, appConst.mediumTimeout);
-        await this.clickOnElement(this.launcherToggler);
-        return await this.pause(400);
+        try {
+            await this.waitForElementDisplayed(this.launcherToggler, appConst.mediumTimeout);
+            await this.clickOnElement(this.launcherToggler);
+            return await this.pause(400);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_launcher_panel_toggler');
+            throw new Error(`Error occurred in Launcher Panel screenshot: ${screenshot} ` + err);
+        }
     }
 }
 
