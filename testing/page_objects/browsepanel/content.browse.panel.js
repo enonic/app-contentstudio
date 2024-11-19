@@ -186,12 +186,17 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await this.isClickable(this.projectViewerButton);
     }
 
-    //Opens menu and select the project
+    // Opens menu and select the project
     async selectContext(projectDisplayName) {
-        let projectSelectionDialog = await this.clickOnProjectViewerButton();
-        await projectSelectionDialog.selectContext(projectDisplayName);
-        await projectSelectionDialog.waitForDialogClosed();
-        return await this.pause(1000);
+        try {
+            let projectSelectionDialog = await this.clickOnProjectViewerButton();
+            await projectSelectionDialog.selectContext(projectDisplayName);
+            await projectSelectionDialog.waitForDialogClosed();
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_select_context');
+            throw new Error(`Error occurred during selecting the context, screenshot: ${screenshot} ` + err);
+        }
     }
 
     hotKeyPublish() {
@@ -205,7 +210,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             return await this.waitForElementDisplayed(this.publishButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot("err_publish_button");
+            await this.saveScreenshotUniqueName('err_publish_button');
             throw new Error("Publish button is not visible! " + err);
         }
     }
@@ -231,7 +236,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     // Wait for `Publish Menu` Button gets 'Publish Tree...'
     waitForPublishTreeButtonVisible() {
         return this.waitForElementDisplayed(this.publishTreeButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot("err_browse_publish_tree_button");
+            this.saveScreenshot('err_browse_publish_tree_button');
             throw new Error("'Publish Tree' button should be present on the browse-toolbar " + err);
         })
     }
@@ -246,7 +251,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await unpublishDialog.pause(1000);
             return unpublishDialog;
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName("err_unpublish_button");
+            let screenshot = await this.saveScreenshotUniqueName('err_unpublish_button');
             throw new Error(`Browse Panel toolbar - Unpublish button screenshot: ${screenshot} ` + err);
         }
     }
@@ -256,7 +261,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await this.clickOnElement(this.publishTreeButton);
     }
 
-    //waits for button MARK AS READY appears on the toolbar, then click on it and confirm.
+    // waits for button MARK AS READY appears on the toolbar, then click on it and confirm.
     async clickOnMarkAsReadyButtonAndConfirm() {
         await this.waitForMarkAsReadyButtonVisible();
         await this.clickOnElement(this.markAsReadyButton);
@@ -277,7 +282,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForMoveButtonEnabled();
             return await this.clickOnElement(this.moveButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName("err_move_btn");
+            let screenshot = await this.saveScreenshotUniqueName('err_move_btn');
             throw new Error(`error when clicking on the Move button, screenshot: ${screenshot} ` + err);
         }
     }
@@ -321,7 +326,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.showIssuesListButton, appConst.shortTimeout);
             return await this.clickOnElement(this.showIssuesListButton);
         } catch (err) {
-            throw new Error('error when click on the button ' + err);
+            throw new Error('error after clicking on the button ' + err);
         }
     }
 
@@ -349,7 +354,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return contentDuplicateDialog;
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_duplicate_btn_toolbar');
-            throw new Error("Error after clicking on the 'Duplicate' button, screenshot: " + screenshot + ' ' + err);
+            throw new Error(`Error after clicking on the 'Duplicate' button, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -381,7 +386,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return await this.pause(2000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_browsepanel_preview');
-            throw new Error(`Error occured after clicking on 'Preview' button, screenshot: ${screenshot} ` + err);
+            throw new Error(`Error occurred after clicking on 'Preview' button, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -403,7 +408,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_enabled');
-            throw new Error('Preview button should be enabled, screenshot  : ' + screenshot + "  " + err);
+            throw new Error(`Preview button should be enabled, screenshot  :${screenshot} ` + err);
         }
     }
 
@@ -428,7 +433,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.duplicateButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_duplicate_disabled_button');
+            await this.saveScreenshotUniqueName('err_duplicate_disabled_button');
             throw new Error('Duplicate button should be disabled, timeout: ' + 3000 + 'ms')
         }
     }
@@ -438,7 +443,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
             return await this.waitForElementEnabled(this.duplicateButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_duplicate_should_be_enabled');
+            await this.saveScreenshotUniqueName('err_duplicate_should_be_enabled');
             throw new Error('Duplicate button should be enabled, timeout: ' + 3000 + 'ms')
         }
     }
@@ -448,7 +453,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
             return await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_localize_enabled_button');
+            await this.saveScreenshotUniqueName('err_localize_enabled_button');
             throw new Error('Localize button should be enabled, timeout: ' + 3000 + 'ms')
         }
     }
@@ -458,7 +463,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.localizeButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_localize_disabled_button');
+            await this.saveScreenshotUniqueName('err_localize_disabled_button');
             throw new Error('Localize button should be disabled, timeout: ' + 3000 + 'ms')
         }
     }
@@ -468,7 +473,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.openButton, appConst.mediumTimeout);
             return await this.waitForElementEnabled(this.openButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_open_button_is_not_enabled');
+            await this.saveScreenshotUniqueName('err_open_button_is_not_enabled');
             throw new Error('Open button should be disabled, timeout: ' + 3000 + 'ms')
         }
     }
@@ -479,7 +484,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(this.openButton);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot('err_browse_panel_open_button');
+            await this.saveScreenshotUniqueName('err_browse_panel_open_button');
             throw new Error('Browse Panel: Edit button is not enabled! ' + err);
         }
     }
@@ -496,7 +501,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementEnabled(this.sortButton, appConst.mediumTimeout)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_sort_enabled_button');
-            throw new Error('Sort button should be enabled, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Sort button should be enabled, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -646,7 +651,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(expanderIcon);
             return await this.pause(900);
         } catch (err) {
-            await this.saveScreenshot('err_click_on_expander');
+            await this.saveScreenshotUniqueName('err_click_on_expander');
             throw new Error('Error occurred after clicking on expand-toggle ' + err);
         }
     }
@@ -710,7 +715,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     waitForCreateIssueButtonDisplayed() {
         return this.waitForElementDisplayed(this.createIssueButton, appConst.longTimeout).catch(err => {
-            this.saveScreenshot("err_create_issue_button");
+            this.saveScreenshot('err_create_issue_button');
             throw new Error("Create Task button is not visible on the toolbar! " + err);
         });
     }
@@ -720,7 +725,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForCreateIssueButtonDisplayed();
             return await this.clickOnElement(this.createIssueButton);
         } catch (err) {
-            await this.saveScreenshot("err_click_create_issue_button");
+            await this.saveScreenshotUniqueName('err_click_create_issue_button');
             throw new Error("Browse Panel. Error when click on Create Issue button in the toolbar! " + err);
         }
     }
@@ -738,7 +743,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let selector = XPATH.toolbarDiv + XPATH.publishMenuItemByName(menuItem);
             return await this.waitForAttributeHasValue(selector, "class", "disabled");
         } catch (err) {
-            await this.saveScreenshot('err_publish_menuItem');
+            await this.saveScreenshotUniqueName('err_publish_menuItem');
             throw new Error(menuItem + " should be disabled! " + err);
         }
     }
@@ -762,7 +767,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot('err_click_issue_menuItem');
+            await this.saveScreenshotUniqueName('err_click_issue_menuItem');
             throw new Error('error when try to click on publish menu item, ' + err);
         }
     }
@@ -865,7 +870,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             return await this.waitForAttributeHasValue(this.showIssuesListButton, "class", "has-assigned-issues");
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_issues"));
+            await this.saveScreenshotUniqueName('err_issues');
             throw new Error("'Assigned to Me' button should be displayed  " + err);
         }
     }
@@ -921,7 +926,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForArchiveButtonDisplayed();
             await this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_delete_button');
+            await this.saveScreenshotUniqueName('err_delete_button');
             throw new Error("Archive button should be enabled " + err);
         }
     }
