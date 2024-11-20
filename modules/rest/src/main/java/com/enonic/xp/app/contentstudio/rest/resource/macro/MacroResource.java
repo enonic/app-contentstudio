@@ -17,8 +17,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.enonic.xp.project.ProjectName;
-import com.enonic.xp.repository.RepositoryId;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -58,6 +56,8 @@ import com.enonic.xp.portal.macro.MacroProcessorFactory;
 import com.enonic.xp.portal.url.PageUrlParams;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.portal.url.UrlTypeConstants;
+import com.enonic.xp.project.ProjectName;
+import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.site.Site;
@@ -171,6 +171,7 @@ public final class MacroResource
         portalRequest.setRemoteAddress( ServletRequestUrlHelper.getRemoteAddress( req ) );
         portalRequest.setContentPath( contentPath );
         portalRequest.setRepositoryId( repositoryId );
+        portalRequest.setRawPath( baseUri + "/" + projectName + "/" + ContentConstants.BRANCH_DRAFT + contentPath );
 
         setHeaders( req, portalRequest );
         setCookies( req, portalRequest );
@@ -185,7 +186,6 @@ public final class MacroResource
             portalRequest( portalRequest ).
             path( contentPath.toString() );
         portalRequest.setPath( portalUrlService.pageUrl( pageUrlParams ) );
-        portalRequest.setRawPath( baseUri + "/" + projectName + "/" + ContentConstants.BRANCH_DRAFT + contentPath );
 
         portalRequest.setApplicationKey( appKey );
         final Content content = getContent( contentPath );
