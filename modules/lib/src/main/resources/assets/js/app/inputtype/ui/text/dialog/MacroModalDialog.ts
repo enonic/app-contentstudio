@@ -14,7 +14,7 @@ import {ContentSummary} from '../../../../content/ContentSummary';
 import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import {GetMacrosRequest} from '../../../../macro/resource/GetMacrosRequest';
 import {MacroComboBox, MacroFormInputElWrapper} from '../../../../macro/MacroComboBox';
-import DOMPurify from 'dompurify';
+import * as DOMPurify from 'dompurify';
 import {Macro, MacroDialogParams} from '../HtmlEditor';
 import {HTMLAreaHelper} from '../HTMLAreaHelper';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
