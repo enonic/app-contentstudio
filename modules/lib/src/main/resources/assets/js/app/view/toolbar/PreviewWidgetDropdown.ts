@@ -5,6 +5,8 @@ import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/Fi
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import Q from 'q';
+import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 
 export class PreviewWidgetDropdown
@@ -13,13 +15,17 @@ export class PreviewWidgetDropdown
     private selectedOption: PreviewWidgetOptionViewer;
 
     constructor() {
-        super(new WidgetSelectorDropdown(), {
-            className: 'preview-widget-dropdown',
+        super(new WidgetSelectorListBox(), {
+            className: 'preview-toolbar-dropdown',
             maxSelected: 1,
             filter: (item: Widget, searchString: string): boolean => {
                 return item.getWidgetDescriptorKey().getName().toLowerCase().indexOf(searchString.toLowerCase()) > -1 ||
                        item.getDescription().toLowerCase().indexOf(searchString.toLowerCase()) > -1;
             }
+        });
+
+        this.fetchLiveViewWidgets().then((widgets: Widget[]) => {
+            this.setWidgets(widgets);
         });
 
         this.selectedOption = new PreviewWidgetOptionViewer();
@@ -30,7 +36,7 @@ export class PreviewWidgetDropdown
         });
     }
 
-    setWidgets(widgets: Widget[]) {
+    private setWidgets(widgets: Widget[]) {
         if (widgets.length === 0) {
             return;
         }
@@ -40,8 +46,17 @@ export class PreviewWidgetDropdown
                 const orderB = b.getConfig().getProperty('order');
                 return (parseInt(orderA) ?? 999) - (parseInt(orderB) ?? 999);
             }).map(widget => new PreviewWidgetOptionBuilder(widget).build());
+
         this.getList().setItems(sortedOptions);
         this.doSelect(this.getList().getItems()[0]);
+    }
+
+    private async fetchLiveViewWidgets(): Promise<Widget[]> {
+        return new GetWidgetsByInterfaceRequest('contentstudio.liveview').sendAndParse()
+            .catch((e) => {
+                DefaultErrorHandler.handle(e);
+                return [];
+            });
     }
 
     getSelectedWidget(): Widget {
@@ -76,11 +91,10 @@ export class PreviewWidgetDropdown
             return rendered;
         });
     }
-
 }
 
 
-class WidgetSelectorDropdown
+class WidgetSelectorListBox
     extends ListBox<PreviewWidgetOption> {
 
     constructor() {

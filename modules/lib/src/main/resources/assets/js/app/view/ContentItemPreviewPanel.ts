@@ -174,10 +174,17 @@ export class ContentItemPreviewPanel
                 this.previewMessage.getEl().setHeight(event.getHeightWithUnits());
             }
 
-            if (this.noSelectionMessage) {
-                this.noSelectionMessage.getEl().setWidth(event.getWidthWithUnits());
-                this.noSelectionMessage.getEl().setHeight(event.getHeightWithUnits());
-            }
+            // Keep no selection message intact,
+            // Since no toolbar shown when no content is selected
+            const subjects = [
+                this.frame.getHTMLElement(),
+                this.previewMessage.getHTMLElement()
+            ];
+            const isFS = event.isFullscreen();
+            subjects.forEach(s => {
+                s.style.width = !isFS ? event.getWidthWithUnits() : '';
+                s.style.height = !isFS ? event.getHeightWithUnits() : '';
+            });
 
             const fullscreen = event.isFullscreen();
             this.wrapper.getEl().toggleClass('emulated', !fullscreen);
