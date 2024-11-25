@@ -23,7 +23,8 @@ import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigure
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
 import {ProjectContext} from '../project/ProjectContext';
 import {XDataWizardStepForm} from '../wizard/XDataWizardStepForm';
-import {AiTranslatorFailedEvent} from './event/incoming/AiTranslatorFailedEvent';
+import {AiTranslatorAllCompletedEvent} from './event/incoming/AiTranslatorAllCompletedEvent';
+import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 
 declare global {
     interface Window {
@@ -81,7 +82,7 @@ export class AI {
         AiContentOperatorResultAppliedEvent.on(this.applyContentOperatorEventListener);
         AiTranslatorStartedEvent.on(this.translatorStartedEventListener);
         AiTranslatorCompletedEvent.on(this.translatorCompletedEventListener);
-        AiTranslatorFailedEvent.on(this.translatorFailedEventListener);
+        AiTranslatorAllCompletedEvent.on(this.translateAllCompletedEventListener);
 
         this.getContentOperator()?.setup({serviceUrl: CONFIG.getString('services.aiContentOperatorServiceUrl')});
         this.getTranslator()?.setup({
@@ -196,13 +197,20 @@ export class AI {
 
     private translatorCompletedEventListener = (event: AiTranslatorCompletedEvent) => {
         const helper = this.isXDataPath(event.path) ? this.getAiHelperByXData(event.path) : AiHelper.getAiHelperByPath(event.path);
-        helper?.setValue(event.text);
-        helper?.setState(AiHelperState.COMPLETED);
+
+        if (event.success) {
+            helper?.setValue(event.text);
+            helper?.setState(AiHelperState.COMPLETED);
+        } else {
+            helper?.setState(AiHelperState.FAILED, {text: event.text});
+        }
+
     };
 
-    private translatorFailedEventListener = (event: AiTranslatorFailedEvent) => {
-        const helper = this.isXDataPath(event.path) ? this.getAiHelperByXData(event.path) : AiHelper.getAiHelperByPath(event.path);
-        helper?.setState(AiHelperState.FAILED, {text: event.text});
+    private translateAllCompletedEventListener = (event: AiTranslatorAllCompletedEvent) => {
+        if (event.success) {
+            new ContentRequiresSaveEvent(this.content.getContentId()).fire();
+        }
     };
 
     private createContentData(): ContentData | undefined {
