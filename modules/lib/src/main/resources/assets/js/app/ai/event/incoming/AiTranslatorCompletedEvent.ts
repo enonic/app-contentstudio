@@ -8,6 +8,8 @@ export class AiTranslatorCompletedEvent
 
     readonly text: string;
 
+    readonly success: boolean;
+
     private constructor() {
         super();
     }
