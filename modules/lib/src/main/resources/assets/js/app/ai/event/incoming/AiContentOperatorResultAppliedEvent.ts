@@ -1,11 +1,10 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {EnonicAiAppliedRawData} from '../data/EnonicAiAppliedData';
 
 export class AiContentOperatorResultAppliedEvent
     extends Event {
 
-    result: EnonicAiAppliedRawData;
+    items: { path: string, text: string }[];
 
     private constructor() { // event is just to be received
         super();

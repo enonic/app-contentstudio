@@ -7,12 +7,10 @@ import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Content} from '../content/Content';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {GetLocalesRequest} from '../resource/GetLocalesRequest';
 import {ContentData, ContentLanguage, ContentSchema} from './event/data/AiData';
-import {EnonicAiAppliedData} from './event/data/EnonicAiAppliedData';
 import {EnonicAiContentOperatorSetupData} from './event/data/EnonicAiContentOperatorSetupData';
 import {EnonicAiTranslatorSetupData} from './event/data/EnonicAiTranslatorSetupData';
 import {AiContentOperatorResultAppliedEvent} from './event/incoming/AiContentOperatorResultAppliedEvent';
@@ -23,6 +21,16 @@ import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigure
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
 import {ProjectContext} from '../project/ProjectContext';
 import {XDataWizardStepForm} from '../wizard/XDataWizardStepForm';
+import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
+import {Value} from '@enonic/lib-admin-ui/data/Value';
+import {Property} from '@enonic/lib-admin-ui/data/Property';
+import {ContentWizardHeader} from '../wizard/ContentWizardHeader';
+import {PageItem} from '../page/region/PageItem';
+import {PageState} from '../wizard/page/PageState';
+import {ComponentPath} from '../page/region/ComponentPath';
+import {TextComponent} from '../page/region/TextComponent';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
 import {AiTranslatorAllCompletedEvent} from './event/incoming/AiTranslatorAllCompletedEvent';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 
@@ -59,17 +67,25 @@ export class AI {
 
     private static XDATA_PREFIX = '__xdata__';
 
+    private static PAGE_PREFIX = '__page__';
+
+    private static CONFIG_PREFIX = '__config__';
+
+    private static TOPIC = '__topic__';
+
     private currentData: ContentData | undefined;
 
     private content: Content;
 
     private contentType: ContentType;
 
+    private data: PropertyTree;
+
+    private contentHeader: ContentWizardHeader;
+
     private locales: Locale[];
 
     private instructions: Record<EnonicAiPlugin, string | undefined>;
-
-    private resultReceivedListeners: ((data: EnonicAiAppliedData) => void)[] = [];
 
     private readyListeners: (() => void)[] = [];
 
@@ -115,6 +131,14 @@ export class AI {
             language: this.createContentLanguage(),
         }).fire();
         this.checkAndNotifyReady();
+    }
+
+    setDataTree(dataTree: PropertyTree): void {
+        this.data = dataTree;
+    }
+
+    setContentHeader(contentHeader: ContentWizardHeader): void {
+        this.contentHeader = contentHeader;
     }
 
     setContentType(contentType: ContentType): void {
@@ -191,20 +215,18 @@ export class AI {
     }
 
     private translatorStartedEventListener = (event: AiTranslatorStartedEvent) => {
-        const helper = this.isXDataPath(event.path) ? this.getAiHelperByXData(event.path) : AiHelper.getAiHelperByPath(event.path);
-        helper?.setState(AiHelperState.PROCESSING);
+        this.getAiHelperByPath(event.path)?.setState(AiHelperState.PROCESSING);
     };
 
     private translatorCompletedEventListener = (event: AiTranslatorCompletedEvent) => {
-        const helper = this.isXDataPath(event.path) ? this.getAiHelperByXData(event.path) : AiHelper.getAiHelperByPath(event.path);
+        const helper = this.getAiHelperByPath(event.path);
 
         if (event.success) {
-            helper?.setValue(event.text);
             helper?.setState(AiHelperState.COMPLETED);
+            this.handleFieldUpdate(event.path, event.text);
         } else {
             helper?.setState(AiHelperState.FAILED, {text: event.text});
         }
-
     };
 
     private translateAllCompletedEventListener = (event: AiTranslatorAllCompletedEvent) => {
@@ -243,22 +265,10 @@ export class AI {
     }
 
     private applyContentOperatorEventListener = (event: AiContentOperatorResultAppliedEvent) => {
-        const {topic} = event.result;
-        const hasDisplayNameChanged = !StringHelper.isEmpty(topic) && topic !== this.content.getDisplayName();
-        const displayName = hasDisplayNameChanged ? topic : undefined;
-
-        const propertyTree = PropertyTree.fromJson(event.result.fields);
-
-        this.notifyResultReceived({displayName, propertyTree});
+        event.items?.forEach(({path, text}) => {
+            this.handleFieldUpdate(this.replaceSlashesWithDots(path), text);
+        });
     };
-
-    onResultReceived(listener: (data: EnonicAiAppliedData) => void): void {
-        this.resultReceivedListeners.push(listener);
-    }
-
-    private notifyResultReceived(data: EnonicAiAppliedData): void {
-        this.resultReceivedListeners.forEach(l => l(data));
-    }
 
     whenReady(callback: () => void): void {
         if (this.isReady()) {
@@ -279,18 +289,114 @@ export class AI {
         }
     }
 
+    private getAiHelperByPath(pathWithSlashed: string): AiHelper | undefined {
+        const path = this.replaceSlashesWithDots(pathWithSlashed);
+
+        if (this.isXDataPath(path)) {
+            return this.getAiHelperByXData(path);
+        }
+
+        return AiHelper.getAiHelpers().find((helper: AiHelper) => helper.getDataPath().toString() === path);
+    }
+
+    private handleFieldUpdate(path: string, text: string): void {
+        if (this.isTopicPath(path)) {
+            this.contentHeader.setDisplayName(text);
+        } else if (this.isXDataPath(path)) {
+            this.handleXDataEvent(path, text);
+        } else if (this.isPagePath(path)) {
+            this.handlePageEvent(path, text);
+        } else {
+            this.handleDataEvent(path, text);
+        }
+    }
+
     private isXDataPath(path: string): boolean {
         return path.startsWith(AI.XDATA_PREFIX);
     }
 
+    private isPagePath(path: string): boolean {
+        return path.startsWith(AI.PAGE_PREFIX);
+    }
+
+    private isTopicPath(path: string): boolean {
+        return path.startsWith(AI.TOPIC);
+    }
+
     private getAiHelperByXData(path: string): AiHelper | undefined {
-        const pathParts = path.split('/');
+        const xData = this.getXData(path);
+
+        return xData?.xDataStepForm ? AiHelper.getAiHelpers().find((helper: AiHelper) => this.isHelperForXData(helper, xData)) : null;
+    }
+
+    private getXData(path: string): { xDataStepForm: XDataWizardStepForm, xDataPath: PropertyPath } | undefined {
+        const pathParts = path.split('.');
         const appName = pathParts[1];
         const xDataName = pathParts[2];
         const key = `${appName.replace(/-/g, '.')}:${xDataName}`;
         const xDataStepForm = XDataWizardStepForm.getXDataWizardStepForm(key);
-        const xDataPath = `/${pathParts.slice(3).join('/')}`;
 
-        return xDataStepForm ? AiHelper.getAiHelpersByParent(xDataStepForm).find(aiHelper => aiHelper.getDataPath() === xDataPath) : undefined;
+        return xDataStepForm ? {xDataStepForm, xDataPath: PropertyPath.fromString(`.${pathParts.slice(3).join('.')}`)} : undefined;
+    }
+
+    private isHelperForXData(helper: AiHelper, xData: { xDataStepForm: XDataWizardStepForm, xDataPath: PropertyPath }): boolean {
+        return xData.xDataStepForm.contains(helper.getDataPathElement()) && helper.getDataPath().equals(xData.xDataPath);
+    }
+
+    private handleXDataEvent(path: string, text: string): void {
+        const xData = this.getXData(this.replaceSlashesWithDots(path));
+        const prop = xData?.xDataStepForm.getData().getRoot().getPropertyByPath(xData.xDataPath);
+        this.updateProperty(prop, text);
+    }
+
+    private handleDataEvent(path: string, text: string): void {
+        const propPath = PropertyPath.fromString(this.replaceSlashesWithDots(path));
+        const prop = this.data.getRoot().getPropertyByPath(propPath);
+        this.updateProperty(prop, text);
+    }
+
+    private updateProperty(property: Property | undefined, value: string): void {
+        property?.setValue(new Value(value, property.getType()));
+    }
+
+    private replaceSlashesWithDots(path: string): string {
+        return path.replace(/\//g, '.');
+    }
+
+    private handlePageEvent(path: string, text: string): void {
+        if (path.indexOf(AI.CONFIG_PREFIX) > -1) {
+            this.handleComponentConfigEvent(path, text);
+        } else {
+            this.handleComponentEvent(path, text);
+        }
+    }
+
+    private handleComponentConfigEvent(path: string, text: string): void {
+        const parts = path.replace(AI.PAGE_PREFIX, '').split(`/${AI.CONFIG_PREFIX}`);
+        const configComponentPath = parts[0];
+        const dataPath = parts[1];
+        const propPath = PropertyPath.fromString(this.replaceSlashesWithDots(dataPath));
+
+        if (StringHelper.isBlank(configComponentPath)) {
+            const prop = PageState.getState()?.getConfig().getRoot().getPropertyByPath(propPath);
+            prop?.setValue(new Value(text, prop.getType()));
+        } else {
+            const item: PageItem = PageState.getState()?.getComponentByPath(ComponentPath.fromString(configComponentPath));
+
+            if (item instanceof DescriptorBasedComponent) {
+                const prop = item.getConfig().getRoot().getPropertyByPath(propPath);
+                prop?.setValue(new Value(text, prop.getType()));
+            }
+        }
+    }
+
+    private handleComponentEvent(path: string, text: string): void {
+        const pathNoPrefix = path.replace(AI.PAGE_PREFIX, '');
+        const componentPath = ComponentPath.fromString(pathNoPrefix);
+        const item: PageItem = PageState.getState().getComponentByPath(componentPath);
+
+        if (item instanceof TextComponent) {
+            item.setText(text);
+        }
     }
 }

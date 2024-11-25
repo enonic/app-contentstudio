@@ -1,14 +1,12 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
-import {BaseInspectionPanel} from '../BaseInspectionPanel';
-import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
-import {TextComponent} from '../../../../../page/region/TextComponent';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
-import {TextComponentType} from '../../../../../page/region/TextComponentType';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
+import {TextComponent} from '../../../../../page/region/TextComponent';
+import {TextComponentType} from '../../../../../page/region/TextComponentType';
 import {ComponentInspectionPanel} from './ComponentInspectionPanel';
-import {LayoutComponentType} from '../../../../../page/region/LayoutComponentType';
 
 export class TextInspectionPanel
     extends ComponentInspectionPanel<TextComponent> {
