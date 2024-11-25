@@ -521,6 +521,14 @@ export class TextComponentView
                HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.htmlAreaEditor.getData());
     }
 
+    setText(text: string): void {
+        if (this.isEditorReady()) {
+            this.htmlAreaEditor.setData(text);
+        } else {
+            this.initialValue = text;
+        }
+    }
+
     isEmpty(): boolean {
         return this.isEditorEmpty();
     }

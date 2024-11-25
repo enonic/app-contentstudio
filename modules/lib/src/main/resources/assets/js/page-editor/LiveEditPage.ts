@@ -69,6 +69,7 @@ import {ResetComponentViewEvent} from './event/incoming/manipulation/ResetCompon
 import {PageStateEvent} from './event/incoming/common/PageStateEvent';
 import {PageState} from '../app/wizard/page/PageState';
 import {PageBuilder} from '../app/page/Page';
+import {UpdateTextComponentViewEvent} from './event/incoming/manipulation/UpdateTextComponentViewEvent';
 
 export class LiveEditPage {
 
@@ -119,6 +120,8 @@ export class LiveEditPage {
     private resetComponentViewRequestListener: (event: ResetComponentViewEvent) => void;
 
     private pageStateListener: (event: PageStateEvent) => void;
+
+    private updateTextComponentViewListener: (event: UpdateTextComponentViewEvent) => void;
 
     private static debug: boolean = false;
 
@@ -430,6 +433,17 @@ export class LiveEditPage {
         };
 
         PageStateEvent.on(this.pageStateListener);
+
+        this.updateTextComponentViewListener = (event: UpdateTextComponentViewEvent): void => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            const view: ItemView = this.getItemViewByPath(path);
+
+            if (view instanceof TextComponentView) {
+                view.setText(event.getText());
+            }
+        };
+
+        UpdateTextComponentViewEvent.on(this.updateTextComponentViewListener);
     }
 
     private getItemViewByPath(path: ComponentPath): ItemView {
@@ -477,6 +491,8 @@ export class LiveEditPage {
         ResetComponentViewEvent.un(this.resetComponentViewRequestListener);
 
         PageStateEvent.un(this.pageStateListener);
+
+        UpdateTextComponentViewEvent.un(this.updateTextComponentViewListener);
     }
 
     public loadComponent(componentView: ComponentView, componentUrl: string,): Q.Promise<string> {
