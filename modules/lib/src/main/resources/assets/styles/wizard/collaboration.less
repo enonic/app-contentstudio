@@ -4,12 +4,13 @@
 
 @space-between: 2px;
 
-@min-width: @unit-size + @border-width + @space-between;
+@min-width: @unit-size + @border-width;
 
 .content-wizard-toolbar-collaboration {
   display: flex;
   align-items: center;
   overflow: hidden;
+  gap: @space-between;
 
   &.single {
     min-width: @min-width;
