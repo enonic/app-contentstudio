@@ -217,6 +217,7 @@ export class AI {
         // TODO: Add structuredClone, when target upgraded to ES2022
         return this.currentData || (this.content && {
             contentId: this.content.getContentId().toString(),
+            contentPath: this.content.getPath().toString(),
             fields: this.content.getContentData().toJson(),
             topic: this.content.getDisplayName(),
             project: ProjectContext.get().getProject().getName(),

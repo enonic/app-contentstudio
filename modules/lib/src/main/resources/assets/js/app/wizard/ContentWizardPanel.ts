@@ -315,6 +315,7 @@ export class ContentWizardPanel
         this.debouncedEnonicAiDataChangedHandler = AppHelper.debounce(() => {
             AI.get().setCurrentData({
                 contentId: this.getPersistedItem()?.getContentId().toString() ?? '',
+                contentPath: this.getPersistedItem()?.getPath().toString() ?? '',
                 fields: this.contentWizardStepForm.getData().toJson(),
                 topic: this.getWizardHeader().getDisplayName(),
                 project: ProjectContext.get().getProject().getName(),
