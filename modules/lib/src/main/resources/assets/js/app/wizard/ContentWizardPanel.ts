@@ -50,7 +50,6 @@ import * as Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {Permission} from '../access/Permission';
 import {AI} from '../ai/AI';
-import {EnonicAiAppliedData} from '../ai/event/data/EnonicAiAppliedData';
 import {AiTranslatorOpenDialogEvent} from '../ai/event/outgoing/AiTranslatorOpenDialogEvent';
 import {MovedContentItem} from '../browse/MovedContentItem';
 import {CompareStatus} from '../content/CompareStatus';
@@ -471,17 +470,6 @@ export class ContentWizardPanel
 
         this.onPageStateChanged(() => {
             this.livePanel?.setSaveEnabled(!ObjectHelper.equals(PageState.getState(), this.getPersistedItem().getPage()));
-        });
-
-        AI.get().onResultReceived(({displayName, propertyTree}: EnonicAiAppliedData) => {
-            if (displayName != null) {
-                this.wizardHeader.setDisplayName(displayName);
-            }
-
-            this.updateWizardStepForms(propertyTree, false).then(() => {
-                this.debouncedEnonicAiDataChangedHandler();
-                this.dataChangedHandler();
-            });
         });
     }
 
@@ -1936,6 +1924,9 @@ export class ContentWizardPanel
                             });
                         }
 
+                        AI.get().setDataTree(this.contentWizardStepForm.getData());
+                        AI.get().setContentHeader(this.wizardHeader);
+
                         this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
 
                         this.xDataWizardStepForms.resetState();
@@ -2516,6 +2507,7 @@ export class ContentWizardPanel
         propertyTree.onChanged(this.debouncedEnonicAiDataChangedHandler);
 
         return this.contentWizardStepForm.update(propertyTree, unchangedOnly).then(() => {
+            AI.get().setDataTree(this.contentWizardStepForm.getData());
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
         });
     }
