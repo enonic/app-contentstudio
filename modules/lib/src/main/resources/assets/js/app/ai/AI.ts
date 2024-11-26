@@ -25,6 +25,7 @@ import {ProjectContext} from '../project/ProjectContext';
 import {XDataWizardStepForm} from '../wizard/XDataWizardStepForm';
 import {AiTranslatorAllCompletedEvent} from './event/incoming/AiTranslatorAllCompletedEvent';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 
 declare global {
     interface Window {
@@ -210,6 +211,8 @@ export class AI {
     private translateAllCompletedEventListener = (event: AiTranslatorAllCompletedEvent) => {
         if (event.success) {
             new ContentRequiresSaveEvent(this.content.getContentId()).fire();
+        } else if (event.message) {
+            NotifyManager.get().showError(event.message);
         }
     };
 
