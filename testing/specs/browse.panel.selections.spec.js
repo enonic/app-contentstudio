@@ -8,6 +8,7 @@ const studioUtils = require('../libs/studio.utils.js');
 const appConst = require('../libs/app_const');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
+const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('browse.panel.selections.spec - tests for selection items in Browse Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -161,6 +162,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
     it("GIVEN a content is highlighted WHEN the content unhighlighted THEN grid toolbar returns to the initial state",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await contentBrowsePanel.pause(2000);
             // 1. The folder is highlighted:
             await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
@@ -171,7 +173,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.waitForNewButtonEnabled();
             await contentBrowsePanel.waitForArchiveButtonDisabled();
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
-            await contentBrowsePanel.waitForPreviewButtonDisabled();
+            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
             await contentBrowsePanel.waitForSortButtonDisabled();
             await contentBrowsePanel.waitForMoveButtonDisabled();
             await contentBrowsePanel.waitForEditButtonDisabled();

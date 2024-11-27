@@ -212,12 +212,22 @@ module.exports = Object.freeze({
         COL_3: '3-col',
     },
     EMULATOR_RESOLUTION: {
+        FULL_SIZE: 'Full Size',
         MEDIUM_PHONE: 'Medium Phone',
         LARGE_PHONE: 'Large Phone',
         TABLET: 'Tablet',
         NOTEBOOK_13: "13\" Notebook",
         SMALL_PHONE: 'Small Phone',
         NOTEBOOK_15: "15\" Notebook",
+    },
+    EMULATOR_RESOLUTION_VALUE: {
+        FULL_SIZE: '100%',
+        MEDIUM_PHONE: '375px',
+        LARGE_PHONE: '414px',
+        TABLET: '768px',
+        NOTEBOOK_13: '1280px',
+        SMALL_PHONE: '320px',
+        NOTEBOOK_15: '1356px',
     },
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',
@@ -481,5 +491,11 @@ module.exports = Object.freeze({
         AUTHENTICATED: 'Authenticated',
         USERS_ADMINISTRATOR: 'Users Administrator',
         EVERYONE: 'Everyone'
+    },
+    PREVIEW_WIDGET: {
+        AUTOMATIC: 'Automatic',
+        SITE_ENGINE: 'Site engine',
+        MEDIA: 'Media',
+        JSON: 'JSON'
     },
 });
