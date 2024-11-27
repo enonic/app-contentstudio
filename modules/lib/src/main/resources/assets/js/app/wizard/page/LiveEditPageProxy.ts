@@ -765,7 +765,7 @@ export class LiveEditPageProxy
             new PageStateEvent(PageState.getState().toJson()).fire(this.liveEditWindow);
 
             if (event instanceof ComponentTextUpdatedEvent && event.getText()) {
-                if (this.liveEditWindow ) {
+                if (this.liveEditWindow) {
                     new UpdateTextComponentViewEvent(event.getPath(), event.getText()).fire(this.liveEditWindow);
                 }
             }

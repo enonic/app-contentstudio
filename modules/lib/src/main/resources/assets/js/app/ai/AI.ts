@@ -34,6 +34,9 @@ import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent'
 import {AiTranslatorAllCompletedEvent} from './event/incoming/AiTranslatorAllCompletedEvent';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {AiContentOperatorContextChangedEvent} from './event/incoming/AiContentOperatorContextChangedEvent';
+import {AiContentOperatorDialogShownEvent} from './event/incoming/AiContentOperatorDialogShownEvent';
+import {AiContentOperatorDialogHiddenEvent} from './event/incoming/AiContentOperatorDialogHiddenEvent';
 
 declare global {
     interface Window {
@@ -90,6 +93,8 @@ export class AI {
 
     private readyListeners: (() => void)[] = [];
 
+    private context?: string;
+
     private constructor() {
         const hasPlugins = Object.keys(window.Enonic?.AI ?? {}).length > 0;
         if (!hasPlugins) {
@@ -100,6 +105,9 @@ export class AI {
         AiTranslatorStartedEvent.on(this.translatorStartedEventListener);
         AiTranslatorCompletedEvent.on(this.translatorCompletedEventListener);
         AiTranslatorAllCompletedEvent.on(this.translateAllCompletedEventListener);
+        AiContentOperatorContextChangedEvent.on(this.handleContextChangedEvent);
+        AiContentOperatorDialogShownEvent.on(this.handleDialogOpenedEvent);
+        AiContentOperatorDialogHiddenEvent.on(this.handleDialogClosedEvent);
 
         this.getContentOperator()?.setup({serviceUrl: CONFIG.getString('services.aiContentOperatorServiceUrl')});
         this.getTranslator()?.setup({
@@ -237,6 +245,19 @@ export class AI {
             NotifyManager.get().showError(event.message);
         }
     };
+
+    private handleContextChangedEvent = (event: AiContentOperatorContextChangedEvent) => {
+        this.context = event.context;
+        AiHelper.setActiveContext(event.context);
+    };
+
+    private handleDialogOpenedEvent = () => {
+        AiHelper.setActiveContext(this.context);
+    }
+
+    private handleDialogClosedEvent = () => {
+        AiHelper.setActiveContext(null);
+    }
 
     private createContentData(): ContentData | undefined {
         // TODO: Add structuredClone, when target upgraded to ES2022
