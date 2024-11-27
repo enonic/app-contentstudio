@@ -14,6 +14,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('my.first.site.country.spec - Create a site with country content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -69,7 +70,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
         async () => {
             let contentWizard = new ContentWizard();
             let countryForm = new CountryForm();
-            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             USA_CONTENT_NAME = contentBuilder.generateRandomName('usa');
             // 1. Open new country wizard, type a name, description, population:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'Country');
@@ -82,7 +83,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 3. Select the country-content:
             await studioUtils.findAndSelectItem(USA_CONTENT_NAME);
             // 4. Click on 'Preview' button:
-            await contentBrowsePanel.clickOnPreviewButton();
+            await contentItemPreviewPanel.clickOnPreviewButton();
             await studioUtils.doSwitchToNextTab();
             await studioUtils.saveScreenshot('usa-country-preview');
             // 5. Verify expected population and description are loaded in the new browser tab:
