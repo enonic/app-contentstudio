@@ -6,9 +6,7 @@ const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const ContentPublishDialog = require('../page_objects/content.publish.dialog');
 const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('image.content.preview.widget.dropdown.spec - Tests for Live View', function () {
@@ -17,7 +15,23 @@ describe('image.content.preview.widget.dropdown.spec - Tests for Live View', fun
         webDriverHelper.setupBrowser();
     }
 
-    it("GIVEN an image is selected WHEN 'Media' has been selected in the Preview widget dropdown THEN img html element should be visible in the iframe in Item Preview Panel",
+    it("WHEN an image is selected WHEN 'Automatic' is selected in 'Preview widget dropdown' by default THEN img html element should be visible in the iframe in Item Preview Panel",
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select an image:
+            await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.RENAULT);
+            // 2.  'Automatic' should be in the Preview widget dropdown be default:
+            let option = await contentItemPreviewPanel.getSelectedOptionInPreviewWidget();
+            assert.equal(option, appConst.PREVIEW_WIDGET.AUTOMATIC, "Automatic option should be selected by default");
+            await studioUtils.saveScreenshot('image_selected_automatic_selected');
+            // 3. Switch to the iframe and verify that <Img> element gets visible in the iframe in Item Preview Panel:
+            await contentItemPreviewPanel.waitForImageElementDisplayed();
+            await contentItemPreviewPanel.switchToParentFrame();
+            // 4. Verify that 'Preview' button should be enabled when an image is selected
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+        });
+
+    it("GIVEN an image is selected WHEN 'Media' has been selected in the 'Preview widget dropdown' THEN img html element should be visible in the iframe in Item Preview Panel",
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select an image:
@@ -32,19 +46,39 @@ describe('image.content.preview.widget.dropdown.spec - Tests for Live View', fun
             await contentItemPreviewPanel.waitForPreviewButtonEnabled();
         });
 
-    it("GIVEN an image is selected WHEN 'JSON' has been selected in the Preview widget dropdown THEN img html element should be visible in the iframe in Item Preview Panel",
+    it("GIVEN an image is selected WHEN 'JSON' has been selected in the Preview widget dropdown THEN expected info should be displayed in Item Preview Panel",
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select an image:
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.RENAULT);
-            // 2. Select 'Media' in the Preview widget dropdown:
+            // 2. Select 'JSON' in the Preview widget dropdown:
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.JSON);
             await studioUtils.saveScreenshot('image_selected_json_selected');
-            // 3. Switch to the iframe and verify that <Img> element gets visible in the iframe in Item Preview Panel:
-            await contentItemPreviewPanel.waitForImageElementDisplayed();
+            // 3. Verify that image-name should be displayed in JSON:
+            let actualName = await contentItemPreviewPanel.getJSON_info(appConst.LIVE_VIEW_JSON_KEY.NAME);
+            assert.equal(actualName, `"${appConst.TEST_IMAGES.RENAULT}.jpg"`, "Expected name should be displayed in JSON");
+            // 4. Verify that image-displayName should be displayed in JSON:
+            let actualDisplayName = await contentItemPreviewPanel.getJSON_info(appConst.LIVE_VIEW_JSON_KEY.DISPLAY_NAME);
+            assert.equal(actualDisplayName, appConst.TEST_IMAGES.RENAULT, "Expected name should be displayed in JSON");
+            // 5. Verify that 'Preview' button should be enabled when an image is selected
             await contentItemPreviewPanel.switchToParentFrame();
-            // 4. Verify that 'Preview' button should be enabled when an image is selected
             await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+        });
+
+    it("GIVEN an image is selected WHEN 'Site engine' has been selected in the 'Preview widget dropdown' THEN 404 error should be displayed in the iframe in Item Preview Panel",
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select an image:
+            await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.RENAULT);
+            // 2. Select 'Site engine' in the Preview widget dropdown:
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
+            await studioUtils.saveScreenshot('image_selected_site_engine_selected');
+            // 3. Switch to the iframe and verify that 404 error is displayed in the iframe in Item Preview Panel:
+            await contentItemPreviewPanel.waitFor404ErrorDisplayed();
+            await contentItemPreviewPanel.switchToParentFrame();
+            // 4. Verify that 'Preview' button should be disabled when an image and 'Site engine' are selected
+            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
