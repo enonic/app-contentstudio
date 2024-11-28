@@ -1,42 +1,44 @@
 import {AiHelper} from '@enonic/lib-admin-ui/ai/AiHelper';
 import {AiHelperState} from '@enonic/lib-admin-ui/ai/AiHelperState';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {Property} from '@enonic/lib-admin-ui/data/Property';
+import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Content} from '../content/Content';
+import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {ContentType} from '../inputtype/schema/ContentType';
+import {ComponentPath} from '../page/region/ComponentPath';
+import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
+import {PageItem} from '../page/region/PageItem';
+import {TextComponent} from '../page/region/TextComponent';
+import {ProjectContext} from '../project/ProjectContext';
 import {GetLocalesRequest} from '../resource/GetLocalesRequest';
+import {ContentWizardHeader} from '../wizard/ContentWizardHeader';
+import {PageState} from '../wizard/page/PageState';
+import {XDataWizardStepForm} from '../wizard/XDataWizardStepForm';
 import {ContentData, ContentLanguage, ContentSchema} from './event/data/AiData';
 import {EnonicAiContentOperatorSetupData} from './event/data/EnonicAiContentOperatorSetupData';
 import {EnonicAiTranslatorSetupData} from './event/data/EnonicAiTranslatorSetupData';
+import {AiContentOperatorContextChangedEvent} from './event/incoming/AiContentOperatorContextChangedEvent';
+import {AiContentOperatorDialogHiddenEvent} from './event/incoming/AiContentOperatorDialogHiddenEvent';
+import {AiContentOperatorDialogShownEvent} from './event/incoming/AiContentOperatorDialogShownEvent';
+import {AiContentOperatorInteractionEvent} from './event/incoming/AiContentOperatorInteractionEvent';
 import {AiContentOperatorResultAppliedEvent} from './event/incoming/AiContentOperatorResultAppliedEvent';
+import {AiTranslatorAllCompletedEvent} from './event/incoming/AiTranslatorAllCompletedEvent';
 import {AiTranslatorCompletedEvent} from './event/incoming/AiTranslatorCompletedEvent';
 import {AiTranslatorStartedEvent} from './event/incoming/AiTranslatorStartedEvent';
 import {AiContentOperatorConfigureEvent} from './event/outgoing/AiContentOperatorConfigureEvent';
 import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigureEvent';
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
-import {ProjectContext} from '../project/ProjectContext';
-import {XDataWizardStepForm} from '../wizard/XDataWizardStepForm';
-import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
-import {ContentWizardHeader} from '../wizard/ContentWizardHeader';
-import {PageItem} from '../page/region/PageItem';
-import {PageState} from '../wizard/page/PageState';
-import {ComponentPath} from '../page/region/ComponentPath';
-import {TextComponent} from '../page/region/TextComponent';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
-import {AiTranslatorAllCompletedEvent} from './event/incoming/AiTranslatorAllCompletedEvent';
-import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {AiContentOperatorContextChangedEvent} from './event/incoming/AiContentOperatorContextChangedEvent';
-import {AiContentOperatorDialogShownEvent} from './event/incoming/AiContentOperatorDialogShownEvent';
-import {AiContentOperatorDialogHiddenEvent} from './event/incoming/AiContentOperatorDialogHiddenEvent';
+import {AiAnimationHandler, RGBColor} from './ui/AiAnimationHandler';
 
 declare global {
     interface Window {
@@ -108,6 +110,7 @@ export class AI {
         AiContentOperatorContextChangedEvent.on(this.handleContextChangedEvent);
         AiContentOperatorDialogShownEvent.on(this.handleDialogOpenedEvent);
         AiContentOperatorDialogHiddenEvent.on(this.handleDialogClosedEvent);
+        AiContentOperatorInteractionEvent.on(this.handleInteractionEvent);
 
         this.getContentOperator()?.setup({serviceUrl: CONFIG.getString('services.aiContentOperatorServiceUrl')});
         this.getTranslator()?.setup({
@@ -259,6 +262,28 @@ export class AI {
         AiHelper.setActiveContext(null);
     }
 
+    private handleInteractionEvent = (event: AiContentOperatorInteractionEvent) => {
+        switch (event.interaction) {
+        case 'click':
+            this.handleClickInteractionEvent(event.path);
+            break;
+        }
+    }
+
+    private handleClickInteractionEvent = (path: string) => {
+        const helper = this.getAiHelperByPath(path);
+
+        if (helper) {
+            AiAnimationHandler.scroll(helper.getDataPathElement());
+
+            if (this.isTopicPath(path)) {
+                AiAnimationHandler.innerGlow(helper.getDataPathElement());
+            } else {
+                AiAnimationHandler.glow(helper.getDataPathElement());
+            }
+        }
+    }
+
     private createContentData(): ContentData | undefined {
         // TODO: Add structuredClone, when target upgraded to ES2022
         return this.currentData || (this.content && {
@@ -292,6 +317,16 @@ export class AI {
     private applyContentOperatorEventListener = (event: AiContentOperatorResultAppliedEvent) => {
         event.items?.forEach(({path, text}) => {
             this.handleFieldUpdate(this.replaceSlashesWithDots(path), text);
+
+            const helper = this.getAiHelperByPath(path);
+
+            if (helper) {
+                if (this.isTopicPath(path)) {
+                    AiAnimationHandler.innerGlow(helper.getDataPathElement(), RGBColor.GREEN);
+                } else {
+                    AiAnimationHandler.glow(helper.getDataPathElement(), RGBColor.GREEN);
+                }
+            }
         });
     };
 
