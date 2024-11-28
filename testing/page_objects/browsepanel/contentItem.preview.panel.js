@@ -24,6 +24,9 @@ const xpath = {
 
 class ContentItemPreviewPanel extends Page {
 
+    get liveViewFrame() {
+        return xpath.container + "//iframe";
+    }
 
     get previewButton() {
         return xpath.toolbar + "//button[contains(@id, 'ActionButton') and contains(@class,'icon-newtab')]";
@@ -81,14 +84,30 @@ class ContentItemPreviewPanel extends Page {
         return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
-    async switchToLiveViewFrame(className) {
-        await this.switchToFrame(xpath.container + `//iframe[@class='${className}']`);
+    async switchToLiveViewFrameByClass(className) {
+        return await this.switchToFrame(xpath.container + `//iframe[@class='${className}']`);
     }
 
-    async getJSON_info(key) {
-        let locator = "//img";
-        await this.switchToLiveViewFrame('text');
-        return await this.get(locator, appConst.mediumTimeout);
+    async switchToLiveViewFrame() {
+        return await this.switchToFrame(this.liveViewFrame);
+    }
+
+    async waitFor404ErrorDisplayed() {
+        try {
+            let locator = "//h3[text()='404 - Not Found']";
+            await this.switchToLiveViewFrame();
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_404');
+            throw new Error(`404 error should be displayed in the iframe, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async getJSON_info(keyText) {
+        let locator = `//span[@class='key' and contains(.,'${keyText}')]/following-sibling::span[@class='string'][1]`;
+        await this.switchToLiveViewFrame();
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 
     waitForPanelVisible() {
