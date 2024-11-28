@@ -8,6 +8,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('Custom error handling - specification. Verify that application error page is loaded when error occurred', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -23,6 +24,7 @@ describe('Custom error handling - specification. Verify that application error p
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_WITH_ERROR);
             // 1. Open new wizard for a site:
@@ -45,7 +47,7 @@ describe('Custom error handling - specification. Verify that application error p
             // 6. Verify that 'Preview' button is disabled in the browse panel toolbar:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.pause(1000);
-            await contentBrowsePanel.waitForPreviewButtonDisabled();
+            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
         });
 
     it(`GIVEN existing site(controller has a error) WHEN the site has been opened in draft THEN expected error page should be loaded in the browser page`,

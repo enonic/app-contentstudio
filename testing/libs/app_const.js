@@ -498,4 +498,16 @@ module.exports = Object.freeze({
         MEDIA: 'Media',
         JSON: 'JSON'
     },
+    LIVE_VIEW_IFRAME_CLASS: {
+        IMAGE: 'image',
+        APPLICATION: 'application',
+    },
+    LIVE_VIEW_JSON_KEY: {
+        NAME: '_name',
+        DISPLAY_NAME: 'displayName',
+        PATH: '_path',
+        CREATOR: 'creator',
+        MODIFIER: 'modifier',
+
+    }
 });
