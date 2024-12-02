@@ -12,7 +12,7 @@ import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/appli
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {GetWidgetsByInterfaceRequest} from './resource/GetWidgetsByInterfaceRequest';
-import {Widget, WidgetConfig} from '@enonic/lib-admin-ui/content/Widget';
+import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {UriHelper} from './rendering/UriHelper';
 import {WidgetHelper} from './util/WidgetHelper';
 import {ContentAppContainer} from './ContentAppContainer';
@@ -98,7 +98,7 @@ export class AppWrapper
             .setWidgetDescriptorKey(`${CONFIG.getString('appId')}:main`)
             .setDisplayName(i18n('app.admin.widget.main'))
             .setUrl(UrlAction.BROWSE)
-            .setConfig(new WidgetConfig().setContext('project'))
+            .setContext('project')
             .build();
     }
 
