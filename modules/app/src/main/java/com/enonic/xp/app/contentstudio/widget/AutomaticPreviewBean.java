@@ -43,7 +43,11 @@ public class AutomaticPreviewBean
 
     public Object renderByInterface( final String interfaceName )
     {
-        final PortalRequestMapper portalRequestMapper = new PortalRequestMapper( this.portalRequestSupplier.get() );
+        final PortalRequest portalRequest = this.portalRequestSupplier.get();
+        // Add automatic flag to the request parameters for other widgets
+        // to know if they were called directly or not
+        portalRequest.getParams().put( "auto", "true" );
+        final PortalRequestMapper portalRequestMapper = new PortalRequestMapper( portalRequest );
 
         final ScriptExports matchingScript = this.widgetDescriptorSupplier.get()
             .getByInterfaces( interfaceName ).stream()
