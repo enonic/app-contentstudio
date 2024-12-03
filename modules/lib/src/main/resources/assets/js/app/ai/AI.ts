@@ -112,7 +112,9 @@ export class AI {
         AiContentOperatorDialogHiddenEvent.on(this.handleDialogClosedEvent);
         AiContentOperatorInteractionEvent.on(this.handleInteractionEvent);
 
-        this.getContentOperator()?.setup({serviceUrl: CONFIG.getString('services.aiContentOperatorServiceUrl')});
+        this.getContentOperator()?.setup({
+            wsServiceUrl: CONFIG.getString('services.aiContentOperatorWsServiceUrl')
+        });
         this.getTranslator()?.setup({
             restServiceUrl: CONFIG.getString('services.aiTranslatorRestServiceUrl'),
             wsServiceUrl: CONFIG.getString('services.aiTranslatorWsServiceUrl')
