@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
@@ -156,7 +156,7 @@ export class ContentBrowsePanel
         this.contextMenu = new TreeGridContextMenu(this.treeActions);
         this.keyNavigator = new SelectableTreeListBoxKeyNavigator(this.selectionWrapper);
 
-        const panel =  new SelectableListBoxPanel(this.selectionWrapper, this.toolbar);
+        const panel = new SelectableListBoxPanel(this.selectionWrapper, this.toolbar);
         panel.addClass('content-selectable-list-box-panel');
 
         return panel;
@@ -166,12 +166,13 @@ export class ContentBrowsePanel
         return this.treeActions;
     }
 
-    getNonToolbarActions(): Action[] {
-        return this.getBrowseActions().getPublishActions();
-    }
-
-    getToggleSearchAction(): Action {
-        return this.getBrowseActions().getToggleSearchPanelAction();
+    getActions(): Action[] {
+        return [
+            ...super.getActions(),
+            ...this.getPreviewPanel().getActions(),
+            ...this.getBrowseActions().getPublishActions(),
+            this.getBrowseActions().getToggleSearchPanelAction()
+        ];
     }
 
     protected createToolbar(): ContentBrowseToolbar {
@@ -251,7 +252,7 @@ export class ContentBrowsePanel
         });
 
         SearchAndExpandItemEvent.on((event: SearchAndExpandItemEvent) => {
-           const contentId: ContentId = event.getContentId();
+            const contentId: ContentId = event.getContentId();
 
             if (this.toolbar.getSelectionPanelToggler().isActive()) {
                 this.toolbar.getSelectionPanelToggler().setActive(false);
@@ -442,7 +443,7 @@ export class ContentBrowsePanel
 
     private deleteTreeItems(toDeleteItems: DeletedContentItem[]): void {
         const itemsToDeselect = toDeleteItems.map(toDeleteItem => ContentSummaryAndCompareStatus.fromContentSummary(
-                new ContentSummaryBuilder().setId(toDeleteItem.id.toString()).build()));
+            new ContentSummaryBuilder().setId(toDeleteItem.id.toString()).build()));
         this.selectionWrapper.deselect(itemsToDeselect);
 
         toDeleteItems.forEach((toDeleteItem) => {
