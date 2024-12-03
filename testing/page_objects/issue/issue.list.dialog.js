@@ -159,7 +159,7 @@ class IssuesListDialog extends Page {
             let optionXpath = xpath.typeFilterOption(option);
             await this.waitForElementDisplayed(optionXpath, appConst.shortTimeout);
             await this.clickOnElement(optionXpath);
-            return this.pause(300);
+            return await this.pause(300);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("issue_list"));
             throw new Error("Issue list dialog  " + err);
