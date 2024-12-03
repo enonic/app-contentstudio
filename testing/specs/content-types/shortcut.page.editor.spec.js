@@ -59,9 +59,8 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             await studioUtils.saveScreenshot('preview_not_available_shortcut');
             // 2. Verify that 'Preview not available' is displayed in Preview panel
             await contentItemPreviewPanel.waitForPreviewNotAvailAbleMessageDisplayed();
-            await studioUtils.saveScreenshot('shortcut_target_site_with_controller_preview_btn_enabled');
-            // 3. 'Preview' button should be enabled in the Browse Panel toolbar:
-            await contentBrowsePanel.waitForPreviewButtonEnabled();
+            // 3. 'Preview' button should be enabled in the ItemPreviewPanel toolbar:
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
         });
 
     // Verifies - Page Editor should not display target content for a shortcut #6619

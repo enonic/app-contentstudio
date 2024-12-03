@@ -24,7 +24,7 @@ const XPATH = {
     checkedRowLi: `//div[contains(@class,'checkbox-left selected checked')]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
     hideSearchPanelButton: "//span[contains(@class, 'hide-filter-panel-button')]",
-    showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
+    showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",//'Assigned to Me' or 'Show Issues'
     createIssueMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Issue...']",
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
     requestPublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Request Publish']",
