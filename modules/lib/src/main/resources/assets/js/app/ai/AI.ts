@@ -349,14 +349,12 @@ export class AI {
         }
     }
 
-    private getAiHelperByPath(pathWithSlashed: string): AiHelper | undefined {
-        const path = this.replaceSlashesWithDots(pathWithSlashed);
-
+    private getAiHelperByPath(path: string): AiHelper | undefined {
         if (this.isXDataPath(path)) {
             return this.getAiHelperByXData(path);
         }
 
-        return AiHelper.getAiHelpers().find((helper: AiHelper) => helper.getDataPath().toString() === path);
+        return AiHelper.getAiHelpers().find((helper: AiHelper) => helper.getDataPath() === path);
     }
 
     private handleFieldUpdate(path: string, text: string): void {
@@ -390,21 +388,21 @@ export class AI {
     }
 
     private getXData(path: string): { xDataStepForm: XDataWizardStepForm, xDataPath: PropertyPath } | undefined {
-        const pathParts = path.split('.');
+        const pathParts = path.split('/');
         const appName = pathParts[1];
         const xDataName = pathParts[2];
-        const key = `${appName.replace(/-/g, '.')}:${xDataName}`;
+        const key = `${appName.replace(/[/-]/g, '.')}:${xDataName}`;
         const xDataStepForm = XDataWizardStepForm.getXDataWizardStepForm(key);
 
         return xDataStepForm ? {xDataStepForm, xDataPath: PropertyPath.fromString(`.${pathParts.slice(3).join('.')}`)} : undefined;
     }
 
     private isHelperForXData(helper: AiHelper, xData: { xDataStepForm: XDataWizardStepForm, xDataPath: PropertyPath }): boolean {
-        return xData.xDataStepForm.contains(helper.getDataPathElement()) && helper.getDataPath().equals(xData.xDataPath);
+        return xData.xDataStepForm.contains(helper.getDataPathElement()) && helper.getPropertyPath().equals(xData.xDataPath);
     }
 
     private handleXDataEvent(path: string, text: string): void {
-        const xData = this.getXData(this.replaceSlashesWithDots(path));
+        const xData = this.getXData(path);
         const prop = xData?.xDataStepForm.getData().getRoot().getPropertyByPath(xData.xDataPath);
         this.updateProperty(prop, text);
     }
