@@ -36,6 +36,7 @@ export class ContentItemPreviewPanel
     protected debouncedSetItem: (item: ViewItem) => void;
     protected readonly contentRootPath: string;
     private previewHelper: PreviewActionHelper;
+    private renderable: Promise<boolean>;
 
     constructor(contentRootPath?: string) {
         super('content-item-preview-panel');
@@ -76,10 +77,10 @@ export class ContentItemPreviewPanel
         return item as ContentSummaryAndCompareStatus;
     }
 
-    protected doSetItem(item: ViewItem, force: boolean = false) {
+    protected async doSetItem(item: ViewItem, force: boolean = false) {
         const content = this.viewItemToContent(item);
 
-        if (this.isPreviewUpdateNeeded(content, force)) {
+        if (await this.isPreviewUpdateNeeded(content, force)) {
             this.update(content);
         }
 
@@ -87,8 +88,8 @@ export class ContentItemPreviewPanel
         this.item = item;
     }
 
-    public isPreviewUpdateNeeded(item: ContentSummaryAndCompareStatus, force?: boolean): boolean {
-        return !this.skipNextSetItemCall && this.isItemAllowsUpdate(item, force);
+    public async isPreviewUpdateNeeded(item: ContentSummaryAndCompareStatus, force?: boolean): Promise<boolean> {
+        return !this.skipNextSetItemCall && (this.isItemAllowsUpdate(item, force) || this.isRenderable());
     }
 
     private isItemAllowsUpdate(item: ContentSummaryAndCompareStatus, force?: boolean): boolean {
@@ -110,7 +111,32 @@ export class ContentItemPreviewPanel
         this.fetchPreviewForPath(contentSummary);
     }
 
+    private defer<T>() {
+        const deferred: {
+            promise: Promise<T>,
+            resolve: (value: T | PromiseLike<T>) => void,
+            reject: (reason?: unknown) => void,
+        } = {
+            promise: null,
+            resolve: null,
+            reject: null,
+        };
+        deferred.promise = new Promise<T>((resolve, reject) => {
+            deferred.resolve = resolve;
+            deferred.reject = reject;
+        })
+        return deferred;
+    }
+
+    public isRenderable(): Promise<boolean> {
+        return this.renderable;
+    }
+
     private async fetchPreviewForPath(summary: ContentSummary): Promise<void> {
+
+        const deferred = this.defer<boolean>();
+        this.renderable = deferred.promise;
+
         const previewWidget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
         if (!previewWidget || !summary) {
             this.setPreviewType(PREVIEW_TYPE.EMPTY);
@@ -122,8 +148,10 @@ export class ContentItemPreviewPanel
         return fetch(this.previewHelper.getUrl(summary, previewWidget), {method: 'HEAD'})
             .then((response) => {
                 if (this.isResponseOk(response, previewWidget)) {
+                    deferred.resolve(true);
                     return this.handlePreviewSuccess(response);
                 } else {
+                    deferred.resolve(false);
                     return this.handlePreviewFailure(response);
                 }
             })
