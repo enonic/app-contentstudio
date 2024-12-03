@@ -118,6 +118,15 @@ export class AI {
             wsServiceUrl: CONFIG.getString('services.aiTranslatorWsServiceUrl')
         });
 
+        ProjectContext.get().whenInitialized(() => {
+            new AiUpdateDataEvent({language: this.createContentLanguage()}).fire();
+
+            const tag = ProjectContext.get().getProject().getLanguage();
+            void new GetLocalesRequest().setSearchQuery(tag).sendAndParse().then((locales) => {
+                this.setLocales(locales);
+            }).catch(DefaultErrorHandler.handle);
+        });
+
         void new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             const currentUser = loginResult.getUser();
             const fullName = currentUser.getDisplayName();
@@ -127,9 +136,7 @@ export class AI {
             new AiContentOperatorConfigureEvent({user}).fire();
         }).catch(DefaultErrorHandler.handle);
 
-        new GetLocalesRequest().sendAndParse().then((locales) => {
-            this.setLocales(locales);
-        }).catch(DefaultErrorHandler.handle);
+
     }
 
     static get(): AI {
@@ -296,11 +303,11 @@ export class AI {
     }
 
     private createContentLanguage(): ContentLanguage | undefined {
-        if (!this.content) {
+        const tag = ProjectContext.get().getProject().getLanguage() ?? this.content?.getLanguage();
+        if (!tag) {
             return;
         }
 
-        const tag = this.content.getLanguage();
         const locale = this.locales?.find(l => l.getTag() === tag);
         const name = locale ? locale.getDisplayName() : tag;
 
