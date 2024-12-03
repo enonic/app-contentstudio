@@ -7,6 +7,9 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {PreviewActionHelper} from '../action/PreviewActionHelper';
 import {EmulatorDropdown} from './toolbar/EmulatorDropdown';
+import {AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {
@@ -52,8 +55,8 @@ export class ContentItemPreviewToolbar
         return this.widgetSelector;
     }
 
-    public getPreviewAction(): Action {
-        return this.previewButton.getAction();
+    public getPreviewAction(): WidgetPreviewAction {
+        return this.previewButton.getAction() as WidgetPreviewAction;
     }
 
     protected foldOrExpand(): void {
@@ -61,16 +64,22 @@ export class ContentItemPreviewToolbar
     }
 }
 
-class WidgetPreviewAction
+export class WidgetPreviewAction
     extends Action {
     private toolbar: ContentItemPreviewToolbar;
     private helper: PreviewActionHelper;
 
     constructor(toolbar: ContentItemPreviewToolbar) {
-        super();
+        super(i18n('action.preview'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
         this.toolbar = toolbar;
         this.helper = new PreviewActionHelper();
         this.onExecuted(this.handleExecuted.bind(this));
+
+        this.setWcagAttributes({
+            role: AriaRole.BUTTON,
+            tabbable: true,
+            ariaLabel: i18n('action.preview')
+        });
     }
 
     protected handleExecuted() {

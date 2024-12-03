@@ -1,9 +1,9 @@
-import * as Q from 'q';
+import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
-import {ContentItemPreviewToolbar} from './ContentItemPreviewToolbar';
+import {ContentItemPreviewToolbar, WidgetPreviewAction} from './ContentItemPreviewToolbar';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {EmulatedEvent} from '../event/EmulatedEvent';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
@@ -16,6 +16,7 @@ import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAnd
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {ContentSummary} from '../content/ContentSummary';
 import {PreviewActionHelper} from '../action/PreviewActionHelper';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 enum PREVIEW_TYPE {
     WIDGET,
@@ -290,7 +291,7 @@ export class ContentItemPreviewPanel
     }
 
     private handlePreviewSuccess(response: Response) {
-        this.getToolbar().getPreviewAction().setEnabled(true);
+        this.getPreviewAction().setEnabled(true);
         this.setPreviewType(PREVIEW_TYPE.WIDGET);
 
         const contentType = response.headers.get('content-type');
@@ -305,7 +306,7 @@ export class ContentItemPreviewPanel
 
     private handlePreviewFailure(response?: Response): void {
 
-        this.getToolbar().getPreviewAction().setEnabled(false);
+        this.getPreviewAction().setEnabled(false);
 
         const statusCode = response.status;
         if (statusCode > 0) {
@@ -342,6 +343,17 @@ export class ContentItemPreviewPanel
 
     public isMaskOn(): boolean {
         return this.mask.isVisible();
+    }
+
+    getActions(): Action[] {
+        return [
+            ...super.getActions(),
+            this.getPreviewAction()
+        ];
+    }
+
+    private getPreviewAction(): WidgetPreviewAction {
+        return this.getToolbar().getPreviewAction();
     }
 
     private isResponseOk(response: Response, previewWidget: Widget) {
