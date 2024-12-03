@@ -1,3 +1,3 @@
 export interface EnonicAiContentOperatorSetupData {
-    serviceUrl: string;
+    wsServiceUrl: string;
 }
