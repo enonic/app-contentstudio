@@ -32,7 +32,6 @@ import {ContextView} from '../view/context/ContextView';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
 import {MovedContentItem} from './MovedContentItem';
 import {ContentQuery} from '../content/ContentQuery';
-import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {ContentItemPreviewPanel} from '../view/ContentItemPreviewPanel';
 import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
@@ -651,16 +650,7 @@ export class ContentBrowsePanel
     protected updateActionsAndPreview(): void {
         this.browseActionsAndPreviewUpdateRequired = false;
 
-        const selectedItem: ContentSummaryAndCompareStatus = this.selectionWrapper.getSelectedItems().pop();
-
-        if (selectedItem) {
-            new IsRenderableRequest(selectedItem.getContentSummary()).sendAndParse().then((statusCode: number) => {
-                this.treeListBox.getItem(selectedItem.getId())?.setRenderable(statusCode === StatusCode.OK);
-                super.updateActionsAndPreview();
-            }).catch(DefaultErrorHandler.handle);
-        } else {
-            super.updateActionsAndPreview();
-        }
+        super.updateActionsAndPreview();
     }
 
     protected togglePreviewPanelDependingOnScreenSize(item: ResponsiveItem): void {
