@@ -115,14 +115,14 @@ describe('Text Component with CKE - insert link and table specification', functi
 
     it(`GIVEN site is selected WHEN 'Preview' button has been pressed AND inserted link has been clicked THEN 'Enonic' site should be loaded in the page`,
         async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select the site and click on Preview button:
             await studioUtils.findAndSelectItem(SITE.displayName);
-            await contentBrowsePanel.clickOnPreviewButton();
+            await contentItemPreviewPanel.clickOnPreviewButton();
             // 2. Switch to the new browser-tab and verify the link:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             await studioUtils.clickOnElement('a=test');
-            await contentBrowsePanel.pause(2000);
+            await contentItemPreviewPanel.pause(2000);
             let title = await studioUtils.getTitle();
             await studioUtils.saveScreenshot('site_preview_button_clicked');
             assert.equal(title, 'Google', 'expected title should be loaded');
