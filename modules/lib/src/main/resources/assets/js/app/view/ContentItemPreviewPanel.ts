@@ -36,7 +36,7 @@ export class ContentItemPreviewPanel
     protected debouncedSetItem: (item: ViewItem) => void;
     protected readonly contentRootPath: string;
     private previewHelper: PreviewActionHelper;
-    private renderable: Promise<boolean>;
+    private renderable: Q.Promise<boolean>;
 
     constructor(contentRootPath?: string) {
         super('content-item-preview-panel');
@@ -111,30 +111,13 @@ export class ContentItemPreviewPanel
         this.fetchPreviewForPath(contentSummary);
     }
 
-    private defer<T>() {
-        const deferred: {
-            promise: Promise<T>,
-            resolve: (value: T | PromiseLike<T>) => void,
-            reject: (reason?: unknown) => void,
-        } = {
-            promise: null,
-            resolve: null,
-            reject: null,
-        };
-        deferred.promise = new Promise<T>((resolve, reject) => {
-            deferred.resolve = resolve;
-            deferred.reject = reject;
-        })
-        return deferred;
-    }
-
-    public isRenderable(): Promise<boolean> {
+    public isRenderable(): Q.Promise<boolean> {
         return this.renderable;
     }
 
     private async fetchPreviewForPath(summary: ContentSummary): Promise<void> {
 
-        const deferred = this.defer<boolean>();
+        const deferred = Q.defer<boolean>();
         this.renderable = deferred.promise;
 
         const previewWidget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
