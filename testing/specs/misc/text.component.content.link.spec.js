@@ -11,6 +11,7 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertLinkDialog = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
 const appConst = require('../../libs/app_const');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('Text Component with CKE - insert content-link specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -60,10 +61,10 @@ describe('Text Component with CKE - insert content-link specification', function
 
     it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN content-link should be present in the page`,
         async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select the site and click on Preview button:
             await studioUtils.findAndSelectItem(SITE.displayName);
-            await contentBrowsePanel.clickOnPreviewButton();
+            await contentItemPreviewPanel.clickOnPreviewButton();
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             // 2. Verify the link in the page:
             let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);

@@ -51,11 +51,13 @@ class IssuesListDialog extends Page {
         return xpath.container + lib.CANCEL_BUTTON_TOP;
     }
 
-    waitForDialogOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot("err_load_tasks_list_dlg");
-            throw new Error("Issues list dialog is not loaded in " + appConst.mediumTimeout)
-        })
+    async waitForDialogOpened() {
+        try {
+            await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_issue_list_dlg');
+            throw new Error(`Issues list dialog is not loaded screenshot: ${screenshot} ` + err);
+        }
     }
 
     isTypeFilterSelectorDisplayed() {
@@ -317,4 +319,5 @@ class IssuesListDialog extends Page {
     }
 }
 
-module.exports = IssuesListDialog;
+module
+    .exports = IssuesListDialog;
