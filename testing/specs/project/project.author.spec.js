@@ -216,7 +216,6 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
-            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             let issueListDialog = new IssueListDialog();
             // 1. Do log in with the user-author and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
@@ -230,6 +229,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await createRequestPublishDialog.clickOnCreateRequestButton();
             // 4. Verify that Create Request dialog closes:
             await publishRequestDetailsDialog.waitForClosed();
+            await contentBrowsePanel.waitForNotificationMessage()
             // 5. Click on issue-button and open the request:
             await contentBrowsePanel.clickOnShowIssuesListButton();
             await issueListDialog.waitForDialogOpened();
