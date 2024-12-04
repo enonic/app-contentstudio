@@ -310,7 +310,7 @@ export class HtmlArea
         };
 
         const editorReadyHandler = (eventInfo: CKEDITOR.eventInfo) => {
-            this.setEditorContent(textAreaWrapper.findChildById(id) as TextArea, value);
+            this.setEditorContent(textAreaWrapper.findChildById(id) as TextArea, value, true);
             const editor = this.editors.find((editor: HtmlAreaOccurrenceInfo) => editor.id === id);
 
             if (editor && !this.enabled) {
@@ -485,7 +485,7 @@ export class HtmlArea
         }
     }
 
-    private setEditorContent(textArea: TextArea, value: string): void {
+    private setEditorContent(textArea: TextArea, value: string, silent?: boolean): void {
         const editorId: string = textArea.getId();
 
         if (HtmlEditor.exists(editorId)) {
@@ -494,7 +494,7 @@ export class HtmlArea
             // invoke setData only if data changed
             if (content !== currentData) {
                 const afterDataSetCallback = () => {
-                    textArea.setValue(HtmlEditor.getData(editorId), true, false);
+                    textArea.setValue(HtmlEditor.getData(editorId), silent, false);
                 };
 
                 HtmlEditor.setData(editorId, content, afterDataSetCallback);
