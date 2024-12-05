@@ -37,7 +37,7 @@ export class ContentItemPreviewPanel
     protected debouncedSetItem: (item: ViewItem) => void;
     protected readonly contentRootPath: string;
     private previewHelper: PreviewActionHelper;
-    private renderable: Q.Promise<boolean>;
+    private itemRenderable: Q.Promise<boolean>;
 
     constructor(contentRootPath?: string) {
         super('content-item-preview-panel');
@@ -89,8 +89,14 @@ export class ContentItemPreviewPanel
         this.item = item;
     }
 
-    public async isPreviewUpdateNeeded(item: ContentSummaryAndCompareStatus, force?: boolean): Promise<boolean> {
-        return !this.skipNextSetItemCall && (this.isItemAllowsUpdate(item, force) || this.isRenderable());
+    public isPreviewUpdateNeeded(item: ContentSummaryAndCompareStatus, force?: boolean): Q.Promise<boolean> {
+        if (this.skipNextSetItemCall) {
+            return Q(false);
+        }
+        if (this.isItemAllowsUpdate(item, force)) {
+            return Q(true);
+        }
+        return this.isItemRenderable();
     }
 
     private isItemAllowsUpdate(item: ContentSummaryAndCompareStatus, force?: boolean): boolean {
@@ -112,14 +118,14 @@ export class ContentItemPreviewPanel
         this.fetchPreviewForPath(contentSummary);
     }
 
-    public isRenderable(): Q.Promise<boolean> {
-        return this.renderable;
+    public isItemRenderable(): Q.Promise<boolean> {
+        return this.itemRenderable;
     }
 
     private async fetchPreviewForPath(summary: ContentSummary): Promise<void> {
 
         const deferred = Q.defer<boolean>();
-        this.renderable = deferred.promise;
+        this.itemRenderable = deferred.promise;
 
         const previewWidget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
         if (!previewWidget || !summary) {
