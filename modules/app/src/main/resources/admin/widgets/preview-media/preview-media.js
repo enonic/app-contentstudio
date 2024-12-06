@@ -1,6 +1,7 @@
 /*global app, resolve*/
 
 const widgetLib = require('/lib/export/widget');
+const i18n = require('/lib/xp/i18n');
 
 const bean = __.newBean('com.enonic.xp.app.contentstudio.widget.MediaRenderingBean');
 
@@ -10,27 +11,18 @@ exports.get = function (req) {
     try {
         params = widgetLib.validateParams(req.params);
     } catch (e) {
-        return {
-            status: 400,
-            contentType: 'text/plain',
-            body: e.message
-        };
+        return widgetLib.errorResponse(400, [i18n.localize({key: 'widget.liveview.badArguments'}), e.message]);
     }
 
     if (!exports.canRender(req)) {
         // needed for the head request,
         // return 418 if not able to render
-        log.info('Media [GET] can\'t render: ' + 418);
+        log.debug('Media [GET] can\'t render: 418');
 
-        return {
-            status: 418,
-            contentType: 'text/plain',
-            body: 'Cannot render media'
-        }
+        return widgetLib.errorResponse(418, [i18n.localize({key: 'widget.liveview.media.cantRender'})]);
     }
 
     try {
-        log.info('Media [GET]: ' + params.id + ', type: ' + params.type);
         let response;
 
         if (bean.isImageContent(params.type)) {
@@ -39,16 +31,12 @@ exports.get = function (req) {
             response = __.toNativeObject(bean.media(params.id, params.repository, params.branch));
         }
 
-        log.info('Media [GET] response: ' + response.status + ', ' + response.mimeType + '\n' + JSON.stringify(response.headers, null, 2));
+        log.debug(`Media [GET] response: ${response.status} - ${response.mimeType}\n${JSON.stringify(response.headers, null, 2)}`);
 
         return response;
     } catch (e) {
-        log.error('Media [GET] error: ' + e.message);
-        return {
-            status: 500,
-            contentType: 'text/plain',
-            body: 'Failed to render media: ' + e.message
-        }
+        log.error(`Media [GET] error: ${e.message}`);
+        return widgetLib.errorResponse(500, [i18n.localize({key: 'widget.liveview.media.error'}), e.message]);
     }
 }
 
@@ -58,7 +46,7 @@ exports.canRender = function (req) {
 
         const canRender = __.toNativeObject(bean.canRender(params.repository, params.branch, params.id));
 
-        log.info('Media [CAN_RENDER]: ' + canRender);
+        log.debug(`Media [CAN_RENDER]: ${canRender}`);
 
         return canRender;
     } catch (e) {

@@ -1,6 +1,7 @@
 /*global app, resolve*/
 
 const widgetLib = require('/lib/export/widget');
+const i18n = require('/lib/xp/i18n');
 
 exports.get = function (req) {
 
@@ -8,29 +9,21 @@ exports.get = function (req) {
     try {
         params = widgetLib.validateParams(req.params);
     } catch (e) {
-        return {
-            status: 400,
-            contentType: 'text/plain',
-            body: e.message
-        };
+        return widgetLib.errorResponse(400, [i18n.localize({key: 'widget.liveview.badArguments'}), e.message]);
     }
 
     if (!exports.canRender(req)) {
         // needed for the head request,
         // return 418 if not able to render
-        log.info('Json [GET] can\'t render: ' + 418);
+        log.debug('Json [GET] can\'t render: 418');
 
-        return {
-            status: 418,
-            contentType: 'text/plain',
-            body: 'Cannot render json'
-        }
+        return widgetLib.errorResponse(418, [i18n.localize({key: 'widget.liveview.json.cantRender'})]);
     }
 
     try {
         const content = widgetLib.fetchContent(params.repository, params.branch, params.id || params.path);
 
-        log.info('Json [GET] exists: ' + !!content);
+        log.debug('Json [GET] exists: ' + !!content);
 
         if (content) {
             return {
@@ -43,18 +36,11 @@ exports.get = function (req) {
                 body: buildBody(content)
             };
         } else {
-            return {
-                status: 404,
-                contentType: 'text/plain',
-                body: 'Content not found'
-            };
+            return widgetLib.errorResponse(404, 'Content not found');
         }
     } catch (e) {
-        return {
-            status: 500,
-            contentType: 'text/plain',
-            body: 'Failed to render json: ' + e.message
-        }
+        log.error(`Json [GET] error: ${e.message}`);
+        return widgetLib.errorResponse(500, [i18n.localize({key: 'widget.liveview.json.error'}), e.message]);
     }
 }
 
@@ -65,10 +51,11 @@ exports.canRender = function (req) {
         const content = widgetLib.fetchContent(params.repository, params.branch, params.id || params.path);
         const canRender = !!content;
 
-        log.info('Json [CAN_RENDER]: ' + canRender);
+        log.debug(`Json [CAN_RENDER]: ${canRender}`);
 
         return canRender;
     } catch (e) {
+        log.error(`Json [CAN_RENDER] error: ${e.message}`);
         return false;
     }
 }
