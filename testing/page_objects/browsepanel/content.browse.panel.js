@@ -388,6 +388,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForSortButtonDisabled() {
         try {
+            await this.waitForElementDisplayed(this.sortButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.sortButton, appConst.mediumTimeout)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_sort_disabled_button');
