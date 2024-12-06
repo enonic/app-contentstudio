@@ -3,6 +3,8 @@ const portalLib = require('/lib/xp/portal');
 const contentLib = require('/lib/xp/content');
 const httpClient = require('/lib/http-client');
 
+const WIDGET_HEADER_NAME = 'enonic-widget-data';
+
 function validateParams(params) {
     const id = params.contentId;
     const path = params.contentPath;
@@ -13,12 +15,26 @@ function validateParams(params) {
 
     const idOrPath = id || path;
     if (!idOrPath || !repository) {
-        const text = 'Missing required parameter: ' + (!idOrPath ? 'contentId or path' : 'repo');
+        const text = `Missing required parameter: ${!idOrPath ? 'contentId or path' : 'repo'}`;
         log.error(text);
         throw new Error(text);
     }
 
     return {id, path, type, branch, repository, auto};
+}
+
+function errorResponse(status, messages) {
+    const messagesArray = Array.isArray(messages) ? messages : [messages];
+    return {
+        status,
+        contentType: 'application/json',
+        body: messagesArray.join(': '),
+        headers: {
+            [WIDGET_HEADER_NAME]: JSON.stringify({
+                messages: messagesArray
+            })
+        }
+    }
 }
 
 function switchContext(repository, branch, successCallback, errorCallback) {
@@ -52,11 +68,11 @@ function fetchContent(repository, branch, key) {
                 return portalLib.getContent();
             }
         } catch (e) {
-            log.error('Failed to fetch content: ' + e.message);
+            log.error(`Failed to fetch content: ${e.message}`);
             return null;
         }
     }, function (e) {
-        log.error('Failed to switch context: ' + e.message);
+        log.error(`Failed to switch context: ${e.message}`);
         throw e;
     });
 }
@@ -75,6 +91,7 @@ function fetchHttp(url, method, headers) {
     });
 }
 
+exports.errorResponse = errorResponse;
 exports.validateParams = validateParams;
 exports.switchContext = switchContext;
 exports.fetchContent = fetchContent;
