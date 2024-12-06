@@ -29,6 +29,8 @@ enum PREVIEW_TYPE {
 export class ContentItemPreviewPanel
     extends ItemPreviewPanel<ViewItem> {
 
+    private WIDGET_HEADER_NAME = 'enonic-widget-data';
+
     protected item: ViewItem;
     protected skipNextSetItemCall: boolean = false;
     protected previewType: PREVIEW_TYPE;
@@ -265,7 +267,7 @@ export class ContentItemPreviewPanel
         }
     }
 
-    private setPreviewType(previewType: PREVIEW_TYPE) {
+    private setPreviewType(previewType: PREVIEW_TYPE, messages?: string[]) {
 
         if (this.previewType !== previewType) {
 
@@ -277,19 +279,17 @@ export class ContentItemPreviewPanel
                 break;
             }
             case PREVIEW_TYPE.EMPTY: {
-                this.showPreviewMessages([i18n('field.preview.notAvailable')]);
+                this.showPreviewMessages(messages || [i18n('field.preview.notAvailable')]);
                 break;
             }
-            case PREVIEW_TYPE.FAILED: {
-                this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.failed.description')]);
-                break;
-            }
+            case PREVIEW_TYPE.FAILED:
             case PREVIEW_TYPE.MISSING: {
-                this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
+                this.showPreviewMessages(messages || [i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
                 break;
             }
             case PREVIEW_TYPE.NOT_CONFIGURED: {
-                this.showPreviewMessages([i18n('field.preview.notConfigured'), i18n('field.preview.notConfigured.description')]);
+                this.showPreviewMessages(
+                    messages || [i18n('field.preview.notConfigured'), i18n('field.preview.notConfigured.description')]);
                 break;
             }
             }
@@ -321,21 +321,24 @@ export class ContentItemPreviewPanel
         this.frame.setSrc(response.url);
     }
 
-    private handlePreviewFailure(response?: Response): void {
+    private handlePreviewFailure(response?: Response) {
 
         this.getPreviewAction().setEnabled(false);
 
         const statusCode = response.status;
         if (statusCode > 0) {
+
+            const messages = this.extractWidgetMessages(response);
+
             switch (statusCode) {
             case StatusCode.NOT_FOUND:
-                this.setPreviewType(PREVIEW_TYPE.EMPTY);
+                this.setPreviewType(PREVIEW_TYPE.EMPTY, messages);
                 break;
             case StatusCode.I_AM_A_TEAPOT:
-                this.setPreviewType(PREVIEW_TYPE.NOT_CONFIGURED);
+                this.setPreviewType(PREVIEW_TYPE.NOT_CONFIGURED, messages);
                 break;
             default:
-                this.setPreviewType(PREVIEW_TYPE.FAILED);
+                this.setPreviewType(PREVIEW_TYPE.FAILED, messages);
                 break;
             }
             this.hideMask();
@@ -344,6 +347,18 @@ export class ContentItemPreviewPanel
 
         this.setPreviewType(PREVIEW_TYPE.EMPTY);
         this.hideMask();
+    }
+
+    private extractWidgetMessages(response: Response) {
+        let messages: string[];
+        try {
+            const data = response.headers.get(this.WIDGET_HEADER_NAME);
+            const json = data && JSON.parse(data);
+            messages = json && json.messages;
+        } catch (e) {
+            // default messages will be used
+        }
+        return messages;
     }
 
     public showMask() {
