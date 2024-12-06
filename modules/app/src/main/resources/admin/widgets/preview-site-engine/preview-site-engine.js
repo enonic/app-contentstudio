@@ -1,6 +1,7 @@
 /*global app, resolve*/
 
 const widgetLib = require('/lib/export/widget');
+const i18n = require('/lib/xp/i18n');
 
 const SHORTCUT_TYPE = 'base:shortcut';
 
@@ -9,40 +10,29 @@ exports.get = function (req) {
     try {
         params = widgetLib.validateParams(req.params);
     } catch (e) {
-        return {
-            status: 400,
-            contentType: 'text/plain',
-            body: e.message
-        };
+        return widgetLib.errorResponse(400, [i18n.localize({key: 'widget.liveview.badArguments'}), e.message]);
     }
 
     if (!exports.canRender(req)) {
         // needed for the head request,
         // return 418 if not able to render
-        log.info('Site [GET] can\'t render: ' + 418);
+        log.debug('Site [GET] can\'t render: 418');
 
-        return {
-            status: 418,
-            contentType: 'text/plain',
-            body: 'Cannot render site'
-        }
+        return widgetLib.errorResponse(418, [i18n.localize({key: 'widget.liveview.site.cantRender'})]);
     }
 
     try {
         const url = createUrl(req, params);
 
-        log.info('Site [GET] redirecting: ' + url);
+        log.debug(`Site [GET] redirecting: ${url}`);
 
         return {
             redirect: url,
             contentType: 'text/html',
         }
     } catch (e) {
-        return {
-            status: 500,
-            contentType: 'text/plain',
-            body: 'Failed to render site: ' + e.message
-        }
+        log.error(`Site [GET] error: ${e.message}`);
+        return widgetLib.errorResponse(500, [i18n.localize({key: 'widget.liveview.site.error'}), e.message]);
     }
 }
 
@@ -67,11 +57,11 @@ exports.canRender = function (req) {
         const canRender = (params.auto && response.status === 200)
                           || (!params.auto && response.status !== 418);
 
-        log.info('Site [CAN_RENDER]: ' + canRender);
+        log.debug(`Site [CAN_RENDER]: ${canRender}`);
 
         return canRender;
     } catch (e) {
-        log.error('Site widget canRender failed: ' + e.message);
+        log.error(`Site [CAN_RENDER] error: ${e.message}`);
         return false;
     }
 }
