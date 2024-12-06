@@ -42,7 +42,7 @@ function handleGet() {
                 collaborationUrl: portal.serviceUrl({service: 'collaboration'}),
                 appServiceUrl: portal.serviceUrl({service: 'applications'}),
                 exportServiceUrl: portal.serviceUrl({service: 'export'}),
-                aiContentOperatorServiceUrl: portal.serviceUrl({service: 'rest', application: 'com.enonic.app.ai.contentoperator'}),
+                aiContentOperatorWsServiceUrl: portal.serviceUrl({service: 'ws', application: 'com.enonic.app.ai.contentoperator', type: 'websocket'}),
                 aiTranslatorRestServiceUrl: portal.serviceUrl({service: 'rest', application: 'com.enonic.app.ai.translator'}),
                 aiTranslatorWsServiceUrl: portal.serviceUrl(
                     {service: 'ws', application: 'com.enonic.app.ai.translator', type: 'websocket'}),
