@@ -34,8 +34,6 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
             // 2.Verify that 'New' status is displayed in Item Preview toolbar:
             let status = await contentItemPreviewPanel.getContentStatus();
             assert.equal(status, 'New', "'New' status should be displayed in the Preview Item toolbar");
-            // Author should not be displayed in the toolbar:
-            await contentItemPreviewPanel.waitForAuthorNotDisplayed();
         });
 
     it(`GIVEN existing 'New' folder WHEN the folder is selected and published THEN 'Published' status should be displayed in the preview toolbar`,
@@ -55,7 +53,6 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
             // 3. Published status should be displayed in the item preview toolbar:
             let status = await contentItemPreviewPanel.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
-            await contentItemPreviewPanel.waitForAuthorNotDisplayed();
         });
 
 

@@ -75,7 +75,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
                 '100% should be selected in emulator dropdown by default');
         });
 
-    it(`WHEN a folder ans 'Site engine' have been selected THEN 'Preview' button should be disabled`,
+    it(`WHEN a folder and 'Site engine' have been selected THEN 'Preview' button should be disabled`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(FOLDER_NAME);
@@ -117,6 +117,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.HAND);
+            // Edit button should be enabled
             await contentBrowsePanel.waitForEditButtonEnabled();
             await contentBrowsePanel.waitForSortButtonDisabled();
             // New button should be disabled, because children are not allowed for images.
