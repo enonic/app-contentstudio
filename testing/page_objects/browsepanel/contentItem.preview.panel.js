@@ -4,7 +4,6 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const WidgetSelectorDropdown = require('../components/selectors/widget.selector.dropdown');
 
 const xpath = {
     container: "//div[contains(@id,'ContentItemPreviewPanel')]",
@@ -13,14 +12,10 @@ const xpath = {
     divEmulatorDropdown: "//div[contains(@id,'EmulatorDropdown')]",
     ulEmulatorListBox: "//ul[contains(@id,'EmulatorListBox')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
-    author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     issueMenuButton: `//div[contains(@id,'MenuButton')]`,
     showChangesButtonToolbar: "//button[contains(@class,'show-changes') and @title='Show changes']",
     previewNotAvailableSpan: "//div[@class='no-preview-message']//span[text()='Preview not available']",
-    issueMenuItemByName:
-        name => `//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and contains(.,'${name}')]`,
-    issueMenuButtonByName:
-        name => `//div[contains(@id,'MenuButton') and descendant::span[contains(.,'${name}')]]`,
+    noPreviewMessageSpan: "//div[@class='no-preview-message']//span",
 };
 
 class ContentItemPreviewPanel extends Page {
@@ -41,20 +36,12 @@ class ContentItemPreviewPanel extends Page {
         return xpath.toolbar + xpath.divPreviewWidgetDropdown;
     }
 
-    get issueDropdownHandle() {
-        return xpath.toolbar + xpath.issueMenuButton + lib.DROP_DOWN_HANDLE;
-    }
-
     get contentStatus() {
         return xpath.toolbar + xpath.status;
     }
 
     get previewNotAvailableMessage() {
         return xpath.container + xpath.previewNotAvailableSpan;
-    }
-
-    get author() {
-        return xpath.toolbar + xpath.author;
     }
 
     get showChangesToolbarButton() {
@@ -110,7 +97,6 @@ class ContentItemPreviewPanel extends Page {
     async waitFor404ErrorDisplayed() {
         try {
             let locator = "//h3[text()='404 - Not Found']";
-            //await this.switchToLiveViewFrame();
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_404');
@@ -120,7 +106,6 @@ class ContentItemPreviewPanel extends Page {
 
     async getJSON_info(keyText) {
         let locator = `//span[@class='key' and contains(.,'${keyText}')]/following-sibling::span[@class='string'][1]`;
-        //await this.switchToLiveViewFrame();
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
@@ -131,14 +116,9 @@ class ContentItemPreviewPanel extends Page {
         });
     }
 
-    //wait for content status cleared
+    // wait for content status cleared
     waitForStatusCleared() {
         let selector = xpath.toolbar + "//div[@class='content-status-wrapper']/span[contains(@class,'status')]";
-        return this.waitForElementNotDisplayed(selector, appConst.shortTimeout);
-    }
-
-    waitForAuthorCleared() {
-        let selector = xpath.toolbar + "//div[@class='content-status-wrapper']/span[contains(@class,'author')]";
         return this.waitForElementNotDisplayed(selector, appConst.shortTimeout);
     }
 
@@ -150,15 +130,7 @@ class ContentItemPreviewPanel extends Page {
         return await result[0].getText();
     }
 
-    async waitForAuthorNotDisplayed() {
-        try {
-            return await this.waitForElementNotDisplayed(this.author, appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_itempreview_author');
-            throw new Error(`Author should not be displayed in the item preview toolbar screenshot: ${screenshot} ` + err);
-        }
-    }
-
+    // Verifies that the element(selector) is displayed in the iframe in Preview Panel
     async waitForElementDisplayedInFrame(selector) {
         try {
             await this.switchToFrame(xpath.container + "//iframe[contains(@src,'admin/site')]");
@@ -171,6 +143,7 @@ class ContentItemPreviewPanel extends Page {
         }
     }
 
+    // Checks that the element(selector) is not displayed in the iframe in Preview Panel
     async waitForElementNotDisplayedInFrame(selector) {
         try {
             await this.switchToFrame(xpath.container + "//iframe[contains(@src,'admin/site')]");
@@ -194,19 +167,20 @@ class ContentItemPreviewPanel extends Page {
         }
     }
 
-    // switches to iframe and gets text in the panel
+    //  gets a text in the Preview panel
     async getTextInAttachmentPreview() {
         try {
-            let attachmentFrame = "//iframe[contains(@src,'/admin/rest-v2/cs/cms/default/content/content/media/')]";
-            await this.switchToFrame(attachmentFrame);
-            return await this.getText("//body/pre");
+            let textLocator = "//body/pre";
+            await this.waitForElementDisplayed(textLocator, appConst.mediumTimeout);
+            return await this.getText(textLocator);
         } catch (err) {
-            throw new Error("Content Item Preview Panel - " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_attachment_preview');
+            throw new Error(`Content Item Preview Panel - screendot:${screenshot} ` + err);
         }
     }
 
     async getNoPreviewMessage() {
-        let locator = xpath.container + "//div[@class='no-preview-message']//span";
+        let locator = xpath.container + xpath.noPreviewMessageSpan;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
@@ -228,17 +202,25 @@ class ContentItemPreviewPanel extends Page {
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Content Item preview toolbar should contain expected 'aria-label' attribute"});
     }
 
+    // returns the selected option in the 'Emulator dropdown' '100%', '375px', etc.
     async getSelectedOptionInEmulatorDropdown() {
-        let locator = this.emulatorDropdown + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
+        try {
+            let locator = this.emulatorDropdown + lib.H6_DISPLAY_NAME;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_emulator_dropdown');
+            throw new Error(`Emulator dropdown - error occurred during getting the selected option, screenshot: ${screenshot} ` + err);
+        }
     }
 
+    // Expands the emulator menu:
     async clickOnEmulatorDropdown() {
         await this.waitForElementDisplayed(this.emulatorDropdown, appConst.mediumTimeout);
         return await this.clickOnElement(this.emulatorDropdown);
     }
 
+    // Expands the emulator menu and clicks on a list-item by its name
     async selectOptionInEmulatorDropdown(optionName) {
         await this.waitForElementDisplayed(this.emulatorDropdown, appConst.mediumTimeout);
         await this.clickOnElement(this.emulatorDropdown);
@@ -247,15 +229,16 @@ class ContentItemPreviewPanel extends Page {
         return await this.clickOnElement(optionSelector);
     }
 
+    // Gets the selected option in the 'Preview dropdown' Auto, Media, etc.
     async getSelectedOptionInPreviewWidget() {
         let locator = this.previewWidgetDropdown + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
 
-    // Clicks on the dropdown handle in the 'Preview Widget dropdown' then clicks on a list-item by its name
+    // Clicks on the dropdown handle in the 'Preview dropdown' then clicks on a list-item by its name
     async selectOptionInPreviewWidget(optionName) {
-        await this.waitForElementDisplayed(this.previewWidgetDropdown, appConst.mediumTimeout);
+        await this.waitForPreviewWidgetDropdownDisplayed();
         await this.clickOnElement(this.previewWidgetDropdown);
         let optionSelector = this.previewWidgetDropdown + lib.DROPDOWN_SELECTOR.listItemByDisplayName(optionName);
         await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
@@ -266,7 +249,7 @@ class ContentItemPreviewPanel extends Page {
         return await this.waitForElementDisplayed(this.previewWidgetDropdown, appConst.mediumTimeout);
     }
 
-    async waitForPreviewWidgetDropdownNotDisplayed() {
+    async waitForPreviewDropdownNotDisplayed() {
         return await this.waitForElementNotDisplayed(this.previewWidgetDropdown, appConst.mediumTimeout);
     }
 
@@ -276,6 +259,16 @@ class ContentItemPreviewPanel extends Page {
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_preview_btn');
             throw new Error(`Preview button should not be displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    // Wait for the 'Preview' button to be displayed in the Preview Toolbar
+    async waitForPreviewButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.previewButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn');
+            throw new Error(`Preview button should be displayed, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -292,15 +285,17 @@ class ContentItemPreviewPanel extends Page {
 
     async waitForPreviewButtonDisabled() {
         try {
+            await this.waitForPreviewButtonDisplayed();
             await this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_disabled');
-            throw new Error(`Preview button should be disabled, screenshot  : ${screenshot} ` + err);
+            throw new Error(`Preview button should be displayed and disabled, screenshot  : ${screenshot} ` + err);
         }
     }
 
     async waitForPreviewButtonEnabled() {
         try {
+            await this.waitForPreviewButtonDisplayed();
             await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_disabled');
@@ -317,12 +312,14 @@ class ContentItemPreviewPanel extends Page {
         }
     }
 
+    // style for the iframe in the preview panel
     async getPreviewIframeStyle() {
         let locator = xpath.container + "//iframe";
         let classValue = await this.getAttribute(locator, 'style');
         return classValue;
     }
 
+    // return items in the expanded emulator dropdown:
     async getEmulatorResolutions() {
         let locator = xpath.divEmulatorDropdown + xpath.ulEmulatorListBox + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM +
                       lib.H6_DISPLAY_NAME;

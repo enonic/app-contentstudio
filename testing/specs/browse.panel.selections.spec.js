@@ -173,7 +173,8 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.waitForNewButtonEnabled();
             await contentBrowsePanel.waitForArchiveButtonDisabled();
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            // PreviewPanel toolbar gets not visible!
+            await contentItemPreviewPanel.waitForPreviewToolbarNotDisplayed();
             await contentBrowsePanel.waitForSortButtonDisabled();
             await contentBrowsePanel.waitForMoveButtonDisabled();
             await contentBrowsePanel.waitForEditButtonDisabled();
