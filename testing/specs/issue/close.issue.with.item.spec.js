@@ -63,8 +63,8 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             // 3. modal dialog has been closed:
             await issueDetailsDialog.clickOnCancelTopButton();
-            // 4. Verify that toolbar in ItemPreviewPanel is not displayed (the content is selected);
-            await contentItemPreviewPanel.waitForToolbarNotDisplayed();
+            // 4. Verify that toolbar in ItemPreviewPanel is displayed (the content is selected);
+            await contentItemPreviewPanel.waitForPreviewWidgetDropdownDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
