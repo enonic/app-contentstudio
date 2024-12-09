@@ -55,13 +55,14 @@ exports.get = function (req) {
 exports.canRender = function (req) {
     try {
         const params = widgetLib.validateParams(req.params);
-        const content = widgetLib.fetchContent(params.repository, params.branch, params.id || params.path);
-        const canRender = !!content && content.type.startsWith('media:');
+
+        const canRender = __.toNativeObject(bean.isCanRender(params.repository, params.branch, params.id));
 
         log.info('Media [CAN_RENDER]: ' + canRender);
 
         return canRender;
     } catch (e) {
+        log.error(`Media [CAN_RENDER] error: ${e.message}`);
         return false;
     }
 }
