@@ -2,6 +2,8 @@
 
 const widgetLib = require('/lib/export/widget');
 
+const SHORTCUT_TYPE = 'base:shortcut';
+
 exports.get = function (req) {
     let params;
     try {
@@ -49,6 +51,10 @@ exports.canRender = function (req) {
     try {
         params = widgetLib.validateParams(req.params);
     } catch (e) {
+        return false;
+    }
+
+    if (params.type === SHORTCUT_TYPE) {
         return false;
     }
 
