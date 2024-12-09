@@ -148,6 +148,7 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
+import {AiTool} from '@enonic/lib-admin-ui/ai/AiTool';
 
 export type FormContextName = 'content' | 'xdata' | 'live';
 
@@ -2822,20 +2823,23 @@ export class ContentWizardPanel
 
         const contentFormContext = ContentFormContext.create()
             .setContentTypeName(type)
-            .setAiEditable(true)
+            .setAiTools([AiTool.OPEN_AI_DIALOG, AiTool.AI_STATE])
             .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
+            .setName('data')
             .build();
 
         const xDataFormContext = ContentFormContext.create()
             .setContentTypeName(type)
-            .setAiEditable(true)
+            .setAiTools([AiTool.AI_STATE])
             .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
+            .setName('xdata')
             .build();
 
         const liveFormContext = ContentFormContext.create()
             .setContentTypeName(type)
-            .setAiEditable(false)
+            .setAiTools([AiTool.AI_STATE])
             .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
+            .setName('page')
             .build();
 
         this.formsContexts.set('content', contentFormContext);
