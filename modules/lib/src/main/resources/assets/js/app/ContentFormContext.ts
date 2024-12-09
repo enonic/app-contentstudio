@@ -115,6 +115,7 @@ export class ContentFormContext
             .setApplicationKey(this.applicationKey)
             .setFormState(this.getFormState())
             .setShowEmptyFormItemSetOccurrences(this.getShowEmptyFormItemSetOccurrences())
+            .setName(this.getName())
             .setValidationErrors(this.getValidationErrors());
     }
 
