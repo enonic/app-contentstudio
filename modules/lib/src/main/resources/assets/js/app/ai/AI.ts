@@ -39,6 +39,7 @@ import {AiContentOperatorConfigureEvent} from './event/outgoing/AiContentOperato
 import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigureEvent';
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
 import {AiAnimationHandler, RGBColor} from './ui/AiAnimationHandler';
+import {PageEventsManager} from '../wizard/PageEventsManager';
 
 declare global {
     interface Window {
@@ -234,7 +235,13 @@ export class AI {
     }
 
     private translatorStartedEventListener = (event: AiTranslatorStartedEvent) => {
-        this.getAiHelperByPath(event.path)?.setState(AiHelperState.PROCESSING);
+        const helper = this.getAiHelperByPath(event.path);
+
+        if (helper) {
+            helper.setState(AiHelperState.PROCESSING);
+        } else if (this.isPageComponentPath(event.path)) {
+            PageEventsManager.get().notifySetComponentState(ComponentPath.fromString(event.path.replace(AI.PAGE_PREFIX, '')), true);
+        }
     };
 
     private translatorCompletedEventListener = (event: AiTranslatorCompletedEvent) => {
@@ -245,6 +252,11 @@ export class AI {
             this.handleFieldUpdate(event.path, event.text);
         } else {
             helper?.setState(AiHelperState.FAILED, {text: event.text});
+        }
+
+        // Probably a text component event, and they don't have AI helpers
+        if (!helper && this.isPageComponentPath(event.path)) {
+            PageEventsManager.get().notifySetComponentState(ComponentPath.fromString(event.path.replace(AI.PAGE_PREFIX, '')), false);
         }
     };
 
@@ -361,7 +373,11 @@ export class AI {
             return this.getAiHelperByXData(path);
         }
 
-        return AiHelper.getAiHelpers().find((helper: AiHelper) => helper.getDataPath() === path);
+        if (this.isPagePath(path)) {
+            return this.getAiHelperByPage(path);
+        }
+
+        return AiHelper.getAiHelpersByGroup('data').find((helper: AiHelper) => helper.getDataPath() === path);
     }
 
     private handleFieldUpdate(path: string, text: string): void {
@@ -384,6 +400,10 @@ export class AI {
         return path.startsWith(AI.PAGE_PREFIX);
     }
 
+    private isPageComponentPath(path: string): boolean {
+        return this.isPagePath(path) && path.indexOf(AI.CONFIG_PREFIX) < 0;
+    }
+
     private isTopicPath(path: string): boolean {
         return path.startsWith(AI.TOPIC);
     }
@@ -391,7 +411,17 @@ export class AI {
     private getAiHelperByXData(path: string): AiHelper | undefined {
         const xData = this.getXData(path);
 
-        return xData?.xDataStepForm ? AiHelper.getAiHelpers().find((helper: AiHelper) => this.isHelperForXData(helper, xData)) : null;
+        return xData?.xDataStepForm ? AiHelper.getAiHelpersByGroup('xdata').find(
+            (helper: AiHelper) => this.isHelperForXData(helper, xData)) : null;
+    }
+
+    private getAiHelperByPage(path: string): AiHelper | undefined {
+        if (path.indexOf(AI.CONFIG_PREFIX) > -1) {
+            const dataPath = path.replace(AI.PAGE_PREFIX, '').split(`/${AI.CONFIG_PREFIX}`)[1];
+            return AiHelper.getAiHelpersByGroup('page').find((helper: AiHelper) => helper.getDataPath() === dataPath);
+        }
+
+        return null;
     }
 
     private getXData(path: string): { xDataStepForm: XDataWizardStepForm, xDataPath: PropertyPath } | undefined {

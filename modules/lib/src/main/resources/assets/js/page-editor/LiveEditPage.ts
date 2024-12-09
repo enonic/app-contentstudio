@@ -70,6 +70,7 @@ import {PageStateEvent} from './event/incoming/common/PageStateEvent';
 import {PageState} from '../app/wizard/page/PageState';
 import {PageBuilder} from '../app/page/Page';
 import {UpdateTextComponentViewEvent} from './event/incoming/manipulation/UpdateTextComponentViewEvent';
+import {SetComponentStateEvent} from './event/incoming/manipulation/SetComponentStateEvent';
 
 export class LiveEditPage {
 
@@ -98,6 +99,8 @@ export class LiveEditPage {
     private deselectComponentRequestedListener: (event: DeselectComponentViewEvent) => void;
 
     private editTextComponentRequestedListener: (event: EditTextComponentViewEvent) => void;
+
+    private setComponentStateEventListener: (event: SetComponentStateEvent) => void;
 
     private addItemViewRequestListener: (event: AddComponentViewEvent) => void;
 
@@ -299,6 +302,21 @@ export class LiveEditPage {
 
         EditTextComponentViewEvent.on(this.editTextComponentRequestedListener);
 
+        this.setComponentStateEventListener = (event: SetComponentStateEvent): void => {
+            const path: ComponentPath = event.getPath() ? ComponentPath.fromString(event.getPath()) : null;
+            const itemView: ItemView = path ? this.getItemViewByPath(path) : null;
+
+            if (itemView?.isText()) {
+                if (event.isProcessing()) {
+                    itemView.showLoadingSpinner();
+                } else {
+                    itemView.hideLoadingSpinner();
+                }
+            }
+        };
+
+        SetComponentStateEvent.on(this.setComponentStateEventListener);
+
         this.addItemViewRequestListener = (event: AddComponentViewEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             const type: ComponentType = ComponentType.byShortName(event.getComponentType().getShortName());
@@ -469,6 +487,8 @@ export class LiveEditPage {
         DeselectComponentViewEvent.un(this.deselectComponentRequestedListener);
 
         EditTextComponentViewEvent.un(this.editTextComponentRequestedListener);
+
+        SetComponentStateEvent.un(this.setComponentStateEventListener);
 
         AddComponentViewEvent.un(this.addItemViewRequestListener);
 
