@@ -48,6 +48,7 @@ export class ContentWizardHeader
         this.loadSpinner.hide();
         this.onRendered(() => {
             AiHelper.attach({
+                group: 'data',
                 dataPathElement: this.displayNameEl,
                 getPath: () => PropertyPath.fromString('__topic__'),
                 stateControl: {

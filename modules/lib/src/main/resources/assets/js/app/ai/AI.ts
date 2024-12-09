@@ -361,7 +361,11 @@ export class AI {
             return this.getAiHelperByXData(path);
         }
 
-        return AiHelper.getAiHelpers().find((helper: AiHelper) => helper.getDataPath() === path);
+        if (this.isPagePath(path)) {
+            return this.getAiHelperByPage(path);
+        }
+
+        return AiHelper.getAiHelpersByGroup('data').find((helper: AiHelper) => helper.getDataPath() === path);
     }
 
     private handleFieldUpdate(path: string, text: string): void {
@@ -391,7 +395,17 @@ export class AI {
     private getAiHelperByXData(path: string): AiHelper | undefined {
         const xData = this.getXData(path);
 
-        return xData?.xDataStepForm ? AiHelper.getAiHelpers().find((helper: AiHelper) => this.isHelperForXData(helper, xData)) : null;
+        return xData?.xDataStepForm ? AiHelper.getAiHelpersByGroup('xdata').find(
+            (helper: AiHelper) => this.isHelperForXData(helper, xData)) : null;
+    }
+
+    private getAiHelperByPage(path: string): AiHelper | undefined {
+        if (path.indexOf(AI.CONFIG_PREFIX) > -1) {
+            const dataPath = path.replace(AI.PAGE_PREFIX, '').split(`/${AI.CONFIG_PREFIX}`)[1];
+            return AiHelper.getAiHelpersByGroup('page').find((helper: AiHelper) => helper.getDataPath() === dataPath);
+        }
+
+        return null;
     }
 
     private getXData(path: string): { xDataStepForm: XDataWizardStepForm, xDataPath: PropertyPath } | undefined {
