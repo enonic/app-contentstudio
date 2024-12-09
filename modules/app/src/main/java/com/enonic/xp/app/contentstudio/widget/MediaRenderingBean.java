@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -68,16 +69,29 @@ public class MediaRenderingBean
 
     private Supplier<MediaInfoService> mediaInfoServiceSupplier;
 
-    private static final Set<String> MEDIA_PREVIEW_TYPES =
-        Stream.concat( ContentTypeFromMimeTypeResolver.resolveMimeTypes(
-                           ContentTypeNames.from( ContentTypeName.audioMedia(), ContentTypeName.videoMedia(),
-                                                  ContentTypeName.textMedia(), ContentTypeName.imageMedia(),
-                                                  ContentTypeName.vectorMedia() ) ).stream(),
-                       Set.of( "application/pdf", "application/postscript" ).stream() )
-            .collect( Collectors.toSet() );
+    private static final Set<String> MEDIA_ATTACHMENT_TYPES =
+        Stream.concat(
+            ContentTypeFromMimeTypeResolver.resolveMimeTypes(
+                ContentTypeNames.from( ContentTypeName.audioMedia(), ContentTypeName.videoMedia(),
+                                       ContentTypeName.documentMedia(),
+                                       ContentTypeName.textMedia(), ContentTypeName.imageMedia(),
+                                       ContentTypeName.vectorMedia() ) ).stream(),
+
+            Set.of( "application/pdf", "application/postscript", "image/webp", "image/avif",
+                    "application/json", "application/javascript", "application/ecmascript", "text/javascript",
+                    "text/html", "text/css" ).stream()
+
+        ).collect( Collectors.toSet() );
+
+    private static final Set<String> SKIP_IMAGE_MIME_TYPES = Set.of( "image/webp", "image/avif", "image/gif" );
 
     private static final ContentTypeNames IMAGE_CONTENT_TYPES =
         ContentTypeNames.from( ContentTypeName.imageMedia(), ContentTypeName.vectorMedia() );
+
+    public boolean isCanRender( final String repository, final String branch, final String contentId )
+    {
+        return runInAdminContext( repository, branch, () -> isCanRenderInContext( contentId ) );
+    }
 
     public boolean isImageContent( final String contentType )
     {
@@ -108,18 +122,8 @@ public class MediaRenderingBean
 
     public Object image( final String id, final String repository, final String branch, final Integer size, final boolean scaleWidth,
                          final boolean source, final String scale, final String filter, final boolean crop )
-        throws IOException
     {
-        final User superUser = User.create().key( PrincipalKey.ofSuperUser() ).login( PrincipalKey.ofSuperUser().getId() ).build();
-
-        final AuthenticationInfo authInfo = AuthenticationInfo.create().principals( RoleKeys.ADMIN ).user( superUser ).build();
-
-        return ContextBuilder
-            .copyOf( ContextAccessor.current() )
-            .branch( branch )
-            .repositoryId( repository )
-            .authInfo( authInfo )
-            .build().callWith( () -> serveImage( id, size, scaleWidth, source, scale, filter, crop ) );
+        return runInAdminContext( repository, branch, () -> serveImage( id, size, scaleWidth, source, scale, filter, crop ) );
     }
 
     public Object media( final String id, final String repository, final String branch )
@@ -129,6 +133,11 @@ public class MediaRenderingBean
 
     public Object media( final String id, final String repository, final String branch, final String identifier, final boolean download )
     {
+        return runInAdminContext( repository, branch, () -> serveMedia( id, identifier, download ) );
+    }
+
+    private <T> T runInAdminContext( final String repository, final String branch, Callable<T> func )
+    {
         final User superUser = User.create().key( PrincipalKey.ofSuperUser() ).login( PrincipalKey.ofSuperUser().getId() ).build();
 
         final AuthenticationInfo authInfo = AuthenticationInfo.create().principals( RoleKeys.ADMIN ).user( superUser ).build();
@@ -138,13 +147,30 @@ public class MediaRenderingBean
             .branch( branch )
             .repositoryId( repository )
             .authInfo( authInfo )
-            .build().callWith( () -> serveMedia( id, identifier, download ) );
+            .build().callWith( func );
     }
 
-    public Object serveImage( final String id, final Integer size,
-                              final boolean scaleWidth,
-                              final boolean source,
-                              final String scale, final String filter, final boolean crop )
+    private boolean isCanRenderInContext( final String contentId )
+    {
+        final Content content = contentServiceSupplier.get().getById( ContentId.from( contentId ) );
+        if ( content == null )
+        {
+            return false;
+        }
+
+        if ( IMAGE_CONTENT_TYPES.contains( content.getType() ) )
+        {
+            return true;
+        }
+
+        final Attachment attachment = resolveAttachment( null, content );
+        return ( attachment != null && MEDIA_ATTACHMENT_TYPES.contains( attachment.getMimeType() ) );
+    }
+
+    private Object serveImage( final String id, final Integer size,
+                               final boolean scaleWidth,
+                               final boolean source,
+                               final String scale, final String filter, final boolean crop )
         throws IOException
     {
         final ContentId contentId = ContentId.from( id );
@@ -282,7 +308,7 @@ public class MediaRenderingBean
         {
             final String mimeType = attachment.getMimeType();
 
-            if ( mimeType.equals( "image/gif" ) )
+            if ( SKIP_IMAGE_MIME_TYPES.contains( mimeType ) )
             {
                 return imageResponse( binary, mimeType, false );
             }
@@ -321,7 +347,7 @@ public class MediaRenderingBean
         }
     }
 
-    public Object serveMedia( final String id, final String identifier, final boolean download )
+    private Object serveMedia( final String id, final String identifier, final boolean download )
     {
         final ContentId contentId = ContentId.from( id );
 
@@ -340,7 +366,7 @@ public class MediaRenderingBean
         {
             throw new WebApplicationException( String.format( "Content [%s] has no attachments", contentId ), Response.Status.NOT_FOUND );
         }
-        else if ( !download && !MEDIA_PREVIEW_TYPES.contains( attachment.getMimeType() ) )
+        else if ( !download && !MEDIA_ATTACHMENT_TYPES.contains( attachment.getMimeType() ) )
         {
             throw new WebApplicationException( String.format( "Preview for attachment [%s] is not supported", attachment.getName() ) );
         }
