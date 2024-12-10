@@ -20,7 +20,7 @@ describe('Custom error handling - specification. Verify that application error p
     const CONTROLLER_WITH_ERROR = 'Page with error';
     const ERROR_MESSAGE_LIVE_EDIT = "Failed to render content preview.";
 
-    it(`WHEN a controller with error has been selected THEN 'Preview' button should not be displayed in the wizard toolbar`,
+    it(`WHEN a controller with error has been selected THEN 'Preview' button should not be displayed in the wizard toolbar AND disabled in Preview panel`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard();
@@ -48,6 +48,21 @@ describe('Custom error handling - specification. Verify that application error p
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.pause(1000);
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+        });
+
+    it(`GIVEN existing site(controller has a error) has been selected WHEN 'Site engine' has been selected in Preview Dropdown THEN expected error message should be displayed in the Preview Panel`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select the site:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            // 2. Select 'Site Engine' in the Preview Dropdown:
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
+            // 3. Verify the error message in the Preview Panel:
+            await contentItemPreviewPanel.switchToLiveViewFrame();
+            let actualResult = await contentItemPreviewPanel.get500ErrorText();
+            assert.equal(actualResult[0], 'Oops, something went wrong!', "Expected message should be displayed in the Preview Panel");
+            // 4. Verify the Preview button in Preview Panel:
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
         });
 
     it(`GIVEN existing site(controller has a error) WHEN the site has been opened in draft THEN expected error page should be loaded in the browser page`,

@@ -74,6 +74,23 @@ class ContentItemPreviewPanel extends Page {
         }
     }
 
+    async waitForPreviewNotAvailAbleMessageNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.previewNotAvailableMessage, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_not_available');
+            throw new Error(`Preview not available message should not be displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async waitForPreviewIframeClass(value) {
+        let locator = xpath.container + "//iframe";
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, 'class');
+            return text === value;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Iframe should be with class 'application' attribute"});
+    }
+
     // Waits for the image to be displayed in the iframe(Live View)
     async waitForImageElementDisplayed() {
         try {
@@ -180,7 +197,13 @@ class ContentItemPreviewPanel extends Page {
     }
 
     async getNoPreviewMessage() {
-        let locator = xpath.container + xpath.noPreviewMessageSpan;
+        let locator = xpath.noPreviewMessageSpan;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
+    async get500ErrorText() {
+        let locator = "//h1";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }

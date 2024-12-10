@@ -123,7 +123,8 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             // New button should be disabled, because children are not allowed for images.
             await contentBrowsePanel.waitForNewButtonDisabled();
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            // 'Preview' button should be enabled for an image and Media option
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
         });
 
     it(`GIVEN new folder is added WHEN the folder has been selected THEN 'Sort' buttons should be disabled`,
