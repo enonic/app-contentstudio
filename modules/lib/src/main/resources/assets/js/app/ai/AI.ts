@@ -421,7 +421,7 @@ export class AI {
             return AiHelper.getAiHelpersByGroup('page').find((helper: AiHelper) => helper.getDataPath() === dataPath);
         }
 
-        return null;
+        return undefined;
     }
 
     private getXData(path: string): { xDataStepForm: XDataWizardStepForm, xDataPath: PropertyPath } | undefined {
