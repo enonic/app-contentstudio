@@ -2823,21 +2823,21 @@ export class ContentWizardPanel
 
         const contentFormContext = ContentFormContext.create()
             .setContentTypeName(type)
-            .setAiTools([AiTool.OPEN_AI_DIALOG, AiTool.AI_STATE])
+            .addAiTools([AiTool.OPEN_AI_DIALOG, AiTool.AI_STATE])
             .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
             .setName('data')
             .build();
 
         const xDataFormContext = ContentFormContext.create()
             .setContentTypeName(type)
-            .setAiTools([AiTool.AI_STATE])
+            .addAiTools(AiTool.AI_STATE)
             .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
             .setName('xdata')
             .build();
 
         const liveFormContext = ContentFormContext.create()
             .setContentTypeName(type)
-            .setAiTools([AiTool.AI_STATE])
+            .addAiTools(AiTool.AI_STATE)
             .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
             .setName('page')
             .build();
