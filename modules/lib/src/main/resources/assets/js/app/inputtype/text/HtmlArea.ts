@@ -624,10 +624,11 @@ export class HtmlArea
     }
 
     getAiConfig(): AiConfig {
-        return {
-            group: this.getContext().formContext?.getName(),
-            aiTools: this.getContext().formContext?.getAiTools() ?? [],
-        }
+        const formContext = this.getContext().formContext;
+        return formContext ? {
+            group: formContext.getName(),
+            aiTools: formContext.getAiTools(),
+        } : super.getAiConfig();
     }
 
 }
