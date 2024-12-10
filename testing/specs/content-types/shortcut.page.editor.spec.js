@@ -9,7 +9,6 @@ const appConst = require('../../libs/app_const');
 const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 
 describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortcuts', function () {
@@ -50,17 +49,17 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
         });
 
     // When preview request for a selected content returns 3xx code, show our standard "Preview not unavailable" message instead of showing the redirect target content as now.
+    // https://github.com/enonic/app-contentstudio/issues/4294
     it(`WHEN existing shortcut to the site with controller is selected THEN 'Preview not available' is displayed in Preview panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select an existing folder:
             await studioUtils.findAndSelectItem(SHORTCUT_NAME);
             await studioUtils.saveScreenshot('preview_not_available_shortcut');
             // 2. Verify that 'Preview not available' is displayed in Preview panel
             await contentItemPreviewPanel.waitForPreviewNotAvailAbleMessageDisplayed();
-            // 3. 'Preview' button should be enabled in the ItemPreviewPanel toolbar:
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            // 3. 'Preview' button should be disabled in the ItemPreviewPanel toolbar:
+            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
         });
 
     // Verifies - Page Editor should not display target content for a shortcut #6619
