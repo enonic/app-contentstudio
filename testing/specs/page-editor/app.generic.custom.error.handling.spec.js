@@ -18,7 +18,7 @@ describe('Custom error handling - specification. Verify that application error p
 
     let SITE;
     const CONTROLLER_WITH_ERROR = 'Page with error';
-    const ERROR_MESSAGE_LIVE_EDIT = "Failed to render content preview.";
+    const ERROR_MESSAGE_LIVE_EDIT = 'Failed to render content preview.';
 
     it(`WHEN a controller with error has been selected THEN 'Preview' button should not be displayed in the wizard toolbar AND disabled in Preview panel`,
         async () => {
@@ -34,7 +34,7 @@ describe('Custom error handling - specification. Verify that application error p
             // 2. Select a controller with error:
             await contentWizard.selectPageDescriptor(CONTROLLER_WITH_ERROR, false);
             await contentWizard.pause(500);
-            await studioUtils.saveScreenshot("site_controller_with_errors");
+            await studioUtils.saveScreenshot('site_controller_with_errors');
             // 3. Verify that 'Preview' button is not displayed in the wizard:
             await contentWizard.waitForPreviewButtonNotDisplayed();
             // 4. 'Hide Page Editor' button should be visible
@@ -61,7 +61,8 @@ describe('Custom error handling - specification. Verify that application error p
             await contentItemPreviewPanel.switchToLiveViewFrame();
             let actualResult = await contentItemPreviewPanel.get500ErrorText();
             assert.equal(actualResult[0], 'Oops, something went wrong!', "Expected message should be displayed in the Preview Panel");
-            // 4. Verify the Preview button in Preview Panel:
+            // 4. Verify the Preview button is enabled in Preview Panel:
+            await contentItemPreviewPanel.switchToParentFrame();
             await contentItemPreviewPanel.waitForPreviewButtonEnabled();
         });
 

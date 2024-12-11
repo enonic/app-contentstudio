@@ -66,7 +66,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.saveScreenshot('country_template_saved');
         });
 
-    it(`GIVEN new country-content is saved WHEN 'Preview' button has been clicked THEN expected population and description should be loaded in new browser tab`,
+    it(`GIVEN new country-content is saved WHEN 'Automatic' is selected AND 'Preview' button has been clicked THEN expected population and description should be loaded in new browser tab`,
         async () => {
             let contentWizard = new ContentWizard();
             let countryForm = new CountryForm();

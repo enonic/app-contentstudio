@@ -112,7 +112,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await contentWizard.waitForNotificationMessage();
         });
 
-    it(`GIVEN site is selected WHEN 'Preview' button has been pressed AND inserted link has been clicked THEN 'Enonic' site should be loaded in the page`,
+    it(`GIVEN site is selected WHEN 'Automatic' is selected AND 'Preview' button has been pressed AND inserted link has been clicked THEN 'Enonic' site should be loaded in the page`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select the site and click on Preview button:
