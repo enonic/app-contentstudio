@@ -112,19 +112,21 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             await contentItemPreviewPanel.waitForToolbarNotDisplayed();
         });
 
-    it(`WHEN image is selected (not allowing children) THEN 'Sort' and 'New' buttons should be  disabled`,
+    it(`WHEN an image is selected (not allowing children) THEN 'Sort' and 'New' buttons should be  disabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.HAND);
-            // Edit button should be enabled
+            // 'Edit' button should be enabled
             await contentBrowsePanel.waitForEditButtonEnabled();
             await contentBrowsePanel.waitForSortButtonDisabled();
-            // New button should be disabled, because children are not allowed for images.
+            // 'New' button should be disabled, because children are not allowed for images.
             await contentBrowsePanel.waitForNewButtonDisabled();
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
             // 'Preview' button should be enabled for an image and Media option
             await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            //  <img> element should be displayed in the iframe
+            await contentItemPreviewPanel.waitForImageElementDisplayed();
         });
 
     it(`GIVEN new folder is added WHEN the folder has been selected THEN 'Sort' buttons should be disabled`,
