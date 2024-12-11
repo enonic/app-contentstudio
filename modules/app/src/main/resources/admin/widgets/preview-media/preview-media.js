@@ -56,7 +56,7 @@ exports.canRender = function (req) {
     try {
         const params = widgetLib.validateParams(req.params);
 
-        const canRender = __.toNativeObject(bean.isCanRender(params.repository, params.branch, params.id));
+        const canRender = __.toNativeObject(bean.canRender(params.repository, params.branch, params.id));
 
         log.info('Media [CAN_RENDER]: ' + canRender);
 
