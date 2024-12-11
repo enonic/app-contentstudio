@@ -60,7 +60,7 @@ describe('Text Component with CKE - insert email link  specification', function 
             await contentWizard.waitAndClickOnSave();
         });
 
-    it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN email-link should be present in the page`,
+    it(`GIVEN site is selected WHEN 'Automatic' is selected AND 'Preview' button has been pressed THEN email-link should be present in the page`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select the site and click on Preview button:
@@ -121,7 +121,7 @@ describe('Text Component with CKE - insert email link  specification', function 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

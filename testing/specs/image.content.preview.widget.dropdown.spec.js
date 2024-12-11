@@ -111,8 +111,8 @@ describe('image.content.preview.widget.dropdown.spec - Tests for Live View', fun
             await contentItemPreviewPanel.switchToLiveViewFrame();
             await contentItemPreviewPanel.waitFor404ErrorDisplayed();
             await contentItemPreviewPanel.switchToParentFrame();
-            // 4. Verify that 'Preview' button should be disabled when an image and 'Site engine' are selected
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            // 4. Verify that 'Preview' button should be enabled when an image and 'Site engine' are selected
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
