@@ -265,7 +265,8 @@ class ContentItemPreviewPanel extends Page {
         await this.clickOnElement(this.previewWidgetDropdown);
         let optionSelector = this.previewWidgetDropdown + lib.DROPDOWN_SELECTOR.listItemByDisplayName(optionName);
         await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-        return await this.clickOnElement(optionSelector);
+        await this.clickOnElement(optionSelector);
+        await this.pause(200);
     }
 
     async waitForPreviewWidgetDropdownDisplayed() {

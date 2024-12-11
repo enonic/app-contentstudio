@@ -95,11 +95,12 @@ describe('Text Component with CKE - insert download-link specification', functio
             await contentWizard.waitForNotificationMessage();
         });
 
-    it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN download-link should be present in the page`,
+    it(`GIVEN site is selected WHEN 'Site Engine' is selected AND 'Preview' button has been pressed THEN download-link should be present in the page`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            // 1. Select the site and click on Preview button
+            // 1. Select the site and click on 'Preview' button
             await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
             await contentItemPreviewPanel.clickOnPreviewButton();
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             // 2. Verify that new added link is present
