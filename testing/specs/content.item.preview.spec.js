@@ -79,7 +79,7 @@ describe('content.item.preview.spec - Select a content file and check expected i
             assert.equal(actualName, `"${TEXT_CONTENT_NAME}"`, 'expected name should be displayed in JSON preview');
         });
 
-    it(`WHEN existing folder has been selected THEN 'Preview not available' should be shown in Item Preview Panel`,
+    it(`WHEN existing folder has been selected AND 'Automatic' is selected THEN 'Preview not available' should be shown in Item Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select an existing folder:
@@ -118,6 +118,11 @@ describe('content.item.preview.spec - Select a content file and check expected i
             await studioUtils.saveScreenshot('media_preview_button_disabled_for_pptx');
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
 
+            let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
+            // 4. 'Can not render non-media content' message should be displayed
+            assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.CAN_NOT_RENDER_NON_MEDIA),
+                'expected message should be displayed');
+
         });
 
     it(`WHEN existing 'pptx' content AND 'Automatic' are selected THEN 'Preview' button should be disabled in Item Preview Panel`,
@@ -130,7 +135,6 @@ describe('content.item.preview.spec - Select a content file and check expected i
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
             // 3. Verify the message in the preview panel
             await contentItemPreviewPanel.waitForPreviewNotAvailAbleMessageDisplayed();
-
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

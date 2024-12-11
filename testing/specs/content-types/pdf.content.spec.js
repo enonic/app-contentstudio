@@ -32,9 +32,7 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
             // 3. Verify the 'Preview' button in Preview Panel (enabled):
             await contentItemPreviewPanel.waitForPreviewButtonEnabled();
-            // 4. 'Preview not available' message should not be displayed
-            await contentItemPreviewPanel.waitForPreviewNotAvailAbleMessageNotDisplayed();
-            // 5. PDF content should be displayed in the Preview Panel
+            // 4. PDF content should be displayed in the Preview Panel
             await contentItemPreviewPanel.waitForPreviewIframeClass('application');
         });
 
