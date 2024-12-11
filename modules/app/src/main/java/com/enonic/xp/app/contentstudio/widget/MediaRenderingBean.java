@@ -88,9 +88,9 @@ public class MediaRenderingBean
     private static final ContentTypeNames IMAGE_CONTENT_TYPES =
         ContentTypeNames.from( ContentTypeName.imageMedia(), ContentTypeName.vectorMedia() );
 
-    public boolean isCanRender( final String repository, final String branch, final String contentId )
+    public boolean canRender( final String repository, final String branch, final String contentId )
     {
-        return runInAdminContext( repository, branch, () -> isCanRenderInContext( contentId ) );
+        return runInAdminContext( repository, branch, () -> canRenderInContext( contentId ) );
     }
 
     public boolean isImageContent( final String contentType )
@@ -150,7 +150,7 @@ public class MediaRenderingBean
             .build().callWith( func );
     }
 
-    private boolean isCanRenderInContext( final String contentId )
+    private boolean canRenderInContext( final String contentId )
     {
         final Content content = contentServiceSupplier.get().getById( ContentId.from( contentId ) );
         if ( content == null )
