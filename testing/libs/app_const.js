@@ -508,6 +508,9 @@ module.exports = Object.freeze({
         PATH: '_path',
         CREATOR: 'creator',
         MODIFIER: 'modifier',
-
+    },
+    PREVIEW_PANEL_MESSAGE: {
+        CAN_NOT_RENDER_NON_MEDIA: 'Can not render non-media content',
+        PREVIEW_NOT_AVAILABLE: 'Preview not available'
     }
 });
