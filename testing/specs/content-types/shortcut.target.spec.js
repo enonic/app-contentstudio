@@ -83,7 +83,9 @@ describe("Shortcut's target specification", function () {
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
             // 4. Verify the message in Preview panel:
             let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
-            assert.ok(actualMessage.includes('Unable to render'), "'Unable to render' message should be displayed");
+            // 'Can not render non-media content' message should be displayed
+            assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.CAN_NOT_RENDER_NON_MEDIA),
+                'expected message should be displayed');
         });
 
     it(`GIVEN shortcut with an image in its target is selected WHEN 'Automatic' has been selected THEN 'Preview not available' message should be displayed in the Preview panel`,
