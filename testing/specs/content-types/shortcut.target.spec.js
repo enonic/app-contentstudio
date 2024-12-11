@@ -71,7 +71,7 @@ describe("Shortcut's target specification", function () {
             assert.equal(actualResult, TARGET_2, "Expected display name should be present in the selected option");
         });
 
-    it(`GIVEN shortcut with an image in its target are selected WHEN 'Media' has been selected THEN 'Unable to render' message should be displayed in the Preview panel`,
+    it(`GIVEN shortcut with an image in its target are selected WHEN 'Media' has been selected THEN 'Can not render non-media content' message should be displayed in the Preview panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select the existing shortcut to an image:

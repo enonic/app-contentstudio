@@ -134,7 +134,8 @@ describe('content.item.preview.spec - Select a content file and check expected i
             await studioUtils.saveScreenshot('preview_button_media_enabled_for_pptx');
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
             // 3. Verify the message in the preview panel
-            await contentItemPreviewPanel.waitForPreviewNotAvailAbleMessageDisplayed();
+            let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
+            assert.ok(actualMessage.includes('Unable to render'), "'Unable to render' message should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
