@@ -74,15 +74,6 @@ class ContentItemPreviewPanel extends Page {
         }
     }
 
-    async waitForPreviewNotAvailAbleMessageNotDisplayed() {
-        try {
-            return await this.waitForElementNotDisplayed(this.previewNotAvailableMessage, appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_not_available');
-            throw new Error(`Preview not available message should not be displayed, screenshot: ${screenshot} ` + err);
-        }
-    }
-
     async waitForPreviewIframeClass(value) {
         let locator = xpath.container + "//iframe";
         await this.getBrowser().waitUntil(async () => {
@@ -184,7 +175,7 @@ class ContentItemPreviewPanel extends Page {
         }
     }
 
-    //  gets a text in the Preview panel
+    //  gets a text(*.txt) in the Preview panel
     async getTextInAttachmentPreview() {
         try {
             let textLocator = "//body/pre";
@@ -350,6 +341,13 @@ class ContentItemPreviewPanel extends Page {
         await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
         await this.pause(300);
         return await this.getTextInDisplayedElements(locator);
+    }
+
+    // Iframe, get a text from the text component
+    async getTextFromTextComponent() {
+        let locator = "//section[@data-portal-component-type='text']/p";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 }
 
