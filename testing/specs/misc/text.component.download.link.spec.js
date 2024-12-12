@@ -95,6 +95,32 @@ describe('Text Component with CKE - insert download-link specification', functio
             await contentWizard.waitForNotificationMessage();
         });
 
+    it(`GIVEN the site with download link in the text component is selected WHEN 'Site Engine' is selected THEN download-link should be present in the page`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select the site:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            // 2.  'Site Engine' has been selected in the Preview widget dropdown:
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
+            await studioUtils.saveScreenshot('site_engine_download_link');
+            await contentItemPreviewPanel.switchToLiveViewFrame();
+            // 3. Verify that new added link is present
+            let result = await contentItemPreviewPanel.getTextFromTextComponent();
+            assert.equal(result, LINK_TEXT, "expected link should be present in the Preview Panel");
+        });
+
+    it(`GIVEN the site with download link in the text component is selected WHEN 'Automatic' is selected THEN download-link should be present in the page`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select the site and 'Automatic' option in the Preview widget dropdown:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await studioUtils.saveScreenshot('site_automatic_download_link');
+            await contentItemPreviewPanel.switchToLiveViewFrame();
+            // 2. Verify that new added link is present
+            let result = await contentItemPreviewPanel.getTextFromTextComponent();
+            assert.equal(result, LINK_TEXT, "expected link should be present in the Preview Panel");
+        });
+
     it(`GIVEN site is selected WHEN 'Site Engine' is selected AND 'Preview' button has been pressed THEN download-link should be present in the page`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
