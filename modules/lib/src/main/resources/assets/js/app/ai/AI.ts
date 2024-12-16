@@ -1,29 +1,19 @@
-import {AiHelper} from '@enonic/lib-admin-ui/ai/AiHelper';
 import {AiHelperState} from '@enonic/lib-admin-ui/ai/AiHelperState';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
-import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Content} from '../content/Content';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {ComponentPath} from '../page/region/ComponentPath';
-import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
-import {PageItem} from '../page/region/PageItem';
-import {TextComponent} from '../page/region/TextComponent';
 import {ProjectContext} from '../project/ProjectContext';
 import {GetLocalesRequest} from '../resource/GetLocalesRequest';
 import {ContentWizardHeader} from '../wizard/ContentWizardHeader';
-import {PageState} from '../wizard/page/PageState';
-import {XDataWizardStepForm} from '../wizard/XDataWizardStepForm';
 import {ContentData, ContentLanguage, ContentSchema} from './event/data/AiData';
 import {EnonicAiContentOperatorSetupData} from './event/data/EnonicAiContentOperatorSetupData';
 import {EnonicAiTranslatorSetupData} from './event/data/EnonicAiTranslatorSetupData';
@@ -38,8 +28,10 @@ import {AiTranslatorStartedEvent} from './event/incoming/AiTranslatorStartedEven
 import {AiContentOperatorConfigureEvent} from './event/outgoing/AiContentOperatorConfigureEvent';
 import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigureEvent';
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
-import {AiAnimationHandler, RGBColor} from './ui/AiAnimationHandler';
 import {PageEventsManager} from '../wizard/PageEventsManager';
+import {RGBColor} from '@enonic/lib-admin-ui/ai/tool/ui/AiAnimationHandler';
+import {AiContentDataHelper} from './AiContentDataHelper';
+import {AiToolHelper} from '@enonic/lib-admin-ui/ai/tool/AiToolHelper';
 
 declare global {
     interface Window {
@@ -72,23 +64,13 @@ export class AI {
 
     private static instance: AI;
 
-    private static XDATA_PREFIX = '__xdata__';
-
-    private static PAGE_PREFIX = '__page__';
-
-    private static CONFIG_PREFIX = '__config__';
-
-    private static TOPIC = '__topic__';
+    private aiContentDataHelper: AiContentDataHelper;
 
     private currentData: ContentData | undefined;
 
     private content: Content;
 
     private contentType: ContentType;
-
-    private data: PropertyTree;
-
-    private contentHeader: ContentWizardHeader;
 
     private locales: Locale[];
 
@@ -98,7 +80,12 @@ export class AI {
 
     private context?: string;
 
+    private aiToolHelper: AiToolHelper;
+
     private constructor() {
+        this.aiContentDataHelper = new AiContentDataHelper();
+        this.aiToolHelper = AiToolHelper.get();
+
         const hasPlugins = Object.keys(window.Enonic?.AI ?? {}).length > 0;
         if (!hasPlugins) {
             return;
@@ -138,8 +125,6 @@ export class AI {
             const user = {fullName, shortName} as const;
             new AiContentOperatorConfigureEvent({user}).fire();
         }).catch(DefaultErrorHandler.handle);
-
-
     }
 
     static get(): AI {
@@ -156,11 +141,11 @@ export class AI {
     }
 
     setDataTree(dataTree: PropertyTree): void {
-        this.data = dataTree;
+        this.aiContentDataHelper.setDataTree(dataTree);
     }
 
     setContentHeader(contentHeader: ContentWizardHeader): void {
-        this.contentHeader = contentHeader;
+        this.aiContentDataHelper.setContentHeader(contentHeader);
     }
 
     setContentType(contentType: ContentType): void {
@@ -224,6 +209,14 @@ export class AI {
         return window.Enonic?.AI?.[plugin] != null;
     }
 
+    hasTranslator(): boolean {
+        return this.has('translator');
+    }
+
+    hasContentOperator(): boolean {
+        return this.has('contentOperator');
+    }
+
     renderContentOperator(buttonContainer: HTMLElement, dialogContainer: HTMLElement): void {
         this.getContentOperator()?.render(buttonContainer, dialogContainer);
     }
@@ -232,33 +225,24 @@ export class AI {
         this.getTranslator()?.render(container);
     }
 
-    translate(language: string): Promise<boolean> {
-        return this.getTranslator()?.translate(language) ?? Promise.resolve(false);
-    }
-
     private translatorStartedEventListener = (event: AiTranslatorStartedEvent) => {
-        const helper = this.getAiHelperByPath(event.path);
+        this.aiToolHelper.setState(this.aiContentDataHelper.transformPathOnDemand(event.path), AiHelperState.PROCESSING);
 
-        if (helper) {
-            helper.setState(AiHelperState.PROCESSING);
-        } else if (this.isPageComponentPath(event.path)) {
-            PageEventsManager.get().notifySetComponentState(ComponentPath.fromString(event.path.replace(AI.PAGE_PREFIX, '')), true);
+        if (this.aiContentDataHelper.isPageComponentPath(event.path)) {
+            PageEventsManager.get().notifySetComponentState(ComponentPath.fromString(event.path.replace(AiContentDataHelper.PAGE_PREFIX, '')), true);
         }
     };
 
     private translatorCompletedEventListener = (event: AiTranslatorCompletedEvent) => {
-        const helper = this.getAiHelperByPath(event.path);
+        this.aiToolHelper.setState(this.aiContentDataHelper.transformPathOnDemand(event.path), event.success ? AiHelperState.COMPLETED : AiHelperState.FAILED, {text: event.text})
 
         if (event.success) {
-            helper?.setState(AiHelperState.COMPLETED);
-            this.handleFieldUpdate(event.path, event.text);
-        } else {
-            helper?.setState(AiHelperState.FAILED, {text: event.text});
+            this.aiContentDataHelper.setValue(event.path, event.text);
         }
 
         // Probably a text component event, and they don't have AI helpers
-        if (!helper && this.isPageComponentPath(event.path)) {
-            PageEventsManager.get().notifySetComponentState(ComponentPath.fromString(event.path.replace(AI.PAGE_PREFIX, '')), false);
+        if (this.aiContentDataHelper.isPageComponentPath(event.path)) {
+            PageEventsManager.get().notifySetComponentState(ComponentPath.fromString(event.path.replace(AiContentDataHelper.PAGE_PREFIX, '')), false);
         }
     };
 
@@ -272,37 +256,30 @@ export class AI {
 
     private handleContextChangedEvent = (event: AiContentOperatorContextChangedEvent) => {
         this.context = event.context;
-        AiHelper.setActiveContext(event.context);
+        this.aiToolHelper.setActiveContext(event.context);
     };
 
     private handleDialogOpenedEvent = () => {
-        AiHelper.setActiveContext(this.context);
+        this.aiToolHelper.setActiveContext(this.context);
     }
 
     private handleDialogClosedEvent = () => {
-        AiHelper.setActiveContext(null);
+        this.aiToolHelper.setActiveContext(null);
     }
 
     private handleInteractionEvent = (event: AiContentOperatorInteractionEvent) => {
+        // operator works now only with data and sends path without __group__ prefix, adding it for compatibility
+        const pathWithGroup = `${AiContentDataHelper.DATA_PREFIX}${event.path.startsWith('/') ? '' : '/'}${event.path}`;
+
         switch (event.interaction) {
         case 'click':
-            this.handleClickInteractionEvent(event.path);
+            this.handleClickInteractionEvent(pathWithGroup);
             break;
         }
     }
 
     private handleClickInteractionEvent = (path: string) => {
-        const helper = this.getAiHelperByPath(path);
-
-        if (helper) {
-            AiAnimationHandler.scroll(helper.getDataPathElement());
-
-            if (this.isTopicPath(path)) {
-                AiAnimationHandler.innerGlow(helper.getDataPathElement());
-            } else {
-                AiAnimationHandler.glow(helper.getDataPathElement());
-            }
-        }
+        this.aiToolHelper.animate(path, ['scroll', this.aiContentDataHelper.isTopicPath(path) ? 'innerGlow' : 'glow']);
     }
 
     private createContentData(): ContentData | undefined {
@@ -337,17 +314,10 @@ export class AI {
 
     private applyContentOperatorEventListener = (event: AiContentOperatorResultAppliedEvent) => {
         event.items?.forEach(({path, text}) => {
-            this.handleFieldUpdate(this.replaceSlashesWithDots(path), text);
-
-            const helper = this.getAiHelperByPath(path);
-
-            if (helper) {
-                if (this.isTopicPath(path)) {
-                    AiAnimationHandler.innerGlow(helper.getDataPathElement(), RGBColor.GREEN);
-                } else {
-                    AiAnimationHandler.glow(helper.getDataPathElement(), RGBColor.GREEN);
-                }
-            }
+            // operator works now only with data and sends path without __group__ prefix, adding it for compatibility
+            const pathWithGroup = `${AiContentDataHelper.DATA_PREFIX}${path.startsWith('/') ? '' : '/'}${path}`;
+            this.aiContentDataHelper.setValue(this.aiContentDataHelper.replaceSlashesWithDots(pathWithGroup), text);
+            this.aiToolHelper.animate(pathWithGroup, this.aiContentDataHelper.isTopicPath(pathWithGroup) ? 'innerGlow' : 'glow', RGBColor.GREEN);
         });
     };
 
@@ -367,133 +337,6 @@ export class AI {
         if (this.isReady()) {
             this.readyListeners.forEach(l => l());
             this.readyListeners = [];
-        }
-    }
-
-    private getAiHelperByPath(path: string): AiHelper | undefined {
-        if (this.isXDataPath(path)) {
-            return this.getAiHelperByXData(path);
-        }
-
-        if (this.isPagePath(path)) {
-            return this.getAiHelperByPage(path);
-        }
-
-        return AiHelper.getAiHelpersByGroup('data').find((helper: AiHelper) => helper.getDataPath() === path);
-    }
-
-    private handleFieldUpdate(path: string, text: string): void {
-        if (this.isTopicPath(path)) {
-            this.contentHeader.setDisplayName(text);
-        } else if (this.isXDataPath(path)) {
-            this.handleXDataEvent(path, text);
-        } else if (this.isPagePath(path)) {
-            this.handlePageEvent(path, text);
-        } else {
-            this.handleDataEvent(path, text);
-        }
-    }
-
-    private isXDataPath(path: string): boolean {
-        return path.startsWith(AI.XDATA_PREFIX);
-    }
-
-    private isPagePath(path: string): boolean {
-        return path.startsWith(AI.PAGE_PREFIX);
-    }
-
-    private isPageComponentPath(path: string): boolean {
-        return this.isPagePath(path) && path.indexOf(AI.CONFIG_PREFIX) < 0;
-    }
-
-    private isTopicPath(path: string): boolean {
-        return path.startsWith(AI.TOPIC);
-    }
-
-    private getAiHelperByXData(path: string): AiHelper | undefined {
-        const xData = this.getXData(path);
-
-        return xData?.xDataStepForm ? AiHelper.getAiHelpersByGroup('xdata').find(
-            (helper: AiHelper) => this.isHelperForXData(helper, xData)) : null;
-    }
-
-    private getAiHelperByPage(path: string): AiHelper | undefined {
-        if (path.indexOf(AI.CONFIG_PREFIX) > -1) {
-            const dataPath = path.replace(AI.PAGE_PREFIX, '').split(`/${AI.CONFIG_PREFIX}`)[1];
-            return AiHelper.getAiHelpersByGroup('page').find((helper: AiHelper) => helper.getDataPath() === dataPath);
-        }
-
-        return undefined;
-    }
-
-    private getXData(path: string): { xDataStepForm: XDataWizardStepForm, xDataPath: PropertyPath } | undefined {
-        const pathParts = path.split('/');
-        const appName = pathParts[1];
-        const xDataName = pathParts[2];
-        const key = `${appName.replace(/[/-]/g, '.')}:${xDataName}`;
-        const xDataStepForm = XDataWizardStepForm.getXDataWizardStepForm(key);
-
-        return xDataStepForm ? {xDataStepForm, xDataPath: PropertyPath.fromString(`.${pathParts.slice(3).join('.')}`)} : undefined;
-    }
-
-    private isHelperForXData(helper: AiHelper, xData: { xDataStepForm: XDataWizardStepForm, xDataPath: PropertyPath }): boolean {
-        return xData.xDataStepForm.contains(helper.getDataPathElement()) && helper.getPropertyPath().equals(xData.xDataPath);
-    }
-
-    private handleXDataEvent(path: string, text: string): void {
-        const xData = this.getXData(path);
-        const prop = xData?.xDataStepForm.getData().getRoot().getPropertyByPath(xData.xDataPath);
-        this.updateProperty(prop, text);
-    }
-
-    private handleDataEvent(path: string, text: string): void {
-        const propPath = PropertyPath.fromString(this.replaceSlashesWithDots(path));
-        const prop = this.data.getRoot().getPropertyByPath(propPath);
-        this.updateProperty(prop, text);
-    }
-
-    private updateProperty(property: Property | undefined, value: string): void {
-        property?.setValue(new Value(value, property.getType()));
-    }
-
-    private replaceSlashesWithDots(path: string): string {
-        return path.replace(/\//g, '.');
-    }
-
-    private handlePageEvent(path: string, text: string): void {
-        if (path.indexOf(AI.CONFIG_PREFIX) > -1) {
-            this.handleComponentConfigEvent(path, text);
-        } else {
-            this.handleComponentEvent(path, text);
-        }
-    }
-
-    private handleComponentConfigEvent(path: string, text: string): void {
-        const parts = path.replace(AI.PAGE_PREFIX, '').split(`/${AI.CONFIG_PREFIX}`);
-        const configComponentPath = parts[0];
-        const dataPath = parts[1];
-        const propPath = PropertyPath.fromString(this.replaceSlashesWithDots(dataPath));
-
-        if (StringHelper.isBlank(configComponentPath)) {
-            const prop = PageState.getState()?.getConfig().getRoot().getPropertyByPath(propPath);
-            prop?.setValue(new Value(text, prop.getType()));
-        } else {
-            const item: PageItem = PageState.getState()?.getComponentByPath(ComponentPath.fromString(configComponentPath));
-
-            if (item instanceof DescriptorBasedComponent) {
-                const prop = item.getConfig().getRoot().getPropertyByPath(propPath);
-                prop?.setValue(new Value(text, prop.getType()));
-            }
-        }
-    }
-
-    private handleComponentEvent(path: string, text: string): void {
-        const pathNoPrefix = path.replace(AI.PAGE_PREFIX, '');
-        const componentPath = ComponentPath.fromString(pathNoPrefix);
-        const item: PageItem = PageState.getState().getComponentByPath(componentPath);
-
-        if (item instanceof TextComponent) {
-            item.setText(text);
         }
     }
 }

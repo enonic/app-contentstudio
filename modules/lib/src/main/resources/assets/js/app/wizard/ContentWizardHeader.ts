@@ -1,4 +1,3 @@
-import {AiHelper} from '@enonic/lib-admin-ui/ai/AiHelper';
 import {WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -13,6 +12,10 @@ import {Content} from '../content/Content';
 import {ContentPath} from '../content/ContentPath';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
 import {RenameContentDialog} from './dialog/RenameContentDialog';
+import {AiStateTool} from '@enonic/lib-admin-ui/ai/tool/AiStateTool';
+import {AiContentDataHelper} from '../ai/AiContentDataHelper';
+import {AiAnimationTool} from '@enonic/lib-admin-ui/ai/tool/AiAnimationTool';
+import {AI} from '../ai/AI';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {
@@ -46,16 +49,24 @@ export class ContentWizardHeader
 
         this.loadSpinner = new DivEl('icon-spinner');
         this.loadSpinner.hide();
+
         this.onRendered(() => {
-            AiHelper.attach({
-                group: 'data',
-                dataPathElement: this.displayNameEl,
-                getPath: () => PropertyPath.fromString('__topic__'),
-                stateControl: {
-                    stateContainer: this.displayNameEl.getParentElement(),
+            if (AI.get().has('contentOperator')) {
+                new AiStateTool({
+                    group: AiContentDataHelper.DATA_PREFIX,
+                    pathElement: this.displayNameEl,
+                    getPath: () => PropertyPath.fromString('/__topic__'),
                     label: i18n('field.displayName'),
-                }
-            });
+                    stateContainer: this.displayNameEl.getParentElement(),
+                });
+
+                new AiAnimationTool({
+                    group: AiContentDataHelper.DATA_PREFIX,
+                    getPath: () => PropertyPath.fromString('/__topic__'),
+                    pathElement: this.displayNameEl,
+                });
+            }
+
         });
     }
 
