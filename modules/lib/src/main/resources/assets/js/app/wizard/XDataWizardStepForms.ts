@@ -3,7 +3,7 @@ import {XDataWizardStepForm} from './XDataWizardStepForm';
 
 export class XDataWizardStepForms {
 
-    private xDataStepFormByName: Record<string, XDataWizardStepForm>;
+    private readonly xDataStepFormByName: Record<string, XDataWizardStepForm>;
 
     constructor() {
         this.xDataStepFormByName = {};
@@ -18,20 +18,20 @@ export class XDataWizardStepForms {
         }
     }
 
-    contains(xDataNameStr: string): boolean {
-        return !!this.xDataStepFormByName.hasOwnProperty(xDataNameStr);
+    contains(xDataName: string): boolean {
+        return !!this.xDataStepFormByName.hasOwnProperty(xDataName);
     }
 
-    get(xDataNameStr: string): XDataWizardStepForm {
-        return this.xDataStepFormByName[xDataNameStr];
+    get(xDataName: string): XDataWizardStepForm {
+        return this.xDataStepFormByName[xDataName];
     }
 
     add(form: XDataWizardStepForm) {
-        this.xDataStepFormByName[form.getXData().getXDataName().toString()] = form;
+        this.xDataStepFormByName[form.getXData().getName()] = form;
     }
 
-    remove(xDataNameStr: string) {
-        delete this.xDataStepFormByName[xDataNameStr];
+    remove(xDataName: string) {
+        delete this.xDataStepFormByName[xDataName];
     }
 
     reset() {

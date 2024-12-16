@@ -36,7 +36,7 @@ import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
 import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
-import {AiConfig} from '@enonic/lib-admin-ui/ai/AiTool';
+import {AiConfig} from '@enonic/lib-admin-ui/form/inputtype/InputAiConfig';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
