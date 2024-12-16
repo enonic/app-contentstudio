@@ -148,9 +148,8 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
-import {AiTool} from '@enonic/lib-admin-ui/ai/AiTool';
-
-export type FormContextName = 'content' | 'xdata' | 'live';
+import {AiContentDataHelper} from '../ai/AiContentDataHelper';
+import {AiToolType} from '@enonic/lib-admin-ui/ai/tool/AiToolType';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -280,7 +279,7 @@ export class ContentWizardPanel
 
     public static debug: boolean = false;
 
-    private formsContexts: Map<FormContextName, ContentFormContext> = new Map<FormContextName, ContentFormContext>();
+    private formsContexts: Map<string, ContentFormContext> = new Map<string, ContentFormContext>();
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
@@ -1285,10 +1284,13 @@ export class ContentWizardPanel
     }
 
     private removeXDataSteps(xDatas: XData[]) {
-        xDatas.map((xData: XData) => xData.getXDataName().toString()).forEach((xDataNameStr: string) => {
-            if (this.xDataWizardStepForms.contains(xDataNameStr)) {
-                this.removeStepWithForm(this.xDataWizardStepForms.get(xDataNameStr));
-                this.xDataWizardStepForms.remove(xDataNameStr);
+        xDatas.forEach(xData => {
+            const xDataName = xData.getName();
+
+            if (this.xDataWizardStepForms.contains(xDataName)) {
+                this.removeStepWithForm(this.xDataWizardStepForms.get(xDataName));
+                this.xDataWizardStepForms.remove(xDataName);
+                this.formsContexts.delete(xDataName);
             }
         });
     }
@@ -2087,7 +2089,7 @@ export class ContentWizardPanel
     }
 
     private getXDatasToAdd(xDatas: XData[]): XData[] {
-        return xDatas.filter((xData: XData) => !this.xDataWizardStepForms.contains(xData.getXDataName().toString()));
+        return xDatas.filter((xData: XData) => !this.xDataWizardStepForms.contains(xData.getName()));
     }
 
     private addXDataSteps(xDatas: XData[]): Q.Promise<void> {
@@ -2112,8 +2114,9 @@ export class ContentWizardPanel
         const data: PropertyTree = extraData ? extraData.getData() : new PropertyTree();
 
         const xDataForm: Form = new FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
+        const formContext = this.makeXDataFormContext(xDataStepForm.getXData());
 
-        return xDataStepForm.layout(this.formsContexts.get('xdata'), data, xDataForm).then(() => {
+        return xDataStepForm.layout(formContext, data, xDataForm).then(() => {
             this.syncPersistedItemWithXData(xDataStepForm.getXDataName(), data);
             return Q(null);
         });
@@ -2278,8 +2281,8 @@ export class ContentWizardPanel
         const data: PropertyTree = new PropertyTree();
 
         const xDataForm: Form = new FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
-
-        return xDataStepForm.layout(this.formsContexts.get('xdata'), data, xDataForm);
+        const formContext = this.makeXDataFormContext(xDataStepForm.getXData());
+        return xDataStepForm.layout(formContext, data, xDataForm);
     }
 
     private removeXDataStepForms(applicationKey: ApplicationKey): Q.Promise<number> {
@@ -2820,26 +2823,37 @@ export class ContentWizardPanel
 
     private initFormsContexts(content: Content): void {
         const type: ContentTypeName = this.contentType?.getContentTypeName() || content.getType();
+        const hasContentOperator: boolean = AI.get().hasContentOperator();
+        const hasTranslator: boolean = AI.get().hasTranslator();
+        const contentFormAiFeatures: AiToolType[] = [];
+
+        if (hasContentOperator) {
+            contentFormAiFeatures.push(AiToolType.DIALOG, AiToolType.ANIMATE);
+        }
+
+        if (hasTranslator) {
+            contentFormAiFeatures.push(AiToolType.STATE);
+        }
 
         const contentFormContext = ContentFormContext.create()
             .setContentTypeName(type)
-            .addAiTools([AiTool.OPEN_AI_DIALOG, AiTool.AI_STATE])
+            .addAiTools(contentFormAiFeatures)
             .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
-            .setName('data')
+            .setName(AiContentDataHelper.DATA_PREFIX)
             .build();
 
         const xDataFormContext = ContentFormContext.create()
             .setContentTypeName(type)
-            .addAiTools(AiTool.AI_STATE)
+            .addAiTools(hasTranslator ? [AiToolType.STATE]: [])
             .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
-            .setName('xdata')
+            .setName(AiContentDataHelper.XDATA_PREFIX)
             .build();
 
         const liveFormContext = ContentFormContext.create()
             .setContentTypeName(type)
-            .addAiTools(AiTool.AI_STATE)
+            .addAiTools(hasTranslator ? [AiToolType.STATE] : [])
             .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
-            .setName('page')
+            .setName(AiContentDataHelper.PAGE_PREFIX)
             .build();
 
         this.formsContexts.set('content', contentFormContext);
@@ -2848,7 +2862,7 @@ export class ContentWizardPanel
     }
 
     renderAndOpenTranslatorDialog(): void {
-        if (!this.isTranslatable()) {
+        if (!this.isTranslatable() || !AI.get().hasTranslator()) {
             return;
         }
 
@@ -2859,5 +2873,12 @@ export class ContentWizardPanel
         AI.get().whenReady(() => {
             new AiTranslatorOpenDialogEvent().fire();
         });
+    }
+
+    private makeXDataFormContext(xData: XData): ContentFormContext {
+        const formContext = this.formsContexts.get('xdata').cloneBuilder().setName(`__${xData.getXDataName()}__`).build();
+        this.formsContexts.set(xData.getName(), formContext);
+
+        return formContext;
     }
 }
