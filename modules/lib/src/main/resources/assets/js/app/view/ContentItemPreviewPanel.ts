@@ -269,30 +269,27 @@ export class ContentItemPreviewPanel
 
     private setPreviewType(previewType: PREVIEW_TYPE, messages?: string[]) {
 
-        if (this.previewType !== previewType) {
+        this.getEl().removeClass('widget-preview no-preview');
 
-            this.getEl().removeClass('widget-preview no-preview');
-
-            switch (previewType) {
-            case PREVIEW_TYPE.WIDGET: {
-                this.getEl().addClass('widget-preview');
-                break;
-            }
-            case PREVIEW_TYPE.EMPTY: {
-                this.showPreviewMessages(messages || [i18n('field.preview.notAvailable')]);
-                break;
-            }
-            case PREVIEW_TYPE.FAILED:
-            case PREVIEW_TYPE.MISSING: {
-                this.showPreviewMessages(messages || [i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
-                break;
-            }
-            case PREVIEW_TYPE.NOT_CONFIGURED: {
-                this.showPreviewMessages(
-                    messages || [i18n('field.preview.notConfigured'), i18n('field.preview.notConfigured.description')]);
-                break;
-            }
-            }
+        switch (previewType) {
+        case PREVIEW_TYPE.WIDGET: {
+            this.getEl().addClass('widget-preview');
+            break;
+        }
+        case PREVIEW_TYPE.EMPTY: {
+            this.showPreviewMessages(messages || [i18n('field.preview.notAvailable')]);
+            break;
+        }
+        case PREVIEW_TYPE.FAILED:
+        case PREVIEW_TYPE.MISSING: {
+            this.showPreviewMessages(messages || [i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
+            break;
+        }
+        case PREVIEW_TYPE.NOT_CONFIGURED: {
+            this.showPreviewMessages(
+                messages || [i18n('field.preview.notConfigured'), i18n('field.preview.notConfigured.description')]);
+            break;
+        }
         }
 
         this.previewType = previewType;
