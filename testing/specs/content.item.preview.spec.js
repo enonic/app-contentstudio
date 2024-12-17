@@ -79,15 +79,15 @@ describe('content.item.preview.spec - Select a content file and check expected i
             assert.equal(actualName, `"${TEXT_CONTENT_NAME}"`, 'expected name should be displayed in JSON preview');
         });
 
-    it(`WHEN existing folder has been selected AND 'Automatic' is selected THEN 'Preview not available' should be shown in Item Preview Panel`,
+    it(`WHEN existing folder has been selected AND 'Automatic' is selected THEN 'Unable to render' should be shown in Item Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select an existing folder:
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_2_NAME);
-            // 2. Verify that 'Preview not available' is displayed
-            await studioUtils.saveScreenshot('preview_not_available');
+            // 2. Verify that 'Unable to render' is displayed when 'Automatic' is selected
+            await studioUtils.saveScreenshot('unable_to_render');
             let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
-            assert.ok(actualMessage.includes('Preview not available'), 'expected message should be displayed');
+            assert.ok(actualMessage.includes('Unable to render'), 'expected message should be displayed');
             // 3. Preview button should be disabled for a folder
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
         });

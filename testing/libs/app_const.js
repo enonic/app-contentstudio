@@ -511,6 +511,7 @@ module.exports = Object.freeze({
     },
     PREVIEW_PANEL_MESSAGE: {
         CAN_NOT_RENDER_NON_MEDIA: 'Can not render non-media content',
-        PREVIEW_NOT_AVAILABLE: 'Preview not available'
+        PREVIEW_NOT_AVAILABLE: 'Preview not available',
+        CAN_NOT_RENDER_WITH_SITE_ENGINE: 'Can not render with site engine'
     }
 });
