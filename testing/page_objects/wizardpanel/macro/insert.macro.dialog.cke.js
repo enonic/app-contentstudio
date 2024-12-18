@@ -68,8 +68,15 @@ class InsertMacroModalDialog extends Page {
     }
 
     async clickOnPreviewTabItem() {
-        await this.clickOnElement(this.previewTabItem);
-        return await this.waitForElementDisplayed(XPATH.previewTab, appConst.mediumTimeout);
+        try {
+            await this.waitForElementDisplayed(this.previewTabItem, appConst.mediumTimeout);
+            await this.pause(500);
+            await this.clickOnElement(this.previewTabItem);
+            return await this.waitForElementDisplayed(XPATH.previewTab, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_click_on_preview_tab');
+            throw new Error(`Error occurred during clicking on Preview Tab Item! screenshot: ${screenshot} ` + err);
+        }
     }
 
     async clickOnInsertButton() {
@@ -92,7 +99,7 @@ class InsertMacroModalDialog extends Page {
     async getTextInPreviewTab() {
         let locator = XPATH.previewTab + XPATH.textInPreviewTab;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return this.getText(locator);
+        return await this.getText(locator);
     }
 
     async waitForIframeDisplayed(url) {

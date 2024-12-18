@@ -755,33 +755,50 @@ module.exports = {
     },
 
     async doSwitchToNewWizard() {
-        console.log('testUtils:switching to the new wizard tab...');
-        let contentWizardPanel = new ContentWizardPanel();
-        let tabs = await this.getBrowser().getWindowHandles();
-        await this.getBrowser().switchToWindow(tabs[tabs.length - 1]);
-        return await contentWizardPanel.waitForOpened();
+        try {
+            console.log('testUtils:switching to the new wizard tab...');
+            let contentWizardPanel = new ContentWizardPanel();
+            let tabs = await this.getBrowser().getWindowHandles();
+            await this.getBrowser().switchToWindow(tabs[tabs.length - 1]);
+            return await contentWizardPanel.waitForOpened();
+        } catch (err) {
+            throw new Error('Error occurred during switching to the new browser tab ' + err);
+        }
     },
+
     async doSwitchToTabByIndex(index) {
-        let tabs = await this.getBrowser().getWindowHandles();
-        await this.getBrowser().switchToWindow(tabs[index]);
+        try {
+            let tabs = await this.getBrowser().getWindowHandles();
+            await this.getBrowser().switchToWindow(tabs[index]);
+        } catch (err) {
+            throw new Error('Error occurred during switching to the new browser tab ' + err);
+        }
     },
     async doSwitchToNextTab() {
         let tabs = await this.getBrowser().getWindowHandles();
         return await this.getBrowser().switchToWindow(tabs[tabs.length - 1]);
     },
     async doSwitchToPrevTab() {
-        let tabs = await this.getBrowser().getWindowHandles();
-        return await this.getBrowser().switchToWindow(tabs[tabs.length - 2]);
+        try {
+            let tabs = await this.getBrowser().getWindowHandles();
+            return await this.getBrowser().switchToWindow(tabs[tabs.length - 2]);
+        } catch (err) {
+            throw new Error('Error occurred during switching to the new browser tab ' + err);
+        }
     },
     async doCloseWindowTabByTitle(title) {
-        let arrayId = await this.getBrowser().getWindowHandles();
-        for (const item of arrayId) {
-            let result = await this.switchAndCheckTitle(item, title);
-            if (result) {
-                await this.getBrowser().closeWindow();
+        try {
+            let arrayId = await this.getBrowser().getWindowHandles();
+            for (const item of arrayId) {
+                let result = await this.switchAndCheckTitle(item, title);
+                if (result) {
+                    await this.getBrowser().closeWindow();
+                }
             }
+            await this.doSwitchToHome();
+        } catch (err) {
+            throw new Error('Error occurred during switching to the new browser tab ' + err);
         }
-        await this.doSwitchToHome();
     },
     doCloseAllWindowTabsAndSwitchToHome() {
         return this.getBrowser().getWindowHandles().then(tabIds => {
@@ -804,15 +821,15 @@ module.exports = {
             return this.doSwitchToHome();
         });
     },
-    switchAndCheckTitle(handle, reqTitle) {
-        return this.getBrowser().switchToWindow(handle).then(() => {
-            return this.getBrowser().getTitle().then(title => {
-                return title.includes(reqTitle);
-            }).catch(err => {
-                console.log('Error when getting Title' + err);
-                throw new Error("Error  " + err);
-            })
-        });
+    async switchAndCheckTitle(handle, reqTitle) {
+        try {
+            await this.getBrowser().switchToWindow(handle);
+            let title = await this.getBrowser().getTitle();
+            return title.includes(reqTitle);
+        } catch (err) {
+            console.log('Error occurred during  checking the  title' + err);
+            throw new Error("Error  " + err);
+        }
     },
     async saveScreenshot(name, that) {
         try {
@@ -906,7 +923,7 @@ module.exports = {
             }
             await this.doSwitchToUsersApp();
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_navigate_to_users'));
+            await this.saveScreenshotUniqueName('err_navigate_to_users');
             throw new Error('error when navigate to Users app ' + err);
         }
     },

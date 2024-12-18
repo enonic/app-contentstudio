@@ -22,11 +22,15 @@ export class XDataWizardStepForm
 
     private enableChangedListeners: ((value: boolean) => void)[] = [];
 
+    private static REGISTRY = new Map<string, XDataWizardStepForm>();
+
     constructor(xData: XData) {
         super();
         this.addClass('x-data-wizard-step-form');
 
         this.xData = xData;
+
+        XDataWizardStepForm.REGISTRY.set(this.xData.getName(), this);
     }
 
     getXData(): XData {
@@ -120,8 +124,8 @@ export class XDataWizardStepForm
                 }
 
                 promise = this.doLayout(this.form, this.data).then(() => {
-                   this.validate();
-                   return Q(null);
+                    this.validate();
+                    return Q(null);
                 });
             }
         } else {
@@ -186,5 +190,9 @@ export class XDataWizardStepForm
             (this.formContext as ContentFormContext).getPersistedContent().getExtraDataByName(this.getXDataName());
 
         return persistedXData?.getData()?.getRoot()?.getPropertyArrays().length > 0;
+    }
+
+    static getXDataWizardStepForm(name: string): XDataWizardStepForm | undefined {
+        return XDataWizardStepForm.REGISTRY.get(name);
     }
 }

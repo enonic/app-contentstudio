@@ -2,6 +2,7 @@ import {MinimizeWizardPanelEvent} from '@enonic/lib-admin-ui/app/wizard/Minimize
 import {WizardHeader} from '@enonic/lib-admin-ui/app/wizard/WizardHeader';
 import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
+import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
 import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
@@ -10,6 +11,7 @@ import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyTreeComparator} from '@enonic/lib-admin-ui/data/PropertyTreeComparator';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
@@ -18,6 +20,7 @@ import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {showFeedback, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
@@ -34,7 +37,6 @@ import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
@@ -47,12 +49,14 @@ import {ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import * as Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {Permission} from '../access/Permission';
+import {AI} from '../ai/AI';
+import {AiTranslatorOpenDialogEvent} from '../ai/event/outgoing/AiTranslatorOpenDialogEvent';
 import {MovedContentItem} from '../browse/MovedContentItem';
 import {CompareStatus} from '../content/CompareStatus';
 import {Content, ContentBuilder} from '../content/Content';
+import {ContentDiff} from '../content/ContentDiff';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {ContentId} from '../content/ContentId';
-import {ContentIds} from '../content/ContentIds';
 import {ContentName} from '../content/ContentName';
 import {ContentPath} from '../content/ContentPath';
 import {ContentPathPrettifier} from '../content/ContentPathPrettifier';
@@ -60,6 +64,7 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 import {ExtraData} from '../content/ExtraData';
+import {PageTemplate} from '../content/PageTemplate';
 import {Site} from '../content/Site';
 import {WorkflowState} from '../content/WorkflowState';
 import {XData} from '../content/XData';
@@ -70,6 +75,7 @@ import {ContentNamedEvent} from '../event/ContentNamedEvent';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {InspectEvent} from '../event/InspectEvent';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {ImageErrorEvent} from '../inputtype/ui/selector/image/ImageErrorEvent';
 import {Descriptor} from '../page/Descriptor';
@@ -90,6 +96,7 @@ import {GetApplicationsRequest} from '../resource/GetApplicationsRequest';
 import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
+import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {Router} from '../Router';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
@@ -97,6 +104,7 @@ import {ApplicationAddedEvent} from '../site/ApplicationAddedEvent';
 import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
 import {SiteModel} from '../site/SiteModel';
 import {UrlAction} from '../UrlAction';
+import {ContentDiffHelper} from '../util/ContentDiffHelper';
 import {ContentHelper} from '../util/ContentHelper';
 import {PageHelper} from '../util/PageHelper';
 import {UrlHelper} from '../util/UrlHelper';
@@ -116,6 +124,7 @@ import {ContentWizardHeader} from './ContentWizardHeader';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentWizardStep} from './ContentWizardStep';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
+import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
 import {ContentWizardToolbar} from './ContentWizardToolbar';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {DisplayNameResolver} from './DisplayNameResolver';
@@ -130,6 +139,7 @@ import {PageComponentsView} from './PageComponentsView';
 import {PageComponentsWizardStep} from './PageComponentsWizardStep';
 import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
 import {PageEventsManager} from './PageEventsManager';
+import {PageNavigationEventSource} from './PageNavigationEventData';
 import {PermissionHelper} from './PermissionHelper';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
@@ -138,14 +148,8 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
-import {PageTemplate} from '../content/PageTemplate';
-import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
-import {InspectEvent} from '../event/InspectEvent';
-import {PageNavigationEventSource} from './PageNavigationEventData';
-import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
-import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
-import {ContentDiffHelper} from '../util/ContentDiffHelper';
-import {ContentDiff} from '../content/ContentDiff';
+import {AiContentDataHelper} from '../ai/AiContentDataHelper';
+import {AiToolType} from '@enonic/lib-admin-ui/ai/tool/AiToolType';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -218,6 +222,8 @@ export class ContentWizardPanel
 
     private persistedPublishStatus: PublishStatus;
 
+    private peristedLanguage: string;
+
     private contentAfterLayout: Content;
 
     private splitPanelThreshold: number = 960;
@@ -259,13 +265,13 @@ export class ContentWizardPanel
 
     private wizardFormUpdatedDuringSave: boolean;
 
-    private pageEditorUpdatedDuringSave: boolean;
-
     private applicationLoadCount: number;
 
     private debouncedEditorReload: (clearInspection: boolean) => void;
 
     private debouncedAppsChangeHandler: () => void;
+
+    private debouncedEnonicAiDataChangedHandler: () => void;
 
     private isFirstUpdateAndRenameEventSkiped: boolean;
 
@@ -273,7 +279,7 @@ export class ContentWizardPanel
 
     public static debug: boolean = false;
 
-    private formContext: ContentFormContext;
+    private formsContexts: Map<string, ContentFormContext> = new Map<string, ContentFormContext>();
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
@@ -305,6 +311,15 @@ export class ContentWizardPanel
         this.displayNameResolver = new DisplayNameResolver();
         this.xDataWizardStepForms = new XDataWizardStepForms();
         this.workflowStateManager = new WorkflowStateManager(this);
+        this.debouncedEnonicAiDataChangedHandler = AppHelper.debounce(() => {
+            AI.get().setCurrentData({
+                contentId: this.getPersistedItem()?.getContentId().toString() ?? '',
+                contentPath: this.getPersistedItem()?.getPath().toString() ?? '',
+                fields: this.contentWizardStepForm.getData().toJson(),
+                topic: this.getWizardHeader().getDisplayName(),
+                project: ProjectContext.get().getProject().getName(),
+            });
+        }, 300);
 
         this.debouncedEditorReload = AppHelper.debounce((clearInspection: boolean = true) => {
             const livePanel = this.getLivePanel();
@@ -429,6 +444,11 @@ export class ContentWizardPanel
         this.handleSiteConfigApply();
         this.handleBrokenImageInTheWizard();
         this.getWizardHeader().onPropertyChanged(this.dataChangedHandler);
+        this.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
+            if (event.getPropertyName() === 'displayName') {
+                this.debouncedEnonicAiDataChangedHandler();
+            }
+        });
 
         const saveAction: ContentSaveAction = this.getWizardActions().getSaveAction();
 
@@ -547,6 +567,7 @@ export class ContentWizardPanel
                 this.persistedPublishStatus = loader.publishStatus;
                 this.currentCompareStatus = loader.compareStatus;
                 this.currentPublishStatus = loader.publishStatus;
+                this.peristedLanguage = loader.content?.getLanguage();
 
                 this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNameLabel());
                 this.wizardHeader.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
@@ -556,6 +577,9 @@ export class ContentWizardPanel
                     this.wizardHeader.setDisplayName(existing.getDisplayName());
                     this.wizardHeader.setName(existing.getName().toString());
                 }
+
+                AI.get().setContentType(this.contentType);
+                AI.get().updateInstructions(this.getApplicationsConfigs());
 
                 return this.loadAndSetPageState(loader.content?.getPage()?.clone());
             }).then(() => super.doLoadData());
@@ -1209,7 +1233,7 @@ export class ContentWizardPanel
             this.setMarkedAsReady(false);
 
             if (event instanceof PageControllerCustomizedEvent) {
-                this.liveEditPage?.setLocked(false);
+                this.unLockPage();
             } else { // saving page on all page updates except when page is being customized
                 this.saveChanges().catch(DefaultErrorHandler.handle);
             }
@@ -1254,16 +1278,19 @@ export class ContentWizardPanel
     private updateWizard(content: Content, unchangedOnly: boolean = true) {
         this.updateThumbnailWithContent(content);
         this.getWizardHeader().updateByContent(content);
-        this.updateWizardStepForms(content, unchangedOnly);
+        this.updateWizardStepForms(content.getContentData(), unchangedOnly);
         this.updateXDataStepForms(content, unchangedOnly);
         this.resetLastFocusedElement();
     }
 
     private removeXDataSteps(xDatas: XData[]) {
-        xDatas.map((xData: XData) => xData.getXDataName().toString()).forEach((xDataNameStr: string) => {
-            if (this.xDataWizardStepForms.contains(xDataNameStr)) {
-                this.removeStepWithForm(this.xDataWizardStepForms.get(xDataNameStr));
-                this.xDataWizardStepForms.remove(xDataNameStr);
+        xDatas.forEach(xData => {
+            const xDataName = xData.getName();
+
+            if (this.xDataWizardStepForms.contains(xDataName)) {
+                this.removeStepWithForm(this.xDataWizardStepForms.get(xDataName));
+                this.xDataWizardStepForms.remove(xDataName);
+                this.formsContexts.delete(xDataName);
             }
         });
     }
@@ -1705,7 +1732,7 @@ export class ContentWizardPanel
     }
 
     private updateLiveEditModel(content: Content): void {
-        const site: Site = content.isSite() ? content as Site: this.site;
+        const site: Site = content.isSite() ? content as Site : this.site;
 
         if (this.siteModel) {
             this.updateSiteModel(site);
@@ -1894,8 +1921,14 @@ export class ContentWizardPanel
 
                     return this.layoutWizardStepForms(content).then(() => {
                         if (this.params.localized) {
-                            this.onRendered(() => NotifyManager.get().showFeedback(i18n('notify.content.localized')));
+                            this.onRendered(() => {
+                                NotifyManager.get().showFeedback(i18n('notify.content.localized'));
+                                this.renderAndOpenTranslatorDialog();
+                            });
                         }
+
+                        AI.get().setDataTree(this.contentWizardStepForm.getData());
+                        AI.get().setContentHeader(this.wizardHeader);
 
                         this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
 
@@ -1971,7 +2004,7 @@ export class ContentWizardPanel
                 return !app || app.getState() === Application.STATE_STOPPED;
             });
 
-            this.formContext.setStoppedApplications(stoppedApps);
+            this.formsContexts.forEach((context: ContentFormContext) => context.setStoppedApplications(stoppedApps));
 
             return missingOrStoppedAppKeys;
         });
@@ -1980,10 +2013,11 @@ export class ContentWizardPanel
     private layoutWizardStepForms(content: Content): Q.Promise<void> {
         const contentData = content.getContentData();
         contentData.onChanged(this.dataChangedHandler);
+        contentData.onChanged(this.debouncedEnonicAiDataChangedHandler);
 
         const formViewLayoutPromises: Q.Promise<void>[] = [];
         formViewLayoutPromises.push(
-            this.contentWizardStepForm.layout(this.formContext, contentData, this.contentType.getForm()));
+            this.contentWizardStepForm.layout(this.formsContexts.get('content'), contentData, this.contentType.getForm()));
         // Must pass FormView from contentWizardStepForm displayNameResolver,
         // since a new is created for each call to renderExisting
         this.displayNameResolver.setFormView(this.contentWizardStepForm.getFormView());
@@ -2009,6 +2043,7 @@ export class ContentWizardPanel
         this.siteModel.update(site);
         this.site = site;
         this.initSiteModelListeners();
+        AI.get().updateInstructions(this.getApplicationsConfigs());
     }
 
     private initSiteModel(site: Site): SiteModel {
@@ -2054,7 +2089,7 @@ export class ContentWizardPanel
     }
 
     private getXDatasToAdd(xDatas: XData[]): XData[] {
-        return xDatas.filter((xData: XData) => !this.xDataWizardStepForms.contains(xData.getXDataName().toString()));
+        return xDatas.filter((xData: XData) => !this.xDataWizardStepForms.contains(xData.getName()));
     }
 
     private addXDataSteps(xDatas: XData[]): Q.Promise<void> {
@@ -2079,8 +2114,9 @@ export class ContentWizardPanel
         const data: PropertyTree = extraData ? extraData.getData() : new PropertyTree();
 
         const xDataForm: Form = new FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
+        const formContext = this.makeXDataFormContext(xDataStepForm.getXData());
 
-        return xDataStepForm.layout(this.formContext, data, xDataForm).then(() => {
+        return xDataStepForm.layout(formContext, data, xDataForm).then(() => {
             this.syncPersistedItemWithXData(xDataStepForm.getXDataName(), data);
             return Q(null);
         });
@@ -2089,7 +2125,7 @@ export class ContentWizardPanel
     private initLiveEditModel(content: Content): LiveEditModel {
         return LiveEditModel.create()
             .setContent(content)
-            .setContentFormContext(this.formContext)
+            .setContentFormContext(this.formsContexts.get('live'))
             .setSiteModel(this.siteModel)
             .setDefaultTemplate(this.defaultModels)
             .build();
@@ -2130,7 +2166,6 @@ export class ContentWizardPanel
         return updateContentRoutine.execute().then((context: RoutineContext) => {
             const content: Content = context.content;
             this.wizardFormUpdatedDuringSave = context.dataUpdated;
-            this.pageEditorUpdatedDuringSave = context.pageUpdated;
 
             if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
                 this.notifyContentNamed(content);
@@ -2246,8 +2281,8 @@ export class ContentWizardPanel
         const data: PropertyTree = new PropertyTree();
 
         const xDataForm: Form = new FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
-
-        return xDataStepForm.layout(this.formContext, data, xDataForm);
+        const formContext = this.makeXDataFormContext(xDataStepForm.getXData());
+        return xDataStepForm.layout(formContext, data, xDataForm);
     }
 
     private removeXDataStepForms(applicationKey: ApplicationKey): Q.Promise<number> {
@@ -2409,21 +2444,19 @@ export class ContentWizardPanel
             console.debug('ContentWizardPanel.initFormContext');
         }
 
-        if (!this.formContext) {
-            const type: ContentTypeName = this.contentType?.getContentTypeName() || content.getType();
-            this.formContext = ContentFormContext.create()
-                .setContentTypeName(type)
-                .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
-                .build();
+        if (this.formsContexts.size === 0) {
+            this.initFormsContexts(content);
         }
 
-        this.formContext
-            .setSite(this.site)
-            .setPersistedContent(content);
-        this.formContext.setFormState(this.formState);
-        this.formContext.setShowEmptyFormItemSetOccurrences(this.isItemPersisted());
-        this.formContext.setLanguage(content.getLanguage());
-        this.formContext.setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError));
+        this.formsContexts.forEach((formContext: ContentFormContext) => {
+            formContext
+                .setSite(this.site)
+                .setPersistedContent(content);
+            formContext.setFormState(this.formState);
+            formContext.setShowEmptyFormItemSetOccurrences(this.isItemPersisted());
+            formContext.setLanguage(content.getLanguage());
+            formContext.setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError));
+        });
     }
 
     setEnabled(value: boolean) {
@@ -2432,6 +2465,10 @@ export class ContentWizardPanel
         this.getEl().toggleClass('no-modify-permissions', !value);
         this.getLivePanel()?.setEnabled(value);
         this.pageComponentsView?.setEnabled(value);
+    }
+
+    unLockPage(): void {
+        this.liveEditPage?.setLocked(false);
     }
 
     isReadOnly(): boolean {
@@ -2470,12 +2507,15 @@ export class ContentWizardPanel
         });
     }
 
-    private updateWizardStepForms(content: Content, unchangedOnly: boolean = true) {
+    private updateWizardStepForms(propertyTree: PropertyTree, unchangedOnly: boolean = true): Q.Promise<void> {
         this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
+        this.contentWizardStepForm.getData().unChanged(this.debouncedEnonicAiDataChangedHandler);
 
-        content.getContentData().onChanged(this.dataChangedHandler);
+        propertyTree.onChanged(this.dataChangedHandler);
+        propertyTree.onChanged(this.debouncedEnonicAiDataChangedHandler);
 
-        this.contentWizardStepForm.update(content.getContentData(), unchangedOnly).then(() => {
+        return this.contentWizardStepForm.update(propertyTree, unchangedOnly).then(() => {
+            AI.get().setDataTree(this.contentWizardStepForm.getData());
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
         });
     }
@@ -2584,6 +2624,7 @@ export class ContentWizardPanel
         this.contentAfterLayout = this.getPersistedItem();
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
+        AI.get().setContent(newPersistedItem);
     }
 
     isHeaderValidForSaving(): boolean {
@@ -2594,6 +2635,7 @@ export class ContentWizardPanel
         ContentContext.get().setContent(content);
         this.persistedPublishStatus = content.getPublishStatus();
         this.persistedCompareStatus = content.getCompareStatus();
+        this.peristedLanguage = content.getLanguage();
 
         this.wizardHeader?.setOnline(!content.isNew());
         this.wizardHeader?.setPath(this.getWizardHeaderPath());
@@ -2655,6 +2697,11 @@ export class ContentWizardPanel
 
     getSplitPanel(): SplitPanel {
         return this.splitPanel;
+    }
+
+    isTranslatable(): boolean {
+        return this.isContentExistsInParentProject() && this.getContent().hasOriginProject() &&
+               !!ProjectContext.get().getProject().getLanguage();
     }
 
     private isPageComponentsViewRequired(): boolean {
@@ -2731,7 +2778,8 @@ export class ContentWizardPanel
             throw new Error('PageComponentsWizardStepForm is not initialized');
         }
 
-        this.pageComponentsWizardStep = new PageComponentsWizardStep(this.getInitialPageWizardStepName(), this.pageComponentsWizardStepForm);
+        this.pageComponentsWizardStep =
+            new PageComponentsWizardStep(this.getInitialPageWizardStepName(), this.pageComponentsWizardStepForm);
 
         return this.pageComponentsWizardStep;
     }
@@ -2770,6 +2818,71 @@ export class ContentWizardPanel
     }
 
     private isReloadLiveEditRequired(diff: ContentDiff): boolean {
-        return !!diff.data || !!diff.pageObj || !!diff.extraData || !!diff.path || !!diff.displayName || !!diff.name || !!diff.inherit;
+        return !!diff.data || !!diff.pageObj || !!diff.extraData || !!diff.path || !!diff.displayName || !!diff.name;
+    }
+
+    private getApplicationsConfigs(): ApplicationConfig[] {
+        return [...(this.site?.getSiteConfigs() ?? []), ...ProjectContext.get().getProject().getSiteConfigs()];
+    }
+
+    private initFormsContexts(content: Content): void {
+        const type: ContentTypeName = this.contentType?.getContentTypeName() || content.getType();
+        const hasContentOperator: boolean = AI.get().hasContentOperator();
+        const hasTranslator: boolean = AI.get().hasTranslator();
+        const contentFormAiFeatures: AiToolType[] = [];
+
+        if (hasContentOperator) {
+            contentFormAiFeatures.push(AiToolType.DIALOG, AiToolType.ANIMATE);
+        }
+
+        if (hasTranslator) {
+            contentFormAiFeatures.push(AiToolType.STATE);
+        }
+
+        const contentFormContext = ContentFormContext.create()
+            .setContentTypeName(type)
+            .addAiTools(contentFormAiFeatures)
+            .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
+            .setName(AiContentDataHelper.DATA_PREFIX)
+            .build();
+
+        const xDataFormContext = ContentFormContext.create()
+            .setContentTypeName(type)
+            .addAiTools(hasTranslator ? [AiToolType.STATE]: [])
+            .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
+            .setName(AiContentDataHelper.XDATA_PREFIX)
+            .build();
+
+        const liveFormContext = ContentFormContext.create()
+            .setContentTypeName(type)
+            .addAiTools(hasTranslator ? [AiToolType.STATE] : [])
+            .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
+            .setName(AiContentDataHelper.PAGE_PREFIX)
+            .build();
+
+        this.formsContexts.set('content', contentFormContext);
+        this.formsContexts.set('xdata', xDataFormContext);
+        this.formsContexts.set('live', liveFormContext);
+    }
+
+    renderAndOpenTranslatorDialog(): void {
+        if (!this.isTranslatable() || !AI.get().hasTranslator()) {
+            return;
+        }
+
+        const aiTranslatorContainer = new DivEl('ai-translator-container');
+        Body.get().appendChild(aiTranslatorContainer);
+        AI.get().renderTranslator(aiTranslatorContainer.getHTMLElement());
+
+        AI.get().whenReady(() => {
+            new AiTranslatorOpenDialogEvent().fire();
+        });
+    }
+
+    private makeXDataFormContext(xData: XData): ContentFormContext {
+        const formContext = this.formsContexts.get('xdata').cloneBuilder().setName(`__${xData.getXDataName()}__`).build();
+        this.formsContexts.set(xData.getName(), formContext);
+
+        return formContext;
     }
 }

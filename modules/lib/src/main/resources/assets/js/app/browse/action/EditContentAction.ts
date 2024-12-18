@@ -1,20 +1,22 @@
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ContentLocalizer} from './ContentLocalizer';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ContentsLocalizer} from './ContentsLocalizer';
+
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
-export class EditContentAction extends ContentTreeGridAction {
+export class EditContentAction
+    extends ContentTreeGridAction {
 
     private static MAX_ITEMS_TO_EDIT: number = 50;
 
     private isLocalize: boolean = false;
 
-    private contentsLocalizer?: ContentsLocalizer;
+    private contentLocalizer?: ContentLocalizer;
 
     constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
         super(grid, i18n('action.edit'), 'mod+e');
@@ -37,11 +39,11 @@ export class EditContentAction extends ContentTreeGridAction {
     }
 
     private localizeContents(contents: ContentSummaryAndCompareStatus[]): void {
-        if (!this.contentsLocalizer) {
-            this.contentsLocalizer = new ContentsLocalizer();
+        if (!this.contentLocalizer) {
+            this.contentLocalizer = new ContentLocalizer();
         }
 
-        this.contentsLocalizer.localizeAndEdit(contents).catch(DefaultErrorHandler.handle);
+        this.contentLocalizer.localizeAndEdit(contents).catch(DefaultErrorHandler.handle);
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

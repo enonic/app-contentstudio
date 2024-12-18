@@ -34,6 +34,23 @@
     }
   }
 
+  .toggle-button {
+    &.icon-clipboard {
+      &:not(.disabled) {
+        display: flex !important;
+      }
+      order: 3;
+    }
+    &.icon-cog {
+      order: 4;
+    }
+  }
+
+  .cycle-button {
+    order: 6;
+    z-index: 1999;
+  }
+
   &:not(.live) .toggle-button {
     &.icon-clipboard,
     &.icon-cog:not(.details-toggle) {
@@ -130,7 +147,7 @@
   }
 
   .non-mobile-details-panel-toggle-button {
-    order: 6;
+    order: 7;
     padding: 8px;
 
     &::before {
@@ -156,6 +173,11 @@
     justify-content: flex-end;
     max-width: 120px;
     margin-right: 5px;
+  }
+
+  .ai-assistant-container {
+    height: 100%;
+    margin-right: 2px;
   }
 }
 

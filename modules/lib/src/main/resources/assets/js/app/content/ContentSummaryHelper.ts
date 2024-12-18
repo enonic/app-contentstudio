@@ -24,7 +24,32 @@ export class ContentSummaryHelper {
         }
 
         if (!ObjectHelper.anyEquals(item.getInherit(), other.getInherit())) {
-            diff.inherit = true;
+            const inheritDiff = {
+                content: false,
+                parent: false,
+                name: false,
+                sort: false
+            };
+
+            if (item.isDataInherited() !== other.isDataInherited()) {
+                inheritDiff.content = true;
+            }
+
+            if (item.isParentInherited() !== other.isParentInherited()) {
+                inheritDiff.parent = true;
+            }
+
+            if (item.isNameInherited() !== other.isNameInherited()) {
+                inheritDiff.name = true;
+            }
+
+            if (item.isSortInherited() !== other.isSortInherited()) {
+                inheritDiff.sort = true;
+            }
+
+            if (inheritDiff.content || inheritDiff.parent || inheritDiff.name || inheritDiff.sort) {
+                diff.inherit = inheritDiff;
+            }
         }
 
         if (!ObjectHelper.equals(item.getPath(), other.getPath())) {
