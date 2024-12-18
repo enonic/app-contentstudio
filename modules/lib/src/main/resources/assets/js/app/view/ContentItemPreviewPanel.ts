@@ -23,7 +23,6 @@ enum PREVIEW_TYPE {
     EMPTY,
     FAILED,
     MISSING,
-    NOT_CONFIGURED,
 }
 
 export class ContentItemPreviewPanel
@@ -285,11 +284,6 @@ export class ContentItemPreviewPanel
             this.showPreviewMessages(messages || [i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
             break;
         }
-        case PREVIEW_TYPE.NOT_CONFIGURED: {
-            this.showPreviewMessages(
-                messages || [i18n('field.preview.notConfigured'), i18n('field.preview.notConfigured.description')]);
-            break;
-        }
         }
 
         this.previewType = previewType;
@@ -329,10 +323,8 @@ export class ContentItemPreviewPanel
 
             switch (statusCode) {
             case StatusCode.NOT_FOUND:
-                this.setPreviewType(PREVIEW_TYPE.EMPTY, messages);
-                break;
             case StatusCode.I_AM_A_TEAPOT:
-                this.setPreviewType(PREVIEW_TYPE.NOT_CONFIGURED, messages);
+                this.setPreviewType(PREVIEW_TYPE.EMPTY, messages);
                 break;
             default:
                 this.setPreviewType(PREVIEW_TYPE.FAILED, messages);
