@@ -1233,7 +1233,7 @@ export class ContentWizardPanel
             this.setMarkedAsReady(false);
 
             if (event instanceof PageControllerCustomizedEvent) {
-                this.liveEditPage?.setLocked(false);
+                this.unLockPage();
             } else { // saving page on all page updates except when page is being customized
                 this.saveChanges().catch(DefaultErrorHandler.handle);
             }
@@ -2465,6 +2465,10 @@ export class ContentWizardPanel
         this.getEl().toggleClass('no-modify-permissions', !value);
         this.getLivePanel()?.setEnabled(value);
         this.pageComponentsView?.setEnabled(value);
+    }
+
+    unLockPage(): void {
+        this.liveEditPage?.setLocked(false);
     }
 
     isReadOnly(): boolean {
