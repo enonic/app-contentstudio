@@ -1,7 +1,6 @@
 /*global app, resolve*/
 
 const widgetLib = require('/lib/export/widget');
-const i18n = require('/lib/xp/i18n');
 
 const SHORTCUT_TYPE = 'base:shortcut';
 
@@ -10,7 +9,7 @@ exports.get = function (req) {
     try {
         params = widgetLib.validateParams(req.params);
     } catch (e) {
-        return widgetLib.errorResponse(400, [i18n.localize({key: 'widget.liveview.badArguments'}), e.message]);
+        return widgetLib.errorResponse(400);
     }
 
     if (!exports.canRender(req)) {
@@ -18,7 +17,7 @@ exports.get = function (req) {
         // return 418 if not able to render
         log.debug('Site [GET] can\'t render: 418');
 
-        return widgetLib.errorResponse(418, [i18n.localize({key: 'widget.liveview.site.cantRender'})]);
+        return widgetLib.errorResponse(418);
     }
 
     try {
@@ -32,7 +31,7 @@ exports.get = function (req) {
         }
     } catch (e) {
         log.error(`Site [GET] error: ${e.message}`);
-        return widgetLib.errorResponse(500, [i18n.localize({key: 'widget.liveview.site.error'}), e.message]);
+        return widgetLib.errorResponse(500);
     }
 }
 

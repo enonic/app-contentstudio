@@ -24,17 +24,18 @@ function validateParams(params) {
 }
 
 function errorResponse(status, messages) {
-    const messagesArray = Array.isArray(messages) ? messages : [messages];
-    return {
+    const response = {
         status,
-        contentType: 'application/json',
-        body: messagesArray.join(': '),
-        headers: {
-            [WIDGET_HEADER_NAME]: JSON.stringify({
-                messages: messagesArray
-            })
-        }
+        contentType: 'application/json'
     }
+
+    if (messages) {
+        const messagesArray = Array.isArray(messages) ? messages : [messages];
+        response.body = messagesArray.join(': ');
+        response.headers[WIDGET_HEADER_NAME] = JSON.stringify({messages: messagesArray});
+    }
+
+    return response;
 }
 
 function switchContext(repository, branch, successCallback, errorCallback) {
