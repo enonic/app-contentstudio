@@ -22,15 +22,11 @@ public final class ResponseMapper
     @Override
     public void serialize( final MapGenerator gen )
     {
-        System.out.println( "ResponseMapper.serialize() started" );
-
         gen.value( "status", this.response.getStatus() );
         gen.value( "mimeType", this.response.getMediaType() );
         gen.value( "body", this.response.getEntity() );
         serializeHeaders( gen );
         serializeCookies( gen );
-
-        System.out.println( "ResponseMapper.serialize() finished" );
     }
 
     private void serializeHeaders( final MapGenerator gen )

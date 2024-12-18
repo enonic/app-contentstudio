@@ -81,7 +81,7 @@ public class MediaRenderingBean
                     "application/json", "application/javascript", "application/ecmascript", "text/javascript",
                     "text/html", "text/css" ).stream()
 
-        ).collect( Collectors.toSet() );
+        ).filter( t -> !t.equals( "video/avi" ) ).collect( Collectors.toSet() );
 
     private static final Set<String> SKIP_IMAGE_MIME_TYPES = Set.of( "image/webp", "image/avif", "image/gif" );
 
