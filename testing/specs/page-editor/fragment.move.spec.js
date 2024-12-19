@@ -104,9 +104,9 @@ describe('Move Fragment specification', function () {
             await contentItemPreviewPanel.getSelectedOptionInPreviewWidget();
             // 2. Select 'Media' in the dropdown
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
-            // 3. Verify the message:  'Can not render non-media content'
+            // 3. Verify the message:  'Preview not available'
             let messages = await contentItemPreviewPanel.getNoPreviewMessage();
-            assert.ok(messages.includes(appConst.PREVIEW_PANEL_MESSAGE.CAN_NOT_RENDER_NON_MEDIA),
+            assert.ok(messages.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE),
                 "Expected message should be displayed in Content Item Preview panel");
         });
 

@@ -74,9 +74,8 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
 
             let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
-            // 4. 'Can not render non-media content' message should be displayed
-            assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.CAN_NOT_RENDER_WITH_SITE_ENGINE),
-                'expected message should be displayed');
+            // 4. 'Preview not available' message should be displayed
+            assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE), 'expected message should be displayed');
 
         });
 
