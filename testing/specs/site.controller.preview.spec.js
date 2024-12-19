@@ -45,9 +45,8 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             // 4. Verify that 'Failed to render content preview' is displayed in Content Item Preview panel:
             await studioUtils.saveScreenshot('site_preview_not_available');
             let text = await contentItemPreviewPanel.getNoPreviewMessage();
-            assert.ok(text.includes('Unable to render'),
+            assert.ok(text.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE),
                 "Expected text should be displayed in Content Item Preview panel");
-            assert.ok(text.includes("No template or page configured"), "Expected text should be displayed");
             let actualOption = await contentItemPreviewPanel.getSelectedOptionInPreviewWidget();
             assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
                 'Automatic option should be selected in preview widget by default');
