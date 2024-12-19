@@ -37,12 +37,13 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.MOVE);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.PUBLISH);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.DUPLICATE);
-            // 4.Verify that Preview, Sort  menu items are disabled in the context menu:
-            await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.PREVIEW);
+            // 4. Verify that 'Preview' item should not be displayed in the context menu:
+            await contentBrowsePanel.waitForContextMenuItemNotDisplayed(appConst.GRID_CONTEXT_MENU.PREVIEW);
+            // 5. 'Sort...'  menu item should be disabled in the context menu:
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.SORT);
         });
 
-    it(`GIVEN two folders are selected WHEN do right click on the selected items THEN New, Sort, Preview menu items should be disabled`,
+    it(`GIVEN two folders are selected WHEN do right click on the selected items THEN New, Sort, menu items should be disabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
@@ -53,7 +54,7 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             await studioUtils.findContentAndClickCheckBox(TEST_FOLDER_1.displayName);
             // 2. Do right-click on the selected folders:
             await contentBrowsePanel.rightClickOnItemByDisplayName(TEST_FOLDER_1.displayName);
-            // 3.Verify that Archive, Edit, Move, Publish, Duplicate  menu items are enabled in the context menu:
+            // 3. Verify that Archive, Edit, Move, Publish, Duplicate  menu items are enabled in the context menu:
             await studioUtils.saveScreenshot('folder-context-menu-2');
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.ARCHIVE);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.EDIT);
@@ -62,8 +63,9 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.DUPLICATE);
             // 4.Verify that New, Preview, Sort  menu items are disabled in the context menu:
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.NEW);
-            await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.PREVIEW);
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.SORT);
+            // 5. 'Preview' item should not be displayed in the context menu:
+            await contentBrowsePanel.waitForContextMenuItemNotDisplayed(appConst.GRID_CONTEXT_MENU.PREVIEW);
         });
 
     it(`GIVEN existing folder is published WHEN do right click on the folder THEN Unpublish menu item appears in the context menu `,
@@ -81,7 +83,7 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
             await contentBrowsePanel.waitForNotificationMessage();
-            // 4. Do right click on the selected folder
+            // 4. Do right-click on the selected folder
             await contentBrowsePanel.rightClickOnItemByDisplayName(TEST_FOLDER_1.displayName);
             await studioUtils.saveScreenshot('folder-context-menu-3');
             // 5.Verify that 'Unpublish'  menu item gets visible and enabled in the context menu:
@@ -121,7 +123,7 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             assert.equal(displayName, TEST_FOLDER_1.displayName, 'Expected and actual display name should be equal');
         });
 
-    it(`WHEN do right click on an existing image THEN 'Preview','New', 'Sort' menu items should be disabled in the context menu`,
+    it(`WHEN do right click on an existing image THEN 'New', 'Sort' menu items should be disabled in the context menu`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
@@ -129,13 +131,12 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.RENAULT);
             // 2. Do the right click on the image:
             await contentBrowsePanel.rightClickOnItemByDisplayName(appConst.TEST_IMAGES.RENAULT);
-            // 3.Verify that New, Preview, Sort  menu items are disabled in the context menu:
+            // 3. Verify that New, Sort  menu items are disabled in the context menu:
             await studioUtils.saveScreenshot('image-context-menu-1');
-            await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.PREVIEW);
-            await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.NEW);
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.SORT);
-            // 4. Verify that Img element gets visible in the Item Preview Panel:
-            await contentItemPreviewPanel.waitForImageDisplayed();
+            await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.NEW);
+            // 4. 'Preview' menu item should not be displayed in the context menu:
+            await contentBrowsePanel.waitForContextMenuItemNotDisplayed(appConst.GRID_CONTEXT_MENU.PREVIEW);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

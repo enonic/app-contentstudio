@@ -97,52 +97,6 @@ public class ContentMediaResourceTest
     }
 
     @Test
-    public void isAllowPreview()
-        throws Exception
-    {
-        final Media content = mockAttachmentBinary();
-
-        String result = request().path( "content/media/isAllowPreview" ).
-            queryParam( "contentId", content.getId().toString() ).get().getAsString();
-
-        assertEquals( "true", result );
-    }
-
-    @Test
-    public void isAllowPreview_empty()
-        throws Exception
-    {
-        final Media content = createMedia();
-
-        String result = request().path( "content/media/isAllowPreview" ).
-            queryParam( "contentId", content.getId().toString() ).get().getAsString();
-
-        assertEquals( "false", result );
-    }
-
-    @Test
-    public void isAllowPreview_unsupported()
-        throws Exception
-    {
-        final Media content = addAttachment( createMediaBuilder(), Attachment.create().
-            name( "word.doc" ).
-            label( "word" ).
-            mimeType( "application/msword" ).
-            size( 12345 ).
-            build() ).
-            build();
-
-        Mockito.when( this.contentService.getById( content.getId() ) ).thenReturn( content );
-
-        String result = request().path( "content/media/isAllowPreview" ).
-            queryParam( "contentId", content.getId().toString() ).
-            queryParam( "identifier", "word" ).
-            get().getAsString();
-
-        assertEquals( "false", result );
-    }
-
-    @Test
     public void media_content_empty()
         throws Exception
     {
