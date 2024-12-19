@@ -71,7 +71,7 @@ describe("Shortcut's target specification", function () {
             assert.equal(actualResult, TARGET_2, "Expected display name should be present in the selected option");
         });
 
-    it(`GIVEN shortcut with an image in its target are selected WHEN 'Media' has been selected THEN 'Can not render non-media content' message should be displayed in the Preview panel`,
+    it(`GIVEN shortcut with an image in its target are selected WHEN 'Media' has been selected THEN 'Preview not available' message should be displayed in the Preview panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select the existing shortcut to an image:
@@ -83,8 +83,8 @@ describe("Shortcut's target specification", function () {
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
             // 4. Verify the message in Preview panel:
             let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
-            // 'Can not render non-media content' message should be displayed
-            assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.CAN_NOT_RENDER_NON_MEDIA),
+            // 'Preview not available' message should be displayed
+            assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE),
                 'expected message should be displayed');
         });
 
