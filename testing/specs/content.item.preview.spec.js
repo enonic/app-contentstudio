@@ -79,7 +79,7 @@ describe('content.item.preview.spec - Select a content file and check expected i
             assert.equal(actualName, `"${TEXT_CONTENT_NAME}"`, 'expected name should be displayed in JSON preview');
         });
 
-    it(`WHEN existing folder has been selected AND 'Automatic' is selected THEN 'Unable to render' should be shown in Item Preview Panel`,
+    it(`WHEN existing folder has been selected AND 'Automatic' is selected THEN 'Preview not available' should be shown in Item Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select an existing folder:
@@ -87,7 +87,7 @@ describe('content.item.preview.spec - Select a content file and check expected i
             // 2. Verify that 'Unable to render' is displayed when 'Automatic' is selected
             await studioUtils.saveScreenshot('unable_to_render');
             let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
-            assert.ok(actualMessage.includes('Unable to render'), 'expected message should be displayed');
+            assert.ok(actualMessage.includes('Preview not available'), 'expected message should be displayed');
             // 3. Preview button should be disabled for a folder
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
         });
@@ -119,9 +119,8 @@ describe('content.item.preview.spec - Select a content file and check expected i
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
 
             let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
-            // 4. 'Can not render non-media content' message should be displayed
-            assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.CAN_NOT_RENDER_NON_MEDIA),
-                'expected message should be displayed');
+            // 4. 'Preview not available' message should be displayed
+            assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE), 'expected message should be displayed');
 
         });
 
@@ -135,7 +134,8 @@ describe('content.item.preview.spec - Select a content file and check expected i
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
             // 3. Verify the message in the preview panel
             let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
-            assert.ok(actualMessage.includes('Unable to render'), "'Unable to render' message should be displayed");
+            assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE),
+                "'Preview not available' message should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
