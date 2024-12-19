@@ -26,7 +26,7 @@ export class BatchContentServerEvent
 
     toString(): string {
         return 'BatchContentServerChangeItem: [' +
-               this.items.map((event) => String(event)).join(', ') +
+               this.items.map((event) => JSON.stringify(event)).join(', ') +
                ']';
     }
 
