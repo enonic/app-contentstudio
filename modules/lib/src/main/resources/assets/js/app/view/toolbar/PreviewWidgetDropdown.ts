@@ -52,7 +52,7 @@ export class PreviewWidgetDropdown
     }
 
     private async fetchLiveViewWidgets(): Promise<Widget[]> {
-        return new GetWidgetsByInterfaceRequest('contentstudio.liveview').sendAndParse()
+        return new GetWidgetsByInterfaceRequest(['contentstudio.liveview']).sendAndParse()
             .catch((e) => {
                 DefaultErrorHandler.handle(e);
                 return [];
