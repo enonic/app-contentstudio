@@ -14,6 +14,8 @@ import {Project} from '../../../settings/data/project/Project';
 
 export class HTMLAreaHelper {
 
+    private static sourceCodeEditablePromise: Q.Promise<boolean>;
+
     private static getConvertedImageSrc(imgSrc: string, contentId: string, project?: Project): string {
         const imageId = HTMLAreaHelper.extractImageIdFromImgSrc(imgSrc);
         const styleParameter = '?style=';
@@ -106,6 +108,14 @@ export class HTMLAreaHelper {
     }
 
     public static isSourceCodeEditable(): Q.Promise<boolean> {
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        HTMLAreaHelper.sourceCodeEditablePromise = HTMLAreaHelper.sourceCodeEditablePromise || HTMLAreaHelper.sendIsCodeEditableRequest();
+
+
+        return HTMLAreaHelper.sourceCodeEditablePromise;
+    }
+
+    private static sendIsCodeEditableRequest(): Q.Promise<boolean> {
         return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             if (loginResult.isContentExpert()) {
                 return Q(true);

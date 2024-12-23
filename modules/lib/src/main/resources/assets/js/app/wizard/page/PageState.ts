@@ -40,6 +40,7 @@ import {ComponentRemovedOnMoveEvent} from '../../page/region/ComponentRemovedOnM
 import {PageTemplate} from '../../content/PageTemplate';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
 import * as Q from 'q';
+import {ComponentTextUpdatedOrigin} from '../../page/region/ComponentTextUpdatedOrigin';
 
 export class PageState {
 
@@ -239,7 +240,7 @@ export class PageStateEventHandler {
             }
         });
 
-        PageEventsManager.get().onTextComponentUpdateRequested((path: ComponentPath, text: string) => {
+        PageEventsManager.get().onTextComponentUpdateRequested((path: ComponentPath, text: string, origin?: ComponentTextUpdatedOrigin) => {
             if (!PageState.getState()) {
                 console.warn('Unable to update text component: Page is not set');
                 return;
@@ -249,7 +250,7 @@ export class PageStateEventHandler {
 
             // updating text component only if text differs
             if (item instanceof TextComponent && !PageHelper.stringEqualsIgnoreEmpty(item.getText(), text)) {
-                item.setText(text);
+                item.setText(text, false, origin);
             }
         });
 

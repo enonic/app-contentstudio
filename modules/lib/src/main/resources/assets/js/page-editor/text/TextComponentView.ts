@@ -80,9 +80,6 @@ export class TextComponentView
 
     private modalDialog: ModalDialog;
     private currentDialogConfig: HtmlAreaDialogConfig;
-
-    private authRequest: Q.Promise<void>;
-    private editableSourceCode: boolean;
     private winBlurred: boolean;
 
     constructor(builder: TextComponentViewBuilder) {
@@ -93,8 +90,6 @@ export class TextComponentView
         this.addClassEx('text-view');
         this.setContentEditable(true); // https://ckeditor.com/docs/ckeditor4/latest/guide/dev_inline.html#enabling-inline-editing
         this.setTextDir();
-
-        this.checkIsSourceCodeEditable();
         this.fetchStylesAndInitEditor();
     }
 
@@ -144,13 +139,6 @@ export class TextComponentView
                 this.initialValue = this.liveEditParams.getTextComponentData(this.getPath().toString());
             }
         }
-    }
-
-    private checkIsSourceCodeEditable(): void {
-        this.authRequest = HTMLAreaHelper.isSourceCodeEditable().then((value: boolean) => {
-            this.editableSourceCode = value;
-            return Q(null);
-        });
     }
 
     private setTextDir(): void {
@@ -420,11 +408,9 @@ export class TextComponentView
     }
 
     private initEditor(): void {
-        this.authRequest.then(() => {
-            if (!this.isEditorPresentOrInitializing()) {
-                this.doInitEditor();
-            }
-        });
+        if (!this.isEditorPresentOrInitializing()) {
+            this.doInitEditor();
+        }
     }
 
     private doInitEditor(): void {
@@ -434,29 +420,31 @@ export class TextComponentView
             this.currentDialogConfig = event.getConfig();
         };
 
-        const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
-            .setEditorContainerId(this.getId())
-            .setAssetsUri(CONFIG.getString('assetsUri'))
-            .setInline(true)
-            .setCreateDialogHandler(createDialogHandler)
-            .setFocusHandler(this.onFocusHandler.bind(this))
-            .setBlurHandler(this.onBlurHandler.bind(this))
-            .setMouseLeaveHandler(this.onMouseLeftHandler.bind(this))
-            .setKeydownHandler(this.onKeydownHandler.bind(this))
-            .setNodeChangeHandler(this.processEditorValue.bind(this))
-            .setEditorReadyHandler(this.handleEditorCreated.bind(this))
-            .setFixedToolbarContainer(PageViewController.get().getEditorToolbarContainerId())
-            .setContent(ContentContext.get().getContent()?.getContentSummary())
-            .setEditableSourceCode(this.editableSourceCode)
-            .setApplicationKeys(this.getLiveEditParams().applicationKeys?.map(key => ApplicationKey.fromString(key)))
-            .setLangDirection(this.getLangDirection())
-            .build();
+        HTMLAreaHelper.isSourceCodeEditable().then(editableSourceCode => {
+            const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
+                .setEditorContainerId(this.getId())
+                .setAssetsUri(CONFIG.getString('assetsUri'))
+                .setInline(true)
+                .setCreateDialogHandler(createDialogHandler)
+                .setFocusHandler(this.onFocusHandler.bind(this))
+                .setBlurHandler(this.onBlurHandler.bind(this))
+                .setMouseLeaveHandler(this.onMouseLeftHandler.bind(this))
+                .setKeydownHandler(this.onKeydownHandler.bind(this))
+                .setNodeChangeHandler(this.processEditorValue.bind(this))
+                .setEditorReadyHandler(this.handleEditorCreated.bind(this))
+                .setFixedToolbarContainer(PageViewController.get().getEditorToolbarContainerId())
+                .setContent(ContentContext.get().getContent()?.getContentSummary())
+                .setEditableSourceCode(editableSourceCode)
+                .setApplicationKeys(this.getLiveEditParams().applicationKeys?.map(key => ApplicationKey.fromString(key)))
+                .setLangDirection(this.getLangDirection())
+                .build();
 
-        HtmlEditor.create(htmlEditorParams).then((htmlEditor: HtmlEditor) => {
-            this.htmlAreaEditor = htmlEditor;
+            return HtmlEditor.create(htmlEditorParams).then((htmlEditor: HtmlEditor) => {
+                this.htmlAreaEditor = htmlEditor;
 
-            this.htmlAreaEditor.on('focus', () => {
-                this.selectWhileEditing();
+                this.htmlAreaEditor.on('focus', () => {
+                    this.selectWhileEditing();
+                });
             });
         }).catch(DefaultErrorHandler.handle);
     }
@@ -513,12 +501,24 @@ export class TextComponentView
 
         this.refreshEmptyState();
 
-        new UpdateTextComponentEvent(this.getPath(), text).fire();
+        new UpdateTextComponentEvent(this.getPath(), text, 'live').fire();
     }
 
     private getText(): string {
         return this.isEditorEmpty() ? TextComponentView.DEFAULT_TEXT :
                HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.htmlAreaEditor.getData());
+    }
+
+    setText(text: string): void {
+        if (this.isEditorReady()) {
+            const processedText = HTMLAreaHelper.convertRenderSrcToPreviewSrc(text, this.getLiveEditParams().contentId);
+
+            if (processedText !== this.getText()) {
+                this.htmlAreaEditor.setData(processedText);
+            }
+        } else {
+            this.initialValue = text;
+        }
     }
 
     isEmpty(): boolean {

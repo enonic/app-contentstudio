@@ -77,13 +77,18 @@ class SiteConfiguratorDialog extends Page {
     }
 
     async showToolbarAndClickOnInsertLinkButton() {
-        let areaSelector = `//div[contains(@id,'cke_TextArea')]`;
-        let insertLinkButton = "//a[contains(@class,'cke_button') and contains(@title,'Link')]";
-        await this.waitForElementDisplayed(areaSelector, appConst.mediumTimeout);
-        await this.clickOnElement(areaSelector);
-        await this.waitForElementDisplayed(insertLinkButton, appConst.mediumTimeout);
-        await this.clickOnElement(insertLinkButton);
-        return await this.pause(300);
+        try {
+            let areaSelector = XPATH.container + `//div[contains(@id,'cke_TextArea')]`;
+            let insertLinkButton = XPATH.container + "//a[contains(@class,'cke_button') and contains(@title,'Link')]";
+            await this.waitForElementDisplayed(areaSelector, appConst.mediumTimeout);
+            await this.clickOnElement(areaSelector);
+            await this.waitForElementDisplayed(insertLinkButton, appConst.mediumTimeout);
+            await this.clickOnElement(insertLinkButton);
+            return await this.pause(300);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_insert_link_button');
+            throw new Error(`Site Config, insert link button, screenshot: '${screenshot}' ` + err);
+        }
     }
 
     clickOnCancelButton() {

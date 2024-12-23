@@ -3,7 +3,7 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 import {ComponentTextUpdatedOrigin} from '../../../../app/page/region/ComponentTextUpdatedOrigin';
 
-export class UpdateTextComponentEvent
+export class UpdateTextComponentViewEvent
     extends Event {
 
     private readonly path: ComponentPath;
@@ -31,11 +31,11 @@ export class UpdateTextComponentEvent
         return this.origin;
     }
 
-    static on(handler: (event: UpdateTextComponentEvent) => void, contextWindow: Window = window) {
+    static on(handler: (event: UpdateTextComponentViewEvent) => void, contextWindow: Window = window) {
         Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
-    static un(handler?: (event: UpdateTextComponentEvent) => void, contextWindow: Window = window) {
+    static un(handler?: (event: UpdateTextComponentViewEvent) => void, contextWindow: Window = window) {
         Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }
