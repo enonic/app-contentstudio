@@ -50,9 +50,6 @@ export class HtmlArea
 
     private blurListeners: ((event: FocusEvent) => void)[] = [];
 
-    private authRequest: Q.Promise<void>;
-    private editableSourceCode: boolean;
-
     private enabledTools: string[];
     private disabledTools: string[];
     private allowHeadingsConfig: string;
@@ -67,11 +64,6 @@ export class HtmlArea
         this.content = config.content;
         this.applicationKeys = this.resolveApplicationKeys();
         this.processInputConfig();
-
-        this.authRequest = HTMLAreaHelper.isSourceCodeEditable().then((value: boolean) => {
-            this.editableSourceCode = value;
-            return Q(null);
-        });
 
         this.onAdded(() => {
             this.refresh();
@@ -159,9 +151,7 @@ export class HtmlArea
         this.editors.push(editor);
 
         textAreaEl.onRendered(() => {
-            this.authRequest.then(() => {
-                this.initEditor(editorId, editor.savedValue, textAreaWrapper).catch(DefaultErrorHandler.handle);
-            });
+            this.initEditor(editorId, editor.savedValue, textAreaWrapper).catch(DefaultErrorHandler.handle);
         });
 
         textAreaEl.onValueChanged((event: ValueChangedEvent) => {
@@ -325,31 +315,33 @@ export class HtmlArea
             }
         };
 
-        const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
-            .setEditorContainerId(id)
-            .setAssetsUri(CONFIG.getString('assetsUri'))
-            .setInline(false)
-            .setCreateDialogHandler(HTMLAreaProxy.createAndOpenDialog)
-            .setFocusHandler(focusHandler)
-            .setBlurHandler(blurHandler)
-            .setKeydownHandler(keydownHandler)
-            .setNodeChangeHandler(editorValueChangedHandler)
-            .setEditorLoadedHandler(editorLoadedHandler)
-            .setEditorReadyHandler(editorReadyHandler)
-            .setSaveHandler(saveHandler)
-            .setContent(this.content)
-            .setApplicationKeys(this.applicationKeys)
-            .setEnabledTools(this.enabledTools)
-            .setDisabledTools(this.disabledTools)
-            .setAllowedHeadings(this.allowHeadingsConfig)
-            .setEditableSourceCode(this.editableSourceCode)
-            .setCustomStylesToBeUsed(true)
-            .setLangDirection(this.getLangDirection())
-            .setProject(this.context.project)
-            .setLabel(this.getInput().getLabel())
-            .build();
+        return HTMLAreaHelper.isSourceCodeEditable().then((editableSourceCode: boolean) => {
+            const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
+                .setEditorContainerId(id)
+                .setAssetsUri(CONFIG.getString('assetsUri'))
+                .setInline(false)
+                .setCreateDialogHandler(HTMLAreaProxy.createAndOpenDialog)
+                .setFocusHandler(focusHandler)
+                .setBlurHandler(blurHandler)
+                .setKeydownHandler(keydownHandler)
+                .setNodeChangeHandler(editorValueChangedHandler)
+                .setEditorLoadedHandler(editorLoadedHandler)
+                .setEditorReadyHandler(editorReadyHandler)
+                .setSaveHandler(saveHandler)
+                .setContent(this.content)
+                .setApplicationKeys(this.applicationKeys)
+                .setEnabledTools(this.enabledTools)
+                .setDisabledTools(this.disabledTools)
+                .setAllowedHeadings(this.allowHeadingsConfig)
+                .setEditableSourceCode(editableSourceCode)
+                .setCustomStylesToBeUsed(true)
+                .setLangDirection(this.getLangDirection())
+                .setProject(this.context.project)
+                .setLabel(this.getInput().getLabel())
+                .build();
 
-        return HtmlEditor.create(htmlEditorParams);
+            return HtmlEditor.create(htmlEditorParams);
+        });
     }
 
     private getTools(enabled: boolean): string[] {

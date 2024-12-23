@@ -453,6 +453,10 @@ export class LiveEditPage {
         PageStateEvent.on(this.pageStateListener);
 
         this.updateTextComponentViewListener = (event: UpdateTextComponentViewEvent): void => {
+            if (event.getOrigin() === 'live') {
+                return;
+            }
+
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             const view: ItemView = this.getItemViewByPath(path);
 

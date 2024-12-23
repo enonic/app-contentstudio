@@ -13,6 +13,7 @@ import {PageTemplateKey} from '../page/PageTemplateKey';
 import {PageControllerSetHandler, PageResetHandler, PageTemplateSetHandler} from '../page/Page';
 import {DescriptorKey} from '../page/DescriptorKey';
 import {PageTemplate} from '../content/PageTemplate';
+import {ComponentTextUpdatedOrigin} from '../page/region/ComponentTextUpdatedOrigin';
 
 
 export class PageEventsManager {
@@ -92,7 +93,7 @@ export class PageEventsManager {
 
     private setFragmentComponentRequestedListeners: ((path: ComponentPath, id: string) => void)[] = [];
 
-    private textComponentUpdateRequestedListeners: ((path: ComponentPath, value: string) => void)[] = [];
+    private textComponentUpdateRequestedListeners: ((path: ComponentPath, value: string, origin?: ComponentTextUpdatedOrigin) => void)[] = [];
 
     private textComponentEditRequestedListeners: ((path: ComponentPath) => void)[] = [];
 
@@ -470,16 +471,16 @@ export class PageEventsManager {
         this.componentDescriptorSetRequestedListeners.forEach((listener) => listener(path, descriptorKey));
     }
 
-    onTextComponentUpdateRequested(listener: ((path: ComponentPath, value: string) => void)): void {
+    onTextComponentUpdateRequested(listener: ((path: ComponentPath, value: string, origin?: ComponentTextUpdatedOrigin) => void)): void {
         this.textComponentUpdateRequestedListeners.push(listener);
     }
 
-    untTextComponentUpdateRequested(listener: ((path: ComponentPath, value: string) => void)): void {
+    untTextComponentUpdateRequested(listener: ((path: ComponentPath, value: string, origin?: ComponentTextUpdatedOrigin) => void)): void {
         this.textComponentUpdateRequestedListeners = this.textComponentUpdateRequestedListeners.filter((curr) => (curr !== listener));
     }
 
-    notifyTextComponentUpdateRequested(path: ComponentPath, value: string): void {
-        this.textComponentUpdateRequestedListeners.forEach((listener) => listener(path, value));
+    notifyTextComponentUpdateRequested(path: ComponentPath, value: string, origin?: ComponentTextUpdatedOrigin): void {
+        this.textComponentUpdateRequestedListeners.forEach((listener) => listener(path, value, origin));
     }
 
     onSetComponentState(listener: ((path: ComponentPath, processing: boolean) => void)): void {
