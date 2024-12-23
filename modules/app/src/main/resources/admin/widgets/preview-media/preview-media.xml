@@ -6,6 +6,6 @@
   </interfaces>
   <config>
     <property name="auto" value="true"/>
-    <property name="order" value="90"/>
+    <property name="order" value="50"/>
   </config>
 </widget>
