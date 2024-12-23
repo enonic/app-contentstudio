@@ -7,6 +7,7 @@ import {TextComponentJson} from './TextComponentJson';
 import {TextComponentType} from './TextComponentType';
 import {ComponentName} from './ComponentName';
 import {ComponentTextUpdatedEvent} from './ComponentTextUpdatedEvent';
+import {ComponentTextUpdatedOrigin} from './ComponentTextUpdatedOrigin';
 
 export class TextComponent
     extends Component {
@@ -27,11 +28,11 @@ export class TextComponent
         return this.text;
     }
 
-    setText(value?: string, silent?: boolean) {
+    setText(value?: string, silent?: boolean, origin?: ComponentTextUpdatedOrigin) {
         this.text = StringHelper.isBlank(value) ? undefined : value;
 
         if (!silent) {
-            this.notifyComponentUpdated(new ComponentTextUpdatedEvent(this.getPath(), value));
+            this.notifyComponentUpdated(new ComponentTextUpdatedEvent(this.getPath(), value, origin));
         }
     }
 
