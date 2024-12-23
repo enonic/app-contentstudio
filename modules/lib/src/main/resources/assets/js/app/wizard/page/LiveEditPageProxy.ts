@@ -695,7 +695,7 @@ export class LiveEditPageProxy
         UpdateTextComponentEvent.on((event: UpdateTextComponentEvent): void => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
 
-            PageEventsManager.get().notifyTextComponentUpdateRequested(path, event.getText());
+            PageEventsManager.get().notifyTextComponentUpdateRequested(path, event.getText(), event.getOrigin());
         }, contextWindow);
 
         CustomizePageEvent.on((event: CustomizePageEvent): void => {
@@ -767,7 +767,7 @@ export class LiveEditPageProxy
 
             if (event instanceof ComponentTextUpdatedEvent && event.getText()) {
                 if (this.liveEditWindow) {
-                    new UpdateTextComponentViewEvent(event.getPath(), event.getText()).fire(this.liveEditWindow);
+                    new UpdateTextComponentViewEvent(event.getPath(), event.getText(), event.getOrigin()).fire(this.liveEditWindow);
                 }
             }
         });
