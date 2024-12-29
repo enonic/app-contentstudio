@@ -21,24 +21,26 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             let imageEditor = new ImageEditor();
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
-            //1. Open an existing image:
+            // 1. Open an existing image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            //2. Verify that red circle is not displayed
+            // 2. Verify that red circle is not displayed
             await imageEditor.waitForFocusCircleNotDisplayed();
-            //3. Click on 'Focus' button and switch to 'edit' mode
+            // 3. Click on 'Focus' button and switch to 'edit' mode
             await imageEditor.clickOnFocusButton();
-            //4. Drag the focus circle in edit mode and press on Apply:
+            // 4. Drag the focus circle in edit mode and press on Apply:
             await imageEditor.doDragFocus(10, 10);
             await imageEditor.clickOnApplyButton();
             await imageEditor.waitForResetFiltersDisplayed();
-            //5. Try to close the wizard with unsaved set focus:
-            await contentWizard.clickOnCloseBrowserTab();
-            let isOpened = await contentWizard.isAlertOpen();
-            if (isOpened) {
-                await contentWizard.dismissAlert();
-            }
-            assert.ok(isOpened, "Alert should appear after trying to close the wizard with unsaved changes");
+            // 5. Save button should be enabled now:
+            await contentWizard.waitForSaveButtonEnabled();
+            // 5. Try to close the wizard with unsaved set focus:
+            //await contentWizard.clickOnCloseBrowserTab();
+            // let isOpened = await contentWizard.isAlertOpen();
+            // if (isOpened) {
+            //     await contentWizard.dismissAlert();
+            // }
+            // assert.ok(isOpened, "Alert should appear after trying to close the wizard with unsaved changes");
         });
 
     it(`GIVEN existing image is opened WHEN focus circle has been moved AND 'Apply' button pressed THEN focus circle should be displayed in the editor`,

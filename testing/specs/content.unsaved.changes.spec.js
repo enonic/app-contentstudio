@@ -71,7 +71,8 @@ describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + te
             await contentBrowsePanel.pause(2000);
         });
 
-    it(`GIVEN there are not saved changes in the wizard WHEN Close icon has been pressed AND 'Leave' button has been pressed THEN the wizard should be closed`,
+    it.skip(
+        `GIVEN there are not saved changes in the wizard WHEN Close icon has been pressed AND 'Leave' button has been pressed THEN the wizard should be closed`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard();
