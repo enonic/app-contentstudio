@@ -1,7 +1,6 @@
 package com.enonic.xp.app.contentstudio.widget;
 
 import java.util.Comparator;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.enonic.xp.admin.widget.WidgetDescriptor;
@@ -54,9 +53,10 @@ public class AutomaticPreviewBean
             .filter( widget -> Boolean.parseBoolean( widget.getConfig().get( AUTO_CONFIG_FIELD ) ) )
             .sorted( Comparator.comparingInt( widget -> parseInt( widget.getConfig().get( ORDER_CONFIG_FIELD ) ) ) )
             .map( ( descriptor ) -> this.toScriptExports( descriptor, portalRequestMapper ) )
-            .filter( Objects::nonNull ).findFirst().orElse( null );
+            .filter( script -> script != null && script.hasMethod( "get" ) )
+            .findFirst().orElse( null );
 
-        if ( matchingScript != null && matchingScript.hasMethod( "get" ) )
+        if ( matchingScript != null )
         {
             final ScriptValue response = matchingScript.executeMethod( "get", portalRequestMapper );
             return new ScriptValueMapper( response );

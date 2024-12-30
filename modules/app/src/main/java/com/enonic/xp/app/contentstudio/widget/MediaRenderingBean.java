@@ -212,10 +212,8 @@ public class MediaRenderingBean
         {
             return new ResponseMapper( responseBuilder.build() );
         }
-        else
-        {
-            throw new WebApplicationException( Response.Status.NOT_FOUND );
-        }
+
+        throw new WebApplicationException( Response.Status.NOT_FOUND );
     }
 
     private Response.ResponseBuilder resolveResponseFromContentType( final Content content, final int size )
