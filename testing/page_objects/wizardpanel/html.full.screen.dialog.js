@@ -37,8 +37,16 @@ class HtmlFullScreenDialog extends Page {
         return xpath.container + lib.CKE.alignLeftButton;
     }
 
-    get centerButton() {
-        return xpath.container + lib.CKE.centerButton;
+    get fullScreenButton() {
+        return xpath.container + lib.CKE.fullScreen;
+    }
+
+    get insertRemoveBulletedListButton() {
+        return xpath.container + lib.CKE.bulletedButton;
+    }
+
+    get insertRemoveNumberedListButton() {
+        return xpath.container + lib.CKE.numberedButton;
     }
 
     get decreaseIndentButton() {
@@ -49,6 +57,10 @@ class HtmlFullScreenDialog extends Page {
         return xpath.container + lib.CKE.increaseIndentButton;
     }
 
+    get centerButton() {
+        return xpath.container + lib.CKE.centerButton;
+    }
+
     get insertSpecialCharacterButton() {
         return xpath.container + lib.CKE.insertSpecialCharacter;
     }
@@ -56,7 +68,6 @@ class HtmlFullScreenDialog extends Page {
     get insertImageButton() {
         return xpath.container + lib.CKE.insertImageButton;
     }
-
 
     get insertAnchorButton() {
         return xpath.container + lib.CKE.insertAnchorButton;
@@ -67,11 +78,23 @@ class HtmlFullScreenDialog extends Page {
     }
 
     get insertLinkButton() {
-        return xpath.container + lib.CKE.insertLinkButton
+        return xpath.container + lib.CKE.insertLinkButton;
+    }
+
+    get unlinkButton() {
+        return xpath.container + lib.CKE.unlinkButton
     }
 
     get insertTableButton() {
         return xpath.container + lib.CKE.insertTableButton;
+    }
+
+    get pasteModeButton() {
+        return xpath.container + lib.CKE.pasteModeButton;
+    }
+
+    get sourceButton() {
+        return xpath.container + lib.CKE.sourceButton;
     }
 
     get insertMacroButton() {
@@ -105,6 +128,14 @@ class HtmlFullScreenDialog extends Page {
     getTextFromHtmlArea() {
         let htmlArea = new HtmlArea();
         return htmlArea.getTextFromHtmlArea(xpath.container);
+    }
+
+    async waitForDecreaseIndentButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.decreaseIndentButton(), appConst.mediumTimeout);
+    }
+
+    async waitForIncreaseIndentButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.increaseIndentButton(), appConst.mediumTimeout);
     }
 
     waitForBoldButtonDisplayed() {
@@ -153,8 +184,36 @@ class HtmlFullScreenDialog extends Page {
         return this.waitForElementDisplayed(this.alignLeftButton, appConst.mediumTimeout);
     }
 
+    waitForInsertRemoveBulletedListButtonEnabled() {
+        return this.waitForElementEnabled(this.insertRemoveBulletedListButton, appConst.mediumTimeout);
+    }
+
+    waitForInsertRemoveNumberedListButtonEnabled() {
+        return this.waitForElementEnabled(this.insertRemoveNumberedListButton, appConst.mediumTimeout);
+    }
+
     waitForAlignRightButtonDisplayed() {
         return this.waitForElementDisplayed(this.alignRightButton, appConst.mediumTimeout);
+    }
+
+    waitForAlignCenterButtonDisplayed() {
+        return this.waitForElementDisplayed(this.centerButton, appConst.mediumTimeout);
+    }
+
+    waitForInsertTableButtonDisplayed() {
+        return this.waitForElementDisplayed(this.insertTableButton, appConst.mediumTimeout);
+    }
+
+    waitForPasteModeButtonDisplayed() {
+        return this.waitForElementDisplayed(this.pasteModeButton, appConst.mediumTimeout);
+    }
+
+    waitForSourceButtonDisplayed() {
+        return this.waitForElementDisplayed(this.sourceButton, appConst.mediumTimeout);
+    }
+
+    waitForFullScreenButtonDisplayed() {
+        return this.waitForElementDisplayed(this.fullScreenButton, appConst.mediumTimeout);
     }
 
     waitForInsertAnchorButtonDisplayed() {
@@ -165,12 +224,28 @@ class HtmlFullScreenDialog extends Page {
         return this.waitForElementDisplayed(this.findAndReplaceButton, appConst.mediumTimeout);
     }
 
+    waitForFindAndReplaceButtonEnabled() {
+        return this.waitForElementEnabled(this.findAndReplaceButton, appConst.mediumTimeout);
+    }
+
+    waitForSpecialCharactersButtonEnabled() {
+        return this.waitForElementEnabled(this.insertSpecialCharacterButton, appConst.mediumTimeout);
+    }
+
     waitForInsertImageButtonDisplayed() {
         return this.waitForElementDisplayed(this.insertImageButton, appConst.mediumTimeout);
     }
 
     waitForInsertMacroButtonDisplayed() {
         return this.waitForElementDisplayed(this.insertMacroButton, appConst.mediumTimeout);
+    }
+
+    waitForInsertLinkButtonDisplayed() {
+        return this.waitForElementDisplayed(this.insertLinkButton, appConst.mediumTimeout);
+    }
+
+    waitForUnlinkButtonDisplayed() {
+        return this.waitForElementDisplayed(this.unlinkButton, appConst.mediumTimeout);
     }
 
     async getNumberOfToolbarButtons() {

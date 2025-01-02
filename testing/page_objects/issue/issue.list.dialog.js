@@ -51,11 +51,13 @@ class IssuesListDialog extends Page {
         return xpath.container + lib.CANCEL_BUTTON_TOP;
     }
 
-    waitForDialogOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot("err_load_tasks_list_dlg");
-            throw new Error("Issues list dialog is not loaded in " + appConst.mediumTimeout)
-        })
+    async waitForDialogOpened() {
+        try {
+            await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_issue_list_dlg');
+            throw new Error(`Issues list dialog is not loaded screenshot: ${screenshot} ` + err);
+        }
     }
 
     isTypeFilterSelectorDisplayed() {
@@ -159,7 +161,7 @@ class IssuesListDialog extends Page {
             let optionXpath = xpath.typeFilterOption(option);
             await this.waitForElementDisplayed(optionXpath, appConst.shortTimeout);
             await this.clickOnElement(optionXpath);
-            return this.pause(300);
+            return await this.pause(300);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("issue_list"));
             throw new Error("Issue list dialog  " + err);
@@ -317,4 +319,5 @@ class IssuesListDialog extends Page {
     }
 }
 
-module.exports = IssuesListDialog;
+module
+    .exports = IssuesListDialog;

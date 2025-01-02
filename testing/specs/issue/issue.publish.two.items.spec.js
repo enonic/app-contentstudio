@@ -92,16 +92,16 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await issueDetailsDialog.waitForExpectedNotificationMessage(expectedMessage);
         });
 
-    it(`GIVEN two items are published WHEN both items has been selected THEN issue-menu button should be visible in the toolbar because the issue was not closed`,
+    it(`WHEN two items has been selected THEN Preview dropdown should be visible in its toolbar`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select checkboxes:
             await studioUtils.findContentAndClickCheckBox(folder1.displayName);
             await studioUtils.findContentAndClickCheckBox(folder2.displayName);
             await contentItemPreviewPanel.pause(1000);
-            await studioUtils.saveScreenshot("issue_menu_should_be_displayed");
-            // 2. 'Issue Menu button should be visible, because the task is closed'
-            await contentItemPreviewPanel.waitForIssueMenuButtonNotVisible();
+            await studioUtils.saveScreenshot('two_items_selected_preview_toolbar');
+            // 2. 'Preview dropdown should be visible, because the task is closed'
+            await contentItemPreviewPanel.waitForPreviewWidgetDropdownDisplayed();
         });
 
     it(`GIVEN two published items are selected WHEN 'Unpublish' dialog has been opened and 'Unpublish(2)' button pressed THEN confirm value dialog should appear`,

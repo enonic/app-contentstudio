@@ -13,12 +13,12 @@ const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizar
 const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
-const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const appConst = require('../../libs/app_const');
 const projectUtils = require('../../libs/project.utils');
+const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 
 describe('project.contributor.spec - ui-tests for user with Contributor role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -250,7 +250,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
-            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let issueListDialog = new IssueListDialog();
             // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             // 2. Select the folder and open Request wizard:
@@ -264,7 +264,9 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             // 4. Verify that Create Request dialog closes:
             await publishRequestDetailsDialog.waitForClosed();
             // 5. Click on issue-button and open the request:
-            await contentItemPreviewPanel.clickOnIssueButtonByName('contributor request');
+            await contentBrowsePanel.clickOnShowIssuesListButton();
+            await issueListDialog.waitForDialogOpened();
+            await issueListDialog.clickOnIssue('contributor request');
             // 6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
             // 7. Verify that 'Publish Now' button is disabled:

@@ -212,6 +212,11 @@ class BaseDropdown extends Page {
         //return attr.includes('active') ? 'tree' : 'flat';
         return attr.includes('folder-closed') ? 'flat' : 'tree';
     }
+
+    async getSelectedOptionsDisplayName() {
+        let locator = this.container + "//li[contains(@class,'item-view-wrapper') and contains(@class,'selected')]" + lib.H6_DISPLAY_NAME;
+        return await this.getTextInDisplayedElements(locator);
+    }
 }
 
 module.exports = BaseDropdown;

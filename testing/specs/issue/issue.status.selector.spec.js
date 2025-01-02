@@ -9,7 +9,6 @@ const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog'
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
-const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const appConst = require('../../libs/app_const');
 
 describe('issue.status.selector.spec: open and close issue by clicking on menu buttons, save and update the issue', function () {
@@ -40,11 +39,15 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
     it(`GIVEN existing 'open' issue AND Issue Details Dialog is opened WHEN 'Status menu' has been expanded and 'Closed'-item selected THEN issue gets 'Closed' and 'Reopen Issue' button gets visible`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
-            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let issueListDialog = new IssueListDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the folder and click on the task-name in the Preview Toolbar:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            await contentItemPreviewPanel.clickOnIssueMenuButton();
+            await contentBrowsePanel.clickOnShowIssuesListButton();
+            await issueListDialog.waitForDialogOpened();
+            await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
+
             // 2. Expand the status menu and close the task:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             await studioUtils.saveScreenshot('status_menu_closed_task');
@@ -91,9 +94,10 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
         `GIVEN existing 'open' issue has been clicked AND Details Dialog is opened WHEN 'issue-title' has been updated NEW new title should be displayed in the dialog`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
-            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let issueListDialog = new IssueListDialog();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            await contentItemPreviewPanel.clickOnIssueMenuButton();
+            await studioUtils.openIssuesListDialog()
+            await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
 
             await issueDetailsDialog.clickOnEditTitle();
@@ -103,7 +107,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             //just for closing edit mode in title-input:
             await issueDetailsDialog.clickOnCommentsTabBarItem();
             let result = await issueDetailsDialog.waitForNotificationMessage();
-            await studioUtils.saveScreenshot("issue_title_updated");
+            await studioUtils.saveScreenshot('issue_title_updated');
             assert.equal(result, 'Issue has been updated.', 'Expected notification should appear');
 
             let actualTitle = await issueDetailsDialog.getIssueTitle();

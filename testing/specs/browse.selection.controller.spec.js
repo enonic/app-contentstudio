@@ -7,6 +7,7 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const studioUtils = require('../libs/studio.utils.js');
 const ContentFilterPanel = require('../page_objects/browsepanel/content.filter.panel');
 const appConst = require('../libs/app_const');
+const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('Browse panel selection controller spec. Tests for Selection Controller checkBox and Show/Hide selection toggler', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -60,22 +61,22 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             assert.ok(result, 'Selection Controller checkBox should be selected');
         });
 
-    // Verifies https://github.com/enonic/app-contentstudio/issues/595
-    // 'Preview' button is enabled after 'selection controller' has been unchecked
     it("GIVEN Selection Controller checkbox is selected (All items are checked) WHEN Selection Controller checkbox has been unselected THEN 'Preview' button should be disabled AND 'New' is enabled",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. 'Selection Controller' checkbox is selected (All items are checked):
             await contentBrowsePanel.clickOnSelectionControllerCheckbox();
             // 2. 'Selection Controller' checkbox has been unselected:
             await contentBrowsePanel.clickOnSelectionControllerCheckbox();
             await contentBrowsePanel.pause(1000);
-            // 3. Verify that 'Preview', Edit button are disabled:
-            await contentBrowsePanel.waitForPreviewButtonDisabled();
+            // 3. Verify that  Edit  and Archive buttons are disabled:
             await contentBrowsePanel.waitForEditButtonDisabled();
             await contentBrowsePanel.waitForArchiveButtonDisabled();
-            // New... button should be enabled
+            // 4. New... button should be enabled
             await contentBrowsePanel.waitForNewButtonEnabled();
+            // 5. Verify that 'Preview Panel'  toolbar should not be displayed:
+            await contentItemPreviewPanel.waitForPreviewToolbarNotDisplayed();
         });
 
     it("GIVEN 2 selected images in filtered grid WHEN Selection Toggle(Show Selection) has been clicked THEN 'Selection Controller' checkbox gets selected",
