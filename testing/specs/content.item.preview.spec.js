@@ -50,7 +50,7 @@ describe('content.item.preview.spec - Select a content file and check expected i
             // 3. Click on 'Preview' button:
             await contentItemPreviewPanel.clickOnPreviewButton();
             // 4. Verify that the new tab is opened and expected text is displayed:
-            await studioUtils.doSwitchToNewTab();
+            await studioUtils.doSwitchToNextTab();
             await studioUtils.waitForElementDisplayed("//pre[contains(.,'Belarus')]");
         });
 
