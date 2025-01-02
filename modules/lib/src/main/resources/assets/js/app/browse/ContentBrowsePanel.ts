@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
@@ -32,7 +32,6 @@ import {ContextView} from '../view/context/ContextView';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
 import {MovedContentItem} from './MovedContentItem';
 import {ContentQuery} from '../content/ContentQuery';
-import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {ContentItemPreviewPanel} from '../view/ContentItemPreviewPanel';
 import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
@@ -122,14 +121,6 @@ export class ContentBrowsePanel
 
         this.handleGlobalEvents();
 
-        this.selectableListBoxPanel.onSelectionChanged(() => {
-            const previewPanel: ContentItemPreviewPanel = this.getPreviewPanel();
-            const selectedItem: ContentSummaryAndCompareStatus = this.selectableListBoxPanel.getLastSelectedItem();
-            if (!!selectedItem && previewPanel.isPreviewUpdateNeeded(selectedItem)) {
-                previewPanel.showMask();
-            }
-        });
-
         this.treeListBox.onItemsAdded((items: ContentSummaryAndCompareStatus[], itemViews: ContentsTreeGridListElement[]) => {
             items.forEach((item: ContentSummaryAndCompareStatus, index) => {
                 const listElement = itemViews[index]?.getDataView();
@@ -164,7 +155,7 @@ export class ContentBrowsePanel
         this.contextMenu = new TreeGridContextMenu(this.treeActions);
         this.keyNavigator = new SelectableTreeListBoxKeyNavigator(this.selectionWrapper);
 
-        const panel =  new SelectableListBoxPanel(this.selectionWrapper, this.toolbar);
+        const panel = new SelectableListBoxPanel(this.selectionWrapper, this.toolbar);
         panel.addClass('content-selectable-list-box-panel');
 
         return panel;
@@ -174,12 +165,13 @@ export class ContentBrowsePanel
         return this.treeActions;
     }
 
-    getNonToolbarActions(): Action[] {
-        return this.getBrowseActions().getPublishActions();
-    }
-
-    getToggleSearchAction(): Action {
-        return this.getBrowseActions().getToggleSearchPanelAction();
+    getActions(): Action[] {
+        return [
+            ...super.getActions(),
+            ...this.getPreviewPanel().getActions(),
+            ...this.getBrowseActions().getPublishActions(),
+            this.getBrowseActions().getToggleSearchPanelAction()
+        ];
     }
 
     protected createToolbar(): ContentBrowseToolbar {
@@ -259,7 +251,7 @@ export class ContentBrowsePanel
         });
 
         SearchAndExpandItemEvent.on((event: SearchAndExpandItemEvent) => {
-           const contentId: ContentId = event.getContentId();
+            const contentId: ContentId = event.getContentId();
 
             if (this.toolbar.getSelectionPanelToggler().isActive()) {
                 this.toolbar.getSelectionPanelToggler().setActive(false);
@@ -450,7 +442,7 @@ export class ContentBrowsePanel
 
     private deleteTreeItems(toDeleteItems: DeletedContentItem[]): void {
         const itemsToDeselect = toDeleteItems.map(toDeleteItem => ContentSummaryAndCompareStatus.fromContentSummary(
-                new ContentSummaryBuilder().setId(toDeleteItem.id.toString()).build()));
+            new ContentSummaryBuilder().setId(toDeleteItem.id.toString()).build()));
         this.selectionWrapper.deselect(itemsToDeselect);
 
         toDeleteItems.forEach((toDeleteItem) => {
@@ -658,16 +650,7 @@ export class ContentBrowsePanel
     protected updateActionsAndPreview(): void {
         this.browseActionsAndPreviewUpdateRequired = false;
 
-        const selectedItem: ContentSummaryAndCompareStatus = this.selectionWrapper.getSelectedItems().pop();
-
-        if (selectedItem) {
-            new IsRenderableRequest(selectedItem.getContentSummary()).sendAndParse().then((statusCode: number) => {
-                this.treeListBox.getItem(selectedItem.getId())?.setRenderable(statusCode === StatusCode.OK);
-                super.updateActionsAndPreview();
-            }).catch(DefaultErrorHandler.handle);
-        } else {
-            super.updateActionsAndPreview();
-        }
+        super.updateActionsAndPreview();
     }
 
     protected togglePreviewPanelDependingOnScreenSize(item: ResponsiveItem): void {

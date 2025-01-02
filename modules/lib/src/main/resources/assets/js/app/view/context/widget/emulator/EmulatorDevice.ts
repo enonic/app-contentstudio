@@ -12,7 +12,7 @@ export enum DeviceType {
 export class EmulatorDevice
     implements Equitable {
 
-     
+
     private static FULLSCREEN: EmulatorDevice;
 
     private static SMALL_PHONE: EmulatorDevice;
@@ -100,12 +100,7 @@ export class EmulatorDevice
 
     equals(o: Equitable): boolean {
         function allEquals(tupleList: (string[] | DeviceType[] | number[] | boolean[])[]): boolean {
-            tupleList.forEach(function (tuple) {
-                if (tuple[0] !== tuple[1]) {
-                    return false;
-                }
-            });
-            return true;
+            return !tupleList.some((tuple) => tuple[0] !== tuple[1]);
         }
 
         if (!ObjectHelper.iFrameSafeInstanceOf(o, EmulatorDevice)) {

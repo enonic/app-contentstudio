@@ -24,7 +24,7 @@ const XPATH = {
     checkedRowLi: `//div[contains(@class,'checkbox-left selected checked')]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
     hideSearchPanelButton: "//span[contains(@class, 'hide-filter-panel-button')]",
-    showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
+    showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",//'Assigned to Me' or 'Show Issues'
     createIssueMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Issue...']",
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
     requestPublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Request Publish']",
@@ -66,10 +66,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get duplicateButton() {
         return XPATH.toolbarDiv + lib.actionButton('Duplicate...');
-    }
-
-    get previewButton() {
-        return XPATH.toolbarDiv + lib.actionButton('Preview');
     }
 
     get sortButton() {
@@ -379,37 +375,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async clickOnPreviewButton() {
-        try {
-            await this.waitForElementEnabled(this.previewButton, appConst.shortTimeout);
-            await this.clickOnElement(this.previewButton);
-            return await this.pause(2000);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_browsepanel_preview');
-            throw new Error(`Error occurred after clicking on 'Preview' button, screenshot: ${screenshot} ` + err);
-        }
-    }
-
     waitForSearchButtonDisplayed() {
         return this.waitForElementDisplayed(this.searchButton, appConst.mediumTimeout);
-    }
-
-    async waitForPreviewButtonDisabled() {
-        try {
-            await this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout)
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_disabled');
-            throw new Error('Preview button should be disabled, screenshot  : ' + screenshot + "  " + err);
-        }
-    }
-
-    async waitForPreviewButtonEnabled() {
-        try {
-            await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout)
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_enabled');
-            throw new Error(`Preview button should be enabled, screenshot  :${screenshot} ` + err);
-        }
     }
 
     waitForDetailsPanelToggleButtonDisplayed() {
@@ -421,6 +388,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForSortButtonDisabled() {
         try {
+            await this.waitForElementDisplayed(this.sortButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.sortButton, appConst.mediumTimeout)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_sort_disabled_button');

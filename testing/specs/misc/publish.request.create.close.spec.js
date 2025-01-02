@@ -7,7 +7,6 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
@@ -19,11 +18,12 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
         webDriverHelper.setupBrowser();
     }
     let TEST_FOLDER1;
-    let REQ_TITLE = contentBuilder.generateRandomName('req');
+    const REQ_TITLE = contentBuilder.generateRandomName('req');
 
     it(`GIVEN new folder(Ready to Publish) is added and selected WHEN new Publish Request has been created THEN 'Request Details Dialog' should appear`,
         async () => {
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
+            let issueListDialog = new IssueListDialog();
             let browsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER1 = contentBuilder.buildFolder(displayName);
@@ -38,9 +38,10 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             // 3. Verify that Issue Details dialog closes after creating an issue:
             await publishRequestDetailsDialog.waitForClosed();
             await publishRequestDetailsDialog.pause(500);
-            let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            // 4. Reopen Issue Details dialog and verify control elements:
-            await contentItemPreviewPanel.clickOnIssueMenuButton();
+            // 4. Reopen Request Details dialog and verify the control elements:
+            await studioUtils.openIssuesListDialog();
+            await issueListDialog.selectTypeFilterOption(appConst.ISSUE_LIST_TYPE_FILTER.PUBLISH_REQUESTS);
+            await issueListDialog.clickOnIssue(REQ_TITLE);
             await publishRequestDetailsDialog.waitForTabLoaded();
             // 5. Expected buttons should be present:
             await publishRequestDetailsDialog.waitForPublishNowButtonEnabled();
@@ -58,7 +59,6 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             //1. Open 'Publish Request' dialog:
             await browsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
-            await createRequestPublishDialog.pause(300);
             // 3. Click on 'Next' button:
             await createRequestPublishDialog.clickOnNextButton();
             // 4. Click on Assignees dropdown handle:
@@ -70,13 +70,18 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
     it(`GIVEN existing Publish Request WHEN Request Details dialog is opened AND 'Publish Now' button has been pressed THEN modal dialog closes and this request closes`,
         async () => {
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
-            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let issueListDialog = new IssueListDialog();
             let browsePanel = new ContentBrowsePanel();
-            await studioUtils.findAndSelectItem(TEST_FOLDER1.displayName);
-            await contentItemPreviewPanel.clickOnIssueMenuButton();
+            // 1. Open 'Issues List' modal dialog:
+            await studioUtils.openIssuesListDialog();
+            // 2. Filter by 'Publish Requests' and click on the request:
+            await issueListDialog.selectTypeFilterOption(appConst.ISSUE_LIST_TYPE_FILTER.PUBLISH_REQUESTS);
+            await issueListDialog.clickOnIssue(REQ_TITLE);
             await publishRequestDetailsDialog.waitForTabLoaded();
+            // 3. Click on 'Publish Now' button:
             await publishRequestDetailsDialog.clickOnPublishNowButton();
             await publishRequestDetailsDialog.waitForClosed();
+            // 4. Verify the notification messages:
             let expectedMsg1 = appConst.publishRequestClosedMessage(REQ_TITLE);
             let expectedMsg2 = appConst.itemPublishedNotificationMessage(TEST_FOLDER1.displayName);
             // Item "...." is published.
@@ -123,6 +128,8 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             // 3. Comment & Close button should appear:
             await studioUtils.saveScreenshot('request_commented');
             await issueDetailsDialogCommentsTab.waitForCommentAndCloseRequestButtonDisplayed();
+            await issueDetailsDialogCommentsTab.clickOnCommentAndCloseRequestButton();
+            await issueDetailsDialogCommentsTab.waitForReopenRequestButtonDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

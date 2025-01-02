@@ -9,7 +9,6 @@ const appConst = require('../../libs/app_const');
 const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 
 describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortcuts', function () {
@@ -50,18 +49,34 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
         });
 
     // When preview request for a selected content returns 3xx code, show our standard "Preview not unavailable" message instead of showing the redirect target content as now.
+    // https://github.com/enonic/app-contentstudio/issues/4294
     it(`WHEN existing shortcut to the site with controller is selected THEN 'Preview not available' is displayed in Preview panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select an existing folder:
             await studioUtils.findAndSelectItem(SHORTCUT_NAME);
             await studioUtils.saveScreenshot('preview_not_available_shortcut');
             // 2. Verify that 'Preview not available' is displayed in Preview panel
             await contentItemPreviewPanel.waitForPreviewNotAvailAbleMessageDisplayed();
-            await studioUtils.saveScreenshot('shortcut_target_site_with_controller_preview_btn_enabled');
-            // 3. 'Preview' button should be enabled in the Browse Panel toolbar:
-            await contentBrowsePanel.waitForPreviewButtonEnabled();
+            // 3. 'Preview' button should be disabled in the ItemPreviewPanel toolbar:
+            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+        });
+
+    it(`WHEN existing shortcut content has been selected AND 'Site engine' option has been selected THEN 'Preview' button should be disabled in Item Preview Panel`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select an existing pptx content:
+            await studioUtils.findAndSelectItem(SHORTCUT_NAME);
+            // 2. Select 'Site engine' in the Preview widget dropdown:
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
+            // 3. Verify that 'Preview' button is disabled
+            await studioUtils.saveScreenshot('engine_preview_button_disabled_for_shortcut');
+            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+
+            let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
+            // 4. 'Preview not available' message should be displayed
+            assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE), 'expected message should be displayed');
+
         });
 
     // Verifies - Page Editor should not display target content for a shortcut #6619
