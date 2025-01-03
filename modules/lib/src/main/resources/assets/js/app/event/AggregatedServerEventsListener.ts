@@ -20,8 +20,8 @@ export class AggregatedServerEventsListener
 
     private aggregator: ServerEventAggregator;
 
-    constructor(applications: Application[]) {
-        super(applications);
+    constructor(applications: Application[], eventApiUrl: string) {
+        super(applications, eventApiUrl);
 
         this.aggregator = new ServerEventAggregator();
 

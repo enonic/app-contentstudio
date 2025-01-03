@@ -23,6 +23,8 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {i18nInit} from '@enonic/lib-admin-ui/util/MessagesInitializer';
+import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
+import {WebSocketConnection} from '@enonic/lib-admin-ui/connection/WebSocketConnection';
 import * as $ from 'jquery';
 import {AppContext} from 'lib-contentstudio/app/AppContext';
 import {ContentDeletePromptEvent} from 'lib-contentstudio/app/browse/ContentDeletePromptEvent';
@@ -100,7 +102,7 @@ function startLostConnectionDetector(): ConnectionDetector {
     let readonlyMessageId: string;
 
     const connectionDetector: ConnectionDetector =
-        ConnectionDetector.get()
+        ConnectionDetector.get(UriHelper.getRestUri('status'))
             .setAuthenticated(true)
             .setSessionExpireRedirectUrl(CONFIG.getString('toolUri'))
             .setNotificationMessage(i18n('notify.connection.loss'));
@@ -228,21 +230,22 @@ function preLoadApplication() {
     }
 }
 
-function startServerEventListeners(application: Application) {
-    const serverEventsListener: AggregatedServerEventsListener = new AggregatedServerEventsListener([application]);
+function startServerEventListeners(application: Application, eventApiUrl: string) {
+    const serverEventsListener: AggregatedServerEventsListener = new AggregatedServerEventsListener([application], eventApiUrl);
     let wsConnectionErrorId: string;
 
     serverEventsListener.onConnectionError(() => {
         if (!wsConnectionErrorId) {
             const pollHandler: () => void = () => {
-                if (ConnectionDetector.get().isConnected()) {
+                const connectionDetector: ConnectionDetector = ConnectionDetector.get(UriHelper.getRestUri('status'));
+                if (connectionDetector.isConnected()) {
                     wsConnectionErrorId = showError(i18n('notify.websockets.error'), false);
                 }
 
-                ConnectionDetector.get().unPoll(pollHandler);
+                connectionDetector.unPoll(pollHandler);
             };
 
-            ConnectionDetector.get().onPoll(pollHandler);
+            connectionDetector.onPoll(pollHandler);
         }
     });
 
@@ -255,7 +258,7 @@ function startServerEventListeners(application: Application) {
 
     serverEventsListener.start();
 
-    new SettingsServerEventsListener([application]);
+    new SettingsServerEventsListener([application], eventApiUrl);
 }
 
 const handleProjectDeletedEvent = (projectName: string) => {
@@ -322,10 +325,11 @@ let connectionDetector: ConnectionDetector;
 
 async function startApplication() {
     const application: Application = getApplication();
+    const eventApiUrl = UriHelper.joinPath(WebSocketConnection.getWebSocketUriPrefix(), UriHelper.getAdminUriPrefix(), 'event');
     connectionDetector = startLostConnectionDetector();
     Store.instance().set('application', application);
 
-    startServerEventListeners(application);
+    startServerEventListeners(application, eventApiUrl);
     initApplicationEventListener();
 
     ProjectContext.get().onNoProjectsAvailable(() => {
