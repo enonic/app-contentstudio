@@ -17,11 +17,7 @@ export class PreviewWidgetDropdown
     constructor() {
         super(new WidgetSelectorListBox(), {
             className: 'preview-toolbar-dropdown',
-            maxSelected: 1,
-            filter: (item: Widget, searchString: string): boolean => {
-                return item.getWidgetDescriptorKey().getName().toLowerCase().indexOf(searchString.toLowerCase()) > -1 ||
-                       item.getDescription().toLowerCase().indexOf(searchString.toLowerCase()) > -1;
-            }
+            maxSelected: 1
         });
 
         this.fetchLiveViewWidgets().then((widgets: Widget[]) => {
@@ -34,6 +30,10 @@ export class PreviewWidgetDropdown
         this.selectedOption.onClicked(() => {
             this.handleDropdownHandleClicked();
         });
+    }
+
+    public getChildControls(): Element[] {
+        return [this.dropdownHandle];
     }
 
     private setWidgets(widgets: Widget[]) {

@@ -16,13 +16,7 @@ export class EmulatorDropdown
     constructor() {
         super(new EmulatorListBox(), {
             className: 'emulator-dropdown preview-toolbar-dropdown',
-            maxSelected: 1,
-            filter: (item: EmulatorDevice, searchString: string): boolean => {
-                return item.getName().toLowerCase().indexOf(searchString.toLowerCase()) > -1 ||
-                       item.getDeviceType().toString().indexOf(searchString.toLowerCase()) > -1 ||
-                       item.getWidth().toString().indexOf(searchString.toLowerCase()) > -1 ||
-                       item.getHeight().toString().indexOf(searchString.toLowerCase()) > -1;
-            }
+            maxSelected: 1
         });
 
         this.selectedOption = new EmulatorOptionViewer(false);
@@ -93,6 +87,10 @@ export class EmulatorDropdown
 
             return rendered;
         });
+    }
+
+    getChildControls() {
+        return [this.dropdownHandle];
     }
 }
 

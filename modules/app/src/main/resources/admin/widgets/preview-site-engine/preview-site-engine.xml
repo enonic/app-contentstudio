@@ -1,6 +1,6 @@
 <widget xmlns="urn:enonic:xp:model:1.0">
-  <display-name>Site engine</display-name>
-  <description>Render using site engine</description>
+  <display-name i18n="widget.liveview.site.name">Site engine</display-name>
+  <description i18n="widget.liveview.site.description">Render using site engine</description>
   <interfaces>
     <interface>contentstudio.liveview</interface>
   </interfaces>

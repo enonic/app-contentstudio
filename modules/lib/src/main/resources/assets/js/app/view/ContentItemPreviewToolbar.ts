@@ -35,8 +35,8 @@ export class ContentItemPreviewToolbar
     doRender(): Q.Promise<boolean> {
         return super.doRender().then(rendered => {
 
-            this.addElement(this.emulatorSelector);
-            this.addElement(this.widgetSelector);
+            this.addContainer(this.emulatorSelector, this.emulatorSelector.getChildControls());
+            this.addContainer(this.widgetSelector, this.widgetSelector.getChildControls());
 
             const previewWrapper = new DivEl('preview-button-wrapper');
             previewWrapper.appendChildren(this.previewButton);
