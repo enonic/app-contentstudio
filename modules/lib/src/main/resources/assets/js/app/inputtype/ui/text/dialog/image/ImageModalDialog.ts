@@ -1,4 +1,3 @@
-import * as $ from 'jquery';
 import * as Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -220,8 +219,6 @@ export class ImageModalDialog
             this.imageAltTextInput.setValue(this.getOriginalAltTextElem().getValue());
             this.getImageAltTextRadioInput().setValue(ImageAccessibilityType.INFORMATIVE);
         }
-
-        const imageId: string = this.extractImageId();
 
         new GetContentByIdRequest(new ContentId(this.presetImageId)).setRequestProject(this.config.project).sendAndParse().then(
             (imageContent: Content) => {
@@ -556,6 +553,7 @@ export class ImageModalDialog
         this.figure.removeChildren();
         this.previewFrame.getEl().setHeightPx(0);
         this.presetImageEl = null;
+        this.presetImageId = null;
     }
 
     private createImagePreviewContainer() {
