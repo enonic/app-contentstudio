@@ -88,6 +88,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             // 2. select an image:
             await imageSelectorForm.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME1);
+            await studioUtils.saveScreenshot("image_selector_0_1");
             // 3. Verify the expected selected option:
             let names = await imageSelectorForm.getSelectedImages();
             assert.equal(names[0], IMAGE_DISPLAY_NAME1);

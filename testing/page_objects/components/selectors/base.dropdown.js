@@ -135,6 +135,7 @@ class BaseDropdown extends Page {
         await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
         // Click on the item:
         await this.clickOnElement(optionLocator);
+        await this.pause(200);
     }
 
     // 1. Insert a text in Filter input
