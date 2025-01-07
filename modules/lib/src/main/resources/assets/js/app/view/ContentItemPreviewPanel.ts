@@ -178,6 +178,8 @@ export class ContentItemPreviewPanel
                     frameWindow.addEventListener('click', (event) => this.frameClickHandler(frameWindow, event));
                 } catch (error) { /* error */ }
                 break;
+            default:
+                break;
             }
         });
 
@@ -252,15 +254,7 @@ export class ContentItemPreviewPanel
                     UriHelper.trimAnchor(UriHelper.trimWindowProtocolAndPortFromHref(linkClicked,
                         frameWindow)));
                 if (!this.isNavigatingWithinSamePage(contentPreviewPath, frameWindow) && !this.isDownloadLink(contentPreviewPath)) {
-                    // event.preventDefault();
-                    // const clickedLinkRelativePath = '/' + UriHelper.trimWindowProtocolAndPortFromHref(linkClicked, frameWindow);
-                    // this.skipNextSetItemCall = true;
                     new ContentPreviewPathChangedEvent(contentPreviewPath).fire();
-                    // setTimeout(() => {
-                    //     this.item = null; // we don't have ref to content under contentPreviewPath and there is no point in figuring it out
-                    //     this.skipNextSetItemCall = false;
-                    //     this.fetchPreviewForPath(clickedLinkRelativePath);
-                    // }, 500);
                 }
             }
         }
@@ -275,13 +269,14 @@ export class ContentItemPreviewPanel
             this.getEl().addClass('widget-preview');
             break;
         }
-        case PREVIEW_TYPE.EMPTY: {
-            this.showPreviewMessages(messages || [i18n('field.preview.notAvailable')]);
-            break;
-        }
         case PREVIEW_TYPE.FAILED:
         case PREVIEW_TYPE.MISSING: {
             this.showPreviewMessages(messages || [i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
+            break;
+        }
+        case PREVIEW_TYPE.EMPTY:
+        default: {
+            this.showPreviewMessages(messages || [i18n('field.preview.notAvailable')]);
             break;
         }
         }
