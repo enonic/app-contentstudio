@@ -58,13 +58,11 @@ module.exports = {
         //let script2 = `CKEDITOR.instances['${id}'].element.$.dispatchEvent(new Event('paste'))`;
         return await this.getBrowser().execute(script2);
     },
-
-    insertTextInCKE: function (id, text) {
+    async insertTextInCKE(id, text) {
         let script = `CKEDITOR.instances['${id}'].insertText('${text}')`;
-        return this.getBrowser().execute(script).then(() => {
-            let script2 = `CKEDITOR.instances['${id}'].fire('change')`;
-            return this.getBrowser().execute(script2);
-        })
+        await this.getBrowser().execute(script);
+        let script2 = `CKEDITOR.instances['${id}'].fire('change')`;
+        return await this.getBrowser().execute(script2);
     },
     async waitForElementDisplayed(selector, ms) {
         let element = await this.getBrowser().$(selector);

@@ -101,8 +101,7 @@ class SiteConfiguratorDialog extends Page {
             await this.clickOnElement(this.applyButton);
             return await this.waitForDialogClosed();
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_dialog_apply_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_dialog_apply_btn');
             throw new Error(`Site Configurator Dialog, error during clicking on Apply button, screenshot: ${screenshot}  ` + err);
         }
     }

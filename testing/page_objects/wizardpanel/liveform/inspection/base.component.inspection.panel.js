@@ -24,11 +24,12 @@ class BaseComponentInspectionPanel extends Page {
 
     async waitForApplyButtonEnabled() {
         try {
+            await this.waitForApplyButtonDisplayed();
             await this.waitForElementEnabled(this.applyButton, appConst.mediumTimeout);
             await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_button');
-            throw new Error('Inspection Panel - Apply button is not enabled , screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Inspection Panel - Apply button is not enabled , screenshot: ${screenshot} ` + err);
         }
     }
 
