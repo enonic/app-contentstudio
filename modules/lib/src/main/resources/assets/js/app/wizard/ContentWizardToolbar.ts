@@ -10,7 +10,6 @@ import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import * as Q from 'q';
 import {AI} from '../ai/AI';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ProjectContext} from '../project/ProjectContext';
 import {Project} from '../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
@@ -24,6 +23,7 @@ import {CollaborationEl} from './CollaborationEl';
 import {ContentActionCycleButton} from './ContentActionCycleButton';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
+import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolbar';
 
 export interface ContentWizardToolbarConfig extends ToolbarConfig {
     actions: ContentWizardActions;
@@ -32,7 +32,7 @@ export interface ContentWizardToolbarConfig extends ToolbarConfig {
 }
 
 export class ContentWizardToolbar
-    extends ContentStatusToolbar<ContentWizardToolbarConfig> {
+    extends ItemPreviewToolbar<ContentSummaryAndCompareStatus, ContentWizardToolbarConfig> {
 
     ariaLabel: string = i18n('wcag.contenteditor.toolbar.label');
 
@@ -57,7 +57,6 @@ export class ContentWizardToolbar
     protected initElements(): void {
         this.addProjectButton();
         this.addActionButtons();
-        this.appendStatusWrapperEl();
 
         if (!this.isCollaborationEnabled()) {
             this.addStateIcon();
@@ -73,11 +72,6 @@ export class ContentWizardToolbar
     protected initListeners(): void {
         super.initListeners();
 
-        this.config.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
-            this.updateStateIcon(status);
-            this.toggleValid(!WorkflowStateManager.isInvalid(status));
-        });
-
         ProjectUpdatedEvent.on((event: ProjectUpdatedEvent) => {
             if (event.getProjectName() === ProjectContext.get().getProject().getName()) {
                 new ProjectGetRequest(event.getProjectName()).sendAndParse().then((project: Project) => {
@@ -88,7 +82,6 @@ export class ContentWizardToolbar
 
         this.whenRendered(() => {
             const onPublishControlsInitialised = () => {
-                this.status.show();
                 this.contentWizardToolbarPublishControls.getPublishButton().show();
                 // Call after the ContentPublishMenuButton.handleActionsUpdated debounced calls
                 setTimeout(() => this.foldOrExpand());
@@ -221,7 +214,6 @@ export class ContentWizardToolbar
     }
 
     private addPublishMenuButton(): void {
-        this.status.hide();
 
         this.contentWizardToolbarPublishControls = new ContentWizardToolbarPublishControls(this.config.actions);
         const publishButton = this.contentWizardToolbarPublishControls.getPublishButton();
@@ -278,12 +270,5 @@ export class ContentWizardToolbar
         if (this.collaborationBlock && this.aiContentOperatorButtonContainer) {
             this.collaborationBlock.prependChild(this.aiContentOperatorButtonContainer);
         }
-    }
-
-    protected openShowPublishedVersionChangesDialog() {
-        const promise = this.config.compareVersionsPreHook || (() => Q.resolve());
-        promise().then(() => {
-            super.openShowPublishedVersionChangesDialog();
-        });
     }
 }
