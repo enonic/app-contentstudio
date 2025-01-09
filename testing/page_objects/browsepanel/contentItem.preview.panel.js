@@ -8,21 +8,32 @@ const appConst = require('../../libs/app_const');
 const xpath = {
     container: "//div[contains(@id,'ContentItemPreviewPanel')]",
     toolbar: `//div[contains(@id,'ContentItemPreviewToolbar')]`,
+    divPreviewWidgetDropdown: "//div[contains(@id,'PreviewWidgetDropdown')]",
+    divEmulatorDropdown: "//div[contains(@id,'EmulatorDropdown')]",
+    ulEmulatorListBox: "//ul[contains(@id,'EmulatorListBox')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
-    author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     issueMenuButton: `//div[contains(@id,'MenuButton')]`,
     showChangesButtonToolbar: "//button[contains(@class,'show-changes') and @title='Show changes']",
     previewNotAvailableSpan: "//div[@class='no-preview-message']//span[text()='Preview not available']",
-    issueMenuItemByName:
-        name => `//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and contains(.,'${name}')]`,
-    issueMenuButtonByName:
-        name => `//div[contains(@id,'MenuButton') and descendant::span[contains(.,'${name}')]]`,
+    noPreviewMessageSpan: "//div[@class='no-preview-message']//span",
 };
 
 class ContentItemPreviewPanel extends Page {
 
-    get issueDropdownHandle() {
-        return xpath.toolbar + xpath.issueMenuButton + lib.DROP_DOWN_HANDLE;
+    get liveViewFrame() {
+        return xpath.container + "//iframe";
+    }
+
+    get previewButton() {
+        return xpath.toolbar + "//button[contains(@id, 'ActionButton') and contains(@class,'icon-newtab')]";
+    }
+
+    get emulatorDropdown() {
+        return xpath.toolbar + xpath.divEmulatorDropdown;
+    }
+
+    get previewWidgetDropdown() {
+        return xpath.toolbar + xpath.divPreviewWidgetDropdown;
     }
 
     get contentStatus() {
@@ -33,12 +44,12 @@ class ContentItemPreviewPanel extends Page {
         return xpath.container + xpath.previewNotAvailableSpan;
     }
 
-    get author() {
-        return xpath.toolbar + xpath.author;
-    }
-
     get showChangesToolbarButton() {
         return xpath.toolbar + xpath.showChangesButtonToolbar;
+    }
+
+    waitForPreviewToolbarNotDisplayed() {
+        return this.waitForElementNotDisplayed(xpath.toolbar, appConst.mediumTimeout);
     }
 
     waitForShowChangesButtonDisplayed() {
@@ -54,13 +65,57 @@ class ContentItemPreviewPanel extends Page {
         await this.clickOnElement(this.showChangesToolbarButton);
     }
 
-    waitForPreviewNotAvailAbleMessageDisplayed() {
-        return this.waitForElementDisplayed(this.previewNotAvailableMessage, appConst.mediumTimeout);
+    async waitForPreviewNotAvailAbleMessageDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.previewNotAvailableMessage, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_not_available');
+            throw new Error(`Preview not available message should be displayed, screenshot: ${screenshot} ` + err);
+        }
     }
 
-    async waitForImageDisplayed() {
-        let locator = xpath.container + "//img";
-        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    async waitForPreviewIframeClass(value) {
+        let locator = xpath.container + "//iframe";
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, 'class');
+            return text === value;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Iframe should be with class 'application' attribute"});
+    }
+
+    // Waits for the image to be displayed in the iframe(Live View)
+    async waitForImageElementDisplayed() {
+        try {
+            let locator = "//img";
+            await this.switchToFrame(xpath.container + "//iframe[@class='image']");
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_image_element');
+            throw new Error(`Image element should be displayed in the iframe, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async switchToLiveViewFrameByClass(className) {
+        return await this.switchToFrame(xpath.container + `//iframe[@class='${className}']`);
+    }
+
+    async switchToLiveViewFrame() {
+        return await this.switchToFrame(this.liveViewFrame);
+    }
+
+    async waitFor404ErrorDisplayed() {
+        try {
+            let locator = "//h3[text()='404 - Not Found']";
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_404');
+            throw new Error(`404 error should be displayed in the iframe, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async getJSON_info(keyText) {
+        let locator = `//span[@class='key' and contains(.,'${keyText}')]/following-sibling::span[@class='string'][1]`;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 
     waitForPanelVisible() {
@@ -69,81 +124,10 @@ class ContentItemPreviewPanel extends Page {
         });
     }
 
-    //wait for content status cleared
+    // wait for content status cleared
     waitForStatusCleared() {
         let selector = xpath.toolbar + "//div[@class='content-status-wrapper']/span[contains(@class,'status')]";
         return this.waitForElementNotDisplayed(selector, appConst.shortTimeout);
-    }
-
-    waitForAuthorCleared() {
-        let selector = xpath.toolbar + "//div[@class='content-status-wrapper']/span[contains(@class,'author')]";
-        return this.waitForElementNotDisplayed(selector, appConst.shortTimeout);
-    }
-
-    async clickOnIssueMenuDropDownHandle() {
-        try {
-            await this.waitForIssueDropDownHandleDisplayed();
-            return await this.clickOnElement(this.issueDropdownHandle);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_issue_dropdown');
-            throw new Error(`error after clicking on the dropdown handle , screenshot: ${screenshot}` + err);
-        }
-    }
-
-    waitForIssueDropDownHandleDisplayed() {
-        return this.waitForElementDisplayed(this.issueDropdownHandle, appConst.shortTimeout);
-    }
-
-    waitForIssueDropDownHandleNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.issueDropdownHandle, appConst.shortTimeout).catch(err => {
-            throw new Error('Item Preview Toolbar - dropdown handle should not be displayed !  ' + err);
-        });
-    }
-
-    async clickOnIssueMenuItem(issueName) {
-        try {
-            let selector = xpath.toolbar + xpath.issueMenuItemByName(issueName);
-            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-            return await this.clickOnElement(selector);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_issue_menu_item');
-            throw new Error(`Menu item was not found! screenshot: ${screenshot} ` + err);
-        }
-    }
-
-    // When issue is closed, this button gets not visible:
-    async waitForIssueMenuButtonNotVisible() {
-        try {
-            let selector = xpath.toolbar + `//div[contains(@id,'MenuButton') and descendant::span[contains(@class,'icon-issue')]]//button`;
-            await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_toolbar_issue_icon');
-            throw new Error(`Issue icon should not be visible in the toolbar, screenshot: ${screenshot} ` + err);
-        }
-    }
-
-    async clickOnIssueMenuButton() {
-        try {
-            let selector = xpath.toolbar + xpath.issueMenuButton;
-            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-            await this.clickOnElement(selector);
-            return await this.pause(400);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_toolbar_issue_icon');
-            throw new Error(`Issue menu button was not found! screenshot: ${screenshot} ` + err);
-        }
-    }
-
-    async clickOnIssueButtonByName(issueName) {
-        try {
-            let locator = xpath.toolbar + xpath.issueMenuButtonByName(issueName);
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            await this.clickOnElement(locator);
-            return await this.pause(400);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_toolbar_issue_icon');
-            throw new Error(`Issue menu button was not found! screenshot: ${screenshot} ` + err);
-        }
     }
 
     async getContentStatus() {
@@ -154,21 +138,7 @@ class ContentItemPreviewPanel extends Page {
         return await result[0].getText();
     }
 
-    async waitForAuthorNotDisplayed() {
-        try {
-            return await this.waitForElementNotDisplayed(this.author, appConst.mediumTimeout);
-        } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_itempreview_author"));
-            throw new Error("Author should not be displayed in the item preview toolbar " + err);
-        }
-    }
-
-    async getIssueNameInMenuButton() {
-        let selector = xpath.toolbar + xpath.issueMenuButton + '//button/span';
-        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-        return await this.getText(selector);
-    }
-
+    // Verifies that the element(selector) is displayed in the iframe in Preview Panel
     async waitForElementDisplayedInFrame(selector) {
         try {
             await this.switchToFrame(xpath.container + "//iframe[contains(@src,'admin/site')]");
@@ -181,6 +151,7 @@ class ContentItemPreviewPanel extends Page {
         }
     }
 
+    // Checks that the element(selector) is not displayed in the iframe in Preview Panel
     async waitForElementNotDisplayedInFrame(selector) {
         try {
             await this.switchToFrame(xpath.container + "//iframe[contains(@src,'admin/site')]");
@@ -204,24 +175,26 @@ class ContentItemPreviewPanel extends Page {
         }
     }
 
-    waitForIssueNameInMenuButton(issueName) {
-        let selector = xpath.toolbar + xpath.issueMenuButtonByName(issueName);
-        return this.waitUntilDisplayed(selector, appConst.shortTimeout);
-    }
-
-    // switches to iframe and gets text in the panel
+    //  gets a text(*.txt) in the Preview panel
     async getTextInAttachmentPreview() {
         try {
-            let attachmentFrame = "//iframe[contains(@src,'/admin/rest-v2/cs/cms/default/content/content/media/')]";
-            await this.switchToFrame(attachmentFrame);
-            return await this.getText("//body/pre");
+            let textLocator = "//body/pre";
+            await this.waitForElementDisplayed(textLocator, appConst.mediumTimeout);
+            return await this.getText(textLocator);
         } catch (err) {
-            throw new Error("Content Item Preview Panel - " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_attachment_preview');
+            throw new Error(`Content Item Preview Panel - screendot:${screenshot} ` + err);
         }
     }
 
     async getNoPreviewMessage() {
-        let locator = xpath.container + "//div[@class='no-preview-message']//span";
+        let locator = xpath.noPreviewMessageSpan;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
+    async get500ErrorText() {
+        let locator = "//h1";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
@@ -238,9 +211,143 @@ class ContentItemPreviewPanel extends Page {
     async waitForBrowseToolbarAriaLabelAttribute(expectedValue) {
         let locator = xpath.toolbar;
         await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(locator, "aria-label");
+            let text = await this.getAttribute(locator, 'aria-label');
             return text === expectedValue;
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Content Item preview toolbar should contain expected 'aria-label' attribute"});
+    }
+
+    // returns the selected option in the 'Emulator dropdown' '100%', '375px', etc.
+    async getSelectedOptionInEmulatorDropdown() {
+        try {
+            let locator = this.emulatorDropdown + lib.H6_DISPLAY_NAME;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_emulator_dropdown');
+            throw new Error(`Emulator dropdown - error occurred during getting the selected option, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    // Expands the emulator menu:
+    async clickOnEmulatorDropdown() {
+        await this.waitForElementDisplayed(this.emulatorDropdown, appConst.mediumTimeout);
+        return await this.clickOnElement(this.emulatorDropdown);
+    }
+
+    // Expands the emulator menu and clicks on a list-item by its name
+    async selectOptionInEmulatorDropdown(optionName) {
+        await this.waitForElementDisplayed(this.emulatorDropdown, appConst.mediumTimeout);
+        await this.clickOnElement(this.emulatorDropdown);
+        let optionSelector = this.emulatorDropdown + lib.DROPDOWN_SELECTOR.listItemByDisplayName(optionName);
+        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
+        return await this.clickOnElement(optionSelector);
+    }
+
+    // Gets the selected option in the 'Preview dropdown' Auto, Media, etc.
+    async getSelectedOptionInPreviewWidget() {
+        let locator = this.previewWidgetDropdown + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
+    // Clicks on the dropdown handle in the 'Preview dropdown' then clicks on a list-item by its name
+    async selectOptionInPreviewWidget(optionName) {
+        await this.waitForPreviewWidgetDropdownDisplayed();
+        await this.clickOnElement(this.previewWidgetDropdown);
+        let optionSelector = this.previewWidgetDropdown + lib.DROPDOWN_SELECTOR.listItemByDisplayName(optionName);
+        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
+        await this.clickOnElement(optionSelector);
+        await this.pause(200);
+    }
+
+    async waitForPreviewWidgetDropdownDisplayed() {
+        return await this.waitForElementDisplayed(this.previewWidgetDropdown, appConst.mediumTimeout);
+    }
+
+    async waitForPreviewDropdownNotDisplayed() {
+        return await this.waitForElementNotDisplayed(this.previewWidgetDropdown, appConst.mediumTimeout);
+    }
+
+    async waitForPreviewButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.previewButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn');
+            throw new Error(`Preview button should not be displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    // Wait for the 'Preview' button to be displayed in the Preview Toolbar
+    async waitForPreviewButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.previewButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn');
+            throw new Error(`Preview button should be displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async clickOnPreviewButton() {
+        try {
+            await this.waitForPreviewButtonEnabled();
+            await this.clickOnElement(this.previewButton);
+            return await this.pause(2000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn');
+            throw new Error(`Error occurred after clicking on 'Preview' button, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async waitForPreviewButtonDisabled() {
+        try {
+            await this.waitForPreviewButtonDisplayed();
+            await this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_disabled');
+            throw new Error(`Preview button should be displayed and disabled, screenshot  : ${screenshot} ` + err);
+        }
+    }
+
+    async waitForPreviewButtonEnabled() {
+        try {
+            await this.waitForPreviewButtonDisplayed();
+            await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_disabled');
+            throw new Error(`Preview button should be enabled, screenshot : ${screenshot} ` + err);
+        }
+    }
+
+    async waitForToolbarNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(xpath.toolbar, appConst.shortTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_toolbar');
+            throw new Error(`Preview panel toolbar should not be displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    // style for the iframe in the preview panel
+    async getPreviewIframeStyle() {
+        let locator = xpath.container + "//iframe";
+        let classValue = await this.getAttribute(locator, 'style');
+        return classValue;
+    }
+
+    // return items in the expanded emulator dropdown:
+    async getEmulatorResolutions() {
+        let locator = xpath.divEmulatorDropdown + xpath.ulEmulatorListBox + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM +
+                      lib.H6_DISPLAY_NAME;
+        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
+        await this.pause(300);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
+    // Iframe, get a text from the text component
+    async getTextFromTextComponent() {
+        let locator = "//section[@data-portal-component-type='text']/p";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 }
 

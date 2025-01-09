@@ -9,13 +9,14 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../../libs/app_const');
+const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 
 describe('close.issue.with.item.spec: close an issue and verify control elements on the ItemPreview Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let issueTitle = appConst.generateRandomName('issue');
+    const ISSUE_TITLE = appConst.generateRandomName('issue');
     let TEST_FOLDER;
 
     // verifies https://github.com/enonic/app-contentstudio/issues/356
@@ -42,7 +43,7 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             await contentBrowsePanel.waitForPublishButtonVisible();
             // 2.expand the menu and open 'Create Issue' dialog
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
-            await createIssueDialog.typeTitle(issueTitle);
+            await createIssueDialog.typeTitle(ISSUE_TITLE);
             // 3. Save the issue:
             await createIssueDialog.clickOnCreateIssueButton();
             await issueDetailsDialog.waitForDialogLoaded();
@@ -52,16 +53,18 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let issueListDialog = new IssueListDialog();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             // 1. Open IssueDetails modal dialog:
-            await contentItemPreviewPanel.clickOnIssueMenuButton();
+            await studioUtils.openIssuesListDialog();
+            await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 2. Click on 'Closed' tab menu-tem:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             // 3. modal dialog has been closed:
             await issueDetailsDialog.clickOnCancelTopButton();
-            // 4. Verify that 'issue-menu' button gets not visible in the preview toolbar, (the content is selected);
-            await contentItemPreviewPanel.waitForIssueMenuButtonNotVisible();
+            // 4. Verify that toolbar in ItemPreviewPanel is displayed (the content is selected);
+            await contentItemPreviewPanel.waitForPreviewWidgetDropdownDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

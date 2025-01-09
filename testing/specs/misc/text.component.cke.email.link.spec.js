@@ -12,6 +12,7 @@ const TextComponentCke = require('../../page_objects/components/text.component')
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const appConst = require('../../libs/app_const');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('Text Component with CKE - insert email link  specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -59,13 +60,13 @@ describe('Text Component with CKE - insert email link  specification', function 
             await contentWizard.waitAndClickOnSave();
         });
 
-    it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN email-link should be present in the page`,
+    it(`GIVEN site is selected WHEN 'Automatic' is selected AND 'Preview' button has been pressed THEN email-link should be present in the page`,
         async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select the site and click on Preview button:
             await studioUtils.findAndSelectItem(SITE.displayName);
-            await contentBrowsePanel.clickOnPreviewButton();
-            await contentBrowsePanel.pause(1000);
+            await contentItemPreviewPanel.clickOnPreviewButton();
+            await contentItemPreviewPanel.pause(1000);
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             // 2. Verify that the link is present:
             let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);
@@ -120,7 +121,7 @@ describe('Text Component with CKE - insert email link  specification', function 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

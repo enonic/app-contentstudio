@@ -50,11 +50,13 @@ public final class ContentMediaResource
 {
     private ContentService contentService;
 
-    private static final Set<String> ALLOWED_PREVIEW_TYPES = Stream.concat( ContentTypeFromMimeTypeResolver.resolveMimeTypes(
-        ContentTypeNames.from( ContentTypeName.audioMedia(), ContentTypeName.videoMedia(), ContentTypeName.textMedia() ) ).stream(),
-                                                                            Set.of( "application/pdf", "application/postscript" ).stream() )
-        .
-            collect( Collectors.toSet() );
+    private static final Set<String> ALLOWED_PREVIEW_TYPES =
+        Stream.concat( ContentTypeFromMimeTypeResolver.resolveMimeTypes(
+                           ContentTypeNames.from( ContentTypeName.audioMedia(), ContentTypeName.videoMedia(),
+                                                  ContentTypeName.textMedia(), ContentTypeName.imageMedia(),
+                                                  ContentTypeName.vectorMedia() ) ).stream(),
+                       Set.of( "application/pdf", "application/postscript" ).stream() )
+            .collect( Collectors.toSet() );
 
     @GET
     @Path("{contentId}")
@@ -74,23 +76,6 @@ public final class ContentMediaResource
     {
         final ContentId contentId = ContentId.from( contentIdAsString );
         return doServeMedia( contentId, identifier, download );
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("isAllowPreview")
-    public boolean isAllowPreview( @QueryParam("contentId") final String contentIdAsString,
-                                   @QueryParam("identifier") final String identifier )
-    {
-        final ContentId contentId = ContentId.from( contentIdAsString );
-        final Attachment attachment = resolveAttachment( identifier, contentId );
-
-        if ( attachment == null )
-        {
-            return false;
-        }
-
-        return attachmentAllowsPreview( attachment );
     }
 
     private Response doServeMedia( final ContentId contentId, final String identifier, final Boolean download )

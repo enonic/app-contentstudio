@@ -8,6 +8,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('Custom error handling - specification. Verify that application error page is loaded when error occurred', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -17,12 +18,13 @@ describe('Custom error handling - specification. Verify that application error p
 
     let SITE;
     const CONTROLLER_WITH_ERROR = 'Page with error';
-    const ERROR_MESSAGE_LIVE_EDIT = "Failed to render content preview.";
+    const ERROR_MESSAGE_LIVE_EDIT = 'Failed to render content preview.';
 
-    it(`WHEN a controller with error has been selected THEN 'Preview' button should not be displayed in the wizard toolbar`,
+    it(`WHEN a controller with error has been selected THEN 'Preview' button should not be displayed in the wizard toolbar AND disabled in Preview panel`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_WITH_ERROR);
             // 1. Open new wizard for a site:
@@ -32,7 +34,7 @@ describe('Custom error handling - specification. Verify that application error p
             // 2. Select a controller with error:
             await contentWizard.selectPageDescriptor(CONTROLLER_WITH_ERROR, false);
             await contentWizard.pause(500);
-            await studioUtils.saveScreenshot("site_controller_with_errors");
+            await studioUtils.saveScreenshot('site_controller_with_errors');
             // 3. Verify that 'Preview' button is not displayed in the wizard:
             await contentWizard.waitForPreviewButtonNotDisplayed();
             // 4. 'Hide Page Editor' button should be visible
@@ -45,7 +47,23 @@ describe('Custom error handling - specification. Verify that application error p
             // 6. Verify that 'Preview' button is disabled in the browse panel toolbar:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.pause(1000);
-            await contentBrowsePanel.waitForPreviewButtonDisabled();
+            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+        });
+
+    it(`GIVEN existing site(controller has a error) has been selected WHEN 'Site engine' has been selected in Preview Dropdown THEN expected error message should be displayed in the Preview Panel`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select the site:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            // 2. Select 'Site Engine' in the Preview Dropdown:
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
+            // 3. Verify the error message in the Preview Panel:
+            await contentItemPreviewPanel.switchToLiveViewFrame();
+            let actualResult = await contentItemPreviewPanel.get500ErrorText();
+            assert.equal(actualResult[0], 'Oops, something went wrong!', "Expected message should be displayed in the Preview Panel");
+            // 4. Verify the Preview button is enabled in Preview Panel:
+            await contentItemPreviewPanel.switchToParentFrame();
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
         });
 
     it(`GIVEN existing site(controller has a error) WHEN the site has been opened in draft THEN expected error page should be loaded in the browser page`,

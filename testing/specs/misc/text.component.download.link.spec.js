@@ -16,6 +16,7 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const InsertLinkDialogContentPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('Text Component with CKE - insert download-link specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -94,12 +95,39 @@ describe('Text Component with CKE - insert download-link specification', functio
             await contentWizard.waitForNotificationMessage();
         });
 
-    it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN download-link should be present in the page`,
+    it(`GIVEN the site with download link in the text component is selected WHEN 'Site Engine' is selected THEN download-link should be present in the page`,
         async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            // 1. Select the site and click on Preview button
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select the site:
             await studioUtils.findAndSelectItem(SITE.displayName);
-            await contentBrowsePanel.clickOnPreviewButton();
+            // 2.  'Site Engine' has been selected in the Preview widget dropdown:
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
+            await studioUtils.saveScreenshot('site_engine_download_link');
+            await contentItemPreviewPanel.switchToLiveViewFrame();
+            // 3. Verify that new added link is present
+            let result = await contentItemPreviewPanel.getTextFromTextComponent();
+            assert.equal(result, LINK_TEXT, "expected link should be present in the Preview Panel");
+        });
+
+    it(`GIVEN the site with download link in the text component is selected WHEN 'Automatic' is selected THEN download-link should be present in the page`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select the site and 'Automatic' option in the Preview widget dropdown:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await studioUtils.saveScreenshot('site_automatic_download_link');
+            await contentItemPreviewPanel.switchToLiveViewFrame();
+            // 2. Verify that new added link is present
+            let result = await contentItemPreviewPanel.getTextFromTextComponent();
+            assert.equal(result, LINK_TEXT, "expected link should be present in the Preview Panel");
+        });
+
+    it(`GIVEN site is selected WHEN 'Site Engine' is selected AND 'Preview' button has been pressed THEN download-link should be present in the page`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select the site and click on 'Preview' button
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
+            await contentItemPreviewPanel.clickOnPreviewButton();
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             // 2. Verify that new added link is present
             let isDisplayed = await studioUtils.isElementDisplayed(`a=${LINK_TEXT}`);
@@ -118,7 +146,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             // 3. Click on the latest 'Moved' version item:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
             await wizardVersionsWidget.pause(500);
-            await studioUtils.saveScreenshot("moved_version_item");
+            await studioUtils.saveScreenshot('moved_version_item');
             // 4 'Active version' "Revert" buttons are not displayed in the 'Permission updated' item
             await wizardVersionsWidget.waitForActiveVersionButtonNotDisplayed();
             await wizardVersionsWidget.waitForRevertButtonNotDisplayed();

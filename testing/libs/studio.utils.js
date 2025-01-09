@@ -665,7 +665,7 @@ module.exports = {
             throw new Error(`Error when navigate to Content Studio app. Screenshot: ${screenshot}` + err);
         }
     },
-    //Clicks on Cancel button and switches to Default project
+    // Clicks on Cancel button and switches to Default project
     async closeProjectSelectionDialog() {
         let projectSelectionDialog = new ProjectSelectionDialog();
         let isLoaded = await projectSelectionDialog.isDialogLoaded();
@@ -777,11 +777,18 @@ module.exports = {
 
     async doSwitchToNewWizard() {
         try {
-            console.log('testUtils:switching to the new wizard tab...');
             let contentWizardPanel = new ContentWizardPanel();
+            await this.doSwitchToNewTab();
+            return await contentWizardPanel.waitForOpened();
+        } catch (err) {
+            throw new Error('Error occurred during switching to the new wizard tab ' + err);
+        }
+    },
+    async doSwitchToNewTab() {
+        try {
+            console.log('testUtils:switching to the new wizard tab...');
             let tabs = await this.getBrowser().getWindowHandles();
             await this.getBrowser().switchToWindow(tabs[tabs.length - 1]);
-            return await contentWizardPanel.waitForOpened();
         } catch (err) {
             throw new Error('Error occurred during switching to the new browser tab ' + err);
         }

@@ -9,6 +9,7 @@ const ContentBrowsePanel = require("../../page_objects/browsepanel/content.brows
 const PdfForm = require('../../page_objects/wizardpanel/pdf.form.panel');
 const ContentFilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('pdf.content.spec tests for extraction data for pdf content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -21,6 +22,19 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
     const PDF_EXTRACTION_TEXT = 'my test pdf file';
     const PDF_TAG_TEXT = 'tag pdf';
     const PDF_CONTENT_DISPLAY_NAME = 'pdf';
+
+    it(`GIVEN existing pdf content has been selected WHEN 'Media' has been selected in 'Preview' Dropdown THEN expected document should be displayed in the Preview Panel`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select the site:
+            await studioUtils.findAndSelectItem(PDF_CONTENT_DISPLAY_NAME);
+            // 2. Select 'Media' in the Preview Dropdown:
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
+            // 3. Verify the 'Preview' button in Preview Panel (enabled):
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            // 4. PDF content should be displayed in the Preview Panel
+            await contentItemPreviewPanel.waitForPreviewIframeClass('application');
+        });
 
     it(`GIVEN new tag and extraction text are saved in media content(PDF) WHEN extraction text has been typed in Filter Panel THEN expected pdf content should be filtered in the grid`,
         async () => {
