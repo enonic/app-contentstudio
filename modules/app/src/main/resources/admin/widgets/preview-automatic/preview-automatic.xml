@@ -1,0 +1,11 @@
+<widget xmlns="urn:enonic:xp:model:1.0">
+  <display-name i18n="widget.liveview.automatic.name">Automatic</display-name>
+  <description i18n="widget.liveview.automatic.description">Use best preview widget</description>
+  <interfaces>
+    <interface>contentstudio.liveview</interface>
+  </interfaces>
+  <config>
+    <property name="auto" value="false"/>
+    <property name="order" value="0"/>
+  </config>
+</widget>

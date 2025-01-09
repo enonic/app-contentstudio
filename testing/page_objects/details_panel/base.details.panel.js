@@ -119,7 +119,6 @@ class BaseDetailsPanel extends Page {
 
     async openEmulatorWidget() {
         try {
-            let widgetSelectorDropdown = new WidgetSelectorDropdown();
             await this.clickOnWidgetSelectorDropdownHandle();
             await this.clickOnEmulatorOptionsItem();
         } catch (err) {
@@ -129,6 +128,11 @@ class BaseDetailsPanel extends Page {
             await this.clickOnWidgetSelectorDropdownHandle();
             await this.clickOnEmulatorOptionsItem();
         }
+    }
+
+    async getSelectedOptionsDisplayName() {
+        let widgetSelectorDropdown = new WidgetSelectorDropdown();
+        return await widgetSelectorDropdown.getSelectedOptionsDisplayName();
     }
 }
 

@@ -13,7 +13,7 @@ module.exports = Object.freeze({
     SELECTED_LOCALE: `//div[contains(@id,'LocaleSelectedOptionView')]`,
     H6_DISPLAY_NAME: "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
     P_SUB_NAME: "//p[contains(@class,'sub-name')]",
-    RICH_TEXT_EDITOR: `//div[contains(@id,'TextComponentView') and contains(@class,'editor-focused')]`,
+    RICH_TEXT_EDITOR: `//*[contains(@id,'TextComponentView') and contains(@class,'editor-focused')]`,
     TEXT_AREA: "//textarea[contains(@id,'TextArea')]",
     WIDGET_SELECTOR_DROPDOWN: `//div[contains(@id,'WidgetSelectorDropdown')]`,
     DROP_DOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",

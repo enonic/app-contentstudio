@@ -23,6 +23,8 @@ const ProjectWizardDialogLanguageStep = require('../../page_objects/project/proj
 const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
+const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
+const csConst = require('../../libs/app_const');
 
 describe('project.owner.spec - ui-tests for user with Owner role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -255,7 +257,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
-            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let issueListDialog = new IssueListDialog();
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             // 2. Select the folder and open new Request wizard:
@@ -269,7 +271,10 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             // 4. Verify that Create Request dialog closes:
             await publishRequestDetailsDialog.waitForClosed();
             // 5. Click on issue-button and open the request:
-            await contentItemPreviewPanel.clickOnIssueButtonByName('owner request');
+            await contentBrowsePanel.clickOnShowIssuesListButton();
+            await issueListDialog.waitForDialogOpened();
+            await issueListDialog.selectTypeFilterOption(appConst.ISSUE_LIST_TYPE_FILTER.PUBLISH_REQUESTS);
+            await issueListDialog.clickOnIssue('owner request');
             // 6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
             // 7. Verify that 'Publish Now' button is enabled:

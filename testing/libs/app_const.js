@@ -212,12 +212,22 @@ module.exports = Object.freeze({
         COL_3: '3-col',
     },
     EMULATOR_RESOLUTION: {
+        FULL_SIZE: 'Full Size',
         MEDIUM_PHONE: 'Medium Phone',
         LARGE_PHONE: 'Large Phone',
         TABLET: 'Tablet',
         NOTEBOOK_13: "13\" Notebook",
         SMALL_PHONE: 'Small Phone',
         NOTEBOOK_15: "15\" Notebook",
+    },
+    EMULATOR_RESOLUTION_VALUE: {
+        FULL_SIZE: '100%',
+        MEDIUM_PHONE: '375px',
+        LARGE_PHONE: '414px',
+        TABLET: '768px',
+        NOTEBOOK_13: '1280px',
+        SMALL_PHONE: '320px',
+        NOTEBOOK_15: '1356px',
     },
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',
@@ -482,4 +492,26 @@ module.exports = Object.freeze({
         USERS_ADMINISTRATOR: 'Users Administrator',
         EVERYONE: 'Everyone'
     },
+    PREVIEW_WIDGET: {
+        AUTOMATIC: 'Automatic',
+        SITE_ENGINE: 'Site engine',
+        MEDIA: 'Media',
+        JSON: 'JSON'
+    },
+    LIVE_VIEW_IFRAME_CLASS: {
+        IMAGE: 'image',
+        APPLICATION: 'application',
+    },
+    LIVE_VIEW_JSON_KEY: {
+        NAME: '_name',
+        DISPLAY_NAME: 'displayName',
+        PATH: '_path',
+        CREATOR: 'creator',
+        MODIFIER: 'modifier',
+    },
+    PREVIEW_PANEL_MESSAGE: {
+        CAN_NOT_RENDER_NON_MEDIA: 'Can not render non-media content',
+        PREVIEW_NOT_AVAILABLE: 'Preview not available',
+        CAN_NOT_RENDER_WITH_SITE_ENGINE: 'Can not render with site engine'
+    }
 });

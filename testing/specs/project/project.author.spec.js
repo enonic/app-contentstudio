@@ -22,6 +22,7 @@ const ProjectWizardDialogLanguageStep = require('../../page_objects/project/proj
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 
 describe('project.author.spec - ui-tests for user with Author role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -215,7 +216,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
-            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let issueListDialog = new IssueListDialog();
             // 1. Do log in with the user-author and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             // 2. Select the folder and open Request wizard:
@@ -228,8 +229,11 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await createRequestPublishDialog.clickOnCreateRequestButton();
             // 4. Verify that Create Request dialog closes:
             await publishRequestDetailsDialog.waitForClosed();
+            await contentBrowsePanel.waitForNotificationMessage()
             // 5. Click on issue-button and open the request:
-            await contentItemPreviewPanel.clickOnIssueButtonByName('author request');
+            await contentBrowsePanel.clickOnShowIssuesListButton();
+            await issueListDialog.waitForDialogOpened();
+            await issueListDialog.clickOnIssue('author request');
             // 6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
             // 7. Verify that 'Publish Now' button is disabled:

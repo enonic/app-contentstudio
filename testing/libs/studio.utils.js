@@ -94,7 +94,7 @@ module.exports = {
             let selector = `//iframe[contains(@src,'${src}')]`;
             let el = await this.getBrowser().$(selector);
             await el.waitForDisplayed({timeout: 2000});
-            await this.getBrowser().switchToFrame(el);
+            await this.getBrowser().switchFrame(el);
         } catch (err) {
             throw new Error('Error when switch to frame  ' + err);
         }
@@ -144,7 +144,8 @@ module.exports = {
     async doCloseCurrentBrowserTab() {
         let title = await this.getBrowser().getTitle();
         if (title != 'Enonic XP Home') {
-            return await this.getBrowser().closeWindow();
+            //return await this.getBrowser().closeWindow();
+            return await this.getBrowser().execute('window.close();')
         }
     },
     async openIssuesListDialog() {
@@ -324,15 +325,15 @@ module.exports = {
     async doCloseWizardAndSwitchContentStudioTab() {
         await this.doCloseCurrentBrowserTab();
         let browsePanel = new BrowsePanel();
-        await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+        await this.switchToTab(appConst.BROWSER_TITLES.CONTENT_STUDIO);
         await browsePanel.pause(400);
     },
     async doAddSite(site, noControllers) {
         let contentWizardPanel = new ContentWizardPanel();
-        //1. Open new site-wizard:
+        // 1. Open new site-wizard:
         await this.openContentWizard(appConst.contentTypes.SITE);
         await contentWizardPanel.typeData(site);
-        //2. Type the data and save:
+        // 2. Type the data and save:
         if (site.data.controller) {
             await contentWizardPanel.selectPageDescriptor(site.data.controller);
         }
@@ -522,7 +523,6 @@ module.exports = {
         //switch to the opened wizard:
         await this.switchToContentTabWindow(displayName);
         await contentWizardPanel.waitForOpened();
-        await contentWizardPanel.waitForSpinnerNotVisible(appConst.longTimeout);
         await contentWizardPanel.waitForDisplayNameInputFocused();
         await contentWizardPanel.pause(300);
     },
@@ -583,7 +583,7 @@ module.exports = {
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
             return await browsePanel.pause(800);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_spinner'));
+            await this.saveScreenshotUniqueName('err_spinner');
             throw new Error('Filter Panel-  error : ' + err);
         }
     },
@@ -605,7 +605,7 @@ module.exports = {
             return await browsePanel.selectContext(context);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_context');
-            throw new Error('Error during selecting a context, screenshot: ' + screenshot + "  " + err);
+            throw new Error(`Error during selecting a context, screenshot: ${screenshot}` + err);
         }
     },
 
@@ -624,7 +624,7 @@ module.exports = {
             await this.doSwitchToContentBrowsePanelAndSelectDefaultContext();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_cs');
-            throw new Error(`Error occurred after clicking on  Content Studio link in Launcher Panel,  screenshot:${screenshot}  ` + err);
+            throw new Error(`Error occurred after clicking on Content Studio link in Launcher Panel,  screenshot:${screenshot}  ` + err);
         }
     },
     async navigateToContentStudioAppMobile(userName, password) {
@@ -641,7 +641,7 @@ module.exports = {
             return await browsePanel.pause(1500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
-            throw new Error('error when navigate to Content Studio, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`error when navigate to Content Studio, screenshot: ${screenshot} ` + err);
         }
     },
     async clickOnContentStudioLink(userName, password) {
@@ -658,11 +658,11 @@ module.exports = {
     async navigateToContentStudioCloseProjectSelectionDialog(userName, password) {
         try {
             await this.clickOnContentStudioLink(userName, password);
-            await this.getBrowser().switchWindow('Content Studio - Enonic XP Admin');
+            await this.switchToTab(appConst.BROWSER_TITLES.CONTENT_STUDIO);
             await this.closeProjectSelectionDialog();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
-            throw new Error('Error when navigate to Content Studio app. Screenshot: ' + screenshot + "  " + err);
+            throw new Error(`Error when navigate to Content Studio app. Screenshot: ${screenshot}` + err);
         }
     },
     //Clicks on Cancel button and switches to Default project
@@ -686,7 +686,7 @@ module.exports = {
     async doSwitchToContentBrowsePanel() {
         try {
             let browsePanel = new BrowsePanel();
-            await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+            await this.switchToTab(appConst.BROWSER_TITLES.CONTENT_STUDIO);
             console.log('switched to content browse panel...');
             await browsePanel.waitForGridLoaded(appConst.longTimeout);
             return browsePanel;
@@ -694,11 +694,33 @@ module.exports = {
             throw new Error('Error when switching to Content Studio App ' + err);
         }
     },
+    async switchToTab(title) {
+        let handles = await this.getBrowser().getWindowHandles();
+        for (const handle of handles) {
+            await this.getBrowser().switchToWindow(handle);
+            let currentTitle = await this.getBrowser().getTitle();
+            if (currentTitle === title) {
+                return handle;
+            }
+        }
+        throw new Error('Browser tab with title ' + title + ' was not found');
+    },
+    async switchToTabContains(text) {
+        let handles = await this.getBrowser().getWindowHandles();
+        for (const handle of handles) {
+            await this.getBrowser().switchToWindow(handle);
+            let currentTitle = await this.getBrowser().getTitle();
+            if (currentTitle.includes(text)) {
+                return handle;
+            }
+        }
+        throw new Error('Browser tab with title ' + text + ' was not found');
+    },
     async doSwitchToContentBrowsePanelAndSelectDefaultContext() {
         try {
             let projectSelectionDialog = new ProjectSelectionDialog();
             let browsePanel = new BrowsePanel();
-            await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+            await this.switchToTab(appConst.BROWSER_TITLES.CONTENT_STUDIO);
             console.log('switched to content browse panel...');
             let isLoaded = await projectSelectionDialog.isDialogLoaded();
             if (isLoaded) {
@@ -715,7 +737,7 @@ module.exports = {
     async doSwitchToHome() {
         console.log('testUtils:switching to Home page...');
         let homePage = new HomePage();
-        await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.XP_HOME);
+        await this.switchToTab(appConst.BROWSER_TITLES.XP_HOME);
         return await homePage.waitForLoaded(appConst.mediumTimeout);
 
     },
@@ -733,12 +755,11 @@ module.exports = {
 
     async switchToContentTabWindow(contentDisplayName) {
         try {
-            await this.getBrowser().switchWindow(contentDisplayName);
+            await this.switchToTabContains(contentDisplayName);
             let contentWizardPanel = new ContentWizardPanel();
             return await contentWizardPanel.waitForSpinnerNotVisible();
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_switch_window');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_switch_window');
             await this.getBrowser().pause(1500);
             await this.getBrowser().switchWindow(contentDisplayName);
         }
@@ -800,26 +821,15 @@ module.exports = {
             throw new Error('Error occurred during switching to the new browser tab ' + err);
         }
     },
-    doCloseAllWindowTabsAndSwitchToHome() {
-        return this.getBrowser().getWindowHandles().then(tabIds => {
-            let result = Promise.resolve();
-            tabIds.forEach(tabId => {
-                result = result.then(() => {
-                    return this.switchAndCheckTitle(tabId, "Enonic XP Home");
-                }).then(result => {
-                    if (!result) {
-                        return this.getBrowser().closeWindow().then(() => {
-                            console.log(tabId + ' was closed');
-                        }).catch(err => {
-                            console.log(tabId + ' was not closed ' + err);
-                        });
-                    }
-                });
-            });
-            return result;
-        }).then(() => {
-            return this.doSwitchToHome();
-        });
+    async doCloseAllWindowTabsAndSwitchToHome() {
+        let handles = await this.getBrowser().getWindowHandles();
+        for (const item of handles) {
+            let result = await this.switchAndCheckTitle(item, "Enonic XP Home");
+            if (!result) {
+                await this.getBrowser().closeWindow();
+            }
+        }
+        return this.doSwitchToHome();
     },
     async switchAndCheckTitle(handle, reqTitle) {
         try {

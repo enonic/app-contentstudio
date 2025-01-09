@@ -1,12 +1,14 @@
 /**
  * Created on 16.07.2019.
  */
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const appConst = require('../libs/app_const');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
+const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar after closing a wizard page', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -20,7 +22,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
     let SITE;
     // verifies https://github.com/enonic/app-contentstudio/issues/645
     // Buttons on toolbar are not correctly updated after closing a content-wizard
-    it(`GIVEN existing site is selected  AND 'New' button has been pressed WHEN new folder has been saved and the wizard closed THEN toolbar-buttons should be in expected state`,
+    it(`GIVEN existing site is selected  AND new folder has been saved and the wizard closed THEN toolbar-buttons should be in expected state`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site-test');
@@ -42,11 +44,11 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
         });
 
     // Verify "Move" action is disabled in the search view #4035
-    it(`search for some content WHEN the content has been selected THEN Move button should be enabled`,
+    it(`WHEN a folder has been selected THEN Move button should be enabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(FOLDER_NAME);
-            await studioUtils.saveScreenshot("content_in_filtered_grid");
+            await studioUtils.saveScreenshot('content_in_filtered_grid');
             //'Publish' button should be displayed on the toolbar after closing a wizard with child content
             await contentBrowsePanel.waitForMarkAsReadyButtonVisible();
             //'Edit' button should be enabled
@@ -56,8 +58,32 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             //'Move' button should be enabled
             await contentBrowsePanel.waitForMoveButtonEnabled();
             await contentBrowsePanel.waitForDuplicateButtonEnabled();
-            await contentBrowsePanel.waitForPreviewButtonDisabled();
             await contentBrowsePanel.waitForSortButtonDisabled();
+        });
+
+    it(`WHEN a folder has been selected THEN 'Preview' button should be disabled and 'Automatic' option should be selected in preview widget`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            await studioUtils.findAndSelectItem(FOLDER_NAME);
+            await studioUtils.saveScreenshot('folder_preview_panel_toolbar');
+            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            let actualOption = await contentItemPreviewPanel.getSelectedOptionInPreviewWidget()
+            assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
+                'Automatic option should be selected in preview widget by default');
+            let actualSize = await contentItemPreviewPanel.getSelectedOptionInEmulatorDropdown()
+            assert.equal(actualSize, appConst.EMULATOR_RESOLUTION_VALUE.FULL_SIZE,
+                '100% should be selected in emulator dropdown by default');
+        });
+
+    it(`WHEN a folder and 'Site engine' have been selected THEN 'Preview' button should be disabled`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            await studioUtils.findAndSelectItem(FOLDER_NAME);
+            await studioUtils.saveScreenshot('folder_preview_panel_toolbar');
+            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            let actualOption = await contentItemPreviewPanel.getSelectedOptionInPreviewWidget()
+            assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
+                'Automatic option should be selected in preview widget by default');
         });
 
     it(`GIVEN existing site is selected WHEN the site (children are not included) has been published THEN 'Publish Tree' button should appear on the toolbar`,
@@ -73,26 +99,34 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
     it(`WHEN no selected content THEN all buttons on the toolbar should be in expected state`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await contentBrowsePanel.waitForNewButtonEnabled();
             await contentBrowsePanel.waitForEditButtonDisabled();
             await contentBrowsePanel.waitForArchiveButtonDisabled();
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
             await contentBrowsePanel.waitForMoveButtonDisabled();
             await contentBrowsePanel.waitForSortButtonDisabled();
-            await contentBrowsePanel.waitForPreviewButtonDisabled();
             await contentBrowsePanel.waitForCreateIssueButtonDisplayed();
             await contentBrowsePanel.waitForDetailsPanelToggleButtonDisplayed();
+            // 'Preview' button and Preview Panel Toolbar should not be displayed, because no content is selected
+            await contentItemPreviewPanel.waitForToolbarNotDisplayed();
         });
 
-    it(`WHEN image is selected (not allowing children) THEN 'Sort' and 'New' buttons should be  disabled`,
+    it(`WHEN an image is selected (not allowing children) THEN 'Sort' and 'New' buttons should be  disabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.HAND);
+            // 'Edit' button should be enabled
             await contentBrowsePanel.waitForEditButtonEnabled();
             await contentBrowsePanel.waitForSortButtonDisabled();
-            // New button should be disabled, because children are not allowed for images.
+            // 'New' button should be disabled, because children are not allowed for images.
             await contentBrowsePanel.waitForNewButtonDisabled();
-            await contentBrowsePanel.waitForPreviewButtonDisabled();
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
+            // 'Preview' button should be enabled for an image and Media option
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            //  <img> element should be displayed in the iframe
+            await contentItemPreviewPanel.waitForImageElementDisplayed();
         });
 
     it(`GIVEN new folder is added WHEN the folder has been selected THEN 'Sort' buttons should be disabled`,

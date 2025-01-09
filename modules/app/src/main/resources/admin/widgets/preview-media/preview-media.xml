@@ -1,0 +1,11 @@
+<widget xmlns="urn:enonic:xp:model:1.0">
+  <display-name i18n="widget.liveview.media.name">Media</display-name>
+  <description i18n="widget.liveview.media.description">Display media content</description>
+  <interfaces>
+    <interface>contentstudio.liveview</interface>
+  </interfaces>
+  <config>
+    <property name="auto" value="true"/>
+    <property name="order" value="50"/>
+  </config>
+</widget>

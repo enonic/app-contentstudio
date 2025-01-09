@@ -29,7 +29,7 @@ dependencies {
     implementation "com.enonic.xp:admin-api:${xpVersion}"
     implementation "com.enonic.xp:portal-api:${xpVersion}"
 
-    include "org.apache.commons:commons-text:1.12.0"
+    include "org.apache.commons:commons-text:1.13.0"
     include "com.enonic.xp:lib-admin:${xpVersion}"
     include "com.enonic.xp:lib-portal:${xpVersion}"
     include "com.enonic.xp:lib-context:${xpVersion}"
@@ -47,6 +47,7 @@ dependencies {
     include "com.enonic.lib:lib-license:3.1.0"
     include "com.enonic.xp:lib-auth:${xpVersion}"
     include "com.enonic.xp:lib-node:${xpVersion}"
+    include "com.enonic.lib:lib-http-client:3.2.1"
     include project( ':lib-contentstudio' )
     include project( ':rest' )
     devResources project( path: ':lib-contentstudio', configuration: 'devResources' )

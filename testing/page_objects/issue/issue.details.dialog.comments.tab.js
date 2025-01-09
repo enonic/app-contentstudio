@@ -8,6 +8,7 @@ const XPATH = {
     commentAndCloseIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment & Close Issue']]`,
     issueCommentTextArea: `//div[contains(@id,'IssueCommentTextArea')]`,
     noCommentsMessage: "//h5[@class='empty-list-item']",
+    reopenRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Request']]`,
     commentsList: "//ul[contains(@id,'IssueCommentsList')]",
     issueCommentsListItemByText:
         text => `//div[contains(@id,'IssueCommentsListItem') and descendant::p[@class='inplace-text' and text()='${text}']]`,
@@ -15,6 +16,9 @@ const XPATH = {
 
 class IssueDetailsDialogCommentsTab extends Page {
 
+    get reopenRequestButton() {
+        return XPATH.container + XPATH.reopenRequestButton;
+    }
     get issueCommentTextArea() {
         return XPATH.container + XPATH.issueCommentTextArea + lib.TEXT_AREA;
     }
@@ -43,7 +47,7 @@ class IssueDetailsDialogCommentsTab extends Page {
         try {
             await this.waitForElementEnabled(this.commentButton, appConst.mediumTimeout)
         } catch (err) {
-            throw  new Error('Issue Details Dialog,Comments tab  ' + err);
+            throw new Error('Issue Details Dialog,Comments tab  ' + err);
         }
     }
 
@@ -105,15 +109,29 @@ class IssueDetailsDialogCommentsTab extends Page {
         })
     }
 
+    async clickOnCommentAndCloseRequestButton() {
+        await this.clickOnElement(this.commentAndCloseRequestButton);
+        return await this.pause(500);
+    }
+
+    async waitForReopenRequestButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.reopenRequestButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_reopen_request_button');
+            throw new Error(`Reopen Request button is not displayed, screenshot ${screenshot} ` + err);
+        }
+    }
+
     waitForCommentAndCloseIssueButtonDisplayed() {
         return this.waitForElementDisplayed(this.commentAndCloseIssueButton, appConst.shortTimeout).catch(err => {
-            throw  new Error('Comments Tab   ' + err);
+            throw new Error('Comments Tab   ' + err);
         })
     }
 
     waitForCommentButtonDisabled() {
         return this.waitForElementDisabled(this.commentButton, appConst.shortTimeout).catch(err => {
-            throw  new Error('Issue Details Dialog  ' + err);
+            throw new Error('Issue Details Dialog  ' + err);
         })
     }
 

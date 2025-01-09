@@ -13,7 +13,6 @@ export enum InternalWidgetType {
     INFO = 'info',
     HISTORY = 'history',
     DEPENDENCIES = 'dependencies',
-    EMULATOR = 'emulator',
     COMPONENTS = 'components',
     LAYERS = 'layers',
 }
@@ -238,10 +237,6 @@ export class WidgetView
 
     isActive() {
         return this.contextView.getActiveWidget() === this;
-    }
-
-    isEmulator(): boolean {
-        return this.type === InternalWidgetType.EMULATOR;
     }
 
     getType(): InternalWidgetType {

@@ -1,0 +1,11 @@
+<widget xmlns="urn:enonic:xp:model:1.0">
+  <display-name i18n="widget.liveview.json.name">JSON</display-name>
+  <description i18n="widget.liveview.json.description">Display in JSON format</description>
+  <interfaces>
+    <interface>contentstudio.liveview</interface>
+  </interfaces>
+  <config>
+    <property name="auto" value="false"/>
+    <property name="order" value="100"/>
+  </config>
+</widget>

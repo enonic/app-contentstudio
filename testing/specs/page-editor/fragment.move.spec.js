@@ -14,6 +14,7 @@ const TextComponent = require('../../page_objects/components/text.component');
 const appConst = require('../../libs/app_const');
 const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('Move Fragment specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -61,6 +62,52 @@ describe('Move Fragment specification', function () {
             // 5. Go to the site-wizard and verify description of the new created fragment
             let actualDescription = await pageComponentView.getComponentDescription(TEST_TEXT_FRAGMENT);
             assert.equal(actualDescription, FRAGMENT_TEXT_DESCRIPTION, 'Expected description should be in the text-fragment');
+        });
+
+    it(`WHEN existing fragment is selected AND 'Automatic' is selected in Preview Panel THEN expected text-fragment should be displayed in Preview Panel`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select the fragment-content and click on Move button:
+            await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
+            // 2. Verify that Automatic option is selected:
+            await contentItemPreviewPanel.getSelectedOptionInPreviewWidget();
+            let actualOption = await contentItemPreviewPanel.getSelectedOptionInPreviewWidget();
+            assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
+                'Automatic option should be selected in preview widget by default');
+            // 3. Verify that 'Preview' button should be enabled:
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentItemPreviewPanel.switchToLiveViewFrame();
+            let result = await contentItemPreviewPanel.getTextFromTextComponent();
+            assert.equal(result, TEST_TEXT_FRAGMENT, "expected text should be present in the Preview Panel");
+        });
+
+    it(`WHEN existing fragment is selected AND 'Site engine' is selected in Preview Panel THEN expected text-fragment should be displayed in Preview Panel`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select the fragment-content:
+            await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
+            // 2. Select 'Site engine' in the dropdown
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
+            // 3. Verify the Preview button should be enabled:
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            // 4. Verify the text-fragment should be displayed in the Preview Panel
+            await contentItemPreviewPanel.switchToLiveViewFrame();
+            let result = await contentItemPreviewPanel.getTextFromTextComponent();
+            assert.equal(result, TEST_TEXT_FRAGMENT, "expected text should be present in the Preview Panel");
+        });
+
+    it(`WHEN existing fragment is selected AND 'Media' is selected in Preview Panel THEN expected message should be displayed in Preview Panel`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. Select the fragment-content:
+            await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
+            await contentItemPreviewPanel.getSelectedOptionInPreviewWidget();
+            // 2. Select 'Media' in the dropdown
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
+            // 3. Verify the message:  'Preview not available'
+            let messages = await contentItemPreviewPanel.getNoPreviewMessage();
+            assert.ok(messages.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE),
+                "Expected message should be displayed in Content Item Preview panel");
         });
 
     // Verify - Disable Move button when target is not selected #6763
