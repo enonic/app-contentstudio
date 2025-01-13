@@ -17,7 +17,6 @@ import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEdit
 import {InitializeLiveEditEvent} from '../../../page-editor/InitializeLiveEditEvent';
 import {SkipLiveEditReloadConfirmationEvent} from '../../../page-editor/SkipLiveEditReloadConfirmationEvent';
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import {UriHelper} from '../../rendering/UriHelper';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
@@ -91,6 +90,10 @@ import {ProjectContext} from '../../project/ProjectContext';
 import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
 import {UpdateTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/UpdateTextComponentViewEvent';
 import {SetComponentStateEvent} from '../../../page-editor/event/incoming/manipulation/SetComponentStateEvent';
+import {PreviewActionHelper} from '../../action/PreviewActionHelper';
+import {Content} from '../../content/Content';
+import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {ViewWidgetEvent} from '../../event/ViewWidgetEvent';
 import {PageReloadRequestedEvent} from '../../../page-editor/event/outgoing/manipulation/PageReloadRequestedEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
@@ -101,7 +104,7 @@ export class LiveEditPageProxy
 
     private liveEditIFrame?: IFrameEl;
 
-    private contentId: ContentId;
+    private content: Content;
 
     private liveEditWindow: Window;
 
@@ -115,8 +118,14 @@ export class LiveEditPageProxy
 
     private isPageLocked: boolean;
 
-    constructor(contentId: ContentId) {
-        this.contentId = contentId;
+    private previewHelper: PreviewActionHelper;
+
+    private viewWidget: Widget;
+
+    constructor(content: Content) {
+        this.content = content;
+
+        this.previewHelper = new PreviewActionHelper();
 
         this.initListeners();
     }
@@ -140,9 +149,14 @@ export class LiveEditPageProxy
             }
         });
 
+        ViewWidgetEvent.on((event: ViewWidgetEvent) => {
+            this.viewWidget = event.getWidget();
+            this.load();
+        });
+
         WindowDOM.get().onUnload(() => {
-           sessionStorage.removeItem(`${LiveEditPage.SELECTED_PATH_STORAGE_KEY}:${this.contentId.toString()}`);
-           sessionStorage.removeItem(`${LiveEditPage.SELECTED_TEXT_CURSOR_POS_STORAGE_KEY}:${this.contentId.toString()}`);
+            sessionStorage.removeItem(`${LiveEditPage.SELECTED_PATH_STORAGE_KEY}:${this.content.getContentId().toString()}`);
+            sessionStorage.removeItem(`${LiveEditPage.SELECTED_TEXT_CURSOR_POS_STORAGE_KEY}:${this.content.getContentId().toString()}`);
         });
 
         this.listenToMainFrameEvents();
@@ -297,8 +311,7 @@ export class LiveEditPageProxy
             scrollTop = this.livejq(this.liveEditWindow).scrollTop();
         }
 
-        let contentId = this.contentId.toString();
-        let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT);
+        const pageUrl = this.previewHelper.getUrl(this.content, this.viewWidget, RenderingMode.EDIT);
 
         if (!this.liveEditWindow) {
             this.liveEditIFrame.setSrc(pageUrl);
