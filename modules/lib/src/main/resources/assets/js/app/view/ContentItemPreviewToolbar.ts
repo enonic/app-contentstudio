@@ -10,6 +10,7 @@ import {EmulatorDropdown} from './toolbar/EmulatorDropdown';
 import {AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
+import {RenderingMode} from '../rendering/RenderingMode';
 
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {
@@ -18,10 +19,12 @@ export class ContentItemPreviewToolbar
     private emulatorSelector: EmulatorDropdown;
     private previewButton: ActionButton;
     private previewHelper: PreviewActionHelper;
+    private mode: RenderingMode;
 
-    constructor(previewHelper: PreviewActionHelper) {
+    constructor(previewHelper: PreviewActionHelper, mode: RenderingMode = RenderingMode.PREVIEW) {
         super({className: 'content-item-preview-toolbar'});
         this.previewHelper = previewHelper;
+        this.mode = mode;
     }
 
     protected initElements(): void {
@@ -48,6 +51,10 @@ export class ContentItemPreviewToolbar
         });
     }
 
+    getMode(): RenderingMode {
+        return this.mode;
+    }
+
     setItem(item: ContentSummaryAndCompareStatus) {
         super.setItem(item);
         this.previewButton.getAction().setEnabled(false);
@@ -57,8 +64,12 @@ export class ContentItemPreviewToolbar
         return this.widgetSelector;
     }
 
-    public getPreviewAction(): WidgetPreviewAction {
-        return this.previewButton.getAction() as WidgetPreviewAction;
+    public getPreviewAction(): Action {
+        return this.previewButton.getAction();
+    }
+
+    public setPreviewAction(action: Action) {
+        this.previewButton.setAction(action);
     }
 
     public getPreviewActionHelper(): PreviewActionHelper {
@@ -87,7 +98,9 @@ export class WidgetPreviewAction
     }
 
     protected handleExecuted() {
-        this.toolbar.getPreviewActionHelper().openWindow(this.toolbar.getItem().getContentSummary(),
-            this.toolbar.getWidgetSelector().getSelectedWidget());
+        const contentSummary = this.toolbar.getItem().getContentSummary();
+        const selectedWidget = this.toolbar.getWidgetSelector().getSelectedWidget();
+        const mode = this.toolbar.getMode();
+        this.toolbar.getPreviewActionHelper().openWindow(contentSummary, selectedWidget, mode);
     }
 }
