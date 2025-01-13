@@ -33,8 +33,7 @@ class SiteForm extends Page {
 
     get helpTextInApplicationsSelector() {
         return lib.CONTENT_WIZARD_STEP_FORM +
-               "//div[contains(@id,'InputView') and descendant::div[contains(@class,'application-configurator')]]" +
-               lib.HELP_TEXT.HELP_TEXT;
+               "//div[contains(@id,'InputView') and descendant::div[contains(@class,'application-configurator')]]" + lib.HELP_TEXT.TEXT;
     }
 
     async type(siteData) {
