@@ -19,6 +19,7 @@ import {PreviewActionHelper} from '../action/PreviewActionHelper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
+import {RenderingMode} from '../rendering/RenderingMode';
 
 enum PREVIEW_TYPE {
     WIDGET,
@@ -154,7 +155,7 @@ export class ContentItemPreviewPanel
     private async processWidgets(summary: ContentSummary, items: Widget[], selectedWidget: Widget): Promise<void> {
         for (let i = 0; i < items.length; i++) {
             const widget = items[i];
-            let result = await fetch(this.previewHelper.getUrl(summary, widget), {method: 'HEAD'});
+            let result = await fetch(this.previewHelper.getUrl(summary, widget, RenderingMode.INLINE), {method: 'HEAD'});
 
             let isOK = this.isResponseOk(result, selectedWidget);
 
