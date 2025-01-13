@@ -698,7 +698,7 @@ export class ContentWizardPanel
     }
 
     private createLivePanel(): LiveFormPanel {
-        this.liveEditPage = new LiveEditPageProxy(this.getPersistedItem().getContentId());
+        this.liveEditPage = new LiveEditPageProxy(this.getPersistedItem());
         this.pageComponentsView = new PageComponentsView(this.liveEditPage);
 
         const liveFormPanel: LiveFormPanel = new LiveFormPanel({
@@ -706,6 +706,7 @@ export class ContentWizardPanel
             contentType: this.contentType,
             defaultModels: this.defaultModels,
             content: this.getPersistedItem(),
+            compareStatus: this.getCompareStatus(),
             liveEditPage: this.liveEditPage,
         } as LiveFormPanelConfig);
 

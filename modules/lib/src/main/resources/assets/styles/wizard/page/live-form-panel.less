@@ -18,10 +18,19 @@
 
     height: 100%;
 
-    overflow-x: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    > iframe {
+      flex: 1;
+      overflow-x: auto;
+    }
 
     &.overflow {
-      overflow: auto;
+      > iframe {
+        overflow: auto;
+      }
     }
   }
 

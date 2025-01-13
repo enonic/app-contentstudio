@@ -1,6 +1,5 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {BrEl} from '@enonic/lib-admin-ui/dom/BrEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
@@ -90,6 +89,7 @@ import {FragmentComponentType} from '../../page/region/FragmentComponentType';
 import {ComponentInspectionPanel} from './contextwindow/inspect/region/ComponentInspectionPanel';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {Descriptor} from '../../page/Descriptor';
+import {FrameContainer} from './FrameContainer';
 
 export interface LiveFormPanelConfig {
 
@@ -133,7 +133,7 @@ export class LiveFormPanel
 
     private pageSkipReload: boolean = false;
 
-    private frameContainer?: Panel;
+    private frameContainer?: FrameContainer;
 
     private lockPageAfterProxyLoad: boolean = false;
 
@@ -683,16 +683,17 @@ export class LiveFormPanel
         this.placeholder?.deselectOptions();
 
         if (!this.frameContainer) {
-            this.frameContainer = new Panel('frame-container');
-            this.frameContainer.setDoOffset(false);
+            this.frameContainer = new FrameContainer({
+                proxy: this.liveEditPageProxy,
+                wizardActions: this.contentWizardPanel.getWizardActions()
+            });
             this.appendChild(this.frameContainer);
-            this.frameContainer.appendChildren<Element>(this.liveEditPageProxy.getIFrame(), this.liveEditPageProxy.getDragMask());
         } else {
             this.frameContainer.show();
 
-            if (!this.frameContainer.hasChild(this.liveEditPageProxy.getIFrame())) {
-                this.frameContainer.appendChildren<Element>(this.liveEditPageProxy.getIFrame(), this.liveEditPageProxy.getDragMask());
-            }
+            // if (!this.frameContainer.hasChild(this.liveEditPageProxy.getIFrame())) {
+            //     this.frameContainer.appendChildren<Element>(this.liveEditPageProxy.getIFrame(), this.liveEditPageProxy.getDragMask());
+            // }
         }
 
         if (clearInspection) {
@@ -1130,5 +1131,9 @@ export class LiveFormPanel
 
     private updateButtonsVisibility(descriptor?: Descriptor): void {
         this.inspectionsPanel.setButtonContainerVisible(descriptor?.getConfig()?.getFormItems().length > 0);
+    }
+
+    getFrameContainer() {
+        return this.frameContainer;
     }
 }

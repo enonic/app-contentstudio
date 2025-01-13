@@ -3,7 +3,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
-import {ContentItemPreviewToolbar, WidgetPreviewAction} from './ContentItemPreviewToolbar';
+import {ContentItemPreviewToolbar} from './ContentItemPreviewToolbar';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {EmulatedEvent} from '../event/EmulatedEvent';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
@@ -17,6 +17,7 @@ import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {ContentSummary} from '../content/ContentSummary';
 import {PreviewActionHelper} from '../action/PreviewActionHelper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
 
 enum PREVIEW_TYPE {
@@ -119,29 +120,31 @@ export class ContentItemPreviewPanel
                || !!diff.contentSummary?.displayName || !!diff.contentSummary?.name || !!diff.contentSummary?.inherit;
     }
 
-    protected async update(item: ContentSummaryAndCompareStatus) {
-        let contentSummary = item.getContentSummary();
-        return this.fetchPreviewForPath(contentSummary);
+    protected update(item: ContentSummaryAndCompareStatus) {
+        const contentSummary = item.getContentSummary();
+        const widget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
+
+        this.fetchPreviewForPath(contentSummary, widget);
     }
 
     public isItemRenderable(): Q.Promise<boolean> {
         return this.itemRenderable ?? Q(true);
     }
 
-    private async fetchPreviewForPath(summary: ContentSummary): Promise<void> {
+    private async fetchPreviewForPath(summary: ContentSummary, widget: Widget): Promise<void> {
 
         const deferred = Q.defer<boolean>();
         this.itemRenderable = deferred.promise;
 
-        const widgetSelector = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector();
-        const selectedWidget = widgetSelector.getSelectedWidget();
-        if (!selectedWidget || !summary) {
+        if (!widget || !summary) {
             this.setPreviewType(PREVIEW_TYPE.EMPTY);
             return;
         }
 
         this.showMask();
 
+        const widgetSelector = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector();
+        const selectedWidget = widgetSelector.getSelectedWidget();
         const isAuto = selectedWidget.getWidgetDescriptorKey().getName() === PreviewWidgetDropdown.WIDGET_AUTO_DESCRIPTOR;
         const items = isAuto ? widgetSelector.getAutoModeWidgets() : [selectedWidget];
 
@@ -203,9 +206,12 @@ export class ContentItemPreviewPanel
             }
         });
 
-        (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().onSelectionChanged(() => {
-            let contentSummary = this.viewItemToContent(this.item).getContentSummary();
-            this.fetchPreviewForPath(contentSummary);
+        ViewWidgetEvent.on((event: ViewWidgetEvent) => {
+            if (!this.item) {
+                return;
+            }
+            const contentSummary = this.viewItemToContent(this.item).getContentSummary();
+            this.fetchPreviewForPath(contentSummary, event.getWidget());
         });
 
         EmulatedEvent.on((event: EmulatedEvent) => {
@@ -388,7 +394,7 @@ export class ContentItemPreviewPanel
         ];
     }
 
-    private getPreviewAction(): WidgetPreviewAction {
+    private getPreviewAction(): Action {
         return this.getToolbar().getPreviewAction();
     }
 

@@ -23,12 +23,13 @@ export class PreviewAction
     }
 
     protected handleExecuted() {
+        const widget = this.wizard.getLivePanel().getFrameContainer().getSelectedWidget();
         if (this.writePermissions && this.wizard.hasUnsavedChanges()) {
             this.wizard.setRequireValid(true);
-            this.wizard.saveChanges().then(content => this.helper.openWindow(content)).catch(
+            this.wizard.saveChanges().then(content => this.helper.openWindow(content, widget)).catch(
                 (reason) => DefaultErrorHandler.handle(reason)).done();
         } else {
-            this.helper.openWindow(this.wizard.getPersistedItem());
+            this.helper.openWindow(this.wizard.getPersistedItem(), widget);
         }
     }
 

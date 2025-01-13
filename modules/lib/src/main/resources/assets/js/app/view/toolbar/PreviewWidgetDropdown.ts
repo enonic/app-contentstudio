@@ -7,6 +7,7 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import Q from 'q';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ViewWidgetEvent} from '../../event/ViewWidgetEvent';
 
 
 export class PreviewWidgetDropdown
@@ -82,6 +83,7 @@ export class PreviewWidgetDropdown
     protected doSelect(item: PreviewWidgetOption) {
         this.selectedOption.setObject(item);
         this.selectedOption.show();
+        new ViewWidgetEvent(item).fire();
         super.doSelect(item);
     }
 
