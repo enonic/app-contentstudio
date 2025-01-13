@@ -2,7 +2,6 @@
 
 const widgetLib = require('/lib/export/widget');
 const adminLib = require('/lib/xp/admin');
-const contextLib = require('/lib/xp/context');
 
 const SHORTCUT_TYPE = 'base:shortcut';
 
