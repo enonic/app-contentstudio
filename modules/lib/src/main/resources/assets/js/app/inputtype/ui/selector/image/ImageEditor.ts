@@ -782,6 +782,9 @@ export class ImageEditor
 
         this.uploadButton = new Button();
         new Tooltip(this.uploadButton, i18n('field.image.help'), 1000);
+        this.uploadButton.applyWCAGAttributes({
+            ariaLabel: i18n('field.image.help')
+        })
         this.uploadButton.setEnabled(false).addClass('button-upload');
         standbyContainer.appendChildren(this.resetButton, this.uploadButton);
 
