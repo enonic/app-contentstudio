@@ -78,6 +78,12 @@ module.exports = Object.freeze({
         COLLAPSE_BUTTON_TOP: "//div[contains(@class,'top-button-row')]//a[contains(@class,'collapse-button') and (text()='Collapse' or text()='Collapse all')]",
         MORE_BUTTON: "//button[contains(@id,'MoreButton')]",
         ADD_BUTTON: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add']]",
+
+    },
+    HELP_TEXT: {
+        TOGGLE: "//div[contains(@class,'help-text-toggle')]",
+        BUTTON: "//div[contains(@class,'help-text-button')]",
+        TEXT: "//div[contains(@class,'help-text visible')]/p",
     },
     DROPDOWN_SELECTOR: {
         contentListElementByDisplayName: (container, displayName) => {

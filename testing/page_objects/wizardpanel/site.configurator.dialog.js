@@ -7,6 +7,7 @@ const XPATH = {
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     imageContentCombobox: "//div[contains(@id,'ImageContentComboBox')]",
     imageSelectorOptionFilterInput: "//input[contains(@id,'ComboBoxOptionFilterInput')]",
+    htmlAreaInputView: `//div[contains(@id,'InputView') and descendant::div[contains(@id,'HtmlArea')]]`,
     getTextInHtmlArea: id => {
         return `return CKEDITOR.instances['${id}'].getData()`
     },
@@ -16,6 +17,10 @@ const XPATH = {
 };
 
 class SiteConfiguratorDialog extends Page {
+
+    get htmlAreaHelpButton() {
+        return XPATH.container + XPATH.htmlAreaInputView + lib.HELP_TEXT.TOGGLE;
+    }
 
     get cancelButton() {
         return XPATH.container + `${XPATH.cancelButton}`;
@@ -152,6 +157,27 @@ class SiteConfiguratorDialog extends Page {
         let locator = XPATH.container + lib.CONTENT_SELECTOR.DIV + lib.BUTTONS.NEW_CONTENT_BUTTON;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
+    }
+
+    async clickOnHtmlAreaHelpToggle() {
+        await this.waitForHtmlAreaHelpToggleDisplayed();
+        return await this.clickOnElement(this.htmlAreaHelpButton);
+    }
+
+    async waitForHtmlAreaHelpToggleDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.htmlAreaHelpButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_help_text_toggle');
+            throw new Error(`Help texts toggle button for HtmlArea is not displayed in the modal dialog! screenshot:${screenshot} ` + err);
+        }
+    }
+
+    // 'text for the footer' of the dialog:
+    async getHelpTextForHtmlArea() {
+        let locator = XPATH.container + XPATH.htmlAreaInputView + lib.HELP_TEXT.TEXT;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
     }
 }
 

@@ -24,6 +24,7 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
     const CONTROLLER_NAME = 'Page';
     const TEST_URL = 'http://google.com';
     const TEST_TEXT = 'My text';
+    const HELP_TEXT_HTML_AREA = 'text for the footer';
 
     it(`GIVEN site-config is opened WHEN link has been inserted in the htmlArea THEN expected URL should be displayed in the htmlarea'`,
         async () => {
@@ -71,6 +72,24 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             // 2. Verify that the inserted link is displayed in the Preview Panel:
             await contentItemPreviewPanel.waitForElementDisplayedInFrame(`a=${LINK_TEXT}`);
         });
+
+    // Verifies https://github.com/enonic/app-contentstudio/issues/8201
+    // 'Help text' icon should be displayed in modal dialogs
+    it("GIVEN site configurator dialog is opened WHEN help-text icon for htmlAre has been clicked THEN expected text gets visible in the dialog",
+        async () => {
+            let siteFormPanel = new SiteFormPanel();
+            let siteConfiguratorDialog = new SiteConfiguratorDialog();
+            // 1. Open the site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            // 2. Click on 'Edit' icon and open 'Site Configurator' Dialog:
+            await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_CONTENT_TYPES);
+            // 3. Click on 'Show Help' button in htmlArea inputView:
+            await siteConfiguratorDialog.clickOnHtmlAreaHelpToggle();
+            // 4. Verify the help text for HtmlArea:
+            let actualHelpText = await siteConfiguratorDialog.getHelpTextForHtmlArea();
+            assert.equal(actualHelpText[0], HELP_TEXT_HTML_AREA, 'Expected help text should be displayed for the htmlArea');
+        });
+
 
     it("GIVEN site configurator dialog is opened AND new text has been inserted WHEN Cancel button has been pressed in the dialog THEN changes should not be applied",
         async () => {
