@@ -10,7 +10,6 @@ import {RegionDescriptor} from '../page/RegionDescriptor';
 import {DescriptorKey} from '../page/DescriptorKey';
 import {ComponentType} from '../page/region/ComponentType';
 import {GetComponentDescriptorRequest} from '../resource/GetComponentDescriptorRequest';
-import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ConfigBasedComponent} from '../page/region/ConfigBasedComponent';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
@@ -226,4 +225,55 @@ export class PageHelper {
         return (StringHelper.isEmpty(a) && StringHelper.isEmpty(b)) || ObjectHelper.stringEquals(a, b);
     }
 
+    public static flattenPageComponents(page: Page, type?: ComponentType): Component[] {
+        if (!page) {
+            return [];
+        }
+
+        const result = PageHelper.getFlatPageComponents(page);
+
+        return type ? result.filter(component => component.getType().getShortName() === type.getShortName()) : result;
+    }
+
+    private static getFlatPageComponents(page: Page): Component[] {
+        if (page.isFragment()) {
+            const fragmentComponent = page.getFragment();
+
+            if (fragmentComponent instanceof LayoutComponent) {
+                return [fragmentComponent, ...PageHelper.flattenRegionsComponents(fragmentComponent.getRegions())];
+            }
+
+            return [fragmentComponent];
+        }
+
+        return PageHelper.flattenRegionsComponents(page.getRegions());
+    }
+
+    private static flattenRegionsComponents(regions: Regions): Component[] {
+        const result = [];
+
+        regions.getRegions().forEach((region: Region) => {
+            PageHelper.flattenRegion(region).forEach(component => result.push(component));
+        });
+
+        return result;
+    }
+
+    private static flattenRegion(region: Region): Component[] {
+        const result = [];
+
+        region.getComponents().forEach(component => {
+            PageHelper.flattenComponent(component).forEach(c => result.push(c));
+        });
+
+        return result;
+    }
+
+    private static flattenComponent(component: Component): Component[] {
+        if (component instanceof LayoutComponent) {
+            return [component, ...PageHelper.flattenRegionsComponents(component.getRegions())];
+        }
+
+        return [component];
+    }
 }
