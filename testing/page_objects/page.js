@@ -3,6 +3,7 @@ const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
 const path = require('path');
 const fs = require('fs');
+const {Key} = require('webdriverio');
 
 class Page {
 
@@ -21,6 +22,18 @@ class Page {
     // value: string | string[]
     keys(value) {
         return this.browser.keys(value);
+    }
+
+    pressCtrl_A() {
+        return this.browser.keys([Key.Ctrl, 'a']);
+    }
+
+    pressCtrl_C() {
+        return this.browser.keys([Key.Ctrl, 'c']);
+    }
+
+    pressCtrl_V() {
+        return this.browser.keys([Key.Ctrl, 'v']);
     }
 
     findElement(selector) {
@@ -637,6 +650,10 @@ class Page {
             let text = await this.getAttribute(locator, attrName);
             return text === expectedValue;
         }, {timeout: appConst.mediumTimeout, timeoutMsg: `Expected attribute ${attrName} is not set in the element ${locator}`});
+    }
+
+    async getPuppeteer() {
+        return await browser.getPuppeteer();
     }
 }
 
