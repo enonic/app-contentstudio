@@ -1228,6 +1228,10 @@ export class ContentWizardPanel
             }).catch(DefaultErrorHandler.handle);
         });
 
+        PageEventsManager.get().onPageReloadRequested(() => {
+            this.getLivePanel()?.loadPage();
+        });
+
         PageState.getEvents().onPageUpdated((event: PageUpdatedEvent) => {
             this.togglePageComponentsViewOnDemand();
             this.setMarkedAsReady(false);
