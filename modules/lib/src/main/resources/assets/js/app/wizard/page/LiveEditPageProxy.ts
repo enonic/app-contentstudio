@@ -91,6 +91,7 @@ import {ProjectContext} from '../../project/ProjectContext';
 import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
 import {UpdateTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/UpdateTextComponentViewEvent';
 import {SetComponentStateEvent} from '../../../page-editor/event/incoming/manipulation/SetComponentStateEvent';
+import {PageReloadRequestedEvent} from '../../../page-editor/event/outgoing/manipulation/PageReloadRequestedEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -727,6 +728,10 @@ export class LiveEditPageProxy
 
         EditContentFromComponentViewEvent.on((event: EditContentFromComponentViewEvent): void => {
             ContentUrlHelper.openEditContentTab(new ContentId(event.getId()));
+        }, contextWindow);
+
+        PageReloadRequestedEvent.on((event: PageReloadRequestedEvent): void => {
+            PageEventsManager.get().notifyPageReloadRequested();
         }, contextWindow);
     }
 

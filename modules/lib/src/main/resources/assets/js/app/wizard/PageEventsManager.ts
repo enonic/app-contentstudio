@@ -66,6 +66,8 @@ export class PageEventsManager {
 
     private pageResetRequestedListeners: PageResetHandler[] = [];
 
+    private pageReloadRequestedListeners: (() => void)[] = [];
+
     private customizePageRequestedListeners: (() => void)[] = [];
 
     private setCustomizedPageRequestedListeners: ((template: PageTemplate) => void)[] = [];
@@ -553,4 +555,17 @@ export class PageEventsManager {
     notifyComponentMoveRequested(from: ComponentPath, to: ComponentPath) {
         this.componentMoveRequestedListeners.forEach((listener) => listener(from, to));
     }
+
+    onPageReloadRequested(listener: () => void): void {
+        this.pageReloadRequestedListeners.push(listener);
+    }
+
+    unPageReloadRequested(listener: () => void): void {
+        this.pageReloadRequestedListeners = this.pageReloadRequestedListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifyPageReloadRequested(): void {
+        this.pageReloadRequestedListeners.forEach((listener) => listener());
+    }
+
 }

@@ -71,6 +71,9 @@ import {PageState} from '../app/wizard/page/PageState';
 import {PageBuilder} from '../app/page/Page';
 import {UpdateTextComponentViewEvent} from './event/incoming/manipulation/UpdateTextComponentViewEvent';
 import {SetComponentStateEvent} from './event/incoming/manipulation/SetComponentStateEvent';
+import {PageReloadRequestedEvent} from './event/outgoing/manipulation/PageReloadRequestedEvent';
+import {PageHelper} from '../app/util/PageHelper';
+import {DescriptorBasedComponent} from '../app/page/region/DescriptorBasedComponent';
 
 export class LiveEditPage {
 
@@ -350,9 +353,7 @@ export class LiveEditPage {
             const view: ItemView = this.getItemViewByPath(path);
 
             if (view instanceof ComponentView) {
-                this.loadComponent(view, event.getURI()).then(() => {
-
-                }).catch((reason) => {
+                this.loadComponent(view, event.getURI()).catch((reason) => {
                     new LoadComponentFailedEvent(path, reason).fire();
                 });
             }
@@ -515,66 +516,72 @@ export class LiveEditPage {
         UpdateTextComponentViewEvent.un(this.updateTextComponentViewListener);
     }
 
-    public loadComponent(componentView: ComponentView, componentUrl: string,): Q.Promise<string> {
-        const deferred = Q.defer<string>();
+    public loadComponent(componentView: ComponentView, componentUrl: string): Promise<void> {
         assertNotNull(componentView, 'componentView cannot be null');
         assertNotNull(componentUrl, 'componentUrl cannot be null');
 
         componentView.showLoadingSpinner();
 
-        $.ajax({
-            url: componentUrl,
-            type: 'GET',
-            success: (htmlAsString: string) => {
-                const newElement: Element = this.wrapLoadedComponentHtml(htmlAsString, componentView.getType());
-                const itemViewIdProducer: ItemViewIdProducer = componentView.getItemViewIdProducer();
-                const itemViewFactory: ItemViewFactory = componentView.getItemViewFactory();
+        return fetch(componentUrl)
+            .then(response => {
+                const hasContributions = response.headers.has('X-Has-Contributions');
 
-                const createViewConfig: CreateItemViewConfig<RegionView> = new CreateItemViewConfig<RegionView>()
-                    .setItemViewIdProducer(itemViewIdProducer)
-                    .setItemViewFactory(itemViewFactory)
-                    .setLiveEditParams(this.pageView.getLiveEditParams())
-                    .setParentView(componentView.getParentItemView())
-                    .setPositionIndex(componentView.getPath().getPath() as number)
-                    .setElement(newElement);
-
-                const newComponentView: ComponentView = itemViewFactory.createView(
-                    componentView.getType(),
-                    createViewConfig) as ComponentView;
-
-                componentView.replaceWith(newComponentView);
-                const parentItemView = newComponentView.getParentItemView();
-
-                if (parentItemView instanceof RegionView) { // PageView for a fragment|
-                    newComponentView.getParentItemView().registerComponentViewListeners(newComponentView);
+                // reloading entire live page if the component has contributions and there are no equal components on the page
+                if (hasContributions && !this.hasSameComponentOnPage(componentView.getPath())) {
+                    new PageReloadRequestedEvent().fire();
+                    return;
                 }
 
-                const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView);
-                event.fire();
+                return response.text().then(htmlAsString => {
+                    this.handleComponentHtml(componentView, htmlAsString);
+                })
+            });
+    }
 
-                const config = {itemView: newComponentView, position: null} as ItemViewSelectedEventConfig;
-                newComponentView.select(config, null);
-                newComponentView.hideContextMenu();
+    private hasSameComponentOnPage(path: ComponentPath): boolean {
+        const component = PageState.getComponentByPath(path);
 
-                deferred.resolve('');
-            },
-            error: (jqXHR: JQueryXHR, textStatus: string, errorThrow: string) => {
-                const responseHtml = $.parseHTML(jqXHR.responseText);
-                let errorMessage = '';
-                responseHtml.forEach((el: HTMLElement, i) => {
-                    if (el.tagName && el.tagName.toLowerCase() === 'title') {
-                        errorMessage = el.innerHTML;
-                    }
-                });
+        if (component instanceof DescriptorBasedComponent) {
+            const key = component.getDescriptorKey();
+            const allPageComponents = PageHelper.flattenPageComponents(PageState.getState());
 
-                componentView.hideLoadingSpinner();
-                componentView.showRenderingError(componentUrl, errorMessage);
+            return allPageComponents.some(
+                (c) => !c.getPath().equals(path) && c instanceof DescriptorBasedComponent && c.getDescriptorKey()?.equals(key));
+        }
 
-                deferred.reject(errorMessage);
-            }
-        });
+        return false;
+    }
 
-        return deferred.promise;
+    private handleComponentHtml(componentView: ComponentView, htmlAsString: string): void {
+        const newElement: Element = this.wrapLoadedComponentHtml(htmlAsString, componentView.getType());
+        const itemViewIdProducer: ItemViewIdProducer = componentView.getItemViewIdProducer();
+        const itemViewFactory: ItemViewFactory = componentView.getItemViewFactory();
+
+        const createViewConfig: CreateItemViewConfig<RegionView> = new CreateItemViewConfig<RegionView>()
+            .setItemViewIdProducer(itemViewIdProducer)
+            .setItemViewFactory(itemViewFactory)
+            .setLiveEditParams(this.pageView.getLiveEditParams())
+            .setParentView(componentView.getParentItemView())
+            .setPositionIndex(componentView.getPath().getPath() as number)
+            .setElement(newElement);
+
+        const newComponentView: ComponentView = itemViewFactory.createView(
+            componentView.getType(),
+            createViewConfig) as ComponentView;
+
+        componentView.replaceWith(newComponentView);
+        const parentItemView = newComponentView.getParentItemView();
+
+        if (parentItemView instanceof RegionView) { // PageView for a fragment|
+            newComponentView.getParentItemView().registerComponentViewListeners(newComponentView);
+        }
+
+        const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView);
+        event.fire();
+
+        const config = {itemView: newComponentView, position: null} as ItemViewSelectedEventConfig;
+        newComponentView.select(config, null);
+        newComponentView.hideContextMenu();
     }
 
     private wrapLoadedComponentHtml(htmlAsString: string, componentType: ComponentItemType): Element {
@@ -606,13 +613,21 @@ export class LiveEditPage {
 
             fragmentView.showLoadingSpinner();
 
-            this.loadComponent(fragmentView, componentUrl).catch((errorMessage: string) => {
-                DefaultErrorHandler.handle(errorMessage);
+            this.loadComponent(fragmentView, componentUrl).catch((reason) => {
+                DefaultErrorHandler.handle(reason);
 
                 fragmentView.hideLoadingSpinner();
-                fragmentView.showRenderingError(componentUrl, errorMessage);
+                fragmentView.showRenderingError(componentUrl, this.getComponentErrorText(reason));
             });
         }
+    }
+
+    private getComponentErrorText(error) {
+        if (!error || !error.message) {
+            return '';
+        }
+
+        return new DOMParser().parseFromString(error.message, 'text/html').title ?? '';
     }
 
     private restoreSelection(): void {
