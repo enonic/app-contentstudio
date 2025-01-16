@@ -22,3 +22,4 @@ testing/allure-results
 .vscode
 .enonic
 .eslintcache
+.bin
