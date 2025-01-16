@@ -779,8 +779,13 @@ export class ImageEditor
         this.onOrientationChanged(() => {
             this.resetButton.setVisible(isEditorDirty());
         });
-
+        const imageUploadText = i18n('tooltip.button.uploadImage');
         this.uploadButton = new Button();
+        new Tooltip(this.uploadButton, imageUploadText, 1000);
+        this.uploadButton.applyWCAGAttributes({
+            tabbable: true,
+            ariaLabel: imageUploadText
+        })
         this.uploadButton.setEnabled(false).addClass('button-upload');
         standbyContainer.appendChildren(this.resetButton, this.uploadButton);
 
