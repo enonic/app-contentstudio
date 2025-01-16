@@ -26,7 +26,7 @@ import {DeletedContentItem} from './DeletedContentItem';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {ContentSummary, ContentSummaryBuilder} from '../content/ContentSummary';
 import {ContentId} from '../content/ContentId';
-import {ContentPath} from '../content/ContentPath';
+import {ContentPath, ContentPathBuilder} from '../content/ContentPath';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContextView} from '../view/context/ContextView';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
@@ -422,7 +422,8 @@ export class ContentBrowsePanel
 
     private addNewItemToList(item: ContentSummaryAndCompareStatus): void {
         this.treeListBox.findParentLists(item).forEach(list => {
-            if (!this.treeListBox.isFiltered() || list !== this.treeListBox) { // if filtered, don't add to root list
+            // if filtered or already present, don't add to root list
+            if ((!this.treeListBox.isFiltered() || list !== this.treeListBox) && !list.getItem(item.getId())) {
                 list.addNewItems([item]);
                 this.setListItemHasChildren(list); // if item didn't have children before then need to update it without re-fetching
 
@@ -632,7 +633,7 @@ export class ContentBrowsePanel
 
     private handleNewMediaUpload(event: NewMediaUploadEvent) {
         event.getUploadItems().forEach((item: UploadItem<ContentSummary>) => {
-            this.appendUploadNode(item);
+            this.appendUploadNode(item, event.getParentContent());
         });
     }
 
@@ -691,7 +692,8 @@ export class ContentBrowsePanel
             if (totalSelected === 0) {
                 contentActionMenuButton.setItem(null);
             } else if (totalSelected === 1) {
-                contentActionMenuButton.setItem(this.selectionWrapper.getSelectedItems()[0]);
+                const item = this.selectionWrapper.getSelectedItems()[0];
+                contentActionMenuButton.setItem(item.hasUploadItem() ? null : item);
             }
         });
 
@@ -727,7 +729,7 @@ export class ContentBrowsePanel
     }
 
     protected updateContextView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
-        return this.contextView.setItem(item);
+        return this.contextView.setItem(item?.hasContentSummary() ? item : null);
     }
 
     setContentTreeState(state: State) {
@@ -742,18 +744,25 @@ export class ContentBrowsePanel
         }
     }
 
-    appendUploadNode(item: UploadItem<ContentSummary>) {
+    appendUploadNode(item: UploadItem<ContentSummary>, parentContent?: ContentSummary): void {
         const data: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromUploadItem(item);
-        const parentLists = this.treeListBox.findParentLists(data);
-        const pLists = parentLists.length > 0 ? parentLists : [this.treeListBox];
+        const pLists = parentContent ? this.treeListBox.findParentLists(
+            new ContentPathBuilder().fromParent(parentContent.getPath(), data.getId()).build()) : [this.treeListBox];
+
+        const isAlreadyUploading = pLists.some(pList => pList.getItem(item.getId()));
+
+        if (isAlreadyUploading) {
+            return;
+        }
 
         pLists.forEach(parent => {
             parent.addNewItems([data]);
-            this.addUploadItemListeners(data);
         });
+
+        this.addUploadItemListeners(data, pLists);
     }
 
-    private addUploadItemListeners(data: ContentSummaryAndCompareStatus) {
+    private addUploadItemListeners(data: ContentSummaryAndCompareStatus, parentLists: ContentsTreeGridList[]) {
         const uploadItem: UploadItem<ContentSummary> = data.getUploadItem();
         const listElement = this.treeListBox.getItemView(data) as ContentsTreeGridListElement;
 
@@ -762,12 +771,12 @@ export class ContentBrowsePanel
         });
 
         uploadItem.onUploaded(() => {
-            this.treeListBox.removeItems(data);
+            parentLists.forEach(parent => parent.removeItems(data));
             showFeedback(i18n('notify.item.created', data.getContentSummary().getType().toString(), uploadItem.getName()));
         });
 
         uploadItem.onFailed(() => {
-            this.treeListBox.removeItems(data);
+            parentLists.forEach(parent => parent.removeItems(data));
         });
     }
 }

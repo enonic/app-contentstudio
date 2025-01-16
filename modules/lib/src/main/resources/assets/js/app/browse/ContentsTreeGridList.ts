@@ -33,7 +33,7 @@ export class ContentsTreeGridList
     }
 
     protected getItemId(item: ContentSummaryAndCompareStatus): string {
-        return item.getId();
+        return item.getUploadItem() ? item.getUploadItem().getId() : item.getId();
     }
 
     protected handleLazyLoad(): void {

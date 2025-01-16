@@ -15,8 +15,9 @@ export class ContentBrowseItemPanel
         return new ContentItemStatisticsPanel();
     }
 
-    setStatisticsItem(item: ContentSummaryAndCompareStatus): void {
-        super.setStatisticsItem(!!item ? item.clone() : item);
+    setStatisticsItem(item?: ContentSummaryAndCompareStatus): void {
+        const itemToSet = item?.hasContentSummary() ? item.clone() : undefined;
+        super.setStatisticsItem(itemToSet);
     }
 
     getItemStatisticsPanel(): ContentItemStatisticsPanel {
