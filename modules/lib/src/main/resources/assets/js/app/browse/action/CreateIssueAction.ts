@@ -19,6 +19,6 @@ export class CreateIssueAction extends ContentTreeGridAction {
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return true;
+        return !this.grid.getSelectedItems().some(item => item.hasUploadItem());
     }
 }

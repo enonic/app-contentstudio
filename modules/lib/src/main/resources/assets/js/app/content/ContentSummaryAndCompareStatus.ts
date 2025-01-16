@@ -174,7 +174,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     isDataInherited(): boolean {
-        return this.contentSummary?.isDataInherited();
+        return !!this.contentSummary?.isDataInherited();
     }
 
     isSortInherited(): boolean {
@@ -315,9 +315,11 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     canBeMarkedAsReady(): boolean {
-        const contentSummary = this.getContentSummary();
+        if (!this.contentSummary) {
+            return false;
+        }
 
-        return !this.isOnline() && contentSummary.isValid() && !contentSummary.isReady();
+        return !this.isOnline() && this.contentSummary.isValid() && !this.contentSummary.isReady();
     }
 
     clone(): ContentSummaryAndCompareStatus {

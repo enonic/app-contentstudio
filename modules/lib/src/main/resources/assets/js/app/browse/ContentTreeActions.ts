@@ -221,6 +221,10 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
     }
 
     private getAllowedPermissions(items: ContentSummaryAndCompareStatus[]): Q.Promise<Permission[]> {
+        if (items.some((item: ContentSummaryAndCompareStatus) => item.hasUploadItem())) {
+            return Q([]);
+        }
+
         const request: GetPermittedActionsRequest = new GetPermittedActionsRequest();
 
         if (items.length === 0) {

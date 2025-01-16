@@ -46,12 +46,17 @@ export class ContentTreeGridListViewer
     setItem(item: ContentSummaryAndCompareStatus) {
         this.item = item;
         this.summaryViewer.setObject(item);
-        this.sortColumn.setClass(this.calcSortIconCls());
+
+        if (item.getContentSummary()) {
+            this.sortColumn.setClass(this.calcSortIconCls());
+            this.modifiedColumn.setHtml(DateTimeFormatter.createHtml(item.getContentSummary().getModifiedTime()));
+        }
+
         this.statusColumn.setItem(item);
-        this.modifiedColumn.setHtml(DateTimeFormatter.createHtml(item.getContentSummary().getModifiedTime()));
         this.toggleClass('data-inherited', item.isDataInherited());
         this.toggleClass('sort-inherited', item.isSortInherited());
         this.toggleClass('readonly', item.isReadOnly());
+        this.toggleClass('uploading', !!item.getUploadItem());
     }
 
     doRender(): Q.Promise<boolean> {
@@ -128,7 +133,6 @@ class StatusBlock
 
         if (!this.statusEl.hasChild(this.progressEl)) {
             this.statusEl.setHtml('');
-            this.statusEl.setClass('');
             this.statusEl.appendChild(this.progressEl);
         }
     }

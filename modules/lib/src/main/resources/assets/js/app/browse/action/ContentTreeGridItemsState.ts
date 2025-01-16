@@ -141,7 +141,7 @@ export class ContentTreeGridItemsState {
                 this.anyDeletable = true;
             }
 
-            if (content.getContentSummary().isInProgress()) {
+            if (content.getContentSummary()?.isInProgress()) {
                 this.anyInProgress = true;
             }
 
