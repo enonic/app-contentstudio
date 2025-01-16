@@ -23,3 +23,5 @@ testing/allure-results
 .enonic
 .eslintcache
 .bin
+/bin/
+/modules/lib/bin
