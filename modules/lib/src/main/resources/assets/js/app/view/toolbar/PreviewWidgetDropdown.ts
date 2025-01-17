@@ -12,6 +12,8 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 export class PreviewWidgetDropdown
     extends FilterableListBoxWrapper<PreviewWidgetOption> {
 
+    public static WIDGET_AUTO_DESCRIPTOR = 'preview-automatic';
+
     private selectedOption: PreviewWidgetOptionViewer;
 
     constructor() {
@@ -61,6 +63,12 @@ export class PreviewWidgetDropdown
 
     getSelectedWidget(): Widget {
         return this.selectedOption?.getObject();
+    }
+
+    getAutoModeWidgets(): Widget[] {
+        return this.getList().getItems()
+            .filter((item) => item.getWidgetDescriptorKey().getName() !== PreviewWidgetDropdown.WIDGET_AUTO_DESCRIPTOR
+                              && item.getConfig().getProperty('auto') === 'true');
     }
 
     protected handleUserToggleAction(item: PreviewWidgetOption): void {

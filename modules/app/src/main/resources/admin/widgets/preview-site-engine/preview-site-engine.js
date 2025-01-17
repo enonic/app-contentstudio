@@ -13,25 +13,17 @@ exports.get = function (req) {
         return widgetLib.errorResponse(400);
     }
 
-    if (!exports.canRender(req)) {
-        // needed for the head request,
-        // return 418 if not able to render
-        log.debug('Site [GET] can\'t render: 418');
-
-        return widgetLib.errorResponse(418);
-    }
-
     try {
         const url = createUrl(req, params);
 
-        log.debug(`Site [GET] redirecting: ${url}`);
+        log.debug(`Site [${req.method}] redirecting: ${url}`);
 
         return {
             redirect: url,
             contentType: 'text/html',
         }
     } catch (e) {
-        log.error(`Site [GET] error: ${e.message}`);
+        log.error(`Site [${req.method}] error: ${e.message}`);
         return widgetLib.errorResponse(500);
     }
 }

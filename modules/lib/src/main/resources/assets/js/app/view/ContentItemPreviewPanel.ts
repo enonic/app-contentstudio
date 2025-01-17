@@ -17,6 +17,7 @@ import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {ContentSummary} from '../content/ContentSummary';
 import {PreviewActionHelper} from '../action/PreviewActionHelper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
 
 enum PREVIEW_TYPE {
     WIDGET,
@@ -128,24 +129,35 @@ export class ContentItemPreviewPanel
         const deferred = Q.defer<boolean>();
         this.itemRenderable = deferred.promise;
 
-        const previewWidget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
-        if (!previewWidget || !summary) {
+        const widgetSelector = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector();
+        const selectedWidget = widgetSelector.getSelectedWidget();
+        if (!selectedWidget || !summary) {
             this.setPreviewType(PREVIEW_TYPE.EMPTY);
             return;
         }
 
         this.showMask();
 
-        return fetch(this.previewHelper.getUrl(summary, previewWidget), {method: 'HEAD'})
-            .then((response) => {
-                if (this.isResponseOk(response, previewWidget)) {
-                    deferred.resolve(true);
-                    return this.handlePreviewSuccess(response);
-                } else {
-                    deferred.resolve(false);
-                    return this.handlePreviewFailure(response);
-                }
-            })
+        const isAuto = selectedWidget.getWidgetDescriptorKey().getName() === PreviewWidgetDropdown.WIDGET_AUTO_DESCRIPTOR;
+        const items = isAuto ? widgetSelector.getAutoModeWidgets() : [selectedWidget];
+
+        return this.processWidgets(summary, items, selectedWidget);
+    }
+
+    private async processWidgets(summary: ContentSummary, items: Widget[], selectedWidget: Widget): Promise<void> {
+        for (let i = 0; i < items.length; i++) {
+            const widget = items[i];
+            let result = await fetch(this.previewHelper.getUrl(summary, widget), {method: 'HEAD'});
+
+            let isOK = this.isResponseOk(result, selectedWidget);
+
+            if (isOK) {
+                this.handlePreviewSuccess(result);
+                break;
+            } else if (i === items.length - 1) {
+                this.handlePreviewFailure(result);
+            }
+        }
     }
 
     public clearItem() {
@@ -372,8 +384,8 @@ export class ContentItemPreviewPanel
         return this.getToolbar().getPreviewAction();
     }
 
-    private isResponseOk(response: Response, previewWidget: Widget) {
-        const isAuto = previewWidget?.getWidgetDescriptorKey().getName() === 'preview-automatic';
+    private isResponseOk(response: Response, selectedWidget: Widget) {
+        const isAuto = selectedWidget?.getWidgetDescriptorKey().getName() === PreviewWidgetDropdown.WIDGET_AUTO_DESCRIPTOR;
         return response.ok || !isAuto && response.status !== StatusCode.I_AM_A_TEAPOT;
     }
 
