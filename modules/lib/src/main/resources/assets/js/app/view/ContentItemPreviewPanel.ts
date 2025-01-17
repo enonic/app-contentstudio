@@ -152,6 +152,7 @@ export class ContentItemPreviewPanel
             let isOK = this.isResponseOk(result, selectedWidget);
 
             if (isOK) {
+                selectedWidget.getConfig().setProperty("previewUrl", widget.getUrl());
                 this.handlePreviewSuccess(result);
                 break;
             } else if (i === items.length - 1) {

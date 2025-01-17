@@ -52,7 +52,10 @@ export class PreviewActionHelper {
             branch: CONFIG.getString('branch'),
             mode,
         })
-        return `${widget.getUrl()}?${params.toString()}`;
+
+        const url = widget.getConfig().getProperty("previewUrl") || widget.getUrl();
+
+        return `${url}?${params.toString()}`;
     }
 
     // should be called only in async block
