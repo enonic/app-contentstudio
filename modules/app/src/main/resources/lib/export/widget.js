@@ -12,6 +12,7 @@ function validateParams(params) {
     const branch = params.branch || 'master';
     const repository = params.repo;
     const auto = params.auto || false;
+    const mode = params.mode || 'preview';
 
     const idOrPath = id || path;
     if (!idOrPath || !repository) {
@@ -20,7 +21,7 @@ function validateParams(params) {
         throw new Error(text);
     }
 
-    return {id, path, type, branch, repository, auto};
+    return {id, path, type, branch, repository, auto, mode};
 }
 
 function errorResponse(status, messages) {
