@@ -227,12 +227,12 @@ class ContentPublishDialog extends Page {
     async clickOnMarkAsReadyButton() {
         try {
             await this.waitForMarkAsReadyButtonDisplayed();
-            await this.pause(400);
+            await this.pause(1000);
             await this.clickOnElement(this.markAsReadyButton);
             return await this.pause(700);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_click_mark_as_ready_btn');
-            throw new Error(`Error during clicking on Mar as ready button, screenshot: ${screenshot} ` + err);
+            throw new Error(`Error during clicking on 'Mark as ready' button, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -256,7 +256,7 @@ class ContentPublishDialog extends Page {
             await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_open_publish_dialog');
-            throw new Error('Publish dialog should be loaded, screenshot: ' + screenshot + "  " + err);
+            throw new Error(`Publish dialog should be loaded, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -266,7 +266,7 @@ class ContentPublishDialog extends Page {
             await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_close_publish_dialog');
-            throw new Error('Publish dialog must be closed, screenshot: ' + screenshot + "  " + err);
+            throw new Error(`Publish dialog must be closed, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -276,8 +276,8 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.publishNowButton);
             return await this.pause(1000);
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_click_on_publish_button');
-            throw new Error(`Error occurred after clicking on 'Publish Now' button ` + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_publish_now_button');
+            throw new Error(`Error occurred after clicking on 'Publish Now' button screenshot:${screenshot} ` + err);
         }
     }
 
@@ -382,7 +382,7 @@ class ContentPublishDialog extends Page {
             return await this.pause(700);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_include_children');
-            throw new Error('Error when clicking on Include Children toggler, screenshot :' + screenshot + ' ' + err);
+            throw new Error(`Error when clicking on Include Children toggle, screenshot ${screenshot} ` + err);
         }
     }
 
@@ -447,7 +447,7 @@ class ContentPublishDialog extends Page {
             return await this.waitForElementEnabled(this.publishNowButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('publish_now_disabled');
-            throw new Error("Publish Wizard - 'Publish Now' button should be enabled, screenshot: " + screenshot + ' ' + err);
+            throw new Error(`Publish Wizard - 'Publish Now' button should be enabled, screenshot:${screenshot} ` + err);
         }
     }
 

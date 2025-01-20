@@ -9,6 +9,7 @@ import {TagSuggester} from './TagSuggester';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 
 export class TagsBuilder {
 
@@ -72,24 +73,29 @@ export class Tags
         this.appendChild(this.tagSuggestions);
 
         this.textInput.onKeyDown((event: KeyboardEvent) => {
-            if (event.keyCode === 188 || event.keyCode === 13) { // comma or enter
+            if (KeyHelper.isComma(event) || KeyHelper.isEnterKey(event)) { // comma or enter
                 this.handleWordCompleted();
                 event.preventDefault();
-            } else if (event.keyCode === 8) {
+            } else if (KeyHelper.isBackspace(event)) {
                 if (!this.textInput.getValue() && this.countTags() > 0) {
                     this.doRemoveTag(this.tags[this.countTags() - 1]);
                 }
-            } else if (event.keyCode === 38) {
+            } else if (KeyHelper.isArrowUpKey(event)) {
                 if (this.tagSuggestions.isVisible()) {
                     this.tagSuggestions.moveUp();
                     event.preventDefault();
                 }
-            } else if (event.keyCode === 40) {
+            } else if (KeyHelper.isArrowDownKey(event)) {
                 if (this.tagSuggestions.isVisible()) {
                     this.tagSuggestions.moveDown();
                     event.preventDefault();
                 }
             }
+        });
+
+        this.textInput.getEl().addEventListener('paste', (event: ClipboardEvent) => {
+            event.preventDefault();
+            this.handlePaste(event);
         });
 
         this.tagSuggestions.onSelected((value: string) => {
@@ -238,6 +244,21 @@ export class Tags
             }
         }
         return -1;
+    }
+
+    private handlePaste(event: ClipboardEvent): void {
+        const text = event.clipboardData.getData('text');
+        const isHtmlText = event.clipboardData.types.some((type) => type === 'text/html');
+        // if is html text, split by new line or \t, otherwise split by comma
+        const parsedTags = isHtmlText ? text.split(/\t|\r\n|\n/g) : text.split(',');
+        // if html text and only one tag, split it's content by comma
+        const tagsToAdd = (isHtmlText && parsedTags.length === 1) ? parsedTags[0].split(',') : parsedTags;
+
+        tagsToAdd.forEach((tag) => {
+            if (!StringHelper.isBlank(tag) && !this.isMaxTagsReached()) {
+                this.doAddTag(tag.trim());
+            }
+        });
     }
 
     resetPropertyValues() {
