@@ -7,6 +7,8 @@ export abstract class BaseInspectionPanel
 
     protected liveEditModel: LiveEditModel;
 
+    private layoutListeners: ((panel: BaseInspectionPanel) => void)[] = [];
+
     protected constructor() {
         super('inspection-panel');
     }
@@ -17,5 +19,17 @@ export abstract class BaseInspectionPanel
 
     isNotFoundError(reason): boolean {
         return reason instanceof RequestError && (reason).isNotFound();
+    }
+
+    protected notifyLayoutListeners(): void {
+        this.layoutListeners.forEach((listener) => listener(this));
+    }
+
+    onLayoutListener(listener: (panel: BaseInspectionPanel) => void): void {
+        this.layoutListeners.push(listener);
+    }
+
+    unLayoutListener(listener: (panel: BaseInspectionPanel) => void): void {
+        this.layoutListeners = this.layoutListeners.filter((l) => l !== listener);
     }
 }

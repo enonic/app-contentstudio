@@ -1,4 +1,3 @@
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {BrEl} from '@enonic/lib-admin-ui/dom/BrEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
@@ -35,7 +34,6 @@ import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/LiveEdi
 import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEditEvent';
 import {Content, ContentBuilder} from '../../content/Content';
 import {ContentId} from '../../content/ContentId';
-import {ContentIds} from '../../content/ContentIds';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Site} from '../../content/Site';
 import {ContentDeletedEvent} from '../../event/ContentDeletedEvent';
@@ -274,9 +272,23 @@ export class LiveFormPanel
             this.propagateEvent(event);
         };
 
-        const descriptorLoadedHandler = (descriptor: Descriptor) => this.inspectionsPanel.updateButtonsVisibility(descriptor);
-        this.availableInspectPanels.forEach(
-            (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.onDescriptorLoaded(descriptorLoadedHandler));
+        // showing apply button for page, part and layout with form items
+        const formLayoutHandler = (panel: BaseInspectionPanel) => {
+            if (panel !== this.inspectionsPanel.getPanelShown()) {
+                return;
+            }
+
+            if (panel instanceof DescriptorBasedComponentInspectionPanel) {
+                this.updateButtonsVisibility(panel.getSelectedValue());
+            } else if (panel instanceof PageInspectionPanel) {
+                const selectedValue = panel.getSelectedValue()?.getData();
+                this.updateButtonsVisibility(selectedValue instanceof Descriptor ? selectedValue : null);
+            }
+        }
+
+        this.availableInspectPanels.forEach((panel) => {
+            panel.onLayoutListener(formLayoutHandler);
+        });
     }
 
     private initMaskHandlers() {
@@ -814,19 +826,25 @@ export class LiveFormPanel
         return builder;
     }
 
-    private inspectPage(params: InspectPageParams) {
+    private inspectPage(params: InspectPageParams): void {
         const unlocked = !this.liveEditPageProxy?.isLocked();
         const canShowWidget = unlocked && params.showWidget;
         const canShowPanel = unlocked && params.showPanel;
+        const pagePanel = this.availableInspectPanels.get('page') as PageInspectionPanel;
         this.contextWindow?.showInspectionPanel(
             getInspectParameters({
-                panel: this.availableInspectPanels.get('page'),
+                panel: pagePanel,
                 showWidget: canShowWidget,
                 showPanel: canShowPanel,
                 source: params.source,
                 keepPanelSelection: params.keepPanelSelection
             })
         );
+
+        const val = pagePanel?.getSelectedValue()?.getData();
+        if (val instanceof Descriptor) {
+            this.updateButtonsVisibility(val);
+        }
     }
 
     private clearSelection(showInsertables: boolean = true): boolean {
@@ -863,6 +881,8 @@ export class LiveFormPanel
                 source: source,
             })
         );
+
+        this.inspectionsPanel.setButtonContainerVisible(false);
     }
 
     private doInspectComponent(component: Component, showPanel: boolean) {
@@ -882,6 +902,11 @@ export class LiveFormPanel
         if (inspectionPanel instanceof ComponentInspectionPanel) {
             showInspectionPanel(inspectionPanel);
             inspectionPanel.setComponent(component);
+
+            // show apply for text comp, page, part and layout will handle it themselves when selected descriptor is set
+            if (!(inspectionPanel instanceof DescriptorBasedComponentInspectionPanel)) {
+                this.inspectionsPanel.setButtonContainerVisible(inspectionPanel instanceof TextInspectionPanel);
+            }
         }
     }
 
@@ -1096,5 +1121,9 @@ export class LiveFormPanel
         this.frameContainer?.hide();
         this.placeholder.setPageIsNotRenderableMode();
         this.placeholder.show();
+    }
+
+    private updateButtonsVisibility(descriptor?: Descriptor): void {
+        this.inspectionsPanel.setButtonContainerVisible(descriptor?.getConfig()?.getFormItems().length > 0);
     }
 }
