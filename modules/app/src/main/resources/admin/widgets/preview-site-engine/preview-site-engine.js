@@ -13,6 +13,13 @@ exports.get = function (req) {
         return widgetLib.errorResponse(400);
     }
 
+    if (params.type === SHORTCUT_TYPE) {
+        // return 418 if not able to render
+        log.debug(`Site [${req.method}] can't render: 418`);
+
+        return widgetLib.errorResponse(418);
+    }
+
     try {
         const url = createUrl(req, params);
 
