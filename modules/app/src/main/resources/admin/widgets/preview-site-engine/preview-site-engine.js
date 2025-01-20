@@ -1,6 +1,7 @@
 /*global app, resolve*/
 
 const widgetLib = require('/lib/export/widget');
+const adminLib = require('/lib/xp/admin');
 
 const SHORTCUT_TYPE = 'base:shortcut';
 
@@ -12,25 +13,17 @@ exports.get = function (req) {
         return widgetLib.errorResponse(400);
     }
 
-    if (!exports.canRender(req)) {
-        // needed for the head request,
-        // return 418 if not able to render
-        log.debug('Site [GET] can\'t render: 418');
-
-        return widgetLib.errorResponse(418);
-    }
-
     try {
         const url = createUrl(req, params);
 
-        log.debug(`Site [GET] redirecting: ${url}`);
+        log.debug(`Site [${req.method}] redirecting: ${url}`);
 
         return {
             redirect: url,
             contentType: 'text/html',
         }
     } catch (e) {
-        log.error(`Site [GET] error: ${e.message}`);
+        log.error(`Site [${req.method}] error: ${e.message}`);
         return widgetLib.errorResponse(500);
     }
 }
@@ -67,5 +60,7 @@ exports.canRender = function (req) {
 
 function createUrl(req, params) {
     const project = params.repository.substring('com.enonic.cms.'.length);
-    return `${req.scheme}://${req.host}:${req.port}/admin/site/inline/${project}/${params.branch}` + params.path;
+    const baseUri = adminLib.getBaseUri();
+    const normalizedBaseUri = baseUri === '/' ? '' : baseUri;
+    return `${normalizedBaseUri}/site/${params.mode}/${project}/${params.branch}${params.path}`;
 }
