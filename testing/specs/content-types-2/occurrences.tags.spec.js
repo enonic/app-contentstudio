@@ -20,6 +20,7 @@ describe('occurrences.tag.spec: tests for content with tag input', function () {
     const TAGS_NAME_3 = appConst.generateRandomName("tag");
     let SITE;
     const TAG_TEXT1 = 'enonic';
+    const TAG_TEXT_TO_SPLIT = 'enonic,norway';
     const TAG_TEXT2 = 'test enonic';
 
     it(`Preconditions: new site should be added`,
@@ -27,6 +28,36 @@ describe('occurrences.tag.spec: tests for content with tag input', function () {
             let displayName = appConst.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
+        });
+
+    // Tag input should parse and split pasted string #8032
+    // https://github.com/enonic/app-contentstudio/issues/8032
+    it("GIVEN wizard for tag 2:5 is opened WHEN pasting in a string with comma THEN column values get split into several tags AND the content gets valid",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let tagForm = new TagForm();
+            // 1. Select the site and open new wizard for tag 2:5 content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TAG_2_5);
+            await contentWizard.typeDisplayName(TAG_TEXT_TO_SPLIT);
+            await contentWizard.pause(500);
+            // 2. Copy the text with a comma to the clipboard and paste it into the tag input:
+            await contentWizard.pressCtrl_A();
+            await contentWizard.pressCtrl_C();
+            await tagForm.clickOnTagInput();
+            await contentWizard.pressCtrl_V();
+            await studioUtils.saveScreenshot('2_tags_split');
+            // 3. Click on Enter key:
+            await studioUtils.doPressEnter();
+            await contentWizard.pause(500);
+            await studioUtils.saveScreenshot('2_tags_split_enter');
+            // 4. Verify that the content gets valid even before clicking on the 'Save' button
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === false, 'the content should be valid, because 2 required tags are added');
+            // 5. Save the content:
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+            // 5. Verify that validation recording is not displayed for the tags input:
+            await tagForm.waitForTagValidationMessageNotDisplayed();
         });
 
     it("GIVEN new wizard for Tag-content 2:5 is opened WHEN the name input has been filled THEN the content should be invalid",
@@ -64,7 +95,7 @@ describe('occurrences.tag.spec: tests for content with tag input', function () {
             // 1. Select the site and open new wizard for tag 2:5 content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TAG_2_5);
             await contentWizard.typeDisplayName(TAGS_NAME_2);
-            // 2. Add 2 tags:
+            // 2. Add 2 tags: insert a text then press on Enter key:
             await tagForm.doAddTag(TAG_TEXT1);
             await tagForm.doAddTag(TAG_TEXT2);
             // 3. Verify that the content gets valid even before clicking on the 'Save' button

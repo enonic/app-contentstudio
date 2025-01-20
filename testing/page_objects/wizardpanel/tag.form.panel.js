@@ -25,6 +25,10 @@ class TagForm extends Page {
         return lib.FORM_VIEW + xpath.removeTagIcon;
     }
 
+    async clickOnTagInput() {
+        await this.clickOnElement(this.tagInput);
+    }
+
     async typeInTagInput(text) {
         await this.clickOnElement(this.tagInput);
         await this.pause(700);
@@ -89,8 +93,8 @@ class TagForm extends Page {
             }
             return await elements[index].click();
         } catch (err) {
-            await this.saveScreenshot('err_remove_tag_icon');
-            throw new Error('Remove tag icon: ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_remove_tag_icon');
+            throw new Error(`Remove tag icon: screenshot:${screenshot} ` + err);
         }
     }
 
