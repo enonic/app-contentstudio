@@ -15,6 +15,7 @@ import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {Descriptor} from '../../../../../page/Descriptor';
 import {PageState} from '../../../PageState';
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
+import {PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
 
 export class PageInspectionPanel
     extends BaseInspectionPanel {
@@ -23,7 +24,7 @@ export class PageInspectionPanel
 
     private pageTemplateAndControllerForm: PageTemplateAndControllerForm;
 
-    private inspectionHandler: BaseInspectionHandler;
+    private configForm: FormView;
 
     constructor(private saveAsTemplateAction: SaveAsTemplateAction) {
         super();
@@ -33,7 +34,6 @@ export class PageInspectionPanel
     }
 
     private initElements() {
-        this.inspectionHandler = new BaseInspectionHandler(this);
         this.pageTemplateAndControllerSelector = new PageTemplateAndControllerSelector();
         this.pageTemplateAndControllerForm = new PageTemplateAndControllerForm(this.pageTemplateAndControllerSelector);
     }
@@ -43,6 +43,16 @@ export class PageInspectionPanel
         this.pageTemplateAndControllerSelector.onSelectionChanged(() => {
             this.saveAsTemplateAction.updateVisibility();
         });
+
+        PageState.getEvents().onPageUpdated(() => {
+            if (PageState.getState().hasController()) {
+                this.refreshConfigForm();
+            }
+        });
+    }
+
+    getSelectedValue(): PageTemplateAndControllerOption {
+        return this.pageTemplateAndControllerSelector.getSelectedOption();
     }
 
     setModel(liveEditModel: LiveEditModel) {
@@ -50,8 +60,7 @@ export class PageInspectionPanel
 
         this.pageTemplateAndControllerSelector.setModel(this.liveEditModel);
         this.saveAsTemplateAction.updateVisibility();
-        this.inspectionHandler.setModel(this.liveEditModel);
-        this.inspectionHandler.refreshConfigForm();
+        this.refreshConfigForm();
     }
 
     getName(): string {
@@ -69,40 +78,15 @@ export class PageInspectionPanel
             return rendered;
         });
     }
-}
 
-class BaseInspectionHandler {
-
-    liveEditModel: LiveEditModel;
-
-    pageInspectionPanel: PageInspectionPanel;
-
-    configForm: FormView;
-
-    constructor(pageInspectionPanel: PageInspectionPanel) {
-        this.pageInspectionPanel = pageInspectionPanel;
-        this.initPropertyChangedListener();
-    }
-
-    private initPropertyChangedListener() {
-        PageState.getEvents().onPageUpdated(() => {
-            if (PageState.getState().hasController()) {
-                this.refreshConfigForm();
-            }
-        });
-    }
-
-    setModel(liveEditModel: LiveEditModel) {
-        this.liveEditModel = liveEditModel;
-    }
-
-    refreshConfigForm() {
+    private refreshConfigForm(): void {
         if (this.configForm) {
             this.configForm.remove();
             this.configForm = null;
         }
 
         if (!PageState.getState()?.hasController()) {
+            this.notifyLayoutListeners();
             return;
         }
 
@@ -113,9 +97,11 @@ class BaseInspectionHandler {
         new GetComponentDescriptorRequest(PageState.getState().getController().toString()).sendAndParse().then((descriptor: Descriptor) => {
             this.configForm = new FormView(context ? context : new FormContextBuilder().build(), descriptor.getConfig(), root);
             this.configForm.setLazyRender(false);
-            this.pageInspectionPanel.appendChild(this.configForm);
+            this.appendChild(this.configForm);
 
             this.configForm.layout().catch(DefaultErrorHandler.handle);
-        }).catch(DefaultErrorHandler.handle);
+        }).catch(DefaultErrorHandler.handle).finally(() => {
+            this.notifyLayoutListeners();
+        });
     }
 }
