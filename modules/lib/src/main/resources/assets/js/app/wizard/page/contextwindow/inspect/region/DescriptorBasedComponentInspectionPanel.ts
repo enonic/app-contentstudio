@@ -46,8 +46,6 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private debouncedDescriptorsReload: () => void;
 
-    private descriptorLoadedListeners: ((descriptor: Descriptor) => void)[] = [];
-
     private readonly componentType: ComponentType;
 
     private timeoutId: number;
@@ -166,7 +164,6 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         clearTimeout(this.timeoutId);
         this.selector.setDescriptor(descriptor);
         this.setupComponentForm(descriptor);
-        this.notifyDescriptorLoaded(descriptor);
     }
 
     setComponent(component: COMPONENT): void {
@@ -211,6 +208,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.cleanFormView();
 
         if (!this.component || !descriptor) {
+            this.notifyLayoutListeners();
             return;
         }
         this.mask();
@@ -227,6 +225,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
                 .finally(() => {
                     this.unmask();
                     this.component.setDisableEventForwarding(false);
+                    this.notifyLayoutListeners();
                 })
                 .done(),
             100);
@@ -241,6 +240,10 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
             }
             this.formView = null;
         }
+    }
+
+    getSelectedValue(): Descriptor {
+        return this.selector.getSelectedDescriptor();
     }
 
     mask() {
@@ -266,17 +269,5 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
             return rendered;
         });
-    }
-
-    public onDescriptorLoaded(listener: (descriptor: Descriptor) => void): void {
-        this.descriptorLoadedListeners.push(listener);
-    }
-
-    public unDescriptorLoaded(listener: (descriptor: Descriptor) => void): void {
-        this.descriptorLoadedListeners = this.descriptorLoadedListeners.filter(curr => curr !== listener);
-    }
-
-    private notifyDescriptorLoaded(descriptor: Descriptor): void {
-        this.descriptorLoadedListeners.forEach(listener => listener(descriptor));
     }
 }

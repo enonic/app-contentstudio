@@ -1,12 +1,9 @@
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {TextInspectionPanel} from './region/TextInspectionPanel';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DeckPanel} from '@enonic/lib-admin-ui/ui/panel/DeckPanel';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {Descriptor} from '../../../../page/Descriptor';
-import {PageEventsManager} from '../../../PageEventsManager';
 import {BaseInspectionPanel} from './BaseInspectionPanel';
 import * as Q from 'q';
 
@@ -29,7 +26,6 @@ export class InspectionsPanel
         this.config = config;
 
         this.initElements();
-        this.initListeners();
     }
 
     private initElements(): void {
@@ -43,25 +39,12 @@ export class InspectionsPanel
         this.buttonContainer = new DivEl('button-bar');
     }
 
-    private initListeners(): void {
-        PageEventsManager.get().onTextComponentEditModeChanged((value: boolean) => {
-            if (this.getPanelShown() instanceof TextInspectionPanel) {
-                this.setButtonContainerVisible(value);
-            }
-        });
-    }
-
     public showInspectionPanel(panel: Panel): void {
         this.deck.showPanel(panel);
     }
 
     public setButtonContainerVisible(isVisible: boolean = true): void {
         this.buttonContainer.setVisible(isVisible);
-    }
-
-    public updateButtonsVisibility(descriptor?: Descriptor): void {
-        const showButtons = descriptor ? descriptor.getConfig()?.getFormItems().length > 0 : false;
-        this.setButtonContainerVisible(showButtons);
     }
 
     public clearInspection(): void {
