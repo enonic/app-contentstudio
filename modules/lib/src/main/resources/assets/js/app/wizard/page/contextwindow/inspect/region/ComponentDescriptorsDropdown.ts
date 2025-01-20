@@ -64,6 +64,12 @@ export class ComponentDescriptorsDropdown
                 this.optionFilterInput.show();
             }
         });
+
+        this.optionFilterInput.onClicked(() => {
+           if (!this.optionFilterInput.hasFocus()) {
+                this.optionFilterInput.giveFocus();
+           }
+        });
     }
 
     protected doShowDropdown(): void {
