@@ -83,12 +83,16 @@ export class ContentItemPreviewPanel
     protected async doSetItem(item: ViewItem, force: boolean = false) {
         const content = this.viewItemToContent(item);
 
-        if (await this.isPreviewUpdateNeeded(content, force)) {
-            this.update(content);
-        }
-
         this.toolbar.setItem(item);
-        this.item = item;
+
+        return this.isPreviewUpdateNeeded(content, force).then((updateNeeded) => {
+            // only update this.item after the isPreviewUpdateNeeded check because it uses it
+            this.item = item;
+
+            if (updateNeeded) {
+                return this.update(content);
+            }
+        });
     }
 
     public isPreviewUpdateNeeded(item: ContentSummaryAndCompareStatus, force?: boolean): Q.Promise<boolean> {
@@ -115,13 +119,13 @@ export class ContentItemPreviewPanel
                !!diff.contentSummary?.inherit;
     }
 
-    protected update(item: ContentSummaryAndCompareStatus) {
+    protected async update(item: ContentSummaryAndCompareStatus) {
         let contentSummary = item.getContentSummary();
-        this.fetchPreviewForPath(contentSummary);
+        return this.fetchPreviewForPath(contentSummary);
     }
 
     public isItemRenderable(): Q.Promise<boolean> {
-        return this.itemRenderable;
+        return this.itemRenderable ?? Q(true);
     }
 
     private async fetchPreviewForPath(summary: ContentSummary): Promise<void> {
