@@ -2,6 +2,7 @@ const contextLib = require('/lib/xp/context');
 const portalLib = require('/lib/xp/portal');
 const contentLib = require('/lib/xp/content');
 const httpClient = require('/lib/http-client');
+;
 
 const WIDGET_HEADER_NAME = 'enonic-widget-data';
 
@@ -13,6 +14,7 @@ function validateParams(params) {
     const repository = params.repo;
     const auto = params.auto || false;
     const mode = params.mode || 'preview';
+    const archive = params.archive === 'true';
 
     const idOrPath = id || path;
     if (!idOrPath || !repository) {
@@ -21,7 +23,7 @@ function validateParams(params) {
         throw new Error(text);
     }
 
-    return {id, path, type, branch, repository, auto, mode};
+    return {id, path, type, branch, repository, auto, mode, archive};
 }
 
 function errorResponse(status, messages) {
@@ -33,21 +35,34 @@ function errorResponse(status, messages) {
     if (messages) {
         const messagesArray = Array.isArray(messages) ? messages : [messages];
         response.body = messagesArray.join(': ');
+        if (!response.headers) {
+            response.headers = {};
+        }
         response.headers[WIDGET_HEADER_NAME] = JSON.stringify({messages: messagesArray});
     }
 
     return response;
 }
 
-function switchContext(repository, branch, successCallback, errorCallback) {
+function isArchiveContext(context) {
+    return context.attributes && (context.attributes.contentRootPath === contentLib.ARCHIVE_ROOT_PATH);
+}
+
+function switchContext(repository, branch, archive, successCallback, errorCallback) {
     const context = contextLib.get();
 
-    if (context.repository !== repository || context.branch !== branch) {
+    if (context.repository !== repository || context.branch !== branch || isArchiveContext(context) !== archive) {
         try {
             const newContext = {
                 principals: ["role:system.admin"],
                 repository,
                 branch
+            }
+
+            if (!!archive) {
+                newContext.attributes = {
+                    contentRootPath: contentLib.ARCHIVE_ROOT_PATH
+                }
             }
 
             return contextLib.run(newContext, function () {
@@ -61,8 +76,8 @@ function switchContext(repository, branch, successCallback, errorCallback) {
     }
 }
 
-function fetchContent(repository, branch, key) {
-    return switchContext(repository, branch, function () {
+function fetchContent(repository, branch, key, archive) {
+    return switchContext(repository, branch, archive, function () {
         try {
             if (key) {
                 return contentLib.get({key});

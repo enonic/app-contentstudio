@@ -51,6 +51,10 @@ export class ContentItemPreviewToolbar
         this.previewButton.getAction().setEnabled(false);
     }
 
+    isArchive(): boolean {
+        return false;
+    }
+
     public getWidgetSelector(): PreviewWidgetDropdown {
         return this.widgetSelector;
     }
@@ -72,7 +76,7 @@ export class WidgetPreviewAction
     constructor(toolbar: ContentItemPreviewToolbar) {
         super(i18n('action.preview'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
         this.toolbar = toolbar;
-        this.helper = new PreviewActionHelper();
+        this.helper = new PreviewActionHelper(toolbar.isArchive());
         this.onExecuted(this.handleExecuted.bind(this));
 
         this.setWcagAttributes({

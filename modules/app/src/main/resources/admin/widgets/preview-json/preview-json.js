@@ -14,15 +14,15 @@ exports.get = function (req) {
     if (!exports.canRender(req)) {
         // needed for the head request,
         // return 418 if not able to render
-        log.debug('Json [GET] can\'t render: 418');
+        log.debug('Json [${req.method}] can\'t render: 418');
 
         return widgetLib.errorResponse(418);
     }
 
     try {
-        const content = widgetLib.fetchContent(params.repository, params.branch, params.id || params.path);
+        const content = widgetLib.fetchContent(params.repository, params.branch, params.id || params.path, params.archive);
 
-        log.debug('Json [GET] exists: ' + !!content);
+        log.debug(`Json [${req.method}] exists: ` + !!content);
 
         if (content) {
             return {
@@ -38,7 +38,7 @@ exports.get = function (req) {
             return widgetLib.errorResponse(404, 'Content not found');
         }
     } catch (e) {
-        log.error(`Json [GET] error: ${e.message}`);
+        log.error(`Json [${req.method}] error: ${e.message}`);
         return widgetLib.errorResponse(500);
     }
 }
@@ -47,7 +47,7 @@ exports.get = function (req) {
 exports.canRender = function (req) {
     try {
         const params = widgetLib.validateParams(req.params);
-        const content = widgetLib.fetchContent(params.repository, params.branch, params.id || params.path);
+        const content = widgetLib.fetchContent(params.repository, params.branch, params.id || params.path, params.archive);
         const canRender = !!content;
 
         log.debug(`Json [CAN_RENDER]: ${canRender}`);
