@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Router} from '../../Router';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
@@ -17,8 +16,6 @@ import {ContentSummary} from '../../content/ContentSummary';
 import {ContentId} from '../../content/ContentId';
 import {DependenciesSection} from './DependenciesSection';
 import {ContentAggregation} from './ContentAggregation';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
 import {ContentAggregationsFetcher} from './ContentAggregationsFetcher';
 import {FilterableAggregationGroupView} from './FilterableAggregationGroupView';
@@ -29,6 +26,7 @@ import {ContentExportElement} from './ContentExportElement';
 import {ContentDependency} from './ContentDependency';
 import {TextSearchField} from '@enonic/lib-admin-ui/app/browse/filter/TextSearchField';
 import {Branch} from '../../versioning/Branch';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
@@ -36,7 +34,6 @@ export class ContentBrowseFilterPanel
     private aggregations: Map<string, AggregationGroupView>;
     private displayNamesResolver: AggregationsDisplayNamesResolver;
     private aggregationsFetcher: ContentAggregationsFetcher;
-    private userInfo: LoginResult;
     private searchEventListeners: ((query?: ContentQuery) => void)[] = [];
 
     private dependenciesSection: DependenciesSection;
@@ -281,7 +278,7 @@ export class ContentBrowseFilterPanel
     }
 
     private getCurrentUserKeyAsString(): string {
-        return this.userInfo.getUser().getKey().toString();
+        return AuthContext.get().getUser().getKey().toString();
     }
 
     private getAggregations(): Q.Promise<AggregationsQueryResult> {
@@ -294,16 +291,13 @@ export class ContentBrowseFilterPanel
 
     private initAggregationGroupView() {
         // that is supposed to be cached so response will be fast
-        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            this.userInfo = loginResult;
-            this.displayNamesResolver = new AggregationsDisplayNamesResolver();
-            (this.aggregations.get(ContentAggregation.OWNER) as FilterableAggregationGroupView).setIdsToKeepOnToTop(
-                [this.getCurrentUserKeyAsString()]);
-            (this.aggregations.get(ContentAggregation.MODIFIED_BY) as FilterableAggregationGroupView).setIdsToKeepOnToTop(
-                [this.getCurrentUserKeyAsString()]);
+        this.displayNamesResolver = new AggregationsDisplayNamesResolver();
+        (this.aggregations.get(ContentAggregation.OWNER) as FilterableAggregationGroupView).setIdsToKeepOnToTop(
+            [this.getCurrentUserKeyAsString()]);
+        (this.aggregations.get(ContentAggregation.MODIFIED_BY) as FilterableAggregationGroupView).setIdsToKeepOnToTop(
+            [this.getCurrentUserKeyAsString()]);
 
-            return this.getAndUpdateAggregations();
-        }).catch(DefaultErrorHandler.handle);
+        return this.getAndUpdateAggregations();
     }
 
     protected resetFacets(suppressEvent?: boolean, doResetAll?: boolean): Q.Promise<void> {

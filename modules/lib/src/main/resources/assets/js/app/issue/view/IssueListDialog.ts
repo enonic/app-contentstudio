@@ -5,7 +5,6 @@ import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {IssuesCount, IssuesPanel} from './IssuesPanel';
 import {Issue} from '../Issue';
@@ -13,8 +12,8 @@ import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {GetIssueStatsRequest} from '../resource/GetIssueStatsRequest';
 import {IssueStatsJson} from '../json/IssueStatsJson';
 import {IssueType} from '../IssueType';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {ProjectContext} from '../../project/ProjectContext';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 export class IssueListDialog
     extends ModalDialogWithConfirmation {
@@ -22,8 +21,6 @@ export class IssueListDialog
     private static INSTANCE: IssueListDialog;
 
     private issuesPanel: IssuesPanel;
-
-    private currentUser: Principal;
 
     private createAction: Action;
 
@@ -50,18 +47,11 @@ export class IssueListDialog
         return IssueListDialog.INSTANCE;
     }
 
-    private loadCurrentUser() {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
-            this.currentUser = loginResult.getUser();
-        });
-    }
-
     protected initElements() {
         super.initElements();
 
         this.issuesPanel = this.createIssuePanel();
         this.createAction = new Action(i18n('text.newIssue'));
-        this.loadCurrentUser();
     }
 
     protected initListeners() {
@@ -170,7 +160,7 @@ export class IssueListDialog
     }
 
     private isIssueModifiedByCurrentUser(issue: Issue): boolean {
-        return issue.getModifier() === this.currentUser.getKey().toString();
+        return issue.getModifier() === AuthContext.get().getUser().getKey().toString();
     }
 
     private isIssueCreatedByCurrentUser(issue: Issue): boolean {
@@ -178,7 +168,7 @@ export class IssueListDialog
             return false;
         }
 
-        return issue.getCreator() === this.currentUser.getKey().toString();
+        return issue.getCreator() === AuthContext.get().getUser().getKey().toString();
     }
 
     private updateTabAndFiltersLabels(): Q.Promise<void> {

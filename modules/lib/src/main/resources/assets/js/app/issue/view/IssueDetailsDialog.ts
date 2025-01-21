@@ -6,7 +6,6 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
@@ -62,13 +61,12 @@ import {ContentListBox} from '../../inputtype/selector/ContentListBox';
 import {ContentSelectorDropdownOptions} from '../../inputtype/selector/ContentSelectorDropdown';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {CSPrincipalCombobox} from '../../security/CSPrincipalCombobox';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
 
     private issue: Issue;
-
-    private currentUser: Principal;
 
     private errorTooltip: Tooltip;
 
@@ -173,10 +171,8 @@ export class IssueDetailsDialog
 
         this.commentTextArea = new IssueCommentTextArea();
         this.detailsSubTitle = new IssueDetailsDialogSubTitle(this.issue);
-        this.loadCurrentUser().done(currentUser => {
-            this.commentTextArea.setUser(currentUser);
-            this.detailsSubTitle.setUser(currentUser);
-        });
+        this.commentTextArea.setUser(AuthContext.get().getUser());
+        this.detailsSubTitle.setUser(AuthContext.get().getUser());
 
         this.scheduleFormPropertySet = new PropertySet();
         this.publishScheduleForm = new PublishScheduleForm(this.scheduleFormPropertySet);
@@ -655,13 +651,6 @@ export class IssueDetailsDialog
         return this.publishProcessor.getVisibleDependantIds(withExcluded);
     }
 
-    private loadCurrentUser(): Q.Promise<Principal> {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
-            this.currentUser = loginResult.getUser();
-            return this.currentUser;
-        });
-    }
-
     private handleIssueGlobalEvents() {
         const updateHandler: (issue: Issue) => void = AppHelper.debounce((issue: Issue) => {
             this.setIssue(issue);
@@ -845,7 +834,7 @@ export class IssueDetailsDialog
         this.skipNextServerUpdatedEvent = true;
         action.setEnabled(false);
         return new CreateIssueCommentRequest(this.issue.getId())
-            .setCreator(this.currentUser.getKey())
+            .setCreator(AuthContext.get().getUser().getKey())
             .setSilent(silent)
             .setText(text).sendAndParse()
             .then(issueComment => {

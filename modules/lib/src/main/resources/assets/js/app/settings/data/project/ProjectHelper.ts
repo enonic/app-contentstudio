@@ -1,29 +1,29 @@
 import {Project} from './Project';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ProjectGetRequest} from '../../resource/ProjectGetRequest';
 import {ProjectContext} from '../../../project/ProjectContext';
 import * as Q from 'q';
 import {ProjectPermissions} from './ProjectPermissions';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 export class ProjectHelper {
 
-    public static isUserProjectOwnerOrEditor(loginResult: LoginResult): Q.Promise<boolean> {
+    public static isUserProjectOwnerOrEditor(): Q.Promise<boolean> {
         return new ProjectGetRequest(ProjectContext.get().getProject().getName()).sendAndParse().then((project: Project) => {
-            return Q(ProjectHelper.isProjectOwnerOrEditor(loginResult, project));
+            return Q(ProjectHelper.isProjectOwnerOrEditor(project));
         });
     }
 
-    public static isUserProjectOwner(loginResult: LoginResult, project?: Project): Q.Promise<boolean> {
+    public static isUserProjectOwner(project?: Project): Q.Promise<boolean> {
         return new ProjectGetRequest(project?.getName() || ProjectContext.get().getProject().getName())
             .sendAndParse()
             .then((project: Project) => {
-                return Q(ProjectHelper.isProjectOwner(loginResult, project));
+                return Q(ProjectHelper.isProjectOwner(project));
             });
     }
 
-    private static isProjectOwnerOrEditor(loginResult: LoginResult, project: Project): boolean {
-        const userPrincipals: PrincipalKey[] = loginResult.getPrincipals();
+    private static isProjectOwnerOrEditor(project: Project): boolean {
+        const userPrincipals: PrincipalKey[] = AuthContext.get().getPrincipals().map((principal) => principal.getKey());
         const permissions: ProjectPermissions = project.getPermissions();
         const owners: PrincipalKey[] = permissions.getOwners();
         const editors: PrincipalKey[] = permissions.getEditors();
@@ -33,12 +33,11 @@ export class ProjectHelper {
             editors.some((editor: PrincipalKey) => editor.equals(userPrincipal)));
     }
 
-    static isProjectOwner(loginResult: LoginResult, project: Project): boolean {
-        const userPrincipals: PrincipalKey[] = loginResult.getPrincipals();
+    static isProjectOwner(project: Project): boolean {
         const permissions: ProjectPermissions = project.getPermissions();
         const owners: PrincipalKey[] = permissions.getOwners();
-
-        return userPrincipals.some((userPrincipal: PrincipalKey) => owners.some((owner: PrincipalKey) => owner.equals(userPrincipal)));
+        const thisUser: PrincipalKey = AuthContext.get().getUser().getKey();
+        return owners.some((owner: PrincipalKey) => owner.equals(thisUser));
     }
 
     public static fetchProject(name: string): Q.Promise<Project> {

@@ -1,5 +1,4 @@
 import {SettingsTreeItemBuilder, SettingsViewItem} from './SettingsViewItem';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 
 
 export class FolderViewItem
@@ -42,11 +41,11 @@ export class FolderViewItem
         return null;
     }
 
-    isEditAllowed(loginResult: LoginResult): boolean {
+    isEditAllowed(): boolean {
         return false;
     }
 
-    isDeleteAllowed(loginResult: LoginResult): boolean {
+    isDeleteAllowed(): boolean {
         return false;
     }
 }

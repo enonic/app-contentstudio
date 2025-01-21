@@ -22,8 +22,6 @@ import {ProjectUpdateIconRequest} from '../../resource/ProjectUpdateIconRequest'
 import {EditProjectAccessDialog} from '../../../wizard/EditProjectAccessDialog';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
 import {ProjectDataItemFormIcon} from './form/element/ProjectDataItemFormIcon';
 import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
@@ -82,16 +80,16 @@ export class ProjectWizardPanel
         return this.wizardActions as ProjectWizardActions;
     }
 
-    isEditAllowed(loginResult: LoginResult): boolean {
+    isEditAllowed(): boolean {
         const persistedItem = this.getPersistedItem();
-        if (!persistedItem || !loginResult) {
+        if (!persistedItem) {
             return true; // New project - edit is allowed
         }
-        return persistedItem.isEditAllowed(loginResult);
+        return persistedItem.isEditAllowed();
     }
 
-    isDeleteAllowed(loginResult: LoginResult): boolean {
-        return this.getPersistedItem().isDeleteAllowed(loginResult) && !this.hasChildrenLayers;
+    isDeleteAllowed(): boolean {
+        return this.getPersistedItem().isDeleteAllowed() && !this.hasChildrenLayers;
     }
 
     setHasChildrenLayers(value: boolean) {
@@ -102,7 +100,7 @@ export class ProjectWizardPanel
     }
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => this.isEditAllowed(loginResult));
+        return Q.resolve(this.isEditAllowed());
     }
 
     protected createStepsForms(): SettingDataItemWizardStepForm<ProjectViewItem>[] {

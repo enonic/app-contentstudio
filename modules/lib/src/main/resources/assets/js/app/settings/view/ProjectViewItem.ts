@@ -1,15 +1,15 @@
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectPermissions} from '../data/project/ProjectPermissions';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {Project} from '../data/project/Project';
 import {SettingsDataItemBuilder, SettingsDataViewItem} from './SettingsDataViewItem';
 import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
-import {ProjectHelper} from '../data/project/ProjectHelper';
 import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
 import {SettingsType} from '../data/type/SettingsType';
 import {SettingsTypes} from '../data/type/SettingsTypes';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 
 export class ProjectViewItem
     extends SettingsDataViewItem<Project> {
@@ -69,8 +69,8 @@ export class ProjectViewItem
         return this.data.getSiteConfigs();
     }
 
-    isEditAllowed(loginResult: LoginResult): boolean {
-        if (loginResult.isContentAdmin()) {
+    isEditAllowed(): boolean {
+        if (AuthHelper.isContentAdmin()) {
             return true;
         }
 
@@ -78,11 +78,11 @@ export class ProjectViewItem
             return false;
         }
 
-        return loginResult.getPrincipals().some(key => this.getPermissions().isOwner(key));
+        return this.getPermissions().isOwner(AuthContext.get().getUser().getKey());
     }
 
-    isDeleteAllowed(loginResult: LoginResult): boolean {
-        return loginResult.isContentAdmin();
+    isDeleteAllowed(): boolean {
+        return AuthHelper.isContentAdmin();
     }
 
     equals(o: Equitable): boolean {

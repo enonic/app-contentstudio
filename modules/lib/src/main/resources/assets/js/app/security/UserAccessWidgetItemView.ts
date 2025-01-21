@@ -15,14 +15,14 @@ import {Access} from './Access';
 import {EffectivePermission} from './EffectivePermission';
 import {Permission} from '../access/Permission';
 import {AccessControlEntry} from '../access/AccessControlEntry';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {ContentId} from '../content/ContentId';
 import {PrincipalServerEvent} from '../event/PrincipalServerEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ContentHelper} from '../util/ContentHelper';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 
 export class UserAccessWidgetItemView
     extends WidgetItemView {
@@ -73,13 +73,13 @@ export class UserAccessWidgetItemView
         this.prependChild(this.headerEl);
     }
 
-    private layoutBottom(content: Content, loginResult: LoginResult) {
+    private layoutBottom(content: Content) {
 
         if (this.hasChild(this.bottomEl)) {
             this.removeChild(this.bottomEl);
         }
 
-        if (!ContentHelper.isAnyPrincipalAllowed(content.getPermissions(), loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS)) {
+        if (!ContentHelper.isAnyPrincipalAllowed(content.getPermissions(), AuthHelper.getPrincipalsKeys(), Permission.WRITE_PERMISSIONS)) {
             return;
         }
 
@@ -99,7 +99,7 @@ export class UserAccessWidgetItemView
 
     }
 
-    private layoutList(content: Content, loginResult: LoginResult): Q.Promise<boolean> {
+    private layoutList(content: Content): Q.Promise<boolean> {
         const request = new GetEffectivePermissionsRequest(content.getContentId());
 
         return request.sendAndParse().then((results: EffectivePermission[]) => {
@@ -109,7 +109,7 @@ export class UserAccessWidgetItemView
             }
 
             const everyoneAccessValue: Access = this.getEveryoneAccessValue(content);
-            const userAccessList = this.getUserAccessList(results, everyoneAccessValue, loginResult);
+            const userAccessList = this.getUserAccessList(results, everyoneAccessValue);
 
             this.accessListView = new UserAccessListView();
             this.accessListView.setItemViews(userAccessList);
@@ -132,27 +132,25 @@ export class UserAccessWidgetItemView
     }
 
     private layoutUserAccess(): Q.Promise<void> {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            if (this.contentId) {
-                return new GetContentByIdRequest(this.contentId).sendAndParse().then((content: Content) => {
-                    if (content) {
-                        this.layoutHeader(content);
-                        return this.layoutList(content, loginResult).then(() =>
-                            this.layoutBottom(content, loginResult)
-                        );
-                    }
-                });
-            }
-        });
+        if (this.contentId) {
+            return new GetContentByIdRequest(this.contentId).sendAndParse().then((content: Content) => {
+                if (content) {
+                    this.layoutHeader(content);
+                    return this.layoutList(content).then(() =>
+                        this.layoutBottom(content)
+                    );
+                }
+            });
+        }
     }
 
-    private getUserAccessList(results: EffectivePermission[], everyoneAccess: Access, loginResult: LoginResult): UserAccessListItemView[] {
+    private getUserAccessList(results: EffectivePermission[], everyoneAccess: Access): UserAccessListItemView[] {
         return results.filter(
             (item: EffectivePermission) => item.getAccess() !== everyoneAccess && item.getPermissionAccess().getCount() > 0).map(
             (item: EffectivePermission) => {
                 const view: UserAccessListItemView = new UserAccessListItemView();
                 view.setObject(item);
-                view.setCurrentUser(loginResult.getUser());
+                view.setCurrentUser(AuthContext.get().getUser());
                 return view;
             });
     }

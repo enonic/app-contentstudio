@@ -9,9 +9,8 @@ import {ProjectHelper} from '../../../../settings/data/project/ProjectHelper';
 import {ProjectContext} from '../../../../project/ProjectContext';
 import {GetContentPermissionsByIdRequest} from '../../../../resource/GetContentPermissionsByIdRequest';
 import {AccessControlList} from '../../../../access/AccessControlList';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 
 export class BasePropertiesWidgetItemViewHelper
     extends PropertiesWidgetItemViewHelper  {
@@ -88,24 +87,22 @@ export class BasePropertiesWidgetItemViewHelper
     }
 
     private isEditSettingAllowed(): Q.Promise<boolean> {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            return this.hasAdminAccessToSettings(loginResult) ? Q.resolve(true) : this.hasFullAccess(loginResult);
-        }).catch(() => {
+            return this.hasAdminAccessToSettings() ? Q.resolve(true) : this.hasFullAccess().catch(() => {
             NotifyManager.get().showWarning(i18n(''));
             return Q.resolve(false);
         });
     }
 
-    private hasAdminAccessToSettings(loginResult: LoginResult): boolean {
-        return PermissionHelper.hasAdminPermissions(loginResult) ||
-               loginResult.isContentExpert() ||
-               ProjectHelper.isProjectOwner(loginResult, ProjectContext.get().getProject());
+    private hasAdminAccessToSettings(): boolean {
+        return PermissionHelper.hasAdminPermissions() ||
+               AuthHelper.isContentExpert() ||
+               ProjectHelper.isProjectOwner(ProjectContext.get().getProject());
     }
 
-    private hasFullAccess(loginResult: LoginResult): Q.Promise<boolean> {
+    private hasFullAccess(): Q.Promise<boolean> {
         return new GetContentPermissionsByIdRequest(this.item.getContentId()).sendAndParse().then(
             (permissions: AccessControlList) => {
-                return PermissionHelper.hasFullAccess(loginResult, permissions);
+                return PermissionHelper.hasFullAccess(permissions);
             });
     }
 }

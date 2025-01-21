@@ -4,6 +4,7 @@ const admin = require('/lib/xp/admin');
 const portal = require('/lib/xp/portal');
 const contextLib = require('/lib/xp/context');
 const i18n = require('/lib/xp/i18n');
+const authLib = require('/lib/xp/auth');
 
 function getPhrases() {
     const locales = admin.getLocales();
@@ -35,6 +36,8 @@ function getConfig() {
         'main'
     );
     const theme = 'light';
+    const user = authLib.getUser();
+
     return {
         allowContentUpdate,
         excludeDependencies,
@@ -92,7 +95,9 @@ function getConfig() {
                 appName: app.name,
                 theme,
             }
-        })
+        }),
+        user,
+        principals: authLib.getMemberships(user.key, true)
     };
 }
 

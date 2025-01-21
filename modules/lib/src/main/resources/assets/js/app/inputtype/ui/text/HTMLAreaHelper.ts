@@ -5,12 +5,11 @@ import {Styles} from './styles/Styles';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import * as Q from 'q';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
 import {ContentId} from '../../../content/ContentId';
 import {HtmlAreaSanitizer} from './HtmlAreaSanitizer';
 import {Project} from '../../../settings/data/project/Project';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 
 export class HTMLAreaHelper {
 
@@ -116,13 +115,11 @@ export class HTMLAreaHelper {
     }
 
     private static sendIsCodeEditableRequest(): Q.Promise<boolean> {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            if (loginResult.isContentExpert()) {
-                return Q(true);
-            }
+        if (AuthHelper.isContentExpert()) {
+            return Q(true);
+        }
 
-            return ProjectHelper.isUserProjectOwnerOrEditor(loginResult);
-        }).catch((reason) => {
+        return ProjectHelper.isUserProjectOwnerOrEditor().catch((reason) => {
             DefaultErrorHandler.handle(reason);
             return Q(false);
         });

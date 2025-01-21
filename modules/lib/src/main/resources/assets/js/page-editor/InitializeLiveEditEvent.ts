@@ -7,6 +7,8 @@ import {ProjectJson} from '../app/settings/resource/json/ProjectJson';
 import {LiveEditParams} from './LiveEditParams';
 import {PageJson} from '../app/page/PageJson';
 import {PageState} from '../app/wizard/page/PageState';
+import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 export class InitializeLiveEditEvent
     extends Event {
@@ -19,12 +21,18 @@ export class InitializeLiveEditEvent
 
     private readonly pageJson: PageJson;
 
+    private readonly user: PrincipalJson;
+
+    private readonly principals: PrincipalJson[];
+
     constructor(liveEditParams?: LiveEditParams) {
         super();
         this.projectJson = ProjectContext.get().getProject().toJson();
         this.config = CONFIG.getConfig();
         this.liveEditParams = liveEditParams;
         this.pageJson = PageState.getState()?.toJson();
+        this.user = AuthContext.get().getUser().toJson();
+        this.principals = AuthContext.get().getPrincipals().map(principal => principal.toJson());
     }
 
     getProjectJson(): ProjectJson {
@@ -41,6 +49,14 @@ export class InitializeLiveEditEvent
 
     getPageJson(): PageJson {
         return this.pageJson;
+    }
+
+    getUserJson(): PrincipalJson {
+        return this.user;
+    }
+
+    getPrincipalsJson(): PrincipalJson[] {
+        return this.principals;
     }
 
     static on(handler: (event: InitializeLiveEditEvent) => void, contextWindow: Window = window) {

@@ -1,6 +1,5 @@
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 
 export abstract class SettingsViewItem
@@ -48,9 +47,9 @@ export abstract class SettingsViewItem
 
     abstract getIconUrl();
 
-    abstract isEditAllowed(loginResult: LoginResult): boolean;
+    abstract isEditAllowed(): boolean;
 
-    abstract isDeleteAllowed(loginResult: LoginResult): boolean;
+    abstract isDeleteAllowed(): boolean;
 }
 
 export abstract class SettingsTreeItemBuilder {

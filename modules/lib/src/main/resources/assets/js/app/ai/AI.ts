@@ -4,8 +4,6 @@ import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {Content} from '../content/Content';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
@@ -32,6 +30,7 @@ import {PageEventsManager} from '../wizard/PageEventsManager';
 import {RGBColor} from '@enonic/lib-admin-ui/ai/tool/ui/AiAnimationHandler';
 import {AiContentDataHelper} from './AiContentDataHelper';
 import {AiToolHelper} from '@enonic/lib-admin-ui/ai/tool/AiToolHelper';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 declare global {
     interface Window {
@@ -117,14 +116,12 @@ export class AI {
             }).catch(DefaultErrorHandler.handle);
         });
 
-        void new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            const currentUser = loginResult.getUser();
-            const fullName = currentUser.getDisplayName();
-            const names = fullName.split(' ').map(word => word.substring(0, 1));
-            const shortName = (names.length >= 2 ? names.join('') : fullName).substring(0, 2).toUpperCase();
-            const user = {fullName, shortName} as const;
-            new AiContentOperatorConfigureEvent({user}).fire();
-        }).catch(DefaultErrorHandler.handle);
+        const currentUser = AuthContext.get().getUser();
+        const fullName = currentUser.getDisplayName();
+        const names = fullName.split(' ').map(word => word.substring(0, 1));
+        const shortName = (names.length >= 2 ? names.join('') : fullName).substring(0, 2).toUpperCase();
+        const user = {fullName, shortName} as const;
+        new AiContentOperatorConfigureEvent({user}).fire();
     }
 
     static get(): AI {
@@ -229,12 +226,14 @@ export class AI {
         this.aiToolHelper.setState(this.aiContentDataHelper.transformPathOnDemand(event.path), AiHelperState.PROCESSING);
 
         if (this.aiContentDataHelper.isPageComponentPath(event.path)) {
-            PageEventsManager.get().notifySetComponentState(ComponentPath.fromString(event.path.replace(AiContentDataHelper.PAGE_PREFIX, '')), true);
+            PageEventsManager.get().notifySetComponentState(
+                ComponentPath.fromString(event.path.replace(AiContentDataHelper.PAGE_PREFIX, '')), true);
         }
     };
 
     private translatorCompletedEventListener = (event: AiTranslatorCompletedEvent) => {
-        this.aiToolHelper.setState(this.aiContentDataHelper.transformPathOnDemand(event.path), event.success ? AiHelperState.COMPLETED : AiHelperState.FAILED, {text: event.text})
+        this.aiToolHelper.setState(this.aiContentDataHelper.transformPathOnDemand(event.path),
+            event.success ? AiHelperState.COMPLETED : AiHelperState.FAILED, {text: event.text})
 
         if (event.success) {
             this.aiContentDataHelper.setValue(event.path, event.text);
@@ -242,7 +241,8 @@ export class AI {
 
         // Probably a text component event, and they don't have AI helpers
         if (this.aiContentDataHelper.isPageComponentPath(event.path)) {
-            PageEventsManager.get().notifySetComponentState(ComponentPath.fromString(event.path.replace(AiContentDataHelper.PAGE_PREFIX, '')), false);
+            PageEventsManager.get().notifySetComponentState(
+                ComponentPath.fromString(event.path.replace(AiContentDataHelper.PAGE_PREFIX, '')), false);
         }
     };
 
@@ -317,7 +317,8 @@ export class AI {
             // operator works now only with data and sends path without __group__ prefix, adding it for compatibility
             const pathWithGroup = `${AiContentDataHelper.DATA_PREFIX}${path.startsWith('/') ? '' : '/'}${path}`;
             this.aiContentDataHelper.setValue(this.aiContentDataHelper.replaceSlashesWithDots(pathWithGroup), text);
-            this.aiToolHelper.animate(pathWithGroup, this.aiContentDataHelper.isTopicPath(pathWithGroup) ? 'innerGlow' : 'glow', RGBColor.GREEN);
+            this.aiToolHelper.animate(pathWithGroup, this.aiContentDataHelper.isTopicPath(pathWithGroup) ? 'innerGlow' : 'glow',
+                RGBColor.GREEN);
         });
     };
 
