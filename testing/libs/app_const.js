@@ -438,7 +438,7 @@ module.exports = Object.freeze({
         MARKED_FOR_DELETION: 'Marked for deletion',
         MOVED: 'Moved',
         MOVED_MODIFIED: 'Moved, Modified',
-        PUBLISHING_SCHEDULED: 'Publishing Scheduled'
+        PUBLISHING_SCHEDULED: 'Scheduled'
     },
     PUBLISH_MENU: {
         REQUEST_PUBLISH: 'Request Publishing...',

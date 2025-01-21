@@ -216,10 +216,10 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
 
         if (this.isPublished() || this.isModified()) {
             if (this.isScheduledPublishing()) {
-                return i18n('status.published.scheduled');
+                return i18n('status.scheduled');
             }
             if (this.isExpiredPublishing()) {
-                return i18n('status.published.expired');
+                return i18n('status.expired');
             }
         }
 
