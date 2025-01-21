@@ -46,7 +46,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private debouncedDescriptorsReload: () => void;
 
-    private readonly componentType: ComponentType;
+    private componentType: ComponentType;
 
     private timeoutId: number;
 
@@ -61,6 +61,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.formView = null;
         this.selector = this.createSelector(componentType);
         this.form = new DescriptorBasedDropdownForm(this.selector, this.getFormName());
+        this.componentType = componentType;
     }
 
     private initListeners() {
