@@ -87,8 +87,8 @@ export class SettingsAppPanel
 
             if (projectItem.getData()?.hasParents()) {
                 const parentProjects = projectItem.getData().getParents().map(id => {
-                    return (this.browsePanel.getItemById(id) as ProjectViewItem).getData();
-                });
+                    return (this.browsePanel.getItemById(id) as ProjectViewItem)?.getData();
+                }).filter(pp => !!pp);
                 wizard.updateParentProjects(parentProjects);
             }
 
