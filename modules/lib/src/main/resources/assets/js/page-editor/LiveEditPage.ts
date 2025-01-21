@@ -74,6 +74,8 @@ import {SetComponentStateEvent} from './event/incoming/manipulation/SetComponent
 import {PageReloadRequestedEvent} from './event/outgoing/manipulation/PageReloadRequestedEvent';
 import {PageHelper} from '../app/util/PageHelper';
 import {DescriptorBasedComponent} from '../app/page/region/DescriptorBasedComponent';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 
 export class LiveEditPage {
 
@@ -151,6 +153,7 @@ export class LiveEditPage {
 
         CONFIG.setConfig(event.getConfig());
         Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
+        AuthContext.init(Principal.fromJson(event.getUserJson()), event.getPrincipalsJson().map(Principal.fromJson));
 
         ProjectContext.get().setProject(Project.fromJson(event.getProjectJson()));
         PageState.setState(event.getPageJson() ? new PageBuilder().fromJson(event.getPageJson()).build() : null);

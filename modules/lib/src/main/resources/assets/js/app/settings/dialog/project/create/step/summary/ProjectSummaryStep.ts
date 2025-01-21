@@ -2,10 +2,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ProjectData} from '../../data/ProjectData';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {SummaryNameContainer} from './SummaryNameContainer';
 import {SummaryValueContainer} from './SummaryValueContainer';
@@ -15,6 +11,7 @@ import {AccessValueContainer} from './AccessValueContainer';
 import {PermissionsValueContainer} from './PermissionsValueContainer';
 import {ProjectsValueContainer} from './ProjectsValueContainer';
 import {ProjectConfigContext} from '../../../../../data/project/ProjectConfigContext';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 export class ProjectSummaryStep
     extends DialogStep {
@@ -37,14 +34,8 @@ export class ProjectSummaryStep
 
     private applicationsContainer: ApplicationsValueContainer;
 
-    private currentUser?: Principal;
-
     constructor() {
         super();
-
-        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            this.currentUser = loginResult.getUser();
-        }).catch(DefaultErrorHandler.handle);
     }
 
     getHtmlEl(): Element {
@@ -190,7 +181,7 @@ export class ProjectSummaryStep
     private createAndAddAccessContainer(): void {
         const accessNameContainer: SummaryNameContainer = new SummaryNameContainer().updateName(
             i18n('dialog.project.wizard.summary.access.title'));
-        this.accessContainer = new AccessValueContainer(this.currentUser);
+        this.accessContainer = new AccessValueContainer(AuthContext.get().getUser());
         const insertAfterEl: Element = this.languageContainer || this.descriptionContainer || this.idContainer;
         accessNameContainer.insertAfterEl(insertAfterEl);
         this.accessContainer.insertAfterEl(accessNameContainer);
@@ -212,7 +203,7 @@ export class ProjectSummaryStep
     private createAndAddPermissions(): void {
         const permissionsNameContainer: SummaryNameContainer = new SummaryNameContainer().updateName(
             i18n('dialog.project.wizard.summary.permissions.title'));
-        this.permissionsContainer = new PermissionsValueContainer(this.currentUser);
+        this.permissionsContainer = new PermissionsValueContainer(AuthContext.get().getUser());
         const insertAfterEl: Element = this.accessContainer || this.languageContainer ||
                                         this.descriptionContainer || this.idContainer;
         permissionsNameContainer.insertAfterEl(insertAfterEl);

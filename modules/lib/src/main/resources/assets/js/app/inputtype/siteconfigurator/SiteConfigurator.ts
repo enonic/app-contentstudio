@@ -13,19 +13,18 @@ import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/Selected
 import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {ApplicationConfigProvider} from '@enonic/lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
 import {SiteConfiguratorComboBox} from './SiteConfiguratorComboBox';
 import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentFormContext} from '../../ContentFormContext';
 import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {GetApplicationsRequest} from '../../resource/GetApplicationsRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 
 export class SiteConfigurator
     extends BaseInputTypeManagingAdd {
@@ -43,14 +42,12 @@ export class SiteConfigurator
     }
 
     private isReadOnly(): Q.Promise<boolean> {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            if (loginResult.isContentAdmin()) {
-                return Q(false);
-            }
+        if (AuthHelper.isContentAdmin()) {
+            return Q(false);
+        }
 
-            return ProjectHelper.isUserProjectOwner(loginResult).then((isOwner: boolean) => {
-                return Q(!isOwner);
-            });
+        return ProjectHelper.isUserProjectOwner().then((isOwner: boolean) => {
+            return Q(!isOwner);
         });
     }
 

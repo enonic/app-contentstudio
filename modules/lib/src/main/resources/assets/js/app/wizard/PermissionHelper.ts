@@ -1,4 +1,3 @@
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {AccessControlList} from '../access/AccessControlList';
@@ -6,17 +5,18 @@ import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 
 export class PermissionHelper {
 
-    static hasPermission(permission: Permission, loginResult: LoginResult, accessControlList: AccessControlList): boolean {
+    static hasPermission(permission: Permission, accessControlList: AccessControlList): boolean {
         let result = false;
         let entries = accessControlList.getEntries();
         let accessEntriesWithGivenPermissions: AccessControlEntry[] = entries.filter((item: AccessControlEntry) => {
             return item.isAllowed(permission);
         });
 
-        loginResult.getPrincipals().some((principalKey: PrincipalKey) => {
+        AuthHelper.getPrincipalsKeys().some((principalKey: PrincipalKey) => {
             if (RoleKeys.isAdmin(principalKey) ||
                 this.isPrincipalPresent(principalKey, accessEntriesWithGivenPermissions)) {
                 result = true;
@@ -39,18 +39,16 @@ export class PermissionHelper {
         return result;
     }
 
-    static hasAdminPermissions(loginResult: LoginResult): boolean {
-        return loginResult.getPrincipals().some(principalKey => RoleKeys.isAdmin(principalKey)) || loginResult.isContentAdmin();
+    static hasAdminPermissions(): boolean {
+        return AuthHelper.isAdmin() || AuthHelper.isContentAdmin();
     }
 
-    static hasFullAccess(loginResult: LoginResult, permissions: AccessControlList): boolean {
+    static hasFullAccess(permissions: AccessControlList): boolean {
         const principalKeysWithFullAccess: PrincipalKey[] = permissions.getEntries().filter(
             (ace: AccessControlEntry) => AccessControlEntryView.getAccessValueFromEntry(ace) === Access.FULL).map(
             (ace: AccessControlEntry) => ace.getPrincipalKey());
 
-        const principals: PrincipalKey[] = loginResult.getPrincipals();
-
-        return principalKeysWithFullAccess.some((principalFullAccess: PrincipalKey) => principals.some(
+        return principalKeysWithFullAccess.some((principalFullAccess: PrincipalKey) => AuthHelper.getPrincipalsKeys().some(
             (principal: PrincipalKey) => principalFullAccess.equals(principal)));
     }
 }

@@ -3,9 +3,6 @@ import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -24,11 +21,10 @@ import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
 import {DialogStateBar} from './DialogStateBar';
 import {DialogStateEntry} from './DialogStateEntry';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
-
-    private currentUser: Principal;
 
     protected publishProcessor: PublishProcessor;
 
@@ -53,8 +49,6 @@ export abstract class BasePublishDialog
             ...config,
             controls: true,
         });
-
-        this.loadCurrentUser().catch(DefaultErrorHandler.handle);
     }
 
     protected createItemList(): PublishDialogItemList {
@@ -294,12 +288,6 @@ export abstract class BasePublishDialog
         });
     }
 
-    private loadCurrentUser(): Q.Promise<void> {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            this.currentUser = loginResult.getUser();
-        });
-    }
-
     private handleIssueGlobalEvents() {
 
         IssueServerEventsHandler.getInstance().onIssueCreated((issues: Issue[]) => {
@@ -316,7 +304,7 @@ export abstract class BasePublishDialog
             return false;
         }
 
-        return issue.getCreator() === this.currentUser.getKey().toString();
+        return issue.getCreator() === AuthContext.get().getUser().getKey().toString();
     }
 
     setContentToPublish(contents: ContentSummaryAndCompareStatus[]): this {

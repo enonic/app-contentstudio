@@ -1,8 +1,6 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
@@ -13,11 +11,12 @@ import {ContentId} from '../content/ContentId';
 import {CollaborationServerEvent} from '../event/CollaborationServerEvent';
 import {ProjectContext} from '../project/ProjectContext';
 import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 export class CollaborationEl
     extends DivEl {
 
-    private currentUser?: Principal;
+    private currentUser: Principal;
 
     private usersBlock: DivEl;
 
@@ -43,14 +42,7 @@ export class CollaborationEl
 
         this.appendChildren(this.usersBlock, this.counterBlock);
 
-        this.initCurrentUser();
-    }
-
-    private initCurrentUser(): void {
-        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            this.currentUser = loginResult.getUser();
-            return Q(null);
-        }).catch(DefaultErrorHandler.handle);
+        this.currentUser = AuthContext.get().getUser();
     }
 
     private initListeners(): void {

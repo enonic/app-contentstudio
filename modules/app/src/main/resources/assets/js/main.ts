@@ -13,15 +13,11 @@ import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {ConnectionDetector} from '@enonic/lib-admin-ui/system/ConnectionDetector';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {i18n, Messages} from '@enonic/lib-admin-ui/util/Messages';
 import * as $ from 'jquery';
 import {AppContext} from 'lib-contentstudio/app/AppContext';
 import {ContentDeletePromptEvent} from 'lib-contentstudio/app/browse/ContentDeletePromptEvent';
@@ -65,8 +61,11 @@ import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import * as Q from 'q';
 import {JSONObject} from '@enonic/lib-admin-ui/types';
-import {Messages} from '@enonic/lib-admin-ui/util/Messages';
 import {LauncherHelper} from '@enonic/lib-admin-ui/util/LauncherHelper';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -307,18 +306,12 @@ const getFirstAvailableProject = (projects: Project[]): Project => {
 };
 
 const handleNoProjectsAvailable = () => {
-    new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-        const principalKeys: PrincipalKey[] = loginResult.getPrincipals();
-
-        if (principalKeys.some((p: PrincipalKey) => RoleKeys.isContentAdmin(p))) {
-            new ProjectNotAvailableDialog().open();
-        } else {
-            ProjectSelectionDialog.get().setUpdateOnOpen(true);
-            ProjectSelectionDialog.get().open();
-        }
-
-        return Q.resolve();
-    }).catch(DefaultErrorHandler.handle);
+    if (AuthHelper.isContentAdmin()) {
+        new ProjectNotAvailableDialog().open();
+    } else {
+        ProjectSelectionDialog.get().setUpdateOnOpen(true);
+        ProjectSelectionDialog.get().open();
+    }
 };
 
 let connectionDetector: ConnectionDetector;
@@ -646,6 +639,8 @@ function initProjectContext(application: Application): Q.Promise<void> {
 
     CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as JSONObject);
     Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
+    AuthContext.init(Principal.fromJson(CONFIG.get('user') as PrincipalJson),
+        (CONFIG.get('principals') as PrincipalJson[]).map(Principal.fromJson));
 
     const body = Body.get();
 

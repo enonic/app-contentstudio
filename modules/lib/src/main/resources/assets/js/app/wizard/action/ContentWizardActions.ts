@@ -3,8 +3,6 @@ import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
 import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
 import {ManagedActionState} from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ActionsMap, ActionsState, ActionsStateManager} from '@enonic/lib-admin-ui/ui/ActionsStateManager';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
@@ -289,11 +287,13 @@ export class ContentWizardActions
             ARCHIVE: existing.isDeletable()
         });
 
-        return this.enableActionsForExistingByPermissions(existing).then(() => {
-            this.enableActions({
-                SAVE: existing.isEditable() && this.wizardPanel.hasUnsavedChanges() && !this.isPendingDelete() && !existing.isDataInherited()
-            });
+        this.enableActionsForExistingByPermissions(existing);
+        this.enableActions({
+            SAVE: existing.isEditable() && this.wizardPanel.hasUnsavedChanges() && !this.isPendingDelete() &&
+                  !existing.isDataInherited()
         });
+
+        return Q.resolve();
     }
 
     setDeleteOnlyMode(content: Content, valueOn: boolean = true) {
@@ -320,66 +320,54 @@ export class ContentWizardActions
     }
 
     private enableDeleteIfAllowed(content: Content) {
-        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            let hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE,
-                loginResult, content.getPermissions());
-            this.enableActions({ARCHIVE: hasDeletePermission});
-        });
+        let hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE, content.getPermissions());
+        this.enableActions({ARCHIVE: hasDeletePermission});
     }
 
-    private enableActionsForExistingByPermissions(existing: Content): Q.Promise<void> {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+    private enableActionsForExistingByPermissions(existing: Content): void {
+        this.userCanModify = PermissionHelper.hasPermission(Permission.MODIFY, existing.getPermissions());
+        const hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE, existing.getPermissions());
+        this.userCanPublish = PermissionHelper.hasPermission(Permission.PUBLISH, existing.getPermissions());
 
-            this.userCanModify = PermissionHelper.hasPermission(Permission.MODIFY, loginResult, existing.getPermissions());
-            const hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE, loginResult, existing.getPermissions());
-            this.userCanPublish = PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, existing.getPermissions());
+        (this.actionsMap.PREVIEW as PreviewAction).setWritePermissions(this.userCanModify);
 
-            (this.actionsMap.PREVIEW as PreviewAction).setWritePermissions(this.userCanModify);
+        if (!this.userCanModify) {
+            this.enableActions({SAVE: false, SAVE_AND_CLOSE: false, MARK_AS_READY: false, RESET: false, LOCALIZE: false});
+        }
+        if (!hasDeletePermission) {
+            this.enableActions({ARCHIVE: false});
+        }
+        if (!this.userCanPublish) {
+            this.enableActions({
+                PUBLISH: false,
+                CREATE_ISSUE: true,
+                UNPUBLISH: false,
+                PUBLISH_TREE: false,
+            });
+        }
 
-            if (!this.userCanModify) {
-                this.enableActions({SAVE: false, SAVE_AND_CLOSE: false, MARK_AS_READY: false, RESET: false, LOCALIZE: false});
-            }
-            if (!hasDeletePermission) {
-                this.enableActions({ARCHIVE: false});
-            }
-            if (!this.userCanPublish) {
-                this.enableActions({
-                    PUBLISH: false,
-                    CREATE_ISSUE: true,
-                    UNPUBLISH: false,
-                    PUBLISH_TREE: false,
+        if (existing.hasParent()) {
+            new GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then(
+                (parent: Content) => {
+                    new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then(
+                        (accessControlList: AccessControlList) => {
+                            let hasParentCreatePermission = PermissionHelper.hasPermission(Permission.CREATE, accessControlList);
+
+                            if (!hasParentCreatePermission) {
+                                this.enableActions({DUPLICATE: false});
+                            }
+                        });
                 });
-            }
+        } else {
+            new GetContentRootPermissionsRequest().sendAndParse().then(
+                (accessControlList: AccessControlList) => {
+                    let hasParentCreatePermission = PermissionHelper.hasPermission(Permission.CREATE, accessControlList);
 
-            if (existing.hasParent()) {
-                new GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then(
-                    (parent: Content) => {
-                        new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then(
-                            (accessControlList: AccessControlList) => {
-                                let hasParentCreatePermission = PermissionHelper.hasPermission(
-                                    Permission.CREATE,
-                                    loginResult,
-                                    accessControlList);
-
-                                if (!hasParentCreatePermission) {
-                                    this.enableActions({DUPLICATE: false});
-                                }
-                            });
-                    });
-            } else {
-                new GetContentRootPermissionsRequest().sendAndParse().then(
-                    (accessControlList: AccessControlList) => {
-                        let hasParentCreatePermission = PermissionHelper.hasPermission(Permission.CREATE,
-                            loginResult,
-                            accessControlList);
-
-                        if (!hasParentCreatePermission) {
-                            this.enableActions({DUPLICATE: false});
-                        }
-                    });
-            }
-
-        });
+                    if (!hasParentCreatePermission) {
+                        this.enableActions({DUPLICATE: false});
+                    }
+                });
+        }
     }
 
     setContent(content: ContentSummaryAndCompareStatus): ContentWizardActions {

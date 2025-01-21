@@ -2,8 +2,6 @@ import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {SettingsDataItemWizardActions} from './SettingsDataItemWizardActions';
 import {ProjectWizardPanel} from '../panel/ProjectWizardPanel';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 
 export class ProjectWizardActions
     extends SettingsDataItemWizardActions<ProjectViewItem> {
@@ -21,23 +19,21 @@ export class ProjectWizardActions
         this.delete.setEnabled(false);
     }
 
-    enableActionsForExisting(item: SettingsViewItem): Q.Promise<void> {
-        return this.updateActionsEnabledState();
+    enableActionsForExisting(item: SettingsViewItem): void {
+        this.updateActionsEnabledState();
     }
 
-    private updateActionsEnabledState(): Q.Promise<void> {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            this.save.setEnabled(this.isEditAllowed(loginResult));
-            this.toggleDeleteAction(loginResult);
-        });
+    private updateActionsEnabledState(): void {
+        this.save.setEnabled(this.isEditAllowed());
+        this.toggleDeleteAction();
     }
 
-    private isEditAllowed(loginResult: LoginResult): boolean {
-        return this.wizardPanel.isValid() && this.wizardPanel.hasUnsavedChanges() && this.wizardPanel.isEditAllowed(loginResult);
+    private isEditAllowed(): boolean {
+        return this.wizardPanel.isValid() && this.wizardPanel.hasUnsavedChanges() && this.wizardPanel.isEditAllowed();
     }
 
-    private toggleDeleteAction(loginResult: LoginResult) {
-        this.delete.setEnabled(this.wizardPanel.isDeleteAllowed(loginResult));
+    private toggleDeleteAction() {
+        this.delete.setEnabled(this.wizardPanel.isDeleteAllowed());
     }
 
 }

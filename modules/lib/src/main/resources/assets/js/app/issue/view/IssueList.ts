@@ -19,9 +19,9 @@ import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {FilterType} from './FilterType';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 export class FilterState {
     filterStatus: IssueStatus;
@@ -42,8 +42,6 @@ export class IssueList
 
     private filterState: FilterState;
 
-    private currentUser: Principal;
-
     private allIssuesStorage: IssuesStorage;
 
     private noIssues: LiEl;
@@ -60,7 +58,6 @@ export class IssueList
         this.allIssuesStorage = new IssuesStorage();
         this.initElements();
         this.initListeners();
-        this.loadCurrentUser();
         this.setupLazyLoading();
     }
 
@@ -133,11 +130,11 @@ export class IssueList
         }
 
         if (this.filterState.filterType === FilterType.CREATED_BY_ME) {
-            return issue.getCreator() === this.currentUser.getKey().toString();
+            return issue.getCreator() === AuthContext.get().getUser().getKey().toString();
         }
 
         if (this.filterState.filterType === FilterType.ASSIGNED_TO_ME) {
-            return assignees.some(assignee => assignee.equals(this.currentUser));
+            return assignees.some(assignee => assignee.equals(AuthContext.get().getUser()));
         }
 
         if (this.filterState.filterType === FilterType.PUBLISH_REQUESTS) {
@@ -235,12 +232,6 @@ export class IssueList
         }
     }
 
-    private loadCurrentUser() {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
-            this.currentUser = loginResult.getUser();
-        });
-    }
-
     private setupLazyLoading() {
         const scrollHandler: () => void = AppHelper.debounce(this.handleScroll.bind(this), 100, false);
 
@@ -260,8 +251,7 @@ export class IssueList
     }
 
     protected createItemView(issueWithAssignees: IssueWithAssignees): Element {
-
-        const itemEl = new IssueListItem(issueWithAssignees, this.currentUser);
+        const itemEl = new IssueListItem(issueWithAssignees, AuthContext.get().getUser());
 
         itemEl.onClicked(() => this.notifyIssueSelected(issueWithAssignees));
         itemEl.onKeyPressed((event: KeyboardEvent) => {

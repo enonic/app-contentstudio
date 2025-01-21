@@ -23,8 +23,6 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ActivatedEvent} from '@enonic/lib-admin-ui/ui/ActivatedEvent';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
@@ -150,6 +148,7 @@ import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {AiContentDataHelper} from '../ai/AiContentDataHelper';
 import {AiToolType} from '@enonic/lib-admin-ui/ai/tool/AiToolType';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1586,14 +1585,12 @@ export class ContentWizardPanel
     }
 
     private setAllowedActionsBasedOnPermissions() {
-        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
-            const userCanModify: boolean = this.isContentModifiableByUser(loginResult);
-            this.wizardActions
-                .setUserCanPublish(userCanPublish)
-                .setUserCanModify(userCanModify)
-                .refreshState();
-        }).catch(DefaultErrorHandler.handle);
+        const userCanPublish: boolean = this.isContentPublishableByUser();
+        const userCanModify: boolean = this.isContentModifiableByUser();
+        this.wizardActions
+            .setUserCanPublish(userCanPublish)
+            .setUserCanModify(userCanModify)
+            .refreshState();
     }
 
     private setUpdatedContent(updatedContent: ContentSummaryAndCompareStatus) {
@@ -1769,12 +1766,12 @@ export class ContentWizardPanel
         });
     }
 
-    private isContentPublishableByUser(loginResult: LoginResult): boolean {
-        return PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, this.getPersistedItem().getPermissions());
+    private isContentPublishableByUser(): boolean {
+        return PermissionHelper.hasPermission(Permission.PUBLISH, this.getPersistedItem().getPermissions());
     }
 
-    private isContentModifiableByUser(loginResult: LoginResult): boolean {
-        return PermissionHelper.hasPermission(Permission.MODIFY, loginResult, this.getPersistedItem().getPermissions());
+    private isContentModifiableByUser(): boolean {
+        return PermissionHelper.hasPermission(Permission.MODIFY, this.getPersistedItem().getPermissions());
     }
 
     saveChangesWithoutValidation(reloadPageEditor?: boolean): Q.Promise<void> {
@@ -2655,17 +2652,15 @@ export class ContentWizardPanel
             return Q.resolve(false);
         }
 
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            const hasModifyPermissions: boolean =
-                ContentHelper.isAnyPrincipalAllowed(this.getPersistedItem().getPermissions(), loginResult.getPrincipals(),
-                    Permission.MODIFY);
+        const hasModifyPermissions: boolean =
+            ContentHelper.isAnyPrincipalAllowed(this.getPersistedItem().getPermissions(), AuthHelper.getPrincipalsKeys(),
+                Permission.MODIFY);
 
-            if (!hasModifyPermissions) {
-                NotifyManager.get().showFeedback(i18n('notify.item.readonly'));
-            }
+        if (!hasModifyPermissions) {
+            NotifyManager.get().showFeedback(i18n('notify.item.readonly'));
+        }
 
-            return hasModifyPermissions && !this.getPersistedItem().isDataInherited();
-        });
+        return Q.resolve(hasModifyPermissions && !this.getPersistedItem().isDataInherited());
     }
 
     protected handleCanModify(canModify: boolean): void {
