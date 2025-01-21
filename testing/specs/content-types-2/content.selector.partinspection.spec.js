@@ -47,8 +47,8 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await liveFormPanel.selectPartByDisplayName('City list');
             await contentWizard.switchToMainFrame();
             await cityListPartInspectionPanel.waitForLoaded();
-            // 5. 'Apply' button should be enabled after selecting a part-option in the part-dropdown:
-            await cityListPartInspectionPanel.waitForApplyButtonEnabled();
+            // 5. 'Apply' button should be disabled after selecting a part-option in the part-dropdown:
+            await cityListPartInspectionPanel.waitForApplyButtonDisabled();
             // 6. Select an image in the dropdown-selector:
             await cityListPartInspectionPanel.selectContentInSelector(appConst.TEST_IMAGES.MAN);
             // 7. Click on 'Apply' button:

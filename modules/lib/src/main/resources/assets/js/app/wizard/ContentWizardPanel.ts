@@ -468,9 +468,12 @@ export class ContentWizardPanel
             saveAction.execute();
         });
 
-        this.onPageStateChanged(() => {
+        const updateSaveInLivePanel = AppHelper.debounce(() => {
             this.livePanel?.setSaveEnabled(!ObjectHelper.equals(PageState.getState(), this.getPersistedItem().getPage()));
-        });
+        }, 200);
+
+        saveAction.onExecuted(updateSaveInLivePanel);
+        this.onPageStateChanged(updateSaveInLivePanel);
     }
 
     toggleMinimize(navigationIndex: number = -1) {
