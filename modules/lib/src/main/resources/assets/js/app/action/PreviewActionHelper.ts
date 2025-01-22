@@ -16,17 +16,17 @@ interface OpenedWindow {
 
 export class PreviewActionHelper {
 
-    private archive: boolean;
+    protected additionalParams: Record<string, string>;
 
     private notifyBlocked: () => void;
 
-    constructor(archive: boolean = false) {
+    constructor(additionalParams?: Record<string, string>) {
         // Notification is shown not less than once in a minute, if triggered
         this.notifyBlocked = AppHelper.debounce(() => {
             NotifyManager.get().showWarning(i18n('notify.popupBlocker.sites'), false);
         }, 60000, true);
 
-        this.archive = archive;
+        this.additionalParams = additionalParams || {};
     }
 
     private popupCheck(win: Window) {
@@ -55,8 +55,11 @@ export class PreviewActionHelper {
             repo: `${RepositoryId.CONTENT_REPO_PREFIX}${ProjectContext.get().getProject().getName()}`,
             branch: CONFIG.getString('branch'),
             mode,
-            archive: this.archive.toString(),
         })
+
+        for (const key in this.additionalParams) {
+            params.append(key, this.additionalParams[key]);
+        }
 
         const url = widget.getConfig().getProperty("previewUrl") || widget.getUrl();
 

@@ -17,9 +17,11 @@ export class ContentItemPreviewToolbar
     private widgetSelector: PreviewWidgetDropdown;
     private emulatorSelector: EmulatorDropdown;
     private previewButton: ActionButton;
+    private previewHelper: PreviewActionHelper;
 
-    constructor() {
+    constructor(previewHelper: PreviewActionHelper) {
         super({className: 'content-item-preview-toolbar'});
+        this.previewHelper = previewHelper;
     }
 
     protected initElements(): void {
@@ -51,16 +53,16 @@ export class ContentItemPreviewToolbar
         this.previewButton.getAction().setEnabled(false);
     }
 
-    isArchive(): boolean {
-        return false;
-    }
-
     public getWidgetSelector(): PreviewWidgetDropdown {
         return this.widgetSelector;
     }
 
     public getPreviewAction(): WidgetPreviewAction {
         return this.previewButton.getAction() as WidgetPreviewAction;
+    }
+
+    public getPreviewActionHelper(): PreviewActionHelper {
+        return this.previewHelper;
     }
 
     protected foldOrExpand(): void {
@@ -76,7 +78,7 @@ export class WidgetPreviewAction
     constructor(toolbar: ContentItemPreviewToolbar) {
         super(i18n('action.preview'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
         this.toolbar = toolbar;
-        this.helper = new PreviewActionHelper(toolbar.isArchive());
+        this.helper = toolbar.getPreviewActionHelper();
         this.onExecuted(this.handleExecuted.bind(this));
 
         this.setWcagAttributes({

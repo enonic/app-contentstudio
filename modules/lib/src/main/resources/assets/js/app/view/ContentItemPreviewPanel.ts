@@ -18,7 +18,6 @@ import {ContentSummary} from '../content/ContentSummary';
 import {PreviewActionHelper} from '../action/PreviewActionHelper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
-import {ContentPath} from '../content/ContentPath';
 
 enum PREVIEW_TYPE {
     WIDGET,
@@ -47,7 +46,7 @@ export class ContentItemPreviewPanel
 
         this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
-        this.previewHelper = new PreviewActionHelper(contentRootPath == ContentPath.ARCHIVE_ROOT);
+        this.previewHelper = this.getToolbar().getPreviewActionHelper();
 
         this.initElements();
         this.setupListeners();
@@ -235,7 +234,7 @@ export class ContentItemPreviewPanel
     }
 
     createToolbar(): ContentItemPreviewToolbar {
-        return new ContentItemPreviewToolbar();
+        return new ContentItemPreviewToolbar(new PreviewActionHelper());
     }
 
     private getLinkClicked(event: UIEvent): string {
