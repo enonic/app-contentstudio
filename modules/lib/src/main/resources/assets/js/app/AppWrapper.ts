@@ -12,7 +12,7 @@ import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/appli
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {GetWidgetsByInterfaceRequest} from './resource/GetWidgetsByInterfaceRequest';
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {Widget, WidgetConfig} from '@enonic/lib-admin-ui/content/Widget';
 import {WidgetHelper, WidgetElement} from '@enonic/lib-admin-ui/widget/WidgetHelper';
 import {ContentAppContainer} from './ContentAppContainer';
 import {Router} from './Router';
@@ -92,7 +92,7 @@ export class AppWrapper
             .setWidgetDescriptorKey(`${CONFIG.getString('appId')}:main`)
             .setDisplayName(i18n('app.admin.widget.main'))
             .setUrl(UrlAction.BROWSE)
-            .setContext('project')
+            .setConfig(new WidgetConfig().setProperty('context', 'project'))
             .build();
     }
 
@@ -134,7 +134,7 @@ export class AppWrapper
             this.fetchAndAppendWidget(widget);
         }
 
-        const isProjectSelectorShown: boolean = widget.getContext() === 'project';
+        const isProjectSelectorShown: boolean = widget.getConfig().getProperty('context') === 'project';
 
         if (isProjectSelectorShown) {
             this.appBar.showProjectSelector();
