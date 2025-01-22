@@ -33,6 +33,7 @@ import com.enonic.xp.image.ReadImageParams;
 import com.enonic.xp.image.ScaleParams;
 import com.enonic.xp.media.ImageOrientation;
 import com.enonic.xp.media.MediaInfoService;
+import com.enonic.xp.node.NodePath;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeFromMimeTypeResolver;
 import com.enonic.xp.schema.content.ContentTypeName;
@@ -50,6 +51,9 @@ import com.enonic.xp.util.Exceptions;
 import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.WebException;
 
+import static com.enonic.xp.archive.ArchiveConstants.ARCHIVE_ROOT_PATH;
+import static com.enonic.xp.content.ContentConstants.CONTENT_ROOT_PATH;
+import static com.enonic.xp.content.ContentConstants.CONTENT_ROOT_PATH_ATTRIBUTE;
 import static com.enonic.xp.web.servlet.ServletRequestUrlHelper.contentDispositionAttachment;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
@@ -88,9 +92,9 @@ public class MediaRenderingBean
     private static final ContentTypeNames IMAGE_CONTENT_TYPES =
         ContentTypeNames.from( ContentTypeName.imageMedia(), ContentTypeName.vectorMedia() );
 
-    public boolean canRender( final String repository, final String branch, final String contentId )
+    public boolean canRender( final String contentId, final String repository, final String branch, final boolean archive )
     {
-        return runInAdminContext( repository, branch, () -> canRenderInContext( contentId ) );
+        return runInAdminContext( repository, branch, archive, () -> canRenderInContext( contentId ) );
     }
 
     public boolean isImageContent( final String contentType )
@@ -108,42 +112,46 @@ public class MediaRenderingBean
         this.mediaInfoServiceSupplier = beanContext.getService( MediaInfoService.class );
     }
 
-    public Object image( final String id, final String repository, final String branch )
+    public Object image( final String id, final String repository, final String branch, final boolean archive )
         throws IOException
     {
-        return image( id, repository, branch, 0, true, true, null, null, false );
+        return image( id, repository, branch, archive, 0, true, true, null, null, false );
     }
 
-    public Object image( final String id, final String repository, final String branch, final Integer size )
+    public Object image( final String id, final String repository, final String branch, final boolean archive, final Integer size )
         throws IOException
     {
-        return image( id, repository, branch, size, true, true, null, null, false );
+        return image( id, repository, branch, archive, size, true, true, null, null, false );
     }
 
-    public Object image( final String id, final String repository, final String branch, final Integer size, final boolean scaleWidth,
-                         final boolean source, final String scale, final String filter, final boolean crop )
+    public Object image( final String id, final String repository, final String branch, final boolean archive, final Integer size,
+                         final boolean scaleWidth, final boolean source, final String scale, final String filter, final boolean crop )
     {
-        return runInAdminContext( repository, branch, () -> serveImage( id, size, scaleWidth, source, scale, filter, crop ) );
+        return runInAdminContext( repository, branch, archive, () -> serveImage( id, size, scaleWidth, source, scale, filter, crop ) );
     }
 
-    public Object media( final String id, final String repository, final String branch )
+    public Object media( final String id, final String repository, final String branch, final boolean archive )
     {
-        return media( id, repository, branch, null, false );
+        return media( id, repository, branch, archive, null, false );
     }
 
-    public Object media( final String id, final String repository, final String branch, final String identifier, final boolean download )
+    public Object media( final String id, final String repository, final String branch, final boolean archive, final String identifier,
+                         final boolean download )
     {
-        return runInAdminContext( repository, branch, () -> serveMedia( id, identifier, download ) );
+        return runInAdminContext( repository, branch, archive, () -> serveMedia( id, identifier, download ) );
     }
 
-    private <T> T runInAdminContext( final String repository, final String branch, Callable<T> func )
+    private <T> T runInAdminContext( final String repository, final String branch, final boolean archive, Callable<T> func )
     {
         final User superUser = User.create().key( PrincipalKey.ofSuperUser() ).login( PrincipalKey.ofSuperUser().getId() ).build();
 
         final AuthenticationInfo authInfo = AuthenticationInfo.create().principals( RoleKeys.ADMIN ).user( superUser ).build();
 
+        NodePath rootPath = archive ? ARCHIVE_ROOT_PATH : CONTENT_ROOT_PATH;
+
         return ContextBuilder
             .copyOf( ContextAccessor.current() )
+            .attribute( CONTENT_ROOT_PATH_ATTRIBUTE, rootPath )
             .branch( branch )
             .repositoryId( repository )
             .authInfo( authInfo )

@@ -2,6 +2,7 @@
 
 const widgetLib = require('/lib/export/widget');
 const adminLib = require('/lib/xp/admin');
+const contextLib = require('/lib/xp/context');
 
 const SHORTCUT_TYPE = 'base:shortcut';
 
@@ -13,7 +14,7 @@ exports.get = function (req) {
         return widgetLib.errorResponse(400);
     }
 
-    if (params.type === SHORTCUT_TYPE) {
+    if (!exports.canRender(req)) {
         // return 418 if not able to render
         log.debug(`Site [${req.method}] can't render: 418`);
 
@@ -43,26 +44,11 @@ exports.canRender = function (req) {
         return false;
     }
 
-    if (params.type === SHORTCUT_TYPE) {
+    if (params.type === SHORTCUT_TYPE || params.archive) {
         return false;
     }
 
-    try {
-        const url = createUrl(req, params);
-        const response = widgetLib.fetchHttp(url, 'HEAD', req.headers);
-
-        // auto: 200
-        // manual: !418
-        const canRender = (params.auto && response.status === 200)
-                          || (!params.auto && response.status !== 418);
-
-        log.debug(`Site [CAN_RENDER]: ${canRender}`);
-
-        return canRender;
-    } catch (e) {
-        log.error(`Site [CAN_RENDER] error: ${e.message}`);
-        return false;
-    }
+    return true;
 }
 
 function createUrl(req, params) {
