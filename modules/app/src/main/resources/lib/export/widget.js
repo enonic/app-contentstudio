@@ -2,7 +2,6 @@ const contextLib = require('/lib/xp/context');
 const portalLib = require('/lib/xp/portal');
 const contentLib = require('/lib/xp/content');
 const httpClient = require('/lib/http-client');
-;
 
 const WIDGET_HEADER_NAME = 'enonic-widget-data';
 
