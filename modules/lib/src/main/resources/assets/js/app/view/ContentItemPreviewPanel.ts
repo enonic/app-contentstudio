@@ -38,7 +38,7 @@ export class ContentItemPreviewPanel
     protected noSelectionMessage: DivEl;
     protected debouncedSetItem: (item: ViewItem) => void;
     protected readonly contentRootPath: string;
-    private previewHelper: PreviewActionHelper;
+    protected previewHelper: PreviewActionHelper;
     private itemRenderable: Q.Promise<boolean>;
 
     constructor(contentRootPath?: string) {
@@ -46,7 +46,7 @@ export class ContentItemPreviewPanel
 
         this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
-        this.previewHelper = new PreviewActionHelper();
+        this.previewHelper = this.getToolbar().getPreviewActionHelper();
 
         this.initElements();
         this.setupListeners();
@@ -234,7 +234,7 @@ export class ContentItemPreviewPanel
     }
 
     createToolbar(): ContentItemPreviewToolbar {
-        return new ContentItemPreviewToolbar();
+        return new ContentItemPreviewToolbar(new PreviewActionHelper());
     }
 
     private getLinkClicked(event: UIEvent): string {
