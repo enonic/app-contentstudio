@@ -115,8 +115,8 @@ export class ContentItemPreviewPanel
 
     private isItemChanged(item: ContentSummaryAndCompareStatus): boolean {
         const diff = ContentSummaryAndCompareStatusHelper.diff(item, this.item as ContentSummaryAndCompareStatus);
-        return diff.renderable || !!diff.contentSummary?.path || !!diff.contentSummary?.displayName || !!diff.contentSummary?.name ||
-               !!diff.contentSummary?.inherit;
+        return diff.renderable || diff.contentSummary.page || !!diff.contentSummary?.path
+               || !!diff.contentSummary?.displayName || !!diff.contentSummary?.name || !!diff.contentSummary?.inherit;
     }
 
     protected async update(item: ContentSummaryAndCompareStatus) {
