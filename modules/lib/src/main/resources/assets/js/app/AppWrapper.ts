@@ -12,8 +12,7 @@ import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/appli
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {GetWidgetsByInterfaceRequest} from './resource/GetWidgetsByInterfaceRequest';
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
-import {UriHelper} from './rendering/UriHelper';
+import {Widget, WidgetConfig} from '@enonic/lib-admin-ui/content/Widget';
 import {WidgetHelper} from './util/WidgetHelper';
 import {ContentAppContainer} from './ContentAppContainer';
 import {Router} from './Router';
@@ -98,7 +97,7 @@ export class AppWrapper
             .setWidgetDescriptorKey(`${CONFIG.getString('appId')}:main`)
             .setDisplayName(i18n('app.admin.widget.main'))
             .setUrl(UrlAction.BROWSE)
-            .setContext('project')
+            .setConfig(new WidgetConfig().setProperty('context', 'project'))
             .build();
     }
 
@@ -140,7 +139,7 @@ export class AppWrapper
             this.fetchAndAppendWidget(widget);
         }
 
-        const isProjectSelectorShown: boolean = widget.getContext() === 'project';
+        const isProjectSelectorShown: boolean = widget.getConfig().getProperty('context') === 'project';
 
         if (isProjectSelectorShown) {
             this.appBar.showProjectSelector();
@@ -192,7 +191,7 @@ export class AppWrapper
             return;
         }
 
-        fetch(UriHelper.getAdminUri(widget.getUrl(), '/'))
+        fetch(widget.getUrl())
             .then(response => response.text())
             .then((html: string) => {
                 const injectedWidgetElem: MenuWidgetInjectionResult = WidgetHelper.injectWidgetHtml(html, this.widgetsBlock) as MenuWidgetInjectionResult;
