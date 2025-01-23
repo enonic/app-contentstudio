@@ -19,14 +19,15 @@ module.exports = {
         'lib/ckeditor/plugins/findAndReplace/plugin': './lib/ckeditor/plugins/findAndReplace/plugin.ts',
         // html editor css imported separately in the HTMLAreaBuilder for legacy mode
         'styles/html-editor': './styles/inputtype/text/htmlarea/html-editor.less',
-        'lib/ckeditor': ['./lib/ckepath.js', './lib/ckeditor/ckeditor.js']
+        'lib/ckeditor': ['./lib/ckepath.js', './lib/ckeditor/ckeditor.js'],
+        // 'lib/shared-socket': ['./lib/shared-socket/shared-socket.js'],
     },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
-        filename: './[name].js'
+        filename: './[name].js',
     },
     resolve: {
-        extensions: ['.ts', '.js', '.less', '.css']
+        extensions: ['.ts', '.js', '.less', '.css'],
     },
     module: {
         rules: [
@@ -50,32 +51,32 @@ module.exports = {
                     {loader: 'css-loader', options: {sourceMap: !isProd, importLoaders: 1}},
                     {loader: 'postcss-loader', options: {sourceMap: !isProd}},
                     {loader: 'less-loader', options: {sourceMap: !isProd}},
-                ]
+                ],
             },
             {
                 test: /^((?!icomoon-studio-lib|flag-icons).)*\.(svg|png|jpg|gif)$/,
                 type: 'asset/resource',
                 generator: {
-                    filename: 'images/[name][ext]'
-                }
+                    filename: 'images/[name][ext]',
+                },
             },
             {
                 test: /^.*flag-icons.*(flags).*(1x1|4x3).*\.svg$/,
                 type: 'asset/resource',
                 generator: {
-                    filename: 'images/flags/[name][ext]'
-                }
-            }
-        ]
+                    filename: 'images/flags/[name][ext]',
+                },
+            },
+        ],
     },
     optimization: {
         minimizer: [
             new TerserPlugin({
                 terserOptions: {
                     keep_classnames: true,
-                    keep_fnames: true
-                }
-            })
+                    keep_fnames: true,
+                },
+            }),
         ],
         splitChunks: {
             chunks: 'all',
@@ -86,25 +87,25 @@ module.exports = {
                     reuseExistingChunk: true,
                     minChunks: 2,
                     priority: -10,
-                    filename: 'js/vendors.main~editor.js'
-                }
-            }
-        }
+                    filename: 'js/vendors.main~editor.js',
+                },
+            },
+        },
     },
     plugins: [
         new ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
-            'window.jQuery': 'jquery'
+            'window.jQuery': 'jquery',
         }),
         new MiniCssExtractPlugin({
             filename: '[name].css',
-            chunkFilename: './styles/[id].css'
+            chunkFilename: './styles/[id].css',
         }),
         new MiniCssExtractPluginCleanup([/main\.(lite\.)?js(\.map)?$/]),
         new CircularDependencyPlugin({
             exclude: /a\.js|node_modules/,
-            failOnError: true
+            failOnError: true,
         }),
     ],
     mode: isProd ? 'production' : 'development',
@@ -115,5 +116,5 @@ module.exports = {
     stats: {
         assets: false,
         modules: false,
-    }
+    },
 };

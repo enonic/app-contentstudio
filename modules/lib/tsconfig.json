@@ -28,7 +28,9 @@
     "include": [
         "./src/main/resources/assets/js/types.d.ts",
         "./src/main/resources/assets/js/**/*",
-        "./.xp/dev/lib-admin-ui/**/*.d.ts"
+        "./.xp/dev/lib-admin-ui/**/*.d.ts",
+        "src/main/resources/assets/lib/shared-socket",
+        "src/main/resources/assets/lib/shared-socket.js"
     ],
     "exclude": [
         "build/**/*",

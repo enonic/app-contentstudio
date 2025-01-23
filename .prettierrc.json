@@ -1,0 +1,29 @@
+{
+    "printWidth": 120,
+    "tabWidth": 4,
+    "semi": true,
+    "trailingComma": "all",
+    "singleQuote": true,
+    "arrowParens": "avoid",
+    "bracketSpacing": false,
+    "jsxSingleQuote": true,
+    "importOrder": [
+        "(^@)|(^~)|(^[a-z])|(^react$)",
+        "^(\\.\\.(?!/?$))|(\\.\\./?$)|(\\./(?=.*/)(?!/?$))|(\\.(?!/?$))|(\\./?$)",
+        "^.+\\.s?css$",
+        "^\\u0000"
+    ],
+    "importOrderSeparation": true,
+    "importOrderSortSpecifiers": true,
+    "importOrderGroupNamespaceSpecifiers": true,
+    "importOrderCaseInsensitive": true,
+    "endOfLine": "lf",
+    "overrides": [
+        {
+            "files": ["**/tsconfig.json", "**/tsconfig.*.json"],
+            "options": {
+                "parser": "jsonc"
+            }
+        }
+    ]
+}

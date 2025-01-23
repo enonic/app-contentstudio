@@ -28,12 +28,10 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 export interface ContentWizardToolbarConfig extends ToolbarConfig {
     actions: ContentWizardActions;
     workflowStateIconsManager: WorkflowStateManager;
-    compareVersionsPreHook?: () => Q.Promise<void>
+    compareVersionsPreHook?: () => Q.Promise<void>;
 }
 
-export class ContentWizardToolbar
-    extends ContentStatusToolbar<ContentWizardToolbarConfig> {
-
+export class ContentWizardToolbar extends ContentStatusToolbar<ContentWizardToolbarConfig> {
     ariaLabel: string = i18n('wcag.contenteditor.toolbar.label');
 
     private cycleViewModeButton: ContentActionCycleButton;
@@ -80,9 +78,12 @@ export class ContentWizardToolbar
 
         ProjectUpdatedEvent.on((event: ProjectUpdatedEvent) => {
             if (event.getProjectName() === ProjectContext.get().getProject().getName()) {
-                new ProjectGetRequest(event.getProjectName()).sendAndParse().then((project: Project) => {
-                    this.projectViewer.setObject(project);
-                }).catch(DefaultErrorHandler.handle);
+                new ProjectGetRequest(event.getProjectName())
+                    .sendAndParse()
+                    .then((project: Project) => {
+                        this.projectViewer.setObject(project);
+                    })
+                    .catch(DefaultErrorHandler.handle);
             }
         });
 
@@ -97,14 +98,18 @@ export class ContentWizardToolbar
                     this.addCollaboration();
                 }
 
-                this.contentWizardToolbarPublishControls.getPublishButton().unActionUpdated(onPublishControlsInitialised);
+                this.contentWizardToolbarPublishControls
+                    .getPublishButton()
+                    .unActionUpdated(onPublishControlsInitialised);
             };
 
             this.contentWizardToolbarPublishControls.getPublishButton().onActionUpdated(onPublishControlsInitialised);
 
-            this.contentWizardToolbarPublishControls.getPublishButton().onPublishRequestActionChanged((added: boolean) => {
-                this.toggleClass('publish-request', added);
-            });
+            this.contentWizardToolbarPublishControls
+                .getPublishButton()
+                .onPublishRequestActionChanged((added: boolean) => {
+                    this.toggleClass('publish-request', added);
+                });
 
             this.projectViewer.onClicked(() => this.handleHomeIconClicked());
             this.projectViewer.onKeyDown((event: KeyboardEvent) => {
@@ -156,25 +161,26 @@ export class ContentWizardToolbar
                 const aiContentOperatorDialogContainer = new DivEl('ai-content-operator-dialog-container');
                 Body.get().appendChild(aiContentOperatorDialogContainer);
 
-                AI.get().renderContentOperator(this.aiContentOperatorButtonContainer.getHTMLElement(),
-                    aiContentOperatorDialogContainer.getHTMLElement());
+                AI.get().renderContentOperator(
+                    this.aiContentOperatorButtonContainer.getHTMLElement(),
+                    aiContentOperatorDialogContainer.getHTMLElement(),
+                );
             }
         });
     }
 
     private fetchProjectInfo() {
-        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-            this.initProjectViewer(projects);
-            return Q.resolve();
-        }).catch((reason) => {
-            this.initProjectViewer([
-                Project.create()
-                .setName(ProjectContext.get().getProject().getName())
-                .build()
-            ]);
-            DefaultErrorHandler.handle(reason);
-            return Q.reject(reason);
-        });
+        new ProjectListRequest()
+            .sendAndParse()
+            .then((projects: Project[]) => {
+                this.initProjectViewer(projects);
+                return Q.resolve();
+            })
+            .catch(reason => {
+                this.initProjectViewer([Project.create().setName(ProjectContext.get().getProject().getName()).build()]);
+                DefaultErrorHandler.handle(reason);
+                return Q.reject(reason);
+            });
     }
 
     private addProjectButton(): void {
@@ -182,7 +188,7 @@ export class ContentWizardToolbar
 
         this.projectViewer.applyWCAGAttributes({
             ariaLabel: i18n('wcag.projectViewer.openBrowse'),
-            ariaHasPopup: ''
+            ariaHasPopup: '',
         });
 
         this.addElement(this.projectViewer);
@@ -231,7 +237,10 @@ export class ContentWizardToolbar
 
     private addTogglerButtons() {
         const actions: ContentWizardActions = this.config.actions;
-        this.cycleViewModeButton = new ContentActionCycleButton([actions.getShowLiveEditAction(), actions.getShowFormAction()]);
+        this.cycleViewModeButton = new ContentActionCycleButton([
+            actions.getShowLiveEditAction(),
+            actions.getShowFormAction(),
+        ]);
         this.contextPanelToggler = new NonMobileContextPanelToggleButton();
 
         this.addElement(this.cycleViewModeButton);
@@ -248,14 +257,53 @@ export class ContentWizardToolbar
     }
 
     private openCollaborationWSConnection(): void {
-        const wsUrl: string =
-            UriHelper.joinPath(WebSocketConnection.getWebSocketUriPrefix(), CONFIG.getString('services.collaborationUrl'));
+        const wsUrl: string = UriHelper.joinPath(
+            WebSocketConnection.getWebSocketUriPrefix(),
+            CONFIG.getString('services.collaborationUrl'),
+        );
 
-        WebSocketConnection.create()
-            .setUrl(`${wsUrl}?contentId=${this.getItem().getId()}&project=${ProjectContext.get().getProject().getName()}`)
-            .setKeepAliveTimeSeconds(60)
-            .build()
-            .connect();
+        // WebSocketConnection.create()
+        //     .setUrl(
+        //         `${wsUrl}?contentId=${this.getItem().getId()}&project=${ProjectContext.get().getProject().getName()}`,
+        //     )
+        //     .setKeepAliveTimeSeconds(60)
+        //     .build()
+        //     .connect();
+
+        const contentId = this.getItem().getId();
+        const projectName = ProjectContext.get().getProject().getName();
+        const url = `${wsUrl}?contentId=${contentId}&project=${projectName}`;
+
+        const worker = new SharedWorker(`${CONFIG.getString('assetsUri')}/lib/shared-socket.js`);
+        worker.port.start();
+
+        worker.port.postMessage({type: 'init', url});
+
+        worker.port.onmessage = event => {
+            const {type, data} = event.data;
+            if (type === 'message') {
+                console.log('Received message from WebSocket:', data);
+            }
+            if (type === 'ready') {
+                console.log('WebSocket connection is ready.');
+            }
+            if (type === 'error') {
+                console.error(event);
+            }
+        };
+
+        setTimeout(() => {
+            worker.port.postMessage({type: 'send', data: JSON.stringify({type: 'ping'})});
+        }, 500);
+
+        // setTimeout(() => {
+        //     worker.port.postMessage({type: 'send', data: JSON.stringify({type: 'join', id})});
+        // }, 1000);
+
+        window.addEventListener('beforeunload', () => {
+            worker.port.postMessage({type: 'disconnect'});
+            worker.port.close();
+        });
     }
 
     getCycleViewModeButton(): ContentActionCycleButton {
