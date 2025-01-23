@@ -962,6 +962,17 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         let locator = XPATH.contentActionMenuButton;
         await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
     }
+
+    async waitForDetailsPanelExpanded() {
+        let locator = this.detailsPanelToggleButton;
+        await this.waitForAttributeHasValue(locator, 'class', 'expanded');
+    }
+
+    async waitForDetailsPanelClosed() {
+        let locator = this.detailsPanelToggleButton;
+        await this.waitForAttributeNotIncludesValue(locator, 'class', 'expanded');
+    }
+
 }
 
 module.exports = ContentBrowsePanel;

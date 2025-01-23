@@ -308,7 +308,7 @@ class Page {
     }
 
     waitUntilElementNotVisible(selector, ms) {
-        let message = 'Element still displayed! timeout is ' + appConst.longTimeout + '  ' + selector;
+        let message = `Element still displayed! ${ms}  ` + selector;
         return this.browser.waitUntil(() => {
             return this.isElementNotDisplayed(selector);
         }, {timeout: ms, timeoutMsg: message});
