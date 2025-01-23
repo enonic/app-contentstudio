@@ -6,7 +6,7 @@ const xpath = {
     closedButton: "//button[contains(@id,'StatusFilterButton') and child::span[contains(.,'Closed')]]",
     openButton: "//button[contains(@id,'StatusFilterButton') and child::span[contains(.,'Open')]]",
     hideClosedIssuesButton: "//button[contains(@id,'OnOffButton') and child::span[contains(.,'Hide closed issues')]]",
-    issueByName: function (name) {
+    issueByName(name) {
         return `//li[contains(@id,'IssueListItem')]//h6[contains(@class,'main-name') and contains(.,'${name}')]`
     },
     typeFilterOption: option => {
@@ -55,7 +55,7 @@ class IssuesListDialog extends Page {
         try {
             await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshot('err_issue_list_dlg');
+            let screenshot = await this.saveScreenshotUniqueName('err_issue_list_dlg');
             throw new Error(`Issues list dialog is not loaded screenshot: ${screenshot} ` + err);
         }
     }
@@ -83,7 +83,7 @@ class IssuesListDialog extends Page {
             await this.waitForNewIssueButtonDisplayed();
             await this.clickOnElement(this.newIssueButton);
         } catch (err) {
-            await this.saveScreenshot('err_click_issue_list_new');
+            await this.saveScreenshotUniqueName('err_click_issue_list_new');
             throw new Error('Issues List Dialog - Error during clicking on the `New issue` button  ' + err);
         }
     }
@@ -122,7 +122,7 @@ class IssuesListDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.openButton, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshot("err_open_button_should_be_displayed");
+            let screenshot = await this.saveScreenshotUniqueName("err_open_button_should_be_displayed");
             throw new Error(`Issues List Dialog-  'Open' button should be displayed, screenshot: ${screenshot} ` + err);
         }
     }
@@ -135,7 +135,7 @@ class IssuesListDialog extends Page {
             await this.clickOnElement(this.closedButton);
             return await this.pause(700);
         } catch (err) {
-            await this.saveScreenshot("err_show_closed_issues_list");
+            await this.saveScreenshotUniqueName("err_show_closed_issues_list");
             throw new Error("Issues List dialog - Error when clicking on 'Closed' button  " + err);
         }
     }
@@ -202,7 +202,7 @@ class IssuesListDialog extends Page {
                 return text.includes('disabled');
             }, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshot("err_type_filter1");
+            let screenshot = await this.saveScreenshotUniqueName('err_type_filter1');
             throw new Error(`Type Filter - menu item:` + option + ` should be disabled! screenshot: ${screenshot} ` + err);
         }
     }
@@ -319,5 +319,4 @@ class IssuesListDialog extends Page {
     }
 }
 
-module
-    .exports = IssuesListDialog;
+module.exports = IssuesListDialog;
