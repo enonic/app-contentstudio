@@ -93,7 +93,7 @@ export class ContentSelectorDropdown
         const ids = this.getSelectedItemsHandler().filter(id => !StringHelper.isBlank(id)).map(id => new ContentId(id));
 
         if (ids.length > 0) {
-            new ContentSummaryAndCompareStatusFetcher().fetchByIds(ids).then((contents) => {
+            new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(ids).then((contents) => {
                 const items = ids.map((id) => this.createSelectorItem(contents.find((content) => content.getId() === id.toString()), id));
                 const options = items.map((item) => this.createSelectedOption(item));
                 this.selectedOptionsView.addOptions(options, true, -1);
