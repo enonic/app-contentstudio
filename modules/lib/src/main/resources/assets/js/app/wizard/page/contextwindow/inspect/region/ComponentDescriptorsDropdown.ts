@@ -130,6 +130,10 @@ export class ComponentDescriptorsDropdown
         }
     }
 
+    protected getItemById(id: string): Descriptor {
+        return this.selectedDescriptor?.getKey().toString() === id ? this.selectedDescriptor : super.getItemById(id);
+    }
+
     getDescriptorByKey(descriptorKey: DescriptorKey): Descriptor {
         return descriptorKey ? this.getItemById(descriptorKey.toString()) : null;
     }
