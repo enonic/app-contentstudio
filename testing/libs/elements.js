@@ -149,6 +149,8 @@ module.exports = Object.freeze({
         CONTENT_STATUS: "//div[contains(@id,'StatusBlock')]/span",
         SORT_DIALOG_TOGGLE: "//div[contains(@class,'sort-dialog-trigger')]",
         EXPANDER_ICON_DIV: "//div[contains(@class,'toggle icon-arrow_drop_up')]",
+        P_CONTENT_NAME: "//p[contains(@class,'sub-name')]",
+        H6_CONTENT_DISPLAY_NAME: "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
         itemByName: name => {
             return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
         },
