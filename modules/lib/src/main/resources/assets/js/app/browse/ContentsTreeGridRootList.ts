@@ -1,4 +1,4 @@
-import {ContentsTreeGridList} from './ContentsTreeGridList';
+import {ContentsTreeGridList, ContentsTreeGridListContext} from './ContentsTreeGridList';
 import {ContentQuery} from '../content/ContentQuery';
 import {Branch} from '../versioning/Branch';
 import Q from 'q';
@@ -44,7 +44,9 @@ export class ContentsTreeGridRootList extends ContentsTreeGridList {
                 .setMustBeReferencedById(query.getMustBeReferencedById());
         }
 
-        this.reload();
+        ContentsTreeGridListContext.get().setFiltered(!!query);
+
+        this.load();
     }
 
     isFiltered(): boolean {

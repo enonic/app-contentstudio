@@ -208,6 +208,7 @@ export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryA
 
     protected createItemViewer(item: ContentSummaryAndCompareStatus): ContentTreeGridListViewer {
         const viewer = new ContentTreeGridListViewer();
+        viewer.setIsRelativePath(!ContentsTreeGridListContext.get().isFiltered() || this.options.level > 0);
         viewer.setItem(item);
         return viewer;
     }
@@ -235,4 +236,30 @@ export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryA
         });
     }
 
+}
+
+export class ContentsTreeGridListContext {
+
+    private static instance: ContentsTreeGridListContext;
+
+    private filtered: boolean = false;
+
+    private constructor() {
+    }
+
+    static get(): ContentsTreeGridListContext {
+        if (!ContentsTreeGridListContext.instance) {
+            ContentsTreeGridListContext.instance = new ContentsTreeGridListContext();
+        }
+
+        return ContentsTreeGridListContext.instance;
+    }
+
+    setFiltered(value: boolean): void {
+        this.filtered = value;
+    }
+
+    isFiltered(): boolean {
+        return this.filtered;
+    }
 }

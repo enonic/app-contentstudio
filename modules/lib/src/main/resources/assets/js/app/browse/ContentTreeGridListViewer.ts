@@ -54,6 +54,10 @@ export class ContentTreeGridListViewer
         this.toggleClass('readonly', item.isReadOnly());
     }
 
+    setIsRelativePath(value: boolean): void {
+        this.summaryViewer.setIsRelativePath(value);
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.appendChild(this.summaryViewer);
