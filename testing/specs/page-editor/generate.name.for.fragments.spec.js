@@ -29,6 +29,7 @@ describe('Generate name for fragments specification', function () {
     let SITE;
     const CONTROLLER_NAME = 'main region';
     const TEST_IMAGE_NAME = appConst.TEST_IMAGES.FOSS;
+    const FRAGMENT_GENERATED_NAME = 'fragment-text';
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -75,16 +76,22 @@ describe('Generate name for fragments specification', function () {
             assert.ok(result.includes('Text'), 'City list part should be present in the dialog');
         });
 
+    // Verify the https://github.com/enonic/app-contentstudio/issues/8255
+    // Content Grid displays _path instead of _name #8255
     it(`WHEN a fragment-text with an image has been selected AND Show Inbound button has been pressed THEN the parent site should be filtered in the grid`,
         async () => {
             let contentFilterPanel = new ContentFilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. Insert the fragment-text in the search input
             await studioUtils.typeNameInFilterPanel('fragment-text');
             await contentBrowsePanel.pause(1000);
+            // 2. Verify that the path should be displayed in the filtered grid:
             await contentBrowsePanel.clickOnRowByName(SITE.displayName + '/' + 'fragment-text');
             await contentBrowsePanel.pause(1000);
+            // 3. Open Dependency widget in the Browse Panel:
             await studioUtils.openDependencyWidgetInBrowsePanel();
             let browseDependenciesWidget = new BrowseDependenciesWidget();
+            // 4. Click on 'Show Inbound' button:
             await browseDependenciesWidget.clickOnShowInboundButton();
             await studioUtils.doSwitchToNextTab();
             // 'Dependencies Section' should be present, in the filter panel
@@ -95,6 +102,22 @@ describe('Generate name for fragments specification', function () {
             assert.equal(result[0], SITE.displayName, 'expected display name of dependency');
             // TODO uncomment it
             //assert.equal(result.length, 1, 'One content should be present in the grid');
+        });
+
+    // Verify Content Grid displays _path instead of _name #8255
+    it(`WHEN the site has been expanded THEN the expected fragment name should be displayed beneath the site-name`,
+        async () => {
+            let contentFilterPanel = new ContentFilterPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. Insert the site-name in the search input
+            await studioUtils.typeNameInFilterPanel(SITE.displayName);
+            await contentBrowsePanel.pause(1000);
+            // 2. Expand the site:
+            await contentBrowsePanel.clickOnExpanderIcon(SITE.displayName);
+            await studioUtils.saveScreenshot('issue_text_component_inbound_section');
+            // 3. Content Grid displays names of the fragments in the site:
+            let result = await contentBrowsePanel.getContentNamesInGrid()
+            assert.ok(result.includes(FRAGMENT_GENERATED_NAME), 'expected fragment name should be displayed in the grid');
         });
 
     it(`WHEN a fragment-text has been clicked in Page Component View and 'Remove' menu item has been selected THEN the fragment should be removed in the Page Component View`,

@@ -59,6 +59,10 @@ export class ContentTreeGridListViewer
         this.toggleClass('uploading', !!item.getUploadItem());
     }
 
+    setIsRelativePath(value: boolean): void {
+        this.summaryViewer.setIsRelativePath(value);
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.appendChild(this.summaryViewer);

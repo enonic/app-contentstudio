@@ -154,7 +154,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get displayNames() {
-        return XPATH.contentsTreeGridRootUL + lib.H6_DISPLAY_NAME;
+        return XPATH.contentsTreeGridRootUL + lib.TREE_GRID.H6_CONTENT_DISPLAY_NAME;
+    }
+
+    get contentNames() {
+        return XPATH.contentsTreeGridRootUL + lib.TREE_GRID.P_CONTENT_NAME;
     }
 
     get treeGrid() {
@@ -965,6 +969,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async waitForPublishMenuRoleAttribute(expectedRole) {
         let locator = XPATH.contentActionMenuButton;
         await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
+    }
+
+    async getContentNamesInGrid() {
+        return await this.getTextInDisplayedElements(this.contentNames);
     }
 }
 

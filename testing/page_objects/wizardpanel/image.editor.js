@@ -165,16 +165,31 @@ class ImageEditor extends Page {
         return await this.clickOnElement(this.buttonFocus);
     }
 
-    waitForFocusCircleDisplayed() {
-        return this.waitForElementDisplayed(this.focusCircle, appConst.mediumTimeout);
+    async waitForFocusCircleDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.focusCircle, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_focus_circle_displayed');
+            throw new Error(`Focus circle is not displayed, screenshot: ${screenshot} ` + err);
+        }
     }
 
-    waitForFocusCircleNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.focusCircle, appConst.mediumTimeout);
+    async waitForFocusCircleNotDisplayed() {
+        try {
+            return await this.waitUntilElementNotVisible(this.focusCircle, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_focus_circle_displayed');
+            throw new Error(`Focus circle should not be displayed, screenshot: ${screenshot} ` + err);
+        }
     }
 
-    waitForApplyButtonDisplayed() {
-        return this.waitForElementDisplayed(this.buttonApply, appConst.mediumTimeout);
+    async waitForApplyButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.buttonApply, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_button_displayed');
+            throw new Error(`Apply button is not displayed, screenshot: ${screenshot} ` + err);
+        }
     }
 
     waitForApplyButtonNotDisplayed() {
