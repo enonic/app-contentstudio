@@ -10,6 +10,12 @@
   }
 
   .content-selector-dropdown {
+    .uploader-el {
+      .upload-button {
+        border-left: none;
+      }
+    }
+
     .filter-and-list-container {
       position: relative;
       grid-area: filter-and-list;
@@ -53,6 +59,10 @@
 
     .selected-options {
       grid-area: selected-options;
+
+      &:empty {
+        display: none;
+      }
 
       .selected-option {
         &.content-not-found {

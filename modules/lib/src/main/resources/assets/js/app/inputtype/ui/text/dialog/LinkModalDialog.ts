@@ -274,6 +274,7 @@ export class LinkModalDialog
         const contentSelectorBuilder = this.createContentSelectorBuilder(this.parentSitePath);
         const loader = contentSelectorBuilder.build();
         const contentSelector: ContentTreeSelectorDropdown = this.createContentSelector(loader);
+        contentSelector.addClass('has-extra-button');
         const showAllContentToggler = (showAllContent: boolean) => {
             contentSelectorBuilder.setAllowedContentPaths([showAllContent ? '' : this.parentSitePath]);
             loader.initRequests(contentSelectorBuilder);
@@ -930,8 +931,9 @@ export class LinkModalDialog
             new ModalDialogFormItemBuilder(id, label).setValidator(Validators.required).setInputEl(formInputEl);
         const formItem: FormItem = this.createFormItem(formItemBuilder);
 
-        const mediaUploader: MediaUploaderEl = this.createMediaUploader(contentSelector);
-        mediaUploader.insertAfterEl(contentSelector);
+        const mediaUploader: MediaUploaderEl =
+            this.createMediaUploader(contentSelector).addClass('extra-button') as MediaUploaderEl;
+        contentSelector.appendChild(mediaUploader);
 
         if (!addValueValidation) {
             return formItem;
@@ -1293,7 +1295,7 @@ class ContentSelectorFormInputWrapper
     private contentSelector: ContentTreeSelectorDropdown;
 
     constructor(contentSelector: ContentTreeSelectorDropdown) {
-        super('div', 'content-selector-wrapper');
+        super('div', 'content-selector content-selector-wrapper');
 
         this.contentSelector = contentSelector;
         this.appendChild(contentSelector);
