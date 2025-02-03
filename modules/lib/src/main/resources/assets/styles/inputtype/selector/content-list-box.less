@@ -25,6 +25,7 @@
       .status {
         text-align: center;
         .content-status-mixin();
+        .ellipsis();
       }
     }
 
@@ -35,6 +36,26 @@
         span {
           color: @admin-white !important;
         }
+      }
+    }
+  }
+
+  &._0-240 {
+    .item-view-wrapper {
+      .content-tree-selector-item-viewer {
+        grid-template-columns: 1fr;
+
+        .status {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &._240-360 {
+    .item-view-wrapper {
+      .content-tree-selector-item-viewer {
+        grid-template-columns: 1fr 60px;
       }
     }
   }

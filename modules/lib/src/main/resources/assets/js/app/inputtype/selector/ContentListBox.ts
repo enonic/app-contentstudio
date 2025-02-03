@@ -4,6 +4,8 @@ import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptio
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentAndStatusSelectorViewer} from './ContentAndStatusSelectorViewer';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export interface ContentListBoxOptions<T extends ContentTreeSelectorItem> {
     loader: ContentSummaryOptionDataLoader<T>;
@@ -14,10 +16,12 @@ export class ContentListBox<T extends ContentTreeSelectorItem> extends LazyListB
 
     private readonly loader: ContentSummaryOptionDataLoader<T>;
 
+
     constructor(options: ContentListBoxOptions<T>) {
         super('content-list-box ' + (options.className || ''));
 
         this.loader = options.loader;
+        this.initListeners();
     }
 
     protected createItemView(item: T, readOnly: boolean): Element {
@@ -39,5 +43,15 @@ export class ContentListBox<T extends ContentTreeSelectorItem> extends LazyListB
     protected updateItemView(itemView: Element, item: T) {
         const viewer = itemView as ContentAndStatusSelectorViewer;
         viewer.setObject(item);
+    }
+
+    protected initListeners(): void {
+        const responsiveItem: ResponsiveItem = new ResponsiveItem(this);
+
+        const resizeListener = () => {
+            responsiveItem.update();
+        };
+
+        new ResizeObserver(AppHelper.debounce(resizeListener, 200)).observe(this.getHTMLElement());
     }
 }
