@@ -1,6 +1,5 @@
 import * as $ from 'jquery';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
@@ -8,7 +7,6 @@ import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/Sel
 import {ImageSelectorSelectedOptionView} from './ImageSelectorSelectedOptionView';
 import {SelectionToolbar} from './SelectionToolbar';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentSelectedOptionsView} from '../ContentComboBox';
 
 export class ImageSelectorSelectedOptionsView
@@ -40,10 +38,6 @@ export class ImageSelectorSelectedOptionsView
         this.addOptionMovedEventHandler();
     }
 
-    setReadonly(readonly: boolean): void {
-        super.setReadonly(readonly);
-    }
-
     private initAndAppendSelectionToolbar() {
         this.toolbar = new SelectionToolbar();
         this.toolbar.hide();
@@ -60,9 +54,7 @@ export class ImageSelectorSelectedOptionsView
 
             const scrollableParentEl = $(this.getHTMLElement()).scrollParent()[0];
             const scrollableParent = Element.fromHtmlElement(scrollableParentEl);
-
             scrollableParent.onScroll(() => this.updateStickyToolbar());
-            ResponsiveManager.onAvailableSizeChanged(this, () => this.updateStickyToolbar(true));
         });
     }
 
@@ -75,6 +67,10 @@ export class ImageSelectorSelectedOptionsView
                 (moved.getOptionView() as ImageSelectorSelectedOptionView).getCheckbox().giveFocus();
             }
         });
+    }
+
+    protected resizeHandler(): void {
+        this.updateStickyToolbar(true);
     }
 
     protected handleDnDStop(): void {

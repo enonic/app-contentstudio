@@ -12,6 +12,8 @@ import {EditContentEvent} from '../../../event/EditContentEvent';
 import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
 import {Project} from '../../../settings/data/project/Project';
+import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export class ContentSelectedOptionsView
     extends BaseSelectedOptionsView<ContentTreeSelectorItem> {
@@ -19,6 +21,12 @@ export class ContentSelectedOptionsView
     private project?: Project;
 
     private contextContent: ContentSummary;
+
+    constructor(className?: string) {
+        super(className);
+
+        this.initListeners();
+    }
 
     createSelectedOption(option: Option<ContentTreeSelectorItem>): SelectedOption<ContentTreeSelectorItem> {
         const optionView = new ContentSelectedOptionView(option, this.project);
@@ -38,6 +46,21 @@ export class ContentSelectedOptionsView
     setContextContent(value: ContentSummary): this {
         this.contextContent = value;
         return this;
+    }
+
+    protected initListeners(): void {
+        const responsiveItem: ResponsiveItem = new ResponsiveItem(this);
+
+        const resizeListener = () => {
+            responsiveItem.update();
+            this.resizeHandler();
+        };
+
+        new ResizeObserver(AppHelper.debounce(resizeListener, 200)).observe(this.getHTMLElement());
+    }
+
+    protected resizeHandler() {
+        //
     }
 }
 
