@@ -1,5 +1,8 @@
 import {AiHelperState} from '@enonic/lib-admin-ui/ai/AiHelperState';
+import {AiToolHelper} from '@enonic/lib-admin-ui/ai/tool/AiToolHelper';
+import {RGBColor} from '@enonic/lib-admin-ui/ai/tool/ui/AiAnimationHandler';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
@@ -12,6 +15,8 @@ import {ComponentPath} from '../page/region/ComponentPath';
 import {ProjectContext} from '../project/ProjectContext';
 import {GetLocalesRequest} from '../resource/GetLocalesRequest';
 import {ContentWizardHeader} from '../wizard/ContentWizardHeader';
+import {PageEventsManager} from '../wizard/PageEventsManager';
+import {AiContentDataHelper} from './AiContentDataHelper';
 import {ContentData, ContentLanguage, ContentSchema} from './event/data/AiData';
 import {EnonicAiContentOperatorSetupData} from './event/data/EnonicAiContentOperatorSetupData';
 import {EnonicAiTranslatorSetupData} from './event/data/EnonicAiTranslatorSetupData';
@@ -26,11 +31,6 @@ import {AiTranslatorStartedEvent} from './event/incoming/AiTranslatorStartedEven
 import {AiContentOperatorConfigureEvent} from './event/outgoing/AiContentOperatorConfigureEvent';
 import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigureEvent';
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
-import {PageEventsManager} from '../wizard/PageEventsManager';
-import {RGBColor} from '@enonic/lib-admin-ui/ai/tool/ui/AiAnimationHandler';
-import {AiContentDataHelper} from './AiContentDataHelper';
-import {AiToolHelper} from '@enonic/lib-admin-ui/ai/tool/AiToolHelper';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 declare global {
     interface Window {
@@ -232,8 +232,10 @@ export class AI {
     };
 
     private translatorCompletedEventListener = (event: AiTranslatorCompletedEvent) => {
-        this.aiToolHelper.setState(this.aiContentDataHelper.transformPathOnDemand(event.path),
-            event.success ? AiHelperState.COMPLETED : AiHelperState.FAILED, {text: event.text})
+        const state = event.success ? AiHelperState.COMPLETED : AiHelperState.FAILED;
+        const text = !event.success ? event.message : event.text;
+        const data = text ? {text} : undefined;
+        this.aiToolHelper.setState(this.aiContentDataHelper.transformPathOnDemand(event.path), state, data);
 
         if (event.success) {
             this.aiContentDataHelper.setValue(event.path, event.text);
