@@ -1,4 +1,6 @@
 import {AiHelperState} from '@enonic/lib-admin-ui/ai/AiHelperState';
+import {AiToolHelper} from '@enonic/lib-admin-ui/ai/tool/AiToolHelper';
+import {RGBColor} from '@enonic/lib-admin-ui/ai/tool/ui/AiAnimationHandler';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -14,6 +16,8 @@ import {ComponentPath} from '../page/region/ComponentPath';
 import {ProjectContext} from '../project/ProjectContext';
 import {GetLocalesRequest} from '../resource/GetLocalesRequest';
 import {ContentWizardHeader} from '../wizard/ContentWizardHeader';
+import {PageEventsManager} from '../wizard/PageEventsManager';
+import {AiContentDataHelper} from './AiContentDataHelper';
 import {ContentData, ContentLanguage, ContentSchema} from './event/data/AiData';
 import {EnonicAiContentOperatorSetupData} from './event/data/EnonicAiContentOperatorSetupData';
 import {EnonicAiTranslatorSetupData} from './event/data/EnonicAiTranslatorSetupData';
@@ -28,10 +32,6 @@ import {AiTranslatorStartedEvent} from './event/incoming/AiTranslatorStartedEven
 import {AiContentOperatorConfigureEvent} from './event/outgoing/AiContentOperatorConfigureEvent';
 import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigureEvent';
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
-import {PageEventsManager} from '../wizard/PageEventsManager';
-import {RGBColor} from '@enonic/lib-admin-ui/ai/tool/ui/AiAnimationHandler';
-import {AiContentDataHelper} from './AiContentDataHelper';
-import {AiToolHelper} from '@enonic/lib-admin-ui/ai/tool/AiToolHelper';
 
 declare global {
     interface Window {
@@ -229,12 +229,16 @@ export class AI {
         this.aiToolHelper.setState(this.aiContentDataHelper.transformPathOnDemand(event.path), AiHelperState.PROCESSING);
 
         if (this.aiContentDataHelper.isPageComponentPath(event.path)) {
-            PageEventsManager.get().notifySetComponentState(ComponentPath.fromString(event.path.replace(AiContentDataHelper.PAGE_PREFIX, '')), true);
+            PageEventsManager.get().notifySetComponentState(
+                ComponentPath.fromString(event.path.replace(AiContentDataHelper.PAGE_PREFIX, '')), true);
         }
     };
 
     private translatorCompletedEventListener = (event: AiTranslatorCompletedEvent) => {
-        this.aiToolHelper.setState(this.aiContentDataHelper.transformPathOnDemand(event.path), event.success ? AiHelperState.COMPLETED : AiHelperState.FAILED, {text: event.text})
+        const state = event.success ? AiHelperState.COMPLETED : AiHelperState.FAILED;
+        const text = !event.success ? event.message : event.text;
+        const data = text ? {text} : undefined;
+        this.aiToolHelper.setState(this.aiContentDataHelper.transformPathOnDemand(event.path), state, data);
 
         if (event.success) {
             this.aiContentDataHelper.setValue(event.path, event.text);
@@ -242,7 +246,8 @@ export class AI {
 
         // Probably a text component event, and they don't have AI helpers
         if (this.aiContentDataHelper.isPageComponentPath(event.path)) {
-            PageEventsManager.get().notifySetComponentState(ComponentPath.fromString(event.path.replace(AiContentDataHelper.PAGE_PREFIX, '')), false);
+            PageEventsManager.get().notifySetComponentState(
+                ComponentPath.fromString(event.path.replace(AiContentDataHelper.PAGE_PREFIX, '')), false);
         }
     };
 
@@ -317,7 +322,8 @@ export class AI {
             // operator works now only with data and sends path without __group__ prefix, adding it for compatibility
             const pathWithGroup = `${AiContentDataHelper.DATA_PREFIX}${path.startsWith('/') ? '' : '/'}${path}`;
             this.aiContentDataHelper.setValue(this.aiContentDataHelper.replaceSlashesWithDots(pathWithGroup), text);
-            this.aiToolHelper.animate(pathWithGroup, this.aiContentDataHelper.isTopicPath(pathWithGroup) ? 'innerGlow' : 'glow', RGBColor.GREEN);
+            this.aiToolHelper.animate(pathWithGroup, this.aiContentDataHelper.isTopicPath(pathWithGroup) ? 'innerGlow' : 'glow',
+                RGBColor.GREEN);
         });
     };
 
