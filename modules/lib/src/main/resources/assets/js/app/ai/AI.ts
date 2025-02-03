@@ -234,7 +234,10 @@ export class AI {
     };
 
     private translatorCompletedEventListener = (event: AiTranslatorCompletedEvent) => {
-        this.aiToolHelper.setState(this.aiContentDataHelper.transformPathOnDemand(event.path), event.success ? AiHelperState.COMPLETED : AiHelperState.FAILED, {text: event.text})
+        const state = event.success ? AiHelperState.COMPLETED : AiHelperState.FAILED;
+        const text = !event.success ? event.message : event.text;
+        const data = text ? {text} : undefined;
+        this.aiToolHelper.setState(this.aiContentDataHelper.transformPathOnDemand(event.path), state, data);
 
         if (event.success) {
             this.aiContentDataHelper.setValue(event.path, event.text);

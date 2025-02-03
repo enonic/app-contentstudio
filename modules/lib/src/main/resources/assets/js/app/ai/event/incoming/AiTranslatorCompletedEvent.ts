@@ -6,7 +6,9 @@ export class AiTranslatorCompletedEvent
 
     readonly path: string;
 
-    readonly text: string;
+    readonly text?: string;
+
+    readonly message?: string;
 
     readonly success: boolean;
 
