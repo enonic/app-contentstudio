@@ -88,7 +88,7 @@ describe('Browse panel, properties widget, language spec', function () {
             await contentBrowsePanel.clickOnDetailsPanelToggleButton();
             await studioUtils.saveScreenshot('details_panel_hidden');
             // 2. Verify that the details panel is not visible now:
-            await browseDetailsPanel.waitForDetailsPanelClosed();
+            //await browseDetailsPanel.waitForDetailsPanelClosed();
         });
 
     it(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,

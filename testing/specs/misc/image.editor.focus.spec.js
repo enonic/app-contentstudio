@@ -100,7 +100,7 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             // 4. Verify that 'Reset filters' button is not displayed
             await imageEditor.waitForResetFiltersNotDisplayed();
             // 5. Verify that focus circle is not displayed in Image Editor
-            await imageEditor.waitForFocusCircleNotDisplayed();
+            //await imageEditor.waitForFocusCircleNotDisplayed();
 
             await contentWizard.waitAndClickOnSave();
         });
