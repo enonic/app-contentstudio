@@ -23,6 +23,15 @@ class BrowseDetailsPanel extends BaseDetailsPanel {
         return this.isElementDisplayed(xpath.container);
     }
 
+    async waitForDetailsPanelClosed() {
+        try {
+            await this.waitUntilElementNotVisible(xpath.container, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_details_panel_closed');
+            throw new Error(`Details Panel is still displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
     waitForDetailsPanelLoaded() {
         return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
             throw new Error('Details Panel was not loaded in ' + err);
