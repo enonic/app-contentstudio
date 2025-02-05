@@ -307,10 +307,7 @@ public final class ContentResource
         }
         else
         {
-            final Content parentContent = ContextBuilder.copyOf( ContextAccessor.current() )
-                .branch( ContentConstants.BRANCH_DRAFT )
-                .build()
-                .callWith( () -> contentService.getById( ContentId.from( parentParam ) ) );
+            final Content parentContent = ContextBuilder.copyOf(ContextAccessor.current()).branch(ContentConstants.BRANCH_DRAFT).build().callWith(() -> contentService.getById( ContentId.from( parentParam ) ) );
             createMediaParams.parent( parentContent.getPath() );
         }
 
@@ -326,10 +323,7 @@ public final class ContentResource
             createMediaParams.focalY( Double.parseDouble( focalY ) );
         }
 
-        final Content persistedContent = ContextBuilder.copyOf( ContextAccessor.current() )
-            .branch( ContentConstants.BRANCH_DRAFT )
-            .build()
-            .callWith( () -> contentService.create( createMediaParams ) );
+        final Content persistedContent = ContextBuilder.copyOf(ContextAccessor.current()).branch(ContentConstants.BRANCH_DRAFT).build().callWith(() -> contentService.create( createMediaParams ));
 
         return jsonObjectsFactory.createContentJson( persistedContent );
     }
@@ -512,10 +506,7 @@ public final class ContentResource
 
         final AccessControlList permissionsBeforeSave = contentService.getPermissionsById( updateParams.getContentId() );
 
-        final Content updatedContent = ContextBuilder.copyOf( ContextAccessor.current() )
-            .branch( ContentConstants.BRANCH_DRAFT )
-            .build()
-            .callWith( () -> contentService.update( updateParams ) );
+        final Content updatedContent = ContextBuilder.copyOf(ContextAccessor.current()).branch(ContentConstants.BRANCH_DRAFT).build().callWith(() -> contentService.update( updateParams ));
 
        /* if ( !permissionsBeforeSave.equals( updatedContent.getPermissions() ) )
         {
