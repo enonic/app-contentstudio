@@ -19,6 +19,8 @@ export class ContentsTreeGridList
 
     private wasShownAndLoaded: boolean = false;
 
+    private loading: boolean = false;
+
     constructor(params?: TreeListBoxParams<ContentSummaryAndCompareStatus>) {
         super(params);
 
@@ -34,9 +36,16 @@ export class ContentsTreeGridList
     }
 
     protected handleLazyLoad(): void {
+        if (this.loading) {
+            return;
+        }
+
         this.wasShownAndLoaded = true;
+        this.loading = true;
 
         this.fetch().then((items: ContentSummaryAndCompareStatus[]) => {
+            this.loading = false;
+
             if (items.length > 0) {
                 // first remove new items that are now to be added to avoid being shown twice
                 items.forEach((item: ContentSummaryAndCompareStatus) => {
@@ -50,7 +59,10 @@ export class ContentsTreeGridList
 
                 this.addItems(items);
             }
-        }).catch(DefaultErrorHandler.handle);
+        }).catch((e) => {
+            DefaultErrorHandler.handle(e);
+            this.loading = false;
+        });
     }
 
     private fetch(): Q.Promise<ContentSummaryAndCompareStatus[]> {
@@ -115,6 +127,10 @@ export class ContentsTreeGridList
     }
 
     load(): void {
+        this.handleLazyLoad();
+    }
+
+    reload(): void {
         this.clearItems(true);
         this.newItems = new Map<string, ContentSummaryAndCompareStatus>();
         this.handleLazyLoad();
@@ -145,6 +161,11 @@ export class ContentsTreeGridList
         }
 
         return parents;
+    }
+
+    getListElementByPath(path: ContentPath): ContentsTreeGridListElement | undefined {
+        return this.getItemViews().find(
+            (listElement: ContentsTreeGridListElement) => listElement.getItem().getPath().equals(path)) as ContentsTreeGridListElement;
     }
 
     doRender(): Q.Promise<boolean> {
@@ -201,6 +222,10 @@ export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryA
         (this.itemViewer as ContentTreeGridListViewer).setItem(item);
         this.containsChildren = this.item.hasChildren();
         this.updateExpandableState();
+    }
+
+    getList(): ContentsTreeGridList {
+        return super.getList() as ContentsTreeGridList;
     }
 
     doRender(): Q.Promise<boolean> {
