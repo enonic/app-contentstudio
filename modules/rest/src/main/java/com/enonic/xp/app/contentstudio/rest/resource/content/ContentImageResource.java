@@ -82,7 +82,10 @@ public final class ContentImageResource
         }
 
         final ContentId contentId = ContentId.from( contentIdAsString );
-        final Content content = ContextBuilder.copyOf(ContextAccessor.current()).branch(ContentConstants.BRANCH_DRAFT).build().callWith(() -> contentService.getById( contentId ));
+        final Content content = ContextBuilder.copyOf( ContextAccessor.current() )
+            .branch( ContentConstants.BRANCH_DRAFT )
+            .build()
+            .callWith( () -> contentService.getById( contentId ) );
         if ( content == null )
         {
             throw new WebApplicationException( Response.Status.NOT_FOUND );
@@ -159,17 +162,19 @@ public final class ContentImageResource
                     final int sizeParam = ( size > 0 ) ? size : ( source ? 0 : getOriginalWidth( media ) );
                     final ScaleParams scaleParam = parseScaleParam( media, scale, sizeParam );
 
-                    final ReadImageParams readImageParams = ReadImageParams.newImageParams().
-                        contentId( media.getId() ).
-                        binaryReference( attachment.getBinaryReference() ).
-                        cropping( cropping ).
-                        scaleParams( scaleParam ).
-                        focalPoint( focalPoint ).
-                        scaleSize( sizeParam ).
-                        scaleWidth( scaleWidth ).
-                        mimeType( mimeType ).
-                        quality( DEFAULT_QUALITY ).
-                        orientation( imageOrientation ).filterParam( filter ).build();
+                    final ReadImageParams readImageParams = ReadImageParams.newImageParams()
+                        .contentId( media.getId() )
+                        .binaryReference( attachment.getBinaryReference() )
+                        .cropping( cropping )
+                        .scaleParams( scaleParam )
+                        .focalPoint( focalPoint )
+                        .scaleSize( sizeParam )
+                        .scaleWidth( scaleWidth )
+                        .mimeType( mimeType )
+                        .quality( DEFAULT_QUALITY )
+                        .orientation( imageOrientation )
+                        .filterParam( filter )
+                        .build();
 
                     final ByteSource contentImage = imageService.readImage( readImageParams );
                     return new ResolvedImage( contentImage, mimeType );
