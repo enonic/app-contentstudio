@@ -50,7 +50,7 @@ import {EditContentEvent} from '../event/EditContentEvent';
 import {GetContentSummaryByIdRequest} from '../resource/GetContentSummaryByIdRequest';
 import {ContentActionMenuButton} from '../ContentActionMenuButton';
 import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
-import {CompareStatus} from '../content/CompareStatus';
+import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -149,7 +149,7 @@ export class ContentBrowsePanel
         });
 
         this.toolbar = new ListBoxToolbar<ContentSummaryAndCompareStatus>(this.selectionWrapper, {
-            refreshAction: () => this.treeListBox.load(),
+            refreshAction: () => this.treeListBox.reload(),
         });
 
         this.treeActions = new ContentTreeActions(this.selectionWrapper);
@@ -274,7 +274,7 @@ export class ContentBrowsePanel
 
         RepositoryEvent.on(event => {
             if (event.isRestored()) {
-                this.treeListBox.load();
+                this.treeListBox.reload();
             }
         });
 
@@ -297,12 +297,49 @@ export class ContentBrowsePanel
         const path: string = this.getPathFromInlinePath(contentInlinePath);
 
         if (path) {
-            // possibly don't need this, but presumes expanding tree structure till the item is found
+            new ContentExistsByPathRequest(path).sendAndParse().then((exists: boolean) => {
+                const targetPath = ContentPath.create().fromString(path).build();
+                this.expandToListElementByPath(this.treeListBox, targetPath.getPathAtLevel(1), targetPath);
+            }).catch(DefaultErrorHandler.handle);
         }
     }
 
     private getPathFromInlinePath(contentPreviewPath: string): string {
         return UriHelper.getPathFromPortalInlineUri(contentPreviewPath, RenderingMode.INLINE);
+    }
+
+    private expandToListElementByPath(list: ContentsTreeGridList, itemPath: ContentPath, targetPath: ContentPath): void {
+        let loadCount = 0;
+
+        const itemFinder = () => {
+            const listElement = list.getListElementByPath(itemPath);
+
+            if (listElement) {
+                list.unItemsAdded(itemFinder);
+
+                listElement.whenRendered(() => {
+                    listElement.getHTMLElement().scrollIntoView();
+
+                    if (itemPath.equals(targetPath)) {
+                        this.selectionWrapper.deselectAll();
+                        this.selectionWrapper.select(listElement.getItem());
+                    } else {
+                        listElement.expand(); // if was loaded but the children list collapsed
+                        this.expandToListElementByPath(listElement.getList(), targetPath.getPathAtLevel(itemPath.getLevel() + 1), targetPath);
+                    }
+                });
+            } else {
+                if (loadCount > 10) {
+                    return;
+                }
+
+                loadCount++;
+                list.load();
+            }
+        };
+
+        list.onItemsAdded(itemFinder);
+        itemFinder();
     }
 
     private subscribeOnContentEvents() {
@@ -552,10 +589,10 @@ export class ContentBrowsePanel
                 list.replaceItems(item);
 
                 const itemElement = list.getItemView(item) as ContentsTreeGridListElement;
-                const itemList = itemElement.getList() as ContentsTreeGridList;
+                const itemList = itemElement.getList();
 
                 if (itemList.wasAlreadyShownAndLoaded()) {
-                    itemList.load();
+                    itemList.reload();
                 }
             });
         });

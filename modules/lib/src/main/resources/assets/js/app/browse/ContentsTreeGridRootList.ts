@@ -46,7 +46,7 @@ export class ContentsTreeGridRootList extends ContentsTreeGridList {
 
         ContentsTreeGridListContext.get().setFiltered(!!query);
 
-        this.load();
+        this.reload();
     }
 
     isFiltered(): boolean {
