@@ -951,6 +951,8 @@ export class LinkModalDialog
     }
 
     private handleSelectorValueChanged(selectedContent: ContentSummary, formItem: FormItem): void {
+        formItem.validate(new ValidationResult(), true);
+
         if (!selectedContent) {
             formItem.setValidator(Validators.required);
             this.resetMediaRadioValue();
