@@ -44,7 +44,7 @@ export class ContentsTreeGridRootList extends ContentsTreeGridList {
                 .setMustBeReferencedById(query.getMustBeReferencedById());
         }
 
-        this.load();
+        this.reload();
     }
 
     isFiltered(): boolean {
