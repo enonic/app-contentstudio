@@ -5,7 +5,9 @@ import {LiveEditPageProxy} from './LiveEditPageProxy';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {ContentWizardActions} from '../action/ContentWizardActions';
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {PreviewActionHelper} from '../../action/PreviewActionHelper';
+import {PreviewWidgetDropdown} from '../../view/toolbar/PreviewWidgetDropdown';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 
 export interface FrameContainerConfig {
@@ -19,29 +21,33 @@ export class FrameContainer
 
     private toolbar: ContentItemPreviewToolbar;
     private proxy: LiveEditPageProxy;
-    private wizardActions: ContentWizardActions;
+    private wrapper: DivEl;
 
     constructor(config: FrameContainerConfig) {
         super('frame-container');
         this.setDoOffset(false);
 
         this.proxy = config.proxy;
-        this.wizardActions = config.wizardActions;
-        this.toolbar = new ContentItemPreviewToolbar(RenderingMode.EDIT);
+        const helper = new PreviewActionHelper();
+        this.toolbar = new ContentItemPreviewToolbar(helper, RenderingMode.EDIT);
 
-        this.toolbar.setPreviewAction(this.wizardActions.getPreviewAction());
+        this.toolbar.setPreviewAction(config.wizardActions.getPreviewAction());
 
-        const iFrame = this.proxy.getIFrame();
-        const dragMask = this.proxy.getDragMask();
+        this.wrapper = new DivEl('wrapper');
+        this.wrapper.appendChild(this.proxy.getIFrame());
 
-        this.appendChildren<Element>(this.toolbar, iFrame, dragMask);
+        this.appendChildren<Element>(this.toolbar, this.wrapper, this.proxy.getDragMask());
     }
 
     public setItem(item: ContentSummaryAndCompareStatus) {
         this.toolbar.setItem(item);
     }
 
-    public getSelectedWidget(): Widget {
-        return this.toolbar.getWidgetSelector().getSelectedWidget();
+    public getWrapper(): DivEl {
+        return this.wrapper;
+    }
+
+    public getWidgetSelector(): PreviewWidgetDropdown {
+        return this.toolbar.getWidgetSelector();
     }
 }
