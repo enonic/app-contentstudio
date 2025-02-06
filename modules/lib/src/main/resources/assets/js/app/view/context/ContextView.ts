@@ -4,6 +4,7 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -11,6 +12,7 @@ import * as Q from 'q';
 import {CompareStatus} from '../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
+import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {InspectEvent} from '../../event/InspectEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
@@ -25,6 +27,8 @@ import {ContentWidgetItemView} from './widget/details/ContentWidgetItemView';
 import {OnlinePropertiesWidgetItemView} from './widget/details/OnlinePropertiesWidgetItemView';
 import {PageTemplateWidgetItemView} from './widget/details/PageTemplateWidgetItemView';
 import {StatusWidgetItemView} from './widget/details/StatusWidgetItemView';
+import {EmulatorDevice} from './widget/emulator/EmulatorDevice';
+import {EmulatorWidgetItemView} from './widget/emulator/EmulatorWidgetItemView';
 import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
 import {VersionContext} from './widget/version/VersionContext';
 import {VersionHistoryView} from './widget/version/VersionHistoryView';
@@ -52,6 +56,7 @@ export class ContextView
     protected pageEditorWidgetItemView?: PageEditorWidgetItemView;
     protected propertiesWidgetView: WidgetView;
     protected versionsWidgetView: WidgetView;
+    protected emulatorWidgetView?: WidgetView;
 
     protected contextWindow?: ContextWindow;
     protected alreadyFetchedCustomWidgets: boolean;
@@ -272,6 +277,7 @@ export class ContextView
 
         this.toggleClass('default-widget', this.defaultWidgetView.isActive());
         this.toggleClass('internal', widgetView.isInternal());
+        this.toggleClass('emulator', widgetView.isEmulator());
 
         if (this.widgetsSelectionRow) {
             this.widgetsSelectionRow.updateState(this.activeWidget);
@@ -354,6 +360,15 @@ export class ContextView
             .setType(InternalWidgetType.INFO)
             .setContextView(this)
             .setWidgetItemViews(this.getDetailsWidgetItemViews()).build();
+
+        this.emulatorWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.emulator'))
+            .setDescription(i18n('field.contextPanel.emulator.description'))
+            .setWidgetClass('emulator-widget')
+            .setIconClass(`${StyleHelper.getCurrentPrefix()}icon-mobile`)
+            .setType(InternalWidgetType.EMULATOR)
+            .setContextView(this)
+            .addWidgetItemView(new EmulatorWidgetItemView()).build();
 
         this.versionsWidgetView = this.createVersionsWidgetView();
 
@@ -526,6 +541,7 @@ export class ContextView
 
     updateWidgetsVisibility() {
         this.updatePageEditorWidgetView();
+        this.updateEmulatorWidgetView();
     }
 
     private updatePageEditorWidgetView(): void {
@@ -571,6 +587,40 @@ export class ContextView
 
     private isPageEditorWidgetPresent(): boolean {
         return this.isWidgetPresent(this.pageEditorWidgetView);
+    }
+
+    private updateEmulatorWidgetView(): void {
+        if (this.isPageRenderable) {
+            this.activateEmulatorWidgetView();
+        } else if (this.isEmulatorWidgetPresent()) {
+            this.deactivateEmulatorWidgetView();
+        }
+    }
+
+    private isEmulatorWidgetPresent(): boolean {
+        return this.isWidgetPresent(this.emulatorWidgetView);
+    }
+
+    private activateEmulatorWidgetView(): void {
+        if (this.isEmulatorWidgetPresent()) {
+            return;
+        }
+
+        const index: number = this.getIndexOfLastInternalWidget() + 1;
+        this.insertWidget(this.emulatorWidgetView, index);
+        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
+    }
+
+    private deactivateEmulatorWidgetView(): void {
+        const isEmulatorWidgetActive: boolean = this.isActiveWidgetByType(this.emulatorWidgetView);
+
+        if (isEmulatorWidgetActive) {
+            this.activateDefaultWidget();
+        }
+
+        this.removeWidget(this.emulatorWidgetView);
+        new EmulatedEvent(EmulatorDevice.getFullscreen(), false).fire();
+        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
     }
 
     private isWidgetPresent(widget: WidgetView): boolean {
