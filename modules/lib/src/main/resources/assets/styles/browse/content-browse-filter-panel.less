@@ -59,20 +59,23 @@
   }
 
   .filterable-bucket-aggregation-view {
-    .listbox-input {
-      .bucket-listbox {
+    .bucket-listbox {
+      .item-view-wrapper {
+        height: 32px;
+
         .viewer {
+          display: flex;
+          align-items: center;
+
           .@{_COMMON_PREFIX}main-name {
             font-size: 12px;
             color: @admin-font-gray2;
           }
         }
-      }
 
-      .item-view-wrapper {
         &.selected {
           .viewer .@{_COMMON_PREFIX}main-name {
-            color: @admin-black;
+            color: @admin-white;
           }
         }
       }
