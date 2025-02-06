@@ -67,8 +67,8 @@ export class ContentItemPreviewToolbar
         return this.widgetSelector;
     }
 
-    public getPreviewAction(): Action {
-        return this.previewButton.getAction();
+    public getPreviewAction(): WidgetPreviewAction {
+        return this.previewButton.getAction() as WidgetPreviewAction;
     }
 
     public setPreviewAction(action: Action) {

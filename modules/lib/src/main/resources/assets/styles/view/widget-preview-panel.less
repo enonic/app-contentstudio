@@ -1,4 +1,4 @@
-.content-item-preview-panel {
+.widget-preview-panel {
 
   &.loading {
     .wrapper {
@@ -7,11 +7,10 @@
     }
   }
 
-  .wrapper {
-    transition: opacity .3s ease-in-out;
-    height: 300px; // Initial height
+  &.emulated {
+    background: @admin-dark-gray;
 
-    &.emulated {
+    .wrapper {
       background-color: @admin-dark-gray;
       overflow: auto;
       flex: 1;
@@ -21,38 +20,39 @@
         margin: 0 auto;
       }
     }
+  }
+
+  .wrapper {
+    transition: opacity .3s ease-in-out;
+    height: 300px; // Initial height
+    flex: 1;
 
     > iframe {
       background-color: @admin-white;
-      transition: width .1s ease-in-out, height .1s ease-in-out;
-      display: none;
       width: 100%;
       height: 100%;
       border: 0 none;
-      margin: 0;
+      margin: 0 auto;
+    }
+
+    .no-preview-message,
+    .no-selection-message,
+    > iframe {
+      transition: width .1s ease-in-out, height .1s ease-in-out;
+      display: none;
     }
   }
 
-  &.no-preview {
+
+  &.message-preview {
     .wrapper {
       .no-preview-message {
         display: flex;
       }
     }
-
-    &.icon-blocked::before {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      margin-left: -64px;
-      margin-top: -64px;
-      font-size: 6em;
-      color: #eee;
-      z-index: 1;
-    }
   }
 
-  &.no-selection-message {
+  &.empty-preview {
     .wrapper {
       .no-selection-message {
         display: flex;
@@ -68,23 +68,35 @@
     }
   }
 
-
   .no-preview-message,
   .no-selection-message {
+
+    &.icon-blocked::before {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-left: -64px;
+      margin-top: -64px;
+      font-size: 6em;
+      color: #eee;
+      z-index: 1;
+    }
+
     .watermark-text(21px, true);
 
-    display: none;
-    position: relative;
-    align-items: center;
-    justify-content: center;
-    flex: none;
-    flex-direction: column;
+    position: static;
     top: 0;
+    height: 100%;
+    width: 100%;
     margin: 0 auto;
     background: @admin-white;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 
     span {
       white-space: normal;
+      display: block;
     }
   }
 

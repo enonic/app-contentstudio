@@ -17,9 +17,7 @@ import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEdit
 import {InitializeLiveEditEvent} from '../../../page-editor/InitializeLiveEditEvent';
 import {SkipLiveEditReloadConfirmationEvent} from '../../../page-editor/SkipLiveEditReloadConfirmationEvent';
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import {RenderingMode} from '../../rendering/RenderingMode';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {MinimizeWizardPanelEvent} from '@enonic/lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {DragMask} from '@enonic/lib-admin-ui/ui/mask/DragMask';
@@ -90,11 +88,10 @@ import {ProjectContext} from '../../project/ProjectContext';
 import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
 import {UpdateTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/UpdateTextComponentViewEvent';
 import {SetComponentStateEvent} from '../../../page-editor/event/incoming/manipulation/SetComponentStateEvent';
-import {PreviewActionHelper} from '../../action/PreviewActionHelper';
 import {Content} from '../../content/Content';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
-import {ViewWidgetEvent} from '../../event/ViewWidgetEvent';
 import {PageReloadRequestedEvent} from '../../../page-editor/event/outgoing/manipulation/PageReloadRequestedEvent';
+import {WizardWidgetRenderingHandler} from '../WizardWidgetRenderingHandler';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -118,41 +115,15 @@ export class LiveEditPageProxy
 
     private isPageLocked: boolean;
 
-    private previewHelper: PreviewActionHelper;
-
-    private viewWidget: Widget;
-
     constructor(content: Content) {
         this.content = content;
 
-        this.previewHelper = new PreviewActionHelper();
-
+        this.initElements();
         this.initListeners();
     }
 
     private initListeners(): void {
         PageNavigationMediator.get().addPageNavigationHandler(this);
-
-
-        EmulatedEvent.on((event: EmulatedEvent) => {
-            if (!this.liveEditWindow) {
-                return;
-            }
-
-            this.setWidth(event.getWidthWithUnits());
-            this.setHeight(event.getHeightWithUnits());
-
-            if (event.isFullscreen()) {
-                this.resetParentHeight();
-            } else {
-                this.updateLiveEditFrameContainerHeight(event.getDevice().getHeight());
-            }
-        });
-
-        ViewWidgetEvent.on((event: ViewWidgetEvent) => {
-            this.viewWidget = event.getWidget();
-            this.load();
-        });
 
         WindowDOM.get().onUnload(() => {
             sessionStorage.removeItem(`${LiveEditPage.SELECTED_PATH_STORAGE_KEY}:${this.content.getContentId().toString()}`);
@@ -169,54 +140,6 @@ export class LiveEditPageProxy
         return liveEditIFrame;
     }
 
-    // this helps to put horizontal scrollbar in the bottom of live edit frame
-    private updateLiveEditFrameContainerHeight(height: number) {
-        let body = document.body;
-        let html = document.documentElement;
-
-        let pageHeight = Math.max(body.scrollHeight, body.offsetHeight,
-            html.clientHeight, html.scrollHeight, html.offsetHeight);
-
-        let frameParent = this.getIFrame().getHTMLElement().parentElement;
-        if (height > pageHeight) {
-            frameParent.style.height = '';
-            frameParent.classList.add('overflow');
-        } else {
-            frameParent.style.height = `${height + LiveEditPageProxy.getScrollbarWidth()}px`;
-            frameParent.classList.remove('overflow');
-        }
-    }
-
-    private resetParentHeight() {
-        const frameParent = this.getIFrame().getHTMLElement().parentElement;
-        frameParent.style.height = '';
-        frameParent.classList.remove('overflow');
-    }
-
-    private static getScrollbarWidth(): number {
-        let outer = document.createElement('div');
-        outer.style.visibility = 'hidden';
-        outer.style.width = '100px';
-
-        document.body.appendChild(outer);
-
-        let widthNoScroll = outer.offsetWidth;
-        // force scrollbars
-        outer.style.overflow = 'scroll';
-
-        // add inner div
-        let inner = document.createElement('div');
-        inner.style.width = '100%';
-        outer.appendChild(inner);
-
-        let widthWithScroll = inner.offsetWidth;
-
-        // remove divs
-        outer.parentNode.removeChild(outer);
-
-        return widthNoScroll - widthWithScroll;
-    }
-
     public setModel(liveEditModel: LiveEditModel) {
         this.liveEditModel = liveEditModel;
     }
@@ -227,22 +150,6 @@ export class LiveEditPageProxy
         if (this.liveEditWindow) {
             new SetModifyAllowedEvent(modifyPermissions).fire(this.liveEditWindow);
         }
-    }
-
-    public setWidth(value: string) {
-        this.liveEditIFrame.getEl().setWidth(value);
-    }
-
-    public setWidthPx(value: number) {
-        this.liveEditIFrame.getEl().setWidthPx(value);
-    }
-
-    public setHeight(value: string) {
-        this.liveEditIFrame.getEl().setHeight(value);
-    }
-
-    public setHeightPx(value: number) {
-        this.liveEditIFrame.getEl().setHeightPx(value);
     }
 
     public getWidth(): number {
@@ -295,15 +202,10 @@ export class LiveEditPageProxy
         clearTimeout(timer);
     }
 
-    public load() {
-        if (!this.liveEditIFrame) {
-            this.liveEditIFrame = this.createLiveEditIFrame();
-            this.dragMask = new DragMask(this.liveEditIFrame);
-        }
-
+    public load(widgetRenderingHelper: WizardWidgetRenderingHandler, viewWidget: Widget): Promise<boolean> {
         PageEventsManager.get().notifyBeforeLoad();
 
-        let scrollTop;
+        let scrollTop: number | undefined;
 
         if (this.livejq && this.liveEditWindow) {
             // Store vertical scroll position inside the iFrame
@@ -311,18 +213,18 @@ export class LiveEditPageProxy
             scrollTop = this.livejq(this.liveEditWindow).scrollTop();
         }
 
-        const pageUrl = this.previewHelper.getUrl(this.content, this.viewWidget, RenderingMode.EDIT);
+        // load the page
+        return widgetRenderingHelper.renderWithWidget(this.content, viewWidget).then((loaded) => {
 
-        if (!this.liveEditWindow) {
-            this.liveEditIFrame.setSrc(pageUrl);
-        } else {
-            this.liveEditWindow.document.location.href = pageUrl; // This is a faster way to reload the iframe
-            if (scrollTop) {
+            if (this.liveEditWindow && scrollTop) {
                 this.livejq(this.liveEditWindow.document).ready(() => this.scrollIFrameToSavedPosition(scrollTop));
             }
-        }
 
-        if (this.liveEditModel) {
+            return loaded;
+        });
+
+
+        /*if (this.liveEditModel) {
             if (this.liveEditModel.isRenderableContent()) {
                 if (LiveEditPageProxy.debug) {
                     console.log(`LiveEditPageProxy.load loading page from '${pageUrl}' at ${new Date().toISOString()}`);
@@ -337,13 +239,13 @@ export class LiveEditPageProxy
 
                 this.liveEditIFrame.hide();
             }
-        }
+        }*/
     }
 
     public unload(): void {
         this.liveEditIFrame?.getEl().removeAttribute('src');
-        this.liveEditIFrame?.remove();
-        this.dragMask?.remove();
+        // this.liveEditIFrame?.remove();
+        // this.dragMask?.remove();
         this.isPageLocked = false;
 
         if (this.liveEditWindow) {
@@ -418,7 +320,7 @@ export class LiveEditPageProxy
         const displayName = this.liveEditModel.getContent().getDisplayName();
         const locked = !isPageTemplate && !PageState.getState()?.hasController() && !isFragment;
         const isFragmentAllowed = this.liveEditModel.isFragmentAllowed();
-        const isResetEnabled =  PageState.getState()?.hasController();
+        const isResetEnabled = PageState.getState()?.hasController();
         const pageName = displayName;
         const pageIconClass = PageHelper.getPageIconClass(PageState.getState());
         const isPageEmpty = isPageTemplate && !PageState.getState()?.hasController();
@@ -846,5 +748,10 @@ export class LiveEditPageProxy
                                     PageState.getState()?.hasController() ||
                                     this.liveEditModel.getContent().getType().isFragment() ||
                                     this.liveEditModel.getDefaultModels().hasDefaultPageTemplate() : false;
+    }
+
+    private initElements() {
+        this.liveEditIFrame = this.createLiveEditIFrame();
+        this.dragMask = new DragMask(this.liveEditIFrame);
     }
 }

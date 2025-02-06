@@ -1,5 +1,4 @@
 .live-form-panel {
-  background-color: @admin-dark-gray;
   margin-top: -1px;
 
   &:before {
@@ -14,24 +13,10 @@
   }
 
   .frame-container {
-    transition: width .1s ease-in-out;
-
     height: 100%;
-
     display: flex;
     flex-direction: column;
     align-items: stretch;
-
-    > iframe {
-      flex: 1;
-      overflow-x: auto;
-    }
-
-    &.overflow {
-      > iframe {
-        overflow: auto;
-      }
-    }
   }
 
   .live-edit-frame, .live-edit-frame-blank {
@@ -47,26 +32,8 @@
     overflow: auto;
   }
 
-  .no-preview-message {
-    display: none;
-  }
-
-  &.no-preview {
-    .no-preview-message {
-      .watermark-text(21px, true);
-      margin-top: -@toolbar-with-border-height/2;
-      z-index: 2;
-      display: block;
-    }
-    .frame-container {
-      display: none;
-    }
-    background-color: @admin-white;
-  }
-
   .page-placeholder {
     height: 100%;
-    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -113,6 +80,7 @@
       }
     }
   }
+
 }
 
 &.no-modify-permissions {
