@@ -8,6 +8,7 @@ import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {SelectionDeltaItem} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 
 export interface ContentTreeSelectorDropdownOptions
     extends ContentSelectorDropdownOptions {
@@ -141,7 +142,7 @@ export class ContentTreeSelectorDropdown
     }
 
     protected resetSelection(): void {
-        this.selectionDelta.forEach((value: boolean, id: string) => {
+        this.selectionDelta.forEach((value: SelectionDeltaItem<ContentTreeSelectorItem>, id: string) => {
             this.treeSelectionWrapper.toggleItemWrapperSelected(id, !value);
         });
 
