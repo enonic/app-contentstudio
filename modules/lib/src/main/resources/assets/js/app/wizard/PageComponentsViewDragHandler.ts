@@ -8,6 +8,8 @@ import {PageNavigationEventType} from './PageNavigationEventType';
 import {PageNavigationEventData} from './PageNavigationEventData';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {ComponentsTreeItem} from './ComponentsTreeItem';
+import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 
 export class PageComponentsViewDragHandler {
 
@@ -15,13 +17,18 @@ export class PageComponentsViewDragHandler {
 
     private readonly rootList: PageComponentsTreeGrid;
 
+    private readonly moveHelperHandler: (event: MouseEvent) => void;
+
     private isLayoutDragging: boolean;
+
+    private isDropAllowed: boolean;
 
     private allViews: PageComponentsListElement[] = [];
 
     constructor(root: PageComponentsTreeGrid, rootList: PageComponentsTreeGrid) {
         this.listToSort = root;
         this.rootList = rootList;
+        this.moveHelperHandler = this.handleHelperMove.bind(this);
 
         this.initSortable();
     }
@@ -33,6 +40,7 @@ export class PageComponentsViewDragHandler {
             },
             sort: true,
             animation: 150,
+            forceFallback: true,
             onStart: (event: SortableEvent) => this.handleStart(event),
             onEnd: (event: SortableEvent) => this.handleEnd(event),
             onMove: (evt: MoveEvent, originalEvent: Event) => this.handleMoveEvent(evt, originalEvent),
@@ -40,6 +48,10 @@ export class PageComponentsViewDragHandler {
     }
 
     private handleEnd(event: Sortable.SortableEvent): void {
+        this.setDropAllowed(false);
+        Body.get().unMouseMove(this.moveHelperHandler);
+        Body.get().removeChild(DragHelper.get());
+
         event.to.removeChild(event.item);
         event.from.insertBefore(event.item, event.from.children.item(event.oldIndex));
 
@@ -78,6 +90,10 @@ export class PageComponentsViewDragHandler {
     }
 
     private handleStart(event: SortableEvent): void {
+        this.setDropAllowed(true);
+        Body.get().appendChild(DragHelper.get());
+        Body.get().onMouseMove(this.moveHelperHandler);
+
         this.isLayoutDragging = false;
         const allItems = this.rootList.getItems(true);
         this.allViews = allItems.map((item) => this.rootList.getItemView(item)).filter((view) => !!view) as PageComponentsListElement[];
@@ -98,9 +114,12 @@ export class PageComponentsViewDragHandler {
 
         if (this.isLayoutDragging && currentlyOverList) {
             if (this.hasLayoutInParents(currentlyOverList)) {
+                this.setDropAllowed(false);
                 return false; // to forbid drop event
             }
         }
+
+        this.setDropAllowed(true);
     }
 
     private findListElementById(id: string): PageComponentsListElement {
@@ -124,5 +143,15 @@ export class PageComponentsViewDragHandler {
         }
 
         return false;
+    }
+
+    private setDropAllowed(value: boolean): void {
+        this.isDropAllowed = value;
+    }
+
+    private handleHelperMove(event: MouseEvent): void {
+        DragHelper.get().setDropAllowed(this.isDropAllowed);
+        DragHelper.get().getEl().setLeftPx(event.pageX);
+        DragHelper.get().getEl().setTopPx(event.pageY);
     }
 }
