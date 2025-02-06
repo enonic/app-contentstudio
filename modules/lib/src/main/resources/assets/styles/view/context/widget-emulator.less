@@ -1,0 +1,39 @@
+.widget-view {
+  .emulator-widget-item-view {
+
+    .grid-row {
+      height: 50px;
+      box-sizing: border-box;
+      padding: 8px 12px;
+
+      .title {
+        font-size: 13px;
+      }
+
+      .subtitle {
+        font-size: 11px;
+      }
+
+      &:hover {
+        cursor: pointer;
+        background-color: @admin-almost-white;
+      }
+
+      &:not(:last-child) {
+        border-bottom: 1px solid @admin-almost-white;
+      }
+
+      &.active {
+        background-color: @admin-bg-light-gray;
+
+        h5, h6 {
+          color: @admin-black;
+        }
+
+        .@{_CLS_PREFIX}font-icon::before {
+          color: @admin-button-blue1;
+        }
+      }
+    }
+  }
+}
