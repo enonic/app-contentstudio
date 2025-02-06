@@ -704,7 +704,6 @@ export class ContentWizardPanel
             contentType: this.contentType,
             defaultModels: this.defaultModels,
             content: this.getPersistedItem(),
-            compareStatus: this.getCompareStatus(),
             liveEditPage: this.liveEditPage,
         } as LiveFormPanelConfig);
 
@@ -2525,6 +2524,8 @@ export class ContentWizardPanel
         });
     }
 
+    //TODO: don't use IsRenderableRequest, because it only uses site engine
+    // but there are other widgets that may be able to render it
     private checkIfRenderable(item?: ContentSummary): Q.Promise<boolean> {
         return new IsRenderableRequest(item || this.getPersistedItem(), RenderingMode.EDIT).sendAndParse().then((statusCode: number) => {
             const renderable = statusCode === StatusCode.OK;
