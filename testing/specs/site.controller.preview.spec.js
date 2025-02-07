@@ -21,6 +21,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
 
     let SITE;
     const CONTROLLER_NAME = 'Page';
+    const FOOTER_TEXT = 'Configure footer text.'
 
     it(`GIVEN wizard for new site is opened WHEN page controller is not selected THEN 'Preview' button should not be visible in the wizard toolbar`,
         async () => {
@@ -92,6 +93,8 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await contentBrowsePanel.waitForContextMenuItemNotDisplayed('Preview');
         });
 
+    // Verifies - Preview Panel is not refreshed after updating contents's page #8239
+    // https://github.com/enonic/app-contentstudio/issues/8239
     it(`GIVEN existing site is opened WHEN selected controller has been reset THEN 'Preview' button gets not visible in wizard-toolbar and gets disabled in ItemPreviewPanel-toolbar `,
         async () => {
             let contentWizard = new ContentWizard();
@@ -112,6 +115,32 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await studioUtils.doSwitchToContentBrowsePanel();
             // 7. Verify that 'Preview' button is disabled in ItemPreviewPanel-toolbar:
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+        });
+
+    // Verifies - Preview Panel is not refreshed after updating contents's page #8239
+    // https://github.com/enonic/app-contentstudio/issues/8239
+    it(`GIVEN existing site is opened WHEN a page descriptor has been selected in the wizard page THEN 'Preview' button gets enabled in ItemPreviewPanel-toolbar AND expected text appears in LiveView`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 2. Select a controller:
+            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
+            await contentWizard.pause(700);
+            // 6. go to Browse Panel:
+            await studioUtils.doSwitchToContentBrowsePanel();
+            // 7. Verify that 'Preview' button is enabled in ItemPreviewPanel-toolbar:
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            // 8.Verify that text from the descriptor page is displayed in the LIVE VIEW in Browse Panel:
+            await contentItemPreviewPanel.switchToTextFrame();
+            let locator = "//div[@class='site-info']";
+            await studioUtils.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            // 9. Verify that text from the descriptor page is displayed in the LIVE VIEW in Browse Panel:
+            let footerText = await studioUtils.getText(locator);
+            assert.equal(footerText, FOOTER_TEXT, 'Footer text should be displayed in the preview panel');
+
         });
 
     // test to verify of XP-4123 (Page Editor inaccessible for a folder)

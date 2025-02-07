@@ -18,6 +18,7 @@ const WizardDependenciesWidget = require('./details/wizard.dependencies.widget')
 const PropertiesWidget = require('../browsepanel/detailspanel/properties.widget.itemview');
 const EditSettingsDialog = require('../details_panel/edit.settings.dialog');
 const PageDescriptorDropdown = require('../components/selectors/page.descriptor.dropdown');
+const {Key} = require('webdriverio');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -732,8 +733,13 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    hotKeyDelete() {
-        return this.getBrowser().keys(['Control', 'Delete']);
+    async hotKeyDelete() {
+        let status = await this.getBrowserStatus();
+        if (status.os.name.includes('Mac')) {
+            return await this.getBrowser().keys([Key.Command, Key.Delete]);
+        } else {
+            return await this.getBrowser().keys([Key.Ctrl, Key.Delete]);
+        }
     }
 
     async hotKeySave() {
