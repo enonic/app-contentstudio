@@ -70,6 +70,10 @@ module.exports = {
         let element = await this.getBrowser().$(selector);
         return await element.waitForDisplayed(ms);
     },
+    async waitForElementNotDisplayed(selector, ms) {
+        let element = await this.getBrowser().$(selector);
+        return await element.waitForDisplayed(ms);
+    },
     async clickOnElement(selector) {
         let el = await this.getBrowser().$(selector);
         await el.waitForDisplayed({timeout: 2000});

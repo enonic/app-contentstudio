@@ -4,6 +4,7 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
+const {Key} = require('webdriverio');
 
 const XPATH = {
     enabledContextMenuButton: name => {
@@ -41,14 +42,22 @@ class BaseBrowsePanel extends Page {
         return this.getBrowser().keys(['Alt', 'n']);
     }
 
-    hotKeyDelete() {
-        return this.getBrowser().keys(['Control', 'Delete']);
+    async hotKeyDelete() {
+        let status = await this.getBrowserStatus();
+        if (status.os.name.includes('Mac')) {
+            return await this.getBrowser().keys([Key.Command, Key.Delete]);
+        } else {
+            return await this.getBrowser().keys([Key.Ctrl, Key.Delete]);
+        }
     }
 
     async hotKeyEdit() {
-        let status = await this.getBrowser().status();
-        await this.getBrowser().keys(['Control', 'e']);
-        return await this.pause(500);
+        let status = await this.getBrowserStatus();
+        if (status.os.name.includes('Mac')) {
+            return await this.getBrowser().keys([Key.Command, 'e']);
+        } else {
+            return await this.getBrowser().keys([Key.Ctrl, 'e']);
+        }
     }
 
     async clickOnSelectionControllerCheckbox() {

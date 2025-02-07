@@ -655,6 +655,10 @@ class Page {
     async getPuppeteer() {
         return await browser.getPuppeteer();
     }
+
+    async getBrowserStatus() {
+        return await this.getBrowser().status();
+    }
 }
 
 module.exports = Page;

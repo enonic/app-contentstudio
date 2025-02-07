@@ -15,6 +15,7 @@ const xpath = {
     fragmentPlaceHolderDiv: `//div[contains(@id,'FragmentPlaceholder')]`,
     sectionTextComponentView: "//section[contains(@id,'TextComponentView')]",
     editableTextComponentView: "//*[contains(@id,'TextComponentView') and @contenteditable='true']",
+    textComponentType: "//*[@data-portal-component-type='text']",
     previewNotAvailableSpan: "//p[@class='no-preview-message']/span[1]",
     imageInComponent: "//figure/img",
     editableTextComponentByText: text => `//section[contains(@id,'TextComponentView') and @contenteditable='true']//p[contains(.,'${text}')]`,
@@ -81,6 +82,17 @@ class LiveFormPanel extends Page {
         }
     }
 
+    // gets text from all components - data-portal-component-type=text
+    async getTextFromTextComponents() {
+        try {
+            let selector = xpath.textComponentType + '/p';
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            return await this.getTextInDisplayedElements(selector);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_txt_component');
+            throw new Error('Error, Live Edit frame, text component, screenshot: ' + screenshot + ' ' + err);
+        }
+    }
     async getTextInTextComponent() {
         try {
             let selector = xpath.sectionTextComponentView + '/p';
