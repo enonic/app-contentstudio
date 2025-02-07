@@ -115,13 +115,13 @@ public class MediaRenderingBean
     public Object image( final String id, final String repository, final String branch, final boolean archive )
         throws IOException
     {
-        return image( id, repository, branch, archive, 0, true, true, null, null, false );
+        return image( id, repository, branch, archive, 0 );
     }
 
     public Object image( final String id, final String repository, final String branch, final boolean archive, final Integer size )
         throws IOException
     {
-        return image( id, repository, branch, archive, size, true, true, null, null, false );
+        return image( id, repository, branch, archive, size, false, false, null, null, true );
     }
 
     public Object image( final String id, final String repository, final String branch, final boolean archive, final Integer size,
