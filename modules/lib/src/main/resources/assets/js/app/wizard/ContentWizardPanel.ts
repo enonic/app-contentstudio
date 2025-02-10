@@ -1321,13 +1321,13 @@ export class ContentWizardPanel
         const steps: ContentWizardStep[] =
             [this.dataWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm)];
 
-        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
-            steps.push(new XDataWizardStep(form));
-        });
-
         if (this.isPageComponentsViewRequired()) {
             steps.push(this.initPageComponentsWizardStep());
         }
+
+        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
+            steps.push(new XDataWizardStep(form));
+        });
 
         return steps;
     }
@@ -2734,9 +2734,13 @@ export class ContentWizardPanel
         }
 
         if (!this.getSteps().some((step: WizardStep) => step === this.pageComponentsWizardStep)) {
-            this.addStep(this.pageComponentsWizardStep, false);
-            // bug in lib-admin-ui WizardPanel addStep method: it doesn't add step to steps array
-            this.getSteps().push(this.pageComponentsWizardStep);
+            const firstXDataStep = this.getSteps().find(step => step instanceof XDataWizardStep);
+
+            if (firstXDataStep) {
+                this.insertStepBefore(this.pageComponentsWizardStep, firstXDataStep);
+            } else {
+                this.addStep(this.pageComponentsWizardStep, false);
+            }
 
             if (this.isMinimized()) {
                 this.undockPCV();
