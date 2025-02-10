@@ -103,9 +103,9 @@ describe('Text Component with CKE - insert download-link specification', functio
             // 2.  'Site Engine' has been selected in the Preview widget dropdown:
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
             await studioUtils.saveScreenshot('site_engine_download_link');
-            await contentItemPreviewPanel.switchToLiveViewFrame();
+            await contentItemPreviewPanel.switchToTextFrame();
             // 3. Verify that new added link is present
-            let result = await contentItemPreviewPanel.getTextFromTextComponent();
+            let result = await contentItemPreviewPanel.getTextFromTextComponent(0);
             assert.equal(result, LINK_TEXT, "expected link should be present in the Preview Panel");
         });
 
@@ -115,9 +115,9 @@ describe('Text Component with CKE - insert download-link specification', functio
             // 1. Select the site and 'Automatic' option in the Preview widget dropdown:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await studioUtils.saveScreenshot('site_automatic_download_link');
-            await contentItemPreviewPanel.switchToLiveViewFrame();
+            await contentItemPreviewPanel.switchToTextFrame();
             // 2. Verify that new added link is present
-            let result = await contentItemPreviewPanel.getTextFromTextComponent();
+            let result = await contentItemPreviewPanel.getTextFromTextComponent(0);
             assert.equal(result, LINK_TEXT, "expected link should be present in the Preview Panel");
         });
 

@@ -122,7 +122,7 @@ describe('Generate name for fragments specification', function () {
             await contentBrowsePanel.pause(1000);
             // 2. Expand the site:
             await contentBrowsePanel.clickOnExpanderIcon(SITE.displayName);
-            await studioUtils.saveScreenshot('issue_text_component_inbound_section');
+            await studioUtils.saveScreenshot('grid_displays_name_8255');
             // 3. Content Grid displays names of the fragments in the site:
             let result = await contentBrowsePanel.getContentNamesInGrid()
             assert.ok(result.includes(FRAGMENT_GENERATED_NAME), 'expected fragment name should be displayed in the grid');
