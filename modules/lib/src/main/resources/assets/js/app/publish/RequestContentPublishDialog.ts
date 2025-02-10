@@ -213,9 +213,9 @@ export class RequestContentPublishDialog
         (this.assigneesFormItem.getInput() as PrincipalComboBoxWrapper).getComboBox().setSelectedItems([]);
         this.detailsForm.removeClass(FormView.VALIDATION_CLASS);
 
-        this.goToStep(Step.ITEMS);
-
         super.open();
+
+        this.goToStep(Step.ITEMS);
     }
 
     private doRequestPublish(): void {
