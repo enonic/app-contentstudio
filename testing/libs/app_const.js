@@ -513,5 +513,10 @@ module.exports = Object.freeze({
         CAN_NOT_RENDER_NON_MEDIA: 'Can not render non-media content',
         PREVIEW_NOT_AVAILABLE: 'Preview not available',
         CAN_NOT_RENDER_WITH_SITE_ENGINE: 'Can not render with site engine'
+    },
+    X_DATA_NAME: {
+        TEXT_AREA_X_DATA_NAME: 'Text Area x-data',
+        HTML_AREA_X_DATA_NAME: 'Html Area x-data',
+        IMAGE_X_DATA_NAME: 'X-data (image selector)'
     }
 });
