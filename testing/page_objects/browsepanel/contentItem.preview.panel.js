@@ -348,11 +348,30 @@ class ContentItemPreviewPanel extends Page {
         return await this.getTextInDisplayedElements(locator);
     }
 
+
+    // Waits for a text-component is displayed in iframe in Preview Panel
+    async waitForTextComponentDisplayed() {
+        try {
+            let locator = "//section[@data-portal-component-type='text']/p";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_text_component_live_view');
+            throw new Error(`Text component is not displayed in Live View in Preview Panel, screenshot: ${screenshot} ` + err);
+        }
+    }
+
     // Iframe, get a text from the text component
-    async getTextFromTextComponent() {
-        let locator = "//section[@data-portal-component-type='text']/p";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
+    async getTextFromTextComponent(index) {
+        try {
+            let locator = "//section[@data-portal-component-type='text']/p";
+            await this.waitForTextComponentDisplayed();
+            let txtComponents = await this.findElements(locator);
+            return await txtComponents[index].getText();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_live_view');
+            throw new Error(`Error during getting a text from the text component in Preview Panel, screenshot: ${screenshot} ` + err);
+
+        }
     }
 }
 
