@@ -48,7 +48,7 @@ describe('Generate name for fragments specification', function () {
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Insert new text-component
             await pageComponentView.openMenu('main');
@@ -64,8 +64,9 @@ describe('Generate name for fragments specification', function () {
             await pageComponentView.openMenu('Text');
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.pause(700);
+            // Switch to the tab with the fragment:
             await studioUtils.doSwitchToNewWizard();
-            // 5. Verify the generated display name:
+            // 5. Verify the generated display name in the fragment-wizard:
             let fragmentContent = await contentWizard.getDisplayName();
             assert.equal(fragmentContent, 'Text', 'Expected display name should be generated in Fragment-Wizard');
             // 6. Verify that 'Page Component' step wizard is displayed in the fragment-wizard:
@@ -74,6 +75,12 @@ describe('Generate name for fragments specification', function () {
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.equal(result.length, 1, 'One item should be displayed in the Page Component wizard step');
             assert.ok(result.includes('Text'), 'City list part should be present in the dialog');
+
+            await studioUtils.saveScreenshot('x_data_fragment');
+            // 8. Verify that x-data toggle is displayed in the fragment-wizard:
+            await contentWizard.clickOnXdataTogglerByName(appConst.X_DATA_NAME.TEXT_AREA_X_DATA_NAME);
+            // 9. Verify that red icon appears in the wizard, because the fragment gets invalid now, even before a saving:
+            await contentWizard.waitUntilInvalidIconAppears();
         });
 
     // Verify the https://github.com/enonic/app-contentstudio/issues/8255
@@ -105,7 +112,7 @@ describe('Generate name for fragments specification', function () {
             //assert.equal(result.length, 1, 'One content should be present in the grid');
         });
 
-    // Verify Content Grid displays _path instead of _name #8255
+    // Verify the bug - Content Grid displays _path instead of _name #8255
     it(`WHEN the site has been expanded THEN the expected fragment name should be displayed beneath the site-name`,
         async () => {
             let contentFilterPanel = new ContentFilterPanel();
@@ -129,7 +136,7 @@ describe('Generate name for fragments specification', function () {
             let wizardDependenciesWidget = new WizardDependenciesWidget();
             // 1. Open the site with a fragment(text component)
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on 'minimize-toggle', expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Click on text-component and expand the menu, then click on Remove menu item:
             await pageComponentView.openMenu('Text');
@@ -243,7 +250,8 @@ describe('Generate name for fragments specification', function () {
             // 6. Verify the workflow state:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             let state = await contentWizard.getContentWorkflowState();
-            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "'Ready for publishing' state should be displayed in the wizard");
+            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
+                "'Ready for publishing' state should be displayed in the wizard");
             // 7. Verify that Save button is disabled:
             await contentWizard.waitForSaveButtonDisabled();
         });

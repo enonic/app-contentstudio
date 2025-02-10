@@ -15,9 +15,9 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
     }
     let SITE;
     const contentName = contentBuilder.generateRandomName('content');
-    const HTML_AREA_X_DATA_NAME = 'Html Area x-data';
-    const TEXT_AREA_X_DATA_NAME = 'Text Area x-data';
-    const IMAGE_X_DATA_NAME = 'X-data (image selector)';
+    const HTML_AREA_X_DATA_NAME = appConst.X_DATA_NAME.HTML_AREA_X_DATA_NAME;
+    const TEXT_AREA_X_DATA_NAME = appConst.X_DATA_NAME.TEXT_AREA_X_DATA_NAME;
+    const IMAGE_X_DATA_NAME = appConst.X_DATA_NAME.IMAGE_X_DATA_NAME;
 
     it(`Preconditions: new site should be added`,
         async () => {
