@@ -148,7 +148,7 @@ public final class ContentImageResource
                 {
                     final String mimeType = attachment.getMimeType();
 
-                    if ( mimeType.equals( "image/gif" ) )
+                    if ( mimeType.equals( "image/gif" ) || mimeType.equals( "image/avif" ) || mimeType.equals( "image/webp" ) )
                     {
                         return new ResolvedImage( binary, mimeType );
                     }
