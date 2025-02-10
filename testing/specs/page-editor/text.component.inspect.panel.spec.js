@@ -11,7 +11,7 @@ const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liv
 const appConst = require('../../libs/app_const');
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 
-describe('Move Fragment specification', function () {
+describe('Tests for text-component and htmlArea in Inspect Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

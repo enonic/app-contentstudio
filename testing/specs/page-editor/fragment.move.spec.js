@@ -76,8 +76,8 @@ describe('Move Fragment specification', function () {
                 'Automatic option should be selected in preview widget by default');
             // 3. Verify that 'Preview' button should be enabled:
             await contentItemPreviewPanel.waitForPreviewButtonEnabled();
-            await contentItemPreviewPanel.switchToLiveViewFrame();
-            let result = await contentItemPreviewPanel.getTextFromTextComponent();
+            await contentItemPreviewPanel.switchToTextFrame();
+            let result = await contentItemPreviewPanel.getTextFromTextComponent(0);
             assert.equal(result, TEST_TEXT_FRAGMENT, "expected text should be present in the Preview Panel");
         });
 
@@ -91,8 +91,8 @@ describe('Move Fragment specification', function () {
             // 3. Verify the Preview button should be enabled:
             await contentItemPreviewPanel.waitForPreviewButtonEnabled();
             // 4. Verify the text-fragment should be displayed in the Preview Panel
-            await contentItemPreviewPanel.switchToLiveViewFrame();
-            let result = await contentItemPreviewPanel.getTextFromTextComponent();
+            await contentItemPreviewPanel.switchToTextFrame()
+            let result = await contentItemPreviewPanel.getTextFromTextComponent(0);
             assert.equal(result, TEST_TEXT_FRAGMENT, "expected text should be present in the Preview Panel");
         });
 
