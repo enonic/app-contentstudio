@@ -188,7 +188,8 @@ class BrowseFilterPanel extends Page {
         try {
             let timeout;
             timeout = ms === undefined ? appConst.mediumTimeout : ms;
-            return await this.waitForElementDisplayed(XPATH.container + XPATH.dependenciesSection, timeout)
+            await this.waitForElementDisplayed(XPATH.container + XPATH.dependenciesSection, timeout);
+            await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_load_dependencies_section');
             throw new Error("Filter Panel: Dependencies section should be visible! screenshot " + screenshot + ' ' + err);

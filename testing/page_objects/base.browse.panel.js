@@ -117,7 +117,7 @@ class BaseBrowsePanel extends Page {
     // gets list of content display names
     async getDisplayNamesInGrid() {
         try {
-            return await this.getTextInElements(this.displayNames)
+            return await this.getTextInElements(this.displayNames);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_get_display_name_grid');
             throw new Error(`Error occurred when getting display names in grid, screenshot:${screenshot} ` + err);
