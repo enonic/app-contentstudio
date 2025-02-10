@@ -17,6 +17,7 @@ import {CloseButton} from '@enonic/lib-admin-ui/ui/button/CloseButton';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 
 export interface Point {
     x: number;
@@ -268,6 +269,14 @@ export class ImageEditor
 
     getLastButtonInContainer(): Element {
         return this.uploadButton;
+    }
+
+    setImageIsNonEditable(): void {
+        this.addClass('non-editable');
+    }
+
+    appendLinkEl(linkEl: AEl): void {
+        this.topContainer.prependChild(linkEl);
     }
 
     remove(): ImageEditor {

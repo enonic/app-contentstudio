@@ -143,7 +143,8 @@ public final class ContentIconResource
     {
         try
         {
-            if ( params.mimeType.equals( "image/svg+xml" ) || params.mimeType.equals( "image/gif" ) )
+            if ( params.mimeType.equals( "image/svg+xml" ) || params.mimeType.equals( "image/gif" ) ||
+                params.mimeType.equals( "image/avif" ) || params.mimeType.equals( "image/webp" ) )
             {
                 final ByteSource binary = contentService.getBinary( params.id, params.binaryReference );
                 final boolean gzip = params.fileName != null && params.fileName.toLowerCase().endsWith( ".svgz" );

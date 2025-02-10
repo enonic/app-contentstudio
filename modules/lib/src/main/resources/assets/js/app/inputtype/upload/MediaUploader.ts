@@ -124,7 +124,7 @@ export class MediaUploader
             this.mediaUploaderEl.setValue(this.getContext().content.getContentId().toString());
 
             if (property.hasNonNullValue()) {
-                this.mediaUploaderEl.setFileName(this.getFileNameFromProperty(property));
+                this.mediaUploaderEl.setFileName(MediaUploader.getFileNameFromProperty(property));
             }
         } else if (this.mediaUploaderEl.isDirty()) {
             this.mediaUploaderEl.forceChangedEvent();
@@ -136,7 +136,7 @@ export class MediaUploader
         this.mediaUploaderEl.resetBaseValues();
     }
 
-    private getFileNameFromProperty(property: Property): string {
+    static getFileNameFromProperty(property: Property): string {
         if (property.getValue() != null) {
             switch (property.getType()) {
             case ValueTypes.DATA:
@@ -210,7 +210,7 @@ export class MediaUploader
     private createUploader(property: Property): MediaUploaderEl {
 
         let predefinedAllowTypes;
-        let attachmentFileName = this.getFileNameFromProperty(property);
+        let attachmentFileName = MediaUploader.getFileNameFromProperty(property);
 
         if (this.propertyAlreadyHasAttachment(property)) {
             predefinedAllowTypes = this.getAllowTypeFromFileName(attachmentFileName);

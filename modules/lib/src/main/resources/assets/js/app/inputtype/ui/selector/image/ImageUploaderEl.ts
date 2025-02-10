@@ -9,12 +9,18 @@ import {ImageEditor, Point, Rect} from './ImageEditor';
 import {ImageUrlResolver} from '../../../../util/ImageUrlResolver';
 import {ContentId} from '../../../../content/ContentId';
 import {MaskContentWizardPanelEvent} from '../../../../wizard/MaskContentWizardPanelEvent';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
+
+export interface ImageUploaderElConfig extends MediaUploaderElConfig {
+    imageEditorCreatedCallback?: (imageEditor: ImageEditor) => void;
+}
 
 export class ImageUploaderEl
     extends MediaUploaderEl {
 
     private imageEditors: ImageEditor[];
     private editModeListeners: ((edit: boolean, crop: Rect, zoom: Rect, focus: Point) => void)[];
+    private imageEditorCreatedCallback?: (imageEditor: ImageEditor) => void;
     private focusAutoPositionedListeners: ((auto: boolean) => void)[];
     private focusPositionChangedListeners: ((focus: Point) => void)[];
     private cropAutoPositionedListeners: ((auto: boolean) => void)[];
@@ -29,10 +35,10 @@ export class ImageUploaderEl
     private static SELECTED_CLASS: string = 'selected';
     private static STANDOUT_CLASS: string = 'standout';
 
-    constructor(config: MediaUploaderElConfig) {
+    constructor(config: ImageUploaderElConfig) {
         if (config.allowExtensions == null) {
             config.allowExtensions = [
-                {title: 'Image files', extensions: 'jpg,jpeg,gif,png,svg'}
+                {title: 'Image files', extensions: 'jpg,jpeg,gif,png,svg,avif,webp'}
             ];
         }
         if (config.selfIsDropzone == null) {
@@ -48,6 +54,7 @@ export class ImageUploaderEl
         this.cropAutoPositionedListeners = [];
         this.cropPositionChangedListeners = [];
         this.orientationChangedListeners = [];
+        this.imageEditorCreatedCallback = config.imageEditorCreatedCallback;
 
         this.addClass('image-uploader-el');
         this.getEl().setAttribute('data-drop', i18n('drop.image'));
@@ -252,8 +259,10 @@ export class ImageUploaderEl
 
     createResultItem(value: string): DivEl {
         let imageEditor = this.createImageEditor(value);
-
+        imageEditor.appendLinkEl(super.createResultItem(value) as AEl);
         this.imageEditors.push(imageEditor);
+
+        this.imageEditorCreatedCallback?.(imageEditor);
 
         return imageEditor;
     }

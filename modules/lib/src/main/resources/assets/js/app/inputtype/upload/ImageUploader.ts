@@ -14,7 +14,7 @@ import {ImageErrorEvent} from '../ui/selector/image/ImageErrorEvent';
 import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
-import {Point, Rect} from '../ui/selector/image/ImageEditor';
+import {ImageEditor, Point, Rect} from '../ui/selector/image/ImageEditor';
 import {Content} from '../../content/Content';
 import {BaseInputTypeSingleOccurrence} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeSingleOccurrence';
 import {InputValidationRecording} from '@enonic/lib-admin-ui/form/inputtype/InputValidationRecording';
@@ -22,6 +22,7 @@ import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {InputValidityChangedEvent} from '@enonic/lib-admin-ui/form/inputtype/InputValidityChangedEvent';
+import {MediaUploader} from './MediaUploader';
 
 export class ImageUploader
     extends BaseInputTypeSingleOccurrence {
@@ -32,6 +33,8 @@ export class ImageUploader
 
     private isFocusAutoPositioned: boolean;
 
+    private imageMimeType: string;
+
     constructor(config: ContentInputTypeViewContext) {
         super(config);
         this.initUploader(config);
@@ -40,6 +43,7 @@ export class ImageUploader
 
     private initUploader(config: ContentInputTypeViewContext) {
         this.imageUploader = new ImageUploaderEl({
+            imageEditorCreatedCallback: this.handleImageEditorCreated.bind(this),
             params: {
                 content: config.content.getContentId().toString()
             },
@@ -50,6 +54,7 @@ export class ImageUploader
             project: config.project
         });
 
+        this.updateImageMimeType(config.content as Content);
         this.imageUploader.getUploadButton().hide();
         this.appendChild(this.imageUploader);
     }
@@ -75,9 +80,15 @@ export class ImageUploader
 
         this.imageUploader.onUploadStarted(() => this.imageUploader.getUploadButton().hide());
 
+        if (property.hasNonNullValue()) {
+            this.imageUploader.setFileName(MediaUploader.getFileNameFromProperty(property));
+        }
+
         this.imageUploader.onFileUploaded((event: UploadedEvent<Content>) => {
             let content = event.getUploadItem().getModel();
+            this.updateImageMimeType(content);
             let value = this.imageUploader.getMediaValue(content);
+            this.imageUploader.setFileName(value.getString());
 
             this.imageUploader.setOriginalDimensions(
                 this.readSizeValue(content, 'imageWidth'),
@@ -91,6 +102,7 @@ export class ImageUploader
         this.imageUploader.onUploadCompleted(() => this.imageUploader.resetBaseValues());
 
         this.imageUploader.onUploadReset(() => {
+            this.imageUploader.setFileName('');
             this.saveToProperty(this.newInitialValue());
             this.imageUploader.getUploadButton().show();
         });
@@ -135,6 +147,16 @@ export class ImageUploader
         });
 
         return property.hasNonNullValue() ? this.updateProperty(property) : Q<void>(null);
+    }
+
+    private updateImageMimeType(content: Content): void {
+        this.imageMimeType = content.getAttachments().getAttachment(0)?.getMimeType();
+    }
+
+    private handleImageEditorCreated(imageEditor: ImageEditor): void {
+        if (this.imageMimeType === 'image/avif' || this.imageMimeType === 'image/webp') {
+            imageEditor.setImageIsNonEditable();
+        }
     }
 
     protected saveToProperty(value: Value) {
