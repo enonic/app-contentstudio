@@ -256,9 +256,14 @@
       padding: 10px;
       background-color: rgba(255, 255, 255, .9);
       display: flex;
+      align-items: center;
 
       > .@{_COMMON_PREFIX}button {
         margin-right: 10px;
+      }
+
+      > a {
+        display: none;
       }
     }
 
@@ -318,6 +323,22 @@
           width: 20px;
           background-color: #000;
           border-radius: 10px;
+        }
+      }
+    }
+  }
+
+  &.non-editable {
+    .sticky-toolbar {
+      .top-container {
+        padding: 0 0 10px 0;
+
+        > .@{_COMMON_PREFIX}button {
+          display: none;
+        }
+
+        > a {
+          display: block;
         }
       }
     }
