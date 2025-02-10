@@ -295,7 +295,7 @@ class ContentWizardPanel extends Page {
             return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_wizard_step');
-            throw new Error("Error after clicking on the wizard step , screenshot: " + screenshot + ' ' + err);
+            throw new Error(`Error after clicking on the wizard step , screenshot:${screenshot} ` + err);
         }
     }
 
@@ -316,7 +316,7 @@ class ContentWizardPanel extends Page {
             return await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_x_data_toggler');
-            throw new Error("Error occurred during clicking on X-data toggler, screenshot: " + screenshot + "  " + err);
+            throw new Error(`Error occurred during clicking on X-data toggler, screenshot:${screenshot} ` + err);
         }
     }
 

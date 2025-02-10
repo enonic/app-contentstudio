@@ -21,9 +21,9 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
     const DOUBLE_0_1_CONTENT = contentBuilder.generateRandomName('double');
     const DOUBLE_0_0_CONTENT = contentBuilder.generateRandomName('double');
     const TEST_TEXT = 'test text';
-    const HTML_AREA_X_DATA_NAME = 'Html Area x-data';
-    const TEXT_AREA_X_DATA_NAME = 'Text Area x-data';
-    const IMAGE_X_DATA_NAME = 'X-data (image selector)';
+    const HTML_AREA_X_DATA_NAME = appConst.X_DATA_NAME.HTML_AREA_X_DATA_NAME;
+    const TEXT_AREA_X_DATA_NAME = appConst.X_DATA_NAME.TEXT_AREA_X_DATA_NAME;
+    const IMAGE_X_DATA_NAME = appConst.X_DATA_NAME.IMAGE_X_DATA_NAME;
 
     it(`Preconditions: new site should be added`,
         async () => {
