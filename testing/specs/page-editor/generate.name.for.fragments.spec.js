@@ -90,10 +90,12 @@ describe('Generate name for fragments specification', function () {
             await contentBrowsePanel.pause(1000);
             // 3. Open Dependency widget in the Browse Panel:
             await studioUtils.openDependencyWidgetInBrowsePanel();
+            await contentBrowsePanel.pause(1000);
             let browseDependenciesWidget = new BrowseDependenciesWidget();
             // 4. Click on 'Show Inbound' button:
             await browseDependenciesWidget.clickOnShowInboundButton();
             await studioUtils.doSwitchToNextTab();
+            await contentBrowsePanel.pause(1000);
             // 'Dependencies Section' should be present, in the filter panel
             await contentFilterPanel.waitForDependenciesSectionVisible();
             await studioUtils.saveScreenshot('issue_text_component_inbound_section');
