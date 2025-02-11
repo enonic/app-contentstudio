@@ -5,9 +5,9 @@ const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 const xpath = {
     formOptionSetOccurrenceView: "//div[contains(@id,'FormOptionSetOccurrenceView')]",
-    optionLabelLocator: option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::label[text()='${option}']]//label`,
+    optionLabelLocator: option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::span[text()='${option}']]//label`,
     optionCheckboxLocator:
-        option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::label[text()='${option}']]//input[@type='checkbox']`
+        option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::span[text()='${option}']]//input[@type='checkbox']`
 };
 //multi-select option set:
 //Page Object for Custom option set

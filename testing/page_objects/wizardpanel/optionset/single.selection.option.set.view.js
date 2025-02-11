@@ -131,7 +131,7 @@ class SingleSelectionOptionSet extends Page {
     async selectOption(optionDisplayName) {
         try {
             let filterableListBox = new FilterableListBox();
-            await filterableListBox.clickOnDropdownHandle(this.formOptionSet);
+            await filterableListBox.clickOnDropdownHandle(xpath.container);
             await filterableListBox.clickOnOptionByDisplayName(optionDisplayName);
             return await this.pause(500);
         } catch (err) {

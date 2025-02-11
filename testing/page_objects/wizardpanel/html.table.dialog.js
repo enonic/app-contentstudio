@@ -10,11 +10,11 @@ const xpath = {
 class HtmlTableDialog extends Page {
 
     get rowsInput() {
-        return xpath.container + "//div[contains(@id,'FormItem') and child::label[text()='Rows']]" + lib.TEXT_INPUT;
+        return xpath.container + "//div[contains(@id,'FormItem') and descendant::span[text()='Rows']]" + lib.TEXT_INPUT;
     }
 
     get columnsInput() {
-        return xpath.container + "//div[contains(@id,'FormItem') and child::label[text()='Columns']]" + lib.TEXT_INPUT;
+        return xpath.container + "//div[contains(@id,'FormItem') and descendant::span[text()='Columns']]" + lib.TEXT_INPUT;
     }
 
     get okButton() {

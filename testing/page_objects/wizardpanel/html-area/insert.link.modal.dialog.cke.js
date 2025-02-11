@@ -4,8 +4,8 @@ const appConst = require('../../../libs/app_const');
 
 const XPATH = {
     container: `//div[contains(@id,'LinkModalDialog')]`,
-    linkTextFieldset: `//fieldset[contains(@id,'Fieldset') and descendant::label[text()='Text']]`,
-    linkTooltipFieldset: `//fieldset[contains(@id,'Fieldset') and descendant::label[text()='Tooltip']]`,
+    linkTextFieldset: `//fieldset[contains(@id,'Fieldset') and descendant::span[text()='Text']]`,
+    linkTooltipFieldset: `//fieldset[contains(@id,'Fieldset') and descendant::span[text()='Tooltip']]`,
     urlPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and contains(@class,'panel url-panel')]",
     emailPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and @class='panel']",
     urlTypeButton: "//div[contains(@id,'MenuButton')]//button[contains(@id,'ActionButton') and child::span[text()='Type']]",
@@ -33,7 +33,7 @@ class InsertLinkDialog extends Page {
     }
 
     get emailInput() {
-        return XPATH.container + XPATH.emailPanel + "//fieldset[descendant::label[text()='Email']]" + lib.TEXT_INPUT;
+        return XPATH.container + XPATH.emailPanel + "//fieldset[descendant::span[text()='Email']]" + lib.TEXT_INPUT;
     }
 
     get subjectInput() {

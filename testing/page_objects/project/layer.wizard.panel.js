@@ -4,8 +4,8 @@ const ProjectWizardPanel = require('./project.wizard.panel');
 
 const XPATH = {
     container: `//div[contains(@id,'ProjectWizardPanel')]`,
-    languageProjectFormItem: "//div[contains(@id,'LocaleFormItem') and descendant::label[text()='Default Language']]",
-    accessModeProjectFormItem: "//div[contains(@id,'ProjectReadAccessFormItem') and descendant::label[text()='Access mode']]",
+    languageProjectFormItem: "//div[contains(@id,'LocaleFormItem') and descendant::span[text()='Default Language']]",
+    accessModeProjectFormItem: "//div[contains(@id,'ProjectReadAccessFormItem') and descendant::span[text()='Access mode']]",
     projectRolesWizardStepFormDiv: "//div[contains(@id,'ProjectRolesWizardStepForm')]",
     copyButton: label => `//button[child::span[text()='Copy from ${label}']]`,
     projectSelectedOptionView: "//div[contains(@id,'ParentProjectFormItem')]",
