@@ -7,6 +7,7 @@ import {BucketListBox} from '@enonic/lib-admin-ui/aggregation/BucketListBox';
 import {BucketViewSelectionChangedEvent} from '@enonic/lib-admin-ui/aggregation/BucketViewSelectionChangedEvent';
 import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class FilterableBucketAggregationView
     extends BucketAggregationView {
@@ -28,7 +29,7 @@ export class FilterableBucketAggregationView
         super.initElements();
 
         this.bucketListBox = new BucketListBox();
-        this.listBoxDropdown = new FilterableListBoxWrapper<Bucket>(this.bucketListBox, {
+        this.listBoxDropdown = new BucketDropdown(this.bucketListBox, {
             filter: this.filterBuckets,
             maxSelected: 0
         });
@@ -141,6 +142,16 @@ export class FilterableBucketAggregationView
 
             return rendered;
         });
+    }
+
+}
+
+class BucketDropdown extends FilterableListBoxWrapper<Bucket> {
+
+    protected initElements(): void {
+        super.initElements();
+
+        this.applyButton.setLabel(i18n('action.ok'));
     }
 
 }
