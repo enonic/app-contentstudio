@@ -2,6 +2,8 @@ const contextLib = require('/lib/xp/context');
 const portalLib = require('/lib/xp/portal');
 const contentLib = require('/lib/xp/content');
 const httpClient = require('/lib/http-client');
+const i18nLib = require('/lib/xp/i18n');
+const adminLib = require('/lib/xp/admin');
 
 const WIDGET_HEADER_NAME = 'enonic-widget-data';
 
@@ -43,6 +45,23 @@ function errorResponse(status, messages) {
     return response;
 }
 
+const locales = adminLib.getLocales();
+
+function i18n(key) {
+    return i18nLib.localize({
+        key,
+        bundles: ['i18n/phrases'],
+        locale: locales
+    });
+}
+
+function forceArray(value) {
+    if (value === undefined || value === null) {
+        return [];
+    }
+    return Array.isArray(value) ? value : [value];
+}
+
 function isArchiveContext(context) {
     return context.attributes && (context.attributes.contentRootPath === contentLib.ARCHIVE_ROOT_PATH);
 }
@@ -73,6 +92,24 @@ function switchContext(repository, branch, archive, successCallback, errorCallba
     } else {
         return successCallback();
     }
+}
+
+function fetchSite(repository, branch, key, archive) {
+    return switchContext(repository, branch, archive, function () {
+        try {
+            if (key) {
+                return contentLib.getSite({key});
+            } else {
+                return portalLib.getSite();
+            }
+        } catch (e) {
+            log.error(`Failed to fetch site: ${e.message}`);
+            return null;
+        }
+    }, function (e) {
+        log.error(`Failed to switch site: ${e.message}`);
+        throw e;
+    });
 }
 
 function fetchContent(repository, branch, key, archive) {
@@ -111,4 +148,7 @@ exports.errorResponse = errorResponse;
 exports.validateParams = validateParams;
 exports.switchContext = switchContext;
 exports.fetchContent = fetchContent;
+exports.fetchSite = fetchSite;
 exports.fetchHttp = fetchHttp;
+exports.forceArray = forceArray;
+exports.i18n = i18n;

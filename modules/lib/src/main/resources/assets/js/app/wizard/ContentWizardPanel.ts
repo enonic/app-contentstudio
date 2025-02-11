@@ -2290,7 +2290,6 @@ export class ContentWizardPanel
     }
 
     private removeXDataStepForms(applicationKey: ApplicationKey): Q.Promise<number> {
-        this.missingOrStoppedAppKeys = [];
         this.applicationLoadCount++;
         this.formMask.show();
 
@@ -2805,7 +2804,7 @@ export class ContentWizardPanel
     private updateMissingOrStoppedApplications(): Q.Promise<void> {
         return this.fetchMissingOrStoppedAppKeys().then((missingApps: ApplicationKey[]) => {
             this.missingOrStoppedAppKeys = missingApps;
-            this.getLivePanel()?.setHasMissingApps(this.missingOrStoppedAppKeys.length > 0);
+            // this.getLivePanel()?.setHasMissingApps(this.missingOrStoppedAppKeys.length > 0);
         });
     }
 

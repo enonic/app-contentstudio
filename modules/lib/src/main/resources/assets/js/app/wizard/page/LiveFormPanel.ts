@@ -229,7 +229,7 @@ export class LiveFormPanel
         return this.getDescriptorsPromise.then((descriptors: Descriptor[]) => {
 
             const hasAvailableControllers = descriptors.length > 0;
-            this.widgetRenderingHandler.setHasAvailableControllers(hasAvailableControllers);
+            // this.widgetRenderingHandler.setHasAvailableControllers(hasAvailableControllers);
 
             return Q.resolve();
         }).catch(DefaultErrorHandler.handle);
@@ -637,9 +637,6 @@ export class LiveFormPanel
 
         this.pageLoading = true;
 
-        //TODO: need it ?
-        this.widgetRenderingHandler.clearPreviewErrors();
-
         this.liveEditPageProxy.load(this.widgetRenderingHandler, this.getWidgetSelector().getSelectedWidget())
             .then((loaded) => {
                 if (!loaded) {
@@ -960,8 +957,6 @@ export class LiveFormPanel
             (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.unbindSiteModelListeners());
         this.liveEditModel = null;
 
-        this.widgetRenderingHandler.clearPreviewErrors();
-
         this.removeContentEventListeners();
     }
 
@@ -972,12 +967,7 @@ export class LiveFormPanel
     }
 
     setHasPage(hasPage: boolean): void {
-        this.widgetRenderingHandler.setHasPage(hasPage);
-    }
-
-    setHasMissingApps(hasMissingApps: boolean): void {
-        this.widgetRenderingHandler.setHasMissingApps(hasMissingApps);
-
+        // this.widgetRenderingHandler.setHasPage(hasPage);
     }
 
     setIsRenderable(isRenderable: boolean): void {
