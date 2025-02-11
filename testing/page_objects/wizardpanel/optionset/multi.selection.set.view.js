@@ -11,9 +11,9 @@ const xpath = {
     nameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='Name']]" + lib.TEXT_INPUT,
     optionSetOccurrenceLabel: "//div[contains(@id,'FormOccurrenceDraggableLabel')]",
     multiOptionsView: "//div[contains(@id,'FormOptionSetOccurrenceViewMultiOptions')]",
-    optionLabelLocator: option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::label[text()='${option}']]//label`,
+    optionLabelLocator: option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::span[text()='${option}']]//label`,
     optionCheckboxLocator:
-        option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::label[text()='${option}']]//input[@type='checkbox']`
+        option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::span[text()='${option}']]//input[@type='checkbox']`
 };
 
 //Page Object for Custom option set
@@ -85,7 +85,7 @@ class MultiSelectionOptionSet extends Page {
     }
 
     async clickOnAddLong() {
-        let locator = "//div[contains(@id,'FormOptionSetOptionView') and descendant::label[text()='Option 1']]//button[child::span[text()='Add']]";
+        let locator = "//div[contains(@id,'FormOptionSetOptionView') and descendant::span[text()='Option 1']]//button[child::span[text()='Add']]";
         await this.waitForElementEnabled(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
         return await this.pause(300);

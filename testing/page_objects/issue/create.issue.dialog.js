@@ -12,7 +12,7 @@ const XPATH = {
     container: `//div[contains(@id,'CreateIssueDialog')]`,
     dialogTitle: "//div[contains(@id,'DefaultModalDialogHeader') and child::h2[@class='title']]",
     createIssueButton: `//button[contains(@class,'dialog-button') and child::span[contains(.,'Create Issue')]]`,
-    titleFormItem: "//div[contains(@id,'FormItem') and child::label[text()='Title']]",
+    titleFormItem: "//div[contains(@id,'FormItem') and descendant::span[@class='label-text' and text()='Title']]",
     addItemsButton: "//button[contains(@id,'Button') and child::span[text()='Add items']]",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,

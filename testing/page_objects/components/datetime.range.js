@@ -6,10 +6,10 @@ const lib = require('../../libs/elements');
 const Page = require('../page');
 const XPATH = {
     container: "//div[contains(@id,'DateTimeRange')]",
-    onlineFromDateTime: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[text()='Online from']]//input[contains(@id,'TextInput')]",
-    onlineFromPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[text()='Online from']]//div[contains(@id,'DateTimePickerPopup')]",
-    onlineToPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[text()='Online to']]//div[contains(@id,'DateTimePickerPopup')]",
-    onlineToDateTime: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[text()='Online to']]//input[contains(@id,'TextInput')]",
+    onlineFromDateTime: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online from']]]//input[contains(@id,'TextInput')]",
+    onlineFromPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online from']]]//div[contains(@id,'DateTimePickerPopup')]",
+    onlineToPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online to']]]//div[contains(@id,'DateTimePickerPopup')]",
+    onlineToDateTime: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online to']]]//input[contains(@id,'TextInput')]",
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
 };
 

@@ -12,7 +12,7 @@ const xpath = {
     dropDownDiv: "//div[contains(@id,'Dropdown')]",
     optionSetMenuButton: "//div[contains(@id,'FormOptionSetOccurrenceView')]" + lib.BUTTONS.MORE_BUTTON,
     resetMenuItem: "//div[contains(@id,'FormOptionSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Reset']",
-    checkboxByLabel: label => `//div[contains(@id,'Checkbox') and descendant::label[text()='${label}']]//label`,
+    checkboxByLabel: label => `//div[contains(@id,'Checkbox') and descendant::span[text()='${label}']]//label`,
 };
 
 class OptionSetForm2View extends BaseOptionSetFormView {

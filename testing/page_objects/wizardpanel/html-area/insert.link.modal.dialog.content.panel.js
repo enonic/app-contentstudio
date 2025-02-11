@@ -8,7 +8,7 @@ const XPATH = {
     contentPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and contains(@class,'panel content-panel')]",
     radioButtonByLabel: label => `//span[contains(@id,'RadioButton') and child::label[contains(.,'${label}')]]`,
     anchorFormItem: "//div[contains(@class,'anchor-form-item')]",
-    parametersFormItem: "//div[contains(@id,'FormItem') and descendant::label[text()='Parameters']]",
+    parametersFormItem: "//div[contains(@id,'FormItem') and descendant::span[text()='Parameters']]",
     showContentCheckboxCheckboxDiv: "//div[contains(@id,'Checkbox') and child::label[contains(.,'Show content from the entire')]]",
     openInNewTabCheckboxDiv: "//div[contains(@id,'Checkbox') and child::label[contains(.,'Open in new tab')]]",
     showContentCheckboxLabel: "//div[contains(@id,'Checkbox')]//label[contains(.,'Show content from the entire')]",

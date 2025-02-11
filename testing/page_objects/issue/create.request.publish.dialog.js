@@ -7,7 +7,7 @@ const DependantsControls = require('./dependant.controls');
 const xpath = {
     container: `//div[contains(@id,'RequestContentPublishDialog')]`,
     createRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Create request')]]`,
-    changesInput: `//div[contains(@id,'FormItem') and descendant::label[text()='Describe the changes']]`,
+    changesInput: `//div[contains(@id,'FormItem') and descendant::span[text()='Describe the changes']]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
