@@ -240,7 +240,6 @@ export abstract class ItemView
 
     protected setPlaceholder(placeholder: ItemViewPlaceholder) {
         this.placeholder = placeholder;
-        this.appendChild(placeholder);
     }
 
     protected disableLinks() {
@@ -595,7 +594,33 @@ export abstract class ItemView
 
     refreshEmptyState(): ItemView {
         this.toggleClass('empty', this.isEmpty());
+        this.togglePlaceholder();
+
         return this;
+    }
+
+    protected togglePlaceholder(): void {
+        if (this.isPlaceholderNeeded()) {
+            this.addPlaceholder();
+        } else {
+            this.removePlaceholder();
+        }
+    }
+
+    protected isPlaceholderNeeded(): boolean {
+        return this.isEmpty();
+    }
+
+    protected addPlaceholder(): void {
+        if (this.placeholder && !this.contains(this.placeholder)) {
+            this.appendChild(this.placeholder);
+        }
+    }
+
+    protected removePlaceholder(): void {
+        if (this.placeholder && this.contains(this.placeholder)) {
+            this.removeChild(this.placeholder);
+        }
     }
 
     getCurrentContextMenu(): ItemViewContextMenu {
