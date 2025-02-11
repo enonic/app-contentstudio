@@ -371,6 +371,10 @@ export class PageComponentsListElement
 
         (this.itemViewer as PageComponentsItemView).setItem(item);
         this.updateExpandableState();
+
+        if (this.isExpandedAtLeastOnce()) {
+            (this.getList() as PageComponentsTreeGrid).load();
+        }
     }
 
     onMenuIconClicked(handler: (event: MouseEvent) => void): void {
