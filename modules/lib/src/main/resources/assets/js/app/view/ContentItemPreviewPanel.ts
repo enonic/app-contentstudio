@@ -145,10 +145,11 @@ export class ContentItemPreviewPanel
         const isAuto = selectedWidget.getWidgetDescriptorKey().getName() === PreviewWidgetDropdown.WIDGET_AUTO_DESCRIPTOR;
         const items = isAuto ? widgetSelector.getAutoModeWidgets() : [selectedWidget];
 
-        return this.processWidgets(summary, items, selectedWidget);
+        return this.processWidgets(summary, items, selectedWidget, deferred);
     }
 
-    private async processWidgets(summary: ContentSummary, items: Widget[], selectedWidget: Widget): Promise<void> {
+    private async processWidgets(summary: ContentSummary, items: Widget[], selectedWidget: Widget,
+                                 deferred: Q.Deferred<boolean>): Promise<void> {
         for (let i = 0; i < items.length; i++) {
             const widget = items[i];
             let result = await fetch(this.previewHelper.getUrl(summary, widget), {method: 'HEAD'});
@@ -157,9 +158,11 @@ export class ContentItemPreviewPanel
 
             if (isOK) {
                 selectedWidget.getConfig().setProperty("previewUrl", widget.getUrl());
+                deferred.resolve(true);
                 this.handlePreviewSuccess(result);
                 break;
             } else if (i === items.length - 1) {
+                deferred.resolve(false);
                 this.handlePreviewFailure(result);
             }
         }

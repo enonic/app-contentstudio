@@ -55,6 +55,7 @@ export class PreviewActionHelper {
             repo: `${RepositoryId.CONTENT_REPO_PREFIX}${ProjectContext.get().getProject().getName()}`,
             branch: CONFIG.getString('branch'),
             mode,
+            cb: Date.now().toString()
         })
 
         for (const key in this.additionalParams) {
