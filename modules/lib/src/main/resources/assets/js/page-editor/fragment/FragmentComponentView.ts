@@ -31,10 +31,10 @@ export class FragmentComponentView
     private detachAction: Action;
 
     constructor(builder: FragmentComponentViewBuilder) {
-        super(builder.setInspectActionRequired(true));
+        super(builder.setInspectActionRequired(true).setPlaceholder(new FragmentPlaceholder()));
 
         this.fragmentContainsLayout = false;
-        this.setPlaceholder(new FragmentPlaceholder(this));
+        (this.placeholder as FragmentPlaceholder).setComponentView(this);
         this.disableLinks();
 
         this.parseFragmentComponents(this);

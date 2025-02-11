@@ -83,7 +83,7 @@ export class TextComponentView
     private winBlurred: boolean;
 
     constructor(builder: TextComponentViewBuilder) {
-        super(builder);
+        super(builder.setPlaceholder(new TextPlaceholder()));
 
         this.setInitialValueAndRenderMode(builder.text);
         this.addTextContextMenuActions();
@@ -288,7 +288,11 @@ export class TextComponentView
         return this.hasClass(TextComponentView.EDITOR_FOCUSED_CLASS);
     }
 
-    setEditMode(edit: boolean) {
+    setEditMode(edit: boolean): void {
+        if (edit === this.editMode) {
+            return;
+        }
+
         this.editMode = edit;
 
         if (!this.initOnAdd) {
@@ -471,7 +475,7 @@ export class TextComponentView
     }
 
     private isEditorReady(): boolean {
-        return this.htmlAreaEditor?.isReady();
+        return !!this.htmlAreaEditor?.isReady();
     }
 
     private focusEditor(): void {
@@ -558,8 +562,16 @@ export class TextComponentView
         this.giveFocus();
     }
 
-    giveFocus() {
+    giveFocus(): boolean {
         if (!this.isEditMode()) {
+            return false;
+        }
+
+        if (!this.isEditorReady()) {
+            this.onEditorReady(() => {
+               this.focusEditor();
+            });
+
             return false;
         }
 
@@ -616,33 +628,8 @@ export class TextComponentView
         return LangDirection.AUTO;
     }
 
-    refreshEmptyState(): TextComponentView {
-        super.refreshEmptyState();
-        this.togglePlaceholder();
-
-        return this;
-    }
-
-    private togglePlaceholder(): void {
-        if (this.isEditorEmpty()) {
-            if (!this.isEditMode()) {
-                if (!this.placeholder) {
-                    this.placeholder = new TextPlaceholder();
-                }
-
-                if (!this.contains(this.placeholder)) {
-                    this.appendChild(this.placeholder);
-                }
-            }
-        } else {
-            this.removePlaceholder();
-        }
-    }
-
-    private removePlaceholder(): void {
-        if (this.placeholder && this.contains(this.placeholder)) {
-            this.removeChild(this.placeholder);
-        }
+    protected isPlaceholderNeeded(): boolean {
+        return this.isEditorReady() && !this.isEditMode() && super.isPlaceholderNeeded();
     }
 
     reset(): void {

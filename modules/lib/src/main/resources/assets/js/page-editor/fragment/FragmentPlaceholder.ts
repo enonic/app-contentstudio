@@ -23,10 +23,8 @@ export class FragmentPlaceholder
 
     private comboboxWrapper: DivEl;
 
-    constructor(fragmentView: FragmentComponentView) {
+    constructor() {
         super();
-
-        this.fragmentComponentView = fragmentView;
 
         this.initElements();
         this.initListeners();
@@ -35,7 +33,6 @@ export class FragmentPlaceholder
     protected initElements(): void {
         this.comboboxWrapper = new DivEl('rich-combobox-wrapper');
         this.fragmentDropdown = new FragmentDropdown();
-        this.fragmentDropdown.setSitePath(this.fragmentComponentView.getLiveEditParams().sitePath);
     }
 
     protected initListeners(): void {
@@ -74,6 +71,11 @@ export class FragmentPlaceholder
         }
 
         return parent.getType() instanceof LayoutItemType;
+    }
+
+    setComponentView(fragmentComponentView: FragmentComponentView): void {
+        this.fragmentComponentView = fragmentComponentView;
+        this.fragmentDropdown.setSitePath(this.fragmentComponentView.getLiveEditParams().sitePath);
     }
 
     doRender(): Q.Promise<boolean> {
