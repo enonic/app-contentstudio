@@ -30,9 +30,14 @@ class ConfirmationDialog extends Page {
     }
 
     async clickOnYesButton() {
-        await this.waitForElementDisplayed(this.yesButton, appConst.shortTimeout);
-        await this.clickOnElement(this.yesButton);
-        return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout)
+        try {
+            await this.waitForElementDisplayed(this.yesButton, appConst.shortTimeout);
+            await this.clickOnElement(this.yesButton);
+            return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_confirmation_dlg_yes');
+            throw new Error(`Confirmation dialog Yes button! screenshot: ${screenshot}` + err);
+        }
     }
 
     async clickOnCancelTopButton() {
@@ -48,7 +53,7 @@ class ConfirmationDialog extends Page {
             await this.pause(700);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_confirmation_dlg');
-            throw new Error("Confirmation dialog is not loaded! screenshot: " + screenshot + ' ' + err);
+            throw new Error(`Confirmation dialog is not loaded! screenshot:${screenshot} ` + err);
         }
     }
 
@@ -62,7 +67,7 @@ class ConfirmationDialog extends Page {
             return await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_confirmation_dlg_closing');
-            throw new Error("Confirmation dialog should be closed! screenshot:" + screenshot + ' ' + err);
+            throw new Error(`Confirmation dialog should be closed! screenshot: ${screenshot} ` + err);
         }
     }
 

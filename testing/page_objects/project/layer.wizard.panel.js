@@ -55,9 +55,10 @@ class LayerWizardPanel extends ProjectWizardPanel {
         return await this.waitForElementDisabled(locator, appConst.mediumTimeout);
     }
 
-    waitForCopyAccessModeFromParentEnabled(parent) {
+    async waitForCopyAccessModeFromParentEnabled(parent) {
         let locator = this.copyAccessModeFormItem + XPATH.copyButton(parent);
-        return this.waitForElementEnabled(locator, appConst.mediumTimeout);
+        await this.waitForElementEnabled(locator, appConst.mediumTimeout);
+        await this.pause(400);
     }
 
     async waitForCopyAccessModeFromParentDisabled(parent) {

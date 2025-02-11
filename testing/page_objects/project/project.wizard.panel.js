@@ -116,7 +116,8 @@ class ProjectWizardPanel extends Page {
 
     async waitForLoaded() {
         try {
-            await this.waitForElementDisplayed(this.descriptionInput, appConst.shortTimeout)
+            await this.waitForElementDisplayed(this.descriptionInput, appConst.shortTimeout);
+            await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_project_wizard');
             throw new Error(`Project Wizard was not loaded! screenshot: ${screenshot} ` + err);
