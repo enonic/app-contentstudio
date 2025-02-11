@@ -186,7 +186,7 @@ module.exports = Object.freeze({
 
     EMPTY_OPTIONS_H5: "//h5[contains(@class,'empty-list-item') and text()='No matching items']",
     radioButtonByLabel: label => {
-        return `//span[contains(@class,'radio-button') and child::label[text()='${label}']]//input`
+        return `//span[contains(@class,'radio-button') and descendant::span[text()='${label}']]//input`
     },
     tabMenuItem: menuName => `//li[contains(@id,'TabMenuItem') and child::a[text()='${menuName}']]`,
     TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",

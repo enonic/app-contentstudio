@@ -6,7 +6,7 @@ const appConst = require('../../libs/app_const');
 const XPATH = {
     radioInputs: "//div[contains(@id,'RadioButton')]//input[@type='radio']",
     radioByName: optionName => {
-        return `//span[contains(@class,'radio-button') and child::label[text()='${optionName}']]//input`
+        return `//span[contains(@class,'radio-button') and descendant::span[text()='${optionName}']]//input`
     },
 };
 

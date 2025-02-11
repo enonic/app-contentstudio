@@ -310,8 +310,9 @@ class BrowseFilterPanel extends Page {
 
     // Expands the 'Owner' dropdown:
     async clickOnOwnerDropdownHandle() {
-        let filterableListBox = new FilterableListBox();
-        await filterableListBox.clickOnDropdownHandle(XPATH.ownerAggregationGroupView);
+        let locator = XPATH.container + XPATH.ownerAggregationGroupView + lib.DROPDOWN_SELECTOR.DROPDOWN_HANDLE;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.clickOnElement(locator);
         await this.pause(500);
     }
 

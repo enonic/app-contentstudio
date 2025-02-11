@@ -11,7 +11,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('radiobutton.content.spec: tests for content with radio buttons', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;

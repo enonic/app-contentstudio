@@ -8,8 +8,8 @@ const XPATH = {
     container: `//div[contains(@id,'DateTimePickerPopup')]`,
     timezone: "//li[@class='timezone']",
     okButton: "//div[@class='picker-buttons']//button[child::span[text()='OK']]",
-    onlineFromPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[text()='Online from']]//div[contains(@id,'DateTimePickerPopup')]",
-    onlineToPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[text()='Online to']]//div[contains(@id,'DateTimePickerPopup')]",
+    onlineFromPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online from']]]//div[contains(@id,'DateTimePickerPopup')]",
+    onlineToPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online to']]]//div[contains(@id,'DateTimePickerPopup')]",
 };
 
 class DateTimePickerPopup extends Page {
@@ -46,12 +46,14 @@ class DateTimePickerPopup extends Page {
     }
 
     async getTimeInOnlineFrom() {
-        let locator = XPATH.onlineFromPickerPopup + "//ul[contains(@id,'TimePickerPopup')]/li/span";
+        let locator = XPATH.onlineFromPickerPopup + "//ul[contains(@id,'TimePickerPopup')]/li/span[1]";
         let elements = await this.findElements(locator);
         if (elements.length !== 2) {
             throw new Error('Error occurred during getting time in  TimePickerPopup');
         }
-        return await elements[0].getText() + ':' + await elements[1].getText();
+        let h = await elements[0].getText();
+        let min = await elements[1].getText();
+        return h + ':' + min;
     }
 }
 
