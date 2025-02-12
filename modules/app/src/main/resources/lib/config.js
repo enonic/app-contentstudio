@@ -66,8 +66,8 @@ function getConfig() {
             exportServiceUrl: portal.apiUrl({
                 api: 'export'
             }),
-            aiContentOperatorWsServiceUrl: portal.serviceUrl({service: 'ws', application: 'com.enonic.app.ai.contentoperator', type: 'websocket'}),
             aiTranslatorLicenseServiceUrl: portal.serviceUrl({service: 'license', application: 'com.enonic.app.ai.translator'}),
+            aiTranslatorRestServiceUrl: portal.serviceUrl({service: 'rest', application: 'com.enonic.app.ai.translator'}),
             aiTranslatorWsServiceUrl: portal.serviceUrl(
                 {service: 'ws', application: 'com.enonic.app.ai.translator', type: 'websocket'}),
         },
