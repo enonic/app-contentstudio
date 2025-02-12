@@ -23,7 +23,7 @@ describe("project.recreate.spec - tests for recreating the only one project ", f
             let languageStep = new ProjectWizardDialogLanguageStep();
             let applicationsStep = new ProjectWizardDialogApplicationsStep();
             // 1. Open Setting panel
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+            //await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             // 2. Select and delete the project:
             await projectUtils.selectAndDeleteProject(PROJECT_DEFAULT_NAME, 'default');
