@@ -76,6 +76,7 @@ tasks.register( 'webpack', NpmTask ) {
     inputs.dir '.xp/dev'
     inputs.dir 'src/main/resources/assets'
     inputs.file 'webpack.config.js'
+    inputs.file 'webpack.worker.config.js'
     outputs.dir "$buildDir/build/resources/main/assets"
 }
 
