@@ -9,15 +9,13 @@
   },
   "scripts": {
     "build:prod": "concurrently -c auto -g --timings npm:build:prod:*",
-    "build:prod:js": "tsc",
+    "build:prod:client": "tsc",
     "build:prod:lib": "webpack --color --stats-error-details",
     "build:dev": "concurrently -c auto -g --timings npm:build:dev:*",
-    "build:dev:js": "swc src --out-dir build/tmp",
-    "build:dev:types": "tsc --skipLibCheck --emitDeclarationOnly --declaration",
+    "build:dev:client": "swc src --out-dir build/tmp",
     "build:dev:lib": "webpack --color --stats-error-details",
-    "typecheck": "tsc --pretty --skipLibCheck --noEmit",
-    "lint": "eslint **/*.ts --quiet --cache",
-    "fix": "eslint --fix **/*.ts --cache"
+    "check": "tsc --skipLibCheck --emitDeclarationOnly --declaration",
+    "lint": "eslint **/*.ts --quiet --cache"
   },
   "dependencies": {
     "@enonic/lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
@@ -31,6 +29,7 @@
     "jquery-ui": "^1.13.2",
     "jsondiffpatch": "^0.5.0",
     "lodash": "^4.17.21",
+    "nanostores": "^0.11.4",
     "q": "^1.5.1",
     "sortablejs": "^1.15.2"
   },

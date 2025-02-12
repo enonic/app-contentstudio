@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "target": "ES2020",
+        "lib": [
+            "WebWorker",
+            "ES2020",
+            "DOM"
+        ],
+        "types": [],
+        "allowJs": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "noFallthroughCasesInSwitch": true,
+        "module": "ES2020",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "noEmit": false
+    },
+    "include": [
+        "**/*.ts",
+        "../../types/types.d.ts",
+        "../../shared/**/*.ts"
+    ]
+}

@@ -45,7 +45,7 @@ function handleGet(request) {
                 i18nUrl: portal.serviceUrl({service: 'i18n'}),
                 licenseUrl: portal.serviceUrl({service: 'license'}),
                 stylesUrl: portal.serviceUrl({service: 'styles'}),
-                collaborationUrl: portal.serviceUrl({service: 'collaboration'}),
+                eventsUrl: portal.serviceUrl({service: 'events'}),
                 appServiceUrl: portal.serviceUrl({service: 'applications'}),
                 exportServiceUrl: portal.serviceUrl({service: 'export'}),
                 aiContentOperatorWsServiceUrl: portal.serviceUrl({service: 'ws', application: 'com.enonic.app.ai.contentoperator', type: 'websocket'}),
@@ -53,6 +53,7 @@ function handleGet(request) {
                 aiTranslatorWsServiceUrl: portal.serviceUrl(
                     {service: 'ws', application: 'com.enonic.app.ai.translator', type: 'websocket'}),
             },
+            sharedSocketUrl: portal.assetUrl({path: 'shared-socket.js'}),
             aiEnabled,
             theme: 'light',
             /* Remove in CS/lib-admin-ui 5.0 */
