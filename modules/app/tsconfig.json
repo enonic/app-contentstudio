@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es5",
+        "target": "ES5",
         "sourceMap": true,
+        "downlevelIteration": true,
         "types": [
             "ckeditor",
             "jquery",
@@ -10,16 +11,18 @@
             "q"
         ],
         "lib": [
-            "es2015",
-            "es2015.promise",
-            "dom"
+            "ES2020",
+            "DOM"
         ]
     },
-
     "include": [
         "./src/**/*",
         "../../../lib-admin-ui/src/main/resources/assets/admin/common/js/**/*.ts",
         ".xp/dev/lib-admin-ui/**/*.ts",
         ".xp/dev/lib-contentstudio/**/*.ts"
+    ],
+    "exclude": [
+        "src/main/resources/lib/**",
+        "src/main/resources/assets/shared-socket/**"
     ]
 }

@@ -110,7 +110,7 @@ export class AI {
 
         AI.onAILoaded(() => {
             this.getContentOperator()?.setup({
-                wsServiceUrl: CONFIG.getString('services.aiContentOperatorWsServiceUrl')
+                sharedSocketUrl: CONFIG.getString('sharedSocketUrl'),
             });
             this.getTranslator()?.setup({
                 licenseServiceUrl: CONFIG.getString('services.aiTranslatorLicenseServiceUrl'),
