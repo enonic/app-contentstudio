@@ -99,9 +99,9 @@ export class AI {
         AiContentOperatorDialogHiddenEvent.on(this.handleDialogClosedEvent);
         AiContentOperatorInteractionEvent.on(this.handleInteractionEvent);
 
-        const websocketUrl = CONFIG.getString('services.aiContentOperatorWsServiceUrl');
-        const sharedSocketUrl = `${CONFIG.getString('assetsUri')}/shared-socket.js?wsUrl=${encodeURIComponent(websocketUrl)}&protocol=${encodeURIComponent('json')}`;
-        this.getContentOperator()?.setup({sharedSocketUrl});
+        this.getContentOperator()?.setup({
+            sharedSocketUrl: `${CONFIG.getString('assetsUri')}/shared-socket.js`,
+        });
         this.getTranslator()?.setup({
             restServiceUrl: CONFIG.getString('services.aiTranslatorRestServiceUrl'),
             wsServiceUrl: CONFIG.getString('services.aiTranslatorWsServiceUrl')

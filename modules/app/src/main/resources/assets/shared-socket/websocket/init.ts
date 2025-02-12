@@ -1,12 +1,6 @@
-import {atom, computed, map} from 'nanostores';
-
-type WebSocketInMessage = 'connected' | 'pong' | 'disconnected';
-type WebSocketOutMessage = 'connect' | 'ping' | 'disconnect';
-type WebSocketMessageType = WebSocketInMessage | WebSocketOutMessage;
-
-export type WebSocketMessage = {
-    type: WebSocketMessageType;
-};
+import {computed, map} from 'nanostores';
+import {WS_PROTOCOL, WS_URL} from './constants';
+import {isWebSocketMessage, WebSocketMessage} from './data';
 
 type WebSocketState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected';
 
@@ -55,35 +49,22 @@ let pingInterval: number;
 let pongTimeout: number;
 let reconnectTimeout: number;
 
-type ConnectOptions = {
-    url: string;
-    protocol?: string;
-    customHandler?: (message: Record<string, unknown>) => void
-};
-
-const $options = atom<ConnectOptions>({url: ''});
-
-// 'ws://localhost:8080/admin/com.enonic.app.contentstudio/main/_/service/com.enonic.app.ai.contentoperator/ws';
-
 let customMessageHandler: (message: Record<string, unknown>) => void;
 
-export function connect(options?: ConnectOptions): void {
+export function connect(customHandler: (message: Record<string, unknown>) => void): void {
     const {state, connection} = $websocket.get();
 
     if (state === 'connecting' || state === 'connected') {
         return;
     }
 
-    if (options) {
-        $options.set(options);
-    }
+    customMessageHandler = customHandler;
 
     if (isActiveConnection(connection)) {
         cleanup(connection);
     }
 
-    const {url, protocol} = $options.get();
-    const ws = new WebSocket(url, protocol ? [protocol] : undefined);
+    const ws = new WebSocket(WS_URL, [WS_PROTOCOL]);
     $websocket.setKey('connection', ws);
 
     $websocket.setKey('state', 'connecting');
@@ -134,7 +115,7 @@ function disconnect(): void {
 function scheduleReconnect(): void {
     incrementReconnectAttempts();
     reconnectTimeout = setTimeout(() => {
-        connect();
+        connect(customMessageHandler);
     }, $reconnectTimeout.get());
 }
 
@@ -172,7 +153,10 @@ export function sendMessage(message: WebSocketMessage): void {
 }
 
 function handleMessage(event: MessageEvent<string>): void {
-    const message = JSON.parse(event.data) as WebSocketMessage | Record<string, unknown>;
+    const message = parseMessage(event);
+    if (message == null) {
+        return;
+    }
 
     switch (message.type) {
         case 'connected':
@@ -188,6 +172,19 @@ function handleMessage(event: MessageEvent<string>): void {
             break;
 
         default:
-            $options.get().customHandler?.(message);
+            customMessageHandler(message);
     }
+}
+
+function parseMessage(event: MessageEvent<string>): Optional<WebSocketMessage> {
+    try {
+        const message = JSON.parse(event.data) as WebSocketMessage | Record<string, unknown>;
+        if (isWebSocketMessage(message)) {
+            return message;
+        }
+    } catch (error) {
+        console.error(error);
+    }
+
+    return null;
 }
