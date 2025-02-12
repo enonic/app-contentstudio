@@ -24,7 +24,7 @@ exports.renderTemplate = function (params) {
         let securityPolicy = app.config['contentSecurityPolicy.header'];
 
         if (!securityPolicy) {
-            securityPolicy = 'default-src \'self\'; connect-src \'self\' ws: wss:; script-src \'self\' \'unsafe-eval\' \'unsafe-inline\'; object-src \'none\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:';
+            securityPolicy = 'default-src \'self\'; connect-src \'self\' ws: wss:; script-src \'self\' \'unsafe-inline\'; object-src \'none\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:';
         }
         response.headers = {
             'Content-Security-Policy': securityPolicy
