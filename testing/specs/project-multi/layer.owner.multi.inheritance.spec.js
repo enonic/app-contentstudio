@@ -168,10 +168,13 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
 
     it('Post conditions: the layer should be deleted',
         async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog('su', 'password');
             await studioUtils.openSettingsPanel();
             // 1. Select and delete the layer:
-            await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME)
+            await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
+            await settingsBrowsePanel.pause(1000);
+            await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
         });
 
     afterEach(async () => {
