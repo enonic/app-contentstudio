@@ -17,8 +17,9 @@ generated-java
 classes/
 out/
 .xp/
-.tsbuildinfo
+*.tsbuildinfo
 testing/allure-results
 .vscode
 .enonic
 .eslintcache
+.bin

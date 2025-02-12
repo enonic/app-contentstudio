@@ -11,6 +11,14 @@ type FnAny = (...args: unknown[]) => unknown;
 //
 type Optional<T> = T | undefined | null;
 
+type Either<T, U> = readonly [T, null] | readonly [null, U];
+
+type Try<T> = Either<T, Error>;
+
+type TryOptional<T> = Try<Optional<T>>;
+
+type Err<T> = Either<T, Error>;
+
 //
 // Utility types
 //
@@ -21,8 +29,8 @@ type LiteralUnion<T extends U, U = string> = T | (U & Record<never, never>);
 type Merge<T, U> = Identity<Omit<T, keyof U> & U>;
 
 //
-// JQuery
+// XP
 //
-interface JQuery {
-    simulate(event: string, ...data: any[]): JQuery;
+interface NashornError {
+    message: string;
 }

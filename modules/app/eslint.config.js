@@ -61,7 +61,10 @@ module.exports = [
             '@typescript-eslint/no-use-before-define': ['off'],
 
             // '@typescript-eslint/unbound-method': ['error', {ignoreStatic: true}],
-            '@typescript-eslint/unbound-method': ['off']
+            '@typescript-eslint/unbound-method': ['off'],
+
+            // '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+            '@typescript-eslint/consistent-type-definitions': ['off'],
         }
     },
     {
@@ -73,7 +76,9 @@ module.exports = [
             "**/.xp/",
             "**/*.js",
             "**/*.d.ts",
-            "**/spec/**/*"
+            "**/spec/**/*",
+            "**/shared-socket/**/*",
+            "src/main/resources/lib/**/*"
         ]
     }
 ];
