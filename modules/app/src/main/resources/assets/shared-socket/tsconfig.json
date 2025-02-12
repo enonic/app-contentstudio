@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "lib": [
+            "WebWorker",
+            "ESNext",
+            "DOM"
+        ],
+        "types": [],
+        "allowJs": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "noFallthroughCasesInSwitch": true,
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "noEmit": false
+    },
+    "include": [
+        "**/*.ts",
+        "../../types/types.d.ts",
+        "../../shared/**/*.ts"
+    ]
+}
