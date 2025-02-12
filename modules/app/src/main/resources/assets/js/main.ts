@@ -62,6 +62,7 @@ import {ProjectNotAvailableDialog} from 'lib-contentstudio/app/settings/dialog/p
 import {ProjectDeletedEvent} from 'lib-contentstudio/app/settings/event/ProjectDeletedEvent';
 import {SettingsServerEventsListener} from 'lib-contentstudio/app/settings/event/SettingsServerEventsListener';
 import {ProjectListWithMissingRequest} from 'lib-contentstudio/app/settings/resource/ProjectListWithMissingRequest';
+import {$isDown, subscribe as subscribeToWorker} from 'lib-contentstudio/app/stores/worker';
 import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
 import {UrlAction} from 'lib-contentstudio/app/UrlAction';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
@@ -70,7 +71,7 @@ import * as Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
-declare const require: { context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void };
+declare const require: {context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void};
 const importAll = r => r.keys().forEach(r);
 importAll(require.context('lib-contentstudio/app/inputtype', true, /^(?!\.[\/\\](ui)).*(\.js)$/));
 
@@ -114,6 +115,25 @@ function startLostConnectionDetector(): ConnectionDetector {
             NotifyManager.get().hide(readonlyMessageId);
             readonlyMessageId = null;
         }
+    });
+
+    let wsConnectionErrorId: string;
+    let timeoutId: number;
+    $isDown.subscribe(isDown => {
+        if (isDown && connectionDetector.isConnected()) {
+            timeoutId = window.setTimeout(() => {
+                wsConnectionErrorId = showError(i18n('notify.websockets.error'), false);
+            }, 1000);
+            return;
+        }
+
+        if (wsConnectionErrorId) {
+            NotifyManager.get().hide(wsConnectionErrorId);
+            wsConnectionErrorId = null;
+        }
+
+        clearTimeout(timeoutId);
+
     });
 
     connectionDetector.startPolling(true);
@@ -184,7 +204,9 @@ function updateFavicon(content: ContentSummary) {
                 if (sizes.length > 0) {
                     try {
                         resolver.setSize(parseInt(sizes[0], 10));
-                    } catch (e) { /* empty */ }
+                    } catch (e) {
+                        console.error(e);
+                    }
                 }
                 link.setAttribute('href', resolver.resolve());
             } else {
@@ -230,35 +252,11 @@ function preLoadApplication() {
     }
 }
 
-function startServerEventListeners(application: Application, eventApiUrl: string) {
-    const serverEventsListener: AggregatedServerEventsListener = new AggregatedServerEventsListener([application], eventApiUrl);
-    let wsConnectionErrorId: string;
+function startServerEventListeners(application: Application) {
+    subscribeToWorker();
 
-    serverEventsListener.onConnectionError(() => {
-        if (!wsConnectionErrorId) {
-            const pollHandler: () => void = () => {
-                const connectionDetector: ConnectionDetector = ConnectionDetector.get(UriHelper.getRestUri('status'));
-                if (connectionDetector.isConnected()) {
-                    wsConnectionErrorId = showError(i18n('notify.websockets.error'), false);
-                }
-
-                connectionDetector.unPoll(pollHandler);
-            };
-
-            connectionDetector.onPoll(pollHandler);
-        }
-    });
-
-    serverEventsListener.onConnectionRestored(() => {
-        if (wsConnectionErrorId) {
-            NotifyManager.get().hide(wsConnectionErrorId);
-            wsConnectionErrorId = null;
-        }
-    });
-
-    serverEventsListener.start();
-
-    new SettingsServerEventsListener([application], eventApiUrl);
+    new AggregatedServerEventsListener(application);
+    new SettingsServerEventsListener(application);
 }
 
 const handleProjectDeletedEvent = (projectName: string) => {
@@ -331,11 +329,10 @@ let connectionDetector: ConnectionDetector;
 
 async function startApplication() {
     const application: Application = getApplication();
-    const eventApiUrl = UriHelper.joinPath(WebSocketConnection.getWebSocketUriPrefix(), UriHelper.getAdminUriPrefix(), 'event');
     connectionDetector = startLostConnectionDetector();
     Store.instance().set('application', application);
 
-    startServerEventListeners(application, eventApiUrl);
+    startServerEventListeners(application);
     initApplicationEventListener();
 
     ProjectContext.get().onNoProjectsAvailable(() => {
@@ -538,8 +535,8 @@ function getTheme(): string {
 }
 
 async function startContentBrowser() {
-    await import ('lib-contentstudio/app/ContentAppPanel');
-    const AppWrapper = (await import ('lib-contentstudio/app/AppWrapper')).AppWrapper;
+    await import('lib-contentstudio/app/ContentAppPanel');
+    const AppWrapper = (await import('lib-contentstudio/app/AppWrapper')).AppWrapper;
     const url: string = window.location.href;
     const commonWrapper = new AppWrapper(getTheme());
     const path: Path = Store.instance().get('application').getPath();
@@ -568,12 +565,12 @@ async function startContentBrowser() {
 
     Body.get().appendChild(commonWrapper);
 
-    const NewContentDialog = (await import ('lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;
+    const NewContentDialog = (await import('lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;
 
     const newContentDialog = new NewContentDialog();
     ShowNewContentDialogEvent.on((event) => {
         const parentContent: ContentSummary = event.getParentContent()
-                                            ? event.getParentContent().getContentSummary() : null;
+            ? event.getParentContent().getContentSummary() : null;
 
         if (parentContent != null) {
             new GetContentByIdRequest(parentContent.getContentId()).sendAndParse().then(
@@ -587,8 +584,8 @@ async function startContentBrowser() {
                                 newContentDialog.setParentContent(newParentContent);
                                 newContentDialog.open();
                             }).catch((reason) => {
-                            DefaultErrorHandler.handle(reason);
-                        }).done();
+                                DefaultErrorHandler.handle(reason);
+                            }).done();
                     } else {
                         newContentDialog.setParentContent(newParentContent);
                         newContentDialog.open();

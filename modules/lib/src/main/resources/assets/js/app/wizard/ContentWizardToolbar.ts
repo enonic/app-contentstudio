@@ -141,7 +141,6 @@ export class ContentWizardToolbar
     private addCollaboration(): void {
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
         this.addElement(this.collaborationBlock, false);
-        this.openCollaborationWSConnection();
         this.addContentOperatorIntoCollaborationBlock();
     }
 
@@ -242,17 +241,6 @@ export class ContentWizardToolbar
 
     private isCollaborationEnabled(): boolean {
         return CONFIG.isTrue('enableCollaboration');
-    }
-
-    private openCollaborationWSConnection(): void {
-        const wsUrl: string =
-            UriHelper.joinPath(WebSocketConnection.getWebSocketUriPrefix(), CONFIG.getString('services.collaborationUrl'));
-
-        WebSocketConnection.create()
-            .setUrl(`${wsUrl}?contentId=${this.getItem().getId()}&project=${ProjectContext.get().getProject().getName()}`)
-            .setKeepAliveTimeSeconds(60)
-            .build()
-            .connect();
     }
 
     getCycleViewModeButton(): ContentActionCycleButton {

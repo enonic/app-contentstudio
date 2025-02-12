@@ -1,11 +1,10 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es5",
+        "target": "ES5",
         "lib": [
-            "es2015",
-            "es2015.promise",
-            "dom"
+            "ES2020",
+            "DOM"
         ],
         "outDir": "build/resources/main/dev/lib-contentstudio/",
         "moduleResolution": "node",
@@ -13,13 +12,14 @@
         "declarationDir": "build/resources/main/dev/lib-contentstudio/",
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
+        "downlevelIteration": true,
         "allowJs": false,
         "noImplicitReturns": false,
         "noImplicitThis": true,
         "strictNullChecks": false,
+        "skipLibCheck": true,
         "types": [
             "ckeditor",
-            "core-js",
             "hasher",
             "jquery",
             "jqueryui"
