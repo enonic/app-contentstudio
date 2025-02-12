@@ -1,5 +1,8 @@
-import {isSharedWorkerScope} from './utils';
-import {initialize as initializeSharedWorker} from './worker';
+import {initialize as initializeSharedWorker} from './worker/init';
+
+export function isSharedWorkerScope(scope: WindowOrWorkerGlobalScope): scope is SharedWorkerGlobalScope {
+    return 'onconnect' in scope;
+}
 
 if (!isSharedWorkerScope(self)) {
     // TODO: Initialize the WebSocket directly in the main thread
