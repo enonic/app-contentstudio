@@ -1,3 +1,5 @@
+@icon-size: 26px;
+
 .preview-toolbar-dropdown {
   border: 0 none;
   margin-left: 16px;
@@ -7,47 +9,47 @@
       display: flex;
       align-items: stretch;
 
-      .selected-option {
-        padding: 0 8px;
-
-        * {
-          cursor: pointer;
-        }
-
-        .names-and-icon-view {
-          .xp-admin-common-wrapper {
-            width: 20px;
-            height: 20px;
-
-            .font-icon-default::before {
-              font-size: 20px;
-            }
-          }
-
-          .xp-admin-common-sub-name {
-            display: none;
-          }
-        }
-      }
-
-      .xp-admin-common-dropdown-handle {
-        position: static;
-        height: auto;
-        top: auto;
-        right: auto;
-      }
-    }
-
-    .filterable-listbox {
-      width: auto;
-      right: 0;
-      margin-top: 5px;
-
-      .item-view-wrapper {
-        .item-view {
-          padding-right: 7px;
+      .names-and-icon-view {
+        .xp-admin-common-sub-name {
+          display: none;
         }
       }
     }
+  }
+
+  .filter-and-list-container {
+
+    .names-and-icon-viewer {
+      padding: 0 10px;
+
+      * {
+        cursor: pointer;
+      }
+
+      .names-and-icon-view {
+        .xp-admin-common-wrapper {
+          height: @icon-size;
+          width: @icon-size;
+          margin-right: 15px;
+
+          .font-icon-default::before {
+            font-size: @icon-size;
+          }
+        }
+      }
+    }
+
+    .xp-admin-common-dropdown-handle {
+      position: static;
+      height: auto;
+      top: auto;
+      right: auto;
+    }
+  }
+
+  .filterable-listbox {
+    width: auto;
+    right: 0;
+    margin-top: 5px;
   }
 }
