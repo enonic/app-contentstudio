@@ -55,13 +55,6 @@ export class CustomSelectorComboBox
             return Q.resolve(null);
         });
 
-        this.listBox.whenShown(() => {
-            // if not empty then search will be performed after finished typing
-            if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
-                this.search(this.optionFilterInput.getValue());
-            }
-        });
-
         let searchValue = '';
 
         const debouncedSearch = AppHelper.debounce(() => {
@@ -72,6 +65,13 @@ export class CustomSelectorComboBox
             searchValue = event.getNewValue();
             debouncedSearch();
         });
+    }
+
+    protected loadListOnShown(): void {
+        // if not empty then search will be performed after finished typing
+        if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
+            this.search(this.optionFilterInput.getValue());
+        }
     }
 
     protected search(value?: string): void {

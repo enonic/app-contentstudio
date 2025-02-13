@@ -52,9 +52,17 @@ export class SettingsBrowsePanel
             });
         });
 
+        let updateTriggered = false;
         // load tree after projects are loaded
         const projectsUpdatedListener = () => {
-            this.treeListBox?.reload();
+            if (!updateTriggered) {
+                updateTriggered = true;
+
+                this.treeListBox.whenRendered(() => {
+                    updateTriggered = false;
+                    this.treeListBox.load();
+                });
+            }
 
             Projects.get().unProjectsUpdated(projectsUpdatedListener);
         };
@@ -72,10 +80,11 @@ export class SettingsBrowsePanel
             highlightMode: true,
         });
 
+
         this.treeActions = new SettingsTreeActions(this.selectionWrapper);
         this.contextMenu = new TreeGridContextMenu(this.treeActions);
         this.toolbar = new ListBoxToolbar<SettingsViewItem>(this.selectionWrapper, {
-            refreshAction: () => this.treeListBox.reload(),
+            refreshAction: () => this.treeListBox.load(),
         });
 
         new SelectableTreeListBoxKeyNavigator(this.selectionWrapper);

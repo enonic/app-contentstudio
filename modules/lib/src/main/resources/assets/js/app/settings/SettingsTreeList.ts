@@ -9,7 +9,6 @@ import {ProjectViewItem} from './view/ProjectViewItem';
 import Q from 'q';
 import {SettingsTreeHelper} from './tree/SettingsTreeHelper';
 import {ProjectsUtil} from './resource/ProjectsUtil';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class SettingsTreeList
     extends TreeListBox<SettingsViewItem> {
@@ -34,7 +33,7 @@ export class SettingsTreeList
         }
     }
 
-    public reload(): void {
+    public load(): void {
         this.setItems(this.isRoot() ? [this.makeRootFolderItem()] : this.getProjectsViewItemsByParent());
     }
 
@@ -134,7 +133,7 @@ export class SettingsTreeListElement
         (this.itemViewer as SettingsItemViewer).setObject(item);
     }
 
-    setExpanded(expanded: boolean): void {
+    protected setExpanded(expanded: boolean): void {
         super.setExpanded(expanded);
 
         if (this.item instanceof FolderViewItem) {
