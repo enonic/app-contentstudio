@@ -31,7 +31,7 @@ import {ContentAndStatusTreeSelectorItem} from '../../item/ContentAndStatusTreeS
 import {CompareStatus} from '../../content/CompareStatus';
 import {MovedContentItem} from '../../browse/MovedContentItem';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
-import {ContentSelectorDropdown, ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
+import {ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentListBox} from './ContentListBox';
 import {ContentTreeSelectorDropdown, ContentTreeSelectorDropdownOptions} from './ContentTreeSelectorDropdown';
@@ -39,7 +39,7 @@ import {ContentTreeSelectorDropdown, ContentTreeSelectorDropdownOptions} from '.
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
 
-    protected contentSelectorDropdown: ContentSelectorDropdown;
+    protected contentSelectorDropdown: ContentTreeSelectorDropdown;
 
     protected contentSelectedOptionsView: ContentSelectedOptionsView;
 
@@ -96,11 +96,18 @@ export class ContentSelector
         };
 
         const contentRenamedListener = (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
-            if (this.getSelectedOptions().length === 0) {
-                return;
-            }
+            const thisContentPath = this.context.content?.getPath();
 
             data.forEach((renamed: ContentSummaryAndCompareStatus, index: number) => {
+                const oldPath = oldPaths[index];
+                const newPath = renamed.getPath();
+
+                if (thisContentPath?.equals(newPath) || thisContentPath?.isDescendantOf(newPath) || thisContentPath?.equals(oldPath) ||
+                    thisContentPath?.isDescendantOf(oldPath)) {
+
+                    this.contentSelectorDropdown.setLoadWhenListShown();
+                }
+
                 this.updateSelectedItemsPathsIfParentRenamed(renamed, oldPaths[index]);
             });
         };
@@ -112,7 +119,7 @@ export class ContentSelector
 
         this.onRemoved(() => {
             handler.unContentUpdated(contentUpdatedListener);
-            handler.unContentRenamed(contentUpdatedListener);
+            handler.unContentRenamed(contentRenamedListener);
             handler.unContentMoved(contentMovedListener);
         });
     }
@@ -210,7 +217,7 @@ export class ContentSelector
         });
     }
 
-    protected createSelectorDropdown(input: Input): ContentSelectorDropdown {
+    protected createSelectorDropdown(input: Input): ContentTreeSelectorDropdown {
         this.contentSelectedOptionsView = this.createSelectedOptionsView().setContextContent(this.context.content);
         const loader = this.createLoader();
         const listBox = this.createContentListBox(loader);
@@ -260,7 +267,7 @@ export class ContentSelector
     }
 
     protected doCreateSelectorDropdown(listBox: ContentListBox<ContentTreeSelectorItem>,
-                                       dropdownOptions: ContentSelectorDropdownOptions): ContentSelectorDropdown {
+                                       dropdownOptions: ContentSelectorDropdownOptions): ContentTreeSelectorDropdown {
         return new ContentTreeSelectorDropdown(listBox, dropdownOptions);
     }
 

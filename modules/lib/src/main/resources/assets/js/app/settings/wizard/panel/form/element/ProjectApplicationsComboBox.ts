@@ -58,10 +58,6 @@ export class ProjectApplicationsComboBox
     protected initListeners(): void {
         super.initListeners();
 
-        this.listBox.whenShown(() => {
-            this.loader.load().catch(DefaultErrorHandler.handle);
-        });
-
         this.loader.onLoadedData((event: LoadedDataEvent<Application>) => {
             this.listBox.setItems(event.getData());
 
@@ -89,6 +85,10 @@ export class ProjectApplicationsComboBox
         });
 
         this.selectedOptionsView.onOptionMoved(this.notifyDataChanged.bind(this));
+    }
+
+    protected loadListOnShown(): void {
+        this.loader.load().catch(DefaultErrorHandler.handle);
     }
 
     setParentProjects(projects: Project[]): Q.Promise<void> {

@@ -89,12 +89,13 @@ export class ContentMoveComboBox
         this.clear();
         this.deselectAll();
         this.loader.resetParams();
+        this.setLoadWhenListShown();
+    }
 
-        this.listBox.whenShown(() => {
-            if (!this.loader.isLoading()) { // when listbox is shown first time it also triggers loading
-                this.search();
-            }
-        });
+    protected loadListOnShown(): void {
+        if (!this.loader.isLoading()) { // when listbox is shown first time it also triggers loading
+            this.search();
+        }
     }
 
     getSelectedDisplayValue(): ContentTreeSelectorItem {

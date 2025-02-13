@@ -58,13 +58,6 @@ export class SiteConfiguratorComboBox
             return Q.resolve(null);
         });
 
-        this.listBox.whenShown(() => {
-            // if not empty then search will be performed after finished typing
-            if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
-                this.search(this.optionFilterInput.getValue());
-            }
-        });
-
         let searchValue = '';
 
         const debouncedSearch = AppHelper.debounce(() => {
@@ -75,6 +68,12 @@ export class SiteConfiguratorComboBox
             searchValue = event.getNewValue();
             debouncedSearch();
         });
+    }
+
+    protected loadListOnShown(): void {
+        if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
+            this.search(this.optionFilterInput.getValue());
+        }
     }
 
     protected search(value?: string): void {
@@ -135,5 +134,9 @@ export class SiteConfiguratorComboBox
         if (app) {
             this.select(app, silent);
         }
+    }
+
+    protected doShowDropdown(): void {
+        super.doShowDropdown();
     }
 }

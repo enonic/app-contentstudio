@@ -136,6 +136,10 @@ export class ContentBrowsePanel
                 });
             });
         });
+
+        this.selectionWrapper.whenRendered(() => {
+           this.treeListBox.load();
+        });
     }
 
     createListBoxPanel(): SelectableListBoxPanel<ContentSummaryAndCompareStatus> {

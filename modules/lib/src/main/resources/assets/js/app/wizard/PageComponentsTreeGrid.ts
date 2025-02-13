@@ -73,9 +73,9 @@ export class PageComponentsTreeGrid
         return item.getId();
     }
 
-    load(): Q.Promise<void> {
-        if (!PageState.getState() || !this.isVisible()) {
-            return Q.resolve();
+    load(): void {
+        if (!PageState.getState()) {
+            return;
         }
 
         this.clearItems();
@@ -293,8 +293,6 @@ export class PageComponentsTreeGrid
 export class PageComponentsListElement
     extends TreeListElement<ComponentsTreeItem> {
 
-    private wasExpanded: boolean = false;
-
     constructor(content: ComponentsTreeItem, params: TreeListElementParams<ComponentsTreeItem>) {
         super(content, params);
     }
@@ -311,18 +309,6 @@ export class PageComponentsListElement
                 }
             }
         });
-    }
-
-    setExpanded(expanded: boolean): void {
-        super.setExpanded(expanded);
-
-        if (expanded) {
-            this.wasExpanded = true;
-        }
-    }
-
-    isExpandedAtLeastOnce(): boolean {
-        return this.wasExpanded;
     }
 
     getComponentPath(): ComponentPath {
@@ -373,7 +359,7 @@ export class PageComponentsListElement
         this.updateExpandableState();
 
         if (this.isExpandedAtLeastOnce()) {
-            (this.getList() as PageComponentsTreeGrid).load();
+            this.getList().load();
         }
     }
 
