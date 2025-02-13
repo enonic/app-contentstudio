@@ -55,6 +55,7 @@ export class LiveEditPagePlaceholder
 
         this.addClass('icon-insert-template');
         this.pagePlaceholderInfoBlock.setTextForContent(this.contentType.getDisplayName());
+        this.controllerDropdown?.setLoadWhenListShown();
         this.controllerDropdown.show();
     }
 
@@ -62,6 +63,7 @@ export class LiveEditPagePlaceholder
         this.removeClass('icon-insert-template');
         this.pagePlaceholderInfoBlock.setEmptyText();
         this.controllerDropdown?.hide();
+        this.controllerDropdown?.setLoadWhenListShown();
     }
 
     private createControllerDropdown(): PageDescriptorDropdown {
@@ -102,5 +104,9 @@ export class LiveEditPagePlaceholder
         this.controllerDropdown?.reset();
         this.setErrorTexts(i18n('field.preview.failed'), i18n('field.preview.failed.description'));
         this.addClass('page-not-renderable');
+    }
+
+    setReloadNeeded(): void {
+        this.controllerDropdown?.setLoadWhenListShown();
     }
 }

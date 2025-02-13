@@ -632,6 +632,11 @@ export class LiveFormPanel
         this.availableInspectPanels.forEach((panel) => panel.setModel(liveEditModel));
 
         this.handleContentUpdatedEvent();
+
+        const reloadNeededHandler = () => this.placeholder?.setReloadNeeded();
+
+        this.liveEditModel?.getSiteModel()?.onApplicationAdded(reloadNeededHandler);
+        this.liveEditModel?.getSiteModel()?.onApplicationRemoved(reloadNeededHandler);
     }
 
     private handleContentUpdatedEvent() {
