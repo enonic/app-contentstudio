@@ -263,17 +263,12 @@ class ContentItemPreviewPanel extends Page {
 
     // Clicks on the dropdown handle in the 'Preview dropdown' then clicks on a list-item by its name
     async selectOptionInPreviewWidget(optionName) {
-        try {
-            await this.waitForPreviewWidgetDropdownDisplayed();
-            await this.clickOnElement(this.previewWidgetDropdown);
-            let optionSelector = this.previewWidgetDropdown + lib.DROPDOWN_SELECTOR.listItemByDisplayName(optionName);
-            await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-            await this.clickOnElement(optionSelector);
-            await this.pause(200);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_widget');
-            throw new Error(`Error occurred during selecting option in Preview Widget, screenshot: ${screenshot} ` + err);
-        }
+        await this.waitForPreviewWidgetDropdownDisplayed();
+        await this.clickOnElement(this.previewWidgetDropdown);
+        let optionSelector = this.previewWidgetDropdown + lib.DROPDOWN_SELECTOR.listItemByDisplayName(optionName);
+        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
+        await this.clickOnElement(optionSelector);
+        await this.pause(200);
     }
 
     async waitForPreviewWidgetDropdownDisplayed() {
