@@ -151,6 +151,17 @@ class ContentItemPreviewPanel extends Page {
         }
     }
 
+    async switchToTextFrame() {
+        try {
+            let locator = xpath.container + "//iframe[contains(@class,'text')]";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.switchToFrame(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_text_frame');
+            throw new Error(`Error occurred during switching to the frame, screenshot: ${screenshot} ` + err);
+        }
+    }
+
     // Checks that the element(selector) is not displayed in the iframe in Preview Panel
     async waitForElementNotDisplayedInFrame(selector) {
         try {
