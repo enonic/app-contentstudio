@@ -40,23 +40,19 @@ export class ContentTypeFilterDropdown
         super.filterItem(item, searchString);
     }
 
-    protected initListeners(): void {
-        super.initListeners();
+    protected loadListOnShown(): void {
+        this.loadMask.show();
 
-        this.listBox.whenShown(() => {
-            this.loadMask.show();
+        this.loader.load().then((contentTypes: ContentTypeSummary[]) => {
+            this.listBox.setItems(contentTypes);
 
-            this.loader.load().then((contentTypes: ContentTypeSummary[]) => {
-                this.listBox.setItems(contentTypes);
+            this.selectLoadedListItems(contentTypes);
 
-                this.selectLoadedListItems(contentTypes);
+            if (this.listBox.isVisible() && this.optionFilterInput.getValue()) { // filtering loaded items with search string if present
+                this.optionFilterInput.forceChangedEvent();
+            }
 
-                if (this.listBox.isVisible() && this.optionFilterInput.getValue()) { // filtering loaded items with search string if present
-                    this.optionFilterInput.forceChangedEvent();
-                }
-
-            }).catch(DefaultErrorHandler.handle).finally(() => this.loadMask.hide());
-        });
+        }).catch(DefaultErrorHandler.handle).finally(() => this.loadMask.hide());
     }
 
     private selectLoadedListItems(contentTypes: ContentTypeSummary[]): void {

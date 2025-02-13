@@ -78,6 +78,10 @@ export class ProjectsSelector
         });
     }
 
+    protected loadListOnShown(): void {
+        this.listBox.load();
+    }
+
     private isSearchStringSet(): boolean {
         return !!this.options.loader.getSearchString();
     }

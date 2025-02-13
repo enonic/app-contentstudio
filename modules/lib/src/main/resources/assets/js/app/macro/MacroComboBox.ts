@@ -43,15 +43,15 @@ export class MacroComboBox
             return null;
         });
 
-        this.listBox.whenShown(() => {
-            if (!this.loader.isLoaded() && !this.loader.isLoading()) {
-                this.loader.load().catch(DefaultErrorHandler.handle);
-            }
-        });
-
         this.onSelectionChanged((selection: SelectionChange<MacroDescriptor>) => {
             this.selectedMacro = selection.selected?.length > 0 ? selection.selected[0] : null;
         });
+    }
+
+    protected loadListOnShown(): void {
+        if (!this.loader.isLoaded() && !this.loader.isLoading()) {
+            this.loader.load().catch(DefaultErrorHandler.handle);
+        }
     }
 
     getLoader(): MacrosLoader {

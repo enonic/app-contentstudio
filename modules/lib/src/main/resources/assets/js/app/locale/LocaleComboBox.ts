@@ -59,15 +59,15 @@ export class LocaleComboBox
            this.loadMask.hide();
         });
 
-        this.listBox.whenShown(() => {
-            if (!this.loader.isLoaded() && !this.loader.isLoading()) {
-                this.loader.load().catch(DefaultErrorHandler.handle);
-            }
-        });
-
         this.onSelectionChanged((selection: SelectionChange<Locale>) => {
             this.selectedLocale = selection.selected?.length > 0 ? selection.selected[0] : null;
         });
+    }
+
+    protected loadListOnShown(): void {
+        if (!this.loader.isLoaded() && !this.loader.isLoading()) {
+            this.loader.load().catch(DefaultErrorHandler.handle);
+        }
     }
 
     createSelectedOption(item: Locale): Option<Locale> {

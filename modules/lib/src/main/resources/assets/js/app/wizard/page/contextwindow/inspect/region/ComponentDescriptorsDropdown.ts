@@ -41,14 +41,6 @@ export class ComponentDescriptorsDropdown
     protected initListeners(): void {
         super.initListeners();
 
-        this.listBox.whenShown(() => {
-            this.loader.load().then(() => {
-                if (this.selectedDescriptor) {
-                    this.select(this.selectedDescriptor, true);
-                }
-            }).catch(DefaultErrorHandler.handle);
-        });
-
         this.loader.onLoadedData((event: LoadedDataEvent<Descriptor>) => {
             this.listBox.setItems(event.getData());
             return null;
@@ -70,6 +62,14 @@ export class ComponentDescriptorsDropdown
                 this.optionFilterInput.giveFocus();
            }
         });
+    }
+
+    protected loadListOnShown(): void {
+        this.loader.load().then(() => {
+            if (this.selectedDescriptor) {
+                this.select(this.selectedDescriptor, true);
+            }
+        }).catch(DefaultErrorHandler.handle);
     }
 
     protected doShowDropdown(): void {

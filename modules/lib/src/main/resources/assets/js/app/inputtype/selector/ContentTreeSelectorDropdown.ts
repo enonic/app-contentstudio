@@ -26,6 +26,8 @@ export class ContentTreeSelectorDropdown
 
     protected modeButton: ModeTogglerButton;
 
+    protected loadTreeListOnShow: boolean;
+
     protected options: ContentTreeSelectorDropdownOptions;
 
     constructor(listBox, options: ContentSelectorDropdownOptions) {
@@ -52,17 +54,11 @@ export class ContentTreeSelectorDropdown
             .setEnterKeyHandler(this.handlerEnterPressedInTree.bind(this));
 
         this.treeMode = this.options.treeMode || false;
+        this.loadTreeListOnShow = true;
     }
 
     protected initListeners(): void {
         super.initListeners();
-
-        this.listBox.whenShown(() => {
-            // if not empty then search will be performed after finished typing
-            if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
-                this.search(this.optionFilterInput.getValue());
-            }
-        });
 
         this.treeList.onItemsAdded((items: ContentTreeSelectorItem[]) => {
             this.selectLoadedTreeListItems(items);
@@ -80,7 +76,13 @@ export class ContentTreeSelectorDropdown
         });
 
         this.treeList.onShown(() => {
+            if (this.loadTreeListOnShow) {
+                this.treeList.clearItems();
+                this.treeList.load();
+            }
+
             this.dropdownHandle.down();
+            this.loadTreeListOnShow = false;
         });
 
         this.treeSelectionWrapper.onSelectionChanged((selectionChange: SelectionChange<ContentTreeSelectorItem>) => {
@@ -121,6 +123,10 @@ export class ContentTreeSelectorDropdown
         } else {
             this.setVisibleOnDemand(this.treeSelectionWrapper, this.treeMode);
             this.setVisibleOnDemand(this.listBox, !this.treeMode);
+
+            if (this.loadWhenListShown) {
+                this.loadListOnShown();
+            }
         }
     }
 
@@ -177,15 +183,21 @@ export class ContentTreeSelectorDropdown
         });
     }
 
-    protected search(value?: string) {
+    protected search(value?: string): void {
         this.options.loader.setTreeFilterValue(value);
 
         if (this.treeMode) {
+            this.loadTreeListOnShow = false;
             this.treeList.clearItems();
             this.treeList.load();
         } else {
             super.search(value);
         }
+    }
+
+    setLoadWhenListShown(): void {
+        super.setLoadWhenListShown();
+        this.loadTreeListOnShow = true;
     }
 
     load(): void {
@@ -194,6 +206,12 @@ export class ContentTreeSelectorDropdown
 
     getTreeList(): ContentsTreeList {
         return this.treeList;
+    }
+
+    protected loadListOnShown(): void {
+        if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
+            this.search(this.optionFilterInput.getValue());
+        }
     }
 
     doRender(): Q.Promise<boolean> {
