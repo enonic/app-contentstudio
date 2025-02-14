@@ -1,6 +1,6 @@
 type WebSocketInMessage = 'connected' | 'pong' | 'disconnected';
 
-type WebSocketOutMessage = 'connect' | 'ping' | 'disconnect';
+type WebSocketOutMessage = 'connect' | 'ping' | 'subscribe' | 'disconnect';
 
 type WebSocketMessageType = WebSocketInMessage | WebSocketOutMessage;
 

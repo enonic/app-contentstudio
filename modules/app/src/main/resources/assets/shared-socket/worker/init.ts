@@ -1,5 +1,6 @@
 import {$isConnected, connect as connectWebSocket} from "../websocket/init";
-import {addPort, broadcast, sendTo} from "./ports";
+import {isMessageWithMetadata} from "./data";
+import {addPort, broadcast, sendTo, sendToId} from "./ports";
 
 export function initialize(self: SharedWorkerGlobalScope): void {
     if (self.onconnect != null) {
@@ -13,9 +14,13 @@ export function initialize(self: SharedWorkerGlobalScope): void {
         sendTo(port, {type: 'status', payload: {ready: $isConnected.get()}});
     };
 
-    connectWebSocket((message: Record<string, unknown>): void => {
-        // TODO: Filter messages by subscription and clientId? (may be optional for node.*)
-        broadcast({type: 'received', payload: message});
+    connectWebSocket((payload: Record<string, unknown>): void => {
+        const clientId = isMessageWithMetadata(payload) ? payload.metadata.clientId : undefined;
+        if (clientId) {
+            sendToId(clientId, {type: 'received', payload});
+        } else {
+            broadcast({type: 'received', payload});
+        }
     });
 
     $isConnected.subscribe(connected => {
