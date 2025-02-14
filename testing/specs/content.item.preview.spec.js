@@ -54,11 +54,11 @@ describe('content.item.preview.spec - Select a content file and check expected i
             await studioUtils.waitForElementDisplayed("//pre[contains(.,'Belarus')]");
         });
 
-    it(`GIVEN existing *.txt file is selected WHEN 'Site engine' option has been selected THEN 404 should be loaded in Preview Panel`,
+    it(`GIVEN existing *.txt file is selected WHEN 'Enonic rendering' option has been selected THEN 404 should be loaded in Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(TEXT_CONTENT_NAME);
-            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await studioUtils.saveScreenshot('text_attachment_site_engine_preview');
             // 'Preview' button should be enabled for a text file and MEDIA option
             await contentItemPreviewPanel.waitForPreviewButtonEnabled();
@@ -92,13 +92,13 @@ describe('content.item.preview.spec - Select a content file and check expected i
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
         });
 
-    it(`WHEN existing 'pptx' content has been selected AND 'Site engine' option has been selected THEN 'Preview' button should be enabled in Item Preview Panel`,
+    it(`WHEN existing 'pptx' content has been selected AND 'Enonic rendering' option has been selected THEN 'Preview' button should be enabled in Item Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select an existing pptx content:
             await studioUtils.findAndSelectItem(PPTX_CONTENT_NAME);
             // 2. Select 'Media' in the Preview widget dropdown:
-            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             // 3. Verify that 'Preview' button is disabled
             await studioUtils.saveScreenshot('site_engine_preview_button_disabled_for_pptx');
             await contentItemPreviewPanel.waitForPreviewButtonEnabled();

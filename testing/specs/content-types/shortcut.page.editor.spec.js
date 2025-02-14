@@ -62,13 +62,13 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
         });
 
-    it(`WHEN existing shortcut content has been selected AND 'Site engine' option has been selected THEN 'Preview' button should be disabled in Item Preview Panel`,
+    it(`WHEN existing shortcut content has been selected AND 'Enonic rendering' option has been selected THEN 'Preview' button should be disabled in Item Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select an existing pptx content:
             await studioUtils.findAndSelectItem(SHORTCUT_NAME);
-            // 2. Select 'Site engine' in the Preview widget dropdown:
-            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
+            // 2. Select 'Enonic rendering' in the Preview widget dropdown:
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             // 3. Verify that 'Preview' button is disabled
             await studioUtils.saveScreenshot('engine_preview_button_disabled_for_shortcut');
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();

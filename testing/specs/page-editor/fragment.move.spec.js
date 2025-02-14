@@ -81,13 +81,13 @@ describe('Move Fragment specification', function () {
             assert.equal(result, TEST_TEXT_FRAGMENT, "expected text should be present in the Preview Panel");
         });
 
-    it(`WHEN existing fragment is selected AND 'Site engine' is selected in Preview Panel THEN expected text-fragment should be displayed in Preview Panel`,
+    it(`WHEN existing fragment is selected AND 'Enonic rendering' is selected in Preview Panel THEN expected text-fragment should be displayed in Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select the fragment-content:
             await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
-            // 2. Select 'Site engine' in the dropdown
-            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
+            // 2. Select 'Enonic rendering' in the dropdown
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             // 3. Verify the Preview button should be enabled:
             await contentItemPreviewPanel.waitForPreviewButtonEnabled();
             // 4. Verify the text-fragment should be displayed in the Preview Panel

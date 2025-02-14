@@ -75,7 +75,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
                 '100% should be selected in emulator dropdown by default');
         });
 
-    it(`WHEN a folder and 'Site engine' have been selected THEN 'Preview' button should be disabled`,
+    it(`WHEN a folder and 'Enonic rendering' have been selected THEN 'Preview' button should be disabled`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(FOLDER_NAME);
