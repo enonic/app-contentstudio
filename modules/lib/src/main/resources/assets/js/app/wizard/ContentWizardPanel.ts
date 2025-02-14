@@ -472,7 +472,6 @@ export class ContentWizardPanel
             this.livePanel?.setSaveEnabled(!ObjectHelper.equals(PageState.getState(), this.getPersistedItem().getPage()));
         }, 200);
 
-        saveAction.onExecuted(updateSaveInLivePanel);
         this.onPageStateChanged(updateSaveInLivePanel);
     }
 
@@ -2196,6 +2195,8 @@ export class ContentWizardPanel
         if (!this.isRename) {
             this.resetWizard();
         }
+
+        this.livePanel?.setSaveEnabled(!ObjectHelper.equals(PageState.getState(), this.getPersistedItem().getPage()));
 
         return Q.resolve(persistedItem);
     }
