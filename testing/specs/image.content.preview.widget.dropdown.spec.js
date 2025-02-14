@@ -99,19 +99,19 @@ describe('image.content.preview.widget.dropdown.spec - Tests for Live View', fun
             await contentItemPreviewPanel.waitForPreviewButtonEnabled();
         });
 
-    it("GIVEN an image is selected WHEN 'Site engine' has been selected in the 'Preview widget dropdown' THEN 404 error should be displayed in the iframe in Item Preview Panel",
+    it("GIVEN an image is selected WHEN 'Enonic rendering' has been selected in the 'Preview widget dropdown' THEN 404 error should be displayed in the iframe in Item Preview Panel",
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select an image:
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.RENAULT);
-            // 2. Select 'Site engine' in the Preview widget dropdown:
-            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
-            await studioUtils.saveScreenshot('image_selected_site_engine_selected');
+            // 2. Select 'Enonic rendering' in the Preview widget dropdown:
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
+            await studioUtils.saveScreenshot('image_selected_enonic_rendering_selected');
             // 3. Switch to the iframe and verify that 404 error is displayed in the iframe in Item Preview Panel:
             await contentItemPreviewPanel.switchToLiveViewFrame();
             await contentItemPreviewPanel.waitFor404ErrorDisplayed();
             await contentItemPreviewPanel.switchToParentFrame();
-            // 4. Verify that 'Preview' button should be enabled when an image and 'Site engine' are selected
+            // 4. Verify that 'Preview' button should be enabled when an image and 'Enonic rendering' are selected
             await contentItemPreviewPanel.waitForPreviewButtonEnabled();
         });
 

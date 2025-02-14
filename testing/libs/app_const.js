@@ -494,7 +494,7 @@ module.exports = Object.freeze({
     },
     PREVIEW_WIDGET: {
         AUTOMATIC: 'Automatic',
-        SITE_ENGINE: 'Site engine',
+        ENONIC_RENDERING: 'Enonic rendering',
         MEDIA: 'Media',
         JSON: 'JSON'
     },
