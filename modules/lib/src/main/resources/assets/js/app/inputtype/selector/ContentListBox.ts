@@ -54,4 +54,8 @@ export class ContentListBox<T extends ContentTreeSelectorItem> extends LazyListB
 
         new ResizeObserver(AppHelper.debounce(resizeListener, 200)).observe(this.getHTMLElement());
     }
+
+    getScrollableParent(el?: Element): Element {
+        return this;
+    }
 }
