@@ -38,6 +38,11 @@ export function sendTo<T extends OutWorkerMessage>(port: MessagePort, message: T
     }
 }
 
+export function sendToId<T extends OutWorkerMessage>(id: string, message: T): void {
+    const port = Array.from(ports.keys()).find(port => ports.get(port) === id);
+    port?.postMessage(message);
+}
+
 export function broadcast(message: OutWorkerMessage): void {
     ports.keys().forEach(port => port.postMessage(message));
 }
