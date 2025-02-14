@@ -50,13 +50,13 @@ describe('Custom error handling - specification. Verify that application error p
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
         });
 
-    it(`GIVEN existing site(controller has a error) has been selected WHEN 'Site engine' has been selected in Preview Dropdown THEN expected error message should be displayed in the Preview Panel`,
+    it(`GIVEN existing site(controller has a error) has been selected WHEN 'Enonic rendering' has been selected in Preview Dropdown THEN expected error message should be displayed in the Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select the site:
             await studioUtils.findAndSelectItem(SITE.displayName);
-            // 2. Select 'Site Engine' in the Preview Dropdown:
-            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.SITE_ENGINE);
+            // 2. Select 'Enonic rendering' in the Preview Dropdown:
+            await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             // 3. Verify the error message in the Preview Panel:
             await contentItemPreviewPanel.switchToLiveViewFrame();
             let actualResult = await contentItemPreviewPanel.get500ErrorText();
