@@ -9,6 +9,7 @@
     <api>chartdata</api>
     <api>collaboration</api>
     <api>content</api>
+    <api>events</api>
     <api>export</api>
     <api>styles</api>
     <api>admin:widget</api>
