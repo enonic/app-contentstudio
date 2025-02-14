@@ -33,6 +33,19 @@ export type ReceivedWorkerMessage = WorkerMessageWithPayload<'received'>;
 export type OutWorkerMessage = ConnectedWorkerMessage | DisconnectedWorkerMessage | StatusWorkerMessage | ReceivedWorkerMessage;
 
 //
+//* Data From WS
+//
+
+type MessageWithMetadata = {
+    type: string;
+    metadata: {
+        id: string;
+        clientId?: string;
+    };
+    payload: unknown;
+};
+
+//
 //* Utils
 //
 
@@ -60,4 +73,17 @@ export function isOutWorkerMessage(message: unknown): message is OutWorkerMessag
             message.type === 'status' ||
             message.type === 'received'
         );
+}
+
+export function isMessageWithMetadata(message: unknown): message is MessageWithMetadata {
+    return typeof message === 'object' &&
+        message !== null &&
+        'type' in message &&
+        'metadata' in message &&
+        'payload' in message &&
+        typeof message.type === 'string' &&
+        typeof message.metadata === 'object' &&
+        message.metadata !== null &&
+        'id' in message.metadata &&
+        typeof message.metadata.id === 'string';
 }

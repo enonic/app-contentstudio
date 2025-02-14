@@ -161,6 +161,7 @@ function handleMessage(event: MessageEvent<string>): void {
     switch (message.type) {
         case 'connected':
             $websocket.setKey('state', 'connected');
+            sendMessage({type: 'subscribe'});
             break;
 
         case 'pong':
