@@ -208,7 +208,7 @@ export class MacroModalDialog
             if (this.selectedMacro) {
                 this.insertUpdatedMacroIntoTextArea(macroString);
             } else {
-                this.getEditor().insertText(this.sanitize(macroString));
+                this.getEditor().insertHtml(this.sanitize(macroString));
             }
 
             this.close();
@@ -224,7 +224,7 @@ export class MacroModalDialog
         const newElemText: string = currentElemText.substring(0, this.selectedMacro.index) +
                                     sanitizedMacro +
                                     currentElemText.substring(this.selectedMacro.index + this.selectedMacro.macroText.length);
-        this.selectedMacro.element.$.innerText = newElemText;
+        this.selectedMacro.element.$.innerHTML = newElemText;
 
         this.getEditor().fire('saveSnapshot'); // to trigger change event
     }
