@@ -44,7 +44,7 @@ export function sendToId<T extends OutWorkerMessage>(id: string, message: T): vo
 }
 
 export function broadcast(message: OutWorkerMessage): void {
-    ports.keys().forEach(port => port.postMessage(message));
+    Array.from(ports.keys()).forEach(port => port.postMessage(message));
 }
 
 //
