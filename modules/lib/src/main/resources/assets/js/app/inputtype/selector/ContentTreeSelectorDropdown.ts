@@ -65,12 +65,17 @@ export class ContentTreeSelectorDropdown
         });
 
         this.modeButton.onActiveChanged((active: boolean) => {
+            const hasSearchText = !StringHelper.isBlank(this.optionFilterInput.getValue());
             this.treeMode = active;
-
             this.applyButton.hide();
+
+            if (hasSearchText) {
+                this.loadTreeListOnShow = false; // will be loaded by search
+            }
+
             this.handleModeChanged();
 
-            if (!StringHelper.isBlank(this.optionFilterInput.getValue())) {
+            if (hasSearchText) {
                 this.search(this.optionFilterInput.getValue());
             }
         });
