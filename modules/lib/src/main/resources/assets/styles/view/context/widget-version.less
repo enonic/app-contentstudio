@@ -65,10 +65,7 @@
       }
 
       .version-viewer {
-        display: flex;
-        position: relative;
         margin: 10px 0;
-        align-items: flex-start;
 
         &:first-child {
           margin-top: 0;
@@ -116,10 +113,7 @@
           }
 
           .version-action-button {
-            text-align: center;
-            margin: 10px 0 10px 47px;
-            padding-top: 5px;
-            padding-bottom: 5px;
+            margin: 10px auto;
             display: none;
           }
         }
@@ -137,8 +131,8 @@
 
         .wrapper {
           display: flex;
-          align-self: flex-start;
           width: 100%;
+          position: relative;
 
           .names-and-icon-view {
             flex: 1;
@@ -183,9 +177,13 @@
           }
 
           button.compare {
+            position: absolute;
+            right: 0;
+            top: 0;
             padding: 0;
             order: 1;
             margin-left: 5px;
+            z-index: 1;
 
             &:before {
               color: @admin-font-gray2;
