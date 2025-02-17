@@ -35,6 +35,8 @@ export class PageComponentsTreeGrid
 
     private wasLoaded: boolean = false;
 
+    private isLoading: boolean = false;
+
     constructor(params?: TreeListBoxParams<ComponentsTreeItem>) {
         super(params);
     }
@@ -78,12 +80,14 @@ export class PageComponentsTreeGrid
             return;
         }
 
+        this.wasLoaded = false;
         this.clearItems();
         this.handleLazyLoad();
     }
 
     protected handleLazyLoad(): void {
-        if (this.getItemCount() === 0) {
+        if (this.getItemCount() === 0 && !this.isLoading) {
+            this.isLoading = true;
             this.fetch().then((items: ComponentsTreeItem[]) => {
                 if (items.length > 0) {
                     this.addItems(items);
@@ -91,7 +95,7 @@ export class PageComponentsTreeGrid
 
                 this.wasLoaded = true;
                 this.notifyItemsLoaded();
-            }).catch(DefaultErrorHandler.handle);
+            }).catch(DefaultErrorHandler.handle).finally(() => this.isLoading = false);
         }
     }
 
