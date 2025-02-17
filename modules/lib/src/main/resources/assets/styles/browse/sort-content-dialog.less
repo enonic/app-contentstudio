@@ -112,13 +112,18 @@
     max-width: 300px;
     margin: 0;
     border: 1px solid @admin-medium-gray-border;
+    height: 32px;
 
     .tab-menu-button {
       background-color: @admin-white;
+      display: flex;
+      align-items: center;
+      grid-area: menu-button;
 
       .label {
         display: block;
-        margin-right: 0;
+        margin-right: 12px;
+        margin-left: 24px;
         overflow: hidden;
         white-space: pre;
         line-height: 20px;
@@ -138,30 +143,25 @@
       .tab-menu-item {
         display: flex;
         align-items: center;
-        height: 32px;
-        padding: 2px 3px 2px 5px;
-        line-height: 32px;
+        padding: 0;
 
         .label {
           display: block;
           flex: 1 0;
-          overflow: hidden;
-          white-space: pre;
+          padding: 8px 4px;
           .ellipsis();
         }
 
         .sorting-order {
-          width: 32px;
-          height: 32px;
+          justify-content: center;
           padding: 0;
           background-color: transparent;
 
           &::before {
             display: block;
-            width: 100%;
-            height: 100%;
-            font-size: 16px;
+            width: 32px;
             line-height: 32px;
+            font-size: 16px;
             text-align: center;
             color: @admin-button-blue2;
           }
@@ -202,7 +202,7 @@
         }
 
         &.single {
-          flex-grow: 1;
+          grid-column: span 2;
 
           .label {
             &:focus {
@@ -246,8 +246,9 @@
 
     &.expanded {
       .menu {
-        display: flex !important;
-        flex-wrap: wrap;
+        display: grid !important;
+        grid-template-columns: 1fr 32px;
+        column-gap: 4px;
       }
     }
 
@@ -306,7 +307,6 @@ body {
   &._540-720 {
     .sort-content-dialog .sort-tab-menu {
       float: left;
-      width: 100%;
       margin-top: 10px;
     }
   }
