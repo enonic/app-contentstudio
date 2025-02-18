@@ -104,14 +104,22 @@ CKEDITOR.plugins.add('macro', {
             var regexMacroWithBody = /\[(\w+[\w-]*)[^\]]*\]([^\[]*)\[\/(\w+[\w-]*)\]/g;
             var result;
 
-            // using innerText instead of getText() to preserve line breaks and spaces
             while (result = regexMacroWithBody.exec(selectedElement.$.innerHTML)) {
                 if (result[1] === result[3] && isSelectionWithinMacro(result)) {
                     selectedMacro = makeMacroObject(result);
-                    selectedMacro.body = result[2];
+                    selectedMacro.body = isSystemMacro(result[1]) ? extractMacroTextFromElement(selectedElement, result[1]) : result[2];
                     break;
                 }
             }
+        }
+
+        function isSystemMacro(macroName) {
+            return macroName === 'embed' || macroName === 'disable';
+        }
+
+        function extractMacroTextFromElement(element, macroName) {
+            var text = element.$.innerText;
+            return text.substring(text.indexOf(`[${macroName}]`) + `[${macroName}]`.length, text.indexOf(`[/${macroName}]`));
         }
 
         function checkMacroNoBodySelected() {
