@@ -173,7 +173,7 @@ export class MacroModalDialog
     }
 
     private sanitize(value: string): string {
-        const macroName = this.getMacroCombobox().getValue().toUpperCase();
+        const macroName = this.getMacroName();
 
         if (macroName === 'SYSTEM:DISABLE') {
             return value;
@@ -187,6 +187,14 @@ export class MacroModalDialog
         }
 
         return DOMPurify.sanitize(value, config) as string;
+    }
+
+    private getMacroName(): string {
+        return this.getMacroCombobox().getValue().toUpperCase();
+    }
+
+    private isSystemMacro(): boolean {
+        return this.getMacroName().startsWith('SYSTEM:');
     }
 
     private makeData(): PropertySet {
@@ -208,7 +216,7 @@ export class MacroModalDialog
             if (this.selectedMacro) {
                 this.insertUpdatedMacroIntoTextArea(macroString);
             } else {
-                this.getEditor().insertText(this.sanitize(macroString));
+                this.insertNewMacroIntoTextArea(macroString);
             }
 
             this.close();
@@ -224,9 +232,24 @@ export class MacroModalDialog
         const newElemText: string = currentElemText.substring(0, this.selectedMacro.index) +
                                     sanitizedMacro +
                                     currentElemText.substring(this.selectedMacro.index + this.selectedMacro.macroText.length);
-        this.selectedMacro.element.$.innerText = newElemText;
+
+        if (this.isSystemMacro()) {
+            this.selectedMacro.element.$.innerText = newElemText;
+        } else {
+            this.selectedMacro.element.$.innerHTML = newElemText;
+        }
 
         this.getEditor().fire('saveSnapshot'); // to trigger change event
+    }
+
+    private insertNewMacroIntoTextArea(macroString: string) {
+        const sanitizedData = this.sanitize(macroString);
+
+        if (this.isSystemMacro()) {
+            this.getEditor().insertText(sanitizedData);
+        } else {
+            this.getEditor().insertHtml(sanitizedData);
+        }
     }
 
     // it is a DOMPurify default regex for protocols handlers in URL attributes plus ours content://
