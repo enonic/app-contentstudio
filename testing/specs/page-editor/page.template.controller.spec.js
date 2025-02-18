@@ -155,6 +155,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
         async () => {
             let contentWizard = new ContentWizard();
             let TEST_TEXT = 'test text';
+            let TEST_TEXT_INSERTED = "<p>test text</p>";
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let textComponentCke = new TextComponentCke();
             // 1. Open the site:
@@ -167,13 +168,15 @@ describe('page.template.controller: select a controller in a template-wizard', f
             // 4. Open the Page Components modal dialog and insert a text componsnt:
             await pageComponentsWizardStepForm.openMenu('main');
             await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
+            await studioUtils.saveScreenshot('site_customised_component_inserted');
             // 5. Switches to 'live-edit' iframe and insert a text:
             await textComponentCke.typeTextInCkeEditor(TEST_TEXT);
             // 6. Switches to 'live-edit' iframe and gets the just inserted text:
             await textComponentCke.switchToLiveEditFrame();
+            await studioUtils.saveScreenshot('site_customised_text_inserted');
             let result = await textComponentCke.getTextFromEditor();
             // 7. Verify that the text expected text is displayed in the text component:
-            assert.equal(result, TEST_TEXT, "Expected text should be displayed in the text component");
+            assert.equal(result, TEST_TEXT_INSERTED, "Expected text should be displayed in the text component");
         });
 
     // xp-apps#738 Live Editor is not updated after a page template was added or removed
