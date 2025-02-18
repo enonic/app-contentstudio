@@ -204,7 +204,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 1. Open USA country content:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await contentWizard.pause(1000);
-            // 2. 'Page Component View' modal dialog should not be displayed, because the content is not customized:
+            // 2. 'Page Component View' modal dialog should not be displayed, because the content is not customised:
             await pageComponentView.waitForNotDisplayed();
             // 3. Click on 'Customize' menu item in Live Edit frame:
             await contentWizard.doUnlockLiveEditor();

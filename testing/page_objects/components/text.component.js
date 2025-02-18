@@ -80,23 +80,34 @@ class TextComponent extends Page {
     }
 
     async typeTextInCkeEditor(text) {
-        await this.switchToLiveEditFrame();
-        await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
-        let id = await this.getEditorId();
-        await utils.setTextInCKE(id, text);
-        await this.getBrowser().switchToParentFrame();
-        return await this.pause(1000);
+        try {
+            await this.switchToLiveEditFrame();
+            await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
+            let id = await this.getEditorId();
+            await utils.setTextInCKE(id, text);
+            await this.getBrowser().switchToParentFrame();
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_text_component_insert_text');
+            throw new Error(`Error during typing text in CKE editor, screenshot: ${screenshot}` + err);
+        }
     }
 
     async insertTextInCkeEditor(text) {
-        await this.switchToLiveEditFrame();
-        await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
-        let id = await this.getEditorId();
-        await utils.insertTextInCKE(id, text);
-        await this.getBrowser().switchToParentFrame();
-        return await this.pause(1000);
+        try {
+            await this.switchToLiveEditFrame();
+            await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
+            let id = await this.getEditorId();
+            await utils.insertTextInCKE(id, text);
+            await this.getBrowser().switchToParentFrame();
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_text_component_insert_text');
+            throw new Error(`Error during typing text in CKE editor, screenshot:${screenshot}` + err);
+        }
     }
 
+    // Inserts the text in 'section' element
     async insertTextInCkeEditorSection(text) {
         await this.switchToLiveEditFrame();
         let locator = "//section[contains(@id,'TextComponentView') and contains(@class,'editor-focused')]"
@@ -116,16 +127,21 @@ class TextComponent extends Page {
             await this.getBrowser().switchToParentFrame();
             return result;
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_text_component_focus"));
-            throw new Error("Editor is not focused " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_text_component_focus');
+            throw new Error(`Text component, Editor is not focused, screenshot: ${screenshot} ` + err);
         }
     }
 
     async getTextFromEditor() {
-        await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
-        let editorId = await this.getEditorId();
-        let result = await utils.getTextInCKE(editorId);
-        return result.trim();
+        try {
+            await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
+            let editorId = await this.getEditorId();
+            let result = await utils.getTextInCKE(editorId);
+            return result.trim();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_text_component_get_text');
+            throw new Error(`Error during getting text from CKE editor, screenshot: ${screenshot}` + err);
+        }
     }
 
     getEditorId() {
@@ -163,7 +179,8 @@ class TextComponent extends Page {
             await this.switchToParentFrame();
         } catch (err) {
             await this.switchToParentFrame();
-            throw new Error(err);
+            let screenshot = await this.saveScreenshotUniqueName('err_more_button');
+            throw new Error(`Error after clicking on More button(Insert Table), screenshot: ${screenshot}` + err);
         }
     }
 
@@ -181,8 +198,8 @@ class TextComponent extends Page {
             await this.switchToParentFrame();
             return await insertLinkDialog.waitForDialogLoaded();
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_insert_link'));
-            throw new Error('Text Component - Error when clicking on Insert Link button ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_insert_link');
+            throw new Error(`Text Component - Error when clicking on Insert Link button, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -192,8 +209,8 @@ class TextComponent extends Page {
             await this.clickOnElement(this.insertMacroButton);
             return await this.switchToParentFrame();
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_insert_macro'));
-            throw new Error('Text Component - Error when clicking on Insert Macro button ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_insert_macro');
+            throw new Error(`Text Component - Error when clicking on Insert Macro button, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -217,8 +234,8 @@ class TextComponent extends Page {
             return await insertImageDialog.waitForDialogVisible();
         } catch (err) {
             await this.switchToParentFrame();
-            await this.saveScreenshotUniqueName('err_insert_image_button');
-            throw new Error("Text Component Toolbar - Error after clicking on Insert Image button:" + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_insert_image_button');
+            throw new Error(`Text Component Toolbar - Error after clicking on Insert Image button, screenshot:${screenshot} ` + err);
         }
     }
 

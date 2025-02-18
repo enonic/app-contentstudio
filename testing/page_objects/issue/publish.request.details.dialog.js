@@ -72,7 +72,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             await publishContentDialog.waitForDialogOpened();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_publish_button');
-            throw new Error('Error when clicking on Publish button, screenshot: ' + screenshot + "  " + err);
+            throw new Error(`Error when clicking on Publish button, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -93,7 +93,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             let contentSelectorDropdown = new ContentSelectorDropdown();
             await contentSelectorDropdown.waitForOptionFilterInputDisplayed(xpath.container);
         } catch (err) {
-            throw new Error('`Options filter input` should be displayed in Issue Details ' + err);
+            throw new Error('Options filter input should be displayed in Issue Details ' + err);
         }
     }
 
@@ -128,7 +128,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_remove');
-            throw new Error('error when clicking on `remove icon`: ' + err)
+            throw new Error(`Error when clicking on remove icon: ${screenshot}` + err);
         }
     }
 
@@ -153,7 +153,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             return await this.clickOnElement(this.addScheduleButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_schedule_button');
-            throw new Error('`Request Publish dialog` Error when clicking Add Schedule button, screenshot  ' + screenshot + " " + err);
+            throw new Error(`Request Publish dialog, Error when clicking Add Schedule button, screenshot:${screenshot}  ` + err);
         }
     }
 
@@ -174,8 +174,8 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             await this.clickOnElement(this.reopenRequestButton);
             return this.pause(1000);
         } catch (err) {
-            await this.saveScreenshot('err_click_on_reopen_request');
-            throw new Error('Error when clicking on Reopen Request ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_reopen_request');
+            throw new Error(`Error when clicking on Reopen Request, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -185,8 +185,8 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             await this.clickOnElement(this.publishNowButton);
             return this.pause(1000);
         } catch (err) {
-            await this.saveScreenshot('err_click_on_publish_request_now');
-            throw new Error('Error when clicking on Publish Now (Request) ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_publish_request_now');
+            throw new Error(`Error when clicking on Publish Now (Request) ${screenshot} ` + err);
         }
     }
 
@@ -195,7 +195,8 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             await this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
             await this.pause(500);
         } catch (err) {
-            throw new Error("Request Details dialog should be closed: " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_request_dlg_closed');
+            throw new Error(`Request Details dialog should be closed:${screenshot} ` + err);
         }
     }
 }
