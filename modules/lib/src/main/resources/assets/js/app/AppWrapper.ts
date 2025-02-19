@@ -19,6 +19,7 @@ import {Router} from './Router';
 import {UrlAction} from './UrlAction';
 import {ContentAppBar} from './bar/ContentAppBar';
 import {WidgetsSidebar} from './widget/WidgetsSidebar';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {WidgetInjectionResult} from './util/WidgetInjectionResult';
 
 interface MenuWidgetInjectionResult extends WidgetInjectionResult {
@@ -314,6 +315,8 @@ export class AppWrapper
             const headerAndWidgetsBlock: DivEl = new DivEl('header-widgets-block');
             headerAndWidgetsBlock.appendChildren(this.appBar, this.widgetsBlock);
             this.appendChildren(this.toggleSidebarButton, this.sidebar as Element, headerAndWidgetsBlock);
+
+            ResponsiveManager.onAvailableSizeChanged(this.appBar);
 
             return rendered;
         });

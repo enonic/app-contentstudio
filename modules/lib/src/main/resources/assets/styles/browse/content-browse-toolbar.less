@@ -16,6 +16,20 @@
     }
   }
 
+  .@{_COMMON_PREFIX}button:not(:disabled) {
+    span,
+    &::before {
+      color: @admin-font-gray3;
+    }
+
+    &:hover {
+      span,
+      &:before {
+        color: @admin-black;
+      }
+    }
+  }
+
   &.mobile-preview-on {
     .content-publish-menu {
       display: none;

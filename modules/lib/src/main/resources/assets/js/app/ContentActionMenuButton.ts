@@ -37,7 +37,7 @@ export class ContentActionMenuButton
     constructor(config: ContentActionMenuButtonConfig) {
         super(config);
 
-        this.addClass('content-publish-menu transparent no-item');
+        this.addClass('content-publish-menu no-item');
     }
 
     protected initListeners(): void {
