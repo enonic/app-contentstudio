@@ -14,7 +14,6 @@ import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.form.Form;
@@ -214,10 +213,13 @@ public class XDataContextResourceTest
 
         Mockito.when( xDataService.getByApplication( Mockito.any() ) ).thenReturn( XDatas.from( xdata2 ) );
 
-        ContextAccessor.INSTANCE.set( ContextBuilder.create().repositoryId( project.getName().getRepoId() ).build() );
-
-        String result =
-            request().path( "cms/myproject1/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
+        String result = ContextBuilder.create()
+            .repositoryId( project.getName().getRepoId() )
+            .build()
+            .callWith( () -> request().path( "cms/myproject1/content/schema/xdata/getContentXData" )
+                .queryParam( "contentId", "contentId" )
+                .get()
+                .getAsString() );
 
         assertJson( "get_content_x_data.json", result );
     }
