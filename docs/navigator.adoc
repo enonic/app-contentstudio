@@ -2,13 +2,15 @@
 :toc: right
 :imagesdir: navigator/images
 
-The navigator is the default page of *Content Studio*.
-It consists of an action toolbar on top, followed by up to four panels that can be open at once depending on the size of your screen. From the left: Search panel, Content tree grid, Preview panel and finally <<widgets#,the Widget panel>> providing additional info or functionality related to the selected item.
+Content navigator is the default page of *Content Studio*.
+It consists of the <<#toolbar, action toolbar>> on top, followed by the main view divided in four vertical responsive panels, from left to right: <<#search_panel, Search panel>>, <<#content_tree, Content tree>>, <<#preview_panel,Preview panel>> and <<#context_panel,Context panel>>.
 
-image::navigator.png[Content Navigator, 1951]
+image::navigator.png[Content Navigator, 75%,align="center"]
 
 
 == Toolbar
+
+image::navigator-toolbar.png[Toolbar, 75%]
 
 The Menu Toolbar in the Content Navigator has buttons for the following actions:
 
@@ -18,64 +20,43 @@ The Menu Toolbar in the Content Navigator has buttons for the following actions:
 * *Duplicate:* Makes a <<actions#duplicate,copy>> of the selected content;
 * *Move:* Opens the <<actions#move,Move item(s) with children>> dialog;
 * *Sort:* Opens the <<actions#sort,Sort items>> dialog where child items of the selected content can be sorted;
-* *Preview:* Opens the selected content in preview mode, in a new browser tab. If more than one content is selected, each will open in its own tab. Only content that has a supporting <<content-types#page-templates,page template>> can be previewed;
 
-Action button on the right of the Toolbar is context-dependent and will have different main action depending on if content is selected, what state content has, permissions etc.:
+Dropdown action button on the right of the Toolbar is context-dependent and will have a different main action preset, depending on if a content is selected, what state content has, current user permissions etc.:
 
- * If selected content is not published: *Publish*, opens the <<actions#publishing-wizard,Publishing wizard>> dialog
- * If selected content is published: *Unpublish*, <<actions#unpublish,Unpublish Wizard>> dialog for taking the content offline
- * If selected content is published but has child items that are not published: *Publish Tree*, opens the <<actions#publishing-wizard,Publishing wizard>>
+image::navigator-action-menu.png[Toolbar, 25%,align="center"]
+
+ * If selected content is not published: *Publish* (opens the <<actions#publishing_wizard,Publishing wizard>> dialog)
+ * If selected content is published: *Unpublish* (opens the <<actions#unpublish,Unpublish Wizard>> dialog for taking the content offline)
+ * If selected content is published but has child items that are not published: *Publish Tree* (opens the <<actions#publishing_wizard,Publishing wizard>>)
 dialog with selected content and all descendants
- * If selected content has workflow state "In progress": *Mark as Ready*, to mark selected content as ready for publishing
- * If selected content is not published and current user doesn't have publishing permissions: *Request Publishing:*, opens the <<actions#unpublish,Unpublish Wizard>> dialog for taking the item offline;
- * If no content is selected: *Create Task*, opens the <<issues#create_a_task,New Task>> dialog
-
-image::navigator-toolbar.png[Toolbar, 1078w]
+ * If selected content has workflow state "In progress": *Mark as Ready* (to mark selected content item(s) as ready for publishing)
+ * If selected content is not published and current user doesn't have publishing permissions: *Request Publishing:* (opens the <<actions#unpublish,Unpublish Wizard>> dialog for taking the item offline)
+ * If no content is selected: *Create Issue*, opens the <<issues#create_a_task,New Task>> dialog
 
 These options are also available in the context menu that appears when right-clicking on a content item in the tree grid panel.
 
+=== Accessibility
 
-== Content tree grid
+The toolbar supports keyboard navigation. When focused, the toolbar itself and its every interactable child element will be highlighted with a border. When the toolbar is focused, the following keys can be used to navigate and activate its elements:
+* Arrow buttons to navigate between action buttons
+* `Enter` or `Space` to activate the focused action button or expand the dropdown
 
-The content tree lists all the content that current user has read access to. Content can be organized and stored in a hierarchy with child content collapsed under parent content. Parent content will have a gray triangle to the left of the content icon that can be clicked to expand or collapse the view of its children.
+Additionally, some action buttons have keyboard shortcuts that are displayed on cursor hover.
 
-The content tree can also be navigated with the keyboard arrow keys.
-
-The top of the content tree has a button to refresh the tree and a checkbox to select (_checked_) or deselect (_unchecked_) all the content items in the grid.
-
-image::navigator-grid.png[Listing content items, 1184w]
-
-Information about the content is displayed in four columns. The number of columns may vary, depending on the content tree width.
-
-* The first column has an icon based on the type of content. A gray triangle will appear to the left of the icon if the content has children content. The column also has a display name and under this is the path name. The URL path to any content can be determined by following the tree grid path names from parent to child.
-
-* The second column shows the icon, representing the current <<actions#sort,sorting>> order of the content's children.
-
-* The third column shows status of the content: `New`, `Published`, `Unpublished` or `Modified`.
-
-* The fourth column shows the date when content was last modified.
-
-If the current user has only read access to a content item, such item will be slightly dimmed in the grid.
-
-Checkboxes to the left of each content in the tree can be used to select more than one content. Group actions available in the menu bar will be performed on all the selected content. Some actions can only be performed on one content at a time.
-
-Double-click on a content item will open it for <<editor#,edit>> in a new browser tab.
-
-Right-click on a content item will expand its context menu.
+image::navigator-accessibility.png[Toolbar accessibility, 50%, align="center"]
 
 == Search Panel
 
-The search panel can be toggled with the `magnifying glass` icon at the far left of the menu bar. When opened, it has a text search field and categories to filter Content Navigator by the following content properties:
+The search panel can be toggled with the image:navigator-m-glass.png[title=Search icon, width=24px] icon at the far left of the menu bar. It contains a free-text search field and several parameters to filter the content list by:
 
- * Free-text search (by content Id, display name and path)
- * <<content-types#,Content Types>>
- * Workflow state (`Work in progress`)
- * Last modifier
- * Last modification date
- * Owner
- * Language
+* Free-text search (by content Id, display name or path)
+* <<content-types#,Content Types>>
+* Last modification date
+* Last modifier
+* Owner
+* Language
 
-image::navigator-search.png[Search and filtering, 75%]
+image::navigator-search.png[Search and filtering, 75%,align="center"]
 
 TIP: Search results can at any time (except for when there are no hits) be exported to a CSV file using the download icon underneath the free-text search field. The file will contain basic meta fields (id, display-name, path etc.), not custom input fields from the content type schema.
 
@@ -83,31 +64,82 @@ Search results are instantly updated in the tree grid as search parameters are c
 
 The number of hits will appear below the search field, along with a `Clear` button that will reset the filter.
 
-Each content type that has at least one matching content will appear in the <<content-types#,Content Types>> filter list with the number of matches in parenthesis `()`. Checking the box next to a content type will hide the results that do not match that type. Multiple content types can be selected. By default, only the 5 most popular content types will be shown, followed by "Show more" link to expand the entire list.
+Each content type that has at least one matching content will appear in the <<content-types#,Content Types>> filter list with the number of matches in brackets `()`. Checking the box next to a content type will hide the results that do not match that type. Multiple content types can be selected. By default, only the 5 most popular content types will be shown, followed by "Show more" link to expand the entire list.
 
-image::navigator-search-expanded.png[Full content type list, 75%]
+image::navigator-search-expanded.png[Full content type list, 75%,align="center"]
 
 The *Last Modified* list works in a similar manner. It is used to limit results to content that has been modified in the last month, week, day or hour. This list may not appear if other search parameters have limited results to content that was modified more than a month ago.
 
 Filter aggregations for *Last modified by* and *Owner* are dropdowns with the list of users who last modified content or are content owners. To simplify search for the current user, there's *Me* checkbox in both aggregations which serves as an alias for the current user. Selected users will be displayed as checkboxes above the dropdown.
 
-image::navigator-search-modifier-expanded.png[Listing all modifiers, 75%]
+image::navigator-search-modifier-expanded.png[Listing all modifiers, 75%,align="center"]
 
 TIP: Search results remain in the tree grid when the search panel is collapsed. Don’t forget to clear the search when you are done with your search.
 
+== Content Tree
+
+image::navigator-grid.png[Listing content items, 75%, align="center"]
+
+Content items can be organized and stored in a tree hierarchy with child items collapsed under parent content. Parent content will have a gray triangle to the left of the content icon that can be clicked to expand or collapse the list of its children.
+
+The content tree can also be navigated with the keyboard arrow keys.
+
+Content tree has its own toolbar with an icon to refresh the content list and a checkbox to select or deselect all the content items in the grid.
+
+image::navigator-selector.png[Listing content items, 25%,align="center"]
+
+Information in the content list is displayed in four columns. The number of columns may vary, depending on the content tree width.
+
+* The first column contains a content type icon, a display name and a path. A gray expand icon will appear to the left of the icon if the content has child content.
+
+* The second column shows the icon, representing the current <<actions#sort,sorting>> order of the content's children.
+
+* The third column shows status of the content: `New`, `Published`, `Unpublished` or `Modified`.
+
+* The fourth column shows the date when content was last modified.
+
+Checkboxes to the left of each content in the tree can be used to select more than one content. Group actions available in the menu bar will be performed on all the selected content. Some actions can only be performed on one content at a time.
+
+Double-click on a content item will open it for <<editor#,edit>> in a new browser tab.
+
+Right-click on a content item will expand its context menu.
+
+
 == Preview panel
 
-A preview of the selected content appears in the right-hand panel of the content navigator if page template supports the type of content selected. This is a working preview so links will take you to other pages and highlight the new page content in the content tree grid.
+A preview of the selected content appears inside a panel to the right of the Content Tree. The preview is dynamic, so
+clicking a link will navigate you to the target page, both inside the preview panel and the Content Tree.
 
-The `Preview` button in the toolbar will open the page in a new browser tab. When more than one content is selected in the content tree grid, the preview panel is replaced with a list of all selected content items. If the preview is for some reason unavailable the panel will indicate the reason with a message.
+Toolbar of the preview panel contains the following:
+
+* Current status of the selected content item (f.ex. `New`, `Published`, `Unpublished`, `Modified`). For items that have been published and then modified there will be an icon (image:navigator-compare.png[title=Show changes, width=24px]) to compare current version with the published version.
+
+image::navigator-preview.png[Showing content preview, 75%, align="center"]
+
+* Emulator dropdown to emulate screen resolutions of various device types  (monitor, tablet, mobile) for the preview.
+
+image::navigator-preview-emulator.png[Preview emulator, 25%,align="center"]
+
+* Current preview mode. The default mode is "*Automatic*" which will automatically find and use the first mode that supports preview of the current content. You can explicitly select a mode from the dropdown list. Select "*Media*" to preview media content (if supported by browsers), "*Enonic rendering*" to use Enonic's Site Engine and "JSON" to display current content in JSON format.
+
+image::navigator-preview-mode.png[Preview mode selector, 25%,align="center"]
+
+NOTE: Even though any content can be displayed in the JSON format, this mode is not used as a fallback in the "Automatic" mode.
+
+* image:navigator-preview-button.png[title=Preview button, width=90px] button will open the content preview in a new browser tab. Note that the currently selected preview mode will be used in the new tab.
+
+If currently selected content cannot be rendered by any of the available preview modes, the preview panel will display an error message.
 
 NOTE: Only the *Draft* version of content is visible in the preview panel.
 
-Preview panel has a toolbar which shows status and last modifier of the content, as well as the list of open publishing issues the content is currently a part of. The newest issue is shown by default and the entire list can be expanded via a dropdown. Clicking on the issue name will open the <<issues#updating-issue,Issue Details>> dialog.
+== Context panel
 
-image::navigator-preview.png[Showing content preview, 1089w]
+image::navigator-context-panel.png[Context panel, 50%, align="center"]
 
+Context panel for the selected content can be expanded with the image:navigator-context-panel-icon.png[title=Preview button, width=24px] icon next to the Action menu button in the top-right corner.
 
-== Widgets
+This panel displays the list of contextual widgets which can be used to work with the selected content. Widgets are applications that expand the functionality of  Content Studio. There are several built-in widgets (described in the <<widgets#,Widgets section>>), the rest is coming from installed applications.
 
-Widgets are applications that expand the functionality of the Content Studio. As of version 7.0, there are five built-in widgets. All of them are described in the <<widgets#,corresponding>> section of the docs.
+image::navigator-widget-selector.png[Widget selector, 25%,align="center"]
+
+In the screenshot above, the top 3 widgets are built into Content Studio and the bottom 2 are coming from two external applications installed in the system.

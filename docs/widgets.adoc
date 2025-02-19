@@ -90,16 +90,6 @@ If you click on the dependencies icon, then the same tab will open, but only the
 
 image::widgets-dependencies-filter.png[,370]
 
-=== Emulator
-
-This widget allows you to quickly preview the content on a number of different screen resolutions (desktop, mobile phone, tablet etc.)
-
-NOTE: The emulator widget won't be available in the content wizard, if the content is not renderable, like a folder or a site without a template/controller.
-
-Clicking on the emulation option will resize the preview. To reset the emulation, click on the `Fill Size` option.
-
-image::widgets-emulator.png[,515]
-
 === Components
 
 NOTE: The Components widget is only available inside a renderable content with Page Editor enabled.
