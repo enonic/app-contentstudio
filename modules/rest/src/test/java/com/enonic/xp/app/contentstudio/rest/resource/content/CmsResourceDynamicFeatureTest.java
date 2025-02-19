@@ -9,8 +9,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.context.ContextAccessor;
-import com.enonic.xp.context.ContextBuilder;
+import com.enonic.xp.project.ProjectName;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -26,7 +27,8 @@ public class CmsResourceDynamicFeatureTest
         this.context = Mockito.mock( ContainerRequestContext.class );
         this.filter = new CmsResourceFilter();
 
-        ContextAccessor.INSTANCE.set( ContextBuilder.create().repositoryId( "com.enonic.cms.myproject" ).build() );
+        ContextAccessor.current().getLocalScope().setAttribute( ProjectName.from( "myproject" ).getRepoId() );
+        ContextAccessor.current().getLocalScope().setAttribute( ContentConstants.BRANCH_DRAFT );
     }
 
     @Test

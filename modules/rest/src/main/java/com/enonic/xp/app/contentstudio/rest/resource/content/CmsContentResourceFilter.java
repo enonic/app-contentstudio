@@ -9,9 +9,9 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.ext.Provider;
 
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
+import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
-import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.node.NodePath;
 
 @Provider
@@ -28,10 +28,10 @@ public final class CmsContentResourceFilter
         if ( matcher.find() )
         {
             final String contentRootPath = matcher.group( 2 );
-            final Context context = ContextBuilder.from( ContextAccessor.current() )
-                .attribute( "contentRootPath", NodePath.create( NodePath.ROOT ).addElement( contentRootPath ).build() )
-                .build();
-            ContextAccessor.INSTANCE.set( context );
+            final Context context = ContextAccessor.current();
+            context.getLocalScope().setAttribute( ContentConstants.BRANCH_DRAFT );
+            context.getLocalScope()
+                .setAttribute( "contentRootPath", NodePath.create( NodePath.ROOT ).addElement( contentRootPath ).build() );
         }
     }
 }

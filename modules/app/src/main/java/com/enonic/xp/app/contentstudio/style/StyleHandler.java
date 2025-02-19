@@ -7,7 +7,6 @@ import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.i18n.LocaleService;
@@ -24,8 +23,6 @@ public final class StyleHandler
 {
     private static final ApplicationKey SYSTEM_APPLICATION_KEY = ApplicationKey.from( "com.enonic.xp.app.system" );
 
-    private static final String PROJECT_REPO_ID_PREFIX = "com.enonic.cms.";
-
     private StyleDescriptorService styleDescriptorService;
 
     private ContentService contentService;
@@ -40,16 +37,18 @@ public final class StyleHandler
 
     public StyleDescriptorMapper getStyles()
     {
-        final Context context = ContextBuilder.from( ContextAccessor.current() ).repositoryId( PROJECT_REPO_ID_PREFIX + project ).build();
-        ContextAccessor.INSTANCE.set( context );
+        return ContextBuilder.from( ContextAccessor.current() )
+            .repositoryId( ProjectName.from( project ).getRepoId() )
+            .build()
+            .callWith( () -> {
+                final ContentId contentId = ContentId.from( this.contentId );
 
-        final ContentId contentId = ContentId.from( this.contentId );
+                final ApplicationKeys applicationKeys = resolveKeysFromApps( contentId );
 
-        final ApplicationKeys applicationKeys = resolveKeysFromApps( contentId );
+                final StyleDescriptors styles = this.styleDescriptorService.getByApplications( applicationKeys );
 
-        final StyleDescriptors styles = this.styleDescriptorService.getByApplications( applicationKeys );
-
-        return new StyleDescriptorMapper( styles, localeService );
+                return new StyleDescriptorMapper( styles, localeService );
+            } );
     }
 
     private ApplicationKeys resolveKeysFromApps( final ContentId contentId )

@@ -9,10 +9,10 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.ext.Provider;
 
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
+import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
-import com.enonic.xp.context.ContextBuilder;
-import com.enonic.xp.project.ProjectConstants;
+import com.enonic.xp.project.ProjectName;
 
 @Provider
 public final class CmsResourceFilter
@@ -28,11 +28,9 @@ public final class CmsResourceFilter
         if ( matcher.find() )
         {
             final String project = matcher.group( 1 );
-            final Context context = ContextBuilder.
-                from( ContextAccessor.current() ).
-                repositoryId( ProjectConstants.PROJECT_REPO_ID_PREFIX + project ).
-                build();
-            ContextAccessor.INSTANCE.set( context );
+            final Context context = ContextAccessor.current();
+            context.getLocalScope().setAttribute( ProjectName.from( project ).getRepoId() );
+            context.getLocalScope().setAttribute( ContentConstants.BRANCH_DRAFT );
         }
     }
 }

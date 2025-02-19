@@ -20,6 +20,7 @@ import com.enonic.xp.content.CompareContentResults;
 import com.enonic.xp.content.CompareContentsParams;
 import com.enonic.xp.content.CompareStatus;
 import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
@@ -37,7 +38,7 @@ import com.enonic.xp.issue.PublishRequest;
 import com.enonic.xp.issue.PublishRequestItem;
 import com.enonic.xp.mail.MailService;
 import com.enonic.xp.mail.SendMailParams;
-import com.enonic.xp.project.ProjectConstants;
+import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
@@ -88,8 +89,6 @@ public class IssueNotificationsSenderImplTest
                 localeService ).contentTypeService( contentTypeService );
 
         mailCaptor = ArgumentCaptor.forClass( SendMailParams.class );
-
-        resetContextRepo();
     }
 
     @Test
@@ -112,7 +111,7 @@ public class IssueNotificationsSenderImplTest
             build().
             createdParams();
 
-        issueNotificationsSender.notifyIssueCreated( params );
+        createContextRepo( "myproject" ).runWith( () -> issueNotificationsSender.notifyIssueCreated( params ) );
 
         final SendMailParams msg = getMessageSent();
         verifyRecipients( msg, Set.of( approver.getEmail() ) );
@@ -143,7 +142,7 @@ public class IssueNotificationsSenderImplTest
             build().
             createdParams();
 
-        issueNotificationsSender.notifyIssueCreated( params );
+        createContextRepo( "myproject" ).runWith( () -> issueNotificationsSender.notifyIssueCreated( params ) );
 
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( mailService, never() ).send( any( SendMailParams.class ) );
@@ -174,7 +173,7 @@ public class IssueNotificationsSenderImplTest
             build().
             createdParams();
 
-        issueNotificationsSender.notifyIssueCreated( params );
+        createContextRepo( "myproject" ).runWith( () -> issueNotificationsSender.notifyIssueCreated( params ) );
 
         final SendMailParams msg = getMessageSent();
         verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), approvers.get( 2 ).getEmail() ) );
@@ -210,7 +209,7 @@ public class IssueNotificationsSenderImplTest
             build().
             createdParams();
 
-        issueNotificationsSender.notifyIssueCreated( params );
+        createContextRepo( "myproject" ).runWith( () -> issueNotificationsSender.notifyIssueCreated( params ) );
 
         final SendMailParams msg = getMessageSent();
         verifyRecipients( msg, approvers.stream().map( approver -> approver.getEmail() ).collect( Collectors.toSet() ) );
@@ -289,9 +288,7 @@ public class IssueNotificationsSenderImplTest
             build().
             updatedParams();
 
-        setContextRepo( "repoid" );
-
-        issueNotificationsSender.notifyIssueUpdated( params );
+        createContextRepo( "repoid" ).runWith( () -> issueNotificationsSender.notifyIssueUpdated( params ) );
 
         final SendMailParams msg = getMessageSent();
         verifyRecipients( msg, Set.of( approver.getEmail(), creator.getEmail() ) );
@@ -337,7 +334,7 @@ public class IssueNotificationsSenderImplTest
             build().
             updatedParams();
 
-        issueNotificationsSender.notifyIssueUpdated( params );
+        createContextRepo( "myproject" ).runWith( () -> issueNotificationsSender.notifyIssueCreated( params ) );
 
         verify( mailService, Mockito.never() ).send( any( SendMailParams.class ) );
         verify( securityService, times( 1 ) ).getUser( any() );
@@ -385,7 +382,7 @@ public class IssueNotificationsSenderImplTest
             build().
             updatedParams();
 
-        issueNotificationsSender.notifyIssueUpdated( params );
+        createContextRepo( "myproject" ).runWith( () -> issueNotificationsSender.notifyIssueUpdated( params ) );
 
         final SendMailParams msg = getMessageSent();
         verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), approvers.get( 2 ).getEmail(), creator.getEmail() ) );
@@ -433,7 +430,7 @@ public class IssueNotificationsSenderImplTest
             build().
             commentedParams();
 
-        issueNotificationsSender.notifyIssueCommented( params );
+        createContextRepo( "myproject" ).runWith( () -> issueNotificationsSender.notifyIssueCommented( params ) );
 
         final SendMailParams msg = getMessageSent();
         verifyRecipients( msg, Set.of( creator.getEmail() ) );
@@ -481,7 +478,7 @@ public class IssueNotificationsSenderImplTest
             build().
             commentedParams();
 
-        issueNotificationsSender.notifyIssueCommented( params );
+        createContextRepo( "myproject" ).runWith( () -> issueNotificationsSender.notifyIssueCommented( params ) );
 
         verify( mailService, never() ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
@@ -529,7 +526,7 @@ public class IssueNotificationsSenderImplTest
             build().
             commentedParams();
 
-        issueNotificationsSender.notifyIssueCommented( params );
+        createContextRepo( "myproject" ).runWith( () -> issueNotificationsSender.notifyIssueCommented( params ) );
 
         final SendMailParams msg = getMessageSent();
         verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), creator.getEmail() ) );
@@ -560,7 +557,7 @@ public class IssueNotificationsSenderImplTest
             build().
             publishedParams();
 
-        issueNotificationsSender.notifyIssuePublished( params );
+        createContextRepo( "myproject" ).runWith( () -> issueNotificationsSender.notifyIssuePublished( params ) );
 
         final SendMailParams msg = getMessageSent();
         verifyRecipients( msg, Set.of( approver.getEmail(), creator.getEmail() ) );
@@ -591,7 +588,7 @@ public class IssueNotificationsSenderImplTest
             build().
             publishedParams();
 
-        issueNotificationsSender.notifyIssuePublished( params );
+        createContextRepo( "myproject" ).runWith( () -> issueNotificationsSender.notifyIssuePublished( params ) );
 
         verify( mailService, never() ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
@@ -639,9 +636,7 @@ public class IssueNotificationsSenderImplTest
             build().
             publishedParams();
 
-        setContextRepo( "testrepo" );
-
-        issueNotificationsSender.notifyIssuePublished( params );
+        createContextRepo( "testrepo" ).runWith( () -> issueNotificationsSender.notifyIssuePublished( params ) );
 
         final SendMailParams msg = getMessageSent();
         verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), creator.getEmail() ) );
@@ -652,19 +647,13 @@ public class IssueNotificationsSenderImplTest
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
     }
 
-    private void setContextRepo( final String repoId )
+    private Context createContextRepo( final String projectName )
     {
-        final Context context = ContextBuilder.
+        return ContextBuilder.
             from( ContextAccessor.current() ).
-            repositoryId( ProjectConstants.PROJECT_REPO_ID_PREFIX + repoId ).
+            repositoryId( ProjectName.from( projectName ).getRepoId() ).
+            branch( ContentConstants.BRANCH_DRAFT ).
             build();
-        ContextAccessor.INSTANCE.set( context );
-    }
-
-    private void resetContextRepo()
-    {
-        final Context context = ContextBuilder.from( ContextAccessor.current() ).repositoryId( "com.enonic.cms.myproject" ).build();
-        ContextAccessor.INSTANCE.set( context );
     }
 
     private Issue createIssue( final PrincipalKey creator, final PrincipalKeys approvers )
