@@ -37,6 +37,9 @@ export class AiContentDataHelper {
 
     setValue(path: string, text: string): void {
         if (this.isTopicPath(path)) {
+            if (!StringHelper.isBlank(text)) {
+                this.contentHeader?.setName('', true); // resetting name to trigger name generation after updating displayName
+            }
             this.contentHeader?.setDisplayName(text);
         } else if (this.isXDataPath(path)) {
             this.handleXDataEvent(path, text);
