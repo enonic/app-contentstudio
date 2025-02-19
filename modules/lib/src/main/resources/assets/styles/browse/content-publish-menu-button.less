@@ -3,7 +3,7 @@
   height: @toolbar-height - 8;
 
   >.action-button {
-    .menu-action-button(@admin-font-gray2); // default color
+    .menu-action-button(@admin-font-gray3, @admin-black); // default color
 
     &.publish-action,
     &.publish-tree-action,
@@ -48,7 +48,7 @@
   }
 }
 
-.menu-action-button(@color) {
+.menu-action-button(@color, @hoverColor: darken(@color, 10%)) {
   @media screen and (min-width: 720px) {
     display: flex;
   }
@@ -65,21 +65,21 @@
 
   &:not([disabled]):hover {
     span {
-      color: @color;
+      color: @hoverColor;
     }
   }
 
-  .dropdown-toggler(@color);
+  .dropdown-toggler(@color, @hoverColor);
 }
 
-.dropdown-toggler(@color) {
+.dropdown-toggler(@color, @hoverColor: darken(@color, 10%)) {
   ~ .@{_COMMON_PREFIX}dropdown-handle {
     &::before {
       color: @color;
     }
 
     &:not([disabled]):hover::before {
-      color: darken(@color, 10%);
+      color: @hoverColor;
     }
 
     @media screen and (max-width: 720px) {
