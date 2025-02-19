@@ -10,6 +10,7 @@ import {EmulatorDropdown} from './toolbar/EmulatorDropdown';
 import {AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {
@@ -49,6 +50,8 @@ export class ContentItemPreviewToolbar
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
+        ResponsiveManager.fireResizeEvent();
+
         super.setItem(item);
         this.previewButton.getAction().setEnabled(false);
     }

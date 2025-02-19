@@ -2,12 +2,9 @@
   .hide-mobile-preview-button {
     display: none;
   }
-  > .non-mobile-details-panel-toggle-button {
-    .button(@admin-font-gray2, transparent, @admin-font-gray3, transparent, 7px);
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  > .non-mobile-details-panel-toggle-button {
+    padding: 7px;
 
     &.expanded {
       &::before {
@@ -37,6 +34,7 @@
   }
 
   &.mobile-preview-on {
+    padding: 0;
     background-color: @admin-black;
 
     > *,
@@ -45,8 +43,11 @@
       outline: none;
     }
 
-    .non-mobile-details-panel-toggle-button.expanded::before {
-      content: "\e36b";
+    .non-mobile-details-panel-toggle-button {
+      margin-right: 5px;
+      &.expanded::before {
+        content: "\e36b";
+      }
     }
 
     .hide-mobile-preview-button {
@@ -76,7 +77,8 @@
 
       .@{_COMMON_PREFIX}dropdown {
         background-color: @admin-black;
-        top: 39px;
+        border-color: @admin-black;
+        top: 35px;
         width: 200px;
         left: calc(50% - 100px);
 

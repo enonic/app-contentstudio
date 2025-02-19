@@ -10,14 +10,23 @@
       align-items: stretch;
 
       .names-and-icon-view {
-        .xp-admin-common-sub-name {
+        .@{_COMMON_PREFIX}sub-name {
           display: none;
         }
       }
-    }
-  }
 
-  .filter-and-list-container {
+      *,
+      *::before {
+        color: @admin-font-gray3;
+      }
+
+      &:hover {
+        *,
+        *::before {
+          color: @admin-black;
+        }
+      }
+    }
 
     .names-and-icon-viewer {
       padding: 0 10px;
@@ -27,10 +36,14 @@
       }
 
       .names-and-icon-view {
-        .xp-admin-common-wrapper {
+        .@{_COMMON_PREFIX}wrapper {
           height: @icon-size;
           width: @icon-size;
           margin-right: 15px;
+
+          .@{_COMMON_PREFIX}main-name {
+            color: @admin-bg-dark-gray;
+          }
 
           .font-icon-default::before {
             font-size: @icon-size;
@@ -39,7 +52,7 @@
       }
     }
 
-    .xp-admin-common-dropdown-handle {
+    .@{_COMMON_PREFIX}dropdown-handle {
       position: static;
       height: auto;
       top: auto;
