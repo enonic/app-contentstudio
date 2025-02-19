@@ -30,7 +30,7 @@ class LayoutConfigInspectPanel extends Page {
             await this.typeTextInInput(this.option1TextInput, text);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_layout_config');
-            throw new Error("Inspect Panel, Layout config - option1 text input, screenshot:" + screenshot + ' ' + err);
+            throw new Error(`Inspect Panel, Layout config - option1 text input, screenshot: ${screenshot} ` + err);
         }
     }
 
