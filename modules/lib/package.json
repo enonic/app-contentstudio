@@ -23,7 +23,7 @@
     "@enonic/lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
     "d3": "^7.9.0",
     "d3-dag": "^0.11.5",
-    "enonic-admin-artifacts": "^2.2.0",
+    "enonic-admin-artifacts": "^2.3.0",
     "flag-icons": "^7.2.3",
     "hasher": "^1.2.0",
     "jquery-simulate": "^1.0.2",
