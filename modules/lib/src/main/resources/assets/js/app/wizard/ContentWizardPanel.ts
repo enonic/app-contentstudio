@@ -472,6 +472,7 @@ export class ContentWizardPanel
             this.livePanel?.setSaveEnabled(!ObjectHelper.equals(PageState.getState(), this.getPersistedItem().getPage()));
         }, 200);
 
+        this.getWizardActions().getMarkAsReadyAction().onExecuted(updateSaveInLivePanel);
         saveAction.onExecuted(updateSaveInLivePanel);
         this.onPageStateChanged(updateSaveInLivePanel);
     }
