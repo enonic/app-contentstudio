@@ -59,13 +59,11 @@ import {ComponentImageUpdatedEvent} from '../../page/region/ComponentImageUpdate
 import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
 import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
-import {PageComponentType} from '../../page/region/PageComponentType';
 import {PageItem} from '../../page/region/PageItem';
 import {Region} from '../../page/region/Region';
 import {TextComponent} from '../../page/region/TextComponent';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {UriHelper} from '../../rendering/UriHelper';
-import {GetComponentDescriptorsRequest} from '../../resource/GetComponentDescriptorsRequest';
 import {PageHelper} from '../../util/PageHelper';
 import {ContextPanelState} from '../../view/context/ContextPanelState';
 import {ToggleContextPanelEvent} from '../../view/context/ToggleContextPanelEvent';
@@ -91,7 +89,6 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
 import {PreviewWidgetDropdown} from '../../view/toolbar/PreviewWidgetDropdown';
-import {ViewWidgetEvent} from '../../event/ViewWidgetEvent';
 
 export interface LiveFormPanelConfig {
 
@@ -163,8 +160,6 @@ export class LiveFormPanel
 
     private saveAction: Action;
 
-    private getDescriptorsPromise: Q.Promise<Descriptor[]>;
-
     private widgetRenderingHandler: WizardWidgetRenderingHandler;
 
     private showLoadMaskHandler: () => void;
@@ -181,7 +176,7 @@ export class LiveFormPanel
         this.contentType = config.contentType;
         this.liveEditPageProxy = config.liveEditPage;
 
-        this.widgetRenderingHandler = new WizardWidgetRenderingHandler(this, config.content, config.contentType);
+        this.widgetRenderingHandler = new WizardWidgetRenderingHandler(this, config.content, this.contentType);
 
         PageNavigationMediator.get().addPageNavigationHandler(this);
 
@@ -216,41 +211,6 @@ export class LiveFormPanel
             wizardActions: this.contentWizardPanel.getWizardActions()
         });
 
-        /*        if (!this.content.getPage()) {
-                    this.createLiveEditPagePlaceholder();
-                }*/
-
-        this.initPageRequiredElements();
-    }
-
-    updateHasControllers(): Q.Promise<void> {
-        this.getDescriptorsPromise = this.createControllersRequest().sendAndParse();
-
-        return this.getDescriptorsPromise.then((descriptors: Descriptor[]) => {
-
-            const hasAvailableControllers = descriptors.length > 0;
-            this.widgetRenderingHandler.setHasAvailableControllers(hasAvailableControllers);
-
-            return Q.resolve();
-        }).catch(DefaultErrorHandler.handle);
-    }
-
-    hasControllers(): Q.Promise<boolean> {
-        this.getDescriptorsPromise = this.getDescriptorsPromise ?? this.createControllersRequest().sendAndParse();
-
-        return this.getDescriptorsPromise.then((descriptors: Descriptor[]) => {
-            return descriptors.length > 0;
-        });
-    }
-
-    private createControllersRequest(): GetComponentDescriptorsRequest {
-        const req: GetComponentDescriptorsRequest = new GetComponentDescriptorsRequest();
-        req.setComponentType(PageComponentType.get());
-        req.setContentId(this.content.getContentId());
-        return req;
-    }
-
-    protected initPageRequiredElements(): void {
         this.liveEditPageProxy.setModifyPermissions(this.modifyPermissions);
         this.contextWindow = this.createContextWindow();
 
@@ -258,11 +218,13 @@ export class LiveFormPanel
         this.addPageProxyEventListeners();
     }
 
-    /*    private createLiveEditPagePlaceholder(): void {
-            this.placeholder = new LiveEditPagePlaceholder(this.content.getContentId(), this.contentType);
-            this.placeholder.setEnabled(this.modifyPermissions);
-            this.whenRendered(() => this.appendChild(this.placeholder));
-        }*/
+    hasControllers(): Q.Promise<boolean> {
+        return this.widgetRenderingHandler.hasControllers();
+    }
+
+    isRenderable(): Q.Promise<boolean> {
+        return this.widgetRenderingHandler.isItemRenderable();
+    }
 
     protected initEventHandlers() {
         this.initMaskHandlers();
@@ -278,11 +240,6 @@ export class LiveFormPanel
         this.contentEventListener = (event) => {
             this.propagateEvent(event);
         };
-
-
-        ViewWidgetEvent.on((event: ViewWidgetEvent) => {
-            this.loadPage();
-        });
 
         // showing apply button for page, part and layout with form items
         const formLayoutHandler = (panel: BaseInspectionPanel) => {
@@ -599,7 +556,7 @@ export class LiveFormPanel
 
         this.handleContentUpdatedEvent();
 
-        const reloadNeededHandler = () => this.placeholder?.setReloadNeeded();
+        const reloadNeededHandler = () => this.widgetRenderingHandler.refreshPlaceholder();
 
         this.liveEditModel?.getSiteModel()?.onApplicationAdded(reloadNeededHandler);
         this.liveEditModel?.getSiteModel()?.onApplicationRemoved(reloadNeededHandler);
@@ -627,7 +584,15 @@ export class LiveFormPanel
         this.liveEditPageProxy.propagateEvent(event);
     }
 
-    loadPage(clearInspection: boolean = true): void {
+    onRenderableChanged(listener: (isRenderable: boolean, wasRenderable: boolean) => void) {
+        this.widgetRenderingHandler.onRenderableChanged(listener);
+    }
+
+    unRenderableChanged(listener: (isRenderable: boolean, wasRenderable: boolean) => void) {
+        this.widgetRenderingHandler.unRenderableChanged(listener);
+    }
+
+    loadPage(clearInspection: boolean = true): Promise<boolean> {
         if (LiveFormPanel.debug) {
             console.debug('LiveFormPanel.loadPage at ' + new Date().toISOString());
         }
@@ -642,39 +607,23 @@ export class LiveFormPanel
 
         this.pageLoading = true;
 
-        //TODO: need it ?
-        this.widgetRenderingHandler.clearPreviewErrors();
-
-        this.liveEditPageProxy.load(this.widgetRenderingHandler, this.getWidgetSelector().getSelectedWidget())
+        return this.liveEditPageProxy.load(this.widgetRenderingHandler, this.getWidgetSelector().getSelectedWidget())
             .then((loaded) => {
                 if (!loaded) {
-                    // no widget was able to render it
+                    // no widget was able to render it so there will be no page loaded eventt
                     this.pageLoading = false;
                 }
+
+                if (clearInspection) {
+                    let clearInspectionFn = () => {
+                        this.contextWindow.clearSelection();
+                        PageEventsManager.get().unLoaded(clearInspectionFn);
+                    };
+                    PageEventsManager.get().onLoaded(clearInspectionFn);
+                }
+
+                return loaded;
             });
-
-
-        // if (!this.frameContainer) {
-        //     this.frameContainer = new FrameContainer({
-        //         proxy: this.liveEditPageProxy,
-        //         wizardActions: this.contentWizardPanel.getWizardActions()
-        //     });
-        //     this.appendChild(this.frameContainer);
-        // } else {
-        //     this.frameContainer.show();
-
-        // if (!this.frameContainer.hasChild(this.liveEditPageProxy.getIFrame())) {
-        //     this.frameContainer.appendChildren<Element>(this.liveEditPageProxy.getIFrame(), this.liveEditPageProxy.getDragMask());
-        // }
-        // }
-
-        if (clearInspection) {
-            let clearInspectionFn = () => {
-                this.contextWindow.clearSelection();
-                PageEventsManager.get().unLoaded(clearInspectionFn);
-            };
-            PageEventsManager.get().onLoaded(clearInspectionFn);
-        }
     }
 
     private saveAndReloadOnlyComponent(path: ComponentPath): Q.Promise<void> {
@@ -965,7 +914,9 @@ export class LiveFormPanel
             (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.unbindSiteModelListeners());
         this.liveEditModel = null;
 
-        this.widgetRenderingHandler.clearPreviewErrors();
+        // this.liveEditPageProxy.load(this.widgetRenderingHandler, this.getWidgetSelector().getSelectedWidget());
+
+        this.widgetRenderingHandler.reset();
 
         this.removeContentEventListeners();
     }
@@ -974,19 +925,6 @@ export class LiveFormPanel
         ContentDeletedEvent.un(this.contentEventListener);
         ContentUpdatedEvent.un(this.contentEventListener);
         this.hasContentEventListeners = false;
-    }
-
-    setHasPage(hasPage: boolean): void {
-        this.widgetRenderingHandler.setHasPage(hasPage);
-    }
-
-    setHasMissingApps(hasMissingApps: boolean): void {
-        this.widgetRenderingHandler.setHasMissingApps(hasMissingApps);
-
-    }
-
-    setIsRenderable(isRenderable: boolean): void {
-        //TODO: isRenderable is determined by WidgetRenderingHandler, so we don't need to set it here
     }
 
     getContextWindow(): ContextWindow {

@@ -62,7 +62,12 @@ export class WidgetRenderingHandler {
 
     private summary: ContentSummary;
 
+    private widget: Widget;
+
     protected mode: RenderingMode;
+
+    protected renderableChangedListeners: ((isRenderable: boolean, wasRenderable: boolean) => void)[] = [];
+
 
     constructor(renderer: WidgetRenderer) {
         this.renderer = renderer;
@@ -77,47 +82,40 @@ export class WidgetRenderingHandler {
     public async renderWithWidget(summary: ContentSummary, widget: Widget): Promise<boolean> {
 
         const deferred = Q.defer<boolean>();
+
+        const wasRenderable = await this.isItemRenderable();
         this.itemRenderable = deferred.promise;
 
         if (!widget || !summary) {
             this.setPreviewType(PREVIEW_TYPE.EMPTY);
+            deferred.resolve(false);
             return;
         }
 
         this.summary = summary;
+        this.widget = widget;
 
         this.showMask();
 
-        const isAuto = widget.getWidgetDescriptorKey().getName() === PreviewWidgetDropdown.WIDGET_AUTO_DESCRIPTOR;
-        const items = isAuto ? this.renderer.getWidgetSelector().getAutoModeWidgets() : [widget];
+        return this.doIsRenderableWithWidget(summary, widget).then(([renderable, response]) => {
+            deferred.resolve(renderable);
 
-        return this.processWidgets(summary, items, widget).then((loaded: boolean) => {
-            deferred.resolve(loaded);
-            return loaded;
+            if (renderable !== wasRenderable) {
+                this.notifyRenderableChanged(renderable, wasRenderable);
+            }
+
+            const data = this.extractWidgetData(response);
+            if (renderable) {
+                widget.getConfig().setProperty("previewUrl", widget.getUrl());
+                this.handlePreviewSuccess(response, data);
+            } else {
+                // handle last item failure meaning no one was successful
+                this.handlePreviewFailure(response, data);
+            }
+
+            return renderable;
         });
     }
-
-    private async processWidgets(summary: ContentSummary, items: Widget[], selectedWidget: Widget): Promise<boolean> {
-        let loaded: boolean;
-        for (let i = 0; i < items.length; i++) {
-            const widget = items[i];
-            let result = await fetch(this.previewHelper.getUrl(summary, widget, this.mode), {method: 'HEAD'});
-
-            let isOK = this.isResponseOk(result, selectedWidget);
-
-            if (isOK) {
-                selectedWidget.getConfig().setProperty("previewUrl", widget.getUrl());
-                this.handlePreviewSuccess(result);
-                loaded = true;
-                break;
-            } else if (i === items.length - 1) {
-                // handle last item failure meaning no one was successful
-                this.handlePreviewFailure(result);
-            }
-        }
-        return loaded;
-    }
-
 
     public isItemRenderable(): Q.Promise<boolean> {
         return this.itemRenderable;
@@ -185,7 +183,7 @@ export class WidgetRenderingHandler {
         });
     }
 
-    protected handlePreviewSuccess(response: Response) {
+    protected handlePreviewSuccess(response: Response, data: Record<string, never>) {
         if (this.previewAction) {
             this.previewAction.setEnabled(true);
         }
@@ -201,7 +199,7 @@ export class WidgetRenderingHandler {
         this.frame.setSrc(response.url);
     }
 
-    protected handlePreviewFailure(response?: Response) {
+    protected handlePreviewFailure(response?: Response, data?: Record<string, never>) {
         if (this.previewAction) {
             this.previewAction.setEnabled(false);
         }
@@ -209,7 +207,7 @@ export class WidgetRenderingHandler {
         const statusCode = response.status;
         if (statusCode > 0) {
 
-            const messages = this.extractWidgetMessages(response);
+            const messages = data?.messages;
 
             switch (statusCode) {
             case StatusCode.NOT_FOUND:
@@ -228,16 +226,37 @@ export class WidgetRenderingHandler {
         this.hideMask();
     }
 
-    private extractWidgetMessages(response: Response) {
-        let messages: string[];
+    protected extractWidgetData(response: Response): Record<string, never> {
         try {
             const data = response.headers.get(this.WIDGET_HEADER_NAME);
-            const json = data && JSON.parse(data);
-            messages = json && json.messages;
+            if (data) {
+                return JSON.parse(data);
+            }
         } catch (e) {
-            // default messages will be used
+            // no data
         }
-        return messages;
+        return {};
+    }
+
+    private async doIsRenderableWithWidget(summary: ContentSummary, widget: Widget): Promise<[boolean, Response]> {
+        if (!widget || !summary) {
+            return [false, undefined];
+        }
+        const isAuto = widget.getWidgetDescriptorKey().getName() === PreviewWidgetDropdown.WIDGET_AUTO_DESCRIPTOR;
+        const items = isAuto ? this.renderer.getWidgetSelector().getAutoModeWidgets() : [widget];
+        let response: Response;
+        let isOk = false;
+        for (const widget of items) {
+            const url = this.previewHelper.getUrl(summary, widget, this.mode) + '&auto=' + isAuto;
+            response = await fetch(url, {method: 'HEAD'});
+
+            isOk = this.isResponseOk(response, widget);
+            if (isOk) {
+                break;
+            }
+        }
+
+        return [isOk, response];
     }
 
     private isResponseOk(response: Response, previewWidget: Widget) {
@@ -379,5 +398,17 @@ export class WidgetRenderingHandler {
             this.mask.hide();
         }
         this.renderer.removeClass('loading');
+    }
+
+    public onRenderableChanged(listener: (isRenderable: boolean, wasRenderable: boolean) => void) {
+        this.renderableChangedListeners.push(listener);
+    }
+
+    public unRenderableChanged(listener: (isRenderable: boolean, wasRenderable: boolean) => void) {
+        this.renderableChangedListeners = this.renderableChangedListeners.filter(l => l !== listener);
+    }
+
+    protected notifyRenderableChanged(isRenderable: boolean, wasRenderable: boolean) {
+        this.renderableChangedListeners.forEach(listener => listener(isRenderable, wasRenderable));
     }
 }

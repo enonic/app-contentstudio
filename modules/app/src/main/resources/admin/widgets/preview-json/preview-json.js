@@ -35,7 +35,9 @@ exports.get = function (req) {
                 body: buildBody(content)
             };
         } else {
-            return widgetLib.errorResponse(404, 'Content not found');
+            return widgetLib.errorResponse(404, {
+                messages: ['Content not found']
+            });
         }
     } catch (e) {
         log.error(`Json [${req.method}] error: ${e.message}`);
