@@ -583,6 +583,7 @@ export class ContentWizardPanel
 
                 AI.get().setContentType(this.contentType);
                 AI.get().updateInstructions(this.getApplicationsConfigs());
+                AI.get().setCompareStatus(this.persistedCompareStatus);
 
                 return this.loadAndSetPageState(loader.content?.getPage()?.clone());
             }).then(() => super.doLoadData());
@@ -2641,6 +2642,8 @@ export class ContentWizardPanel
         this.persistedPublishStatus = content.getPublishStatus();
         this.persistedCompareStatus = content.getCompareStatus();
         this.peristedLanguage = content.getLanguage();
+
+        AI.get().setCompareStatus(this.persistedCompareStatus);
 
         this.wizardHeader?.setOnline(!content.isNew());
         this.wizardHeader?.setPath(this.getWizardHeaderPath());
