@@ -363,6 +363,23 @@ class InsertImageDialog extends Page {
         let imageStyleSelectorDropdown = new ImageStyleSelectorDropdown();
         await imageStyleSelectorDropdown.clickOnFilteredStyle(style);
     }
+
+    async clickOnDropdownHandle() {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        await imageSelectorDropdown.clickOnDropdownHandle(XPATH.container);
+        await this.pause(1000);
+    }
+
+    async getImagesNameInFlatMode() {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        let images = await imageSelectorDropdown.getOptionsDisplayNameInFlatMode(XPATH.container);
+        return images;
+    }
+
+    async scrollDownInOptionsList(deltaY) {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        await imageSelectorDropdown.scrollDownInDropdownList(XPATH.container, deltaY);
+    }
 }
 
 module.exports = InsertImageDialog;

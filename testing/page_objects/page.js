@@ -659,6 +659,25 @@ class Page {
     async getBrowserStatus() {
         return await this.getBrowser().status();
     }
+
+    async performScrollWithWheelActions(element, deltaY) {
+        await this.browser.performActions([
+            {
+                type: 'wheel',
+                id: 'wheel1',
+                actions: [
+                    {
+                        type: 'scroll',
+                        origin: element,
+                        x: 0,
+                        y: 0,
+                        deltaX: 0,  // horizontal scroll
+                        deltaY: deltaY,
+                    },
+                ],
+            },
+        ]);
+    }
 }
 
 module.exports = Page;
