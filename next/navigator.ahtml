@@ -441,7 +441,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#toolbar">Toolbar</a></li>
+<li><a href="#toolbar">Toolbar</a>
+<ul class="sectlevel2">
+<li><a href="#accessibility">Accessibility</a></li>
+</ul>
+</li>
 <li><a href="#search_panel">Search Panel</a></li>
 <li><a href="#content_tree">Content Tree</a></li>
 <li><a href="#preview_panel">Preview panel</a></li>
@@ -494,9 +498,6 @@ It consists of the <a href="#toolbar">action toolbar</a> on top, followed by the
 <li>
 <p><strong>Sort:</strong> Opens the <a href="actions.ahtml#sort">Sort items</a> dialog where child items of the selected content can be sorted;</p>
 </li>
-<li>
-<p><strong>Preview:</strong> Opens the selected content in preview mode, in a new browser tab. If more than one content is selected, each will open in its own tab. Only content that has a supporting <a href="content-types.ahtml#page-templates">page template</a> can be previewed;</p>
-</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -533,13 +534,29 @@ dialog with selected content and all descendants</p>
 <div class="paragraph">
 <p>These options are also available in the context menu that appears when right-clicking on a content item in the tree grid panel.</p>
 </div>
+<div class="sect2">
+<h3 id="accessibility"><a class="link" href="#accessibility">Accessibility</a></h3>
+<div class="paragraph">
+<p>The toolbar supports keyboard navigation. When focused, the toolbar itself and its every interactable child element will be highlighted with a border. When the toolbar is focused, the following keys can be used to navigate and activate its elements:
+* Arrow buttons to navigate between action buttons
+* <code>Enter</code> or <code>Space</code> to activate the focused action button or expand the dropdown</p>
+</div>
+<div class="paragraph">
+<p>Additionally, some action buttons have keyboard shortcuts that are displayed on cursor hover.</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="navigator/images/navigator-accessibility.png" alt="Toolbar accessibility" width="50%">
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="search_panel"><a class="link" href="#search_panel">Search Panel</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The search panel can be toggled with the <span class="image"><img src="navigator/images/navigator-m-glass.png" alt="navigator m glass" title="Search icon"></span> icon at the far left of the menu bar. It contains a free-text search field and several parameters to filter the content list by:</p>
+<p>The search panel can be toggled with the <span class="image"><img src="navigator/images/navigator-m-glass.png" alt="navigator m glass" width="24px" title="Search icon"></span> icon at the far left of the menu bar. It contains a free-text search field and several parameters to filter the content list by:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -674,9 +691,9 @@ Search results remain in the tree grid when the search panel is collapsed. Donâ€
 <div class="sect1">
 <h2 id="preview_panel"><a class="link" href="#preview_panel">Preview panel</a></h2>
 <div class="sectionbody">
-<div class="imageblock">
+<div class="imageblock text-center">
 <div class="content">
-<img src="navigator/images/navigator-preview.png" alt="Showing content preview" width="1089w">
+<img src="navigator/images/navigator-preview.png" alt="Showing content preview" width="75%">
 </div>
 </div>
 <div class="paragraph">
@@ -688,10 +705,10 @@ Search results remain in the tree grid when the search panel is collapsed. Donâ€
 <div class="ulist">
 <ul>
 <li>
-<p>Current status of the selected content item (f.ex. <code>New</code>, <code>Published</code>, <code>Unpublished</code>, <code>Modified</code>). For items that have been published and then modified there will be an icon (<span class="image"><img src="navigator/images/navigator-compare.png" alt="navigator compare" title="Show changes"></span>) to compare current version with the published version.</p>
+<p>Current status of the selected content item (f.ex. <code>New</code>, <code>Published</code>, <code>Unpublished</code>, <code>Modified</code>). For items that have been published and then modified there will be an icon (<span class="image"><img src="navigator/images/navigator-compare.png" alt="navigator compare" width="24px" title="Show changes"></span>) to compare current version with the published version.</p>
 </li>
 <li>
-<p>Emulator dropdown to select the device type for the preview (desktop, tablet, mobile).</p>
+<p>Emulator dropdown to emulate screen resolutions of various device types  (monitor, tablet, mobile) for the preview.</p>
 </li>
 </ul>
 </div>
@@ -727,7 +744,7 @@ Even though any content can be displayed in the JSON format, this mode is not us
 <div class="ulist">
 <ul>
 <li>
-<p><span class="image"><img src="navigator/images/navigator-preview-button.png" alt="navigator preview button" title="Preview button"></span> will open the content preview in a new browser tab. Note that the currently selected preview mode will be used in the new tab.</p>
+<p><span class="image"><img src="navigator/images/navigator-preview-button.png" alt="navigator preview button" width="36px" title="Preview button"></span> button will open the content preview in a new browser tab. Note that the currently selected preview mode will be used in the new tab.</p>
 </li>
 </ul>
 </div>
@@ -757,10 +774,10 @@ Only the <strong>Draft</strong> version of content is visible in the preview pan
 </div>
 </div>
 <div class="paragraph">
-<p>Context panel for the selected content can be expanded with the <span class="image"><img src="navigator/images/navigator-context-panel-icon.png" alt="navigator context panel icon" title="Preview button"></span> icon next to the Action menu button in the top-right corner.</p>
+<p>Context panel for the selected content can be expanded with the <span class="image"><img src="navigator/images/navigator-context-panel-icon.png" alt="navigator context panel icon" width="24px" title="Preview button"></span> icon next to the Action menu button in the top-right corner.</p>
 </div>
 <div class="paragraph">
-<p>This panel displays the list of contextual widgets which can be used to work with the selected content. Widgets are applications that expand the functionality of  Content Studio. There are several built-in widgets (described in the <a href="widgets.ahtml">corresponding</a> section), the rest is coming from installed applications.</p>
+<p>This panel displays the list of contextual widgets which can be used to work with the selected content. Widgets are applications that expand the functionality of  Content Studio. There are several built-in widgets (described in the <a href="widgets.ahtml">Widgets section</a>), the rest is coming from installed applications.</p>
 </div>
 <div class="imageblock text-center">
 <div class="content">
@@ -768,14 +785,14 @@ Only the <strong>Draft</strong> version of content is visible in the preview pan
 </div>
 </div>
 <div class="paragraph">
-<p>In the screenshot above, the top 3 widgets are built into Content Studio and the bottom 2 are coming from two applications installed in the system.</p>
+<p>In the screenshot above, the top 3 widgets are built into Content Studio and the bottom 2 are coming from two external applications installed in the system.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-02-20 09:25:19 UTC
+Last updated 2025-02-20 10:41:00 UTC
 </div>
 </div>
 </body>

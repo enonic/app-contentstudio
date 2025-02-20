@@ -441,6 +441,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
+<li><a href="#content_studio_5_update_3">Content Studio 5 Update 3</a>
+<ul class="sectlevel2">
+<li><a href="#preview_mode">Preview mode</a></li>
+<li><a href="#accessibility_improvements">Accessibility improvements</a></li>
+</ul>
+</li>
 <li><a href="#content_studio_5_update_2">Content Studio 5 Update 2</a>
 <ul class="sectlevel2">
 <li><a href="#whats_new">What&#8217;s new</a></li>
@@ -491,6 +497,96 @@ Release Notes for Content Studio 4.x can be found <a href="https://developer.eno
 </td>
 </tr>
 </table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="content_studio_5_update_3"><a class="link" href="#content_studio_5_update_3">Content Studio 5 Update 3</a></h2>
+<div class="sectionbody">
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Content Studio 5.3 requires XP 7.15.0 or higher.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="preview_mode"><a class="link" href="#preview_mode">Preview mode</a></h3>
+<div class="sect3">
+<h4 id="mode_selector"><a class="link" href="#mode_selector">Mode selector</a></h4>
+<div class="paragraph">
+<p>It&#8217;s now possible to select preview mode inside the Preview panel. Currently available built-in modes are: Media, Enonic rendering and JSON. Default selection is "Automatic" which will automatically find and use the first mode that supports preview of current content.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs53-preview-mode.png" alt="Preview" width="75%">
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+In future versions it will be possible to add custom preview modes.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Read more about content preview modes in the <a href="navigator.ahtml#preview_panel">Content Navigator documentation</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="emulator"><a class="link" href="#emulator">Emulator</a></h4>
+<div class="paragraph">
+<p>Device emulator selector - that used to be a widget inside Context Panel - has been turned into selector inside the Preview panel&#8217;s toolbar.</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="release/images/cs53-preview-emulator.png" alt="Emulator" width="50%">
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="preview_button"><a class="link" href="#preview_button">Preview button</a></h4>
+<div class="paragraph">
+<p>Preview button was moved from the Content Navigator&#8217;s toolbar to the Preview panel&#8217;s toolbar. It will still open preview of currently selected content in a new browser tab, but preview in the new tab will use the currently selected mode (f.ex. JSON).</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="accessibility_improvements"><a class="link" href="#accessibility_improvements">Accessibility improvements</a></h3>
+<div class="paragraph">
+<p>Several improvements have been made to make Content Studio more accessible and comply with WCAG 2.1 standards:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Focused elements are now highlighted with a blue border</p>
+</li>
+<li>
+<p>Keyboard navigation has been improved</p>
+</li>
+<li>
+<p>Toolbars and their child elements are now focusable and can be navigated with arrow keys, according to WCAG 2.1 standards</p>
+</li>
+<li>
+<p>Most of the elements received proper ARIA roles and labels</p>
+</li>
+</ul>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="navigator/images/navigator-accessibility.png" alt="Toolbar accessibility" width="50%">
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -858,7 +954,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-02-20 09:25:19 UTC
+Last updated 2025-02-20 10:41:00 UTC
 </div>
 </div>
 </body>
