@@ -51,6 +51,7 @@ import {GetContentSummaryByIdRequest} from '../resource/GetContentSummaryByIdReq
 import {ContentActionMenuButton} from '../ContentActionMenuButton';
 import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
+import {TreeListBoxExpandedHolder} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -77,6 +78,8 @@ export class ContentBrowsePanel
     protected selectionWrapper: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>;
 
     protected selectableListBoxPanel: SelectableListBoxPanel<ContentSummaryAndCompareStatus>;
+
+    protected expandedContext: TreeListBoxExpandedHolder;
 
     protected initElements() {
         super.initElements();
@@ -135,6 +138,21 @@ export class ContentBrowsePanel
                     this.contextMenu.showAt(event.clientX, event.clientY);
                 });
             });
+
+            itemViews?.forEach((itemView: ContentsTreeGridListElement) => {
+                const itemId = this.treeListBox.getIdOfItem(itemView.getItem());
+                const wasExpanded = this.expandedContext.isExpanded(itemId);
+
+                if (wasExpanded) {
+                    itemView.whenRendered(() => {
+                        const isStillExpanded = this.expandedContext.isExpanded(itemId);
+
+                        if (isStillExpanded) {
+                            itemView.expand();
+                        }
+                    });
+                }
+            });
         });
 
         this.selectionWrapper.whenRendered(() => {
@@ -143,7 +161,8 @@ export class ContentBrowsePanel
     }
 
     createListBoxPanel(): SelectableListBoxPanel<ContentSummaryAndCompareStatus> {
-        this.treeListBox = new ContentsTreeGridRootList({scrollParent: this});
+        this.expandedContext = new TreeListBoxExpandedHolder();
+        this.treeListBox = new ContentsTreeGridRootList({scrollParent: this, expandedContext : this.expandedContext});
 
         this.selectionWrapper = new SelectableListBoxWrapper<ContentSummaryAndCompareStatus>(this.treeListBox, {
             className: 'content-list-box-wrapper content-tree-grid',
