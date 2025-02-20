@@ -1,0 +1,100 @@
+{
+  "menuItems": [
+    {
+      "title": "Navigator",
+      "document": "navigator"
+    },
+    {
+      "title": "Editor",
+      "document": "editor",
+      "menuItems": [
+        {
+            "title": "Content Form",
+            "document" : "editor/content-form"
+        },
+        {
+            "title": "Page Editor",
+            "document" : "editor/page-editor"
+        },
+        {
+          "title": "Context Panel",
+          "document": "editor/context-panel"
+        },
+        {
+          "title": "Component Types",
+          "document" : "editor/component-types"
+      },
+        {
+            "title": "Rich Text Editor",
+            "document" : "editor/rich-text-editor"
+        }
+      ]
+    },
+    {
+      "title": "Projects",
+      "document": "projects"
+    },
+    {
+      "title": "Layers",
+      "document" : "layers"
+    },
+    {
+      "title": "Workflow",
+      "document": "workflow"
+    },
+    {
+      "title": "Content Types",
+      "document": "content-types"
+    },
+    {
+      "title": "Variants",
+      "document": "variants"
+    },
+    {
+      "title": "Actions",
+      "document": "actions"
+    },
+    {
+      "title": "Issues",
+      "document": "issues"
+    },
+    {
+      "title": "Archive",
+      "document": "archive"
+    },
+    {
+      "title": "Widgets",
+      "document": "widgets"
+    },
+    {
+      "title": "Permissions",
+      "document": "permissions"
+    },
+    {
+      "title": "Security",
+      "document": "security"
+    },
+    {
+      "title": "Keyboard Shortcuts",
+      "document": "keyboard-shortcuts"
+    },
+    {
+      "title": "Settings",
+      "document" : "settings"
+    },
+    {
+      "title": "Configuration",
+      "document": "config"
+    },
+    {
+      "title": "Release Notes",
+      "document" : "release",
+      "menuItems" : [
+        {
+          "title": "Upgrade Notes",
+          "document" : "release/upgrade"
+        }
+      ]
+    }
+  ]
+}
