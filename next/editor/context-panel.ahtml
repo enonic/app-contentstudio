@@ -450,7 +450,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#details">Details</a></li>
 <li><a href="#version_history">Version History</a></li>
 <li><a href="#dependencies">Dependencies</a></li>
-<li><a href="#emulator">Emulator</a></li>
 </ul>
 </div>
 </div>
@@ -458,7 +457,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This panel is a multi-function tool that can be toggled open and closed with the cog icon at the right of the toolbar.  It is used in conjunction with the <a href="./page-editor.ahtml">Page Editor</a> to work with components on the page.  There are five different widgets available on the pull down menu in a basic installation, and custom tools may be developed or added from Market.</p>
+<p>This panel is a multi-function tool that can be toggled open and closed with the cog icon on the right of the toolbar.  It is used in conjunction with the <a href="./page-editor.ahtml">Page Editor</a> to work with components on the page.
+The panel contains a widget selector consisting of a few built-in widgets shown on top of the list, followed by custom widgets coming from installed applications.</p>
 </div>
 </div>
 </div>
@@ -543,23 +543,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="emulator"><a class="link" href="#emulator">Emulator</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>This widget has buttons for emulating various sized devices. The page editor will shrink and expand to fit the selected device size.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/context-panel_emulator.png" alt="Emulator" width="631px">
-</div>
-</div>
-</div>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-02-20 12:21:14 UTC
+Last updated 2025-02-20 12:53:17 UTC
 </div>
 </div>
 </body>

@@ -444,10 +444,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#content_studio_5_update_3">Content Studio 5 Update 3</a>
 <ul class="sectlevel2">
 <li><a href="#juke_ai_support">Juke AI support</a></li>
-<li><a href="#juke_translator">Juke Translator</a></li>
-<li><a href="#juke_content_operator">Juke Content Operator</a></li>
 <li><a href="#preview_mode">Preview mode</a></li>
-<li><a href="#basic_support_for_webp_and_avif_images">Basic support for WEBP and AVIF images</a></li>
+<li><a href="#support_for_webp_and_avif">Support for webp and avif</a></li>
 <li><a href="#accessibility_improvements">Accessibility improvements</a></li>
 <li><a href="#other_improvements">Other improvements</a></li>
 </ul>
@@ -551,9 +549,8 @@ Enonic does not store any conversations or data processed by Juke AI. During con
 </tr>
 </table>
 </div>
-</div>
-<div class="sect2">
-<h3 id="juke_translator"><a class="link" href="#juke_translator">Juke Translator</a></h3>
+<div class="sect3">
+<h4 id="juke_translator"><a class="link" href="#juke_translator">Juke Translator</a></h4>
 <div class="paragraph">
 <p>With this application installed, Content Studio will suggest translating content localised in a layer, to the language of the layer. After clicking "Localise" for an inherited content in a layer, user will see a dialog suggesting automatic translation of all text fields in the localised content to the language of the layer.</p>
 </div>
@@ -566,8 +563,8 @@ Enonic does not store any conversations or data processed by Juke AI. During con
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="juke_content_operator"><a class="link" href="#juke_content_operator">Juke Content Operator</a></h3>
+<div class="sect3">
+<h4 id="juke_content_operator"><a class="link" href="#juke_content_operator">Juke Content Operator</a></h4>
 <div class="paragraph">
 <p>Help-text icons for inputs in the Content Form have been replaced with icons to require assistance from the Juke AI Content operator for this specific field. As of now, Content Operator provides assistance only for inputs of type TextLine, TextArea and HtmlArea.</p>
 </div>
@@ -604,6 +601,7 @@ To provide custom instructions for the Juke AI to follow when assisting with con
 </td>
 </tr>
 </table>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -653,7 +651,7 @@ In future versions it will be possible to add custom preview modes.
 </div>
 </div>
 <div class="sect2">
-<h3 id="basic_support_for_webp_and_avif_images"><a class="link" href="#basic_support_for_webp_and_avif_images">Basic support for WEBP and AVIF images</a></h3>
+<h3 id="support_for_webp_and_avif"><a class="link" href="#support_for_webp_and_avif">Support for webp and avif</a></h3>
 <div class="paragraph">
 <p>Content Studio now supports upload and preview of images in webp and avif format. Image modifications are not yet supported.</p>
 </div>
@@ -1067,7 +1065,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-02-20 12:21:14 UTC
+Last updated 2025-02-20 12:53:17 UTC
 </div>
 </div>
 </body>
