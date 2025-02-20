@@ -10,6 +10,7 @@ import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent'
 import {TextComponent} from '../page/region/TextComponent';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentWizardHeader} from '../wizard/ContentWizardHeader';
+import {CompareStatus, CompareStatusChecker} from '../content/CompareStatus';
 
 export class AiContentDataHelper {
 
@@ -27,6 +28,8 @@ export class AiContentDataHelper {
 
     private contentHeader: ContentWizardHeader;
 
+    private compareStatus: CompareStatus;
+
     setDataTree(dataTree: PropertyTree): void {
         this.data = dataTree;
     }
@@ -35,9 +38,13 @@ export class AiContentDataHelper {
         this.contentHeader = contentHeader;
     }
 
+    setCompareStatus(compareStatus: CompareStatus): void {
+        this.compareStatus = compareStatus;
+    }
+
     setValue(path: string, text: string): void {
         if (this.isTopicPath(path)) {
-            if (!StringHelper.isBlank(text)) {
+            if (!StringHelper.isBlank(text) && this.isAllowedToChangeName()) {
                 this.contentHeader?.setName('', true); // resetting name to trigger name generation after updating displayName
             }
             this.contentHeader?.setDisplayName(text);
@@ -48,6 +55,10 @@ export class AiContentDataHelper {
         } else if (this.isDataPath(path)) {
             this.handleDataEvent(path, text);
         }
+    }
+
+    private isAllowedToChangeName(): boolean {
+        return CompareStatusChecker.isNew(this.compareStatus);
     }
 
     transformPathOnDemand(path: string): string {
