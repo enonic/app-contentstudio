@@ -32,6 +32,7 @@ import {AiTranslatorStartedEvent} from './event/incoming/AiTranslatorStartedEven
 import {AiContentOperatorConfigureEvent} from './event/outgoing/AiContentOperatorConfigureEvent';
 import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigureEvent';
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
+import {CompareStatus} from '../content/CompareStatus';
 
 declare global {
     interface Window {
@@ -146,6 +147,10 @@ export class AI {
 
     setContentHeader(contentHeader: ContentWizardHeader): void {
         this.aiContentDataHelper.setContentHeader(contentHeader);
+    }
+
+    setCompareStatus(compareStatus: CompareStatus): void {
+        this.aiContentDataHelper.setCompareStatus(compareStatus);
     }
 
     setContentType(contentType: ContentType): void {
