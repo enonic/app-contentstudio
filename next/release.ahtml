@@ -443,8 +443,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#content_studio_5_update_3">Content Studio 5 Update 3</a>
 <ul class="sectlevel2">
+<li><a href="#juke_ai_support">Juke AI support</a></li>
+<li><a href="#juke_translator">Juke Translator</a></li>
+<li><a href="#juke_content_operator">Juke Content Operator</a></li>
 <li><a href="#preview_mode">Preview mode</a></li>
+<li><a href="#basic_support_for_webp_and_avif_images">Basic support for WEBP and AVIF images</a></li>
 <li><a href="#accessibility_improvements">Accessibility improvements</a></li>
+<li><a href="#other_improvements">Other improvements</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5_update_2">Content Studio 5 Update 2</a>
@@ -456,7 +461,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#decorative_images">Decorative images</a></li>
 <li><a href="#default_online_from_time">Default Online From time</a></li>
 <li><a href="#page_components_view">Page Components view</a></li>
-<li><a href="#other_improvements">Other improvements</a></li>
+<li><a href="#other_improvements_2">Other improvements</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5_update_1">Content Studio 5 Update 1</a>
@@ -467,7 +472,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#export_of_search_results">Export of search results</a></li>
 <li><a href="#new_findreplace_dialog_in_rich_text_editor">New Find/Replace dialog in Rich Text Editor</a></li>
 <li><a href="#locked_path_for_published_content">Locked path for published content</a></li>
-<li><a href="#other_improvements_2">Other improvements</a></li>
+<li><a href="#other_improvements_3">Other improvements</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5">Content Studio 5</a>
@@ -477,7 +482,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#page_components_view_2">Page Components View</a></li>
 <li><a href="#publishing_wizard_improvements">Publishing Wizard improvements</a></li>
 <li><a href="#call_links_in_the_insert_link_dialog">Call links in the Insert Link dialog</a></li>
-<li><a href="#other_improvements_3">Other improvements</a></li>
+<li><a href="#other_improvements_4">Other improvements</a></li>
 </ul>
 </li>
 </ul>
@@ -516,13 +521,99 @@ Content Studio 5.3 requires XP 7.15.0 or higher.
 </table>
 </div>
 <div class="sect2">
+<h3 id="juke_ai_support"><a class="link" href="#juke_ai_support">Juke AI support</a></h3>
+<div class="paragraph">
+<p>Content Studio has been adapted to support ecosystem of Juke applications, new AI-powered extensions that enable high-level
+assistance for content editors. In this release Content Studio provides integration with Juke apps responsible for
+content localisation (<strong>Juke Translator</strong>) and content creation (<strong>Juke Content Operator</strong>).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Juke apps are not built into Content Studio and need to be installed and configured individually. Contact us if you want to enable Juke AI support in your Content Studio.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Enonic does not store any conversations or data processed by Juke AI. During conversations, the data is sent to the Google Vertex service and the response is displayed directly in Content Studio. Once the browser tab is closed or refreshed, the conversation thread will be gone.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="juke_translator"><a class="link" href="#juke_translator">Juke Translator</a></h3>
+<div class="paragraph">
+<p>With this application installed, Content Studio will suggest translating content localised in a layer, to the language of the layer. After clicking "Localise" for an inherited content in a layer, user will see a dialog suggesting automatic translation of all text fields in the localised content to the language of the layer.</p>
+</div>
+<div class="paragraph">
+<p>It&#8217;s possible to provide custom instructions for the Juke AI to follow when translating the content. If you need to provide some context on a regular basis, add "Juke Translator" to your site and set instructions via site config, then Juke will reuse them for every translation.</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="release/images/cs53-juke-translator.png" alt="Juke Translator" width="75%">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="juke_content_operator"><a class="link" href="#juke_content_operator">Juke Content Operator</a></h3>
+<div class="paragraph">
+<p>Help-text icons for inputs in the Content Form have been replaced with icons to require assistance from the Juke AI Content operator for this specific field. As of now, Content Operator provides assistance only for inputs of type TextLine, TextArea and HtmlArea.</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="release/images/cs53-juke-icon.png" alt="Juke icon for input" width="75%">
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Help-text for inputs can still be toggled by using the help-text icon in the content form toolbar.
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="release/images/cs53-juke-operator-dialog.png" alt="Juke Content Operator" width="75%">
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+To provide custom instructions for the Juke AI to follow when assisting with content creation, add "Juke Content Operator" to your site and set instructions via site config.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
 <h3 id="preview_mode"><a class="link" href="#preview_mode">Preview mode</a></h3>
 <div class="sect3">
 <h4 id="mode_selector"><a class="link" href="#mode_selector">Mode selector</a></h4>
 <div class="paragraph">
 <p>It&#8217;s now possible to select preview mode inside the Preview panel. Currently available built-in modes are: Media, Enonic rendering and JSON. Default selection is "Automatic" which will automatically find and use the first mode that supports preview of current content.</p>
 </div>
-<div class="imageblock">
+<div class="imageblock text-center">
 <div class="content">
 <img src="release/images/cs53-preview-mode.png" alt="Preview" width="75%">
 </div>
@@ -562,6 +653,12 @@ In future versions it will be possible to add custom preview modes.
 </div>
 </div>
 <div class="sect2">
+<h3 id="basic_support_for_webp_and_avif_images"><a class="link" href="#basic_support_for_webp_and_avif_images">Basic support for WEBP and AVIF images</a></h3>
+<div class="paragraph">
+<p>Content Studio now supports upload and preview of images in webp and avif format. Image modifications are not yet supported.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="accessibility_improvements"><a class="link" href="#accessibility_improvements">Accessibility improvements</a></h3>
 <div class="paragraph">
 <p>Several improvements have been made to make Content Studio more accessible and comply with WCAG 2.1 standards:</p>
@@ -586,6 +683,22 @@ In future versions it will be possible to add custom preview modes.
 <div class="content">
 <img src="navigator/images/navigator-accessibility.png" alt="Toolbar accessibility" width="50%">
 </div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="other_improvements"><a class="link" href="#other_improvements">Other improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>If a page component (part or layout) provides page contributions, Content Studio will automatically inject them into the page editor, so it&#8217;s no longer required to refresh the page for the contributions to start working.</p>
+</li>
+<li>
+<p>Tag input will now parse a string pasted into it and create tags from the parsed values.</p>
+</li>
+<li>
+<p>We have strengthened Content Security Policy (CSP) even more by disabling <code>unsafe-eval</code> in <code>script-src</code> (read more <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src#unsafe_eval_expressions">here</a>). Please test and adapt your applications accordingly.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -706,7 +819,7 @@ Content Studio 5.2 requires XP 7.14.1 or higher.
 </div>
 </div>
 <div class="sect2">
-<h3 id="other_improvements"><a class="link" href="#other_improvements">Other improvements</a></h3>
+<h3 id="other_improvements_2"><a class="link" href="#other_improvements_2">Other improvements</a></h3>
 <div class="sect3">
 <h4 id="performance"><a class="link" href="#performance">Performance</a></h4>
 <div class="paragraph">
@@ -843,7 +956,7 @@ This mode can be turned on in Content Studio&#8217;s <a href="config.ahtml#exclu
 </div>
 </div>
 <div class="sect2">
-<h3 id="other_improvements_2"><a class="link" href="#other_improvements_2">Other improvements</a></h3>
+<h3 id="other_improvements_3"><a class="link" href="#other_improvements_3">Other improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -934,7 +1047,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 </div>
 <div class="sect2">
-<h3 id="other_improvements_3"><a class="link" href="#other_improvements_3">Other improvements</a></h3>
+<h3 id="other_improvements_4"><a class="link" href="#other_improvements_4">Other improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -954,7 +1067,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-02-20 10:41:00 UTC
+Last updated 2025-02-20 12:21:14 UTC
 </div>
 </div>
 </body>

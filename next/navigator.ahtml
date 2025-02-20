@@ -691,13 +691,9 @@ Search results remain in the tree grid when the search panel is collapsed. Donâ€
 <div class="sect1">
 <h2 id="preview_panel"><a class="link" href="#preview_panel">Preview panel</a></h2>
 <div class="sectionbody">
-<div class="imageblock text-center">
-<div class="content">
-<img src="navigator/images/navigator-preview.png" alt="Showing content preview" width="75%">
-</div>
-</div>
 <div class="paragraph">
-<p>A preview of the selected content appears to the of the content navigator. The preview is dynamic, so links will take you to other pages and highlight the new page content in the content tree grid.</p>
+<p>A preview of the selected content appears inside a panel to the right of the Content Tree. The preview is dynamic, so
+clicking a link will navigate you to the target page, both inside the preview panel and the Content Tree.</p>
 </div>
 <div class="paragraph">
 <p>Toolbar of the preview panel contains the following:</p>
@@ -707,6 +703,15 @@ Search results remain in the tree grid when the search panel is collapsed. Donâ€
 <li>
 <p>Current status of the selected content item (f.ex. <code>New</code>, <code>Published</code>, <code>Unpublished</code>, <code>Modified</code>). For items that have been published and then modified there will be an icon (<span class="image"><img src="navigator/images/navigator-compare.png" alt="navigator compare" width="24px" title="Show changes"></span>) to compare current version with the published version.</p>
 </li>
+</ul>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="navigator/images/navigator-preview.png" alt="Showing content preview" width="75%">
+</div>
+</div>
+<div class="ulist">
+<ul>
 <li>
 <p>Emulator dropdown to emulate screen resolutions of various device types  (monitor, tablet, mobile) for the preview.</p>
 </li>
@@ -720,7 +725,7 @@ Search results remain in the tree grid when the search panel is collapsed. Donâ€
 <div class="ulist">
 <ul>
 <li>
-<p>Current preview mode. The default mode is "Automatic" which will automatically find and use the first mode that supports current content. You can explicitly select a mode from the dropdown list. Select "<strong>Media</strong>" to preview media content (supported by browsers), "<strong>Enonic rendering</strong>" to use Enonic&#8217;s Site Engine and "JSON" to display current content in JSON format.</p>
+<p>Current preview mode. The default mode is "<strong>Automatic</strong>" which will automatically find and use the first mode that supports preview of the current content. You can explicitly select a mode from the dropdown list. Select "<strong>Media</strong>" to preview media content (if supported by browsers), "<strong>Enonic rendering</strong>" to use Enonic&#8217;s Site Engine and "JSON" to display current content in JSON format.</p>
 </li>
 </ul>
 </div>
@@ -744,7 +749,7 @@ Even though any content can be displayed in the JSON format, this mode is not us
 <div class="ulist">
 <ul>
 <li>
-<p><span class="image"><img src="navigator/images/navigator-preview-button.png" alt="navigator preview button" width="36px" title="Preview button"></span> button will open the content preview in a new browser tab. Note that the currently selected preview mode will be used in the new tab.</p>
+<p><span class="image"><img src="navigator/images/navigator-preview-button.png" alt="navigator preview button" width="90px" title="Preview button"></span> button will open the content preview in a new browser tab. Note that the currently selected preview mode will be used in the new tab.</p>
 </li>
 </ul>
 </div>
@@ -792,7 +797,7 @@ Only the <strong>Draft</strong> version of content is visible in the preview pan
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-02-20 10:41:00 UTC
+Last updated 2025-02-20 12:21:14 UTC
 </div>
 </div>
 </body>
