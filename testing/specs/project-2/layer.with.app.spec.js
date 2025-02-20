@@ -51,7 +51,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             await newContentDialog.waitForOpened();
             await studioUtils.clickOnItemInNewContentDialog(appConst.contentTypes.CUSTOM_RELATIONSHIP);
             // 4. Verify that just created article content is available in the selector
-            await customRelationshipForm.selectOption(articleContent.displayName);
+            await customRelationshipForm.clickOnOptionByDisplayNameAndApply(articleContent.displayName);
             await studioUtils.saveScreenshot('custom_rel_root_dir');
             let result = await customRelationshipForm.getSelectedOptions();
             assert.ok(result[0].includes(articleContent.displayName), 'Expected option should be selected');

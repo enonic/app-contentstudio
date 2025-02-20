@@ -87,7 +87,7 @@ class ContentSelectorForm extends BaseSelectorForm {
     }
 
     // Selects an option by the display-name then click on Apply selection  button:
-    async selectOption(optionDisplayName) {
+    async clickOnOptionByDisplayNameAndApply(optionDisplayName) {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown();
             await contentSelectorDropdown.clickOnFilteredByDisplayNameItemAndClickOnApply(optionDisplayName);
@@ -122,6 +122,29 @@ class ContentSelectorForm extends BaseSelectorForm {
     async getOptionsMode() {
         let contentSelector = new ContentSelectorDropdown();
         return await contentSelector.getMode(XPATH.container);
+    }
+
+    async getCheckedOptionsDisplayNameInDropdownList() {
+        let locator = XPATH.container + lib.DROPDOWN_SELECTOR.DROPDOWN_DIV_ITEM;
+        let optionElements = await this.findElements(locator);
+        let checkedOptionElements = await this.doFilterCheckedOptionsElements(optionElements);
+        let pr = await checkedOptionElements.map(async (el)=>{
+            let e= await el.$(".//h6[contains(@class,'main-name')]");
+            return await e.getText();
+        });
+        let result = await Promise.all(pr);
+        return result;
+    }
+
+    async doFilterCheckedOptionsElements(elements) {
+        let pr = await elements.map(async (el) => await this.isOptionItemChecked(el));
+        let result = await Promise.all(pr);
+        return elements.filter((el, i) => result[i]);
+    }
+
+    async isOptionItemChecked(el) {
+        let value= await el.getAttribute('class');
+        return value.includes('checked');
     }
 }
 

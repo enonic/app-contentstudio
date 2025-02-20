@@ -488,7 +488,7 @@ class ContentWizardPanel extends Page {
             await this.waitForSaveButtonEnabled();
             await this.clickOnElement(this.saveButton);
             await this.waitForSavingButtonNotVisible();
-            return await this.pause(1200);
+            return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_save_content');
             throw new Error(`Error in waitAndClickOnSave: screenshot ${screenshot}   ` + err);

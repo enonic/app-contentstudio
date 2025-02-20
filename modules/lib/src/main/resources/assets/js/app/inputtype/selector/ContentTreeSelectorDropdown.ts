@@ -108,6 +108,8 @@ export class ContentTreeSelectorDropdown
             selectionChange.deselected?.forEach((item: ContentTreeSelectorItem) => {
                 this.treeSelectionWrapper.deselect(item, true);
             });
+
+            this.treeSelectionWrapper.unSelectAllExcept(this.getSelectedItems().map(item => item.getId()));
         });
     }
 
@@ -182,8 +184,8 @@ export class ContentTreeSelectorDropdown
             const id = item.getId();
 
             if (selectedItems.indexOf(id) >= 0) {
-                // Don't select item if it's unselected before loaded
                 this.treeSelectionWrapper.select(item, true);
+                this.select(item, true);
             }
         });
     }

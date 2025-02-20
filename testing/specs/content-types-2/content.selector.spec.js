@@ -45,7 +45,7 @@ describe('content.selector.spec: content-selector specification', function () {
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
             await contentWizard.typeDisplayName(RELATIONSHIP_NAME);
             // 2. Select the article in options -  type the name of the article and click on the filtered option:
-            await customRelationshipForm.selectOption(ARTICLE_NAME_1);
+            await customRelationshipForm.clickOnOptionByDisplayNameAndApply(ARTICLE_NAME_1);
             await contentWizard.waitAndClickOnSave();
             // 3. Verify the selected option:
             await studioUtils.saveScreenshot('custom_rel_option_selected');
