@@ -41,6 +41,15 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             this.contextSplitPanel.hideContextPanel();
             this.toggleMobilePreviewMode(false);
         });
+
+        this.selectableListBoxPanel.onSelectionChanged(() => {
+            if (this.selectableListBoxPanel.getSelectedItems().length > 0 && this.selectableListBoxPanel.getSelectionMode() ===
+                SelectionMode.HIGHLIGHT) {
+                if (this.contextSplitPanel.isMobileMode()) {
+                    this.toggleMobilePreviewMode(true);
+                }
+            }
+        });
     }
 
     protected createBrowseWithItemsPanel(): ContextSplitPanel {
@@ -75,13 +84,6 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
         const item: ViewItem = this.selectableListBoxPanel.getLastSelectedItem();
         this.updateContextView(item).catch(DefaultErrorHandler.handle);
-
-        if (this.selectableListBoxPanel.getSelectedItems().length > 0 && this.selectableListBoxPanel.getSelectionMode() ===
-            SelectionMode.HIGHLIGHT) {
-            if (this.contextSplitPanel.isMobileMode()) {
-                this.toggleMobilePreviewMode(true);
-            }
-        }
     }
 
     private toggleMobilePreviewMode(isMobile: boolean): void {
