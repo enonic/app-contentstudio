@@ -28,7 +28,8 @@ export class ContentsTreeGridList
     }
 
     protected createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentsTreeGridListElement {
-        return new ContentsTreeGridListElement(item, {scrollParent: this.scrollParent, level: this.level, parentList: this});
+        return new ContentsTreeGridListElement(item,
+            {scrollParent: this.scrollParent, level: this.level, parentList: this, expandedContext: this.options.expandedContext});
     }
 
     protected getItemId(item: ContentSummaryAndCompareStatus): string {
