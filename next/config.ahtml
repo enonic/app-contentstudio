@@ -575,7 +575,7 @@ can be disabled by adding the following parameter to the config file:</p>
 <div class="sect2">
 <h3 id="default_online_from_time"><a class="link" href="#default_online_from_time">Default Online From time</a></h3>
 <div class="paragraph">
-<p>Default Online From time is set to 12:00 by default. This default value can be changed by setting the <code>publishingWizard.defaultPublishFromTime</code> config property.</p>
+<p>Default Online From time is set to 08:00 by default. This default value can be changed by setting the <code>publishingWizard.defaultPublishFromTime</code> config property.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -585,7 +585,7 @@ can be disabled by adding the following parameter to the config file:</p>
 <div class="listingblock">
 <div class="title">Default Online From time in the Publishing Wizard</div>
 <div class="content">
-<pre class="highlight"><code class="language-properties" data-lang="properties">publishingWizard.defaultPublishFromTime = 12:00</code></pre>
+<pre class="highlight"><code class="language-properties" data-lang="properties">publishingWizard.defaultPublishFromTime = 08:00</code></pre>
 </div>
 </div>
 </div>
@@ -641,7 +641,7 @@ Use this flag with caution. It makes it very simple to publish a content without
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-02-20 12:53:17 UTC
+Last updated 2025-02-20 12:57:28 UTC
 </div>
 </div>
 </body>
