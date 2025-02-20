@@ -82,4 +82,12 @@ export class ContentTreeSelectionWrapper
     getNavigator(): SelectableListBoxNavigator<ContentTreeSelectorItem> {
         return this.selectionNavigator;
     }
+
+    unSelectAllExcept(ids: string[]): void {
+        this.getSelectedItems().find((selectedItem) => {
+            if (!ids.some((id) => id === selectedItem.getId())) {
+                this.deselect(selectedItem, true);
+            }
+        });
+    }
 }

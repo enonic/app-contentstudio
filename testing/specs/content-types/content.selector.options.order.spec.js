@@ -44,8 +44,8 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            // 2. one option has been selected:
-            await contentSelectorForm.selectOption(FOLDER_1.displayName);
+            // 2. one option has been selected(display name has been typed in filter input):
+            await contentSelectorForm.clickOnOptionByDisplayNameAndApply(FOLDER_1.displayName);
             // 3. Click on Edit-icon then switch to the new browser tab:
             await contentSelectorForm.clickOnEditSelectedOption(FOLDER_1.displayName);
             await studioUtils.doSwitchToNextTab();
@@ -95,9 +95,9 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_2_8);
             await contentWizard.typeDisplayName(CONTENT_NAME);
             // 2. 3 options have been selected:
-            await contentSelectorForm.selectOption(OPTION_1);
-            await contentSelectorForm.selectOption(OPTION_2);
-            await contentSelectorForm.selectOption(OPTION_3);
+            await contentSelectorForm.clickOnOptionByDisplayNameAndApply(OPTION_1);
+            await contentSelectorForm.clickOnOptionByDisplayNameAndApply(OPTION_2);
+            await contentSelectorForm.clickOnOptionByDisplayNameAndApply(OPTION_3);
             await contentWizard.waitAndClickOnSave();
             // 3. Verify that options are saved:
             let options = await contentSelectorForm.getSelectedOptions();
@@ -131,6 +131,57 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             assert.equal(options[1], OPTION_2, 'Order of selected Options should not be changed');
             assert.equal(options[2], OPTION_1, 'Order of selected Options should not be changed');
         });
+
+    // Verifies https://github.com/enonic/app-contentstudio/issues/8379
+    // Options are not cleared in content selector with tree mode #8379
+    it(`GIVEN content with 3 selected options is opened WHEN one option has been clicked in the dropdown(unselected) AND 'Apply' button has been pressed THEN two selected options should be displayed in the form`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let contentSelectorForm = new ContentSelectorForm();
+            // 1. Open the existing content wit 3 selected options:
+            await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
+            // 2. insert the display name in the filter input
+            await contentSelectorForm.typeTextInOptionsFilterInput(OPTION_3);
+            // 3. Click on the option in the dropdown and unselect it:
+            await contentSelectorForm.clickOnOptionByDisplayNameAndApply(OPTION_3);
+            // 4. Verify that order is not changed after refreshing the page :
+            let options = await contentSelectorForm.getSelectedOptions();
+            await studioUtils.saveScreenshot('8379_content_selector_option_unselected');
+            assert.equal(options.length, 2, 'Two selected options should be displayed');
+            assert.ok(options.includes(OPTION_3)=== false, 'Unselected option should not be displayed');
+            // 5. Verify that Save button gets enabled:
+            await contentWizard.waitForSaveButtonEnabled();
+        });
+
+    // Verifies https://github.com/enonic/app-contentstudio/issues/8379
+    // Options are not cleared in content selector with tree mode #8379
+    it(`GIVEN 2 selected options are filtered in the content-selector WHEN remove-icon has been clicked for one selected item AND the dropdown has been expanded THEN the unchecked item should not be displayed in the dropdown list`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let contentSelectorForm = new ContentSelectorForm();
+            // 1. Open the existing content with selected options:
+            await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
+            // 2. insert in the filter input the common part of display names:
+            await contentSelectorForm.typeTextInOptionsFilterInput('images');
+            await studioUtils.saveScreenshot('8379_content_selector_filtered');
+            // 3. Verify that 2 option items should be checked in the dropdown list:
+            let result1 = await contentSelectorForm.getCheckedOptionsDisplayNameInDropdownList();
+            assert.equal(result1.length, 2, 'two option items should be displayed in the dropdown list');
+            // 4. Collapse the dropdown list
+            await contentSelectorForm.clickOnDropdownHandle();
+            // 5. Remove one selected option:
+            await contentSelectorForm.removeSelectedOption(OPTION_1);
+            await contentSelectorForm.pause(1000);
+            // 6. Expand the dropdown list again
+            await contentSelectorForm.clickOnDropdownHandle();
+            await studioUtils.saveScreenshot('8379_content_selector_option_removed');
+            let result2 = await contentSelectorForm.getCheckedOptionsDisplayNameInDropdownList();
+            // 4. Verify that the only one option item is checked in the list:
+            assert.equal(result2.length, 1, 'One option items should be displayed in the dropdown list');
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+        });
+
 
     it(`GIVEN content with selector in flat mode is opened WHEN mode toggler has been clicked THEN tree mode should be is switched on`,
         async () => {
