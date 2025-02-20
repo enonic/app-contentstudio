@@ -3,8 +3,6 @@ package com.enonic.xp.app.contentstudio.style;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.script.serializer.MapGenerator;
@@ -86,13 +84,28 @@ public class StyleDescriptorMapper
     private String localizeDisplayName( final ElementStyle styleElement, final ApplicationKey applicationKey )
     {
         LocaleMessageResolver localeMessageResolver = new LocaleMessageResolver( localeService, applicationKey );
-        if ( StringUtils.isNotBlank( styleElement.getDisplayNameI18nKey() ) )
+        if ( !isBlank( styleElement.getDisplayNameI18nKey() ) )
         {
             return localeMessageResolver.localizeMessage( styleElement.getDisplayNameI18nKey(), styleElement.getDisplayName() );
         }
         else
         {
             return styleElement.getDisplayName();
+        }
+    }
+
+    private boolean isBlank(String str) {
+        int strLen;
+        if (str != null && (strLen = str.length()) != 0) {
+            for(int i = 0; i < strLen; ++i) {
+                if (!Character.isWhitespace(str.charAt(i))) {
+                    return false;
+                }
+            }
+
+            return true;
+        } else {
+            return true;
         }
     }
 }
