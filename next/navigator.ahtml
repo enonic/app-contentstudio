@@ -511,13 +511,13 @@ It consists of the <a href="#toolbar">action toolbar</a> on top, followed by the
 <div class="ulist">
 <ul>
 <li>
-<p>If selected content is not published: <strong>Publish</strong> (opens the <a href="actions.ahtml#publishing-wizard">Publishing wizard</a> dialog)</p>
+<p>If selected content is not published: <strong>Publish</strong> (opens the <a href="actions.ahtml#publishing_wizard">Publishing wizard</a> dialog)</p>
 </li>
 <li>
-<p>If selected content is published: <strong>Unpublish</strong> (opens the<a href="actions.ahtml#unpublish">Unpublish Wizard</a> dialog for taking the content offline)</p>
+<p>If selected content is published: <strong>Unpublish</strong> (opens the <a href="actions.ahtml#unpublish">Unpublish Wizard</a> dialog for taking the content offline)</p>
 </li>
 <li>
-<p>If selected content is published but has child items that are not published: <strong>Publish Tree</strong> (opens the <a href="actions.ahtml#publishing-wizard">Publishing wizard</a>)
+<p>If selected content is published but has child items that are not published: <strong>Publish Tree</strong> (opens the <a href="actions.ahtml#publishing_wizard">Publishing wizard</a>)
 dialog with selected content and all descendants</p>
 </li>
 <li>
@@ -797,7 +797,7 @@ Only the <strong>Draft</strong> version of content is visible in the preview pan
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-02-20 12:57:28 UTC
+Last updated 2025-02-20 14:00:11 UTC
 </div>
 </div>
 </body>
