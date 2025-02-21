@@ -1,3 +1,4 @@
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
@@ -8,10 +9,9 @@ import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/Principal
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import * as Q from 'q';
 import {ContentId} from '../content/ContentId';
-import {CollaborationServerEvent} from '../event/CollaborationServerEvent';
 import {ProjectContext} from '../project/ProjectContext';
 import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {$content, mountWorker, sendJoin, sendLeave} from '../stores/worker';
 
 export class CollaborationEl
     extends DivEl {
@@ -30,6 +30,7 @@ export class CollaborationEl
         super('content-wizard-toolbar-collaboration');
 
         this.contentId = contentId;
+        this.currentUser = AuthContext.get().getUser();
 
         this.initElements();
         this.initListeners();
@@ -41,8 +42,6 @@ export class CollaborationEl
         this.counterBlock.hide();
 
         this.appendChildren(this.usersBlock, this.counterBlock);
-
-        this.currentUser = AuthContext.get().getUser();
     }
 
     private initListeners(): void {
@@ -51,7 +50,30 @@ export class CollaborationEl
 
         this.whenRendered(() => this.updateVisibleElements());
 
-        CollaborationServerEvent.on(this.handeCollaborationEvent.bind(this));
+        const unmountWorker = mountWorker();
+
+        $content.set({
+            contentId: this.contentId.toString(),
+            project: ProjectContext.get().getProject().getName(),
+            collaborators: [],
+        });
+
+        sendJoin(this.contentId.toString(), ProjectContext.get().getProject().getName());
+
+        setTimeout(() => {
+            sendJoin(this.contentId.toString(), ProjectContext.get().getProject().getName());
+        }, 120000);
+
+        this.onRemoved(() => {
+            sendLeave(this.contentId.toString(), ProjectContext.get().getProject().getName());
+            unmountWorker();
+        });
+
+        $content.subscribe(({contentId, project, collaborators}) => {
+            if (contentId === this.contentId.toString() && project === ProjectContext.get().getProject().getName()) {
+                this.handleCollaboratorsUpdated(collaborators);
+            }
+        });
     }
 
     private updateVisibleElements(): void {
@@ -95,20 +117,15 @@ export class CollaborationEl
         this.counterBlock.setTitle(title);
     }
 
-    private handeCollaborationEvent(event: CollaborationServerEvent): void {
-        if (event.getContentId().equals(this.contentId) && event.getProject() === ProjectContext.get().getProject().getName()) {
-            this.handleContentCollaborationEvent(event);
-        }
-    }
-
-    private handleContentCollaborationEvent(event: CollaborationServerEvent): void {
-        this.collaborators = event.getCollaborators();
+    private handleCollaboratorsUpdated(collaborators: string[]): void {
+        const collaboratorsKeys = collaborators.map(c => PrincipalKey.fromString(c));
+        this.collaborators = collaboratorsKeys;
 
         this.addMissingCollaborators();
         this.removeStaleCollaborators();
 
-        this.toggleClass('single', event.getCollaborators().length === 1);
-        this.toggleClass('multiple', event.getCollaborators().length > 1);
+        this.toggleClass('single', collaboratorsKeys.length === 1);
+        this.toggleClass('multiple', collaboratorsKeys.length > 1);
     }
 
     private addMissingCollaborators(): void {

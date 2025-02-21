@@ -29,7 +29,7 @@ exports.get = function get(request) {
         webSocket: {
             subProtocols: [WS_PROTOCOL],
             data: {
-                sessionId: request.cookies.JSESSIONID
+                // sessionId: request.cookies.JSESSIONID,
             }
         },
     };
@@ -85,11 +85,13 @@ function handleMessage(event) {
     if (message.type === 'subscribe') {
         // TODO: Subscribe only to those events, that were requested by the client
         websocketLib.addToGroup('events', socketId);
+        websocketLib.addToGroup('collaboration', socketId);
         return;
     }
 
     if (events.isEventType(message.type)) {
-        events.handleMessage(message);
+        const userKey = event.session.user.key;
+        events.handleMessage(message, userKey);
         return;
     }
 }

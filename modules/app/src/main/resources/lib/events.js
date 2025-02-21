@@ -1,3 +1,4 @@
+const collaborationLib = require('/lib/collaboration');
 const eventLib = require('/lib/xp/event');
 const websocketLib = require('/lib/xp/websocket');
 
@@ -13,27 +14,61 @@ function fromCustom(eventType) {
     return eventType.replace(/^custom./, '');
 }
 
-function isEventType(type) {
+function isAiContentOperatorEvent(type) {
+    return type.indexOf('ai.contentoperator.') === 0;
+}
+
+function isContentStudioEvent(type) {
+    return type.indexOf('xp.contentstudio.') === 0;
+}
+
+function handleCollaborationEvent(message, userKey) {
+    const params = {
+        userKey: userKey,
+        contentId: message.data.contentId,
+        project: message.data.project,
+        clientId: message.data.clientId,
+    }
+
+    if (message.type === 'com.enonic.app.contentstudio.collaboration.in.join') {
+        collaborationLib.join(params);
+    } else if (message.type === 'com.enonic.app.contentstudio.collaboration.in.leave') {
+        collaborationLib.leave(params);
+    }
+}
+
+exports.isEventType = function (type) {
     const eventType = fromCustom(type);
-    return eventType.indexOf('ai.contentoperator.') === 0;
+    return isAiContentOperatorEvent(eventType) || isContentStudioEvent(eventType);
 }
-exports.isEventType = isEventType;
 
-function handleMessage(message) {
-    sendEvent(message);
+exports.handleMessage = function (message, userKey) {
+    if (isAiContentOperatorEvent(message.type)) {
+        sendEvent(message);
+    } else if (isContentStudioEvent(message.type)) {
+        handleCollaborationEvent(message, userKey);
+    }
 }
-exports.handleMessage = handleMessage;
 
-function init() {
+exports.init = function init() {
     // TODO: Replace with subscriptions and other supported event types
     eventLib.listener({
         type: `custom.ai.contentoperator.out.*`,
         localOnly: false,
         callback: (event) => {
-            if (isEventType(event.type)) {
+            if (isAiContentOperatorEvent(event.type)) {
                 websocketLib.sendToGroup('events', JSON.stringify(event.data));
             }
         },
     });
+
+    eventLib.listener({
+        type: `custom.com.enonic.app.contentstudio.collaboration.out.*`,
+        localOnly: false,
+        callback: (event) => {
+            if (isContentStudioEvent(event.type)) {
+                websocketLib.sendToGroup('collaboration', JSON.stringify(event.data));
+            }
+        },
+    });
 }
-exports.init = init;
