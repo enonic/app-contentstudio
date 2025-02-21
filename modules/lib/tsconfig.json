@@ -17,6 +17,7 @@
         "noImplicitReturns": false,
         "noImplicitThis": true,
         "strictNullChecks": false,
+        "skipLibCheck": true,
         "types": [
             "ckeditor",
             "core-js",

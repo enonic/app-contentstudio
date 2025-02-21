@@ -11,14 +11,6 @@ type FnAny = (...args: unknown[]) => unknown;
 //
 type Optional<T> = T | undefined | null;
 
-type Either<T, U> = readonly [T, null] | readonly [null, U];
-
-type Try<T> = Either<T, AiError>;
-
-type TryOptional<T> = Try<Optional<T>>;
-
-type Err<T> = Either<T, Error>;
-
 //
 // Utility types
 //
