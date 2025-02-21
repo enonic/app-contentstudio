@@ -1,136 +1,168 @@
-/* global __ */
-
-const sharedMemoryLib = require('/lib/xp/grid');
+const gridLib = require('/lib/xp/grid');
 const eventLib = require('/lib/xp/event');
 
-const TTL_SECONDS = 2 * 60 * 1000;
+const SHARED_MAP = gridLib.getMap('contentstudio.collaboration.contents');
+const TTL_SECONDS = 120;
 
-const SHARED_MAP = sharedMemoryLib.getMap('contentstudio.collaboration.contents');
+/**
+ * Extract session, user and timestamp from a collaborator string.
+ * @param {string} collaboratorId - Format: "clientId=userKey=timestamp"
+ * @returns {{clientId: string, userKey: string, timestamp: number}}
+ */
+function extractFromCollaborator(collaboratorId) {
+    const parts = collaboratorId.split('=');
+    return {
+        clientId: parts[0],
+        userKey: parts[1],
+        timestamp: parseInt(parts[2], 10)
+    };
+}
 
-function required(params, name) {
-    const value = params[name];
-    if (typeof value === 'undefined' || value === null) {
-        throw `Parameter "${name}" is required`;
+/**
+ * Remove collaborators that have expired.
+ * @param {Array} collaborators
+ * @param {number} now - Current time (ms)
+ * @returns {{ updated: Array<string>, hasChanged: boolean }}
+ */
+function removeExpired(collaborators, now) {
+    const originalLength = collaborators.length;
+    const filtered = collaborators.filter(function (collaborator) {
+        return now - extractFromCollaborator(collaborator).timestamp < TTL_SECONDS;
+    });
+
+    return {
+        updated: filtered,
+        hasChanged: filtered.length < originalLength
+    };
+}
+
+/**
+ * Remove any collaborator entries for the current session/user.
+ * @param {Array} collaborators
+ * @param {string} collaboratorKey - Form "clientId=userKey"
+ * @returns {{ updated: Array<string>, hasChanged: boolean }}
+ */
+function removeCurrent(collaborators, collaboratorKey) {
+    const originalLength = collaborators.length;
+    const filtered = collaborators.filter(function (collaborator) {
+        return !collaborator.startsWith(collaboratorKey);
+    });
+
+    return {
+        updated: filtered,
+        hasChanged: filtered.length < originalLength
+    };
+}
+
+/**
+ * Remove duplicate collaborator entries.
+ * @param {Array<string>} collaborators
+ * @returns {Array<string>}
+ */
+function uniqueCollaborators(collaborators) {
+    return collaborators.filter(function (collaborator, index, self) {
+        return self.indexOf(collaborator) === index;
+    });
+}
+
+/**
+ * Publish an event with the current collaborators.
+ * @param {Object} params
+ * @param {Array<string>} collaborators
+ */
+function publishEvent(params, collaborators) {
+    const userKeys = uniqueCollaborators(collaborators).map(function (c) {
+        return extractFromCollaborator(c).userKey;
+    });
+
+    eventLib.send({
+        type: 'com.enonic.app.contentstudio.collaboration.out.updated',
+        distributed: true,
+        data: {
+            contentId: params.contentId,
+            project: params.project,
+            collaborators: userKeys
+        }
+    });
+}
+
+/**
+ * Return stored collaborators, or an appropriate default.
+ * @param {Array<string>|null|undefined} stored
+ * @param {boolean} isJoin
+ * @returns {Array<string>|null}
+ */
+function getStoredCollaborators(stored, isJoin) {
+    return (stored == null) ? (isJoin ? [] : null) : stored;
+}
+
+/**
+ * Modify the collaborators array based on a join/leave action.
+ * @param {Array<string>|null} oldCollaborators
+ * @param {Object} params
+ * @param {boolean} isJoin
+ * @returns {Array<string>|null}
+ */
+function modifyCollaborators(oldCollaborators, params, isJoin) {
+    let collaborators = getStoredCollaborators(oldCollaborators, isJoin);
+    if (!isJoin && !collaborators) {
+        return null;
     }
+
+    const now = new Date().getTime();
+    const collaboratorKey = params.clientId + '=' + params.userKey;
+
+    const expiredResult = removeExpired(collaborators, now);
+    collaborators = expiredResult.updated;
+    const currentResult = removeCurrent(collaborators, collaboratorKey);
+    collaborators = currentResult.updated;
+
+    if (isJoin) {
+        collaborators = collaborators.concat(collaboratorKey + '=' + now);
+    }
+
+    // Decide if we should publish an event.
+    // If joining or expired items were removed, then publish only if no current removal occurred;
+    // otherwise, publish if the current user entry was removed.
+    const shouldPublishEvent = (isJoin || expiredResult.hasChanged) ? !currentResult.hasChanged : currentResult.hasChanged;
+    if (shouldPublishEvent) {
+        publishEvent(params, collaborators);
+    }
+
+    if (!isJoin && collaborators.length === 0) {
+        return null;
+    }
+
+    return uniqueCollaborators(collaborators);
 }
 
-function CollaboratorsModifier(params) {
-    this.collaboratorKey = `${params.sessionId}=${params.userKey}`;
-    this.contentId = params.contentId;
-    this.project = params.project;
-    this.collaborators = [];
-
-    this.removeExpired = function (timeAt) {
-        const self = this;
-        const originalSize = this.collaborators.length;
-        this.collaborators = this.collaborators.filter(collaborator => {
-            const lastJoin = self.extractLastJoin(collaborator);
-            return timeAt - lastJoin < TTL_SECONDS;
-        });
-        return originalSize > this.collaborators.length;
-    };
-
-    this.removeCurrent = function () {
-        const originalSize = this.collaborators.length;
-        const collaboratorKey = this.collaboratorKey;
-        this.collaborators = this.collaborators.filter(collaborator => !collaborator.startsWith(collaboratorKey));
-        return originalSize > this.collaborators.length;
-    };
-
-    this.getUniqueCollaborators = function () {
-        const uniqueCollaborators = new Set();
-        this.collaborators.forEach(collaborator => uniqueCollaborators.add(collaborator));
-
-        const collaborators = [];
-        uniqueCollaborators.forEach(collaborator => collaborators.push(collaborator));
-        this.collaborators = collaborators;
-
-        return this.collaborators;
-    };
-
-    this.publishEvent = function () {
-        const self = this;
-        const userKeys = this.getUniqueCollaborators().map(collaboratorId => self.extractUserKey(collaboratorId));
-        const contentId = this.contentId;
-
-        eventLib.send({
-            type: 'edit.content.collaborators.update',
-            distributed: true,
-            data: {
-                contentId: contentId,
-                project: this.project,
-                collaborators: userKeys
-            }
-        });
-    };
-
-    this.extractLastJoin = function (collaboratorId) {
-        const idParts = collaboratorId.split("=", -1);
-        return parseInt(idParts[2]);
-    };
-
-    this.extractUserKey = function (collaboratorId) {
-        return collaboratorId.split("=", -1)[1];
-    };
-
-    this.getStoredCollaborators = function (storedCollaborators, isJoin) {
-        if (typeof storedCollaborators === 'undefined' || storedCollaborators === null) {
-            return isJoin ? [] : null;
-        }
-        return storedCollaborators;
-    };
-
-    this.modify = function (oldCollaborators, isJoin) {
-        this.collaborators = this.getStoredCollaborators(oldCollaborators, isJoin);
-
-        if (!isJoin && !this.collaborators) {
-            return null;
-        }
-
-        const now = new Date().getTime();
-        const removedExpired = this.removeExpired(now);
-        const removedExisting = this.removeCurrent();
-
-        if (isJoin) {
-            this.collaborators.push(`${this.collaboratorKey}=${now}`);
-        }
-
-        const shouldPublishEvent = isJoin || removedExpired ? !removedExisting : removedExisting;
-        if (shouldPublishEvent) {
-            this.publishEvent();
-        }
-
-        if (!isJoin && this.collaborators.length === 0) {
-            return null;
-        }
-
-        return this.getUniqueCollaborators();
-    };
-}
-
+/**
+ * Perform join or leave modification on the shared map.
+ * @param {{contentId: string, project: string, clientId: string, userKey: string}} params - Must include contentId, project, clientId, userKey.
+ * @param {boolean} isJoin
+ */
 function doJoinOrLeave(params, isJoin) {
-    required(params, 'contentId');
-    required(params, 'project');
-    required(params, 'sessionId');
-    required(params, 'userKey');
-
     return SHARED_MAP.modify({
         key: params.contentId + ':' + params.project,
         func: function (collaborators) {
-            return new CollaboratorsModifier(params).modify(collaborators, isJoin);
+            return modifyCollaborators(collaborators, params, isJoin);
         },
         ttlSeconds: TTL_SECONDS
     });
 }
 
+/**
+ * Perform join modification on the shared map.
+ * @param {{contentId: string, project: string, clientId: string, userKey: string}} params - Must include contentId, project, clientId, userKey.
+ */
 exports.join = function (params) {
     return doJoinOrLeave(params, true);
-}
+};
 
+/**
+ * Perform leave modification on the shared map.
+ * @param {{contentId: string, project: string, clientId: string, userKey: string}} params - Must include contentId, project, clientId, userKey.
+ */
 exports.leave = function (params) {
     return doJoinOrLeave(params, false);
-}
-
-exports.heartbeat = function (params) {
-    return exports.join(params);
-}
+};
