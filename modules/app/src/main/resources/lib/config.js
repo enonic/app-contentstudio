@@ -60,9 +60,6 @@ function getConfig() {
             stylesUrl: portal.apiUrl({
                 api: 'styles'
             }),
-            collaborationUrl: portal.apiUrl({
-                api: 'collaboration'
-            }),
             exportServiceUrl: portal.apiUrl({
                 api: 'export'
             }),
