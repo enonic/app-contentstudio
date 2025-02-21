@@ -1,3 +1,4 @@
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
@@ -8,10 +9,9 @@ import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/Principal
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import * as Q from 'q';
 import {ContentId} from '../content/ContentId';
-import {CollaborationServerEvent} from '../event/CollaborationServerEvent';
 import {ProjectContext} from '../project/ProjectContext';
 import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {subscribe as subscribeToCollaborators} from '../stores/collaboration';
 
 export class CollaborationEl
     extends DivEl {
@@ -24,15 +24,13 @@ export class CollaborationEl
 
     private collaborators: PrincipalKey[] = [];
 
-    private readonly contentId: ContentId;
-
     constructor(contentId: ContentId) {
         super('content-wizard-toolbar-collaboration');
 
-        this.contentId = contentId;
+        this.currentUser = AuthContext.get().getUser();
 
         this.initElements();
-        this.initListeners();
+        this.initListeners(contentId);
     }
 
     private initElements(): void {
@@ -41,17 +39,22 @@ export class CollaborationEl
         this.counterBlock.hide();
 
         this.appendChildren(this.usersBlock, this.counterBlock);
-
-        this.currentUser = AuthContext.get().getUser();
     }
 
-    private initListeners(): void {
+    private initListeners(contentId: ContentId): void {
         const resizeListener = AppHelper.debounce(this.updateVisibleElements.bind(this), 200);
         ResponsiveManager.onAvailableSizeChanged(this, resizeListener);
 
         this.whenRendered(() => this.updateVisibleElements());
 
-        CollaborationServerEvent.on(this.handeCollaborationEvent.bind(this));
+        const project = ProjectContext.get().getProject().getName();
+        const unsubscribeToCollaborators = subscribeToCollaborators(contentId.toString(), project, (collaborators) => {
+            this.handleCollaboratorsUpdated(collaborators);
+        });
+
+        this.onRemoved(() => {
+            unsubscribeToCollaborators();
+        });
     }
 
     private updateVisibleElements(): void {
@@ -95,20 +98,16 @@ export class CollaborationEl
         this.counterBlock.setTitle(title);
     }
 
-    private handeCollaborationEvent(event: CollaborationServerEvent): void {
-        if (event.getContentId().equals(this.contentId) && event.getProject() === ProjectContext.get().getProject().getName()) {
-            this.handleContentCollaborationEvent(event);
-        }
-    }
-
-    private handleContentCollaborationEvent(event: CollaborationServerEvent): void {
-        this.collaborators = event.getCollaborators();
+    private handleCollaboratorsUpdated(collaborators: Set<string>): void {
+        const collaboratorsKeys = Array.from(collaborators).map(c => PrincipalKey.fromString(c));
+        this.collaborators = collaboratorsKeys;
 
         this.addMissingCollaborators();
         this.removeStaleCollaborators();
 
-        this.toggleClass('single', event.getCollaborators().length === 1);
-        this.toggleClass('multiple', event.getCollaborators().length > 1);
+        const isSingle = collaboratorsKeys.length < 2;
+        this.toggleClass('single', isSingle);
+        this.toggleClass('multiple', !isSingle);
     }
 
     private addMissingCollaborators(): void {
