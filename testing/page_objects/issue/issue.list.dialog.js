@@ -54,6 +54,7 @@ class IssuesListDialog extends Page {
     async waitForDialogOpened() {
         try {
             await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
+            await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_issue_list_dlg');
             throw new Error(`Issues list dialog is not loaded screenshot: ${screenshot} ` + err);
@@ -156,6 +157,7 @@ class IssuesListDialog extends Page {
     //clicks on dropdown handle and selects option in the Type Filter
     async selectTypeFilterOption(option) {
         try {
+            await this.waitForElementDisplayed(this.typeFilterDropDownHandle, appConst.mediumTimeout);
             await this.waitForElementEnabled(this.typeFilterDropDownHandle, appConst.mediumTimeout);
             await this.clickOnElement(this.typeFilterDropDownHandle);
             let optionXpath = xpath.typeFilterOption(option);
@@ -163,8 +165,8 @@ class IssuesListDialog extends Page {
             await this.clickOnElement(optionXpath);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("issue_list"));
-            throw new Error("Issue list dialog  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_issue_list');
+            throw new Error(`Issue list dialog screenshot:${screenshot} ` + err);
         }
     }
 
