@@ -10,6 +10,7 @@ import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {SelectionMode} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 
 export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
@@ -18,6 +19,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
     protected browseToolbar: ResponsiveToolbar;
     protected contextSplitPanel: ContextSplitPanel;
+    protected contextSplitPanelToggler: NonMobileContextPanelToggleButton;
     protected contextView: ContextView;
 
     protected initListeners(): void {
@@ -54,12 +56,14 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
     protected createBrowseWithItemsPanel(): ContextSplitPanel {
         this.contextView = this.createContextView();
+        this.contextSplitPanelToggler = new NonMobileContextPanelToggleButton();
         const leftPanel: BrowseItemPanel = this.getBrowseItemPanel();
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
 
         this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel)
             .setSecondPanelSize(SplitPanelSize.PERCENTS(25))
             .setContextView(this.contextView)
+            .setToggleButton(this.contextSplitPanelToggler)
             .build();
 
         return this.contextSplitPanel;
@@ -98,6 +102,10 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             this.browseToolbar.disableMobileMode();
             this.browseToolbar.updateFoldButtonLabel();
         }
+    }
+
+    getContextSplitPanelToggler(): NonMobileContextPanelToggleButton {
+        return this.contextSplitPanelToggler;
     }
 
     protected abstract updateContextView(item: ViewItem): Q.Promise<void>;

@@ -149,6 +149,7 @@ import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {AiContentDataHelper} from '../ai/AiContentDataHelper';
 import {AiToolType} from '@enonic/lib-admin-ui/ai/tool/AiToolType';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
+import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -652,19 +653,26 @@ export class ContentWizardPanel
         this.contextView = new ContextView();
         this.contextView.setItem(this.getContent());
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
+        const contextToggleButton = new NonMobileContextPanelToggleButton();
 
         this.contextSplitPanel = ContentWizardContextSplitPanel.create(leftPanel, rightPanel)
             .setSecondPanelSize(SplitPanelSize.PERCENTS(this.livePanel ? 16 : 38))
             .setContextView(this.contextView)
             .setLiveFormPanel(this.getLivePanel())
             .setWizardFormPanel(this.formPanel)
+            .setToggleButton(contextToggleButton)
             .build();
+
         this.contextSplitPanel.hideSecondPanel();
+        this.mainToolbar.addElement(contextToggleButton);
 
         if (this.livePanel) {
             this.splitPanel.onPanelResized(() => this.updateStickyToolbar());
             this.contextView.appendContextWindow(this.getLivePanel().getContextWindow());
             this.livePanel.setContextPanelState(this.contextSplitPanel.getState());
+            this.livePanel.setToggleContextPanelHandler(() => {
+               this.contextSplitPanel.toggleContextPanel();
+            });
 
             this.contextSplitPanel.onModeChanged((mode: ContextPanelMode) => {
                 if (!this.isMinimized()) {

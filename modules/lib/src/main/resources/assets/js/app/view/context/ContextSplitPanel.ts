@@ -9,10 +9,10 @@ import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRan
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {InspectEvent} from '../../event/InspectEvent';
 import {ContextPanelState} from './ContextPanelState';
-import {ContextPanelStateEvent} from './ContextPanelStateEvent';
 import {ContextView} from './ContextView';
 import {DockedContextPanel} from './DockedContextPanel';
-import {ToggleContextPanelEvent} from './ToggleContextPanelEvent';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export enum ContextPanelMode {
     DOCKED = 'docked',
@@ -29,6 +29,7 @@ export class ContextSplitPanel
     private debouncedResizeHandler: () => void = AppHelper.debounce(this.doHandleResizeEvent, 650, false);
     private mobileMode: boolean;
     private contextView: ContextView;
+    private toggleButton?: Button;
     private dockedContextPanel: DockedContextPanel;
     private mobileModeChangedListeners: ((isMobile: boolean) => void)[] = [];
     private modeChangedListeners: ((mode: ContextPanelMode) => void)[] = [];
@@ -42,6 +43,7 @@ export class ContextSplitPanel
         this.addClass(`context-split-panel ${this.contextPanelState}`);
 
         this.contextView = splitPanelBuilder.contextView;
+        this.toggleButton = splitPanelBuilder.toggleButton;
         this.dockedContextPanel = splitPanelBuilder.getSecondPanel();
         this.dockedModeSize = splitPanelBuilder.getSecondPanelSize();
         this.floatModeSize = SplitPanelSize.PIXELS(ContextSplitPanel.CONTEXT_MIN_WIDTH + this.getSplitterThickness() / 2);
@@ -58,17 +60,8 @@ export class ContextSplitPanel
             }
         });
 
-        ToggleContextPanelEvent.on((event) => {
-            const canToggle = this.getState() !== event.getState();
-            if (!canToggle) {
-                return;
-            }
-
-            if (this.isExpanded()) {
-                this.hideContextPanel();
-            } else {
-                this.showContextPanel();
-            }
+        this.toggleButton?.onClicked(() => {
+            this.toggleContextPanel();
         });
 
         this.whenRendered(() => {
@@ -115,9 +108,18 @@ export class ContextSplitPanel
         return this.getActiveWidthPxOfSecondPanel() < ContextSplitPanel.CONTEXT_MIN_WIDTH;
     }
 
+    toggleContextPanel(): void {
+        if (this.isExpanded()) {
+            this.hideContextPanel();
+        } else {
+            this.showContextPanel();
+        }
+    }
+
     hideContextPanel(): void {
         this.foldSecondPanel();
         this.setState(ContextPanelState.COLLAPSED);
+        this.resetToggleButtonActiveState();
     }
 
     showContextPanel(): void {
@@ -129,6 +131,13 @@ export class ContextSplitPanel
 
         this.showSecondPanel();
         this.setState(ContextPanelState.EXPANDED);
+        this.resetToggleButtonActiveState();
+    }
+
+    private resetToggleButtonActiveState(): void {
+        const isExpanded: boolean = this.contextPanelState !== ContextPanelState.COLLAPSED;
+        this.toggleButton?.toggleClass('expanded', isExpanded);
+        this.toggleButton?.setTitle(isExpanded ? i18n('tooltip.contextPanel.hide') : i18n('tooltip.contextPanel.show'), false);
     }
 
     private doHandleResizeEvent(): void {
@@ -211,7 +220,7 @@ export class ContextSplitPanel
             this.removeClass(this.contextPanelState);
             this.contextPanelState = state;
             this.addClass(state);
-            new ContextPanelStateEvent(state).fire();
+            this.resetToggleButtonActiveState();
             this.notifyStateChanged();
         }
     }
@@ -278,6 +287,8 @@ export class ContextSplitPanelBuilder
 
     contextView: ContextView;
 
+    toggleButton?: Button;
+
     constructor(firstPanel: Panel, secondPanel: DockedContextPanel) {
         super(firstPanel, secondPanel);
 
@@ -287,17 +298,22 @@ export class ContextSplitPanelBuilder
         this.setSecondPanelShouldSlideRight(true);
     }
 
-    setContextView(value: ContextView): ContextSplitPanelBuilder {
+    setToggleButton(value: Button): this {
+        this.toggleButton = value;
+        return this;
+    }
+
+    setContextView(value: ContextView): this {
         this.contextView = value;
         return this;
     }
 
-    setFirstPanelMinSize(size: SplitPanelSize): ContextSplitPanelBuilder {
-        return super.setFirstPanelMinSize(size) as ContextSplitPanelBuilder;
+    setFirstPanelMinSize(size: SplitPanelSize): this {
+        return super.setFirstPanelMinSize(size) as this;
     }
 
-    setSecondPanelSize(size: SplitPanelSize): ContextSplitPanelBuilder {
-        return super.setSecondPanelSize(size) as ContextSplitPanelBuilder;
+    setSecondPanelSize(size: SplitPanelSize): this {
+        return super.setSecondPanelSize(size) as this;
     }
 
     getSecondPanel(): DockedContextPanel {
