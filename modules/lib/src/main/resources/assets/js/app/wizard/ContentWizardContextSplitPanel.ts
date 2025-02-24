@@ -67,27 +67,14 @@ export class ContentWizardContextSplitPanelBuilder
         super(firstPanel, secondPanel);
     }
 
-    setContextView(value: ContextView): ContentWizardContextSplitPanelBuilder {
-        this.contextView = value;
-        return this;
-    }
-
-    setLiveFormPanel(value: LiveFormPanel): ContentWizardContextSplitPanelBuilder {
+    setLiveFormPanel(value: LiveFormPanel): this {
         this.liveFormPanel = value;
         return this;
     }
 
-    setWizardFormPanel(value: Panel): ContentWizardContextSplitPanelBuilder {
+    setWizardFormPanel(value: Panel): this {
         this.wizardFormPanel = value;
         return this;
-    }
-
-    setFirstPanelMinSize(size: SplitPanelSize): ContentWizardContextSplitPanelBuilder {
-        return super.setFirstPanelMinSize(size) as ContentWizardContextSplitPanelBuilder;
-    }
-
-    setSecondPanelSize(size: SplitPanelSize): ContentWizardContextSplitPanelBuilder {
-        return super.setSecondPanelSize(size) as ContentWizardContextSplitPanelBuilder;
     }
 
     build(): ContentWizardContextSplitPanel {

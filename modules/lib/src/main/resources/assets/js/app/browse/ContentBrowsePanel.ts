@@ -61,7 +61,6 @@ export class ContentBrowsePanel
     private debouncedFilterRefresh: () => void;
     private debouncedBrowseActionsAndPreviewRefreshOnDemand: () => void;
     private browseActionsAndPreviewUpdateRequired: boolean = false;
-    private contextPanelToggler: NonMobileContextPanelToggleButton;
 
     private state: State;
 
@@ -93,20 +92,19 @@ export class ContentBrowsePanel
             }
         }, 300);
 
-        this.contextPanelToggler = new NonMobileContextPanelToggleButton();
         this.getBrowseActions().updateActionsEnabledState([]);
     }
 
     private handleProjectNotSet() {
         this.getBrowseActions().setState(State.DISABLED);
         this.toggleFilterPanelAction.setEnabled(false);
-        this.contextPanelToggler.setEnabled(false);
+        this.contextSplitPanelToggler.setEnabled(false);
         this.setContentTreeState(State.DISABLED);
 
         const projectSetHandler = () => {
             this.getBrowseActions().setState(State.ENABLED);
             this.toggleFilterPanelAction.setEnabled(true);
-            this.contextPanelToggler.setEnabled(true);
+            this.contextSplitPanelToggler.setEnabled(true);
             this.setContentTreeState(State.ENABLED);
             Router.get().setHash(UrlAction.BROWSE);
             ProjectContext.get().unProjectChanged(projectSetHandler);
@@ -688,7 +686,7 @@ export class ContentBrowsePanel
         });
 
         this.browseToolbar.addContainer(contentActionMenuButton, contentActionMenuButton.getChildControls());
-        this.browseToolbar.addElement(this.contextPanelToggler);
+        this.browseToolbar.addElement(this.contextSplitPanelToggler);
 
         browseActions.onBeforeActionsStashed(() => {
             contentActionMenuButton.setRefreshDisabled(true);
