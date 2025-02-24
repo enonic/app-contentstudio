@@ -73,7 +73,6 @@ import {UriHelper} from '../../rendering/UriHelper';
 import {GetComponentDescriptorsRequest} from '../../resource/GetComponentDescriptorsRequest';
 import {PageHelper} from '../../util/PageHelper';
 import {ContextPanelState} from '../../view/context/ContextPanelState';
-import {ToggleContextPanelEvent} from '../../view/context/ToggleContextPanelEvent';
 import {PageEventsManager} from '../PageEventsManager';
 import {PageNavigationEvent} from '../PageNavigationEvent';
 import {PageNavigationEventData, PageNavigationEventSource} from '../PageNavigationEventData';
@@ -177,6 +176,8 @@ export class LiveFormPanel
     private lastInspectedItemPath: ComponentPath;
 
     private saveAction: Action;
+
+    private contextPanelToggleHandler?: () => void;
 
     private getDescriptorsPromise: Q.Promise<Descriptor[]>;
 
@@ -792,7 +793,7 @@ export class LiveFormPanel
             this.isTextModeOn = value;
 
             if (value && this.isContextPanelExpanded() && !this.isContextPanelDocked()) {
-                new ToggleContextPanelEvent().fire();
+                this.contextPanelToggleHandler?.();
             }
         });
     }
@@ -923,7 +924,7 @@ export class LiveFormPanel
         const waitForContextPanel = !isPanelToHide && this.isContextPanelCollapsed();
 
         if (isPanelToHide && this.isContextPanelExpanded() && !this.isContextPanelDocked()) {
-            new ToggleContextPanelEvent().fire();
+            this.contextPanelToggleHandler?.();
         }
 
         if (waitForContextPanel) {
@@ -1130,5 +1131,9 @@ export class LiveFormPanel
 
     private updateButtonsVisibility(descriptor?: Descriptor): void {
         this.inspectionsPanel.setButtonContainerVisible(descriptor?.getConfig()?.getFormItems().length > 0);
+    }
+
+    setToggleContextPanelHandler(handler: () => void) {
+        this.contextPanelToggleHandler = handler;
     }
 }

@@ -38,8 +38,6 @@ export class ContentWizardToolbar
 
     private cycleViewModeButton: ContentActionCycleButton;
 
-    private contextPanelToggler: NonMobileContextPanelToggleButton;
-
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
 
     private collaborationBlock?: CollaborationEl;
@@ -232,10 +230,8 @@ export class ContentWizardToolbar
     private addTogglerButtons() {
         const actions: ContentWizardActions = this.config.actions;
         this.cycleViewModeButton = new ContentActionCycleButton([actions.getShowLiveEditAction(), actions.getShowFormAction()]);
-        this.contextPanelToggler = new NonMobileContextPanelToggleButton();
 
         this.addElement(this.cycleViewModeButton);
-        this.addElement(this.contextPanelToggler);
     }
 
     private addStateIcon(): void {
@@ -260,10 +256,6 @@ export class ContentWizardToolbar
 
     getCycleViewModeButton(): ContentActionCycleButton {
         return this.cycleViewModeButton;
-    }
-
-    getContextPanelToggler(): NonMobileContextPanelToggleButton {
-        return this.contextPanelToggler;
     }
 
     getContentWizardToolbarPublishControls(): ContentWizardToolbarPublishControls {
