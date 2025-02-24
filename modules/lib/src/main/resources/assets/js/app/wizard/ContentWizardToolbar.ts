@@ -24,6 +24,7 @@ import {CollaborationEl} from './CollaborationEl';
 import {ContentActionCycleButton} from './ContentActionCycleButton';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 
 export interface ContentWizardToolbarConfig extends ToolbarConfig {
     actions: ContentWizardActions;
@@ -277,6 +278,7 @@ export class ContentWizardToolbar
     private addContentOperatorIntoCollaborationBlock(): void {
         if (this.collaborationBlock && this.aiContentOperatorButtonContainer) {
             this.collaborationBlock.prependChild(this.aiContentOperatorButtonContainer);
+            ResponsiveManager.fireResizeEvent();
         }
     }
 
