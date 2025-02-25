@@ -15,15 +15,17 @@ exports.get = function (req) {
         return widgetLib.errorResponse(400);
     }
 
-    const isPage = hasPage(params);
+    const isPageOrFragment = hasPageOrFragment(params);
     const hasControllers = hasAvailableControllers(params);
     const appsMissing = hasMissingApps(params);
 
-    if (!isPage && hasControllers) {
+    log.info('hasPage:\n' + isPageOrFragment + '\nhasControllers:\n' + hasControllers + '\nappsMissing:\n' + appsMissing);
+
+    if (!isPageOrFragment && hasControllers) {
         // Return hasControllers in non-auto mode
         return widgetLib.errorResponse(418, {
             hasControllers: !params.auto && hasControllers,
-            hasPage: isPage,
+            hasPage: isPageOrFragment
         });
     }
 
@@ -32,7 +34,7 @@ exports.get = function (req) {
         return widgetLib.errorResponse(418, {
             messages: [widgetLib.i18n('text.addapplications')],
             hasControllers: hasControllers,
-            hasPage: isPage,
+            hasPage: isPageOrFragment
         });
     }
 
@@ -40,7 +42,7 @@ exports.get = function (req) {
         return widgetLib.errorResponse(418, {
             messages: [widgetLib.i18n('field.preview.missing.description')],
             hasControllers: !params.auto && hasControllers,
-            hasPage: isPage,
+            hasPage: isPageOrFragment
         });
     }
 
@@ -58,7 +60,7 @@ exports.get = function (req) {
 
         return widgetLib.redirectResponse(url, {
             hasControllers: hasControllers,
-            hasPage: isPage,
+            hasPage: isPageOrFragment
         });
     } catch (e) {
         log.error(`Site [${req.method}] error: ${e.message}`);
@@ -102,11 +104,17 @@ function hasAvailableControllers(params) {
     });
 }
 
-function hasPage(params) {
+function hasPageOrFragment(params) {
     const content = widgetLib.fetchContent(params.repository, params.branch, params.id || params.path, params.archive);
 
-    return content && content.page && Object.keys(content.page).length > 0;
+    if (!content) {
+        return false;
+    }
+    const pageOrFragment = content.page || content.fragment;
+
+    return pageOrFragment && Object.keys(pageOrFragment).length > 0;
 }
+
 
 function hasMissingApps(params) {
     const appKeys = getSiteAppKeys(params)
