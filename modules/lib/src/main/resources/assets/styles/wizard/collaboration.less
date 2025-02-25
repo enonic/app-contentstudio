@@ -2,14 +2,13 @@
 
 @border-width: 1px;
 
-@space-between: 2px;
+@space-between: 5px;
 
 @min-width: @unit-size + @border-width;
 
 .content-wizard-toolbar-collaboration {
   display: flex;
   align-items: center;
-  overflow: hidden;
   gap: @space-between;
 
   &.single {
@@ -17,15 +16,20 @@
   }
 
   &.multiple {
-    min-width: @min-width * 2;
+    min-width: @min-width * 2 + @space-between;
+  }
+
+  > * {
+    position: relative;
+    display: flex;
+    min-width: @min-width;
+
+    @media screen and (max-width: 720px) {
+      zoom: 0.9;
+    }
   }
 
   .users {
-    position: relative;
-    display: flex;
-    overflow: hidden;
-    min-width: @min-width;
-
     .principal-viewer-compact {
       margin-right: @space-between;
       position: relative;
