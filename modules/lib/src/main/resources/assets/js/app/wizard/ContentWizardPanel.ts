@@ -97,7 +97,6 @@ import {ApplicationAddedEvent} from '../site/ApplicationAddedEvent';
 import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
 import {SiteModel} from '../site/SiteModel';
 import {UrlAction} from '../UrlAction';
-import {ContentDiffHelper} from '../util/ContentDiffHelper';
 import {ContentHelper} from '../util/ContentHelper';
 import {PageHelper} from '../util/PageHelper';
 import {UrlHelper} from '../util/UrlHelper';
@@ -850,15 +849,15 @@ export class ContentWizardPanel
 
         // this update was triggered by our changes, so reset dirty state after save
         if (!viewedContent.equals(newPersistedContent)) {
-            this.doUpdateModifiedPersistedContent(viewedContent, newPersistedContent);
+            this.doUpdatePersistedContent(viewedContent, newPersistedContent);
         }
 
         return Q.resolve();
     }
 
-    private doUpdateModifiedPersistedContent(viewedContent: Content, newPersistedContent: Content): void {
+    private doUpdatePersistedContent(viewedContent: Content, newPersistedContent: Content): void {
         if (ContentWizardPanel.debug) {
-            console.debug('ContentWizardPanel.doUpdateModifiedPersistedContent');
+            console.debug('ContentWizardPanel.doUpdatePersistedContent');
         }
 
         this.setPersistedItem(newPersistedContent);
@@ -867,12 +866,7 @@ export class ContentWizardPanel
         this.initFormContext(contentClone);
         this.updateWizard(contentClone, true);
 
-        if (this.areContentsDiffer(viewedContent, newPersistedContent)) {
-
-            this.refreshLivePanel(contentClone)
-                .catch(DefaultErrorHandler.handle);
-
-        }
+        this.debouncedEditorReload();
 
         if (!ObjectHelper.equals(PageState.getState(), contentClone.getPage())) {
             this.loadAndSetPageState(contentClone.getPage()).then(() => {
@@ -967,7 +961,7 @@ export class ContentWizardPanel
 
             return Q.Promise<Content>((resolve, reject) => {
 
-                if (this.areContentsDiffer(previousPersistedItem, content)) {
+                if (!content.equals(previousPersistedItem)) {
 
                     // needed before loadPage in case content was moved
                     // because content path is used to load the page
@@ -1957,6 +1951,7 @@ export class ContentWizardPanel
                 return !app || app.getState() === Application.STATE_STOPPED;
             });
 
+            //TODO: check if this is needed
             this.formsContexts.forEach((context: ContentFormContext) => context.setStoppedApplications(stoppedApps));
 
             return missingOrStoppedAppKeys;
@@ -2761,15 +2756,6 @@ export class ContentWizardPanel
 
     protected createWizardStepsPanel(): WizardStepsPanel {
         return new ContentWizardStepsPanel(this.stepNavigator, this.formPanel);
-    }
-
-    private areContentsDiffer(oldContent: Content, newContent: Content): boolean {
-        if (!oldContent) {
-            return true;
-        }
-        const diff = ContentDiffHelper.diff(oldContent, newContent);
-
-        return !!diff.data || !!diff.pageObj || !!diff.extraData || !!diff.path || !!diff.displayName || !!diff.name;
     }
 
     private getApplicationsConfigs(): ApplicationConfig[] {
