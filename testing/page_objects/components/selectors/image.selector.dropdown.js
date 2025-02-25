@@ -77,14 +77,27 @@ class ImageSelectorDropdown extends BaseDropdown {
         return await this.getTextInElements(statusEl);
     }
 
+    async getImagesTitleAttribute(elements) {
+        let titles = await elements.map(async (el) => await el.getAttribute("title"));
+        await Promise.all(titles);
+        return titles;
+    }
+
+    async scrollDownInDropdownList(parentXpath, deltaY) {
+        const elementForScroll = await this.findElement(parentXpath + XPATH.imageContentListBoxUL);
+        await this.performScrollWithWheelActions(elementForScroll, deltaY);
+        await this.pause(1000);
+    }
+
     async getOptionsDisplayNameInFlatMode(parentXpath) {
         if (parentXpath === undefined) {
             parentXpath = '';
         }
-        let locator = parentXpath + XPATH.imageContentListBoxUL + lib.DROPDOWN_SELECTOR.IMG_DROPDOWN_OPT_DISPLAY_NAME_FLAT_MODE;
+        let locator = parentXpath + XPATH.imageContentListBoxUL +
+                      "//div[contains(@id,'ImageSelectorViewer') and contains(@class,'names-and-icon-viewer')]";
         await this.waitForElementDisplayed(parentXpath + XPATH.imageContentListBoxUL, appConst.mediumTimeout);
-        await this.pause(500);
-        return await this.getTextInElements(locator);
+        let elements = await this.findElements(locator);
+        return await this.getImagesTitleAttribute(elements);
     }
 
     async getOptionsDisplayNameInTreeMode(parentXpath) {
