@@ -387,14 +387,19 @@
     line-height: 40px;
     overflow: hidden;
     cursor: pointer;
-    color: @admin-font-gray2;
 
-    &:hover {
-      color: @admin-bg-dark-gray;
+    &::before {
+      color: @admin-font-gray3;
+    }
+
+    &:hover::before {
+      color: @admin-black;
     }
   }
 
   .content-wizard-context-split-panel {
+    z-index: 0;
+
     .splitter, .context-panel {
       z-index: @z-index-toolbar-element + 1;
     }
@@ -513,13 +518,10 @@
     }
 
     .content-wizard-toolbar {
-      .content-status-wrapper {
-        display: flex;
-      }
-
       .toolbar-publish-controls {
         .content-wizard-toolbar-publish-button {
           border-left: 1px solid @admin-bg-light-gray;
+          border-right: 1px solid @admin-bg-light-gray;
         }
       }
     }

@@ -34,23 +34,32 @@
 
         .selectable-listbox {
           .item-view-wrapper {
-            padding: 6px 4px;
+            padding: 3px;
+
+            .item-view {
+              display: flex;
+
+              &.divider {
+                border-top: 1px solid;
+                border-color: @admin-dark-gray-border;
+              }
+            }
 
             &.selected {
-              background-color: @admin-bg-light-gray;
+              .item-view {
+                div.font-icon-default:before {
+                  color: @admin-white;
+                }
+
+                &.divider {
+                  border-color: @admin-white;
+                }
+              }
             }
 
             &.readonly {
               opacity: 0.5;
               pointer-events: none;
-            }
-
-            .viewer {
-              &.divider {
-                border-top: 1px solid @admin-dark-gray-border;
-                padding-top: 10px;
-                margin-top: -6px;
-              }
             }
           }
         }
