@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
-import com.enonic.xp.issue.FindIssuesParams;
 import com.enonic.xp.issue.IssueStatus;
 
 public class FindIssuesJson

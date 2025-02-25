@@ -21,6 +21,8 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.data.PropertyTree;
+import com.enonic.xp.form.PropertyTreeMarshallerService;
+import com.enonic.xp.json.ObjectMapperHelper;
 import com.enonic.xp.query.expr.DslExpr;
 import com.enonic.xp.query.expr.DslOrderExpr;
 import com.enonic.xp.schema.content.ContentTypeName;
@@ -37,10 +39,20 @@ public class ContentQueryJsonToContentQueryConverterTest
 
     private ContentService contentService;
 
+    private PropertyTreeMarshallerService propertyTreeMarshallerService;
+
     @BeforeEach
     public void setUp()
     {
         contentService = Mockito.mock( ContentService.class );
+        propertyTreeMarshallerService = Mockito.mock( PropertyTreeMarshallerService.class );
+        // when propertyTreeMarshallerService.marshal is called, return new PropertyTree() initialized based on argument
+
+        Mockito.when( propertyTreeMarshallerService.marshal( Mockito.any() ) )
+            .thenAnswer(
+                invocation -> {
+                    return JsonToPropertyTreeTranslator.translate( ObjectMapperHelper.create().valueToTree( invocation.getArgument( 0 ) ) );
+                } ); // in XP8 PropertyTree can be constructed from Map directly. No need to use PropertyTreeMarshallerService
     }
 
     @Test
@@ -53,8 +65,11 @@ public class ContentQueryJsonToContentQueryConverterTest
         final ContentQueryJson contentQueryJson =
             new ContentQueryJson( "", 0, 100, contentTypeNames, null, "summary", null, null, new HashMap<>(), new ArrayList<>(),
                                   ContentConstants.BRANCH_DRAFT.getValue() );
-        final ContentQueryJsonToContentQueryConverter processor =
-            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
+        final ContentQueryJsonToContentQueryConverter processor = ContentQueryJsonToContentQueryConverter.create()
+            .contentQueryJson( contentQueryJson )
+            .contentService( contentService )
+            .propertyTreeMarshallerService( propertyTreeMarshallerService )
+            .build();
 
         final ContentQuery contentQuery = processor.createQuery();
 
@@ -85,8 +100,11 @@ public class ContentQueryJsonToContentQueryConverterTest
             new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null, new HashMap<>(),
                                   new ArrayList<>(), ContentConstants.BRANCH_DRAFT.getValue() );
 
-        ContentQueryJsonToContentQueryConverter processor =
-            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
+        ContentQueryJsonToContentQueryConverter processor = ContentQueryJsonToContentQueryConverter.create()
+            .contentQueryJson( contentQueryJson )
+            .contentService( contentService )
+            .propertyTreeMarshallerService( propertyTreeMarshallerService )
+            .build();
 
         final ContentQuery contentQuery = processor.createQuery();
 
@@ -109,8 +127,11 @@ public class ContentQueryJsonToContentQueryConverterTest
         Mockito.when( contentService.getById( content.getId() ) ).thenReturn( content );
         Mockito.when( contentService.getByIds( new GetContentByIdsParams( ContentIds.empty() ) ) ).thenReturn( Contents.empty() );
 
-        ContentQueryJsonToContentQueryConverter processor =
-            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
+        ContentQueryJsonToContentQueryConverter processor = ContentQueryJsonToContentQueryConverter.create()
+            .contentQueryJson( contentQueryJson )
+            .contentService( contentService )
+            .propertyTreeMarshallerService( propertyTreeMarshallerService )
+            .build();
 
         final ContentQuery contentQuery = processor.createQuery();
 
@@ -137,7 +158,11 @@ public class ContentQueryJsonToContentQueryConverterTest
 
     private ContentQueryJsonToContentQueryConverter getProcessor( final ContentQueryJson json )
     {
-        return ContentQueryJsonToContentQueryConverter.create().contentQueryJson( json ).contentService( contentService ).build();
+        return ContentQueryJsonToContentQueryConverter.create()
+            .contentQueryJson( json )
+            .contentService( contentService )
+            .propertyTreeMarshallerService( propertyTreeMarshallerService )
+            .build();
     }
 
     @Test
@@ -151,8 +176,11 @@ public class ContentQueryJsonToContentQueryConverterTest
                 "ORDER BY _modifiedTime DESC", 0, 100, contentTypeNames, null, "summary", null, null, null, null,
             ContentConstants.BRANCH_DRAFT.getValue() );
 
-        ContentQueryJsonToContentQueryConverter processor =
-            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
+        ContentQueryJsonToContentQueryConverter processor = ContentQueryJsonToContentQueryConverter.create()
+            .contentQueryJson( contentQueryJson )
+            .contentService( contentService )
+            .propertyTreeMarshallerService( propertyTreeMarshallerService )
+            .build();
 
         final ContentQuery contentQuery = processor.createQuery();
 
@@ -179,8 +207,11 @@ public class ContentQueryJsonToContentQueryConverterTest
             new ContentQueryJson( null, 0, 100, new ArrayList<>(), null, "summary", null, null, dslQueryMap, sortQueryList,
                                   ContentConstants.BRANCH_DRAFT.getValue() );
 
-        ContentQueryJsonToContentQueryConverter processor =
-            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
+        ContentQueryJsonToContentQueryConverter processor = ContentQueryJsonToContentQueryConverter.create()
+            .contentQueryJson( contentQueryJson )
+            .contentService( contentService )
+            .propertyTreeMarshallerService( propertyTreeMarshallerService )
+            .build();
 
         final ContentQuery contentQuery = processor.createQuery();
 
@@ -199,8 +230,11 @@ public class ContentQueryJsonToContentQueryConverterTest
             new ContentQueryJson( null, 0, 100, new ArrayList<>(), null, "summary", null, null, dslQueryMap, null,
                                   ContentConstants.BRANCH_DRAFT.getValue() );
 
-        ContentQueryJsonToContentQueryConverter processor =
-            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
+        ContentQueryJsonToContentQueryConverter processor = ContentQueryJsonToContentQueryConverter.create()
+            .contentQueryJson( contentQueryJson )
+            .contentService( contentService )
+            .propertyTreeMarshallerService( propertyTreeMarshallerService )
+            .build();
 
         final ContentQuery contentQuery = processor.createQuery();
 

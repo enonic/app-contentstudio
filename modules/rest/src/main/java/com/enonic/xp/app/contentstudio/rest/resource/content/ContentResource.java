@@ -174,6 +174,7 @@ import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.extractor.BinaryExtractor;
 import com.enonic.xp.extractor.ExtractedData;
+import com.enonic.xp.form.PropertyTreeMarshallerService;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.jaxrs.JaxRsComponent;
@@ -245,6 +246,8 @@ public final class ContentResource
     private static final Logger LOG = LoggerFactory.getLogger( ContentResource.class );
 
     private ContentService contentService;
+
+    private PropertyTreeMarshallerService propertyTreeMarshallerService;
 
     private ContentPrincipalsResolver principalsResolver;
 
@@ -1279,6 +1282,7 @@ public final class ContentResource
         final ContentQueryJsonToContentQueryConverter selectorQueryProcessor = ContentQueryJsonToContentQueryConverter.create()
             .contentQueryJson( contentQueryJson )
             .contentService( this.contentService )
+            .propertyTreeMarshallerService( this.propertyTreeMarshallerService )
             .build();
 
         final ContentQuery contentQuery = selectorQueryProcessor.createQuery();
