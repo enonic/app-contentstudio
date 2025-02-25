@@ -28,7 +28,7 @@ class BaseComponentInspectionPanel extends Page {
             await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_button');
-            throw new Error('Inspection Panel - Apply button is not enabled , screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Inspection Panel - Apply button is not enabled , screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -38,7 +38,7 @@ class BaseComponentInspectionPanel extends Page {
             await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_button');
-            throw new Error('Inspection Panel - Apply button should be disabled , screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Inspection Panel - Apply button should be disabled , screenshot: ${screenshot} ` + err);
         }
     }
 }

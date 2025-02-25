@@ -28,6 +28,35 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
             await studioUtils.doAddSite(SITE);
         });
 
+    // Verifies No lazy load in content selectors in modal dialogs #8346
+    // https://github.com/enonic/app-contentstudio/issues/8346
+    it(`GIVEN Insert Image modal dialog is opened AND image selector is expanded WHEN the options have scrolled down THEN number of option-images should be increased`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertImageDialog = new InsertImageDialog();
+            // 1. Open new wizard with html-area and open Insert Image dialog:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await contentWizard.typeDisplayName(HTML_AREA_CONTENT_NAME);
+            // 2. Open Insert Image modal dialog:
+            await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
+            await insertImageDialog.waitForDialogVisible();
+            // 3. Expand the image-selector:
+            await insertImageDialog.clickOnDropdownHandle();
+            // 4. Get image-options from the dropdown-list
+            let beforeScrolling = await insertImageDialog.getImagesNameInFlatMode();
+            let set = new Set(beforeScrolling);
+            // 5. Scroll down the options list:
+            await insertImageDialog.scrollDownInOptionsList(700);
+            await studioUtils.saveScreenshot('image_dialog_scroll_down');
+            // 6. Get image-options:
+            let afterScrolling = await insertImageDialog.getImagesNameInFlatMode();
+            afterScrolling.forEach(name => set.add(name));
+            // 7. Verify that the number of options is increased after scrolling the list
+            assert.ok(set.size > beforeScrolling.length, 'Number of option-images should be increased after scrolling');
+            assert.equal(beforeScrolling.length, 15, "15 items should be displayed in initial list");
+        });
+
     // Verify issue: 500 error in image service when using filters XP#9497
     it(`GIVEN Insert Image modal dialog is opened WHEN 'Avatar' option with filter has been selected THEN modal should be closed`,
         async () => {
@@ -35,7 +64,7 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             // 1. Open new wizard with html-area and open Insert Image dialog:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(HTML_AREA_CONTENT_NAME);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
