@@ -47,6 +47,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             // 1. Open new site-wizard, select an application and controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
+            await contentWizardPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
             // 2. Click on minimize-toggler  expand Live Edit and open 'Page Component view' modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();

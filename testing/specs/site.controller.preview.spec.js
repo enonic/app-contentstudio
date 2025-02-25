@@ -60,6 +60,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             let pageInspectionPanel = new PageInspectionPanel();
             // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.waitForPreviewButtonNotDisplayed();
 
             // 2. Select a controller:
@@ -124,6 +125,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             let contentWizard = new ContentWizard();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Select a controller:

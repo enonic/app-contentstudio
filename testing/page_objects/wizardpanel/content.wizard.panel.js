@@ -30,6 +30,7 @@ const XPATH = {
     displayNameInput: "//input[@name='displayName']",
     pathInput: "//input[@name='name']",
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
+    contentItemPreviewToolbar: `//div[contains(@id,'ContentItemPreviewToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
     publishMenuButton: "//div[contains(@id,'ContentWizardPublishMenuButton')]",
     toolbarPublish: "//div[contains(@id,'ContentWizardToolbarPublishControls')]",
@@ -40,7 +41,6 @@ const XPATH = {
     unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish...']",
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
-    liveEditFrame: "//iframe[contains(@class,'live-edit-frame')]",
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
@@ -66,6 +66,10 @@ const XPATH = {
 };
 
 class ContentWizardPanel extends Page {
+
+    get previewWidgetDropdown() {
+        return XPATH.container + XPATH.contentItemPreviewToolbar + lib.PREVIEW_WIDGET.DIV_DROPDOWN;
+    }
 
     get displayNameInput() {
         return XPATH.container + XPATH.displayNameInput;
@@ -445,7 +449,7 @@ class ContentWizardPanel extends Page {
     }
 
     switchToLiveEditFrame() {
-        return this.switchToFrame(XPATH.liveEditFrame);
+        return this.switchToFrame(lib.LIVE_EDIT_FRAME);
     }
 
     waitForLiveEditVisible() {
@@ -1153,6 +1157,24 @@ class ContentWizardPanel extends Page {
     async waitForPublishMenuDropdownRoleAttribute(expectedRole) {
         let locator = XPATH.toolbarPublish + lib.BUTTONS.DROP_DOWN_HANDLE;
         await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
+    }
+
+    async waitForPreviewWidgetDropdownDisplayed() {
+        return await this.waitForElementDisplayed(this.previewWidgetDropdown, appConst.mediumTimeout);
+    }
+
+    async selectOptionInPreviewWidget(optionName) {
+        try {
+            await this.waitForPreviewWidgetDropdownDisplayed();
+            await this.clickOnElement(this.previewWidgetDropdown);
+            let optionSelector = this.previewWidgetDropdown + lib.DROPDOWN_SELECTOR.listItemByDisplayName(optionName);
+            await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
+            await this.clickOnElement(optionSelector);
+            await this.pause(200);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_widget');
+            throw new Error(`Error occurred during selecting option in Preview Widget, screenshot: ${screenshot} ` + err);
+        }
     }
 }
 

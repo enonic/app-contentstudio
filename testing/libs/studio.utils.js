@@ -339,6 +339,7 @@ module.exports = {
         await contentWizardPanel.typeData(site);
         // 2. Type the data and save:
         if (site.data.controller) {
+            await contentWizardPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizardPanel.selectPageDescriptor(site.data.controller);
         }
         if (noControllers) {
