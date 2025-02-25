@@ -25,7 +25,11 @@
       cursor: pointer;
       background-color: transparent;
 
-      &:hover:before {
+      &::before {
+        color: @admin-font-gray3;
+      }
+
+      &:hover::before {
         color: @admin-black;
       }
     }
