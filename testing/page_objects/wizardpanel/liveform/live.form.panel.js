@@ -54,7 +54,7 @@ class LiveFormPanel extends Page {
             return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_layout');
-            throw new Error(`Error after selecting the layout in Live Edit - screenshot: ` + screenshot + ' ' + err);
+            throw new Error(`Error after selecting the layout in Live Edit - screenshot:${screenshot} ` + err);
         }
     }
 
@@ -65,10 +65,10 @@ class LiveFormPanel extends Page {
             let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
             await contentWizard.switchToLiveEditFrame();
             await componentDescriptorsDropdown.selectFilteredComponent(displayName, parentForComboBox);
-            return await this.pause(500);
+            return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_layout');
-            throw new Error('Error when selecting the part in Live Edit, screenshot: ' + screenshot + '  ' + err);
+            throw new Error(`Error when selecting the part in Live Edit, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -90,9 +90,10 @@ class LiveFormPanel extends Page {
             return await this.getTextInDisplayedElements(selector);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_txt_component');
-            throw new Error('Error, Live Edit frame, text component, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Error, Live Edit frame, text component, screenshot: ${screenshot}` + err);
         }
     }
+
     async getTextInTextComponent() {
         try {
             let selector = xpath.sectionTextComponentView + '/p';
