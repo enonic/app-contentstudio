@@ -62,11 +62,11 @@ export class ContentSummaryAndCompareStatusFetcher {
             .setRequestProjectName(projectName)
             .setContentRootPath(this.contentRootPath)
             .sendAndParse()
-            .then((content: Content) => this.fetchByContent(content));
+            .then((content: Content) => this.fetchByContent(content, projectName));
     }
 
-    fetchByContent(content: Content): Q.Promise<ContentSummaryAndCompareStatus> {
-        return this.updateReadonlyAndCompareStatus([content])
+    fetchByContent(content: Content, projectName?: string): Q.Promise<ContentSummaryAndCompareStatus> {
+        return this.updateReadonlyAndCompareStatus([content], projectName)
                     .then((contents: ContentSummaryAndCompareStatus[]) => contents[0]);
     }
 
