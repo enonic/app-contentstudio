@@ -3,7 +3,6 @@ package com.enonic.xp.app.contentstudio.rest.resource.issue.json;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.enonic.xp.issue.FindIssuesParams;
 import com.enonic.xp.issue.IssueStatus;
 
 public final class ListIssuesJson

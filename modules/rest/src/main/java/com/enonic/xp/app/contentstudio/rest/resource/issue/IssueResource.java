@@ -36,6 +36,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.issue.json.CreateIssueComme
 import com.enonic.xp.app.contentstudio.rest.resource.issue.json.CreateIssueJson;
 import com.enonic.xp.app.contentstudio.rest.resource.issue.json.DeleteIssueCommentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.issue.json.FindIssuesJson;
+import com.enonic.xp.app.contentstudio.rest.resource.issue.json.FindIssuesParams;
 import com.enonic.xp.app.contentstudio.rest.resource.issue.json.GetIssuesJson;
 import com.enonic.xp.app.contentstudio.rest.resource.issue.json.ListIssueCommentsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.issue.json.ListIssuesJson;
@@ -51,7 +52,6 @@ import com.enonic.xp.issue.DeleteIssueCommentParams;
 import com.enonic.xp.issue.DeleteIssueCommentResult;
 import com.enonic.xp.issue.EditablePublishRequestIssue;
 import com.enonic.xp.issue.FindIssueCommentsResult;
-import com.enonic.xp.issue.FindIssuesParams;
 import com.enonic.xp.issue.FindIssuesResult;
 import com.enonic.xp.issue.Issue;
 import com.enonic.xp.issue.IssueComment;

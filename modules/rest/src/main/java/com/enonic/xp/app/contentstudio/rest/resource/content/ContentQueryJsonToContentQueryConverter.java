@@ -15,12 +15,12 @@ import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
+import com.enonic.xp.form.PropertyTreeMarshallerService;
 import com.enonic.xp.query.expr.DslExpr;
 import com.enonic.xp.query.expr.DslOrderExpr;
 import com.enonic.xp.query.expr.OrderExpr;
 import com.enonic.xp.query.expr.QueryExpr;
 import com.enonic.xp.query.parser.QueryParser;
-import com.enonic.xp.util.JsonHelper;
 
 public class ContentQueryJsonToContentQueryConverter
 {
@@ -28,10 +28,13 @@ public class ContentQueryJsonToContentQueryConverter
 
     private final ContentService contentService;
 
+    private final PropertyTreeMarshallerService propertyTreeMarshallerService;
+
     private ContentQueryJsonToContentQueryConverter( final Builder builder )
     {
         this.contentQueryJson = builder.contentQueryJson;
         this.contentService = builder.contentService;
+        this.propertyTreeMarshallerService = builder.propertyTreeMarshallerService;
     }
 
     public static Builder create()
@@ -135,7 +138,7 @@ public class ContentQueryJsonToContentQueryConverter
 
     private DslExpr createDslExpr()
     {
-        return DslExpr.from( JsonToPropertyTreeTranslator.translate( JsonHelper.from( contentQueryJson.getQuery() ) ) );
+        return DslExpr.from( propertyTreeMarshallerService.marshal( contentQueryJson.getQuery() ) );
     }
 
     private List<OrderExpr> createDslSortExpr()
@@ -146,7 +149,7 @@ public class ContentQueryJsonToContentQueryConverter
         }
 
         return contentQueryJson.getQuerySort().stream()
-            .map( expr -> DslOrderExpr.from( JsonToPropertyTreeTranslator.translate( JsonHelper.from( expr ) ) ) )
+            .map( expr -> DslOrderExpr.from( propertyTreeMarshallerService.marshal(expr) ) )
             .collect( Collectors.toList() );
     }
 
@@ -155,6 +158,8 @@ public class ContentQueryJsonToContentQueryConverter
         private ContentQueryJson contentQueryJson;
 
         private ContentService contentService;
+
+        private PropertyTreeMarshallerService propertyTreeMarshallerService;
 
         public Builder contentQueryJson( final ContentQueryJson contentQueryJson )
         {
@@ -165,6 +170,12 @@ public class ContentQueryJsonToContentQueryConverter
         public Builder contentService( final ContentService contentService )
         {
             this.contentService = contentService;
+            return this;
+        }
+
+        public Builder propertyTreeMarshallerService( final PropertyTreeMarshallerService propertyTreeMarshallerService )
+        {
+            this.propertyTreeMarshallerService = propertyTreeMarshallerService;
             return this;
         }
 
