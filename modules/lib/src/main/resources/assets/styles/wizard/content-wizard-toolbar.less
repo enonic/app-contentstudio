@@ -5,14 +5,25 @@
   height: @app-header-height;
   border-bottom: 1px solid @admin-bg-light-gray;
 
-  .action-button {
-    padding: 9px 14px;
+  .fold-button,
+  .@{_COMMON_PREFIX}button {
+    span,
+    &::before,
+    &::after {
+      color: @admin-font-gray3;
+    }
+
+    &:not(:disabled):hover {
+      span,
+      &:before,
+      &::after {
+        color: @admin-black;
+      }
+    }
   }
 
-  .fold-button {
-    .@{_COMMON_PREFIX}dropdown {
-      top: @app-header-height;
-    }
+  > .fold-button {
+    margin-right: auto;
   }
 
   .content-status-wrapper {
@@ -96,8 +107,13 @@
   }
 
   .project-info {
-    padding: 3px 5px;
+    flex-shrink: 0;
+    padding: 3px 10px 3px 5px;
     border-right: 1px solid @admin-font-gray;
+
+    &.not-available {
+      opacity: 1;
+    }
 
     &:hover {
       .names-and-icon-view,
@@ -168,7 +184,7 @@
   .content-wizard-toolbar-collaboration {
     order: 2;
     height: 100%;
-    flex-shrink: 1;
+    flex-shrink: 0;
     flex-grow: 1;
     justify-content: flex-end;
     max-width: 120px;
@@ -183,6 +199,12 @@
 
 @media screen and (min-width: 720px) {
   .content-wizard-toolbar {
+
+    .content-status-wrapper {
+      display: flex;
+      justify-content: center;
+    }
+
     .details-toggle {
       display: none !important;
     }
@@ -191,7 +213,7 @@
 
 @media screen and (max-width: 720px) {
   .content-wizard-toolbar {
-    padding-right: 1px;
+    padding: 0;
 
     .details-toggle {
       text-align: center;
@@ -222,15 +244,13 @@
     }
 
     .project-info {
+      min-width: 32px;
       padding-right: 0;
+      padding-left: 10px;
 
       .@{_COMMON_PREFIX}names-view {
         display: none;
       }
-    }
-
-    .content-wizard-toolbar-collaboration {
-      margin-left: auto;
     }
   }
 }
@@ -238,6 +258,8 @@
 @media screen and (max-width: 1200px) {
   .content-wizard-toolbar {
     .content-status-wrapper {
+      padding: 0 50px;
+
       .author {
         display: none;
       }

@@ -4,9 +4,11 @@
   border-top: 1px solid @admin-bg-light-gray;
   border-bottom: 1px solid @admin-bg-light-gray;
 
-  .fold-button {
+  > .fold-button {
+    margin-right: auto;
     height: @toolbar-height - 8px;
     padding: 0 25px 0 14px;
+
     .@{_COMMON_PREFIX}dropdown {
       top: @toolbar-height - 4;
 
@@ -16,15 +18,18 @@
     }
   }
 
-  .@{_COMMON_PREFIX}button:not(:disabled) {
+  .fold-button,
+  .@{_COMMON_PREFIX}button {
     span,
-    &::before {
+    &::before,
+    &::after {
       color: @admin-font-gray3;
     }
 
-    &:hover {
+    &:not(:disabled):hover {
       span,
-      &:before {
+      &:before,
+      &::after {
         color: @admin-black;
       }
     }
