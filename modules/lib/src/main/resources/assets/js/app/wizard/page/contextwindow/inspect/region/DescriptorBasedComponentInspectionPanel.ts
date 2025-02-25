@@ -110,6 +110,9 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     bindSiteModelListeners() {
         const siteModel: SiteModel = this.liveEditModel.getSiteModel();
+        if (!siteModel) {
+            return;
+        }
 
         siteModel.onSiteModelUpdated(this.debouncedDescriptorsReload);
         siteModel.onApplicationUnavailable(this.applicationUnavailableListener);

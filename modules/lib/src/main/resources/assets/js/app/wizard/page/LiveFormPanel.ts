@@ -96,11 +96,9 @@ export interface LiveFormPanelConfig {
 
     contentWizardPanel: ContentWizardPanel;
 
-    defaultModels: DefaultModels;
-
-    content: Content;
-
     liveEditPage: LiveEditPageProxy;
+
+    liveEditModel: LiveEditModel;
 }
 
 export interface InspectPageParams {
@@ -171,17 +169,17 @@ export class LiveFormPanel
         super('live-form-panel widget-preview-panel');
 
         this.contentWizardPanel = config.contentWizardPanel;
-        this.defaultModels = config.defaultModels;
-        this.content = config.content;
         this.contentType = config.contentType;
         this.liveEditPageProxy = config.liveEditPage;
 
-        this.widgetRenderingHandler = new WizardWidgetRenderingHandler(this, config.content, this.contentType);
+        this.widgetRenderingHandler = new WizardWidgetRenderingHandler(this, config.liveEditModel.getContent(), this.contentType);
 
         PageNavigationMediator.get().addPageNavigationHandler(this);
 
-        this.initElements();
         this.initEventHandlers();
+        this.setModel(config.liveEditModel);
+
+        this.initElements();
     }
 
     getIFrameEl(): IFrameEl {
@@ -540,6 +538,7 @@ export class LiveFormPanel
     setModel(liveEditModel: LiveEditModel) {
         this.liveEditModel = liveEditModel;
         this.content = liveEditModel.getContent();
+        this.defaultModels = liveEditModel.getDefaultModels();
 
         const site: Site = this.content.isSite()
                            ? this.content as Site
@@ -598,7 +597,7 @@ export class LiveFormPanel
         }
 
         if (this.pageSkipReload || this.pageLoading) {
-            return;
+            return Promise.resolve(false);
         }
 
         if (clearInspection) {
@@ -665,7 +664,7 @@ export class LiveFormPanel
                 // or there is no controller or template set or no automatic template
                 const page = PageState.getState();
                 const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
-                const hasDefaultTemplate = this.liveEditModel?.getDefaultModels().hasDefaultPageTemplate();
+                const hasDefaultTemplate = this.liveEditModel?.getDefaultModels()?.hasDefaultPageTemplate();
                 this.contextWindow.setItemVisible(this.insertablesPanel, isPageRenderable || hasDefaultTemplate);
             }
 
@@ -778,7 +777,7 @@ export class LiveFormPanel
         const customizedWithController = !this.content.getPage() && PageState.getState()?.hasController();
         const isFragmentContent = PageState.getState()?.isFragment();
 
-        if (this.liveEditModel?.getDefaultModels().hasDefaultPageTemplate() || customizedWithController || isFragmentContent) {
+        if (this.liveEditModel?.getDefaultModels()?.hasDefaultPageTemplate() || customizedWithController || isFragmentContent) {
             this.contextWindow.clearSelection(showInsertables);
             return true;
         }

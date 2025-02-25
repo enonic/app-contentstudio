@@ -88,7 +88,6 @@ import {ProjectContext} from '../../project/ProjectContext';
 import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
 import {UpdateTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/UpdateTextComponentViewEvent';
 import {SetComponentStateEvent} from '../../../page-editor/event/incoming/manipulation/SetComponentStateEvent';
-import {Content} from '../../content/Content';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {PageReloadRequestedEvent} from '../../../page-editor/event/outgoing/manipulation/PageReloadRequestedEvent';
 import {WizardWidgetRenderingHandler} from '../WizardWidgetRenderingHandler';
@@ -100,8 +99,6 @@ export class LiveEditPageProxy
     private liveEditModel?: LiveEditModel;
 
     private liveEditIFrame?: IFrameEl;
-
-    private content: Content;
 
     private liveEditWindow: Window;
 
@@ -115,8 +112,9 @@ export class LiveEditPageProxy
 
     private isPageLocked: boolean;
 
-    constructor(content: Content) {
-        this.content = content;
+    constructor(model: LiveEditModel) {
+
+        this.setModel(model);
 
         this.initElements();
         this.initListeners();
@@ -126,8 +124,10 @@ export class LiveEditPageProxy
         PageNavigationMediator.get().addPageNavigationHandler(this);
 
         WindowDOM.get().onUnload(() => {
-            sessionStorage.removeItem(`${LiveEditPage.SELECTED_PATH_STORAGE_KEY}:${this.content.getContentId().toString()}`);
-            sessionStorage.removeItem(`${LiveEditPage.SELECTED_TEXT_CURSOR_POS_STORAGE_KEY}:${this.content.getContentId().toString()}`);
+            sessionStorage.removeItem(
+                `${LiveEditPage.SELECTED_PATH_STORAGE_KEY}:${this.liveEditModel.getContent().getContentId().toString()}`);
+            sessionStorage.removeItem(
+                `${LiveEditPage.SELECTED_TEXT_CURSOR_POS_STORAGE_KEY}:${this.liveEditModel.getContent().getContentId().toString()}`);
         });
 
         this.listenToMainFrameEvents();
@@ -214,7 +214,7 @@ export class LiveEditPageProxy
         }
 
         // load the page
-        return widgetRenderingHelper.renderWithWidget(this.content, viewWidget).then((loaded) => {
+        return widgetRenderingHelper.renderWithWidget(this.liveEditModel.getContent(), viewWidget).then((loaded) => {
 
             if (this.liveEditWindow && scrollTop) {
                 this.livejq(this.liveEditWindow.document).ready(() => this.scrollIFrameToSavedPosition(scrollTop));
@@ -747,7 +747,7 @@ export class LiveEditPageProxy
         return this.liveEditModel ? this.liveEditModel.getContent().isPageTemplate() ||
                                     PageState.getState()?.hasController() ||
                                     this.liveEditModel.getContent().getType().isFragment() ||
-                                    this.liveEditModel.getDefaultModels().hasDefaultPageTemplate() : false;
+                                    this.liveEditModel.getDefaultModels()?.hasDefaultPageTemplate() : false;
     }
 
     private initElements() {

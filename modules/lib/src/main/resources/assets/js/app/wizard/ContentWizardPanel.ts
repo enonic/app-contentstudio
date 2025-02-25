@@ -51,7 +51,6 @@ import {AiTranslatorOpenDialogEvent} from '../ai/event/outgoing/AiTranslatorOpen
 import {MovedContentItem} from '../browse/MovedContentItem';
 import {CompareStatus} from '../content/CompareStatus';
 import {Content, ContentBuilder} from '../content/Content';
-import {ContentDiff} from '../content/ContentDiff';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {ContentId} from '../content/ContentId';
 import {ContentName} from '../content/ContentName';
@@ -572,7 +571,13 @@ export class ContentWizardPanel
                 if (existing) {
                     this.wizardHeader.setDisplayName(existing.getDisplayName());
                     this.wizardHeader.setName(existing.getName().toString());
+
+                    if (!this.siteModel && existing.isSite()) {
+                        this.initSiteModel(existing as Site);
+                    }
+                    this.liveEditModel = this.initLiveEditModel(existing);
                 }
+
 
                 AI.get().setContentType(this.contentType);
                 AI.get().updateInstructions(this.getApplicationsConfigs());
@@ -691,15 +696,14 @@ export class ContentWizardPanel
     }
 
     private createLivePanel(): LiveFormPanel {
-        this.liveEditPage = new LiveEditPageProxy(this.getPersistedItem());
+        this.liveEditPage = new LiveEditPageProxy(this.liveEditModel);
         this.pageComponentsView = new PageComponentsView(this.liveEditPage);
 
         const liveFormPanel: LiveFormPanel = new LiveFormPanel({
             contentWizardPanel: this,
             contentType: this.contentType,
-            defaultModels: this.defaultModels,
-            content: this.getPersistedItem(),
             liveEditPage: this.liveEditPage,
+            liveEditModel: this.liveEditModel,
         } as LiveFormPanelConfig);
 
         this.toggleMinimizeListener = (event: ActivatedEvent) => {
@@ -740,6 +744,10 @@ export class ContentWizardPanel
     doRenderOnDataLoaded(rendered: boolean): Q.Promise<boolean> {
         this.initListeners();
 
+        if (ContentWizardPanel.debug) {
+            console.debug('ContentWizardPanel.doRenderOnDataLoaded at ' + new Date().toISOString());
+        }
+
         // always create live panel because
         // JSON widget is always able to render content
         this.livePanel = this.createLivePanel();
@@ -747,7 +755,7 @@ export class ContentWizardPanel
 
         return super.doRenderOnDataLoaded(rendered).then(() => {
             if (ContentWizardPanel.debug) {
-                console.debug('ContentWizardPanel.doRenderOnDataLoaded at ' + new Date().toISOString());
+                console.debug('ContentWizardPanel.doRenderOnDataLoaded continue at ' + new Date().toISOString());
             }
 
             this.appendChild(this.getContentWizardToolbarPublishControls().getMobilePublishControls());
@@ -859,8 +867,7 @@ export class ContentWizardPanel
         this.initFormContext(contentClone);
         this.updateWizard(contentClone, true);
 
-        const diff = ContentDiffHelper.diff(viewedContent, newPersistedContent);
-        if (this.isReloadLiveEditRequired(diff)) {
+        if (this.areContentsDiffer(viewedContent, newPersistedContent)) {
 
             this.refreshLivePanel(contentClone)
                 .catch(DefaultErrorHandler.handle);
@@ -904,7 +911,6 @@ export class ContentWizardPanel
 
             if (this.getPersistedItem().getPage()) {
                 this.updateLiveEditModel(contentClone);
-                this.liveEditModel = null;
 
                 this.getLivePanel().clearSelectionAndInspect(renderable, false);
 
@@ -912,7 +918,6 @@ export class ContentWizardPanel
                 return;
             }
 
-            this.liveEditModel = null;
             this.livePanel.unloadPage();
             this.removePCV();
         });
@@ -955,19 +960,37 @@ export class ContentWizardPanel
         const previousPersistedItem = this.getPersistedItem();
 
         return super.saveChanges().then((content: Content) => {
-            if (this.reloadPageEditorOnSave && this.livePanel) {
-                this.livePanel.loadPage()
-                    .then((renderable) => {
 
-                        const diff = previousPersistedItem && ContentDiffHelper.diff(previousPersistedItem, content);
-                        if (diff && this.isReloadLiveEditRequired(diff)) {
-                            return this.refreshLivePanel(content.clone());
-                        }
-                    })
-                    .catch(DefaultErrorHandler.handle);
+            if (ContentWizardPanel.debug) {
+                console.debug('ContentWizardPanel.saveChanges for: ' + content.getPath().toString());
             }
 
-            return content.clone();
+            return Q.Promise<Content>((resolve, reject) => {
+
+                if (this.areContentsDiffer(previousPersistedItem, content)) {
+
+                    // needed before loadPage in case content was moved
+                    // because content path is used to load the page
+                    this.updateLiveEditModel(content);
+
+                    if (this.reloadPageEditorOnSave && this.livePanel) {
+
+                        this.livePanel.loadPage().then(() => {
+                            this.refreshLivePanel(content.clone()).then(() => {
+                                resolve(content.clone());
+                            });
+                        });
+
+                    } else {
+                        resolve(content.clone());
+                    }
+
+
+                } else {
+                    resolve(content.clone());
+                }
+
+            });
         }).finally(() => {
             this.contentUpdateDisabled = false;
             this.isRename = false;
@@ -1593,6 +1616,9 @@ export class ContentWizardPanel
     }
 
     private handlePersistedContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
+        if (ContentWizardPanel.debug) {
+            console.debug('ContentWizardPanel.handlePersistedContentUpdate for: ' + updatedContent.getPath().toString());
+        }
         this.setUpdatedContent(updatedContent);
 
         this.fetchPersistedContent().then((content: Content) => {
@@ -1678,7 +1704,7 @@ export class ContentWizardPanel
         const site: Site = content.isSite() ? content as Site : this.site;
 
         if (ContentWizardPanel.debug) {
-            console.debug('ContentWizardPanel.updateLiveEditModel at ' + new Date().toISOString());
+            console.debug('ContentWizardPanel.updateLiveEditModel for: ' + content.getPath().toString());
         }
 
         if (this.siteModel) {
@@ -1688,7 +1714,7 @@ export class ContentWizardPanel
         }
 
         this.liveEditModel = this.initLiveEditModel(content);
-        this.getLivePanel().setModel(this.liveEditModel);
+        this.livePanel?.setModel(this.liveEditModel);
     }
 
     private updatePersistedContent(persistedContent: Content) {
@@ -1877,10 +1903,6 @@ export class ContentWizardPanel
                     }
 
                     this.enableDisplayNameScriptExecution(this.contentWizardStepForm.getFormView());
-
-                    if (!this.siteModel && content.isSite()) {
-                        this.initSiteModel(content as Site);
-                    }
 
                     this.wizardActions.initUnsavedChangesListeners();
 
@@ -2473,10 +2495,8 @@ export class ContentWizardPanel
             console.debug('ContentWizardPanel.updateButtonsState');
         }
 
-        return this.isRenderable().then((renderable: boolean) => {
-            return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
-                this.contextView.updateWidgetsVisibility();
-            });
+        return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
+            this.contextView.updateWidgetsVisibility();
         });
     }
 
@@ -2743,7 +2763,12 @@ export class ContentWizardPanel
         return new ContentWizardStepsPanel(this.stepNavigator, this.formPanel);
     }
 
-    private isReloadLiveEditRequired(diff: ContentDiff): boolean {
+    private areContentsDiffer(oldContent: Content, newContent: Content): boolean {
+        if (!oldContent) {
+            return true;
+        }
+        const diff = ContentDiffHelper.diff(oldContent, newContent);
+
         return !!diff.data || !!diff.pageObj || !!diff.extraData || !!diff.path || !!diff.displayName || !!diff.name;
     }
 
