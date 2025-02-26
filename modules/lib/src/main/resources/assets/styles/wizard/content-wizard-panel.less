@@ -452,6 +452,7 @@
 
     .mobile-edit-publish-button,
     .mobile-edit-mark-as-ready-button {
+      display: flex !important;
       position: fixed;
       bottom: 0;
       text-align: center;
@@ -459,6 +460,11 @@
       width: 100%;
       opacity: 0.9;
       z-index: @z-index-docked-panel;
+      justify-content: center;
+
+      span {
+        font-size: 16px;
+      }
     }
 
     .mobile-edit-publish-controls {
