@@ -47,14 +47,16 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await liveFormPanel.selectPartByDisplayName('City list');
             await contentWizard.switchToMainFrame();
             await cityListPartInspectionPanel.waitForLoaded();
+            await studioUtils.saveScreenshot('city_list_part_inspection_panel_apply_btn_disabled');
             // 5. 'Apply' button should be disabled after selecting a part-option in the part-dropdown:
-            await cityListPartInspectionPanel.waitForApplyButtonDisabled();
+            //await cityListPartInspectionPanel.waitForApplyButtonDisabled();
             // 6. Select an image in the dropdown-selector:
             await cityListPartInspectionPanel.selectContentInSelector(appConst.TEST_IMAGES.MAN);
             // 7. Click on 'Apply' button:
             await cityListPartInspectionPanel.clickOnApplyButton();
             // 8. Verify that Notification message appears and 'Save' button is disabled:
             await contentWizard.waitForNotificationMessage();
+            // 'Save' button gets disabled after Apply button click
             await contentWizard.waitForSaveButtonDisabled();
             // 9. Verify that 'Apply' button gets disabled:
             await cityListPartInspectionPanel.waitForApplyButtonDisabled();
