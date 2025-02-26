@@ -1,16 +1,12 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {EmulatorDevice} from '../view/context/widget/emulator/EmulatorDevice';
 
-export class EmulatedEvent
-    extends Event {
+export class EmulatedEvent {
 
-    private device: EmulatorDevice;
+    private readonly device: EmulatorDevice;
 
-    private emulator: boolean;
+    private readonly emulator: boolean;
 
     constructor(device: EmulatorDevice, emulator: boolean = true) {
-        super();
         this.device = device;
         this.emulator = emulator;
     }
@@ -36,13 +32,4 @@ export class EmulatedEvent
     public isEmulator(): boolean {
         return this.emulator;
     }
-
-    static on(handler: (event: EmulatedEvent) => void) {
-        Event.bind(ClassHelper.getFullName(this), handler);
-    }
-
-    static un(handler?: (event: EmulatedEvent) => void) {
-        Event.unbind(ClassHelper.getFullName(this), handler);
-    }
-
 }

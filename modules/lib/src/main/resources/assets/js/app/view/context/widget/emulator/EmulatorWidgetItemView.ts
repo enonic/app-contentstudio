@@ -2,6 +2,7 @@ import {WidgetItemView} from '../../WidgetItemView';
 import {EmulatorGrid, EmulatorListElement} from './EmulatorGrid';
 import {EmulatorDevice} from './EmulatorDevice';
 import {EmulatedEvent} from '../../../../event/EmulatedEvent';
+import {EmulatorContext} from './EmulatorContext';
 
 export interface EmulatorDeviceRow {
     id: number;
@@ -50,12 +51,12 @@ export class EmulatorWidgetItemView
                 const deviceRow = this.findDeviceBySize(+width, +height, units);
 
                 if (deviceRow) {
-                    new EmulatedEvent(deviceRow.device).fire();
+                    EmulatorContext.get().notifyDeviceChanged(new EmulatedEvent(deviceRow.device));
                 }
             });
         });
 
-        EmulatedEvent.on((event: EmulatedEvent) => {
+        EmulatorContext.get().onDeviceChanged((event: EmulatedEvent) => {
             if (!event.isEmulator()) {
                 // sync selected device with external event
                 this.devicesRows.some((row: EmulatorDeviceRow) => {

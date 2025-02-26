@@ -36,6 +36,7 @@ import {WidgetItemView} from './WidgetItemView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {InternalWidgetType, WidgetView} from './WidgetView';
 import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
+import {EmulatorContext} from './widget/emulator/EmulatorContext';
 
 export class ContextView
     extends DivEl {
@@ -619,7 +620,7 @@ export class ContextView
         }
 
         this.removeWidget(this.emulatorWidgetView);
-        new EmulatedEvent(EmulatorDevice.getFullscreen(), false).fire();
+        EmulatorContext.get().notifyDeviceChanged(new EmulatedEvent(EmulatorDevice.getFullscreen(), false));
         this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
     }
 
