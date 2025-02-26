@@ -7,6 +7,85 @@
 TIP: Release Notes for Content Studio 4.x can be found https://developer.enonic.com/docs/content-studio/4.x/release[here]
 
 
+== Content Studio 5 Update 3
+
+IMPORTANT: Content Studio 5.3 requires XP 7.15.0 or higher.
+
+=== Juke AI support
+
+Content Studio has been adapted to support ecosystem of Juke applications, new AI-powered extensions that enable high-level
+assistance for content editors. In this release Content Studio provides integration with Juke apps responsible for
+content localisation (*Juke Translator*) and content creation (*Juke Content Operator*).
+
+NOTE: Juke apps are not built into Content Studio and need to be installed and configured individually. Contact us if you want to enable Juke AI support in your Content Studio.
+
+IMPORTANT: Enonic does not store any conversations or data processed by Juke AI. During conversations, the data is sent to the Google Vertex service and the response is displayed directly in Content Studio. Once the browser tab is closed or refreshed, the conversation thread will be gone.
+
+==== Juke Translator
+
+With this application installed, Content Studio will suggest translating content localised in a layer, to the language of the layer. After clicking "Localise" for an inherited content in a layer, user will see a dialog suggesting automatic translation of all text fields in the localised content to the language of the layer.
+
+It's possible to provide custom instructions for the Juke AI to follow when translating the content. If you need to provide some context on a regular basis, add "Juke Translator" to your site and set instructions via site config, then Juke will reuse them for every translation.
+
+image::cs53-juke-translator.png[Juke Translator, 75%, align="center"]
+
+==== Juke Content Operator
+
+Help-text icons for inputs in the Content Form have been replaced with icons to require assistance from the Juke AI Content operator for this specific field. As of now, Content Operator provides assistance only for inputs of type TextLine, TextArea and HtmlArea.
+
+image::cs53-juke-icon.png[Juke icon for input, 75%, align="center"]
+
+TIP: Help-text for inputs can still be toggled by using the help-text icon in the content form toolbar.
+
+image::cs53-juke-operator-dialog.png[Juke Content Operator, 75%, align="center"]
+
+TIP: To provide custom instructions for the Juke AI to follow when assisting with content creation, add "Juke Content Operator" to your site and set instructions via site config.
+
+=== Preview mode
+
+==== Mode selector
+
+It's now possible to select preview mode inside the Preview panel. Currently available built-in modes are: Media, Enonic rendering and JSON. Default selection is "Automatic" which will automatically find and use the first mode that supports preview of current content.
+
+image::cs53-preview-mode.png[Preview, 75%, align="center"]
+
+TIP: In future versions it will be possible to add custom preview modes.
+
+Read more about content preview modes in the <<navigator#preview_panel,Content Navigator documentation>>.
+
+==== Emulator
+
+Device emulator selector - that used to be a widget inside Context Panel - has been turned into selector inside the Preview panel's toolbar.
+
+image::cs53-preview-emulator.png[Emulator, 50%, align="center"]
+
+==== Preview button
+
+Preview button was moved from the Content Navigator's toolbar to the Preview panel's toolbar. It will still open preview of currently selected content in a new browser tab, but preview in the new tab will use the currently selected mode (f.ex. JSON).
+
+=== Support for webp and avif
+
+Content Studio now supports upload and preview of images in webp and avif format. Image modifications are not yet supported.
+
+=== Accessibility improvements
+
+Several improvements have been made to make Content Studio more accessible and comply with WCAG 2.1 standards:
+
+* Focused elements are now highlighted with a blue border
+* Keyboard navigation has been improved
+* Toolbars and their child elements are now focusable and can be navigated with arrow keys, according to WCAG 2.1 standards
+* Most of the elements received proper ARIA roles and labels
+
+:imagesdir: navigator/images
+
+image::navigator-accessibility.png[Toolbar accessibility, 50%, align="center"]
+
+=== Other improvements
+
+* If a page component (part or layout) provides page contributions, Content Studio will automatically inject them into the page editor, so it's no longer required to refresh the page for the contributions to start working.
+* Tag input will now parse a string pasted into it and create tags from the parsed values.
+* We have strengthened Content Security Policy (CSP) even more by disabling `unsafe-eval` in `script-src` (read more https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src#unsafe_eval_expressions[here]). Please test and adapt your applications accordingly.
+
 == Content Studio 5 Update 2
 
 IMPORTANT: Content Studio 5.2 requires XP 7.14.1 or higher.
