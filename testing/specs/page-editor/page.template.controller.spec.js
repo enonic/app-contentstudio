@@ -61,6 +61,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             // 2. fill in the name input and select the controller:
             await contentWizard.typeDisplayName(TEMPLATE.displayName);
+            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
             // 3. Verify the issue - Verifies xp-apps#686 - 'Context Window should be loaded automatically':
             await liveContextWindow.waitForOpened();

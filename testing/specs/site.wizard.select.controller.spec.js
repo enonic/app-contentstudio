@@ -31,6 +31,7 @@ describe('site.wizard.select.controller.spec: Saves site-data and selects a cont
             // 3. Click on remove-icon and close the current notification message:
             await contentWizard.removeNotificationMessage();
             // 4. switch to 'LiveEdit' and select the controller
+            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor('Page');
             // The notification message should appear, because the site automatically saved after the selecting a page-controller.
             await studioUtils.saveScreenshot('site_page_descriptor_selected1');
@@ -60,6 +61,7 @@ describe('site.wizard.select.controller.spec: Saves site-data and selects a cont
             let workflow = await contentWizard.getContentWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content gets 'Ready for publishing'");
             // 5. select the controller
+            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor('Page');
             // 6. Verify that status gets Work in progress after selecting a page descriptor:
             await studioUtils.saveScreenshot('site_page_descriptor_work_in_progress');

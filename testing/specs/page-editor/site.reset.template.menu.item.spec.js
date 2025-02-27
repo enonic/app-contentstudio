@@ -35,6 +35,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, "Site", CONTROLLER_NAME);
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
+            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();

@@ -31,6 +31,7 @@ describe('Save as Template specification', function () {
             //Verify that the site should be automatically saved after selecting an application:
             await contentWizard.waitForNotificationMessage();
             //Verify that the site should be saved automatically after selecting a controller
+            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor(COUNTRY_LIST_CONTROLLER);
             await contentWizard.waitForSaveButtonDisabled();
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:

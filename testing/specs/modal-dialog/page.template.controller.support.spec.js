@@ -32,6 +32,7 @@ describe('page.template.controller.support.spec tests for page template wizard',
             await contentWizard.typeDisplayName(TEMPLATE_NAME);
             await contentWizard.pause(500);
             // 3. Select a page descriptor
+            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor(COUNTRY_LIST_CONTROLLER);
             await contentWizard.waitForSaveButtonDisabled();
             await contentWizard.waitForNotificationMessage();

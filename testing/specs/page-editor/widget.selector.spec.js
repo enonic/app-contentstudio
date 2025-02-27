@@ -38,6 +38,7 @@ describe('widget.selector.spec: tests for widget selector', function () {
             let actualOptions1 = await wizardDetailsPanel.getWidgetSelectorDropdownOptions();
             assert.ok(actualOptions1.includes('Components') === false, "'Components' option should not be displayed in the dropdown");
             // 5. Select a controller:
+            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
             // 6. Verify that 'Components' option appears in options after selecting a controller:
             await wizardDetailsPanel.clickOnWidgetSelectorDropdownHandle();

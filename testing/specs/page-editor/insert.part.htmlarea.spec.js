@@ -51,6 +51,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             // 1 Click on the toggler and open 'Page Editor'
             await contentWizard.clickOnPageEditorToggler();
             // 2 Select the page descriptor
+            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor('main region');
             // 3 Open the context menu
             await pageComponentsWizardStepForm.openMenu('main');
@@ -222,6 +223,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, 'Site', CONTROLLER_NAME);
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
+            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor(TEMPLATE.data.controllerDisplayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
