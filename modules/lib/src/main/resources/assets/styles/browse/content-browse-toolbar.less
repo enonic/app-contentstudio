@@ -18,19 +18,21 @@
     }
   }
 
-  .fold-button,
-  .@{_COMMON_PREFIX}button {
-    span,
-    &::before,
-    &::after {
-      color: @admin-font-gray3;
-    }
-
-    &:not(:disabled):hover {
+  :not(.mobile-preview-on) {
+    .fold-button,
+    .@{_COMMON_PREFIX}button {
       span,
-      &:before,
+      &::before,
       &::after {
-        color: @admin-black;
+        color: @admin-font-gray3;
+      }
+
+      &:not(:disabled):hover {
+        span,
+        &:before,
+        &::after {
+          color: @admin-black;
+        }
       }
     }
   }

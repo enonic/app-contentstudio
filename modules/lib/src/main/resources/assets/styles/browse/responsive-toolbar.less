@@ -63,14 +63,18 @@
     }
 
     .fold-button {
+      width: 250px;
+      justify-content: center;
       margin-left: auto;
       margin-right: auto;
 
       .fold-label {
         color: @admin-white;
+        .ellipsis();
       }
 
       &::after {
+        right: 10px;
         border-top-color: @admin-white;
         border-bottom-color: @admin-white;
       }
@@ -79,8 +83,9 @@
         background-color: @admin-black;
         border-color: @admin-black;
         top: 35px;
-        width: 200px;
-        left: calc(50% - 100px);
+        width: 250px;
+        left: calc(50% - 125px);
+        box-sizing: border-box;
 
         button {
           span {
@@ -89,10 +94,6 @@
 
           &.publish-action {
             order: 1;
-
-            span {
-              color: @admin-green;
-            }
           }
         }
       }
