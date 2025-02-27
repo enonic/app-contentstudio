@@ -387,10 +387,13 @@
     line-height: 40px;
     overflow: hidden;
     cursor: pointer;
-    color: @admin-font-gray2;
 
-    &:hover {
-      color: @admin-bg-dark-gray;
+    &::before {
+      color: @admin-font-gray3;
+    }
+
+    &:hover::before {
+      color: @admin-black;
     }
   }
 
@@ -447,6 +450,7 @@
 
     .mobile-edit-publish-button,
     .mobile-edit-mark-as-ready-button {
+      display: flex !important;
       position: fixed;
       bottom: 0;
       text-align: center;
@@ -454,6 +458,11 @@
       width: 100%;
       opacity: 0.9;
       z-index: @z-index-docked-panel;
+      justify-content: center;
+
+      span {
+        font-size: 16px;
+      }
     }
 
     .mobile-edit-publish-controls {
@@ -513,13 +522,10 @@
     }
 
     .content-wizard-toolbar {
-      .content-status-wrapper {
-        display: flex;
-      }
-
       .toolbar-publish-controls {
         .content-wizard-toolbar-publish-button {
           border-left: 1px solid @admin-bg-light-gray;
+          border-right: 1px solid @admin-bg-light-gray;
         }
       }
     }

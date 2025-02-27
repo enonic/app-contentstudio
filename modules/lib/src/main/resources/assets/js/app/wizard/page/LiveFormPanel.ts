@@ -66,7 +66,6 @@ import {RenderingMode} from '../../rendering/RenderingMode';
 import {UriHelper} from '../../rendering/UriHelper';
 import {PageHelper} from '../../util/PageHelper';
 import {ContextPanelState} from '../../view/context/ContextPanelState';
-import {ToggleContextPanelEvent} from '../../view/context/ToggleContextPanelEvent';
 import {PageEventsManager} from '../PageEventsManager';
 import {PageNavigationEvent} from '../PageNavigationEvent';
 import {PageNavigationEventData, PageNavigationEventSource} from '../PageNavigationEventData';
@@ -157,6 +156,8 @@ export class LiveFormPanel
     private lastInspectedItemPath: ComponentPath;
 
     private saveAction: Action;
+
+    private contextPanelToggleHandler?: () => void;
 
     private widgetRenderingHandler: WizardWidgetRenderingHandler;
 
@@ -713,7 +714,7 @@ export class LiveFormPanel
             this.isTextModeOn = value;
 
             if (value && this.isContextPanelExpanded() && !this.isContextPanelDocked()) {
-                new ToggleContextPanelEvent().fire();
+                this.contextPanelToggleHandler?.();
             }
         });
     }
@@ -844,7 +845,7 @@ export class LiveFormPanel
         const waitForContextPanel = !isPanelToHide && this.isContextPanelCollapsed();
 
         if (isPanelToHide && this.isContextPanelExpanded() && !this.isContextPanelDocked()) {
-            new ToggleContextPanelEvent().fire();
+            this.contextPanelToggleHandler?.();
         }
 
         if (waitForContextPanel) {
@@ -984,5 +985,9 @@ export class LiveFormPanel
 
     getFrameContainer() {
         return this.frameContainer;
+    }
+
+    setToggleContextPanelHandler(handler: () => void) {
+        this.contextPanelToggleHandler = handler;
     }
 }

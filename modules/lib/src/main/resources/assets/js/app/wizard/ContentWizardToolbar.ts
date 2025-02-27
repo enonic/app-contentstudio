@@ -24,6 +24,7 @@ import {ContentActionCycleButton} from './ContentActionCycleButton';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
 import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolbar';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 
 export interface ContentWizardToolbarConfig extends ToolbarConfig {
     actions: ContentWizardActions;
@@ -37,8 +38,6 @@ export class ContentWizardToolbar
     ariaLabel: string = i18n('wcag.contenteditor.toolbar.label');
 
     private cycleViewModeButton: ContentActionCycleButton;
-
-    private contextPanelToggler: NonMobileContextPanelToggleButton;
 
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
 
@@ -224,10 +223,8 @@ export class ContentWizardToolbar
     private addTogglerButtons() {
         const actions: ContentWizardActions = this.config.actions;
         this.cycleViewModeButton = new ContentActionCycleButton([actions.getShowLiveEditAction(), actions.getShowFormAction()]);
-        this.contextPanelToggler = new NonMobileContextPanelToggleButton();
 
         this.addElement(this.cycleViewModeButton);
-        this.addElement(this.contextPanelToggler);
     }
 
     private addStateIcon(): void {
@@ -254,10 +251,6 @@ export class ContentWizardToolbar
         return this.cycleViewModeButton;
     }
 
-    getContextPanelToggler(): NonMobileContextPanelToggleButton {
-        return this.contextPanelToggler;
-    }
-
     getContentWizardToolbarPublishControls(): ContentWizardToolbarPublishControls {
         return this.contentWizardToolbarPublishControls;
     }
@@ -269,6 +262,7 @@ export class ContentWizardToolbar
     private addContentOperatorIntoCollaborationBlock(): void {
         if (this.collaborationBlock && this.aiContentOperatorButtonContainer) {
             this.collaborationBlock.prependChild(this.aiContentOperatorButtonContainer);
+            ResponsiveManager.fireResizeEvent();
         }
     }
 }
