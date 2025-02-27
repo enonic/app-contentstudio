@@ -125,7 +125,16 @@ function fetchSite(repository, branch, key, archive) {
             return null;
         }
     }, function (e) {
-        log.error(`Failed to switch site: ${e.message}`);
+        log.error(`Failed to switch context: ${e.message}`);
+        throw e;
+    });
+}
+
+function queryContent(contextParams, queryParams) {
+    return switchContext(contextParams.repository, contextParams.branch, contextParams.archive, function () {
+        return contentLib.query(queryParams);
+    }, function (e) {
+        log.error(`Failed to switch context: ${e.message}`);
         throw e;
     });
 }
@@ -167,6 +176,7 @@ exports.errorResponse = errorResponse;
 exports.validateParams = validateParams;
 exports.switchContext = switchContext;
 exports.fetchContent = fetchContent;
+exports.queryContent = queryContent;
 exports.fetchSite = fetchSite;
 exports.fetchHttp = fetchHttp;
 exports.forceArray = forceArray;

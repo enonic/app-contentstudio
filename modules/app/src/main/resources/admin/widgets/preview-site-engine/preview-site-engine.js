@@ -15,37 +15,6 @@ exports.get = function (req) {
         return widgetLib.errorResponse(400);
     }
 
-    const isPageOrFragment = hasPageOrFragment(params);
-    const hasControllers = hasAvailableControllers(params);
-    const appsMissing = hasMissingApps(params);
-
-    log.info('hasPage:\n' + isPageOrFragment + '\nhasControllers:\n' + hasControllers + '\nappsMissing:\n' + appsMissing);
-
-    if (!isPageOrFragment && hasControllers) {
-        // Return hasControllers in non-auto mode
-        return widgetLib.errorResponse(418, {
-            hasControllers: !params.auto && hasControllers,
-            hasPage: isPageOrFragment
-        });
-    }
-
-    if (!hasControllers) {
-        // Can't render
-        return widgetLib.errorResponse(418, {
-            messages: [widgetLib.i18n('text.addapplications')],
-            hasControllers: hasControllers,
-            hasPage: isPageOrFragment
-        });
-    }
-
-    if (appsMissing) {
-        return widgetLib.errorResponse(418, {
-            messages: [widgetLib.i18n('field.preview.missing.description')],
-            hasControllers: !params.auto && hasControllers,
-            hasPage: isPageOrFragment
-        });
-    }
-
     if (!exports.canRender(req)) {
         // return 418 if not able to render
         log.debug(`Site [${req.method}] can't render: 418`);
@@ -53,15 +22,17 @@ exports.get = function (req) {
         return widgetLib.errorResponse(418);
     }
 
+    const errorResponse = doPreliminaryRenderingChecks(params)
+    if (errorResponse) {
+        return errorResponse;
+    }
+
     try {
         const url = createUrl(req, params);
 
         log.debug(`Site [${req.method}] redirecting: ${url}`);
 
-        return widgetLib.redirectResponse(url, {
-            hasControllers: hasControllers,
-            hasPage: isPageOrFragment
-        });
+        return widgetLib.redirectResponse(url);
     } catch (e) {
         log.error(`Site [${req.method}] error: ${e.message}`);
         return widgetLib.errorResponse(500);
@@ -90,18 +61,88 @@ function createUrl(req, params) {
     return `${normalizedBaseUri}/site/${params.mode}/${project}/${params.branch}${params.path}`;
 }
 
-function hasAvailableControllers(params) {
-    const appKeys = getSiteAppKeys(params);
+function doPreliminaryRenderingChecks(params) {
+
+    const site = widgetLib.fetchSite(params.repository, params.branch, params.id || params.path, params.archive);
+    const isPageOrFragment = hasPageOrFragment(params);
+    const hasTemplates = hasSupportingTemplates(site, params);
+
+    log.debug('\nhasPage:' + isPageOrFragment +
+             '\nhasTemplates:' + hasTemplates);
+
+    if (hasTemplates || isPageOrFragment) {
+        return;
+    }
+
+    const appKeys = getSiteAppKeys(site, params);
+    const hasControllers = hasAvailableControllers(appKeys);
+    log.debug('\nhasControllers:' + hasControllers);
+    if (hasControllers) {
+        // Return hasControllers in non-auto mode only to show blue dropdown
+        return widgetLib.errorResponse(418, {
+            hasControllers: !params.auto && hasControllers,
+            hasPage: isPageOrFragment
+        });
+    }
+
+
+    const appsMissing = hasMissingApps(appKeys);
+    log.debug('\nappsMissing:' + appsMissing);
+    if (appsMissing) {
+        return widgetLib.errorResponse(418, {
+            messages: [widgetLib.i18n('field.preview.missing.description')],
+            hasControllers: !params.auto && hasControllers,
+            hasPage: isPageOrFragment
+        });
+    }
+
+    log.debug('\nno way to render error');
+
+    // Can't render
+    return widgetLib.errorResponse(418, {
+        messages: [widgetLib.i18n('text.addapplications')],
+        hasControllers: hasControllers,
+        hasPage: isPageOrFragment
+    });
+}
+
+function hasAvailableControllers(appKeys) {
 
     return appKeys.some((key) => {
         const appControllers = schemaLib.listComponents({
             type: 'PAGE',
-            application: key,
+            application: key
         });
         //TODO: check app allowed content types
 
         return appControllers.length > 0;
     });
+}
+
+function hasSupportingTemplates(site, params) {
+    if (!site) {
+        return false;
+    }
+
+    return widgetLib.queryContent(params, {
+        contentTypes: ["portal:page-template"],
+        query: '_path LIKE "/content' + site._path + '*"',
+        count: 3,
+        filters: {
+            boolean: {
+                must: [
+                    {
+                        hasValue: {
+                            field: "data.supports",
+                            values: [
+                                params.type
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    }).total > 0;
 }
 
 function hasPageOrFragment(params) {
@@ -115,16 +156,12 @@ function hasPageOrFragment(params) {
     return pageOrFragment && Object.keys(pageOrFragment).length > 0;
 }
 
-
-function hasMissingApps(params) {
-    const appKeys = getSiteAppKeys(params)
+function hasMissingApps(appKeys) {
 
     return appLib.list().some(app => app.started === false && appKeys.indexOf(app.key) >= 0);
 }
 
-function getSiteAppKeys(params) {
-    const site = widgetLib.fetchSite(params.repository, params.branch, params.id || params.path, params.archive);
-
+function getSiteAppKeys(site) {
     const siteConfig = site && site.data && site.data.siteConfig;
     if (!siteConfig) {
         return [];
