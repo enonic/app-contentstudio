@@ -92,6 +92,7 @@ import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedE
 import {UpdateTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/UpdateTextComponentViewEvent';
 import {SetComponentStateEvent} from '../../../page-editor/event/incoming/manipulation/SetComponentStateEvent';
 import {PageReloadRequestedEvent} from '../../../page-editor/event/outgoing/manipulation/PageReloadRequestedEvent';
+import {EmulatorContext} from '../../view/context/widget/emulator/EmulatorContext';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -125,7 +126,7 @@ export class LiveEditPageProxy
         PageNavigationMediator.get().addPageNavigationHandler(this);
 
 
-        EmulatedEvent.on((event: EmulatedEvent) => {
+        EmulatorContext.get().onDeviceChanged((event: EmulatedEvent) => {
             if (!this.liveEditWindow) {
                 return;
             }

@@ -18,6 +18,7 @@ import {ContentSummary} from '../content/ContentSummary';
 import {PreviewActionHelper} from '../action/PreviewActionHelper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
+import {EmulatorContext} from './context/widget/emulator/EmulatorContext';
 
 enum PREVIEW_TYPE {
     WIDGET,
@@ -208,8 +209,7 @@ export class ContentItemPreviewPanel
             this.fetchPreviewForPath(contentSummary);
         });
 
-        EmulatedEvent.on((event: EmulatedEvent) => {
-
+        EmulatorContext.get().onDeviceChanged((event: EmulatedEvent) => {
             if (this.previewMessage) {
                 this.previewMessage.getEl().setWidth(event.getWidthWithUnits());
                 this.previewMessage.getEl().setHeight(event.getHeightWithUnits());
