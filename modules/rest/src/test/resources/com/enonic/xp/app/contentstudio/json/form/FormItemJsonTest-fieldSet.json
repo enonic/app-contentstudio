@@ -4,8 +4,6 @@
       {
         "Input": {
           "config": {},
-          "customText": null,
-          "helpText": null,
           "immutable": false,
           "indexed": false,
           "inputType": "TextLine",
@@ -15,8 +13,7 @@
           "occurrences": {
             "maximum": 1,
             "minimum": 0
-          },
-          "validationRegexp": null
+          }
         }
       },
       {
@@ -28,8 +25,6 @@
               }
             ]
           },
-          "customText": null,
-          "helpText": null,
           "immutable": false,
           "indexed": false,
           "inputType": "Date",
@@ -39,8 +34,7 @@
           "occurrences": {
             "maximum": 1,
             "minimum": 0
-          },
-          "validationRegexp": null
+          }
         }
       },
       {
@@ -57,8 +51,6 @@
               }
             ]
           },
-          "customText": null,
-          "helpText": null,
           "immutable": false,
           "indexed": false,
           "inputType": "CheckBox",
@@ -68,8 +60,7 @@
           "occurrences": {
             "maximum": 1,
             "minimum": 0
-          },
-          "validationRegexp": null
+          }
         }
       }
     ],

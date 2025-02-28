@@ -4,8 +4,6 @@
       {
         "Input": {
           "config": {},
-          "customText": null,
-          "helpText": null,
           "immutable": false,
           "indexed": false,
           "inputType": "TextLine",
@@ -15,8 +13,7 @@
           "occurrences": {
             "maximum": 1,
             "minimum": 0
-          },
-          "validationRegexp": null
+          }
         }
       }
     ]
@@ -31,8 +28,6 @@
       {
         "Input": {
           "config": {},
-          "customText": null,
-          "helpText": null,
           "immutable": false,
           "indexed": false,
           "inputType": "TextLine",
@@ -42,8 +37,7 @@
           "occurrences": {
             "maximum": 1,
             "minimum": 0
-          },
-          "validationRegexp": null
+          }
         }
       }
     ]

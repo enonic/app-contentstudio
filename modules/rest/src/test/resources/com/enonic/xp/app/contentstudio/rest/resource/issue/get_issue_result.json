@@ -2,13 +2,11 @@
   "approverIds": [
     "user:system:anonymous"
   ],
-  "createdTime": null,
   "creator": "user:system:anonymous",
   "description": "desc",
   "id": "${id}",
   "index": 0,
   "issueStatus": "OPEN",
-  "modifiedTime": null,
   "modifier": "user:system:anonymous",
   "name": "${id}",
   "publishRequest": {

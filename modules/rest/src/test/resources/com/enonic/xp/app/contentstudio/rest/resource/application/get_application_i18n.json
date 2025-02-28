@@ -4,7 +4,6 @@
       {
         "Input": {
           "config": {},
-          "customText": null,
           "helpText": "translated.site.helpText",
           "immutable": false,
           "indexed": false,
@@ -15,8 +14,7 @@
           "occurrences": {
             "maximum": 1,
             "minimum": 0
-          },
-          "validationRegexp": null
+          }
         }
       }
     ]
@@ -31,7 +29,6 @@
       {
         "Input": {
           "config": {},
-          "customText": null,
           "helpText": "translated.helpText",
           "immutable": false,
           "indexed": false,
@@ -42,8 +39,7 @@
           "occurrences": {
             "maximum": 1,
             "minimum": 0
-          },
-          "validationRegexp": null
+          }
         }
       }
     ]

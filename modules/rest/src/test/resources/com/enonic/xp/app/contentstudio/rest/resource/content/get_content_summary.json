@@ -1,7 +1,4 @@
 {
-    "archivedBy": null,
-    "archivedTime": null,
-    "childOrder": null,
     "contentState": "DEFAULT",
     "createdTime": "2013-08-23T12:55:09.162Z",
     "creator": "user:system:admin",
@@ -20,9 +17,6 @@
     "modifiedTime": "2013-08-23T12:55:09.162Z",
     "modifier": "user:system:admin",
     "name": "my_a_content",
-    "originProject": null,
-    "originalName": null,
-    "originalParentPath": null,
     "owner": "user:myStore:me",
     "path": "/my_a_content",
     "publish": {
@@ -30,9 +24,7 @@
         "from": "2016-11-02T10:36:00Z",
         "to": "2016-11-22T10:36:00Z"
     },
-    "thumbnail": null,
     "type": "myapplication:my_type",
-    "variantOf" : null,
     "workflow": {
         "checks": {},
         "state": "READY"
