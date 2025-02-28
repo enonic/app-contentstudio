@@ -48,6 +48,13 @@ export class PreviewActionHelper {
             return UriHelper.getPortalUri(content.getPath().toString(), mode);
         }
 
+        let url = widget.getConfig().getProperty("previewUrl");
+        if (url) {
+            return url;
+        } else {
+            url = widget.getUrl();
+        }
+
         const params = new URLSearchParams({
             contentPath: content.getPath().toString(),
             contentId: content.getContentId().toString(),
@@ -61,8 +68,6 @@ export class PreviewActionHelper {
         for (const key in this.additionalParams) {
             params.append(key, this.additionalParams[key]);
         }
-
-        const url = widget.getConfig().getProperty("previewUrl") || widget.getUrl();
 
         return `${url}?${params.toString()}`;
     }

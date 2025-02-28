@@ -6,6 +6,7 @@ const appLib = require('/lib/xp/app');
 const schemaLib = require('/lib/xp/schema');
 
 const SHORTCUT_TYPE = 'base:shortcut';
+const TEMPLATE_TYPE = 'portal:page-template';
 
 exports.get = function (req) {
     let params;
@@ -67,17 +68,16 @@ function doPreliminaryRenderingChecks(params) {
     const isPageOrFragment = hasPageOrFragment(params);
     const hasTemplates = hasSupportingTemplates(site, params);
 
-    log.debug('\nhasPage:' + isPageOrFragment +
-             '\nhasTemplates:' + hasTemplates);
-
     if (hasTemplates || isPageOrFragment) {
         return;
     }
 
+    log.debug('\nno templates or page/fragment');
+
     const appKeys = getSiteAppKeys(site, params);
     const hasControllers = hasAvailableControllers(appKeys);
-    log.debug('\nhasControllers:' + hasControllers);
     if (hasControllers) {
+        log.debug('\nhas controllers:' + hasControllers);
         // Return hasControllers in non-auto mode only to show blue dropdown
         return widgetLib.errorResponse(418, {
             hasControllers: !params.auto && hasControllers,
@@ -85,10 +85,9 @@ function doPreliminaryRenderingChecks(params) {
         });
     }
 
-
     const appsMissing = hasMissingApps(appKeys);
-    log.debug('\nappsMissing:' + appsMissing);
     if (appsMissing) {
+        log.debug('\napps missing:' + appsMissing);
         return widgetLib.errorResponse(418, {
             messages: [widgetLib.i18n('field.preview.missing.description')],
             hasControllers: !params.auto && hasControllers,
@@ -96,9 +95,8 @@ function doPreliminaryRenderingChecks(params) {
         });
     }
 
-    log.debug('\nno way to render error');
-
     // Can't render
+    log.debug('\nno way to render');
     return widgetLib.errorResponse(418, {
         messages: [widgetLib.i18n('text.addapplications')],
         hasControllers: hasControllers,
@@ -125,7 +123,7 @@ function hasSupportingTemplates(site, params) {
     }
 
     return widgetLib.queryContent(params, {
-        contentTypes: ["portal:page-template"],
+        contentTypes: [TEMPLATE_TYPE],
         query: '_path LIKE "/content' + site._path + '*"',
         count: 3,
         filters: {
