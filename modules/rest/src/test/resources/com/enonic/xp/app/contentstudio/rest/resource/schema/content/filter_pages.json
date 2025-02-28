@@ -7,8 +7,6 @@
           {
             "Input": {
               "config": {},
-              "customText": null,
-              "helpText": null,
               "immutable": false,
               "indexed": false,
               "inputType": "Double",
@@ -18,14 +16,12 @@
               "occurrences": {
                 "maximum": 1,
                 "minimum": 0
-              },
-              "validationRegexp": null
+              }
             }
           }
         ]
       },
       "deletable": false,
-      "description": null,
       "displayName": "Fancy page",
       "editable": false,
       "key": "module:fancy-page",

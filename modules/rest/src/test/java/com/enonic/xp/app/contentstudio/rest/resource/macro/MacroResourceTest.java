@@ -5,6 +5,7 @@ import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 
+import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
@@ -181,7 +182,7 @@ public class MacroResourceTest
         when( mockRequest.getScheme() ).thenReturn( "http" );
         when( mockRequest.getServerPort() ).thenReturn( 80 );
         when( mockRequest.getHeaderNames() ).thenReturn( Collections.emptyEnumeration() );
-        this.setHttpRequest( mockRequest );
+        ResteasyContext.getContextDataMap().put( HttpServletRequest.class, mockRequest );
 
         String response = request().path( DEFAULT_URI_PREFIX + "macro/preview" ).
             entity( readFromFile( "preview_macro_params.json" ), MediaType.APPLICATION_JSON_TYPE ).

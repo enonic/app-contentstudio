@@ -27,9 +27,7 @@
         "siteConfigs" : [ ]
     },
     {
-      "description": null,
       "displayName": "project2",
-      "icon": null,
       "language": "en",
       "name": "project2",
       "parents": ["parent1"],
@@ -48,9 +46,6 @@
         "siteConfigs" : [ ]
     },
     {
-      "description": null,
-      "displayName": null,
-      "icon": null,
       "language": "en",
       "name": "project3",
       "parents": [ ],
@@ -69,9 +64,7 @@
         "siteConfigs" : [ ]
     },
     {
-      "description": null,
       "displayName": "project4",
-      "icon": null,
       "language": "en",
       "name": "project4",
       "parents": ["parent2"],

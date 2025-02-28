@@ -1,11 +1,12 @@
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 import Q from 'q';
 import {EmulatorDevice} from '../context/widget/emulator/EmulatorDevice';
-import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+import {EmulatorContext} from '../context/widget/emulator/EmulatorContext';
+import {EmulatedEvent} from '../../event/EmulatedEvent';
 
 
 export class EmulatorDropdown
@@ -33,7 +34,7 @@ export class EmulatorDropdown
     }
 
     private listenToEmulatedEvent() {
-        EmulatedEvent.on((event: EmulatedEvent) => {
+        EmulatorContext.get().onDeviceChanged((event: EmulatedEvent) => {
             if (!event.isEmulator()) {
                 // sync selected device with external event
                 const deviceRow = this.getList().getItems().find((item: EmulatorDevice) => {
@@ -70,7 +71,7 @@ export class EmulatorDropdown
     protected doSelect(item: EmulatorDevice) {
         this.selectedOption.setObject(item);
         this.selectedOption.show();
-        new EmulatedEvent(item, true).fire();
+        EmulatorContext.get().notifyDeviceChanged(new EmulatedEvent(item, true));
         super.doSelect(item);
     }
 

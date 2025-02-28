@@ -1,6 +1,5 @@
 {
   "error": {
     "message": "Content with id [content-id] was not found"
-  },
-  "result": null
+  }
 }

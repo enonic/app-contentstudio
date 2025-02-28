@@ -1,10 +1,6 @@
 {
-    "archivedBy": null,
-    "archivedTime": null,
     "attachments": [],
-    "childOrder": null,
     "contentState": "DEFAULT",
-    "createdTime": null,
     "creator": "user:system:admin",
     "data": [],
     "deletable": true,
@@ -21,12 +17,8 @@
     "language": "en",
     "listTitle": "My Content",
     "meta": [],
-    "modifiedTime": null,
     "modifier": "user:system:admin",
     "name": "content-name",
-    "originProject": null,
-    "originalName": null,
-    "originalParentPath": null,
     "owner": "user:myStore:me",
     "page": {
         "config": [
@@ -40,19 +32,14 @@
                 ]
             }
         ],
-        "controller": null,
         "customized": false,
-        "fragment": null,
         "regions": [],
         "template": "my-page"
     },
     "path": "/content-name",
     "permissions": [],
-    "publish": null,
-    "thumbnail": null,
     "type": "myapplication:content-type",
     "validationErrors": [],
-    "variantOf" : null,
     "workflow": {
         "checks": {},
         "state": "READY"

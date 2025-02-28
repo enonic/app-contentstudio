@@ -2,9 +2,7 @@
   "xdatas": [
     {
       "createdTime": "2013-01-01T12:00:00Z",
-      "creator": null,
       "deletable": false,
-      "description": null,
       "displayName": "input_text_1",
       "editable": false,
       "form": {
@@ -12,7 +10,6 @@
           {
             "Input": {
               "config": {},
-              "customText": null,
               "helpText": "Help text line 1",
               "immutable": false,
               "indexed": false,
@@ -23,22 +20,17 @@
               "occurrences": {
                 "maximum": 1,
                 "minimum": 1
-              },
-              "validationRegexp": null
+              }
             }
           }
         ]
       },
       "isOptional": false,
-      "modifiedTime": null,
-      "modifier": null,
       "name": "myapplication:input_text_1"
     },
     {
       "createdTime": "2013-01-01T12:00:00Z",
-      "creator": null,
       "deletable": false,
-      "description": null,
       "displayName": "text_area_2",
       "editable": false,
       "form": {
@@ -46,7 +38,6 @@
           {
             "Input": {
               "config": {},
-              "customText": null,
               "helpText": "Help text area",
               "immutable": false,
               "indexed": false,
@@ -57,15 +48,12 @@
               "occurrences": {
                 "maximum": 1,
                 "minimum": 1
-              },
-              "validationRegexp": null
+              }
             }
           }
         ]
       },
       "isOptional": false,
-      "modifiedTime": null,
-      "modifier": null,
       "name": "myapplication:text_area_2"
     }
   ]

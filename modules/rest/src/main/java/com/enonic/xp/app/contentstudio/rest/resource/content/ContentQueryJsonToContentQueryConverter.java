@@ -15,12 +15,12 @@ import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
+import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.query.expr.DslExpr;
 import com.enonic.xp.query.expr.DslOrderExpr;
 import com.enonic.xp.query.expr.OrderExpr;
 import com.enonic.xp.query.expr.QueryExpr;
 import com.enonic.xp.query.parser.QueryParser;
-import com.enonic.xp.util.JsonHelper;
 
 public class ContentQueryJsonToContentQueryConverter
 {
@@ -135,7 +135,7 @@ public class ContentQueryJsonToContentQueryConverter
 
     private DslExpr createDslExpr()
     {
-        return DslExpr.from( JsonToPropertyTreeTranslator.translate( JsonHelper.from( contentQueryJson.getQuery() ) ) );
+        return DslExpr.from( PropertyTree.fromMap( contentQueryJson.getQuery() ) );
     }
 
     private List<OrderExpr> createDslSortExpr()
@@ -146,7 +146,7 @@ public class ContentQueryJsonToContentQueryConverter
         }
 
         return contentQueryJson.getQuerySort().stream()
-            .map( expr -> DslOrderExpr.from( JsonToPropertyTreeTranslator.translate( JsonHelper.from( expr ) ) ) )
+            .map( expr -> DslOrderExpr.from( PropertyTree.fromMap( expr ) ) )
             .collect( Collectors.toList() );
     }
 

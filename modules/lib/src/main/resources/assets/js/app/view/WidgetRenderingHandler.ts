@@ -16,6 +16,7 @@ import {Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {EmulatedEvent} from '../event/EmulatedEvent';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
+import {EmulatorContext} from './context/widget/emulator/EmulatorContext';
 
 export enum PREVIEW_TYPE {
     WIDGET,
@@ -326,7 +327,7 @@ export class WidgetRenderingHandler {
     protected bindListeners() {
         ViewWidgetEvent.on(this.handleWidgetEvent.bind(this));
 
-        EmulatedEvent.on(this.handleEmulatorEvent.bind(this));
+        EmulatorContext.get().onDeviceChanged(this.handleEmulatorEvent.bind(this));
 
         this.frame.onLoaded((event: UIEvent) => {
             if (this.previewType === PREVIEW_TYPE.EMPTY) {
