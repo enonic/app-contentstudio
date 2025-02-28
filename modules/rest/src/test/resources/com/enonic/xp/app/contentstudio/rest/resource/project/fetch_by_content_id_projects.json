@@ -3,7 +3,6 @@
     {
       "description": "project description 1",
       "displayName": "project name 1",
-      "icon": null,
       "language": "en",
       "name": "project1",
       "parents": ["base"],
@@ -22,9 +21,6 @@
         "siteConfigs" : [ ]
     },
     {
-      "description": null,
-      "displayName": null,
-      "icon": null,
       "language": "en",
       "name": "project3",
       "parents": [ ],

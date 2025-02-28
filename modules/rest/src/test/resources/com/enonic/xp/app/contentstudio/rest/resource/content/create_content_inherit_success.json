@@ -1,8 +1,5 @@
 {
-    "archivedBy": null,
-    "archivedTime": null,
     "attachments": [],
-    "childOrder": null,
     "contentState": "DEFAULT",
     "createdTime": "2013-08-23T12:55:09.162Z",
     "creator": "user:system:admin",
@@ -45,10 +42,7 @@
     "modifier": "user:system:admin",
     "name": "content-path",
     "originProject": "origin",
-    "originalName": null,
-    "originalParentPath": null,
     "owner": "user:myStore:me",
-    "page": null,
     "path": "/content-path",
     "permissions": [],
     "publish": {
@@ -56,10 +50,8 @@
         "from": "2016-11-02T10:36:00Z",
         "to": "2016-11-22T10:36:00Z"
     },
-    "thumbnail": null,
     "type": "myapplication:content-type",
     "validationErrors": [],
-    "variantOf" : null,
     "workflow": {
         "checks": {},
         "state": "READY"

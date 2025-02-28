@@ -3,26 +3,20 @@
   "allowChildContent": true,
   "allowChildContentType" : [ ],
   "createdTime": "2013-01-01T12:00:00Z",
-  "creator": null,
   "deletable": false,
   "description": "My description",
   "displayName": "My ContentType",
-  "displayNameExpression": null,
-  "displayNameLabel": null,
   "editable": false,
   "final": true,
   "form": {
     "formItems": [
       {
         "FormItemSet": {
-          "customText": null,
-          "helpText": null,
           "immutable": false,
           "items": [
             {
               "Input": {
                 "config": {},
-                "customText": null,
                 "helpText": "translated.helpText",
                 "immutable": false,
                 "indexed": false,
@@ -33,8 +27,7 @@
                 "occurrences": {
                   "maximum": 1,
                   "minimum": 1
-                },
-                "validationRegexp": null
+                }
               }
             }
           ],
@@ -50,8 +43,6 @@
   },
   "iconUrl": "/admin/rest-v2/cs/schema/content/icon/myapplication:my_cty?hash=f95b70fdc3088560732a5ac135644506",
   "metadata": [],
-  "modifiedTime": null,
-  "modifier": null,
   "name": "myapplication:my_cty",
   "superType": "base:unstructured"
 }
