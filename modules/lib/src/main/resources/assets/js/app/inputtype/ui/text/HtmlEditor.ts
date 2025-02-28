@@ -45,12 +45,12 @@ export interface MacroDialogParams {
 }
 
 export interface Macro {
-    macroText: string;
     name: string;
     attributes: string[];
-    element: CKEDITOR.dom.element;
+    macroStart: CKEDITOR.dom.element;
     index: number,
-    body?: string;
+    body?: string | HTMLElement[];
+    macroEnd?: CKEDITOR.dom.element;
 }
 
 /**
