@@ -66,6 +66,8 @@ CKEDITOR.plugins.add('macro', {
         });
 
         function doRefresh() {
+            selectedMacro = null;
+
             if (!selectedElement || !selectionRange.startContainer.equals(selectionRange.endContainer)) {
                 return;
             }
@@ -79,36 +81,79 @@ CKEDITOR.plugins.add('macro', {
             checkMacroNoBodySelected();
         }
 
-        function makeMacroObject(regexResult) {
+        function makeMacroObject(name, attributes, index) {
+            return {
+                name: name,
+                attributes: attributes,
+                index: index,
+                macroStart: selectedElement,
+            };
+        }
+
+        function extractAttributes(text) {
             var regexMacroAttributes = /\s([^=]+)="([^"]+)"/g;
             var attributes = [];
-            var attributesString = regexResult[0].match(/\[([^\/][^\]]*)\]/)[1];
+            var attributesString = text.match(/\[([^\/][^\]]*)\]/)[1];
 
             var attrs;
             while (attrs = regexMacroAttributes.exec(attributesString)) {
                 attributes.push([attrs[1], attrs[2]]);
             }
 
-            var result = {
-                macroText: regexResult[0],
-                name: regexResult[1],
-                attributes: attributes,
-                element: selectedElement,
-                index: regexResult.index
-            };
-
-            return result;
+            return attributes;
         }
 
         function checkMacroWithBodySelected() {
+            checkMacroWithBodyWithinSingleTag();
+
+            if (!!selectedMacro) {
+                return;
+            }
+
+            checkMacroWithBodyWithinMultipleTags();
+        }
+
+        function checkMacroWithBodyWithinSingleTag() {
             var regexMacroWithBody = /\[(\w+[\w-]*)[^\]]*\]([^\[]*)\[\/(\w+[\w-]*)\]/g;
+            var selectedElementInnerHtml = selectedElement.$.innerHTML;
             var result;
 
-            while (result = regexMacroWithBody.exec(selectedElement.$.innerHTML)) {
+            while (result = regexMacroWithBody.exec(selectedElementInnerHtml)) {
                 if (result[1] === result[3] && isSelectionWithinMacro(result)) {
-                    selectedMacro = makeMacroObject(result);
+                    selectedMacro = makeMacroObject(result[1], extractAttributes(result[0]), result.index);
                     selectedMacro.body = isSystemMacro(result[1]) ? extractMacroTextFromElement(selectedElement, result[1]) : result[2];
                     break;
+                }
+            }
+        }
+
+        function checkMacroWithBodyWithinMultipleTags() {
+            var regexNameMacro = /\[(\w+[\w-]*)[^\]]*(?<!\/)]/; // possibly a macro start within a tag
+            var selectedElementInnerHtml = selectedElement.$.innerHTML;
+
+            if (regexNameMacro.test(selectedElementInnerHtml)) {
+                var result = selectedElementInnerHtml.match(regexNameMacro);
+                var macroName = result[1];
+                var nextElement = selectedElement.getNext();
+                var bodyElements = [];
+                var foundMacroEnd = false;
+
+                while (nextElement) {
+                    const html = nextElement.type === CKEDITOR.NODE_TEXT ? nextElement.getText() : nextElement.getHtml();
+                    if (html.indexOf(`[/${macroName}]`) > -1) {
+                        foundMacroEnd = true;
+                        break;
+                    }
+
+                    bodyElements.push(nextElement.$);
+                    nextElement = nextElement.getNext();
+                }
+
+                if (foundMacroEnd) {
+                    var attributes = extractAttributes(selectedElementInnerHtml);
+                    selectedMacro = makeMacroObject(macroName, attributes, result.index);
+                    selectedMacro.body = bodyElements;
+                    selectedMacro.macroEnd = nextElement;
                 }
             }
         }
@@ -129,7 +174,7 @@ CKEDITOR.plugins.add('macro', {
             // using innerText instead of getText() to preserve line breaks and spaces
             while (result = regexMacroNoBody.exec(selectedElement.$.innerText)) {
                 if (isSelectionWithinMacro(result)) {
-                    selectedMacro = makeMacroObject(result);
+                    selectedMacro = makeMacroObject(result[1], extractAttributes(result[0]), result.index);
                     break;
                 }
             }
