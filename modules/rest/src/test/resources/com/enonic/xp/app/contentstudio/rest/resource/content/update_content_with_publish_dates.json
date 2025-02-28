@@ -1,6 +1,5 @@
 {
   "attachments": [],
-  "childOrder": null,
   "contentState": "DEFAULT",
   "createdTime": "2013-08-23T12:55:09.162Z",
   "creator": "user:system:admin",
@@ -36,13 +35,11 @@
   "modifier": "user:system:admin",
   "name": "content-name",
   "owner": "user:myStore:me",
-  "page": null,
   "path": "/content-name",
   "permissions": [],
   "publish": {
     "from": "2018-11-03T10:43:00Z",
     "to": "2018-11-23T10:20:01Z"
   },
-  "thumbnail": null,
   "type": "myapplication:content-type"
 }

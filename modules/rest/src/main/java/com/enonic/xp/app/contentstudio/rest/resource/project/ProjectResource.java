@@ -21,8 +21,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
@@ -78,8 +76,6 @@ public final class ProjectResource
     implements JaxRsComponent
 {
     private static final Logger LOG = LoggerFactory.getLogger( ProjectResource.class );
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private ProjectService projectService;
 

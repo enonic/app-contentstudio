@@ -5,8 +5,6 @@
       {
         "Input": {
           "config": {},
-          "customText": null,
-          "helpText": null,
           "immutable": false,
           "indexed": false,
           "inputType": "Double",
@@ -16,8 +14,7 @@
           "occurrences": {
             "maximum": 1,
             "minimum": 0
-          },
-          "validationRegexp": null
+          }
         }
       }
     ]

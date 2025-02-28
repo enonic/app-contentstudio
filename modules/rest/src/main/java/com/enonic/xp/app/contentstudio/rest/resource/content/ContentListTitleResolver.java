@@ -2,8 +2,8 @@ package com.enonic.xp.app.contentstudio.rest.resource.content;
 
 import java.util.Optional;
 
+import com.enonic.xp.app.contentstudio.rest.Interpolator;
 import com.enonic.xp.content.Content;
-import com.enonic.xp.core.internal.Interpolator;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeService;

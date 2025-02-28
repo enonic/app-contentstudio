@@ -1,8 +1,5 @@
 {
-    "archivedBy": null,
-    "archivedTime": null,
     "attachments": [],
-    "childOrder": null,
     "contentState": "DEFAULT",
     "createdTime": "2013-08-23T12:55:09.162Z",
     "creator": "user:system:admin",
@@ -72,18 +69,11 @@
     "modifiedTime": "2013-08-23T12:55:09.162Z",
     "modifier": "user:system:admin",
     "name": "my_a_content",
-    "originProject": null,
-    "originalName": null,
-    "originalParentPath": null,
     "owner": "user:myStore:me",
-    "page": null,
     "path": "/my_a_content",
     "permissions": [],
-    "publish": null,
-    "thumbnail": null,
     "type": "portal:site",
     "validationErrors": [],
-    "variantOf" : null,
     "workflow": {
         "checks": {},
         "state": "READY"

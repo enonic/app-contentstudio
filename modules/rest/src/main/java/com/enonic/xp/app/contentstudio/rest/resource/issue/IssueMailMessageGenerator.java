@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 import com.google.common.html.HtmlEscapers;
 
+import com.enonic.xp.app.contentstudio.rest.Interpolator;
 import com.enonic.xp.context.ContextAccessor;
-import com.enonic.xp.core.internal.Interpolator;
 import com.enonic.xp.issue.IssueComment;
 import com.enonic.xp.issue.IssueStatus;
 import com.enonic.xp.issue.IssueType;

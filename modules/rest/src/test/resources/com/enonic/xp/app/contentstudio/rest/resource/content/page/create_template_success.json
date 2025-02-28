@@ -1,11 +1,6 @@
 {
-    "archivedBy": null,
-    "archivedTime": null,
     "attachments": [],
-    "childOrder": null,
     "contentState": "DEFAULT",
-    "createdTime": null,
-    "creator": null,
     "data": [
         {
             "name": "supports",
@@ -28,31 +23,20 @@
     "isPage": true,
     "isRoot": false,
     "isValid": false,
-    "language": null,
     "listTitle": "My page template",
     "meta": [],
-    "modifiedTime": null,
-    "modifier": null,
     "name": "template-myapplication-2",
-    "originProject": null,
-    "originalName": null,
-    "originalParentPath": null,
     "owner": "user:myStore:me",
     "page": {
         "config": [],
         "controller": "my-descriptor:",
         "customized": false,
-        "fragment": null,
-        "regions": [],
-        "template": null
+        "regions": []
     },
     "path": "/site/_templates/template-myapplication-2",
     "permissions": [],
-    "publish": null,
-    "thumbnail": null,
     "type": "portal:page-template",
     "validationErrors": [],
-    "variantOf" : null,
     "workflow": {
         "checks": {},
         "state": "READY"
