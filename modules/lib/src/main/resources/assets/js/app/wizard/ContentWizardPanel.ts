@@ -36,7 +36,6 @@ import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveMa
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {assert} from '@enonic/lib-admin-ui/util/Assert';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -86,7 +85,6 @@ import {ContentsExistResult} from '../resource/ContentsExistResult';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {CreateContentRequest} from '../resource/CreateContentRequest';
 import {GetApplicationRequest} from '../resource/GetApplicationRequest';
-import {GetApplicationsRequest} from '../resource/GetApplicationsRequest';
 import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
@@ -240,13 +238,6 @@ export class ContentWizardPanel
     private applicationStoppedListener: (event: ApplicationEvent) => void;
 
     private applicationStartedListener: (event: ApplicationEvent) => void;
-
-    private static EDITOR_DISABLED_TYPES: ContentTypeName[] = [
-        ContentTypeName.FOLDER,
-        ContentTypeName.TEMPLATE_FOLDER,
-        ContentTypeName.SHORTCUT,
-        ContentTypeName.UNSTRUCTURED,
-    ];
 
     private contentUpdateDisabled: boolean;
 
@@ -668,7 +659,7 @@ export class ContentWizardPanel
             this.contextView.appendContextWindow(this.getLivePanel().getContextWindow());
             this.livePanel.setContextPanelState(this.contextSplitPanel.getState());
             this.livePanel.setToggleContextPanelHandler(() => {
-               this.contextSplitPanel.toggleContextPanel();
+                this.contextSplitPanel.toggleContextPanel();
             });
 
             this.contextSplitPanel.onModeChanged((mode: ContextPanelMode) => {
@@ -1794,16 +1785,8 @@ export class ContentWizardPanel
         return extraData;
     }
 
-    private isSplitEditModeActive(): Q.Promise<boolean> {
-        return this.shouldOpenEditorByDefault().then((shouldOpenEditorByDefault: boolean) => {
-            return this.isEditorEnabled().then((isEditorEnabled) => {
-                return ResponsiveRanges._960_1200.isFitOrBigger(this.getEl().getWidth()) && isEditorEnabled && shouldOpenEditorByDefault;
-            });
-        });
-    }
-
     private setupWizardLiveEdit() {
-        this.isEditorEnabled().then((isEditorEnabled: boolean) => {
+        this.shouldOpenEditorByDefault().then((isEditorEnabled: boolean) => {
             this.toggleClass('rendered', isEditorEnabled);
 
             this.wizardActions.getShowLiveEditAction().setEnabled(isEditorEnabled);
@@ -1820,23 +1803,15 @@ export class ContentWizardPanel
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.toggleLiveEdit at ' + new Date().toISOString());
         }
-        return this.isSplitEditModeActive().then((isSplitEditModeActive: boolean) => {
-            if (isSplitEditModeActive) {
-
-                return Q.allSettled([this.isRenderable(), this.hasControllers()])
-                    .then(([renderable, hasControllers]) => {
-                        if (renderable.value || hasControllers.value) {
-                            this.showLiveEdit();
-                        } else {
-                            this.showForm();
-                        }
-                    })
-                    .catch(DefaultErrorHandler.handle);
-            } else {
-                this.showForm();
-            }
-
-        });
+        return Q.allSettled([this.shouldAndCanOpenEditorByDefault(), this.hasControllers()])
+            .then(([canOpenEditor, hasControllers]) => {
+                if (canOpenEditor.value || hasControllers.value) {
+                    this.showLiveEdit();
+                } else {
+                    this.showForm();
+                }
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     private initSiteModelListeners() {
@@ -1940,30 +1915,6 @@ export class ContentWizardPanel
         });
 
         return added;
-    }
-
-    private fetchMissingOrStoppedAppKeys(): Q.Promise<ApplicationKey[]> {
-        const applicationKeys: ApplicationKey[] = this.site?.getApplicationKeys() || [];
-
-        if (applicationKeys.length === 0) {
-            return Q.resolve([]);
-        }
-
-        return new GetApplicationsRequest(applicationKeys).sendAndParse().then((applications: Application[]) => {
-            const stoppedApps: Application[] = [];
-            const missingOrStoppedAppKeys: ApplicationKey[] = applicationKeys.filter((key: ApplicationKey) => {
-                const app: Application = applications.find((a: Application) => a.getApplicationKey().equals(key));
-                if (app?.isStopped()) {
-                    stoppedApps.push(app);
-                }
-                return !app || app.getState() === Application.STATE_STOPPED;
-            });
-
-            //TODO: check if this is needed
-            this.formsContexts.forEach((context: ContentFormContext) => context.setStoppedApplications(stoppedApps));
-
-            return missingOrStoppedAppKeys;
-        });
     }
 
     private layoutWizardStepForms(content: Content): Q.Promise<void> {
@@ -2487,10 +2438,12 @@ export class ContentWizardPanel
         });
     }
 
-    private async isEditorEnabled(): Promise<boolean> {
-        const shouldOpenByDefault = await this.shouldOpenEditorByDefault();
-        return !!this.site || (shouldOpenByDefault && !ArrayHelper.contains(ContentWizardPanel.EDITOR_DISABLED_TYPES,
-            this.contentType.getContentTypeName()));
+    private shouldAndCanOpenEditorByDefault(): Q.Promise<boolean> {
+        if (!ResponsiveRanges._960_1200.isFitOrBigger(this.getEl().getWidth())) {
+            return Q.resolve(false);
+        }
+
+        return this.shouldOpenEditorByDefault();
     }
 
     private updateButtonsState(): Q.Promise<void> {

@@ -328,7 +328,7 @@ export class LiveEditPageProxy
         const contentId = this.liveEditModel.getContent().getId();
         const language = this.liveEditModel.getContent()?.getLanguage();
         const contentType = this.liveEditModel.getContent().getType()?.toString();
-        const sitePath: string = this.liveEditModel.getSiteModel().getSite().getPath().toString();
+        const sitePath: string = this.liveEditModel.getSiteModel()?.getSite().getPath().toString();
         const modifyPermissions: boolean = this.modifyPermissions;
         // two things that should work from live frame is to ask for fragment id by path to keep live frame clean
         const getFragmentIdByPath = (path: string): string | undefined => {
