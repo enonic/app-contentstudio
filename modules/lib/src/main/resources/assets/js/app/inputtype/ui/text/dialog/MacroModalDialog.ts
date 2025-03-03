@@ -18,6 +18,7 @@ import * as DOMPurify from 'dompurify';
 import {Macro, MacroDialogParams} from '../HtmlEditor';
 import {HTMLAreaHelper} from '../HTMLAreaHelper';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export interface MacroModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -204,11 +205,32 @@ export class MacroModalDialog
             data.addString(item[0], DOMPurify.sanitize(item[1]));
         });
 
-        if (this.selectedMacro?.body) {
-            data.addString('body', this.sanitize(this.selectedMacro.body));
+
+        if (!this.isNoBodyMacro()) {
+            if (this.isSingleTagBodyMacro()) {
+                data.addString('body', this.sanitize(this.selectedMacro.body as string));
+            } else if (this.isMultipleTagsBodyMacro()) {
+                const body = this.selectedMacro.body as HTMLElement[];
+                const bodyArrayText = body.map((elem)  => elem.outerHTML).reduce((prev, curr) => {
+                    return prev + curr;
+                }, '');
+                data.addString('body', this.sanitize(bodyArrayText));
+            }
         }
 
         return data;
+    }
+
+    private isNoBodyMacro(): boolean {
+        return !ObjectHelper.isDefined(this.selectedMacro?.body);
+    }
+
+    private isSingleTagBodyMacro(): boolean {
+        return typeof this.selectedMacro?.body === 'string';
+    }
+
+    private isMultipleTagsBodyMacro(): boolean {
+        return Array.isArray(this.selectedMacro?.body);
     }
 
     private insertMacroIntoTextArea(): void {
@@ -226,20 +248,40 @@ export class MacroModalDialog
         });
     }
 
-    private insertUpdatedMacroIntoTextArea(macroString: string) {
+    private insertUpdatedMacroIntoTextArea(macroString: string): void {
         const sanitizedMacro: string = this.sanitize(macroString);
-        const currentElemText: string = this.selectedMacro.element.$.innerText;
-        const newElemText: string = currentElemText.substring(0, this.selectedMacro.index) +
-                                    sanitizedMacro +
-                                    currentElemText.substring(this.selectedMacro.index + this.selectedMacro.macroText.length);
 
-        if (this.isSystemMacro()) {
-            this.selectedMacro.element.$.innerText = newElemText;
-        } else {
-            this.selectedMacro.element.$.innerHTML = newElemText;
+        if (this.isNoBodyMacro()) {
+            this.updateSingleTagContainedMacro(sanitizedMacro, '/]');
+        } else if (this.isSingleTagBodyMacro()) {
+            this.updateSingleTagContainedMacro(sanitizedMacro, `[/${this.selectedMacro.name}]`);
+        } else if (this.isMultipleTagsBodyMacro()) {
+            const bodyElements = this.selectedMacro.body as HTMLElement[];
+
+            bodyElements.forEach((elem) => {
+               elem.remove();
+            });
+
+            this.selectedMacro.macroEnd?.remove();
+
+            this.updateSingleTagContainedMacro(sanitizedMacro, ']');
         }
 
         this.getEditor().fire('saveSnapshot'); // to trigger change event
+    }
+
+    private updateSingleTagContainedMacro(sanitizedMacro: string, closingSequence: string): void {
+        const currentElemText: string = this.selectedMacro.macroStart.$.innerText;
+        const closingTagIndex: number = currentElemText.indexOf(closingSequence, this.selectedMacro.index);
+        const newElemText: string = currentElemText.substring(0, this.selectedMacro.index) +
+                                    sanitizedMacro +
+                                    currentElemText.substring(closingTagIndex + closingSequence.length);
+
+        if (this.isSystemMacro()) {
+            this.selectedMacro.macroStart.$.innerText = newElemText;
+        } else {
+            this.selectedMacro.macroStart.$.innerHTML = newElemText;
+        }
     }
 
     private insertNewMacroIntoTextArea(macroString: string) {
