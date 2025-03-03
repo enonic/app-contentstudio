@@ -25,7 +25,7 @@
     "allure-report": "allure generate ./build/reports/allure --output ./build/reports/allure-report --clean --single-file"
   },
   "devDependencies": {
-    "@wdio/allure-reporter": "9.9.0",
+    "@wdio/allure-reporter": "9.10.1",
     "@wdio/cli": "^9.10.0",
     "@wdio/concise-reporter": "^9.9.0",
     "@wdio/local-runner": "^9.10.0",
