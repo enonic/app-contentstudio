@@ -834,6 +834,9 @@ export class ContentWizardPanel
         }
 
         this.splitPanel = builder.build();
+
+        //TODO: add option to render panel hidden to the builder
+        this.splitPanel.hideSecondPanel();
         this.splitPanel.addClass('wizard-and-preview');
 
         return this.splitPanel;
@@ -1215,6 +1218,7 @@ export class ContentWizardPanel
                     firstLoad = false;
                     this.toggleLiveEdit();
                     this.updateButtonsState();
+                    this.toggleClass('rendered', true);
                 }
             });
         });
@@ -1753,16 +1757,6 @@ export class ContentWizardPanel
         this.workflowStateManager.update();
     }
 
-    private initLiveEditor(content: Content): Q.Promise<void> {
-        if (ContentWizardPanel.debug) {
-            console.debug('ContentWizardPanel.initLiveEditor at ' + new Date().toISOString());
-        }
-
-        this.setupWizardLiveEdit();
-
-        return this.refreshLivePanel(content);
-    }
-
     // sync persisted content extra data with xData
     // when rendering form - we may add extra fields from xData;
     // as this is intended action from XP, not user - it should be present in persisted content
@@ -1783,20 +1777,6 @@ export class ContentWizardPanel
         let extraData = new ExtraData(xDataName, propertyTree ? propertyTree.copy() : new PropertyTree());
         content.getAllExtraData().push(extraData);
         return extraData;
-    }
-
-    private setupWizardLiveEdit() {
-        this.shouldOpenEditorByDefault().then((isEditorEnabled: boolean) => {
-            this.toggleClass('rendered', isEditorEnabled);
-
-            this.wizardActions.getShowLiveEditAction().setEnabled(isEditorEnabled);
-
-            this.getCycleViewModeButton().setVisible(isEditorEnabled);
-
-            if (isEditorEnabled) {
-                this.formMask.show();
-            }
-        });
     }
 
     private toggleLiveEdit(): Q.Promise<void> {
@@ -1844,51 +1824,51 @@ export class ContentWizardPanel
 
         this.initFormContext(content);
 
-        return this.initLiveEditor(content).then(() => {
-            return this.createWizardStepForms().then(() => {
-                const steps: ContentWizardStep[] = this.createSteps();
-                this.addAccessibilityToSteps(steps);
-                this.setSteps(steps);
+        this.formMask.show();
 
-                if (this.contentType.isPageTemplate()) {
-                    this.stepNavigator.removeNavigationItem(this.dataWizardStep.getTabBarItem());
+        return this.createWizardStepForms().then(() => {
+            const steps: ContentWizardStep[] = this.createSteps();
+            this.addAccessibilityToSteps(steps);
+            this.setSteps(steps);
+
+            if (this.contentType.isPageTemplate()) {
+                this.stepNavigator.removeNavigationItem(this.dataWizardStep.getTabBarItem());
+            }
+
+            return this.layoutWizardStepForms(content).then(() => {
+                if (this.params.localized) {
+                    this.onRendered(() => {
+                        NotifyManager.get().showFeedback(i18n('notify.content.localized'));
+                        this.renderAndOpenTranslatorDialog();
+                    });
                 }
 
-                return this.layoutWizardStepForms(content).then(() => {
-                    if (this.params.localized) {
-                        this.onRendered(() => {
-                            NotifyManager.get().showFeedback(i18n('notify.content.localized'));
-                            this.renderAndOpenTranslatorDialog();
-                        });
-                    }
+                AI.get().setDataTree(this.contentWizardStepForm.getData());
+                AI.get().setContentHeader(this.wizardHeader);
 
-                    AI.get().setDataTree(this.contentWizardStepForm.getData());
-                    AI.get().setContentHeader(this.wizardHeader);
+                this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
 
-                    this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
+                this.xDataWizardStepForms.resetState();
 
-                    this.xDataWizardStepForms.resetState();
+                this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
+                this.contentWizardStepForm.validate();
+                this.xDataWizardStepForms.validate();
 
-                    this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
-                    this.contentWizardStepForm.validate();
-                    this.xDataWizardStepForms.validate();
+                if (this.isNew()) {
+                    this.contentWizardStepForm.getFormView().highlightInputsOnValidityChange(true);
+                } else {
+                    this.displayValidationErrors(!this.isValid());
+                }
 
-                    if (this.isNew()) {
-                        this.contentWizardStepForm.getFormView().highlightInputsOnValidityChange(true);
-                    } else {
-                        this.displayValidationErrors(!this.isValid());
-                    }
+                this.enableDisplayNameScriptExecution(this.contentWizardStepForm.getFormView());
 
-                    this.enableDisplayNameScriptExecution(this.contentWizardStepForm.getFormView());
+                this.wizardActions.initUnsavedChangesListeners();
 
-                    this.wizardActions.initUnsavedChangesListeners();
+                const debouncedUpdate: () => void = AppHelper.debounce(this.updatePublishStatusOnDataChange.bind(this), 100);
 
-                    const debouncedUpdate: () => void = AppHelper.debounce(this.updatePublishStatusOnDataChange.bind(this), 100);
+                this.onPageStateChanged(debouncedUpdate);
 
-                    this.onPageStateChanged(debouncedUpdate);
-
-                    return Q(null);
-                });
+                return Q(null);
             });
         });
     }
@@ -2433,9 +2413,11 @@ export class ContentWizardPanel
         const isTemplate: boolean = this.contentType.getContentTypeName().isPageTemplate();
         const isSite: boolean = this.contentType.getContentTypeName().isSite();
 
-        return this.isRenderable().then((renderable) => {
-            return renderable || isSite || isTemplate;
-        });
+        if (isTemplate || isSite) {
+            return Q.resolve(true);
+        }
+
+        return this.isRenderable();
     }
 
     private shouldAndCanOpenEditorByDefault(): Q.Promise<boolean> {
@@ -2450,6 +2432,11 @@ export class ContentWizardPanel
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.updateButtonsState');
         }
+
+        this.shouldOpenEditorByDefault().then((shouldOpenEditor: boolean) => {
+            this.wizardActions.getShowLiveEditAction().setEnabled(shouldOpenEditor);
+            this.getCycleViewModeButton().setVisible(shouldOpenEditor);
+        });
 
         return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
             this.contextView.updateWidgetsVisibility();

@@ -78,9 +78,8 @@ function doPreliminaryRenderingChecks(params) {
     const hasControllers = hasAvailableControllers(appKeys);
     if (hasControllers) {
         log.debug('\nhas controllers:' + hasControllers);
-        // Return hasControllers in non-auto mode only to show blue dropdown
         return widgetLib.errorResponse(418, {
-            hasControllers: !params.auto && hasControllers,
+            hasControllers: /*!params.auto &&*/ hasControllers,
             hasPage: isPageOrFragment
         });
     }
@@ -90,7 +89,7 @@ function doPreliminaryRenderingChecks(params) {
         log.debug('\napps missing:' + appsMissing);
         return widgetLib.errorResponse(418, {
             messages: [widgetLib.i18n('field.preview.missing.description')],
-            hasControllers: !params.auto && hasControllers,
+            hasControllers: /*!params.auto && */hasControllers,
             hasPage: isPageOrFragment
         });
     }
