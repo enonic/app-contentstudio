@@ -7,6 +7,7 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import Q from 'q';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {UrlHelper} from '../../util/UrlHelper';
 
 
 export class PreviewWidgetDropdown
@@ -206,7 +207,7 @@ export class PreviewWidgetOptionViewer
     }
 
     resolveIconUrl(object: PreviewWidgetOption): string {
-        return object.getIconUrl();
+        return `${UrlHelper.getWidgetBaseUrl()}/${object.getIconUrl()}`;
     }
 
     resolveIconClass(object: PreviewWidgetOption): string {

@@ -49,4 +49,8 @@ export class UrlHelper {
     static isContentBrowseUrlMatch(): boolean {
         return window.location.hash.endsWith(UrlAction.BROWSE);
     }
+
+    static getWidgetBaseUrl(): string {
+        return CONFIG.getString('widgetApiUrl');
+    }
 }

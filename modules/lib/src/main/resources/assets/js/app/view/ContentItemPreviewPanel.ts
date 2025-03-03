@@ -19,6 +19,7 @@ import {PreviewActionHelper} from '../action/PreviewActionHelper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
 import {EmulatorContext} from './context/widget/emulator/EmulatorContext';
+import {UrlHelper} from '../util/UrlHelper';
 
 enum PREVIEW_TYPE {
     WIDGET,
@@ -158,7 +159,7 @@ export class ContentItemPreviewPanel
             let isOK = this.isResponseOk(result, selectedWidget);
 
             if (isOK) {
-                selectedWidget.getConfig().setProperty("previewUrl", widget.getUrl());
+                selectedWidget.getConfig().setProperty("previewUrl", `${UrlHelper.getWidgetBaseUrl()}/${widget.getUrl()}`);
                 deferred.resolve(true);
                 this.handlePreviewSuccess(result);
                 break;
