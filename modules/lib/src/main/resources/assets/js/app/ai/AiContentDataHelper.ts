@@ -113,7 +113,7 @@ export class AiContentDataHelper {
     }
 
     private updateProperty(property: Property | undefined, value: string): void {
-        property?.setValue(new Value(value, property.getType()));
+        property?.setValue(new Value(value, property.getType()), true);
     }
 
     replaceSlashesWithDots(path: string): string {
