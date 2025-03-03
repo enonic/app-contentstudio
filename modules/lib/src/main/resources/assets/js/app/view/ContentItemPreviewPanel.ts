@@ -158,7 +158,7 @@ export class ContentItemPreviewPanel
             let isOK = this.isResponseOk(result, selectedWidget);
 
             if (isOK) {
-                selectedWidget.getConfig().setProperty("previewUrl", widget.getUrl());
+                selectedWidget.getConfig().setProperty("previewUrl", widget.getFullUrl());
                 deferred.resolve(true);
                 this.handlePreviewSuccess(result);
                 break;

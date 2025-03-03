@@ -36,7 +36,7 @@ export class WidgetsToolbar
         }
 
         if (widget.getIconUrl()) {
-            const imgEl: ImgEl = new ImgEl(widget.getIconUrl());
+            const imgEl: ImgEl = new ImgEl(widget.getFullIconUrl());
             sidebarButton.appendChild(imgEl);
         }
 

@@ -62,7 +62,7 @@ export class PreviewActionHelper {
             params.append(key, this.additionalParams[key]);
         }
 
-        const url = widget.getConfig().getProperty("previewUrl") || widget.getUrl();
+        const url = widget.getConfig().getProperty("previewUrl") || widget.getFullUrl();
 
         return `${url}?${params.toString()}`;
     }
