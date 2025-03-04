@@ -43,8 +43,6 @@ dependencies {
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
     include "com.enonic.lib:lib-mustache:2.1.1"
     include "com.enonic.lib:lib-http-client:3.2.2"
-    include "com.enonic.xp:lib-io:${xpVersion}"
-    include "com.enonic.lib:lib-license:3.1.0"
     include "com.enonic.xp:lib-auth:${xpVersion}"
     include "com.enonic.xp:lib-node:${xpVersion}"
     include "com.enonic.lib:lib-http-client:3.2.1"
