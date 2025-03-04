@@ -31,19 +31,21 @@ dependencies {
 
     include "org.apache.commons:commons-text:1.13.1"
     include "com.enonic.xp:lib-admin:${xpVersion}"
-    include "com.enonic.xp:lib-portal:${xpVersion}"
-    include "com.enonic.xp:lib-context:${xpVersion}"
-    include "com.enonic.xp:lib-project:${xpVersion}"
-    include "com.enonic.lib:lib-text-encoding:2.1.1"
-    include "com.enonic.xp:lib-content:${xpVersion}"
-    include "com.enonic.xp:lib-grid:${xpVersion}"
-    include "com.enonic.xp:lib-event:${xpVersion}"
     include "com.enonic.xp:lib-app:${xpVersion}"
+    include "com.enonic.xp:lib-auth:${xpVersion}"
+    include "com.enonic.xp:lib-event:${xpVersion}"
+    include "com.enonic.xp:lib-portal:${xpVersion}"
+    include "com.enonic.xp:lib-content:${xpVersion}"
+    include "com.enonic.xp:lib-context:${xpVersion}"
+    include "com.enonic.xp:lib-grid:${xpVersion}"
+    include "com.enonic.xp:lib-node:${xpVersion}"
+    include "com.enonic.xp:lib-project:${xpVersion}"
     include "com.enonic.xp:lib-schema:${xpVersion}"
     include "com.enonic.xp:lib-websocket:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
-    include "com.enonic.lib:lib-mustache:2.1.1"
     include "com.enonic.lib:lib-http-client:3.2.2"
+    include "com.enonic.lib:lib-mustache:2.1.1"
+    include "com.enonic.lib:lib-text-encoding:2.1.1"
     include "com.enonic.xp:lib-auth:${xpVersion}"
     include "com.enonic.xp:lib-node:${xpVersion}"
     include "com.enonic.lib:lib-http-client:3.2.2"
@@ -57,6 +59,12 @@ afterEvaluate {
     copyDevResources.dependsOn ':lib-contentstudio:devJar'
 }
 
+tasks.register( 'typecheck', NpmTask ) {
+    dependsOn npmInstall
+    group 'verification'
+    args = ['run', 'check']
+    outputs.upToDateWhen { false }
+}
 
 tasks.register( 'lint', NpmTask ) {
     dependsOn npmInstall
@@ -65,9 +73,10 @@ tasks.register( 'lint', NpmTask ) {
     outputs.upToDateWhen { false }
 }
 
+check.dependsOn typecheck
 check.dependsOn lint
 
-tasks.register( 'webpack', NpmTask ) {
+tasks.register( 'npmBuild', NpmTask ) {
     dependsOn npmInstall
     environment = ['NODE_ENV': nodeEnvironment()]
     description = 'Build UI resources (ts, css, etc).'
@@ -88,6 +97,7 @@ jar {
     exclude 'assets/page-editor/lib/jquery*.js'
     exclude 'assets/icons/*.txt'
     exclude 'assets/styles/widgets/*.js'
+    exclude 'lib/**/*.ts'
 
     if ( isProd() )
     {
@@ -95,6 +105,5 @@ jar {
     }
 
     dependsOn += test
-    dependsOn += webpack
+    dependsOn += npmBuild
 }
-

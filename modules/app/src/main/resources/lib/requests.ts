@@ -1,7 +1,13 @@
-const utils = require('/lib/utils');
-const libHttpClient = require('/lib/http-client');
+import libHttpClient from '/lib/http-client';
 
-function respondJson(status, body) {
+export type RequestParams = {
+    path: string;
+    method?: Enonic.HttpMethod;
+    headers?: Enonic.RequestHeaders;
+    body?: unknown;
+};
+
+export function respondJson(status: number, body: unknown) {
     return {
         status: status,
         contentType: 'application/json',
@@ -9,22 +15,19 @@ function respondJson(status, body) {
     };
 }
 
-exports.respondJson = respondJson;
-
-function respondMessage(status, message) {
+export function respondMessage(status: number, message: string) {
     return respondJson(status, {
         message: message,
     });
 }
 
-exports.respondMessage = respondMessage;
-
-function request(params) {
+export function request(params: RequestParams): Enonic.Response {
     const path = params.path;
     const method = params.method || 'GET';
-    const headers = utils.copy({
+    const headers: Enonic.RequestHeaders = {
         accept: 'application/json',
-    }, params.headers || {});
+        ...(params.headers || {}),
+    };
     const body = params.body;
 
     return libHttpClient.request({
@@ -37,20 +40,16 @@ function request(params) {
     });
 }
 
-exports.request = request;
-
-function getRequest(path, headers) {
+export function getRequest(path: string, headers: Enonic.RequestHeaders): Enonic.Response {
     try {
         return libHttpClient.request({
             url: path,
             method: 'GET',
             headers: headers || {},
         });
-    } catch (e) {
+    } catch (err) {
         log.error('Problems with executing GET: ' + path);
-        log.error(e.stack);
-        throw e;
+        log.error(err);
+        throw err;
     }
 }
-
-exports.getRequest = getRequest;

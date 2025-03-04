@@ -15,8 +15,7 @@
         "loose": true
     },
     "exclude": [
-        ".*\\.d\\.ts$",
-        "/lib/.*\\.js$"
+        ".*\\.d\\.ts$"
     ],
     "module": {
         "type": "commonjs",
