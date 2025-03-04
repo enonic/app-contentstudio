@@ -51,7 +51,7 @@ export interface HttpClientResponse {
     headers: Record<string, string>;
     cookies: Record<string, string>;
     contentType: string;
-    body: string | null;
+    body?: string | Record<string, unknown> | unknown[];
     bodyStream?: Stream;
 }
 

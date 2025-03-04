@@ -33,6 +33,8 @@
     "@enonic-types/lib-common": "7.15.0",
     "@enonic-types/lib-context": "7.15.0",
     "@enonic-types/lib-event": "7.15.0",
+    "@enonic-types/lib-grid": "7.15.0",
+    "@enonic-types/lib-i18n": "7.15.0",
     "@enonic-types/lib-io": "7.15.0",
     "@enonic-types/lib-node": "7.15.0",
     "@enonic-types/lib-portal": "7.15.0",

@@ -4,9 +4,7 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "sourceMap": false,
-        // "allowJs": true,
         "noImplicitReturns": true,
-        // "esModuleInterop": true,
         "skipLibCheck": true,
         "strict": true,
         "lib": [
@@ -15,10 +13,19 @@
         "baseUrl": "./",
         "paths": {
             "/lib/http-client": [
-                "types/lib/httpClient"
+                "./types/lib/httpClient"
+            ],
+            "/lib/license": [
+                "./types/lib/license"
             ],
             "/lib/xp/core": [
                 "../../../../node_modules/@enonic-types/core"
+            ],
+            "/lib/xp/admin": [
+                "./types/lib/admin"
+            ],
+            "/lib/xp/portal": [
+                "./types/lib/portal"
             ],
             "/lib/xp/*": [
                 "../../../../node_modules/@enonic-types/lib-*"
@@ -27,12 +34,12 @@
         "typeRoots": [
             "../../../../node_modules/@types",
             "../../../../node_modules/@enonic-types",
-            "types/lib",
         ],
         "incremental": true,
-        "outDir": "../../../../build/resources/main/lib"
+        "outDir": "../../../../build/resources/main/"
     },
     "include": [
-        "./**/*.ts"
+        "./**/*.ts",
+        "../shared/**/*.ts"
     ],
 }

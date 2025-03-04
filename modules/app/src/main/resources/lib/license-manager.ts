@@ -1,30 +1,28 @@
 const subscriptionKey = "enonic.platform.subscription";
-const licenseLib = require("/lib/license");
+import type {ValidateLicenseParams} from "/lib/license";
+import licenseLib from "/lib/license";
 
-const getLicenseDetails = function (license) {
-    const params = {
+const getLicenseDetails = function (license?: string) {
+    const params: ValidateLicenseParams = {
         appKey: subscriptionKey,
+        license: license,
     };
-    if (license) {
-        params.license = license;
-    }
 
     return licenseLib.validateLicense(params);
 }
 
-const isCurrentLicenseValid = function () {
-    return isLicenseValid();
+export function isLicenseValid(license?: string): boolean {
+    const licenseDetails = getLicenseDetails(license);
+    return licenseDetails && !licenseDetails.expired;
 }
 
-const isLicenseValid = function (license) {
-    const licenseDetails = getLicenseDetails(license);
-
-    return licenseDetails && !licenseDetails.expired;
+export function isCurrentLicenseValid(): boolean {
+    return isLicenseValid();
 }
 
 exports.isCurrentLicenseValid = isCurrentLicenseValid;
 
-exports.installLicense = function (license) {
+export function installLicense(license: string): boolean {
     if (!isLicenseValid(license)) {
         return false;
     }

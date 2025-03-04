@@ -87,13 +87,6 @@ tasks.register( 'npmBuild', NpmTask ) {
     outputs.dir "$buildDir/build/resources/main/assets"
 }
 
-processResources {
-    exclude 'tsconfig.json'
-    exclude 'lib/**/*.ts'
-    exclude 'assets/**/*.ts'
-    exclude 'assets/**/*.less'
-}
-
 jar {
     exclude 'assets/**/*.ts'
     exclude 'assets/**/*.less'
