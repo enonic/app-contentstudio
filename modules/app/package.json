@@ -9,12 +9,12 @@
   },
   "scripts": {
     "build": "concurrently -c auto -g --timings npm:build:*",
-    "build:js": "webpack --color --stats-error-details",
-    "build:worker": "webpack --config webpack.worker.config.js --color",
-    "build:typecheck:js": "tsc --pretty --skipLibCheck --noEmit",
-    "build:typecheck:worker": "tsc --pretty --skipLibCheck --noEmit --project ./src/main/resources/assets/shared-socket/tsconfig.json",
-    "lint": "eslint **/*.ts --quiet --cache",
-    "fix": "eslint --fix **/*.ts --cache"
+    "build:worker": "webpack --config webpack.worker.config.js --color --stats=minimal",
+    "build:client": "webpack --color --stats=minimal",
+    "build:server": "tsc --project ./src/main/resources/lib/tsconfig.json",
+    "check": "concurrently -c auto -g --timings npm:check:*",
+    "check:client": "tsc --pretty --skipLibCheck --noEmit",
+    "check:worker": "tsc --pretty --skipLibCheck --noEmit --project ./src/main/resources/assets/shared-socket/tsconfig.json"
   },
   "dependencies": {
     "@enonic/lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
@@ -26,6 +26,23 @@
     "q": "^1.5.1"
   },
   "devDependencies": {
+    "@enonic-types/core": "7.15.0",
+    "@enonic-types/global": "7.15.0",
+    "@enonic-types/lib-admin": "7.15.0",
+    "@enonic-types/lib-auth": "7.15.0",
+    "@enonic-types/lib-common": "7.15.0",
+    "@enonic-types/lib-context": "7.15.0",
+    "@enonic-types/lib-event": "7.15.0",
+    "@enonic-types/lib-grid": "7.15.0",
+    "@enonic-types/lib-i18n": "7.15.0",
+    "@enonic-types/lib-io": "7.15.0",
+    "@enonic-types/lib-node": "7.15.0",
+    "@enonic-types/lib-portal": "7.15.0",
+    "@enonic-types/lib-repo": "7.15.0",
+    "@enonic-types/lib-scheduler": "7.15.0",
+    "@enonic-types/lib-task": "7.15.0",
+    "@enonic-types/lib-value": "7.15.0",
+    "@enonic-types/lib-websocket": "7.15.0",
     "@enonic/eslint-config": "^2.0.0",
     "@types/ckeditor": "^4.9.10",
     "@types/jquery": "^3.5.31",
