@@ -25,14 +25,14 @@
     "allure-report": "allure generate ./build/reports/allure --output ./build/reports/allure-report --clean --single-file"
   },
   "devDependencies": {
-    "@wdio/allure-reporter": "9.9.0",
-    "@wdio/cli": "^9.10.0",
-    "@wdio/concise-reporter": "^9.9.0",
-    "@wdio/local-runner": "^9.10.0",
-    "@wdio/mocha-framework": "^9.9.0",
+    "@wdio/allure-reporter": "9.10.1",
+    "@wdio/cli": "^9.10.1",
+    "@wdio/concise-reporter": "^9.10.1",
+    "@wdio/local-runner": "^9.10.1",
+    "@wdio/mocha-framework": "^9.10.1",
     "allure-commandline": "^2.32.2",
     "properties-reader": "2.3.0",
-    "webdriverio": "9.10.0"
+    "webdriverio": "9.10.1"
   },
   "engines": {
     "node": ">= 20.18.0",

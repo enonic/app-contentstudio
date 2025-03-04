@@ -56,6 +56,7 @@ export class PageTemplateAndControllerSelector
         super.initElements();
 
         this.selectedViewer = new PageTemplateAndSelectorViewer('selected-option');
+        this.selectedViewer.hide();
     }
 
     protected initListeners(): void {
@@ -314,6 +315,7 @@ export class PageTemplateAndControllerSelector
         if (optionToSelect) {
             this.selectedOption = optionToSelect;
             this.selectedViewer.setObject(optionToSelect);
+            this.selectedViewer.show();
             this.optionFilterInput.hide();
             this.select(optionToSelect, true);
         }

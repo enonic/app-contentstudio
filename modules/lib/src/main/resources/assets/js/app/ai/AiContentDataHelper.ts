@@ -11,6 +11,8 @@ import {TextComponent} from '../page/region/TextComponent';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentWizardHeader} from '../wizard/ContentWizardHeader';
 import {CompareStatus, CompareStatusChecker} from '../content/CompareStatus';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {HtmlArea} from '../inputtype/text/HtmlArea';
 
 export class AiContentDataHelper {
 
@@ -44,7 +46,7 @@ export class AiContentDataHelper {
 
     setValue(path: string, text: string): void {
         if (this.isTopicPath(path)) {
-            if (!StringHelper.isBlank(text) && this.isAllowedToChangeName()) {
+            if (this.isAllowedToChangeName(text)) {
                 this.contentHeader?.setName('', true); // resetting name to trigger name generation after updating displayName
             }
             this.contentHeader?.setDisplayName(text);
@@ -57,8 +59,9 @@ export class AiContentDataHelper {
         }
     }
 
-    private isAllowedToChangeName(): boolean {
-        return CompareStatusChecker.isNew(this.compareStatus);
+    private isAllowedToChangeName(text: string): boolean {
+        return !StringHelper.isBlank(text) && !ObjectHelper.stringEquals(text?.trim(), this.contentHeader.getDisplayName()) &&
+               CompareStatusChecker.isNew(this.compareStatus);
     }
 
     transformPathOnDemand(path: string): string {
@@ -113,7 +116,7 @@ export class AiContentDataHelper {
     }
 
     private updateProperty(property: Property | undefined, value: string): void {
-        property?.setValue(new Value(value, property.getType()));
+        property?.setValue(new Value(value, property.getType()), true);
     }
 
     replaceSlashesWithDots(path: string): string {
