@@ -1,0 +1,38 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "sourceMap": false,
+        // "allowJs": true,
+        "noImplicitReturns": true,
+        // "esModuleInterop": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "lib": [
+            "es2015"
+        ],
+        "baseUrl": "./",
+        "paths": {
+            "/lib/http-client": [
+                "types/lib/httpClient"
+            ],
+            "/lib/xp/core": [
+                "../../../../node_modules/@enonic-types/core"
+            ],
+            "/lib/xp/*": [
+                "../../../../node_modules/@enonic-types/lib-*"
+            ],
+        },
+        "typeRoots": [
+            "../../../../node_modules/@types",
+            "../../../../node_modules/@enonic-types",
+            "types/lib",
+        ],
+        "incremental": true,
+        "outDir": "../../../../build/resources/main/lib"
+    },
+    "include": [
+        "./**/*.ts"
+    ],
+}
