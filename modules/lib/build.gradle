@@ -15,6 +15,13 @@ dependencies {
     devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 }
 
+tasks.register( 'typecheck', NpmTask ) {
+    dependsOn npmInstall
+    group 'verification'
+    args = ['run', 'check']
+    outputs.upToDateWhen { false }
+}
+
 tasks.register( 'lint', NpmTask ) {
     dependsOn npmInstall
     group 'verification'
@@ -22,6 +29,7 @@ tasks.register( 'lint', NpmTask ) {
     outputs.upToDateWhen { false }
 }
 
+check.dependsOn typecheck
 check.dependsOn lint
 
 tasks.register( 'typescript', NpmTask ) {
