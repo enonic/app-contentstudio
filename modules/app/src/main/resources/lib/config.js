@@ -57,9 +57,6 @@ function getConfig() {
             contentUrl: portal.apiUrl({
                 api: 'content'
             }),
-            licenseUrl: portal.apiUrl({
-                api: 'license'
-            }),
             stylesUrl: portal.apiUrl({
                 api: 'styles'
             }),

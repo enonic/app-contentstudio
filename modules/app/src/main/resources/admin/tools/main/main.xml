@@ -10,10 +10,10 @@
     <api>collaboration</api>
     <api>content</api>
     <api>export</api>
-    <api>license</api>
     <api>styles</api>
     <api>admin:widget</api>
     <api>admin:status</api>
     <api>admin:event</api>
+    <api>com.enonic.app.contentstudio.plus:license</api>
   </apis>
 </tool>
