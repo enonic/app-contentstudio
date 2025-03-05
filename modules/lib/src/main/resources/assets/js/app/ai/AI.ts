@@ -32,6 +32,8 @@ import {AiContentOperatorConfigureEvent} from './event/outgoing/AiContentOperato
 import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigureEvent';
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
 import {CompareStatus} from '../content/CompareStatus';
+import {AiTranslatorNoLicenseEvent} from './event/incoming/AiTranslatorNoLicenseEvent';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 declare global {
     interface Window {
@@ -49,7 +51,6 @@ interface EnonicAi {
     translator?: {
         setup(setupData: EnonicAiTranslatorSetupData): void;
         render(container: HTMLElement): void;
-        translate(instructions?: string, language?: string): Promise<boolean>;
     }
 }
 
@@ -99,12 +100,13 @@ export class AI {
         AiContentOperatorDialogShownEvent.on(this.handleDialogOpenedEvent);
         AiContentOperatorDialogHiddenEvent.on(this.handleDialogClosedEvent);
         AiContentOperatorInteractionEvent.on(this.handleInteractionEvent);
+        AiTranslatorNoLicenseEvent.on(this.handleNoLicenseEvent);
 
         this.getContentOperator()?.setup({
             wsServiceUrl: CONFIG.getString('services.aiContentOperatorWsServiceUrl')
         });
         this.getTranslator()?.setup({
-            restServiceUrl: CONFIG.getString('services.aiTranslatorRestServiceUrl'),
+            licenseServiceUrl: CONFIG.getString('services.aiTranslatorLicenseServiceUrl'),
             wsServiceUrl: CONFIG.getString('services.aiTranslatorWsServiceUrl')
         });
 
@@ -272,6 +274,10 @@ export class AI {
 
     private handleDialogClosedEvent = () => {
         this.aiToolHelper.setActiveContext(null);
+    }
+
+    private handleNoLicenseEvent = () => {
+        NotifyManager.get().showWarning(i18n('notify.ai.translator.license.missing'));
     }
 
     private handleInteractionEvent = (event: AiContentOperatorInteractionEvent) => {
