@@ -13,13 +13,14 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {GetWidgetsByInterfaceRequest} from './resource/GetWidgetsByInterfaceRequest';
 import {Widget, WidgetConfig} from '@enonic/lib-admin-ui/content/Widget';
-import {WidgetHelper, WidgetElement} from '@enonic/lib-admin-ui/widget/WidgetHelper';
+import {WidgetElement, WidgetHelper} from '@enonic/lib-admin-ui/widget/WidgetHelper';
 import {ContentAppContainer} from './ContentAppContainer';
 import {Router} from './Router';
 import {UrlAction} from './UrlAction';
 import {ContentAppBar} from './bar/ContentAppBar';
 import {WidgetsSidebar} from './widget/WidgetsSidebar';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {UrlHelper} from './util/UrlHelper';
 
 export class AppWrapper
     extends DivEl {
@@ -149,7 +150,7 @@ export class AppWrapper
     }
 
     private updateUrl(widget: Widget): void {
-        if (widget.getUrl() === UrlAction.BROWSE.toString()) {
+        if (UrlHelper.buildWidgetUrl(widget.getUrl()) === UrlAction.BROWSE.toString()) {
             Router.get().setHash(UrlAction.BROWSE);
             return;
         }
@@ -182,7 +183,7 @@ export class AppWrapper
             return;
         }
 
-        fetch(widget.getUrl())
+        fetch(UrlHelper.buildWidgetUrl(widget.getUrl()))
             .then(response => response.text())
             .then((html: string) => {
                 WidgetHelper.createFromHtmlAndAppend(html, this.widgetsBlock)

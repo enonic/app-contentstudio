@@ -5,9 +5,9 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import * as Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {UriHelper} from '../../rendering/UriHelper';
 import {ContextView} from './ContextView';
 import {WidgetItemView} from './WidgetItemView';
+import {UrlHelper} from '../../util/UrlHelper';
 
 export enum InternalWidgetType {
     INFO,
@@ -107,7 +107,7 @@ export class WidgetView
     }
 
     private getWidgetUrl() {
-        return this.widget.getUrl();
+        return UrlHelper.buildWidgetUrl(this.widget.getUrl());
     }
 
     private updateCustomWidgetItemViews(): Q.Promise<void>[] {
@@ -183,7 +183,7 @@ export class WidgetView
     }
 
     getWidgetIconUrl(): string {
-        return this.widget ? this.widget.getIconUrl() : null;
+        return this.widget ? UrlHelper.buildWidgetIconUrl(this.widget.getIconUrl()) : null;
     }
 
     isInternal(): boolean {
@@ -277,19 +277,19 @@ export class WidgetView
     }
 
     private isUrlBased(): boolean {
-        return !!this.widget && !!this.widget.getUrl();
+        return !!this.widget && !!this.getWidgetUrl();
     }
 
     notifyActivated() {
-        this.activationListeners.forEach((listener: ()=> void) => listener());
+        this.activationListeners.forEach((listener: () => void) => listener());
     }
 
     onActivated(listener: () => void) {
         this.activationListeners.push(listener);
     }
 
-    unActivated(listener: ()=>void) {
-        this.activationListeners = this.activationListeners.filter((currentListener: ()=>void) => {
+    unActivated(listener: () => void) {
+        this.activationListeners = this.activationListeners.filter((currentListener: () => void) => {
             return currentListener !== listener;
         });
     }

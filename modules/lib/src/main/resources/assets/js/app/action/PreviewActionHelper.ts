@@ -8,6 +8,7 @@ import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {RepositoryId} from '../repository/RepositoryId';
 import {ProjectContext} from '../project/ProjectContext';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {UrlHelper} from '../util/UrlHelper';
 
 interface OpenedWindow {
     openedWindow: Window;
@@ -62,7 +63,7 @@ export class PreviewActionHelper {
             params.append(key, this.additionalParams[key]);
         }
 
-        const url = widget.getConfig().getProperty("previewUrl") || widget.getUrl();
+        const url = widget.getConfig().getProperty("previewUrl") || UrlHelper.buildWidgetUrl(widget.getUrl());
 
         return `${url}?${params.toString()}`;
     }
