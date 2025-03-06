@@ -207,7 +207,7 @@ export class PreviewWidgetOptionViewer
     }
 
     resolveIconUrl(object: PreviewWidgetOption): string {
-        return `${UrlHelper.getWidgetBaseUrl()}/${object.getIconUrl()}`;
+        return UrlHelper.buildWidgetIconUrl(object.getIconUrl());
     }
 
     resolveIconClass(object: PreviewWidgetOption): string {

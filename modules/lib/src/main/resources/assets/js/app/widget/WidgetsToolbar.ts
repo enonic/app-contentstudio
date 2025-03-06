@@ -4,6 +4,7 @@ import {AppContext} from '../AppContext';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {WidgetButton} from './WidgetButton';
+import {UrlHelper} from '../util/UrlHelper';
 
 export class WidgetsToolbar
     extends DivEl {
@@ -36,7 +37,7 @@ export class WidgetsToolbar
         }
 
         if (widget.getIconUrl()) {
-            const imgEl: ImgEl = new ImgEl(widget.getIconUrl());
+            const imgEl: ImgEl = new ImgEl(UrlHelper.buildWidgetIconUrl(widget.getIconUrl()));
             sidebarButton.appendChild(imgEl);
         }
 

@@ -53,4 +53,12 @@ export class UrlHelper {
     static getWidgetBaseUrl(): string {
         return CONFIG.getString('widgetApiUrl');
     }
+
+    static buildWidgetUrl(path: string): string {
+        return `${UrlHelper.getWidgetBaseUrl()}/${path}`;
+    }
+
+    static buildWidgetIconUrl(iconPath: string): string {
+        return `${UrlHelper.getWidgetBaseUrl()}/${iconPath}`;
+    }
 }

@@ -107,7 +107,7 @@ export class WidgetView
     }
 
     private getWidgetUrl() {
-        return `${UrlHelper.getWidgetBaseUrl()}/${this.widget.getUrl()}`;
+        return UrlHelper.buildWidgetUrl(this.widget.getUrl());
     }
 
     private updateCustomWidgetItemViews(): Q.Promise<void>[] {
@@ -183,7 +183,7 @@ export class WidgetView
     }
 
     getWidgetIconUrl(): string {
-        return this.widget ? `${UrlHelper.getWidgetBaseUrl()}/${this.widget.getIconUrl()}` : null;
+        return this.widget ? UrlHelper.buildWidgetIconUrl(this.widget.getIconUrl()) : null;
     }
 
     isInternal(): boolean {

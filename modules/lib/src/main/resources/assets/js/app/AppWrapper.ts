@@ -150,7 +150,7 @@ export class AppWrapper
     }
 
     private updateUrl(widget: Widget): void {
-        if (`${UrlHelper.getWidgetBaseUrl()}/${widget.getUrl()}` === UrlAction.BROWSE.toString()) {
+        if (UrlHelper.buildWidgetUrl(widget.getUrl()) === UrlAction.BROWSE.toString()) {
             Router.get().setHash(UrlAction.BROWSE);
             return;
         }
@@ -183,8 +183,7 @@ export class AppWrapper
             return;
         }
 
-        fetch(widget.getUrl())
-        fetch(`${UrlHelper.getWidgetBaseUrl()}/${widget.getUrl()}`)
+        fetch(UrlHelper.buildWidgetUrl(widget.getUrl()))
             .then(response => response.text())
             .then((html: string) => {
                 WidgetHelper.createFromHtmlAndAppend(html, this.widgetsBlock)
