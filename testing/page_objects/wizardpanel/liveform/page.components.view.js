@@ -4,6 +4,7 @@
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const BasePageComponentView = require('../base.page.components.view');
+
 const xpath = {
     container: "//div[contains(@id,'PageComponentsView') and contains(@class,'draggable')]",
     pcvDialogMinimizer: "//button[contains(@id,'Button') and contains(@class,'minimize-button')]",
@@ -50,7 +51,7 @@ class PageComponentView extends BasePageComponentView {
             return await this.waitForElementDisplayed(this.showPcvDialogButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_show_component_view_button');
-            throw new Error('Show Component View button is not visible , screenshot: ' + screenshot + '  ' + err);
+            throw new Error(`Show Component View button is not visible , screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -59,7 +60,7 @@ class PageComponentView extends BasePageComponentView {
             return await this.waitForElementDisplayed(this.hidePcvDialogButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_hide_component_view_not_displayed');
-            throw new Error("'Hide Component View' button should should be visible, screenshot: " + screenshot + ' ' + err);
+            throw new Error(`'Hide Component View' button should should be visible, screenshot:${screenshot} `  + err);
         }
     }
 
@@ -68,7 +69,7 @@ class PageComponentView extends BasePageComponentView {
             return await this.waitForElementNotDisplayed(this.hidePcvDialogButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_hide_component_view_btn');
-            throw new Error("'Hide Component View' button should not be displayed, screenshot: " + screenshot + ' ' + err);
+            throw new Error(`'Hide Component View' button should not be displayed, screenshot: ${screenshot} `  + err);
         }
     }
 
@@ -79,8 +80,8 @@ class PageComponentView extends BasePageComponentView {
             await this.clickOnElement(this.hidePcvDialogButton);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot('err_hide_component_view_btn');
-            throw new Error("Error when clicking on 'Hide Component View' button " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_hide_component_view_btn');
+            throw new Error(`Error after clicking on 'Hide Component View' button ${screenshot} ` + err);
         }
     }
 

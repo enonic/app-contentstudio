@@ -4,6 +4,7 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+
 const xpath = {
     parentListElement: "//ancestor::div[contains(@class,'item-view-wrapper')]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
@@ -257,6 +258,18 @@ class BasePageComponentView extends Page {
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_pcv_item');
             throw new Error(`Page Component View -  item is not displayed, screenshot: ${screenshot}  ` + err);
+        }
+    }
+
+    async isComponentItemInvalid(itemDisplayName) {
+        try {
+            let locator = this.container + xpath.componentByName(itemDisplayName) + "//div[contains(@class,'xp-admin-common-wrapper')]";  //div[contains(@class,'xp-admin-common-wrapper')]
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            let attr = await this.getAttribute(locator, 'class');
+            return attr.includes('icon-state-invalid');
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_select_layout');
+            throw new Error(`Error during checking the component  in PCV, screenshot:${screenshot} ` + err);
         }
     }
 
