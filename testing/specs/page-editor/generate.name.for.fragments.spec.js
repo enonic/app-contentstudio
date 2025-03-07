@@ -74,7 +74,7 @@ describe('Generate name for fragments specification', function () {
             // 7. Only one item should be present in Page Component wizard step
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.equal(result.length, 1, 'One item should be displayed in the Page Component wizard step');
-            assert.ok(result.includes('Text'), 'City list part should be present in the dialog');
+            assert.ok(result.includes('Text'), 'Text component item should be present in PCV wizard step form');
 
             await studioUtils.saveScreenshot('x_data_fragment');
             // 8. Verify that x-data toggle is displayed in the fragment-wizard:

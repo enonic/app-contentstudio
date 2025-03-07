@@ -210,6 +210,17 @@ module.exports = Object.freeze({
     },
     LAYOUT_NAME: {
         COL_3: '3-col',
+        COL_2: '25/75',
+        CENTERED: 'Centered',
+    },
+    LAYOUT_REGION: {
+        LEFT: 'left',
+        CENTER: 'center',
+        RIGHT: 'right',
+    },
+    PART_NAME: {
+        CITIES_LIST: 'Cities List',
+        PART_WITH_ERROR: 'part-with-error',
     },
     EMULATOR_RESOLUTION: {
         FULL_SIZE: 'Full Size',
