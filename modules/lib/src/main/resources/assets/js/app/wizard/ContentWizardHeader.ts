@@ -16,6 +16,7 @@ import {AiStateTool} from '@enonic/lib-admin-ui/ai/tool/AiStateTool';
 import {AiContentDataHelper} from '../ai/AiContentDataHelper';
 import {AiAnimationTool} from '@enonic/lib-admin-ui/ai/tool/AiAnimationTool';
 import {AI} from '../ai/AI';
+import {AiDialogIconTool} from '@enonic/lib-admin-ui/ai/tool/AiDialogIconTool';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {
@@ -52,17 +53,26 @@ export class ContentWizardHeader
 
         this.onRendered(() => {
             if (AI.get().has('contentOperator')) {
+                const getDataPath = () => this.getAiDataPath();
+
                 new AiStateTool({
                     group: AiContentDataHelper.DATA_PREFIX,
                     pathElement: this.displayNameEl,
-                    getPath: () => PropertyPath.fromString('/__topic__'),
+                    getPath: getDataPath,
                     label: i18n('field.displayName'),
                     stateContainer: this.displayNameEl.getParentElement(),
                 });
 
+                new AiDialogIconTool({
+                    group: AiContentDataHelper.DATA_PREFIX,
+                    getPath: getDataPath,
+                    pathElement: this.displayNameEl,
+                    aiButtonContainer: this.topRow,
+                });
+
                 new AiAnimationTool({
                     group: AiContentDataHelper.DATA_PREFIX,
-                    getPath: () => PropertyPath.fromString('/__topic__'),
+                    getPath: getDataPath,
                     pathElement: this.displayNameEl,
                 });
             }
@@ -298,5 +308,9 @@ export class ContentWizardHeader
 
         const path: string = content.getPath().getParentPath().isRoot() ? '/' : `${content.getPath().getParentPath().toString()}/`;
         this.setPath(path);
+    }
+
+    private getAiDataPath(): PropertyPath {
+        return PropertyPath.fromString(`/${AiContentDataHelper.TOPIC}`);
     }
 }

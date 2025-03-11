@@ -73,6 +73,19 @@
       .ai-helper-mask {
         background-color: @admin-bg-light-gray; // enforce background color
       }
+
+      .ai-dialog-control {
+        display: block !important; // trick to make the input field width stay same on hover
+        visibility: hidden;
+        position: static;
+        margin: auto 6px;
+      }
+
+      &:focus-within {
+        .ai-dialog-control {
+          visibility: visible;
+        }
+      }
     }
 
     .wizard-header-bottom-row {
