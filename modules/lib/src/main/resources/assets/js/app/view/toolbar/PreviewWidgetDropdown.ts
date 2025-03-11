@@ -7,6 +7,8 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import Q from 'q';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {AriaHasPopup, AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
 
 
 export class PreviewWidgetDropdown
@@ -22,12 +24,23 @@ export class PreviewWidgetDropdown
             maxSelected: 1
         });
 
+        this.setTitle(i18n('tooltip.widget.liveview'));
+
         this.fetchLiveViewWidgets().then((widgets: Widget[]) => {
             this.setWidgets(widgets);
         });
 
         this.selectedOption = new PreviewWidgetOptionViewer();
-        this.selectedOption.addClass('selected-option').hide();
+        this.selectedOption
+            .addClass('selected-option')
+            .applyWCAGAttributes({
+                role: AriaRole.BUTTON,
+                tabbable: true,
+                ariaHasPopup: AriaHasPopup.LISTBOX,
+                ariaLabel: i18n('tooltip.widget.liveview')
+            });
+
+        this.selectedOption.hide();
 
         this.selectedOption.onClicked(() => {
             this.handleDropdownHandleClicked();
