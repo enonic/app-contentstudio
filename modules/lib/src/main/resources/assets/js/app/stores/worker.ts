@@ -6,7 +6,7 @@ import {
     JoinMessage,
     LeaveMessage,
     MessageType
-} from './data/messages';
+} from './data/collaboration';
 import {
     ConnectedWorkerMessage,
     OutWorkerMessage,

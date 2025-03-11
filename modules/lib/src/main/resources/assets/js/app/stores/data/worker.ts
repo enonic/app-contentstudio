@@ -1,4 +1,4 @@
-import {InMessage, OutMessage} from './messages';
+import {InMessage, OutMessage} from './collaboration';
 
 interface WorkerMessage<T> {
     type: T;

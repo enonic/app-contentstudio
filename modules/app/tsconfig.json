@@ -21,6 +21,7 @@
         ".xp/dev/lib-contentstudio/**/*.ts"
     ],
     "exclude": [
+        "src/main/resources/lib/**",
         "src/main/resources/assets/shared-socket/**"
     ]
 }
