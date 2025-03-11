@@ -44,14 +44,17 @@
           "drag-control data status edit remove";
       }
 
-      &._0-240 .selected-option {
-        grid-template-columns: 5px 1fr 20px 20px;
-        grid-template-areas:
-            "drag-control data edit remove"
-      }
+      &._0-240,
+      &._240-360 {
+        .selected-option {
+          grid-template-columns: 5px 1fr 20px 20px;
+          grid-template-areas:
+            "drag-control data edit remove";
 
-      &._240-360 .selected-option {
-        grid-template-columns: 5px 1fr 60px 20px 20px;
+          .status {
+            display: none;
+          }
+        }
       }
     }
   }
@@ -66,14 +69,17 @@
           "data status edit remove";
       }
 
-      &._0-240 .selected-option{
-        grid-template-columns: 1fr 20px 20px;
-        grid-template-areas:
-          "data edit remove";
-      }
+      &._0-240,
+      &._240-360 {
+        .selected-option {
+          grid-template-columns: 1fr 20px 20px;
+          grid-template-areas:
+            "data edit remove";
 
-      &._240-360 .selected-option{
-        grid-template-columns: 1fr 60px 20px 20px;
+          .status {
+            display: none;
+          }
+        }
       }
     }
   }
