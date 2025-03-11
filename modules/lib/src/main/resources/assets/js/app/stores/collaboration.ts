@@ -1,5 +1,5 @@
 import {batched, map} from 'nanostores';
-import {IN_BASE, MessageType, OutMessage} from './data/messages';
+import {IN_BASE, MessageType, OutMessage} from './data/collaboration';
 import {ReceivedWorkerMessage} from './data/worker';
 import {$isConnected, sendJoin, sendLeave, subscribeToOperation, subscribe as subscribeToWorker, unsubscribeFromOperation} from './worker';
 
