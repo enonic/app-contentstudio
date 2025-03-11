@@ -40,7 +40,8 @@
     }
   }
 
-  &._0-240 {
+  &._0-240,
+  &._240-360 {
     .item-view-wrapper {
       .content-tree-selector-item-viewer {
         grid-template-columns: 1fr;
@@ -48,14 +49,6 @@
         .status {
           display: none;
         }
-      }
-    }
-  }
-
-  &._240-360 {
-    .item-view-wrapper {
-      .content-tree-selector-item-viewer {
-        grid-template-columns: 1fr 60px;
       }
     }
   }
