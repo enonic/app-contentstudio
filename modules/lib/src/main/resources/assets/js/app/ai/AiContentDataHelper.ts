@@ -12,7 +12,6 @@ import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentWizardHeader} from '../wizard/ContentWizardHeader';
 import {CompareStatus, CompareStatusChecker} from '../content/CompareStatus';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {HtmlArea} from '../inputtype/text/HtmlArea';
 
 export class AiContentDataHelper {
 
