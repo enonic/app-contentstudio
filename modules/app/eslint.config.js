@@ -78,7 +78,8 @@ module.exports = [
             "**/*.js",
             "**/*.d.ts",
             "**/spec/**/*",
-            "**/shared-socket/**/*"
+            "**/shared-socket/**/*",
+            "src/main/resources/lib/**/*"
         ]
     }
 ];
