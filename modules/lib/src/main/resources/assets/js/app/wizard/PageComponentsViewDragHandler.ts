@@ -38,6 +38,7 @@ export class PageComponentsViewDragHandler {
             group: {
                 name: 'page-components',
             },
+            filter: '.toggle',
             sort: true,
             animation: 150,
             forceFallback: true,
