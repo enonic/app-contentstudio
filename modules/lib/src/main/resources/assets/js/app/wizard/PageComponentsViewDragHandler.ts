@@ -40,6 +40,7 @@ export class PageComponentsViewDragHandler {
             },
             filter: '.toggle',
             sort: true,
+            delay: 100, // need to hold touch/mouse pressed 100ms before drag starts
             animation: 150,
             forceFallback: true,
             onStart: (event: SortableEvent) => this.handleStart(event),
@@ -102,12 +103,20 @@ export class PageComponentsViewDragHandler {
         const draggedElement = this.findListElementById(event.item.id);
 
         if (draggedElement) {
+            if (this.isLayout(draggedElement.getItem())) { // collapse layout if it's expanded
+                draggedElement.collapse();
+            }
+
             this.isLayoutDragging = this.isLayoutOrFragmentWithLayout(draggedElement.getItem());
         }
     }
 
     private isLayoutOrFragmentWithLayout(item: ComponentsTreeItem): boolean {
-        return item.getType() instanceof LayoutComponentType || item.getComponent().isLayoutFragment();
+        return this.isLayout(item) || item.getComponent().isLayoutFragment();
+    }
+
+    private isLayout(item: ComponentsTreeItem): boolean {
+        return item.getType() instanceof LayoutComponentType;
     }
 
     private handleMoveEvent(evt: MoveEvent, originalEvent: Event):  boolean | -1 | 1 | void {
