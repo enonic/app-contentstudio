@@ -62,8 +62,8 @@ class ImageSelectorForm extends BaseSelectorForm {
             await this.clickOnElement(this.imageComboBoxDropdownHandle);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot('err_img_sel_dropdown_handle');
-            throw new Error('image combobox dropdown handle not found ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_img_sel_dropdown_handle');
+            throw new Error(`image combobox dropdown handle not found , screenshot:${screenshot} ` + err);
         }
     }
 
@@ -138,17 +138,27 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await imageSelectorDropdown.clickOnApplySelectionButton();
     }
 
-    // Do filter an image then click the option (there is no Apply button):
+    // Do filter an image then click the option ('Apply' button does not appear in this case):
     async filterOptionsAndSelectImage(displayName) {
-        let imageSelectorDropdown = new ImageSelectorDropdown();
-        await this.typeTextInInput(this.optionsFilterInput, displayName);
-        return await imageSelectorDropdown.clickOnFilteredByDisplayNameItem(displayName, XPATH.container);
+        try {
+            let imageSelectorDropdown = new ImageSelectorDropdown();
+            await this.typeTextInInput(this.optionsFilterInput, displayName);
+            return await imageSelectorDropdown.clickOnFilteredByDisplayNameItem(displayName, XPATH.container);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_option');
+            throw new Error(`Image -Selector , error during selecting the option: screenshot ${screenshot} ` + err);
+        }
     }
 
     async filterOptionsSelectImageAndClickOnApply(displayName) {
-        let imageSelectorDropdown = new ImageSelectorDropdown();
-        await this.typeTextInInput(this.optionsFilterInput, displayName);
-        return await imageSelectorDropdown.clickOnFilteredByDisplayNameItemAndClickOnApply(displayName, XPATH.container);
+        try {
+            let imageSelectorDropdown = new ImageSelectorDropdown();
+            await this.typeTextInInput(this.optionsFilterInput, displayName);
+            return await imageSelectorDropdown.clickOnFilteredByDisplayNameItemAndClickOnApply(displayName, XPATH.container);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_option');
+            throw new Error(`Image -Selector , error during selecting the option: screenshot ${screenshot} ` + err);
+        }
     }
 
     async doFilterOptions(displayName) {
@@ -242,17 +252,32 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async clickOnImageOptionInTreeMode(displayName) {
-        let imageSelectorDropdown = new ImageSelectorDropdown();
-        await imageSelectorDropdown.clickOnImageInDropdownListTreeMode(displayName, XPATH.container);
+        try {
+            let imageSelectorDropdown = new ImageSelectorDropdown();
+            await imageSelectorDropdown.clickOnImageInDropdownListTreeMode(displayName, XPATH.container);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_option');
+            throw new Error(`Error occurred in Image -Selector , tree mode,  screenshot: ${screenshot} ` + err);
+        }
     }
 
-    async clickOnOkAndApplySelectionButton() {
+    async clickOnOptionByDisplayName(displayName) {
+        try {
+            let imageSelectorDropdown = new ImageSelectorDropdown();
+            await imageSelectorDropdown.clickOnOptionByDisplayName(displayName);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_option');
+            throw new Error(`Error occurred in Image -Selector ,  screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async clickOnApplySelectionButton() {
         try {
             let imageSelectorDropdown = new ImageSelectorDropdown();
             await imageSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-            throw new Error("Error occurred in Content combobobox, OK button, screenshot: " + screenshot + ' ' + err);
+            throw new Error(`Error occurred in Content combobobox, OK button, screenshot: ${screenshot} ` + err);
         }
     }
 
