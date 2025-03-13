@@ -354,9 +354,6 @@ export class LiveFormPanel
             } else if (event instanceof ComponentDuplicatedEvent) {
                 this.contentWizardPanel.setMarkedAsReady(false);
                 this.saveAndReloadOnlyComponent(event.getPath());
-            } else {
-                PageNavigationMediator.get().notify(
-                    new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(event.getPath())));
             }
         };
 
