@@ -2,6 +2,8 @@
 
 import {Application} from '@enonic/lib-admin-ui/app/Application';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
@@ -13,10 +15,14 @@ import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {ConnectionDetector} from '@enonic/lib-admin-ui/system/ConnectionDetector';
+import {JSONObject} from '@enonic/lib-admin-ui/types';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {LauncherHelper} from '@enonic/lib-admin-ui/util/LauncherHelper';
 import {i18n, Messages} from '@enonic/lib-admin-ui/util/Messages';
 import * as $ from 'jquery';
 import {AppContext} from 'lib-contentstudio/app/AppContext';
@@ -55,17 +61,12 @@ import {ProjectNotAvailableDialog} from 'lib-contentstudio/app/settings/dialog/p
 import {ProjectDeletedEvent} from 'lib-contentstudio/app/settings/event/ProjectDeletedEvent';
 import {SettingsServerEventsListener} from 'lib-contentstudio/app/settings/event/SettingsServerEventsListener';
 import {ProjectListWithMissingRequest} from 'lib-contentstudio/app/settings/resource/ProjectListWithMissingRequest';
+import {$isDown, subscribe as subscribeToWorker} from 'lib-contentstudio/app/stores/worker';
 import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
 import {UrlAction} from 'lib-contentstudio/app/UrlAction';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import * as Q from 'q';
-import {JSONObject} from '@enonic/lib-admin-ui/types';
-import {LauncherHelper} from '@enonic/lib-admin-ui/util/LauncherHelper';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -100,7 +101,7 @@ function processApplicationPath(): Path {
 function startLostConnectionDetector(): ConnectionDetector {
     let readonlyMessageId: string;
 
-    const connectionDetector: ConnectionDetector =
+    const connectionDetector =
         ConnectionDetector.get(CONFIG.getString('statusApiUrl'))
             .setAuthenticated(true)
             .setSessionExpireRedirectUrl(CONFIG.getString('toolUri'))
@@ -113,6 +114,25 @@ function startLostConnectionDetector(): ConnectionDetector {
             NotifyManager.get().hide(readonlyMessageId);
             readonlyMessageId = null;
         }
+    });
+
+    let wsConnectionErrorId: string;
+    let timeoutId: number;
+    $isDown.subscribe(isDown => {
+        if (isDown && connectionDetector.isConnected()) {
+            timeoutId = window.setTimeout(() => {
+                wsConnectionErrorId = showError(i18n('notify.websockets.error'), false);
+            }, 1000);
+            return;
+        }
+
+        if (wsConnectionErrorId) {
+            NotifyManager.get().hide(wsConnectionErrorId);
+            wsConnectionErrorId = null;
+        }
+
+        clearTimeout(timeoutId);
+
     });
 
     connectionDetector.startPolling(true);
@@ -229,35 +249,11 @@ function preLoadApplication() {
     }
 }
 
-function startServerEventListeners(application: Application, eventApiUrl: string) {
-    const serverEventsListener: AggregatedServerEventsListener = new AggregatedServerEventsListener([application], eventApiUrl);
-    let wsConnectionErrorId: string;
+function startServerEventListeners(application: Application) {
+    subscribeToWorker();
 
-    serverEventsListener.onConnectionError(() => {
-        if (!wsConnectionErrorId) {
-            const connectionDetector: ConnectionDetector = ConnectionDetector.get(CONFIG.getString('statusApiUrl'));
-            const pollHandler: () => void = () => {
-                if (connectionDetector.isConnected()) {
-                    wsConnectionErrorId = showError(i18n('notify.websockets.error'), false);
-                }
-
-                connectionDetector.unPoll(pollHandler);
-            };
-
-            connectionDetector.onPoll(pollHandler);
-        }
-    });
-
-    serverEventsListener.onConnectionRestored(() => {
-        if (wsConnectionErrorId) {
-            NotifyManager.get().hide(wsConnectionErrorId);
-            wsConnectionErrorId = null;
-        }
-    });
-
-    serverEventsListener.start();
-
-    new SettingsServerEventsListener([application], eventApiUrl);
+    new AggregatedServerEventsListener(application);
+    new SettingsServerEventsListener(application);
 }
 
 const handleProjectDeletedEvent = (projectName: string) => {
@@ -321,7 +317,7 @@ async function startApplication() {
     connectionDetector = startLostConnectionDetector();
     Store.instance().set('application', application);
 
-    startServerEventListeners(application, CONFIG.getString('eventApiUrl'));
+    startServerEventListeners(application);
     initApplicationEventListener();
 
     ProjectContext.get().onNoProjectsAvailable(() => handleNoProjectsAvailable());

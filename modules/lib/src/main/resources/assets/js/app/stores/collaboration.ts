@@ -1,5 +1,6 @@
 import {batched, map} from 'nanostores';
-import {IN_BASE, MessageType, OutMessage} from './data/collaboration';
+import {OutMessage as CollaborationOutMessage, IN_BASE, MessageType} from './data/collaboration';
+import {OutMessage as ServerOutMessage} from './data/server';
 import {ReceivedWorkerMessage} from './data/worker';
 import {$isReady, sendJoin, sendLeave, subscribeToOperation, subscribe as subscribeToWorker, unsubscribeFromOperation} from './worker';
 
@@ -128,16 +129,14 @@ window.addEventListener('beforeunload', () => {
 });
 
 function handleWorkerMessage(message: ReceivedWorkerMessage): void {
-    const {type, payload} = message;
-
-    switch (type) {
+    switch (message.type) {
         case 'received':
-            handleReceivedMessage(payload);
+            handleReceivedMessage(message.payload);
             break;
     }
 }
 
-function handleReceivedMessage(message: OutMessage): void {
+function handleReceivedMessage(message: CollaborationOutMessage | ServerOutMessage): void {
     const {type, payload} = message;
 
     switch (type) {

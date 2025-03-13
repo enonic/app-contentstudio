@@ -1,22 +1,35 @@
+// * Content Studio
 export type ContentStudioEventBaseType = 'com.enonic.app.contentstudio';
+
+// *   Collaboration
 export type CollaborationEventBaseType = `${ContentStudioEventBaseType}.collaboration`;
-export type CollaborationInEventType = `${CollaborationEventBaseType}.in`;
-export type CollaborationOutEventType = `${CollaborationEventBaseType}.out`;
+// client → server
+type CollaborationInEventType = `${CollaborationEventBaseType}.in`;
+export type JoinMessageType = `${CollaborationInEventType}.join`;
+export type LeaveMessageType = `${CollaborationInEventType}.leave`;
+export type CollaborationInMessageType = JoinMessageType | LeaveMessageType;
+// server → client
+type CollaborationOutEventType = `${CollaborationEventBaseType}.out`;
+export type UpdatedMessageType = `${CollaborationOutEventType}.updated`;
+export type CollaborationOutMessageType = UpdatedMessageType;
 
-export enum MessageType {
-    // client → server
-    JOIN = 'com.enonic.app.contentstudio.collaboration.in.join',
-    LEAVE = 'com.enonic.app.contentstudio.collaboration.in.leave',
+// *   Server Events
+// XP → server
+type ApplicationEventType = 'application';
+type NodeEventType = `node.${string}`;
+type RepositoryEventType = `repository.${string}`;
+type TaskEventType = `task.${string}`;
+export type ServerInMessageType = ApplicationEventType | NodeEventType | RepositoryEventType | TaskEventType;
 
-    // server → client
-    UPDATED = `com.enonic.app.contentstudio.collaboration.out.updated`,
-}
+// server → client
+type ServerOutEventType = `${ContentStudioEventBaseType}.server.out`;
+type ApplicationOutEventType = `${ServerOutEventType}.application`;
+type NodeOutEventType = `${ServerOutEventType}.node`;
+type RepositoryOutEventType = `${ServerOutEventType}.repository`;
+type TaskOutEventType = `${ServerOutEventType}.task`;
+export type ServerOutMessageType = ApplicationOutEventType | NodeOutEventType | RepositoryOutEventType | TaskOutEventType;
 
-// String literal types that mirror the enum values
-export type JoinMessageType = 'com.enonic.app.contentstudio.collaboration.in.join';
-export type LeaveMessageType = 'com.enonic.app.contentstudio.collaboration.in.leave';
-export type UpdatedMessageType = 'com.enonic.app.contentstudio.collaboration.out.updated';
-
+// * Content Operator
 export type ContentOperatorMessageType = `custom.ai.contentoperator.${string}`;
 
 //
@@ -31,24 +44,22 @@ type BaseInMessage<T extends InMessageType, P = unknown> = {
     payload: P;
 };
 
-export type InMessage = JoinMessage | LeaveMessage;
-
 export type ContentOperatorInMessage = BaseInMessage<ContentOperatorMessageType, Record<string, unknown>>;
 
-export type AnyInMessage = InMessage | ContentOperatorInMessage;
+export type InMessage = CollaborationInMessage | ContentOperatorInMessage;
 
 //
 //* Server -> Client
 //
 
-export type OutMessageType = UpdatedMessageType;
+export type OutMessageType = CollaborationOutMessageType | ServerOutMessageType;
 
 type BaseOutMessage<T extends OutMessageType, P = unknown> = {
     type: T;
     payload: P;
 };
 
-export type OutMessage = UpdatedMessage;
+export type OutMessage = CollaborationOutMessage | ServerOutMessage;
 
 //
 //* Messages
@@ -72,6 +83,8 @@ export type LeaveMessage = BaseInMessage<LeaveMessageType, {
 
 export type LeaveMessagePayload = LeaveMessage['payload'];
 
+export type CollaborationInMessage = JoinMessage | LeaveMessage;
+
 // Server returns prompt for analysis and the result
 export type UpdatedMessage = BaseOutMessage<UpdatedMessageType, {
     contentId: string;
@@ -80,3 +93,20 @@ export type UpdatedMessage = BaseOutMessage<UpdatedMessageType, {
 }>;
 
 export type UpdatedMessagePayload = UpdatedMessage['payload'];
+
+type CollaborationOutMessage = UpdatedMessage;
+
+type ServerMessagePayload = {
+    type: LiteralUnion<ServerInMessageType>;
+    timestamp: number;
+    data: Record<string, unknown>;
+};
+
+export type ServerInMessage = Record<string, unknown>;
+
+export type ApplicationMessage = BaseOutMessage<ApplicationOutEventType, ServerMessagePayload>;
+export type NodeMessage = BaseOutMessage<NodeOutEventType, ServerMessagePayload>;
+export type RepositoryMessage = BaseOutMessage<RepositoryOutEventType, ServerMessagePayload>;
+export type TaskMessage = BaseOutMessage<TaskOutEventType, ServerMessagePayload>;
+
+export type ServerOutMessage = ApplicationMessage | NodeMessage | RepositoryMessage | TaskMessage;
