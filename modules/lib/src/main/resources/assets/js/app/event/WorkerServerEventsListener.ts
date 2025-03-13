@@ -17,13 +17,13 @@ export abstract class WorkerServerEventsListener {
         this.serverEventsTranslator = translator || new ServerEventsTranslator();
 
         subscribeToWorker((message: ReceivedWorkerMessage) => {
-            const {type, payload} = message.payload;
-            switch (type) {
+            const payload = message.payload;
+            switch (payload.type) {
                 case MessageType.APPLICATION:
                 case MessageType.NODE:
                 case MessageType.REPOSITORY:
                 case MessageType.TASK:
-                    this.handleServerEvent(payload);
+                    this.handleServerEvent(payload.payload);
                     break;
             }
         });

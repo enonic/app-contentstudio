@@ -86,6 +86,10 @@ function handleMessage(event) {
         // TODO: Subscribe only to those events, that were requested by the client
         websocketLib.addToGroup('events', socketId);
         websocketLib.addToGroup('collaboration', socketId);
+        websocketLib.addToGroup('application', socketId);
+        websocketLib.addToGroup('node', socketId);
+        websocketLib.addToGroup('repository', socketId);
+        websocketLib.addToGroup('task', socketId);
         return;
     }
 

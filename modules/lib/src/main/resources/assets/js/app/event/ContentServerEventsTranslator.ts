@@ -1,13 +1,11 @@
-import {EventJson} from '@enonic/lib-admin-ui/event/EventJson';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {EventJson} from '@enonic/lib-admin-ui/event/EventJson';
 import {NodeEventJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {ServerEventsTranslator} from '@enonic/lib-admin-ui/event/ServerEventsTranslator';
-import {IssueServerEvent} from './IssueServerEvent';
-import {ContentServerEvent} from './ContentServerEvent';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
+import {ContentServerEvent} from './ContentServerEvent';
+import {IssueServerEvent} from './IssueServerEvent';
 import {PrincipalServerEvent} from './PrincipalServerEvent';
-import {CollaborationServerEvent} from './CollaborationServerEvent';
-import {CollaborationEventJson} from './CollaborationEventJson';
 
 export class ContentServerEventsTranslator
     extends ServerEventsTranslator {
@@ -31,10 +29,6 @@ export class ContentServerEventsTranslator
             if (PrincipalServerEvent.is(eventJson as NodeEventJson)) {
                 return PrincipalServerEvent.fromJson(eventJson as NodeEventJson);
             }
-        }
-
-        if (eventType === CollaborationServerEvent.EVENT_NAME) {
-            return CollaborationServerEvent.fromJson(eventJson as CollaborationEventJson);
         }
 
         return super.translateServerEvent(eventJson);
