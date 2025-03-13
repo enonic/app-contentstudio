@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
-export const MESSAGE_BASE = 'com.enonic.app.contentstudio.collaboration';
+export const COLLAB_MESSAGE_BASE = 'com.enonic.app.contentstudio.collaboration';
 
-export const IN_BASE = `${MESSAGE_BASE}.in`;
-export const OUT_BASE = `${MESSAGE_BASE}.out`;
+export const IN_BASE = `${COLLAB_MESSAGE_BASE}.in`;
+export const OUT_BASE = `${COLLAB_MESSAGE_BASE}.out`;
 
 export enum MessageType {
     // client → server
