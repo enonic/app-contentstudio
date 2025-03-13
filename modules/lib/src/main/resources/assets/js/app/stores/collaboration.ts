@@ -1,7 +1,7 @@
 import {batched, map} from 'nanostores';
 import {IN_BASE, MessageType, OutMessage} from './data/collaboration';
 import {ReceivedWorkerMessage} from './data/worker';
-import {$isConnected, sendJoin, sendLeave, subscribeToOperation, subscribe as subscribeToWorker, unsubscribeFromOperation} from './worker';
+import {$isReady, sendJoin, sendLeave, subscribeToOperation, subscribe as subscribeToWorker, unsubscribeFromOperation} from './worker';
 
 type Callback = (collaborators: Set<string>) => void;
 
@@ -101,8 +101,8 @@ const $activeIdAndProjectPairs = batched($collaboration, (collaboration): [strin
     return Object.entries(collaboration).map(([id, {project}]) => [id, project]);
 });
 
-$isConnected.subscribe(isConnected => {
-    if (isConnected) {
+$isReady.subscribe(isReady => {
+    if (isReady) {
         subscribeToOperation(OPERATION);
 
         $activeIdAndProjectPairs.subscribe((idsAndProjects, oldIdsAndProjects) => {

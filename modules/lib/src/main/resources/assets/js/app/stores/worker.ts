@@ -1,4 +1,4 @@
-import {computed, map} from 'nanostores';
+import {batched, computed, map} from 'nanostores';
 
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {
@@ -46,8 +46,12 @@ const _listeners = new Set<ReceivedListener>();
 //* State
 //
 
-export const $isConnected = computed($worker, ({connection, state, online, ready}) => {
+export const $isReady = computed($worker, ({connection, state, online, ready}) => {
     return connection != null && state === 'connected' && online && ready;
+});
+
+export const $isDown = batched($worker, ({state, online, ready}) => {
+    return !online || (state === 'connected' && !ready);
 });
 
 //
@@ -210,7 +214,7 @@ function handleMessage(event: MessageEvent<OutWorkerMessage>): void {
 //* Listeners
 //
 
-export function subscribe(listener: ReceivedListener): () => void {
+export function subscribe(listener: ReceivedListener = () => {}): () => void {
     const wasEmpty = _listeners.size === 0;
 
     _listeners.add(listener);
