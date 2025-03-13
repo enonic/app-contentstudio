@@ -1,4 +1,5 @@
-import {InMessage, OutMessage} from './collaboration';
+import {InMessage as CollaborationInMessage, OutMessage as CollaborationOutMessage} from './collaboration';
+import {OutMessage as ServerOutMessage} from './server';
 
 interface WorkerMessage<T> {
     type: T;
@@ -7,6 +8,10 @@ interface WorkerMessage<T> {
 type WorkerMessageWithPayload<T, P extends Record<string, unknown> = Record<string, unknown>> = WorkerMessage<T> & {
     payload: P;
 };
+
+type InMessage = CollaborationInMessage;
+
+type OutMessage = CollaborationOutMessage | ServerOutMessage;
 
 //
 //* Client -> Worker

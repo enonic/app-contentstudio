@@ -1,7 +1,7 @@
-import {WebSocketMessage} from "../websocket/data";
-import {sendMessage} from "../websocket/init";
-import {isInWorkerMessage, OutWorkerMessage} from "./data";
-import {subscribe, unsubscribe, unsubscribeAll} from "./subscriptions";
+import {WebSocketMessage} from '../websocket/data';
+import {sendMessage} from '../websocket/init';
+import {isInWorkerMessage, OutWorkerMessage} from './data';
+import {subscribe, unsubscribe, unsubscribeAll} from './subscriptions';
 
 const ports = new Map<MessagePort, string>();
 

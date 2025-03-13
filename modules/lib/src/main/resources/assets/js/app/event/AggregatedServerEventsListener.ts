@@ -1,25 +1,25 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {BatchContentServerEvent} from './BatchContentServerEvent';
-import {ServerEventAggregator} from './ServerEventAggregator';
-import {ServerEventsListener} from '@enonic/lib-admin-ui/event/ServerEventsListener';
 import {Application} from '@enonic/lib-admin-ui/app/Application';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ContentServerEventsTranslator} from './ContentServerEventsTranslator';
-import {ContentServerEvent} from './ContentServerEvent';
-import {ContentServerChangeItem} from './ContentServerChangeItem';
-import {RepositoryId} from '../repository/RepositoryId';
-import {IssueServerEvent} from './IssueServerEvent';
-import {NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
-import {ArchiveServerEvent} from './ArchiveServerEvent';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
+import {NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {RepositoryId} from '../repository/RepositoryId';
+import {ArchiveServerEvent} from './ArchiveServerEvent';
+import {BatchContentServerEvent} from './BatchContentServerEvent';
+import {ContentServerChangeItem} from './ContentServerChangeItem';
+import {ContentServerEvent} from './ContentServerEvent';
+import {ContentServerEventsTranslator} from './ContentServerEventsTranslator';
+import {IssueServerEvent} from './IssueServerEvent';
+import {ServerEventAggregator} from './ServerEventAggregator';
+import {WorkerServerEventsListener} from './WorkerServerEventsListener';
 
 export class AggregatedServerEventsListener
-    extends ServerEventsListener {
+    extends WorkerServerEventsListener {
 
     private aggregator: ServerEventAggregator;
 
-    constructor(applications: Application[], eventApiUrl: string) {
-        super(applications, eventApiUrl);
+    constructor(application: Application) {
+        super([application], new ContentServerEventsTranslator());
 
         this.aggregator = new ServerEventAggregator();
 
@@ -27,11 +27,9 @@ export class AggregatedServerEventsListener
             const event: BatchContentServerEvent = new BatchContentServerEvent(items, type);
             this.fireEvent(event);
         });
-
-        this.setServerEventsTranslator(new ContentServerEventsTranslator());
     }
 
-    protected onServerEvent(event: Event) {
+    protected onServerEvent(event: Event): void {
         if (this.isArchiveEvent(event)) {
             this.handleArchiveEvent(event as ArchiveServerEvent);
             return;
@@ -48,6 +46,10 @@ export class AggregatedServerEventsListener
         }
 
         this.fireEvent(event);
+    }
+
+    protected onUnknownServerEvent(): void {
+        // ignore
     }
 
     private isArchiveEvent(event: Event): boolean {
