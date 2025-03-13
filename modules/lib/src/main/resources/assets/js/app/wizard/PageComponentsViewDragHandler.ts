@@ -2,10 +2,6 @@ import Sortable, {MoveEvent, SortableEvent} from 'sortablejs';
 import {PageComponentsListElement, PageComponentsTreeGrid} from './PageComponentsTreeGrid';
 import {ComponentPath} from '../page/region/ComponentPath';
 import {PageEventsManager} from './PageEventsManager';
-import {PageNavigationMediator} from './PageNavigationMediator';
-import {PageNavigationEvent} from './PageNavigationEvent';
-import {PageNavigationEventType} from './PageNavigationEventType';
-import {PageNavigationEventData} from './PageNavigationEventData';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {ComponentsTreeItem} from './ComponentsTreeItem';
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
@@ -40,7 +36,7 @@ export class PageComponentsViewDragHandler {
             },
             filter: '.toggle',
             sort: true,
-            delay: 100, // need to hold touch/mouse pressed 100ms before drag starts
+            delay: 50, // need to hold touch/mouse pressed 50ms before drag starts
             animation: 150,
             forceFallback: true,
             onStart: (event: SortableEvent) => this.handleStart(event),
@@ -54,9 +50,6 @@ export class PageComponentsViewDragHandler {
         Body.get().unMouseMove(this.moveHelperHandler);
         Body.get().removeChild(DragHelper.get());
 
-        event.to.removeChild(event.item);
-        event.from.insertBefore(event.item, event.from.children.item(event.oldIndex));
-
         const fromList = this.findListByElement(this.rootList, event.from);
         const toList = this.findListByElement(this.rootList, event.to);
         const fromParentPath = (fromList.getParentListElement() as PageComponentsListElement).getPath();
@@ -64,8 +57,14 @@ export class PageComponentsViewDragHandler {
         const fromPath = this.makeComponentPath(fromParentPath, event.oldIndex);
         const toPath = this.makeComponentPath(toParentPath, event.newIndex);
 
+        if (fromPath?.equals(toPath)) {
+            return;
+        }
+
+        event.to.removeChild(event.item);
+        event.from.insertBefore(event.item, event.from.children.item(event.oldIndex));
+
         PageEventsManager.get().notifyComponentMoveRequested(fromPath, toPath);
-        PageNavigationMediator.get().notify(new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(toPath)));
     }
 
     private findListByElement(listToLookIn: PageComponentsTreeGrid, elToLookFor: HTMLElement): PageComponentsTreeGrid {

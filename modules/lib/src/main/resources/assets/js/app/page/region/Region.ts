@@ -7,7 +7,6 @@ import {ComponentAddedEvent} from './ComponentAddedEvent';
 import {ComponentPath} from './ComponentPath';
 import {RegionJson} from './RegionJson';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
-import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
 import {assertState} from '@enonic/lib-admin-ui/util/Assert';
 import {PageItem} from './PageItem';
 import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
