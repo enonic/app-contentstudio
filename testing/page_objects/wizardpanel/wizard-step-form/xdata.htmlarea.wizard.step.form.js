@@ -4,6 +4,7 @@
 const OccurrencesFormView = require('../occurrences.form.view');
 const HtmlArea = require('../../components/htmlarea');
 const appConst = require('../../../libs/app_const');
+const lib = require('../../../libs/elements');
 
 const XPATH = {
     container: "//div[contains(@id,'XDataWizardStepForm')]",
@@ -53,6 +54,21 @@ class XDataHtmlArea extends OccurrencesFormView {
             let result = await this.getAttribute(locator, "class");
             return !result.includes("display-validation-errors");
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Red border should not be displayed in X-data Form!"});
+    }
+
+    async waitForHelpTextToggleNotDisplayedInsideXdata() {
+        return await this.waitForElementNotDisplayed(XPATH.container + lib.HELP_TEXT.TOGGLE);
+    }
+
+    async getHelpText(inputLabel) {
+        try {
+            let locator = XPATH.container + lib.HELP_TEXT.TEXT;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_help_text');
+            throw new Error(`Error occurred in optionSet help-text: ${err} , Screenshot: ${screenshot}`);
+        }
     }
 }
 

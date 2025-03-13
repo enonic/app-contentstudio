@@ -24,7 +24,7 @@ describe('site.with.applications.spec: swaps applications in the site-form', fun
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             // 2. Verify that the help text for Applications selector is not visible by default:
             await siteFormPanel.waitForHelpTextInApplicationsSelectorNotDisplayed();
-            // 3. Click on show/hide Help Texts toggler:
+            // 3. Click on show/hide Help Texts toggler in the wizard toolbar:
             await contentWizard.clickOnHelpTextsToggler();
             // 4. Verify that expected help text gets visible in the site form:
             let actualHelpText = await siteFormPanel.getHelpTextsInApplicationsSelector();
