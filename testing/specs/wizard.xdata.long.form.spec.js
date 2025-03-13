@@ -7,6 +7,8 @@ const contentBuilder = require("../libs/content.builder");
 const XDataHtmlArea = require('../page_objects/wizardpanel/wizard-step-form/xdata.htmlarea.wizard.step.form');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const appConst = require('../libs/app_const');
+const assert = require('node:assert');
+const DoubleForm = require('../page_objects/wizardpanel/double.form.panel');
 
 describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -33,7 +35,7 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
             let xDataHtmlArea = new XDataHtmlArea();
             let contentWizard = new ContentWizard();
             // 1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_0_1);
             await contentWizard.typeDisplayName(contentName);
             await studioUtils.saveScreenshot('x-data_check');
             // 2. Do enable the first form
@@ -55,6 +57,46 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
             await contentWizard.clickOnWizardStep(HTML_AREA_X_DATA_NAME);
             // Verify that the last form (html-area) is visible:
             await xDataHtmlArea.waitForHtmlAreaVisible();
+        });
+
+    // Verifies https://github.com/enonic/app-contentstudio/issues/8493
+    //  Help icons should not be shown for x-data fields #8493
+    it(`WHEN content with x-data is opened THEN Help icons should not be shown for x-data fields`,
+        async () => {
+            let xDataHtmlArea = new XDataHtmlArea();
+            let contentWizard = new ContentWizard();
+            let doubleForm = new DoubleForm();
+            // 1. Open new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_0_1);
+            // 2. Do enable the HtmlArea x-data form
+            await contentWizard.clickOnXdataTogglerByName(HTML_AREA_X_DATA_NAME);
+            // 3. Click on the x-data Wizard-Step:
+            await contentWizard.clickOnWizardStep(HTML_AREA_X_DATA_NAME);
+            // 4. Verify that html-area is visible:
+            await xDataHtmlArea.waitForHtmlAreaVisible();
+            await studioUtils.saveScreenshot('xdasta_help_icons');
+            // 5. Help icons should not be shown for x-data fields #8493
+            await xDataHtmlArea.waitForHelpTextToggleNotDisplayedInsideXdata();
+            // 6. Click on help-icon in the wizard toolbar and verify the help text for HtmlArea:
+            await contentWizard.clickOnHelpTextsToggler();
+            let actualHelpText = await xDataHtmlArea.getHelpText();
+            assert.equal(actualHelpText, "html-area help text", "Expected help message should be displayed");
+        });
+
+    it(`WHEN content with x-data is opened THEN Help icons should not be shown for inputs`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let doubleForm = new DoubleForm();
+            // 1. Open new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_0_1);
+            // 2. Verify that help-toggler is not displayed for double input
+            await studioUtils.saveScreenshot('double_input_help');
+            await doubleForm.waitForHelpTextToggleNotDisplayed();
+            // 3. Click on help-icon in the wizard toolbar and verify the help text for double input:
+            await contentWizard.clickOnHelpTextsToggler();
+            await studioUtils.saveScreenshot('double_input_help_2');
+            let actualHelpText = await doubleForm.getHelpText();
+            assert.equal(actualHelpText, "help text for double", "Expected help message should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

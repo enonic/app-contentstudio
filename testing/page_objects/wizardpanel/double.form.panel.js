@@ -1,9 +1,10 @@
 /**
  * Created on 25.12.2017.
  */
-
 const OccurrencesFormView = require('./occurrences.form.view');
 const lib = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
+
 const XPATH = {
     doubleInput: `//div[contains(@id,'Double')]`,
     occurrenceErrorBlock: `//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]`,
@@ -54,7 +55,7 @@ class DoubleForm extends OccurrencesFormView {
             return await this.waitForRedBorderInInput(index, this.doubleInput);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_red_border_double');
-            throw new Error("Double input, screenshot : " + screenshot + ' ' + err);
+            throw new Error(`Red border should be displayed - Double input, screenshot : ${screenshot}` + err);
         }
     }
 
@@ -63,9 +64,32 @@ class DoubleForm extends OccurrencesFormView {
             return await this.waitForRedBorderNotDisplayedInInput(index, this.doubleInput);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_red_border_double_displayed');
-            throw new Error("Double input, screenshot : " + screenshot + ' ' + err);
+            throw new Error(`Validation Error in Double input, screenshot :${screenshot} ` + err);
         }
     }
+
+    // help-text togler should not be displayed for Double input
+    async waitForHelpTextToggleNotDisplayed() {
+        try {
+            let locator = lib.CONTENT_WIZARD_STEP_FORM + lib.HELP_TEXT.TOGGLE;
+            return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_help_text_toggle');
+            throw new Error(`Help texts toggle button should not be displayed for 'Double' input ! screenshot:${screenshot} ` + err);
+        }
+    }
+
+    async getHelpText(inputLabel) {
+        try {
+            let locator = lib.CONTENT_WIZARD_STEP_FORM + lib.HELP_TEXT.TEXT;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_help_text');
+            throw new Error(`Error occurred in optionSet help-text: ${err} , Screenshot: ${screenshot}`);
+        }
+    }
+
 }
 
 module.exports = DoubleForm;

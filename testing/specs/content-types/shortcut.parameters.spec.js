@@ -31,7 +31,7 @@ describe('Shortcut parameters specification', function () {
             assert.ok(isDisplayed, "'Add Parameters' button should be visible");
             // 2. Verify that the help text in Parameters form is not visible by default:
             await shortcutForm.waitForHelpTextInParametersFormNotDisplayed();
-            // 3. Click on show/hide Help Texts toggler:
+            // 3. Click on show/hide Help Texts toggler in the WizardStepNavigatorAndToolbar:
             await contentWizard.clickOnHelpTextsToggler();
             // 4. Verify that expected help text gets visible in the shortcut form:
             let actualHelpText = await shortcutForm.getHelpTextsInParametersForm();
