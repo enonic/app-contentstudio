@@ -1,23 +1,28 @@
+import {Application} from '@enonic/lib-admin-ui/app/Application';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {EventJson} from '@enonic/lib-admin-ui/event/EventJson';
-import {ServerEventsListener} from '@enonic/lib-admin-ui/event/ServerEventsListener';
-import {NodeEventJson, NodeEventNodeJson, NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
-import {SettingsServerEvent} from './SettingsServerEvent';
 import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
+import {NodeServerChangeItem} from '@enonic/lib-admin-ui/event/NodeServerChangeItem';
+import {NodeEventJson, NodeEventNodeJson, NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ContentPath} from '../../content/ContentPath';
+import {ContentServerEvent} from '../../event/ContentServerEvent';
+import {PrincipalServerEvent} from '../../event/PrincipalServerEvent';
+import {WorkerServerEventsListener} from '../../event/WorkerServerEventsListener';
 import {RepositoryId} from '../../repository/RepositoryId';
 import {SettingsEventAggregator} from './SettingsEventAggregator';
-import {PrincipalServerEvent} from '../../event/PrincipalServerEvent';
-import {ContentServerEvent} from '../../event/ContentServerEvent';
-import {NodeServerChangeItem} from '@enonic/lib-admin-ui/event/NodeServerChangeItem';
-import {ContentPath} from '../../content/ContentPath';
-import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {SettingsServerEvent} from './SettingsServerEvent';
 
 export class SettingsServerEventsListener
-    extends ServerEventsListener {
+    extends WorkerServerEventsListener {
 
     private static PROJECT_ROLE_PATH_PREFIX: string = '/roles/cms.project.';
 
     private eventsAggregator: SettingsEventAggregator = new SettingsEventAggregator();
+
+    constructor(application: Application) {
+        super([application]);
+    }
 
     protected onServerEvent(event: Event): void {
         if (this.isPrincipalEvent(event)) {
