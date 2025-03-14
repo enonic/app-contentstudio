@@ -53,7 +53,7 @@ export class ContentTreeSelectorDropdown
             .setClickOutsideHandler(this.handleClickOutside.bind(this))
             .setEnterKeyHandler(this.handlerEnterPressedInTree.bind(this));
 
-        this.treeMode = this.options.treeMode || false;
+        this.treeMode = !!this.options.treeMode || false;
         this.loadTreeListOnShow = true;
     }
 
@@ -65,7 +65,8 @@ export class ContentTreeSelectorDropdown
         });
 
         this.modeButton.onActiveChanged((active: boolean) => {
-            const hasSearchText = !StringHelper.isBlank(this.optionFilterInput.getValue());
+            const searchValue = this.optionFilterInput.getValue();
+            const hasSearchText = !StringHelper.isBlank(searchValue);
             this.treeMode = active;
             this.applyButton.hide();
 
@@ -76,7 +77,7 @@ export class ContentTreeSelectorDropdown
             this.handleModeChanged();
 
             if (hasSearchText) {
-                this.search(this.optionFilterInput.getValue());
+                this.search(searchValue);
             }
         });
 
@@ -188,6 +189,26 @@ export class ContentTreeSelectorDropdown
                 this.select(item, true);
             }
         });
+    }
+
+    protected handleDebouncedSearchValueChange(searchValue: string): void {
+        const hasSearchText = !StringHelper.isBlank(searchValue);
+
+        if (hasSearchText) {
+            if (this.treeMode) {
+                this.modeButton.setActive(false);
+            } else {
+                super.handleDebouncedSearchValueChange(searchValue);
+            }
+        } else {
+            // switching do default mode if search is empty
+            if (this.treeMode !== !!this.options.treeMode) {
+                this.modeButton.setActive(!this.treeMode);
+            } else {
+                super.handleDebouncedSearchValueChange(searchValue);
+            }
+        }
+
     }
 
     protected search(value?: string): void {

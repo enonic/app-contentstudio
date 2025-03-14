@@ -34,7 +34,7 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
     it(`GIVEN Show content from entire project checkbox is not selected WHEN options are expanded THEN content name that starts the same as the current site should not be present in the options`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE_NAME, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open 'Insert Link' dialog:
@@ -55,7 +55,7 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
     it(`GIVEN Show content from entire project checkbox is selected WHEN current site's name has been typed in the options filter input THEN content name that starts the same as the current site should be present in the options`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE_NAME, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open Insert Link dialog:
@@ -67,7 +67,7 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             await insertLinkDialogContentPanel.pause(1000);
             await studioUtils.saveScreenshot('duplicated_content_is_present_in_options');
             // 4. Verify - content name that starts the same as the current site(duplicated content) should be present in the options:
-            let items = await insertLinkDialogContentPanel.getContentSelectorOptionsNameInTreeMode();
+            let items = await insertLinkDialogContentPanel.getContentSelectorOptionsNameInFlatMode();
             assert.ok(items.includes('/' + DUPLICATED_SITE_NAME), 'Duplicated site should be present in the options');
         });
 
