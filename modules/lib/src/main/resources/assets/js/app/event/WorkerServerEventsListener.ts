@@ -12,9 +12,9 @@ export abstract class WorkerServerEventsListener {
 
     private applications: Application[];
 
-    constructor(applications: Application[], translator?: ServerEventsTranslator) {
+    constructor(applications: Application[], translator: ServerEventsTranslator) {
         this.applications = applications;
-        this.serverEventsTranslator = translator || new ServerEventsTranslator();
+        this.serverEventsTranslator = translator;
 
         subscribeToWorker((message: ReceivedWorkerMessage) => {
             const payload = message.payload;
@@ -23,6 +23,7 @@ export abstract class WorkerServerEventsListener {
                 case MessageType.NODE:
                 case MessageType.REPOSITORY:
                 case MessageType.TASK:
+                case MessageType.PROJECT:
                     this.handleServerEvent(payload.payload);
                     break;
             }

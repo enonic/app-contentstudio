@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es2020",
+        "target": "ES5",
         "lib": [
             "ES2020",
             "DOM"
@@ -12,6 +12,7 @@
         "declarationDir": "build/resources/main/dev/lib-contentstudio/",
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
+        "downlevelIteration": true,
         "allowJs": false,
         "noImplicitReturns": false,
         "noImplicitThis": true,
