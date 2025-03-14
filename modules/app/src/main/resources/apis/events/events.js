@@ -89,6 +89,7 @@ function handleMessage(event) {
         websocketLib.addToGroup('application', socketId);
         websocketLib.addToGroup('node', socketId);
         websocketLib.addToGroup('repository', socketId);
+        websocketLib.addToGroup('project', socketId);
         websocketLib.addToGroup('task', socketId);
         return;
     }
