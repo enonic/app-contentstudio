@@ -12,6 +12,7 @@ export enum MessageType {
     NODE = `${OUT_BASE}.node`,
     REPOSITORY = `${OUT_BASE}.repository`,
     TASK = `${OUT_BASE}.task`,
+    PROJECT = `${OUT_BASE}.project`,
 }
 
 //
@@ -22,7 +23,7 @@ export enum MessageType {
 //* Server -> Client
 //
 
-export type OutMessageType = MessageType.APPLICATION | MessageType.NODE | MessageType.REPOSITORY | MessageType.TASK;
+export type OutMessageType = MessageType.APPLICATION | MessageType.NODE | MessageType.REPOSITORY | MessageType.TASK | MessageType.PROJECT;
 
 type BaseOutMessage<T extends OutMessageType, P = unknown> = {
     type: T;
@@ -33,7 +34,8 @@ export type OutMessage =
     | ApplicationMessage
     | NodeMessage
     | RepositoryMessage
-    | TaskMessage;
+    | TaskMessage
+    | ProjectMessage;
 
 //
 //* Messages
@@ -52,3 +54,5 @@ export type NodeMessage = BaseOutMessage<MessageType.NODE, ServerMessagePayload>
 export type RepositoryMessage = BaseOutMessage<MessageType.REPOSITORY, ServerMessagePayload>;
 
 export type TaskMessage = BaseOutMessage<MessageType.TASK, ServerMessagePayload>;
+
+export type ProjectMessage = BaseOutMessage<MessageType.PROJECT, ServerMessagePayload>;
