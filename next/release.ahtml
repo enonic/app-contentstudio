@@ -658,7 +658,7 @@ In future versions it will be possible to add custom preview modes.
 </div>
 <div class="imageblock text-center">
 <div class="content">
-<img src="release/images/cs53-inspect-text.png" alt="Emulator" width="50%">
+<img src="release/images/cs53-inspect-text.png" alt="Emulator" width="75%">
 </div>
 </div>
 </div>
@@ -1077,7 +1077,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-03-14 15:48:02 UTC
+Last updated 2025-03-14 15:57:24 UTC
 </div>
 </div>
 </body>
