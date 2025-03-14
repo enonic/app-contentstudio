@@ -85,7 +85,7 @@ export class WidgetSelectorDropdown
     extends ListBox<WidgetView> {
 
     constructor() {
-        super('widgetSelector');
+        super();
     }
 
     protected createItemView(item: WidgetView, readOnly: boolean): Element {

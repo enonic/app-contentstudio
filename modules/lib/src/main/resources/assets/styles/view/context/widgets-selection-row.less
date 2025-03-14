@@ -1,5 +1,5 @@
 .widgets-selection-row {
-  .selectable-listbox-wrapper {
+  .widget-filter-dropdown {
     display: grid;
     column-gap: 5px;
     grid-template-columns: 1fr 36px;
@@ -7,7 +7,25 @@
       "selected-view dropdown";
 
     > .selected-viewer {
-      padding: 8px 0 8px 10px;
+      padding: 3px 0 4px 10px;
+
+      .names-and-icon-view {
+        .@{_COMMON_PREFIX}wrapper {
+          .font-icon-default {
+            font-size: 22px;
+          }
+        }
+      }
+
+      .@{_COMMON_PREFIX}names-view {
+        .@{_COMMON_PREFIX}main-name {
+          font-size: 13px;
+        }
+
+        .@{_COMMON_PREFIX}sub-name {
+          font-size: 11px;
+        }
+      }
     }
 
     .filter-and-list-container {
@@ -18,7 +36,7 @@
         display: none;
       }
 
-      .xp-admin-common-dropdown-handle {
+      .@{_COMMON_PREFIX}dropdown-handle {
         width: 36px;
         height: 36px;
       }
@@ -52,7 +70,7 @@
 
       &.selected {
         .widget-viewer {
-          .xp-admin-common-names-view * {
+          .@{_COMMON_PREFIX}names-view * {
             color: @admin-white;
           }
 
@@ -67,7 +85,7 @@
   }
 
   &.dropdown-visible {
-    .selectable-listbox-wrapper {
+    .widget-filter-dropdown {
       display: block;
 
       > .selected-viewer {
@@ -76,8 +94,12 @@
 
       .filter-and-list-container {
         .option-filter-input {
-          border: none;
           display: block;
+          height: 40px;
+        }
+
+        .widget-selector {
+          border: none;
         }
       }
     }
