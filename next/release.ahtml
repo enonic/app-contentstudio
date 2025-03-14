@@ -445,6 +445,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#juke_ai_support">Juke AI support</a></li>
 <li><a href="#preview_mode">Preview mode</a></li>
+<li><a href="#edit_text_in_the_inspect_panel">Edit text in the Inspect panel</a></li>
 <li><a href="#support_for_webp_and_avif">Support for webp and avif</a></li>
 <li><a href="#accessibility_improvements">Accessibility improvements</a></li>
 <li><a href="#other_improvements">Other improvements</a></li>
@@ -647,6 +648,17 @@ In future versions it will be possible to add custom preview modes.
 <h4 id="preview_button"><a class="link" href="#preview_button">Preview button</a></h4>
 <div class="paragraph">
 <p>Preview button was moved from the Content Navigator&#8217;s toolbar to the Preview panel&#8217;s toolbar. It will still open preview of currently selected content in a new browser tab, but preview in the new tab will use the currently selected mode (f.ex. JSON).</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="edit_text_in_the_inspect_panel"><a class="link" href="#edit_text_in_the_inspect_panel">Edit text in the Inspect panel</a></h3>
+<div class="paragraph">
+<p>It&#8217;s now possible to edit contents of a Text component directly in the Inspect panel on the right.</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="release/images/cs53-inspect-text.png" alt="Emulator" width="50%">
 </div>
 </div>
 </div>
@@ -1065,7 +1077,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-02-20 14:00:11 UTC
+Last updated 2025-03-14 15:48:02 UTC
 </div>
 </div>
 </body>

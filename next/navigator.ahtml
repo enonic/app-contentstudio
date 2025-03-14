@@ -462,7 +462,7 @@ It consists of the <a href="#toolbar">action toolbar</a> on top, followed by the
 </div>
 <div class="imageblock text-center">
 <div class="content">
-<img src="navigator/images/navigator.png" alt="Content Navigator" width="75%">
+<img src="navigator/images/navigator.png" alt="Content Navigator" width="90%">
 </div>
 </div>
 </div>
@@ -797,7 +797,7 @@ Only the <strong>Draft</strong> version of content is visible in the preview pan
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-02-20 14:00:11 UTC
+Last updated 2025-03-14 15:48:02 UTC
 </div>
 </div>
 </body>
