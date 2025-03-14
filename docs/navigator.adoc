@@ -5,7 +5,7 @@
 Content navigator is the default page of *Content Studio*.
 It consists of the <<#toolbar, action toolbar>> on top, followed by the main view divided in four vertical responsive panels, from left to right: <<#search_panel, Search panel>>, <<#content_tree, Content tree>>, <<#preview_panel,Preview panel>> and <<#context_panel,Context panel>>.
 
-image::navigator.png[Content Navigator, 75%,align="center"]
+image::navigator.png[Content Navigator, 90%,align="center"]
 
 
 == Toolbar
