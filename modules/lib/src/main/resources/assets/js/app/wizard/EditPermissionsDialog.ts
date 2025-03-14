@@ -1,33 +1,32 @@
-import * as Q from 'q';
-import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
-import {ApplyContentPermissionsRequest} from '../resource/ApplyContentPermissionsRequest';
-import {AccessControlComboBox} from './AccessControlComboBox';
-import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
-import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
-import {Content} from '../content/Content';
-import {AccessControlList} from '../access/AccessControlList';
-import {AccessControlEntry} from '../access/AccessControlEntry';
-import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {SectionEl} from '@enonic/lib-admin-ui/dom/SectionEl';
+import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {SectionEl} from '@enonic/lib-admin-ui/dom/SectionEl';
+import {DefaultModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
-import {applyMixins, DefaultModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {AccessControlEntry} from '../access/AccessControlEntry';
+import {AccessControlList} from '../access/AccessControlList';
+import {Content} from '../content/Content';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
-import {TaskProgressInterface} from '../dialog/TaskProgressInterface';
-import {ProgressBarManager} from '../dialog/ProgressBarManager';
+import {TaskProgressManager, WithTaskProgress} from '../dialog/TaskProgressManager';
+import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
+import {ApplyContentPermissionsRequest} from '../resource/ApplyContentPermissionsRequest';
+import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
+import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
+import {AccessControlComboBox} from './AccessControlComboBox';
 
 export class EditPermissionsDialog
     extends ModalDialogWithConfirmation
-    implements TaskProgressInterface {
+    implements WithTaskProgress {
 
     private contentId: ContentId;
 
@@ -59,25 +58,13 @@ export class EditPermissionsDialog
 
     protected header: EditPermissionsDialogHeader;
 
-    pollTask: (taskId: TaskId) => void;
-
-    progressManager: ProgressBarManager;
-
-    isProgressBarEnabled: () => boolean;
-
-    onProgressComplete: (listener: (taskState: TaskState) => void) => void;
-
-    unProgressComplete: (listener: (taskState: TaskState) => void) => void;
-
-    isExecuting: () => boolean;
-
-    setProcessingLabel: (processingLabel: string) => string;
-
     private subTitle: H6El;
 
     private changeListener: () => void;
 
     private comboBoxChangeListener: () => void;
+
+    private progressManager: TaskProgressManager;
 
     constructor() {
         super({
@@ -92,7 +79,7 @@ export class EditPermissionsDialog
     protected initElements() {
         super.initElements();
 
-        TaskProgressInterface.prototype.constructor.call(this, {
+        this.progressManager = new TaskProgressManager({
             processingLabel: `${i18n('field.progress.applying')}...`,
             managingElement: this
         });
@@ -301,13 +288,33 @@ export class EditPermissionsDialog
             showWarning(i18n('notify.permissions.inheritError', this.displayName));
         }).done();
     }
+
+    isProgressBarEnabled(): boolean {
+        return this.progressManager.isProgressBarEnabled();
+    }
+
+    pollTask(taskId: TaskId): void {
+        this.progressManager.pollTask(taskId);
+    }
+
+    onProgressComplete(listener: (taskState: TaskState) => void): void {
+        this.progressManager.onProgressComplete(listener);
+    }
+
+    unProgressComplete(listener: (taskState: TaskState) => void): void {
+        this.progressManager.unProgressComplete(listener);
+    }
+
+    isExecuting(): boolean {
+        return this.progressManager.isExecuting();
+    }
+
+    setProcessingLabel(processingLabel: string): void {
+        this.progressManager.setProcessingLabel(processingLabel);
+    }
 }
 
-applyMixins(EditPermissionsDialog, [TaskProgressInterface]);
-
-export class EditPermissionsDialogHeader
-    extends DefaultModalDialogHeader {
-
+export class EditPermissionsDialogHeader extends DefaultModalDialogHeader {
     private pathEl: PEl;
 
     constructor(title: string, path: string) {
