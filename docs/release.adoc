@@ -63,6 +63,12 @@ image::cs53-preview-emulator.png[Emulator, 50%, align="center"]
 
 Preview button was moved from the Content Navigator's toolbar to the Preview panel's toolbar. It will still open preview of currently selected content in a new browser tab, but preview in the new tab will use the currently selected mode (f.ex. JSON).
 
+=== Edit text in the Inspect panel
+
+It's now possible to edit contents of a Text component directly in the Inspect panel on the right.
+
+image::cs53-inspect-text.png[Emulator, 75%, align="center"]
+
 === Support for webp and avif
 
 Content Studio now supports upload and preview of images in webp and avif format. Image modifications are not yet supported.
