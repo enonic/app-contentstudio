@@ -7,6 +7,7 @@ import {NodeEventJson, NodeEventNodeJson, NodeServerEvent} from '@enonic/lib-adm
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ContentPath} from '../../content/ContentPath';
 import {ContentServerEvent} from '../../event/ContentServerEvent';
+import {ContentServerEventsTranslator} from '../../event/ContentServerEventsTranslator';
 import {PrincipalServerEvent} from '../../event/PrincipalServerEvent';
 import {WorkerServerEventsListener} from '../../event/WorkerServerEventsListener';
 import {RepositoryId} from '../../repository/RepositoryId';
@@ -21,7 +22,7 @@ export class SettingsServerEventsListener
     private eventsAggregator: SettingsEventAggregator = new SettingsEventAggregator();
 
     constructor(application: Application) {
-        super([application]);
+        super([application], new ContentServerEventsTranslator());
     }
 
     protected onServerEvent(event: Event): void {

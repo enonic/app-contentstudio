@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es2020",
+        "target": "ES5",
         "sourceMap": true,
+        "downlevelIteration": true,
         "types": [
             "ckeditor",
             "jquery",

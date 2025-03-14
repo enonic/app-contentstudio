@@ -27,7 +27,8 @@ type ApplicationOutEventType = `${ServerOutEventType}.application`;
 type NodeOutEventType = `${ServerOutEventType}.node`;
 type RepositoryOutEventType = `${ServerOutEventType}.repository`;
 type TaskOutEventType = `${ServerOutEventType}.task`;
-export type ServerOutMessageType = ApplicationOutEventType | NodeOutEventType | RepositoryOutEventType | TaskOutEventType;
+type ProjectOutEventType = `${ServerOutEventType}.project`;
+export type ServerOutMessageType = ApplicationOutEventType | NodeOutEventType | RepositoryOutEventType | TaskOutEventType | ProjectOutEventType;
 
 // * Content Operator
 export type ContentOperatorMessageType = `custom.ai.contentoperator.${string}`;
@@ -108,5 +109,6 @@ export type ApplicationMessage = BaseOutMessage<ApplicationOutEventType, ServerM
 export type NodeMessage = BaseOutMessage<NodeOutEventType, ServerMessagePayload>;
 export type RepositoryMessage = BaseOutMessage<RepositoryOutEventType, ServerMessagePayload>;
 export type TaskMessage = BaseOutMessage<TaskOutEventType, ServerMessagePayload>;
+export type ProjectMessage = BaseOutMessage<ProjectOutEventType, ServerMessagePayload>;
 
-export type ServerOutMessage = ApplicationMessage | NodeMessage | RepositoryMessage | TaskMessage;
+export type ServerOutMessage = ApplicationMessage | NodeMessage | RepositoryMessage | TaskMessage | ProjectMessage;

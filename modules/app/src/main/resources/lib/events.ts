@@ -1,4 +1,4 @@
-import type {ApplicationMessage, CollaborationInMessage, ContentOperatorInMessage, ContentStudioEventBaseType, InMessage, NodeMessage, RepositoryMessage, TaskMessage} from '../shared/messages';
+import type {ApplicationMessage, CollaborationInMessage, ContentOperatorInMessage, ContentStudioEventBaseType, InMessage, NodeMessage, ProjectMessage, RepositoryMessage, TaskMessage} from '../shared/messages';
 import {join, leave} from './collaboration';
 import type {EnonicEvent} from '/lib/xp/event';
 import * as eventLib from '/lib/xp/event';
@@ -144,6 +144,18 @@ export function init(): void {
                 payload: event,
             } satisfies TaskMessage);
             websocketLib.sendToGroup('task', message);
+        },
+    });
+
+    eventLib.listener({
+        type: 'project.*',
+        localOnly: false,
+        callback: (event: AnyEnonicEvent) => {
+            const message = JSON.stringify({
+                type: 'com.enonic.app.contentstudio.server.out.project',
+                payload: event,
+            } satisfies ProjectMessage);
+            websocketLib.sendToGroup('project', message);
         },
     });
 }
