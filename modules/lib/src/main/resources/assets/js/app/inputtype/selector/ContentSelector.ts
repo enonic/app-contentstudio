@@ -224,6 +224,7 @@ export class ContentSelector
 
         const dropdownOptions: ContentTreeSelectorDropdownOptions = {
             treeMode: this.treeMode,
+            hideToggleIcon: this.hideToggleIcon,
             loader: loader,
             className: this.getDropdownClassName(),
             maxSelected: input.getOccurrences().getMaximum(),
