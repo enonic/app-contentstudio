@@ -41,7 +41,6 @@ import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import * as $ from 'jquery';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
-import {ItemViewSelectedEventConfig} from './event/outgoing/navigation/SelectComponentEvent';
 import {ComponentItemType} from './ComponentItemType';
 import {FragmentItemType} from './fragment/FragmentItemType';
 import * as DOMPurify from 'dompurify';
@@ -327,7 +326,7 @@ export class LiveEditPage {
             const parentView: ItemView = this.getItemViewByPath(path.getParentPath());
 
             if (parentView) {
-                parentView.addComponentView(parentView.createView(viewType), path.getPath() as number);
+                parentView.addComponentView(parentView.createView(viewType), path.getPath() as number, true);
             }
         };
 
@@ -573,7 +572,13 @@ export class LiveEditPage {
             componentView.getType(),
             createViewConfig) as ComponentView;
 
+        const isSelected = componentView.isSelected();
         componentView.replaceWith(newComponentView);
+
+        if (isSelected) {
+            newComponentView.getEl().setData(ItemView.LIVE_EDIT_SELECTED, 'true');
+        }
+
         const parentItemView = newComponentView.getParentItemView();
 
         if (parentItemView instanceof RegionView) { // PageView for a fragment|
@@ -582,10 +587,6 @@ export class LiveEditPage {
 
         const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView);
         event.fire();
-
-        const config = {itemView: newComponentView, position: null} as ItemViewSelectedEventConfig;
-        newComponentView.select(config, null);
-        newComponentView.hideContextMenu();
     }
 
     private wrapLoadedComponentHtml(htmlAsString: string, componentType: ComponentItemType): Element {
