@@ -36,7 +36,7 @@ export class PageComponentsViewDragHandler {
             },
             filter: '.toggle',
             sort: true,
-            delay: 50, // need to hold touch/mouse pressed 50ms before drag starts
+            delay: 20, // need to hold touch/mouse pressed 20ms before drag starts
             animation: 150,
             forceFallback: true,
             onStart: (event: SortableEvent) => this.handleStart(event),
