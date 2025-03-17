@@ -46,10 +46,13 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         return xpath.container + xpath.itemsToPublish + lib.H6_DISPLAY_NAME;
     }
 
-    waitForAddScheduleButtonDisplayed() {
-        return this.waitForElementDisplayed(this.addScheduleButton, appConst.shortTimeout).catch(err => {
-            throw new Error("`Request Publish dialog` Requests Tab - Add schedule button is not present " + err);
-        })
+    async waitForAddScheduleButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.addScheduleButton, appConst.shortTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_schedule_button');
+            throw new Error(`Request Publish dialog Requests Tab - Add schedule button is not present, screenshot:${screenshot} ` + err);
+        }
     }
 
     async clickOnIncludeChildrenToggler(displayName) {
@@ -93,14 +96,17 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             let contentSelectorDropdown = new ContentSelectorDropdown();
             await contentSelectorDropdown.waitForOptionFilterInputDisplayed(xpath.container);
         } catch (err) {
-            throw new Error('`Options filter input` should be displayed in Issue Details ' + err);
+            throw new Error(`Options filter input should be displayed in Issue Details ` + err);
         }
     }
 
-    getItemDisplayNames() {
-        return this.getTextInElements(this.itemNamesToPublish).catch(err => {
-            throw new Error('Items Tab:error when getting display names of items: ' + err)
-        })
+    async getItemDisplayNames() {
+        try {
+            return await this.getTextInElements(this.itemNamesToPublish);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_items_names');
+            throw new Error(`Items Tab:error when getting display names of items, screenshot:${screenshot} ` + err)
+        }
     }
 
     async getContentStatus(displayName) {
@@ -153,7 +159,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             return await this.clickOnElement(this.addScheduleButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_schedule_button');
-            throw new Error('`Request Publish dialog` Error when clicking Add Schedule button, screenshot  ' + screenshot + " " + err);
+            throw new Error(`Request Publish dialog - Error after clicking on Add Schedule button, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -172,7 +178,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         try {
             await this.waitForElementDisplayed(this.reopenRequestButton, appConst.shortTimeout);
             await this.clickOnElement(this.reopenRequestButton);
-            return this.pause(1000);
+            return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_click_on_reopen_request');
             throw new Error(`Error when clicking on Reopen Request screenshot: ${screenshot} ` + err);
@@ -182,8 +188,9 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     async clickOnPublishNowButton() {
         try {
             await this.waitForPublishNowButtonEnabled();
+            await this.pause(300);
             await this.clickOnElement(this.publishNowButton);
-            return this.pause(1000);
+            return await this.pause(700);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_click_on_publish_request_now');
             throw new Error(`Error when clicking on Publish Now (Request) screenshot:${screenshot} ` + err);
