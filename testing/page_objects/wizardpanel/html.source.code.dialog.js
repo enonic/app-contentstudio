@@ -27,20 +27,23 @@ class HtmlSourceCodeDialog extends Page {
         return this.clickOnElement(this.cancelButton);
     }
 
-    clickOnOkButton() {
-        return this.clickOnElement(this.okButton).catch(err => {
-            this.saveScreenshot('err_source_dlg_clicking_ok');
-            throw new Error('Source Code Dialog, error when click on the `OK` button  ' + err);
-        }).then(() => {
-            return this.waitForDialogClosed();
-        })
+    async clickOnOkButton() {
+        try {
+            await this.clickOnElement(this.okButton);
+            await this.waitForDialogClosed();
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_source_dlg_click_ok');
+            throw new Error(`Source Code Dialog, error when click on the OK button, screenshot:${screenshot}  ` + err);
+        }
     }
 
-    waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_open_source_code_dialog');
-            throw new Error('Source Code Dialog must be opened!' + err);
-        });
+    async waitForDialogLoaded() {
+        try {
+            return await this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_open_source_code_dialog');
+            throw new Error(`Source Code Dialog must be opened! screenshot: ${screenshot}` + err);
+        }
     }
 
     waitForDialogClosed() {

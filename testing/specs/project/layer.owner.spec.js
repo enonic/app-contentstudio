@@ -19,6 +19,8 @@ const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/pr
 const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
+const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
+const TextComponentCke = require('../../page_objects/components/text.component');
 
 describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -187,7 +189,6 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
     // https://github.com/enonic/app-contentstudio/issues/8526
     it("GIVEN user with 'Owner'-layer role is logged in WHEN wizard page with htmlArea has been opened THEN 'Source' button should be displayed in the htmlArea toolbar",
         async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
             let htmlAreaForm = new HtmlAreaForm();
@@ -198,6 +199,33 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             await studioUtils.saveScreenshot('owner_source_button');
             // 2. Verify that 'Source' button is displayed for Owner (in the htmlArea toolbar)
             await htmlAreaForm.clickOnSourceButton();
+            await sourceCodeDialog.waitForDialogLoaded();
+        });
+
+    it("GIVEN user with 'Owner'-layer role is logged in WHEN new text component has been inserted THEN 'Source' button should be displayed in the htmlArea toolbar",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentWizard = new ContentWizard();
+            let textComponentCke = new TextComponentCke();
+            let pageComponentView = new PageComponentView();
+            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
+            let htmlAreaForm = new HtmlAreaForm();
+            let sourceCodeDialog = new SourceCodeDialog();
+            // 2. Click on Localise , Open the site:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.clickOnLocalizeButton();
+            await studioUtils.doSwitchToNextTab();
+            await contentWizard.waitForOpened();
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert a text component
+            await pageComponentView.openMenu('main');
+            // 4. Insert new text component:
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await textComponentCke.switchToLiveEditFrame();
+            // 5. Verify that Source button is clickable on the toolbar:
+            await textComponentCke.clickOnSourceButton();
+            await textComponentCke.switchToParentFrame();
             await sourceCodeDialog.waitForDialogLoaded();
         });
 
