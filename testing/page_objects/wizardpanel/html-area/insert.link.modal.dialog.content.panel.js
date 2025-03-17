@@ -54,10 +54,15 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async typeTextInContentOptionsFilterInput(text) {
-        let locator = XPATH.container + lib.DROPDOWN_SELECTOR.CONTENT_TREE_SELECTOR + lib.OPTION_FILTER_INPUT;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.typeTextInInput(locator, text);
-        return await this.pause(1000);
+        try {
+            let locator = XPATH.container + lib.DROPDOWN_SELECTOR.CONTENT_TREE_SELECTOR + lib.OPTION_FILTER_INPUT;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.typeTextInInput(locator, text);
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_filter_input');
+            throw new Error(`Error occurred in Insert Link modal dialog! screenshot:${screenshot} ` + err);
+        }
     }
 
     async clickOnContentDropdownHandle() {
@@ -82,6 +87,11 @@ class InsertLinkDialogContentPanel extends Page {
     async getContentSelectorOptionsDisplayNameInFlatMode() {
         let contentSelectorDropdown = new ContentSelectorDropdown();
         return await contentSelectorDropdown.getOptionsDisplayNameInFlatMode(XPATH.container);
+    }
+
+    async getContentSelectorOptionsNameInFlatMode() {
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        return await contentSelectorDropdown.getOptionsName(XPATH.container);
     }
 
     async getContentSelectorOptionsDisplayNameInTreeMode() {
@@ -123,7 +133,7 @@ class InsertLinkDialogContentPanel extends Page {
             return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_show_checkbox');
-            throw new Error('Show Content From Entire Project Checkbox should not be displayed! screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Show Content From Entire Project Checkbox should not be displayed! screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -144,7 +154,7 @@ class InsertLinkDialogContentPanel extends Page {
             return this.waitForElementDisplayed(this.addParametersButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_add_param_btn');
-            throw new Error('Add parameters button should be displayed! screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Add parameters button should be displayed! screenshot:${screenshot} `  + err);
         }
     }
 
@@ -152,8 +162,8 @@ class InsertLinkDialogContentPanel extends Page {
         try {
             return this.waitForElementDisplayed(this.addAnchorButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_anchor_btn"));
-            throw new Error("Add Anchor button should be displayed! " + err);
+           let screenshot =  await this.saveScreenshotUniqueName('err_anchor_btn');
+            throw new Error(`Add Anchor button should be displayed! screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -161,8 +171,8 @@ class InsertLinkDialogContentPanel extends Page {
         try {
             return this.waitForElementNotDisplayed(this.addAnchorButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_anchor_btn"));
-            throw new Error("Add Anchor button should not be displayed! " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_anchor_btn');
+            throw new Error(`Add Anchor button should not be displayed! screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -173,7 +183,8 @@ class InsertLinkDialogContentPanel extends Page {
 
     async typeTextInFilterInputInContentSelector(targetDisplayName) {
         let contentSelector = new ContentSelectorDropdown();
-        return await contentSelector.filterItem(targetDisplayName, XPATH.container);
+        await contentSelector.filterItem(targetDisplayName, XPATH.container);
+        await this.pause(600);
     }
 
     async clickOnApplySelectionButton() {
@@ -187,6 +198,11 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async clickOnOptionByDisplayName(optionDisplayName) {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.clickOnOptionByDisplayName(optionDisplayName, XPATH.container);
+    }
+
+    async clickOnOptionByDisplayNameInFlatMode(optionDisplayName) {
         let contentSelector = new ContentSelectorDropdown();
         return await contentSelector.clickOnOptionByDisplayName(optionDisplayName, XPATH.container);
     }
