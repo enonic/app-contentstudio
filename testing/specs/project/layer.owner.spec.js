@@ -17,6 +17,8 @@ const ProjectWizardDialogParentProjectStep = require('../../page_objects/project
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
 const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
+const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
 
 describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -179,6 +181,24 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             // 4. Verify that workflow state the same as in the parent project:
             let actualWorkflow = await contentBrowsePanel.getWorkflowStateByName(SITE_NAME);
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+        });
+
+    // Users with Owner and Editor roles don't have access to HTML source in the editor #8526
+    // https://github.com/enonic/app-contentstudio/issues/8526
+    it("GIVEN user with 'Owner'-layer role is logged in WHEN wizard page with htmlArea has been opened THEN 'Source' button should be displayed in the htmlArea toolbar",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
+            let htmlAreaForm = new HtmlAreaForm();
+            let sourceCodeDialog = new SourceCodeDialog();
+            // 1. Open wizard for new content with htmlArea:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await htmlAreaForm.showToolbar();
+            await studioUtils.saveScreenshot('owner_source_button');
+            // 2. Verify that 'Source' button is displayed for Owner (in the htmlArea toolbar)
+            await htmlAreaForm.clickOnSourceButton();
+            await sourceCodeDialog.waitForDialogLoaded();
         });
 
     // Verifies  https://github.com/enonic/app-contentstudio/issues/6711
