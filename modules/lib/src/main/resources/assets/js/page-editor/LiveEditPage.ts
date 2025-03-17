@@ -52,7 +52,6 @@ import {LoadComponentFailedEvent} from './event/outgoing/manipulation/LoadCompon
 import {UriHelper} from '../app/rendering/UriHelper';
 import {RenderingMode} from '../app/rendering/RenderingMode';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ReloadFragmentViewEvent} from './event/incoming/manipulation/ReloadFragmentViewEvent';
 import {FragmentComponentView} from './fragment/FragmentComponentView';
 import {DuplicateComponentViewEvent} from './event/incoming/manipulation/DuplicateComponentViewEvent';
 import {MoveComponentViewEvent} from './event/incoming/manipulation/MoveComponentViewEvent';
@@ -353,17 +352,13 @@ export class LiveEditPage {
             const view: ItemView = this.getItemViewByPath(path);
 
             if (view instanceof ComponentView) {
-                this.loadComponent(view, event.getURI()).catch((reason) => {
+                this.loadComponent(view, event.getURI(), event.isExisting()).catch((reason) => {
                     new LoadComponentFailedEvent(path, reason).fire();
                 });
             }
         };
 
         LoadComponentViewEvent.on(this.loadComponentRequestListener);
-
-        ReloadFragmentViewEvent.on((event: ReloadFragmentViewEvent) => {
-            this.reloadFragment(event);
-        });
 
         this.duplicateComponentViewRequestedListener = (event: DuplicateComponentViewEvent) => {
             const newItemPath: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
@@ -520,7 +515,7 @@ export class LiveEditPage {
         UpdateTextComponentViewEvent.un(this.updateTextComponentViewListener);
     }
 
-    public loadComponent(componentView: ComponentView, componentUrl: string): Promise<void> {
+    public loadComponent(componentView: ComponentView, componentUrl: string, isExisting: boolean): Promise<void> {
         assertNotNull(componentView, 'componentView cannot be null');
         assertNotNull(componentUrl, 'componentUrl cannot be null');
 
@@ -528,12 +523,14 @@ export class LiveEditPage {
 
         return fetch(componentUrl)
             .then(response => {
-                const hasContributions = response.headers.has('X-Has-Contributions');
+                if (!isExisting) {
+                    const hasContributions = response.headers.has('X-Has-Contributions');
 
-                // reloading entire live page if the component has contributions and there are no equal components on the page
-                if (hasContributions && !this.hasSameComponentOnPage(componentView.getPath())) {
-                    new PageReloadRequestedEvent().fire();
-                    return;
+                    // reloading entire live page if the component has contributions and there are no equal components on the page
+                    if (hasContributions && !this.hasSameComponentOnPage(componentView.getPath())) {
+                        new PageReloadRequestedEvent().fire();
+                        return;
+                    }
                 }
 
                 return response.text().then(htmlAsString => {
@@ -605,25 +602,6 @@ export class LiveEditPage {
         fragmentWrapperEl.appendChild(sanitizedElement);
 
         return fragmentWrapperEl;
-    }
-
-    private reloadFragment(event: ReloadFragmentViewEvent): void {
-        const path = ComponentPath.fromString(event.getPath().toString());
-        const fragmentView: ItemView = this.getItemViewByPath(path);
-
-        if (fragmentView instanceof FragmentComponentView) {
-            const componentUrl = UriHelper.getComponentUri(event.getContentId(), fragmentView.getPath(),
-                RenderingMode.EDIT);
-
-            fragmentView.showLoadingSpinner();
-
-            this.loadComponent(fragmentView, componentUrl).catch((reason) => {
-                DefaultErrorHandler.handle(reason);
-
-                fragmentView.hideLoadingSpinner();
-                fragmentView.showRenderingError(componentUrl, this.getComponentErrorText(reason));
-            });
-        }
     }
 
     private getComponentErrorText(error) {
