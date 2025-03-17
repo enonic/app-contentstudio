@@ -32,7 +32,7 @@ class HtmlSourceCodeDialog extends Page {
             await this.clickOnElement(this.okButton);
             await this.waitForDialogClosed();
         } catch (err) {
-            let screenshot = await this.saveScreenshot('err_source_dlg_click_ok');
+            let screenshot = await this.saveScreenshotUniqueName('err_source_dlg_click_ok');
             throw new Error(`Source Code Dialog, error when click on the OK button, screenshot:${screenshot}  ` + err);
         }
     }
@@ -41,7 +41,7 @@ class HtmlSourceCodeDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshot('err_open_source_code_dialog');
+            let screenshot = await this.saveScreenshotUniqueName('err_open_source_code_dialog');
             throw new Error(`Source Code Dialog must be opened! screenshot: ${screenshot}` + err);
         }
     }
@@ -56,6 +56,10 @@ class HtmlSourceCodeDialog extends Page {
 
     typeText(text) {
         return this.typeTextInInput(xpath.textArea, text);
+    }
+
+    clickOnCancelButton() {
+        return this.clickOnElement(this.cancelButton);
     }
 }
 

@@ -202,33 +202,6 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             await sourceCodeDialog.waitForDialogLoaded();
         });
 
-    it("GIVEN user with 'Owner'-layer role is logged in WHEN new text component has been inserted THEN 'Source' button should be displayed in the htmlArea toolbar",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let contentWizard = new ContentWizard();
-            let textComponentCke = new TextComponentCke();
-            let pageComponentView = new PageComponentView();
-            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
-            let htmlAreaForm = new HtmlAreaForm();
-            let sourceCodeDialog = new SourceCodeDialog();
-            // 2. Click on Localise , Open the site:
-            await studioUtils.findAndSelectItem(SITE.displayName);
-            await contentBrowsePanel.clickOnLocalizeButton();
-            await studioUtils.doSwitchToNextTab();
-            await contentWizard.waitForOpened();
-            await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 3. Insert a text component
-            await pageComponentView.openMenu('main');
-            // 4. Insert new text component:
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
-            // 5. Verify that Source button is clickable on the toolbar:
-            await textComponentCke.clickOnSourceButton();
-            await textComponentCke.switchToParentFrame();
-            await sourceCodeDialog.waitForDialogLoaded();
-        });
-
     // Verifies  https://github.com/enonic/app-contentstudio/issues/6711
     // PCV remains disabled after clicking on Localize button in Wizard #6711
     it("GIVEN user with 'Owner' role do double click on the inherited site WHEN 'Localize' button has been clicked THEN PCV gets unlocked in the wizard step",
@@ -249,6 +222,35 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             await pageComponentsWizardStepForm.waitForNotLocked();
             assert.equal(message, 'Inherited content is localized', 'Expected notification message should be displayed');
         });
+
+    it("GIVEN user with 'Owner'-layer role is logged in WHEN new text component has been inserted THEN 'Source' button should be displayed in the htmlArea toolbar",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentWizard = new ContentWizard();
+            let textComponentCke = new TextComponentCke();
+            let pageComponentView = new PageComponentView();
+            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
+            let htmlAreaForm = new HtmlAreaForm();
+            let sourceCodeDialog = new SourceCodeDialog();
+            // 2. Click on Localise , Open the site:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.clickOnEditButton();
+            await studioUtils.doSwitchToNextTab();
+            await contentWizard.waitForOpened();
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert a text component
+            await pageComponentView.openMenu('main');
+            // 4. Insert new text component:
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await textComponentCke.switchToLiveEditFrame();
+            // 5. Verify that Source button is clickable on the toolbar:
+            await textComponentCke.clickOnSourceButton();
+            await textComponentCke.switchToParentFrame();
+            await sourceCodeDialog.waitForDialogLoaded();
+            await sourceCodeDialog.clickOnCancelButton();
+        });
+
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();

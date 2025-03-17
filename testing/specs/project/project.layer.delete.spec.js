@@ -11,7 +11,7 @@ const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.di
 const appConst = require('../../libs/app_const');
 const LayerWizardPanel = require('../../page_objects/project/layer.wizard.panel');
 
-describe('layer.in.public.project.spec - ui-tests for layer in existing project', function () {
+describe('project.layer.delete.spec - ui-tests for deleting a layer', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
 
     if (typeof browser === 'undefined') {

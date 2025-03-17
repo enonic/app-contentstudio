@@ -204,7 +204,9 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await studioUtils.saveScreenshot('text_component_editor_role_source_button_1');
             // 2. Verify that 'Source' button is displayed in the htmlArea toolbar
             await htmlAreaForm.clickOnSourceButton();
+            await htmlAreaForm.switchToParentFrame();
             await sourceCodeDialog.waitForDialogLoaded();
+            await sourceCodeDialog.clickOnCancelButton();
         });
 
     // Users with Owner and Editor roles don't have access to HTML source in the editor #8526
