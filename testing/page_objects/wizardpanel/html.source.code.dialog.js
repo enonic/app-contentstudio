@@ -23,8 +23,14 @@ class HtmlSourceCodeDialog extends Page {
     }
 
 
-    clickOnCancelButton() {
-        return this.clickOnElement(this.cancelButton);
+    async clickOnCancelButton() {
+        try {
+             await this.clickOnElement(this.cancelButton);
+             return await this.pause(300);
+        }catch (err){
+            let screenshot = await this.saveScreenshotUniqueName('err_source_dlg_click_cancel');
+            throw new Error(`Source Code Dialog, error after clicking on the Cancel button, screenshot:${screenshot}  ` + err);
+        }
     }
 
     async clickOnOkButton() {

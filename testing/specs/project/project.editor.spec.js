@@ -235,6 +235,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await textComponentCke.clickOnSourceButton();
             await textComponentCke.switchToParentFrame();
             await sourceCodeDialog.waitForDialogLoaded();
+            await sourceCodeDialog.clickOnCancelButton();
         });
 
     afterEach(async () => {
