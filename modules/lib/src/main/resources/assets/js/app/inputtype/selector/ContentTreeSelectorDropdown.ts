@@ -13,6 +13,7 @@ import {SelectionDeltaItem} from '@enonic/lib-admin-ui/ui/selector/list/Filterab
 export interface ContentTreeSelectorDropdownOptions
     extends ContentSelectorDropdownOptions {
     treeMode?: boolean;
+    hideToggleIcon?: boolean;
 }
 
 export class ContentTreeSelectorDropdown
@@ -244,9 +245,11 @@ export class ContentTreeSelectorDropdown
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.modeButton.insertBeforeEl(this.optionFilterInput);
+            if (!this.options.hideToggleIcon) {
+                this.modeButton.insertBeforeEl(this.optionFilterInput);
+            }
+
             this.treeSelectionWrapper.addClass('filterable-listbox');
-            this.modeButton.insertBeforeEl(this.optionFilterInput);
             this.treeSelectionWrapper.insertBeforeEl(this.selectedOptionsView);
 
             this.preSelectItems();
