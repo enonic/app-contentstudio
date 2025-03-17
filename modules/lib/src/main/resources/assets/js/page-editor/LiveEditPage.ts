@@ -327,7 +327,7 @@ export class LiveEditPage {
             const parentView: ItemView = this.getItemViewByPath(path.getParentPath());
 
             if (parentView) {
-                parentView.addComponentView(parentView.createView(viewType), path.getPath() as number);
+                parentView.addComponentView(parentView.createView(viewType), path.getPath() as number, true);
             }
         };
 
@@ -582,10 +582,6 @@ export class LiveEditPage {
 
         const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView);
         event.fire();
-
-        const config = {itemView: newComponentView, position: null} as ItemViewSelectedEventConfig;
-        newComponentView.select(config, null);
-        newComponentView.hideContextMenu();
     }
 
     private wrapLoadedComponentHtml(htmlAsString: string, componentType: ComponentItemType): Element {
