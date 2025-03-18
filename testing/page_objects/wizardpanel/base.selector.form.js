@@ -96,6 +96,11 @@ class BaseSelectorForm extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
     }
+
+    async clickOnExpanderIconInOptionsList(optionName) {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.clickOnExpanderIconInOptionsList(optionName);
+    }
 }
 
 module.exports = BaseSelectorForm;
