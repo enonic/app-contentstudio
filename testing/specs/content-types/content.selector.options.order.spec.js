@@ -33,6 +33,33 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await studioUtils.doAddFolder(FOLDER_1);
         });
 
+    // Verifies Content selector in tree mode not reloaded after clearing input #8525
+    // https://github.com/enonic/app-contentstudio/issues/8525
+    it(`GIVEN a text has been inserted/cleared in Options Filter Input WHEN filter input has been cleared THEN options should be reloaded in tree mode`,
+        async () => {
+            let contentSelectorForm = new ContentSelectorForm();
+            // 1. Wizard for Content-Selector in tree mode is opened:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_2_8);
+            // 2. Insert a content-name in options filter input:
+            await contentSelectorForm.typeTextInOptionsFilterInput(appConst.TEST_IMAGES.SPUMANS);
+            // 3. Switch to tree-mode after inserting a text in the search input:
+            await contentSelectorForm.clickOnModeTogglerButton();
+            await contentSelectorForm.pause(500);
+            // 4. Expand the parent folder in the tree mode:
+            await contentSelectorForm.clickOnExpanderIconInOptionsList(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
+            await studioUtils.saveScreenshot('tree_mode_expanded_folder');
+            // 5. Verify that the only one option with its parent folder are present in the dropdown options:
+            let items = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
+            assert.ok(items.length === 2, 'Expected number of items should be displayed');
+            assert.equal(items[1], appConst.TEST_IMAGES.SPUMANS, 'Expected display name should be present in the options list');
+            // 6. Clear the filter input:
+            await contentSelectorForm.clearOptionsFilterInput();
+            // 7. Verify that tree mode is reloaded and all items are displayed in the dropdown:
+            items = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
+            assert.ok(items.length > 2, "Options should be reloaded in the tree mode");
+        });
+
+
     it(`GIVEN content selector with tree mode is opened WHEN a text has been inserted/cleared in Options Filter Input THEN flat mode should be switched on/off`,
         async () => {
             let contentSelectorForm = new ContentSelectorForm();

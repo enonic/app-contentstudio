@@ -123,7 +123,7 @@ class ContentSelectorForm extends BaseSelectorForm {
             await contentSelector.clickOnApplySelectionButton();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-            throw new Error("Error occurred in Content combobobox, OK button, screenshot: " + screenshot + ' ' + err);
+            throw new Error(`Error occurred in Content combobox, OK button, screenshot:${screenshot} `  + err);
         }
     }
 
