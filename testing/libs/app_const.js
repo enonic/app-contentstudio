@@ -222,6 +222,18 @@ module.exports = Object.freeze({
         CITIES_LIST: 'Cities List',
         PART_WITH_ERROR: 'part-with-error',
     },
+    PCV_MENU_ITEM: {
+        INSERT: 'Insert',
+        REMOVE: 'Remove',
+        PART: 'Part',
+        TEXT: 'Text',
+        SELECT_PARENT: 'Select parent',
+        RESET: 'Reset',
+        INSPECT: 'Inspect',
+        FRAGMENT:'Fragment',
+        DUPLICATE: 'Duplicate',
+        LAYOUT: 'Layout',
+    },
     EMULATOR_RESOLUTION: {
         FULL_SIZE: 'Full Size',
         MEDIUM_PHONE: 'Medium Phone',
