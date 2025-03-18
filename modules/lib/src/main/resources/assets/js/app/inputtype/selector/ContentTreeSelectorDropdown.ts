@@ -204,9 +204,9 @@ export class ContentTreeSelectorDropdown
             // switching do default mode if search is empty
             if (this.treeMode !== !!this.options.treeMode) {
                 this.modeButton.setActive(!this.treeMode);
-            } else {
-                super.handleDebouncedSearchValueChange(searchValue);
             }
+
+            super.handleDebouncedSearchValueChange(searchValue);
         }
 
     }
