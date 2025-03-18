@@ -79,6 +79,10 @@ class TextComponent extends Page {
         return component.toolbox + lib.CKE.insertSpecialCharacter;
     }
 
+    get sourceButton() {
+        return component.toolbox + lib.CKE.sourceButton;
+    }
+
     async typeTextInCkeEditor(text) {
         try {
             await this.switchToLiveEditFrame();
@@ -266,6 +270,16 @@ class TextComponent extends Page {
 
     waitForJustifyButtonButtonDisplayed() {
         return this.waitForElementDisplayed(this.justifyButton, appConst.mediumTimeout);
+    }
+
+    async clickOnSourceButton() {
+        try {
+            await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
+            await this.clickOnElement(this.sourceButton);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_source_btn');
+            throw new Error(`Text Component - Error occurred during clicking on Source button, screenshot:${screenshot} ` + err);
+        }
     }
 }
 

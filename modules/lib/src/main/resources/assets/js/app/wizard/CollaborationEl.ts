@@ -89,7 +89,10 @@ export class CollaborationEl
 
         let title: string = '';
         this.usersBlock.getChildren().forEach((viewer: PrincipalViewerCompact) => {
-            title = title + viewer.getObject().getDisplayName() + '\n';
+            if (title.length > 0) {
+                title += '\n';
+            }
+            title = title + viewer.getObject().getDisplayName();
         });
 
         this.counterBlock.setTitle(title);

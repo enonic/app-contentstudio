@@ -17,6 +17,10 @@ const ProjectWizardDialogParentProjectStep = require('../../page_objects/project
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
 const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
+const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
+const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
+const TextComponentCke = require('../../page_objects/components/text.component');
 
 describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -181,6 +185,23 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
         });
 
+    // Users with Owner and Editor roles don't have access to HTML source in the editor #8526
+    // https://github.com/enonic/app-contentstudio/issues/8526
+    it("GIVEN user with 'Owner'-layer role is logged in WHEN wizard page with htmlArea has been opened THEN 'Source' button should be displayed in the htmlArea toolbar",
+        async () => {
+            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
+            let htmlAreaForm = new HtmlAreaForm();
+            let sourceCodeDialog = new SourceCodeDialog();
+            // 1. Open wizard for new content with htmlArea:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await htmlAreaForm.showToolbar();
+            await studioUtils.saveScreenshot('owner_source_button');
+            // 2. Verify that 'Source' button is displayed for Owner (in the htmlArea toolbar)
+            await htmlAreaForm.clickOnSourceButton();
+            await sourceCodeDialog.waitForDialogLoaded();
+        });
+
     // Verifies  https://github.com/enonic/app-contentstudio/issues/6711
     // PCV remains disabled after clicking on Localize button in Wizard #6711
     it("GIVEN user with 'Owner' role do double click on the inherited site WHEN 'Localize' button has been clicked THEN PCV gets unlocked in the wizard step",
@@ -201,6 +222,35 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             await pageComponentsWizardStepForm.waitForNotLocked();
             assert.equal(message, 'Inherited content is localized', 'Expected notification message should be displayed');
         });
+
+    it("GIVEN user with 'Owner'-layer role is logged in WHEN new text component has been inserted THEN 'Source' button should be displayed in the htmlArea toolbar",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentWizard = new ContentWizard();
+            let textComponentCke = new TextComponentCke();
+            let pageComponentView = new PageComponentView();
+            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
+            let htmlAreaForm = new HtmlAreaForm();
+            let sourceCodeDialog = new SourceCodeDialog();
+            // 2. Click on Localise , Open the site:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.clickOnEditButton();
+            await studioUtils.doSwitchToNextTab();
+            await contentWizard.waitForOpened();
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert a text component
+            await pageComponentView.openMenu('main');
+            // 4. Insert new text component:
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await textComponentCke.switchToLiveEditFrame();
+            // 5. Verify that Source button is clickable on the toolbar:
+            await textComponentCke.clickOnSourceButton();
+            await textComponentCke.switchToParentFrame();
+            await sourceCodeDialog.waitForDialogLoaded();
+            await sourceCodeDialog.clickOnCancelButton();
+        });
+
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();

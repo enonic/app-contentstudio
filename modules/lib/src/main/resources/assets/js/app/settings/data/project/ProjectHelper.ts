@@ -23,21 +23,38 @@ export class ProjectHelper {
     }
 
     private static isProjectOwnerOrEditor(project: Project): boolean {
-        const userPrincipals: PrincipalKey[] = AuthContext.get().getPrincipals().map((principal) => principal.getKey());
-        const permissions: ProjectPermissions = project.getPermissions();
-        const owners: PrincipalKey[] = permissions.getOwners();
-        const editors: PrincipalKey[] = permissions.getEditors();
+        if (ProjectHelper.isProjectOwner(project) || ProjectHelper.isProjectEditor(project)) {
+            return true;
+        }
 
-        return userPrincipals.some((userPrincipal: PrincipalKey) =>
-            owners.some((owner: PrincipalKey) => owner.equals(userPrincipal)) ||
-            editors.some((editor: PrincipalKey) => editor.equals(userPrincipal)));
+        const userGroups: PrincipalKey[] = AuthContext.get().getPrincipals()
+                                            .filter((principal) => principal.isGroup())
+                                            .map((principal) => principal.getKey());
+        const permissions: ProjectPermissions = project.getPermissions();
+        const ownerGroups: PrincipalKey[] = permissions.getOwners()
+                                            .filter((principal) => principal.isGroup());
+        const editorGroups: PrincipalKey[] = permissions.getEditors()
+                                            .filter((principal) => principal.isGroup());
+
+        return userGroups.some((userPrincipal: PrincipalKey) =>
+            ownerGroups.some((owner: PrincipalKey) => owner.equals(userPrincipal)) ||
+            editorGroups.some((editor: PrincipalKey) => editor.equals(userPrincipal)));
     }
 
     static isProjectOwner(project: Project): boolean {
         const permissions: ProjectPermissions = project.getPermissions();
         const owners: PrincipalKey[] = permissions.getOwners();
         const thisUser: PrincipalKey = AuthContext.get().getUser().getKey();
+
         return owners.some((owner: PrincipalKey) => owner.equals(thisUser));
+    }
+
+    static isProjectEditor(project: Project): boolean {
+        const permissions: ProjectPermissions = project.getPermissions();
+        const editors: PrincipalKey[] = permissions.getEditors();
+        const thisUser: PrincipalKey = AuthContext.get().getUser().getKey();
+
+        return editors.some((owner: PrincipalKey) => owner.equals(thisUser));
     }
 
     public static fetchProject(name: string): Q.Promise<Project> {
