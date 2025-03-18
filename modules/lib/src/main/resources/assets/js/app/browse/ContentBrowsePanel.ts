@@ -127,7 +127,13 @@ export class ContentBrowsePanel
             items.forEach((item: ContentSummaryAndCompareStatus, index) => {
                 const listElement = itemViews[index]?.getDataView();
 
-                listElement?.onDblClicked(() => {
+                listElement?.onDblClicked((event: MouseEvent) => {
+                    const target = event.target;
+
+                    if (target instanceof HTMLElement && target.classList.contains('toggle')) {
+                        return;
+                    }
+
                     new EditContentEvent([item]).fire();
                 });
 
