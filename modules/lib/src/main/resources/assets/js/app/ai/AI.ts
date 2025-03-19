@@ -9,6 +9,8 @@ import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {CompareStatus} from '../content/CompareStatus';
 import {Content} from '../content/Content';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {ContentType} from '../inputtype/schema/ContentType';
@@ -28,13 +30,11 @@ import {AiContentOperatorInteractionEvent} from './event/incoming/AiContentOpera
 import {AiContentOperatorResultAppliedEvent} from './event/incoming/AiContentOperatorResultAppliedEvent';
 import {AiTranslatorAllCompletedEvent} from './event/incoming/AiTranslatorAllCompletedEvent';
 import {AiTranslatorCompletedEvent} from './event/incoming/AiTranslatorCompletedEvent';
+import {AiTranslatorNoLicenseEvent} from './event/incoming/AiTranslatorNoLicenseEvent';
 import {AiTranslatorStartedEvent} from './event/incoming/AiTranslatorStartedEvent';
 import {AiContentOperatorConfigureEvent} from './event/outgoing/AiContentOperatorConfigureEvent';
 import {AiTranslatorConfigureEvent} from './event/outgoing/AiTranslatorConfigureEvent';
 import {AiUpdateDataEvent} from './event/outgoing/AiUpdateDataEvent';
-import {CompareStatus} from '../content/CompareStatus';
-import {AiTranslatorNoLicenseEvent} from './event/incoming/AiTranslatorNoLicenseEvent';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 declare global {
     interface Window {
@@ -247,7 +247,7 @@ export class AI {
         const data = text ? {text} : undefined;
         this.aiToolHelper.setState(this.aiContentDataHelper.transformPathOnDemand(event.path), state, data);
 
-        if (event.success) {
+        if (event.success && event.text != null) {
             this.aiContentDataHelper.setValue(event.path, event.text);
         }
 
