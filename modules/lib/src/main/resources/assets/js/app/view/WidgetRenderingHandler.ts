@@ -98,14 +98,13 @@ export class WidgetRenderingHandler {
 
         this.showMask();
 
-        return this.doIsRenderableWithWidget(summary, widget).then(([renderable, actualWidget, response]) => {
+        return this.doIsRenderableWithWidget(summary, widget).then(([renderable, actualWidget, response, data]) => {
             deferred.resolve(renderable);
 
             if (renderable !== wasRenderable) {
                 this.notifyRenderableChanged(renderable, wasRenderable);
             }
 
-            const data = this.extractWidgetData(response);
             if (renderable) {
                 this.handlePreviewSuccess(response, data);
             } else {
@@ -238,15 +237,17 @@ export class WidgetRenderingHandler {
         return {};
     }
 
-    private async doIsRenderableWithWidget(summary: ContentSummary, selectedWidget: Widget): Promise<[boolean, Widget, Response]> {
+    private async doIsRenderableWithWidget(summary: ContentSummary,
+                                           selectedWidget: Widget): Promise<[boolean, Widget, Response, Record<string, never>]> {
         if (!selectedWidget || !summary) {
-            return [false, undefined, undefined];
+            return [false, undefined, undefined, undefined];
         }
         const isAuto = selectedWidget.getWidgetDescriptorKey().getName() === PreviewWidgetDropdown.WIDGET_AUTO_DESCRIPTOR;
         const items = isAuto ? this.renderer.getWidgetSelector().getAutoModeWidgets() : [selectedWidget];
         let response: Response;
         let widget: Widget;
         let isOk: boolean;
+        let data: Record<string, never>;
         const config = selectedWidget.getConfig();
         if (isAuto) {
             // clear previous previewUrl
@@ -256,7 +257,13 @@ export class WidgetRenderingHandler {
             const url = this.previewHelper.getUrl(summary, widget, this.mode) + '&auto=' + isAuto;
             response = await fetch(url, {method: 'HEAD'});
 
-            isOk = this.isResponseOk(response, widget);
+            data = this.extractWidgetData(response);
+            if (data.redirect) {
+                // follow redirect manually to get data headers first
+                response = await fetch(data.redirect, {method: 'HEAD'});
+            }
+
+            isOk = this.isResponseOk(response, isAuto);
             if (isOk) {
                 break;
             }
@@ -265,11 +272,10 @@ export class WidgetRenderingHandler {
             selectedWidget.getConfig().setProperty("previewUrl", response.url);
         }
 
-        return [isOk, widget, response];
+        return [isOk, widget, response, data];
     }
 
-    private isResponseOk(response: Response, previewWidget: Widget) {
-        const isAuto = previewWidget?.getWidgetDescriptorKey().getName() === 'preview-automatic';
+    private isResponseOk(response: Response, isAuto: boolean) {
         return response.ok || !isAuto && response.status !== StatusCode.I_AM_A_TEAPOT;
     }
 

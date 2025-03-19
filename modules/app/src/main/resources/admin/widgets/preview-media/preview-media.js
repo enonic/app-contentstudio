@@ -10,7 +10,7 @@ exports.get = function (req) {
     try {
         params = widgetLib.validateParams(req.params);
     } catch (e) {
-        return widgetLib.errorResponse(400);
+        return widgetLib.widgetResponse(400);
     }
 
     if (!exports.canRender(req)) {
@@ -18,7 +18,7 @@ exports.get = function (req) {
         // return 418 if not able to render
         log.debug(`Media [${req.method}] can't render: 418`);
 
-        return widgetLib.errorResponse(418);
+        return widgetLib.widgetResponse(418);
     }
 
     try {
@@ -36,7 +36,7 @@ exports.get = function (req) {
         return response;
     } catch (e) {
         log.error(`Media [${req.method}] error: ${e.message}`);
-        return widgetLib.errorResponse(500);
+        return widgetLib.widgetResponse(500);
     }
 }
 

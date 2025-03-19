@@ -27,7 +27,7 @@ function validateParams(params) {
     return {id, path, type, branch, repository, auto, mode, archive};
 }
 
-function errorResponse(status, data) {
+function widgetResponse(status, data) {
     const response = {
         status,
         contentType: 'application/json'
@@ -172,7 +172,7 @@ function fetchHttp(url, method, headers) {
 }
 
 exports.redirectResponse = redirectResponse;
-exports.errorResponse = errorResponse;
+exports.widgetResponse = widgetResponse;
 exports.validateParams = validateParams;
 exports.switchContext = switchContext;
 exports.fetchContent = fetchContent;

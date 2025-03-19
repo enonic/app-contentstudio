@@ -13,19 +13,14 @@ exports.get = function (req) {
     try {
         params = widgetLib.validateParams(req.params);
     } catch (e) {
-        return widgetLib.errorResponse(400);
+        return widgetLib.widgetResponse(400);
     }
 
     if (!exports.canRender(req)) {
         // return 418 if not able to render
         log.debug(`Site [${req.method}] can't render: 418`);
 
-        return widgetLib.errorResponse(418);
-    }
-
-    const errorResponse = doPreliminaryRenderingChecks(params)
-    if (errorResponse) {
-        return errorResponse;
+        return widgetLib.widgetResponse(418);
     }
 
     try {
@@ -33,10 +28,13 @@ exports.get = function (req) {
 
         log.debug(`Site [${req.method}] redirecting: ${url}`);
 
-        return widgetLib.redirectResponse(url);
+        const data = collectResponseData(params, url)
+        // don't use 30x redirect here because we want client to be able to read our headers first
+        // client will handle redirect manually based on the data
+        return widgetLib.widgetResponse(202, data);
     } catch (e) {
         log.error(`Site [${req.method}] error: ${e.message}`);
-        return widgetLib.errorResponse(500);
+        return widgetLib.widgetResponse(500);
     }
 }
 
@@ -62,45 +60,32 @@ function createUrl(req, params) {
     return `${normalizedBaseUri}/site/${params.mode}/${project}/${params.branch}${params.path}`;
 }
 
-function doPreliminaryRenderingChecks(params) {
-
+function collectResponseData(params, url) {
     const site = widgetLib.fetchSite(params.repository, params.branch, params.id || params.path, params.archive);
     const isPageOrFragment = hasPageOrFragment(params);
-    const hasTemplates = hasSupportingTemplates(site, params);
-
-    if (hasTemplates || isPageOrFragment) {
-        return;
-    }
+    const appKeys = getSiteAppKeys(site, params);
+    const messages = [];
 
     log.debug('\nno templates or page/fragment');
-
-    const appKeys = getSiteAppKeys(site, params);
-    const hasControllers = hasAvailableControllers(appKeys);
-    if (hasControllers) {
-        log.debug('\nhas controllers:' + hasControllers);
-        return widgetLib.errorResponse(418, {
-            hasControllers: /*!params.auto &&*/ hasControllers,
-            hasPage: isPageOrFragment
-        });
-    }
 
     const appsMissing = hasMissingApps(appKeys);
     if (appsMissing) {
         log.debug('\napps missing:' + appsMissing);
-        return widgetLib.errorResponse(418, {
-            messages: [widgetLib.i18n('field.preview.missing.description')],
-            hasControllers: /*!params.auto && */hasControllers,
-            hasPage: isPageOrFragment
-        });
+        messages.push(widgetLib.i18n('field.preview.missing.description'));
     }
 
-    // Can't render
-    log.debug('\nno way to render');
-    return widgetLib.errorResponse(418, {
-        messages: [widgetLib.i18n('text.addapplications')],
-        hasControllers: hasControllers,
-        hasPage: isPageOrFragment
-    });
+    const hasControllers = hasAvailableControllers(appKeys);
+    if (!hasControllers) {
+        log.debug('\nno way to render');
+        messages.push(widgetLib.i18n('text.addapplications'));
+    }
+
+    return {
+        messages,
+        hasControllers: /*!params.auto &&*/ hasControllers,
+        hasPage: isPageOrFragment,
+        redirect: url
+    }
 }
 
 function hasAvailableControllers(appKeys) {
