@@ -42,7 +42,7 @@ export class PageComponentsTreeGrid
     }
 
     protected createItemView(item: ComponentsTreeItem, readOnly: boolean): PageComponentsListElement {
-        const itemView = new PageComponentsListElement(item, {scrollParent: this.scrollParent, level: this.level, parentList: this});
+        const itemView = new PageComponentsListElement(item, {scrollParent: this.scrollParent, parentList: this});
 
         if (this.isRootList() || !(item.getType() instanceof LayoutComponentType)) {
             itemView.whenRendered(() => itemView.expand());

@@ -29,7 +29,7 @@ export class ContentsTreeGridList
 
     protected createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentsTreeGridListElement {
         return new ContentsTreeGridListElement(item,
-            {scrollParent: this.scrollParent, level: this.level, parentList: this, expandedContext: this.options.expandedContext});
+            {scrollParent: this.scrollParent, parentList: this, expandedContext: this.options.expandedContext});
     }
 
     protected getItemId(item: ContentSummaryAndCompareStatus): string {
@@ -209,7 +209,7 @@ export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryA
 
     protected createItemViewer(item: ContentSummaryAndCompareStatus): ContentTreeGridListViewer {
         const viewer = new ContentTreeGridListViewer();
-        viewer.setIsRelativePath(!ContentsTreeGridListContext.get().isFiltered() || this.options.level > 0);
+        viewer.setIsRelativePath(!ContentsTreeGridListContext.get().isFiltered() || this.getLevel() > 0);
         viewer.setItem(item);
         return viewer;
     }
