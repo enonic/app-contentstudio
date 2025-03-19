@@ -2893,9 +2893,12 @@ export class ContentWizardPanel
             return;
         }
 
-        const aiTranslatorContainer = new DivEl('ai-translator-container');
-        Body.get().appendChild(aiTranslatorContainer);
-        AI.get().renderTranslator(aiTranslatorContainer.getHTMLElement());
+        const isAlreadyRendered = document.querySelector('.ai-translator-container');
+        if (!isAlreadyRendered) {
+            const aiTranslatorContainer = new DivEl('ai-translator-container');
+            Body.get().appendChild(aiTranslatorContainer);
+            AI.get().renderTranslator(aiTranslatorContainer.getHTMLElement());
+        }
 
         AI.get().whenReady(() => {
             new AiTranslatorOpenDialogEvent().fire();
