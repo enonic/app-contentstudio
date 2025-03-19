@@ -251,6 +251,26 @@ class ImageSelectorForm extends BaseSelectorForm {
         await imageSelectorDropdown.pause(300);
     }
 
+    async waitForToggleIconNotDisplayed() {
+        try {
+            let imageSelectorDropdown = new ImageSelectorDropdown();
+            await imageSelectorDropdown.waitForToggleIconNotDisplayed(XPATH.container);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_toggle_icon');
+            throw new Error(`Image Selector - toggle icon should not be displayed!  screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async waitForToggleIconDisplayed() {
+        try {
+            let imageSelectorDropdown = new ImageSelectorDropdown();
+            await imageSelectorDropdown.waitForToggleIconDisplayed(XPATH.container);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_toggle_icon');
+            throw new Error(`Image Selector - toggle icon should be displayed!  screenshot: ${screenshot} ` + err);
+        }
+    }
+
     async clickOnImageOptionInTreeMode(displayName) {
         try {
             let imageSelectorDropdown = new ImageSelectorDropdown();
