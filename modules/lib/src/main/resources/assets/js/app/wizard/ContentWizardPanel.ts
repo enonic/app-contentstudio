@@ -1,3 +1,4 @@
+import {AiToolType} from '@enonic/lib-admin-ui/ai/tool/AiToolType';
 import {MinimizeWizardPanelEvent} from '@enonic/lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
 import {WizardHeader} from '@enonic/lib-admin-ui/app/wizard/WizardHeader';
 import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
@@ -7,6 +8,7 @@ import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyTreeComparator} from '@enonic/lib-admin-ui/data/PropertyTreeComparator';
@@ -46,6 +48,7 @@ import * as Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {Permission} from '../access/Permission';
 import {AI} from '../ai/AI';
+import {AiContentDataHelper} from '../ai/AiContentDataHelper';
 import {AiTranslatorOpenDialogEvent} from '../ai/event/outgoing/AiTranslatorOpenDialogEvent';
 import {MovedContentItem} from '../browse/MovedContentItem';
 import {CompareStatus} from '../content/CompareStatus';
@@ -98,6 +101,7 @@ import {UrlAction} from '../UrlAction';
 import {ContentHelper} from '../util/ContentHelper';
 import {PageHelper} from '../util/PageHelper';
 import {UrlHelper} from '../util/UrlHelper';
+import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContextPanelState} from '../view/context/ContextPanelState';
 import {ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextView} from '../view/context/ContextView';
@@ -137,11 +141,7 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
-import {AiContentDataHelper} from '../ai/AiContentDataHelper';
-import {AiToolType} from '@enonic/lib-admin-ui/ai/tool/AiToolType';
-import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContentItemPreviewToolbar} from '../view/ContentItemPreviewToolbar';
 
 export class ContentWizardPanel
@@ -2762,9 +2762,12 @@ export class ContentWizardPanel
             return;
         }
 
-        const aiTranslatorContainer = new DivEl('ai-translator-container');
-        Body.get().appendChild(aiTranslatorContainer);
-        AI.get().renderTranslator(aiTranslatorContainer.getHTMLElement());
+        const isAlreadyRendered = document.querySelector('.ai-translator-container');
+        if (!isAlreadyRendered) {
+            const aiTranslatorContainer = new DivEl('ai-translator-container');
+            Body.get().appendChild(aiTranslatorContainer);
+            AI.get().renderTranslator(aiTranslatorContainer.getHTMLElement());
+        }
 
         AI.get().whenReady(() => {
             new AiTranslatorOpenDialogEvent().fire();
