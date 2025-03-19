@@ -1,7 +1,6 @@
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ContentId} from '../content/ContentId';
-import {ContentIds} from '../content/ContentIds';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
@@ -95,10 +94,10 @@ export class DialogTogglableItemList
     }
 
     private itemChangedHandler(): void {
-        const isTogglable = this.getItemViews().some(item => {
+        const isToggleable = this.getItemViews().some(item => {
             return (item.getBrowseItem() as ContentSummaryAndCompareStatus).getContentSummary().hasChildren();
         });
-        this.toggleClass('contains-toggleable', isTogglable);
+        this.toggleClass('contains-toggleable', isToggleable);
 
         this.getItemViews().forEach(view => {
             this.updateRemovableState(view);

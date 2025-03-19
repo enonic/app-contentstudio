@@ -309,7 +309,7 @@ export abstract class BasePublishDialog
 
     setContentToPublish(contents: ContentSummaryAndCompareStatus[]): this {
         if (!this.isProgressBarEnabled()) {
-            this.setItems(contents, true);
+            this.setItems(contents);
         }
 
         return this;
