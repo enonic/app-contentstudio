@@ -34,7 +34,8 @@ export class PageComponentsViewDragHandler {
             group: {
                 name: 'page-components',
             },
-            filter: '.toggle',
+            swapThreshold: 0.5,
+            filter: '.toggle, .region',
             sort: true,
             delay: 20, // need to hold touch/mouse pressed 20ms before drag starts
             animation: 150,

@@ -40,7 +40,7 @@ export class ContentsTreeList
     }
 
     protected createItemView(item: ContentTreeSelectorItem, readOnly: boolean): ContentListElement {
-        return new ContentListElement(item, {loader: this.loader, scrollParent: this.scrollParent, level: this.level});
+        return new ContentListElement(item, {loader: this.loader, scrollParent: this.scrollParent});
     }
 
     protected getItemId(item: ContentTreeSelectorItem): string {
