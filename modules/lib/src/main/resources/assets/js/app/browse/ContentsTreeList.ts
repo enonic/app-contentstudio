@@ -7,6 +7,8 @@ import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
 import {OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export interface ContentsListParams extends TreeListBoxParams<ContentTreeSelectorItem> {
     loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
@@ -23,6 +25,18 @@ export class ContentsTreeList
         super(params);
 
         this.loader = params.loader;
+    }
+
+    protected initListeners(): void {
+        super.initListeners();
+
+        const responsiveItem: ResponsiveItem = new ResponsiveItem(this);
+
+        const resizeListener = () => {
+            responsiveItem.update();
+        };
+
+        new ResizeObserver(AppHelper.debounce(resizeListener, 200)).observe(this.getHTMLElement());
     }
 
     protected createItemView(item: ContentTreeSelectorItem, readOnly: boolean): ContentListElement {
