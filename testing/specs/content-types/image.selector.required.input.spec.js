@@ -30,6 +30,22 @@ describe('image.selector.required.input.spec tests for validation of content wit
             await studioUtils.doAddSite(SITE);
         });
 
+    // Verify the bug - hideToggleIcon config doesn't work in selectors #8532
+    // https://github.com/enonic/app-contentstudio/issues/8532
+    it(`WHEN image-content with hidden toggle mode is opened THEN toggle icon should not be displayed in the Image Selector`,
+        async () => {
+            let imageSelectorForm = new ImageSelectorForm();
+            // 1. Open new wizard for content with image selector(tree mode, toggle is hidden):
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SEL_TOGGLE_HIDDEN);
+            // 2. Verify that the toggle icon is not displayed in the Image Selector
+            await imageSelectorForm.waitForToggleIconNotDisplayed();
+            // 3. Insert a image-name in the filter input:
+            await imageSelectorForm.typeTextInOptionsFilterInput(appConst.TEST_IMAGES.SPUMANS);
+            // 4. Verify that the toggle icon is not displayed in the Image Selector
+            await imageSelectorForm.waitForToggleIconNotDisplayed();
+        });
+
+
     // Verify https://github.com/enonic/app-contentstudio/issues/6026
     // Handle unresolvable selected items in Content Selector #6026
     it(`GIVEN an image has been selected in an image-content WHEN the image has been archived THEN 'Image is not available' should be displayed in the content-wizard`,
@@ -60,7 +76,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
             assert.ok(isInvalid === false, "This content remains valid after deleting its selected option");
             // 6. Verify that text 'Image is not available' is displayed in the single selected option:
             let items = await imageSelectorForm.waitForImageNotAvailableTextDisplayed();
-            assert.equal(items,1, "One selected option should be with 'Image is not available' text");
+            assert.equal(items, 1, "One selected option should be with 'Image is not available' text");
         });
 
     it(`GIVEN content with unresolvable selected item is opened WHEN the unresolvable item has been clicked THEN 'Edit' button should be disabled`,

@@ -54,6 +54,14 @@ class BaseDropdown extends Page {
         return await this.clickOnElement(parentElement + this.modeTogglerButton);
     }
 
+    async waitForToggleIconNotDisplayed(parentElement) {
+        return await this.waitForElementNotDisplayed(parentElement + this.modeTogglerButton, appConst.mediumTimeout);
+    }
+
+    async waitForToggleIconDisplayed(parentElement) {
+        return await this.waitForElementDisplayed(parentElement + this.modeTogglerButton, appConst.mediumTimeout);
+    }
+
     async clickOnDropdownHandle(parentLocator) {
         if (parentLocator === undefined) {
             parentLocator = '';
