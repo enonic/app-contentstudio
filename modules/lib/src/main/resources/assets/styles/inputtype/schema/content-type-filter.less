@@ -59,6 +59,50 @@
           }
         }
       }
+      .status {
+        span {
+          color: @admin-white !important;
+        }
+      }
+    }
+  }
+}
+
+.content-list-mixin() {
+  .item-view-wrapper {
+
+    .custom-option-viewer(26px, 13px, 11px);
+
+    .content-tree-selector-item-viewer {
+      display: grid;
+      grid-template-columns: 1fr 90px;
+      flex-grow: 1;
+
+      .status {
+        text-align: center;
+        .ellipsis();
+      }
+    }
+
+    &:not(.selected) {
+      .content-tree-selector-item-viewer {
+        .status {
+          .content-status-mixin();
+        }
+      }
+    }
+  }
+
+  &._0-240,
+  &._240-360 {
+    .item-view-wrapper {
+      .content-tree-selector-item-viewer {
+        grid-template-columns: 1fr;
+
+        .status {
+          display: none;
+        }
+      }
     }
   }
 }
