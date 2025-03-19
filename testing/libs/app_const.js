@@ -342,6 +342,7 @@ module.exports = Object.freeze({
         IMG_SELECTOR_0_0: 'imageselector0_0',
         IMG_SELECTOR_0_1: 'imageselector0_1',
         IMG_SELECTOR_1_1: 'imageselector1_1',
+        IMG_SEL_TOGGLE_HIDDEN:'image-sel-toggle-hidden',
         IMG_SELECTOR_2_4: 'imageselector2_4',
         DOUBLE_MIN_MAX: 'double_max',
         DOUBLE_DEFAULT_2_4: 'double2_4_def',
