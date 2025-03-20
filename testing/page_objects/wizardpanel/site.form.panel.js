@@ -43,7 +43,8 @@ class SiteForm extends Page {
             }
             if (siteData.applications) {
                 await this.addApplications(siteData.applications);
-                await this.waitForNotificationMessage();
+                // Applications may not have controllers, so selecting of an application does not automatically save the site
+                // await this.waitForNotificationMessage();
             }
         } catch (err) {
             throw new Error("Error during creating site(Site form panel)  " + err);
