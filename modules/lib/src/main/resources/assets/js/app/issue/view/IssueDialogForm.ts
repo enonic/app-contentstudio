@@ -33,6 +33,8 @@ export class IssueDialogForm
 
     private contentItemsSelector: ContentTreeSelectorDropdown;
 
+    private itemsToSelect: string[] = [];
+
     private title: TextInput;
 
     private contentItemsAddedListeners: ((items: ContentTreeSelectorItem[]) => void)[] = [];
@@ -94,10 +96,14 @@ export class IssueDialogForm
             selectedOptionsView: new ContentSelectedOptionsView(),
             maxSelected: 0,
             className: 'multiple-occurrence',
-            getSelectedItems: () => [],
+            getSelectedItems: this.getItemsToSelect.bind(this),
         };
 
         return new ContentTreeSelectorDropdown(listBox, dropdownOptions);
+    }
+
+    private getItemsToSelect(): string[] {
+        return this.itemsToSelect;
     }
 
     private initFormView() {
@@ -222,12 +228,13 @@ export class IssueDialogForm
     }
 
     public setContentItems(ids: ContentId[], silent: boolean = false) {
+        this.itemsToSelect = ids.map(id => id.toString());
         this.toggleContentItemsSelector(ids && ids.length > 0);
 
         ids.forEach((id) => {
             const item = this.contentItemsSelector.getItemById(id.toString());
 
-            if (item) {
+            if (item) { // select items that were loaded in the list
                 this.contentItemsSelector.select(item, silent);
             }
         });
