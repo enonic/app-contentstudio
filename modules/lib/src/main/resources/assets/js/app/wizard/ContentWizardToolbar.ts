@@ -17,7 +17,6 @@ import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
 import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {UrlHelper} from '../util/UrlHelper';
-import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {CollaborationEl} from './CollaborationEl';
 import {ContentActionCycleButton} from './ContentActionCycleButton';
@@ -245,10 +244,6 @@ export class ContentWizardToolbar
             .setKeepAliveTimeSeconds(60)
             .build()
             .connect();
-    }
-
-    getCycleViewModeButton(): ContentActionCycleButton {
-        return this.cycleViewModeButton;
     }
 
     getContentWizardToolbarPublishControls(): ContentWizardToolbarPublishControls {

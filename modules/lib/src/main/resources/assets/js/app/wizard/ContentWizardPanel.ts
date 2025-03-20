@@ -105,7 +105,6 @@ import {DockedContextPanel} from '../view/context/DockedContextPanel';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
 import {ContentSaveAction} from './action/ContentSaveAction';
 import {ContentWizardActions} from './action/ContentWizardActions';
-import {ContentActionCycleButton} from './ContentActionCycleButton';
 import {ContentContext} from './ContentContext';
 import {ContentTabBarItem} from './ContentTabBarItem';
 import {ContentWizardContextSplitPanel} from './ContentWizardContextSplitPanel';
@@ -504,7 +503,7 @@ export class ContentWizardPanel
 
     protected createWizardActions(): ContentWizardActions {
         const wizardActions: ContentWizardActions = new ContentWizardActions(this);
-        wizardActions.getShowLiveEditAction().setEnabled(false);
+        // wizardActions.getShowLiveEditAction().setEnabled(false);
 
         const publishActionHandler = () => {
             if (this.hasUnsavedChanges()) {
@@ -2284,9 +2283,6 @@ export class ContentWizardPanel
         return this.getMainToolbar().getContentWizardToolbarPublishControls();
     }
 
-    getCycleViewModeButton(): ContentActionCycleButton {
-        return this.getMainToolbar().getCycleViewModeButton();
-    }
 
     getCloseAction(): Action {
         return this.wizardActions.getCloseAction();
@@ -2433,10 +2429,11 @@ export class ContentWizardPanel
             console.debug('ContentWizardPanel.updateButtonsState');
         }
 
-        this.shouldOpenEditorByDefault().then((shouldOpenEditor: boolean) => {
-            this.wizardActions.getShowLiveEditAction().setEnabled(shouldOpenEditor);
-            this.getCycleViewModeButton().setVisible(shouldOpenEditor);
-        });
+        // this.shouldOpenEditorByDefault().then((shouldOpenEditor: boolean) => {
+        // this.wizardActions.getShowLiveEditAction().setEnabled(shouldOpenEditor);
+        // should always be visible
+        // this.getCycleViewModeButton().setVisible(shouldOpenEditor);
+        // });
 
         return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
             this.contextView.updateWidgetsVisibility();
