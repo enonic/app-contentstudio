@@ -1,37 +1,24 @@
-import * as Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
-import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {applyMixins, DefaultModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {TaskProgressInterface} from '../dialog/TaskProgressInterface';
-import {ProgressBarManager} from '../dialog/ProgressBarManager';
+import {DefaultModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {TaskProgressManager, WithTaskProgress} from '../dialog/TaskProgressManager';
 
 export class EditProjectAccessDialog
     extends ModalDialogWithConfirmation
-    implements TaskProgressInterface {
+    implements WithTaskProgress {
 
     header: EditProjectAccessDialogHeader;
-
-    pollTask: (taskId: TaskId) => void;
-
-    progressManager: ProgressBarManager;
-
-    isProgressBarEnabled: () => boolean;
-
-    onProgressComplete: (listener: (taskState: TaskState) => void) => void;
-
-    unProgressComplete: (listener: (taskState: TaskState) => void) => void;
-
-    isExecuting: () => boolean;
-
-    setProcessingLabel: (processingLabel: string) => string;
 
     private projectPath: string;
 
     private subTitle: H6El;
+
+    private progressManager: TaskProgressManager;
 
     constructor() {
         super({
@@ -43,7 +30,6 @@ export class EditProjectAccessDialog
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.appendChildToHeader(this.subTitle);
-
             return rendered;
         });
     }
@@ -64,12 +50,36 @@ export class EditProjectAccessDialog
     protected initElements() {
         super.initElements();
 
-        TaskProgressInterface.prototype.constructor.call(this, {
+        this.progressManager = new TaskProgressManager({
             processingLabel: `${i18n('field.progress.applying')}...`,
             managingElement: this
         });
 
         this.subTitle = new H6El('sub-title').setHtml(`${i18n('dialog.projectAccess.applying')}...`);
+    }
+
+    isProgressBarEnabled(): boolean {
+        return this.progressManager.isProgressBarEnabled();
+    }
+
+    pollTask(taskId: TaskId): void {
+        this.progressManager.pollTask(taskId);
+    }
+
+    onProgressComplete(listener: (taskState: TaskState) => void): void {
+        this.progressManager.onProgressComplete(listener);
+    }
+
+    unProgressComplete(listener: (taskState: TaskState) => void): void {
+        this.progressManager.unProgressComplete(listener);
+    }
+
+    isExecuting(): boolean {
+        return this.progressManager.isExecuting();
+    }
+
+    setProcessingLabel(processingLabel: string): void {
+        this.progressManager.setProcessingLabel(processingLabel);
     }
 
     protected createHeader(): EditProjectAccessDialogHeader {
@@ -83,14 +93,9 @@ export class EditProjectAccessDialog
     protected handleClickOutside() {
         return;
     }
-
 }
 
-applyMixins(EditProjectAccessDialog, [TaskProgressInterface]);
-
-export class EditProjectAccessDialogHeader
-    extends DefaultModalDialogHeader {
-
+export class EditProjectAccessDialogHeader extends DefaultModalDialogHeader {
     private pathEl: PEl;
 
     constructor(title: string, path: string) {

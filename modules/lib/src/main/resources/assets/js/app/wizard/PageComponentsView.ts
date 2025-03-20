@@ -42,6 +42,7 @@ import {PageComponentsViewDragHandler} from './PageComponentsViewDragHandler';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {PageComponentsViewExpandHelper} from './PageComponentsViewExpandHelper';
 import {TextComponentType} from '../page/region/TextComponentType';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 enum Modifiers {
     LOCKED = 'locked',
@@ -160,6 +161,8 @@ export class PageComponentsView
             PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
                 this.updateItemByPath(event.getPath());
             });
+
+            new ResizeObserver(AppHelper.debounce(() => this.constrainToParent(), 50)).observe(this.getHTMLElement());
         });
 
         this.tree.onItemsAdded((items: ComponentsTreeItem[], itemViews: PageComponentsListElement[]) => {

@@ -23,24 +23,33 @@ class HtmlSourceCodeDialog extends Page {
     }
 
 
-    clickOnCancelButton() {
-        return this.clickOnElement(this.cancelButton);
+    async clickOnCancelButton() {
+        try {
+             await this.clickOnElement(this.cancelButton);
+             return await this.pause(300);
+        }catch (err){
+            let screenshot = await this.saveScreenshotUniqueName('err_source_dlg_click_cancel');
+            throw new Error(`Source Code Dialog, error after clicking on the Cancel button, screenshot:${screenshot}  ` + err);
+        }
     }
 
-    clickOnOkButton() {
-        return this.clickOnElement(this.okButton).catch(err => {
-            this.saveScreenshot('err_source_dlg_clicking_ok');
-            throw new Error('Source Code Dialog, error when click on the `OK` button  ' + err);
-        }).then(() => {
-            return this.waitForDialogClosed();
-        })
+    async clickOnOkButton() {
+        try {
+            await this.clickOnElement(this.okButton);
+            await this.waitForDialogClosed();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_source_dlg_click_ok');
+            throw new Error(`Source Code Dialog, error when click on the OK button, screenshot:${screenshot}  ` + err);
+        }
     }
 
-    waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_open_source_code_dialog');
-            throw new Error('Source Code Dialog must be opened!' + err);
-        });
+    async waitForDialogLoaded() {
+        try {
+            return await this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_open_source_code_dialog');
+            throw new Error(`Source Code Dialog must be opened! screenshot: ${screenshot}` + err);
+        }
     }
 
     waitForDialogClosed() {
@@ -53,6 +62,10 @@ class HtmlSourceCodeDialog extends Page {
 
     typeText(text) {
         return this.typeTextInInput(xpath.textArea, text);
+    }
+
+    clickOnCancelButton() {
+        return this.clickOnElement(this.cancelButton);
     }
 }
 

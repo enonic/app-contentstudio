@@ -2,10 +2,6 @@ import Sortable, {MoveEvent, SortableEvent} from 'sortablejs';
 import {PageComponentsListElement, PageComponentsTreeGrid} from './PageComponentsTreeGrid';
 import {ComponentPath} from '../page/region/ComponentPath';
 import {PageEventsManager} from './PageEventsManager';
-import {PageNavigationMediator} from './PageNavigationMediator';
-import {PageNavigationEvent} from './PageNavigationEvent';
-import {PageNavigationEventType} from './PageNavigationEventType';
-import {PageNavigationEventData} from './PageNavigationEventData';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {ComponentsTreeItem} from './ComponentsTreeItem';
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
@@ -38,7 +34,10 @@ export class PageComponentsViewDragHandler {
             group: {
                 name: 'page-components',
             },
+            swapThreshold: 0.5,
+            filter: '.toggle, .region',
             sort: true,
+            delay: 20, // need to hold touch/mouse pressed 20ms before drag starts
             animation: 150,
             forceFallback: true,
             onStart: (event: SortableEvent) => this.handleStart(event),
@@ -52,9 +51,6 @@ export class PageComponentsViewDragHandler {
         Body.get().unMouseMove(this.moveHelperHandler);
         Body.get().removeChild(DragHelper.get());
 
-        event.to.removeChild(event.item);
-        event.from.insertBefore(event.item, event.from.children.item(event.oldIndex));
-
         const fromList = this.findListByElement(this.rootList, event.from);
         const toList = this.findListByElement(this.rootList, event.to);
         const fromParentPath = (fromList.getParentListElement() as PageComponentsListElement).getPath();
@@ -62,8 +58,14 @@ export class PageComponentsViewDragHandler {
         const fromPath = this.makeComponentPath(fromParentPath, event.oldIndex);
         const toPath = this.makeComponentPath(toParentPath, event.newIndex);
 
+        if (fromPath?.equals(toPath)) {
+            return;
+        }
+
+        event.to.removeChild(event.item);
+        event.from.insertBefore(event.item, event.from.children.item(event.oldIndex));
+
         PageEventsManager.get().notifyComponentMoveRequested(fromPath, toPath);
-        PageNavigationMediator.get().notify(new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(toPath)));
     }
 
     private findListByElement(listToLookIn: PageComponentsTreeGrid, elToLookFor: HTMLElement): PageComponentsTreeGrid {
@@ -101,12 +103,20 @@ export class PageComponentsViewDragHandler {
         const draggedElement = this.findListElementById(event.item.id);
 
         if (draggedElement) {
+            if (this.isLayout(draggedElement.getItem())) { // collapse layout if it's expanded
+                draggedElement.collapse();
+            }
+
             this.isLayoutDragging = this.isLayoutOrFragmentWithLayout(draggedElement.getItem());
         }
     }
 
     private isLayoutOrFragmentWithLayout(item: ComponentsTreeItem): boolean {
-        return item.getType() instanceof LayoutComponentType || item.getComponent().isLayoutFragment();
+        return this.isLayout(item) || item.getComponent().isLayoutFragment();
+    }
+
+    private isLayout(item: ComponentsTreeItem): boolean {
+        return item.getType() instanceof LayoutComponentType;
     }
 
     private handleMoveEvent(evt: MoveEvent, originalEvent: Event):  boolean | -1 | 1 | void {

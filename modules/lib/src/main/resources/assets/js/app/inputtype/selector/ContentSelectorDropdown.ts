@@ -62,13 +62,17 @@ export class ContentSelectorDropdown
         let searchValue = '';
 
         const debouncedSearch = AppHelper.debounce(() => {
-            this.search(searchValue);
+            this.handleDebouncedSearchValueChange(searchValue);
         }, 300);
 
         this.optionFilterInput.onValueChanged((event: ValueChangedEvent) => {
             searchValue = event.getNewValue();
             debouncedSearch();
         });
+    }
+
+    protected handleDebouncedSearchValueChange(searchValue: string): void {
+        this.search(searchValue);
     }
 
     protected postInitListeners(): void {

@@ -97,19 +97,44 @@ class ContentSelectorForm extends BaseSelectorForm {
         }
     }
 
+    // if dropdown in three mode then after entering text it should automatically switch to flat mode.
+    // Insert a text in Filter input, switches to flat mode, then click on the filtered by displayName item
+    async doFilterOptionInTreeModeAndApply(optionDisplayName) {
+        try {
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            await contentSelectorDropdown.filterItem(optionDisplayName, XPATH.container);
+            await contentSelectorDropdown.pause(1000);
+            let mode = await this.getOptionsMode();
+            // TODO check the mode
+            // 2. Wait for the required option is displayed then click on it:
+            await contentSelectorDropdown.clickOnOptionByDisplayName(optionDisplayName, XPATH.container);
+            // 3. Click on 'Apply' button:
+            return await contentSelectorDropdown.clickOnApplySelectionButton(XPATH.container);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_combobox');
+            throw new Error(`Error occurred in content combobox, screenshot:${screenshot} ` + err)
+        }
+    }
+
+
     async clickOnApplySelectionButton() {
         try {
             let contentSelector = new ContentSelectorDropdown();
             await contentSelector.clickOnApplySelectionButton();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-            throw new Error("Error occurred in Content combobobox, OK button, screenshot: " + screenshot + ' ' + err);
+            throw new Error(`Error occurred in Content combobox, OK button, screenshot:${screenshot} `  + err);
         }
     }
 
     async getOptionsDisplayNameInTreeMode() {
         let contentSelector = new ContentSelectorDropdown();
         return await contentSelector.getOptionsDisplayNameInTreeMode(XPATH.container);
+    }
+
+    async getOptionsDisplayNameInFlatMode() {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.getOptionsDisplayNameInFlatMode(XPATH.container);
     }
 
     async removeSelectedOption(option) {
@@ -125,12 +150,13 @@ class ContentSelectorForm extends BaseSelectorForm {
     }
 
     async getCheckedOptionsDisplayNameInDropdownList() {
-        let locator = XPATH.container + lib.DROPDOWN_SELECTOR.DROPDOWN_DIV_ITEM;
+        let locator = XPATH.container + "//ul[contains(@id,'ContentListBox')]"+  "//li[contains(@class,'item-view-wrapper')]";//lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM;
         let optionElements = await this.findElements(locator);
         let checkedOptionElements = await this.doFilterCheckedOptionsElements(optionElements);
-        let pr = await checkedOptionElements.map(async (el)=>{
-            let e= await el.$(".//h6[contains(@class,'main-name')]");
+        let pr = await checkedOptionElements.map(async (el) => {
+            let e = await el.$(".//h6[contains(@class,'main-name')]");
             return await e.getText();
+
         });
         let result = await Promise.all(pr);
         return result;
@@ -143,7 +169,7 @@ class ContentSelectorForm extends BaseSelectorForm {
     }
 
     async isOptionItemChecked(el) {
-        let value= await el.getAttribute('class');
+        let value = await el.getAttribute('class');
         return value.includes('checked');
     }
 }

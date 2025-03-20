@@ -8,10 +8,14 @@ export class LoadComponentViewEvent
     private readonly path: ComponentPath;
 
     private readonly uri: string;
-    constructor(path: ComponentPath, uri: string) {
+
+    private readonly existing: boolean;
+
+    constructor(path: ComponentPath, uri: string, existing: boolean = false) {
         super();
         this.path = path;
         this.uri = uri;
+        this.existing = existing;
     }
 
     getComponentPath(): ComponentPath {
@@ -20,6 +24,10 @@ export class LoadComponentViewEvent
 
     getURI(): string {
         return this.uri;
+    }
+
+    isExisting(): boolean {
+        return this.existing;
     }
 
     static on(handler: (event: LoadComponentViewEvent) => void, contextWindow: Window = window) {

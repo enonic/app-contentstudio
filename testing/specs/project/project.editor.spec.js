@@ -15,6 +15,11 @@ const projectUtils = require('../../libs/project.utils');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
+const contentBuilder = require('../../libs/content.builder');
+const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
+const TextComponentCke = require('../../page_objects/components/text.component');
+const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
 
 describe("project.editor.spec - ui-tests for an user with 'Editor' role", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -25,6 +30,8 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
     let USER;
     const PASSWORD = appConst.PASSWORD.MEDIUM;
+    let SITE;
+    let SITE_NAME = appConst.generateRandomName('site');
 
     it(`Preconditions: new system user should be created`,
         async () => {
@@ -62,7 +69,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await permissionsStep.updateUserAccessRole(USER.displayName, appConst.PROJECT_ROLES.EDITOR);
             // 8. Click on Next button in permissions step:
             await permissionsStep.clickOnNextButton();
-            if(await applicationsStep.isLoaded()){
+            if (await applicationsStep.isLoaded()) {
                 await applicationsStep.clickOnSkipButton();
             }
             // 9. Fil in the name input:
@@ -81,6 +88,19 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, 'expected user should be selected in Project Roles form');
             // Do log out:
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        });
+
+    it("Precondition 2: new site should be created by the SU in the parent project",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. Do Log in with 'SU':
+            await studioUtils.navigateToContentStudioApp();
+            // 2. Select the new user's context:
+            await contentBrowsePanel.selectContext(PROJECT_DISPLAY_NAME);
+            // 3. SU adds new site:
+            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES], appConst.CONTROLLER_NAME.MAIN_REGION);
+            await studioUtils.doAddSite(SITE);
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
@@ -167,6 +187,55 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             // 4. Verify that status of thr folder is Published:
             let status = await contentBrowsePanel.getContentStatus(FOLDER_NAME);
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
+        });
+
+    // Users with Owner and Editor roles don't have access to HTML source in the editor #8526
+    // https://github.com/enonic/app-contentstudio/issues/8526
+    it("GIVEN user with 'Editor' role is logged in WHEN existing folder(work in progress) has been published THEN the folder gets Published",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. Do log in with the user-editor and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            let htmlAreaForm = new HtmlAreaForm();
+            let sourceCodeDialog = new SourceCodeDialog();
+            // 1. Open wizard for new content with htmlArea:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await htmlAreaForm.showToolbar();
+            await studioUtils.saveScreenshot('text_component_editor_role_source_button_1');
+            // 2. Verify that 'Source' button is displayed in the htmlArea toolbar
+            await htmlAreaForm.clickOnSourceButton();
+            await htmlAreaForm.switchToParentFrame();
+            await sourceCodeDialog.waitForDialogLoaded();
+            await sourceCodeDialog.clickOnCancelButton();
+        });
+
+    // Users with Owner and Editor roles don't have access to HTML source in the editor #8526
+    // https://github.com/enonic/app-contentstudio/issues/8526
+    it("GIVEN user with 'Editor' role is logged in WHEN new text component has been inserted THEN 'Source' button should be displayed in the htmlArea toolbar",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentWizard = new ContentWizard();
+            let textComponentCke = new TextComponentCke();
+            let pageComponentView = new PageComponentView();
+            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
+            let sourceCodeDialog = new SourceCodeDialog();
+            // 1. Open the site:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.clickOnEditButton();
+            await studioUtils.doSwitchToNextTab();
+            await contentWizard.waitForOpened();
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 2. Insert a text component:
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await studioUtils.saveScreenshot('text_component_editor_role_source_button_2');
+            await textComponentCke.switchToLiveEditFrame();
+            // 3. Verify that Source button is clickable on the component-toolbar:
+            await textComponentCke.clickOnSourceButton();
+            await textComponentCke.switchToParentFrame();
+            await sourceCodeDialog.waitForDialogLoaded();
+            await sourceCodeDialog.clickOnCancelButton();
         });
 
     afterEach(async () => {

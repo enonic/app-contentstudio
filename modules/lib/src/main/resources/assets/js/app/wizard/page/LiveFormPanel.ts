@@ -285,21 +285,21 @@ export class LiveFormPanel
             if (event instanceof ComponentDescriptorUpdatedEvent) {
                 if (event.getDescriptorKey()) {
                     this.contentWizardPanel.setMarkedAsReady(false);
-                    this.saveAndReloadOnlyComponent(event.getPath());
+                    this.saveAndLoadComponent(event.getPath());
                 } else {
                     this.liveEditPageProxy.resetComponent(event.getPath());
                 }
             } else if (event instanceof ComponentImageUpdatedEvent) {
                 if (event.getImageId()) {
                     this.contentWizardPanel.setMarkedAsReady(false);
-                    this.saveAndReloadOnlyComponent(event.getPath());
+                    this.saveAndLoadComponent(event.getPath());
                 } else {
                     this.liveEditPageProxy.resetComponent(event.getPath());
                 }
             } else if (event instanceof ComponentFragmentUpdatedEvent) {
                 if (event.getFragmentId()) {
                     this.contentWizardPanel.setMarkedAsReady(false);
-                    this.saveAndReloadOnlyComponent(event.getPath());
+                    this.saveAndLoadComponent(event.getPath());
                 } else {
                     this.liveEditPageProxy.resetComponent(event.getPath());
                 }
@@ -324,10 +324,7 @@ export class LiveFormPanel
                 new EditContentEvent([summaryAndStatus]).fire();
             } else if (event instanceof ComponentDuplicatedEvent) {
                 this.contentWizardPanel.setMarkedAsReady(false);
-                this.saveAndReloadOnlyComponent(event.getPath());
-            } else {
-                PageNavigationMediator.get().notify(
-                    new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(event.getPath())));
+                this.saveAndLoadComponent(event.getPath());
             }
         };
 
@@ -365,7 +362,7 @@ export class LiveFormPanel
             PageHelper.findFragmentInRegionsByFragmentId(PageState.getState()?.getRegions()?.getRegions(), updatedFragmentId);
 
         if (fragmentComponent) {
-            this.reloadComponent(fragmentComponent.getPath());
+            this.loadComponent(fragmentComponent.getPath());
         }
     }
 
@@ -490,9 +487,17 @@ export class LiveFormPanel
         saveAction.onExecuted(() => {
             const selectedItem = this.lastInspectedItemPath ? PageState.getComponentByPath(this.lastInspectedItemPath) : null;
 
+            if (selectedItem instanceof DescriptorBasedComponent) {
+                this.contentWizardPanel.setMarkedAsReady(false);
+                this.saveAndReloadExistingComponent(selectedItem.getPath())
+                    .then(() => this.saveAction.setEnabled(false))
+                    .catch(DefaultErrorHandler.handle); // save config, reload component view, keep inspect panel
+                return;
+            }
+
             if (selectedItem instanceof Component) {
                 this.contentWizardPanel.setMarkedAsReady(false);
-                this.saveAndReloadOnlyComponent(selectedItem.getPath())
+                this.saveAndLoadComponent(selectedItem.getPath())
                     .then(() => this.saveAction.setEnabled(false))
                     .catch(DefaultErrorHandler.handle);
                 return;
@@ -502,6 +507,15 @@ export class LiveFormPanel
         });
 
         return saveAction;
+    }
+
+    private saveAndReloadExistingComponent(path: ComponentPath): Q.Promise<void> {
+        this.pageSkipReload = true;
+
+        return this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
+            this.pageSkipReload = false;
+            this.reloadExistingComponent(path);
+        });
     }
 
     private isNotPartOrTextFragment(): boolean {
@@ -626,13 +640,13 @@ export class LiveFormPanel
             });
     }
 
-    private saveAndReloadOnlyComponent(path: ComponentPath): Q.Promise<void> {
+    private saveAndLoadComponent(path: ComponentPath): Q.Promise<void> {
         assertNotNull(path, 'component path cannot be null');
         this.pageSkipReload = true;
 
         return this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
             this.pageSkipReload = false;
-            this.reloadComponent(path);
+            this.loadComponent(path);
 
             // saved component will have default config props populated, so we need to make it a part of a state
             const changedComponent = PageState.getState().getComponentByPath(path);
@@ -645,11 +659,18 @@ export class LiveFormPanel
         });
     }
 
-    private reloadComponent(path: ComponentPath): void {
+    private loadComponent(path: ComponentPath): void {
         const componentUrl: string = UriHelper.getComponentUri(this.content.getContentId().toString(),
             path,
             RenderingMode.EDIT);
         this.liveEditPageProxy.loadComponent(path, componentUrl);
+    }
+
+    private reloadExistingComponent(path: ComponentPath): void {
+        const componentUrl: string = UriHelper.getComponentUri(this.content.getContentId().toString(),
+            path,
+            RenderingMode.EDIT);
+        this.liveEditPageProxy.loadComponent(path, componentUrl, true);
     }
 
     private addPageProxyEventListeners() {
@@ -722,7 +743,7 @@ export class LiveFormPanel
     private saveMarkedContentAndReloadOnlyComponent(path: ComponentPath) {
         const canMarkContentAsReady = this.canMarkContentAsReady();
         this.contentWizardPanel.setMarkedAsReady(canMarkContentAsReady);
-        this.saveAndReloadOnlyComponent(path);
+        this.saveAndLoadComponent(path);
     }
 
     private canMarkContentAsReady(): boolean {

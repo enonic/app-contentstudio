@@ -1,5 +1,9 @@
 .content-wizard-panel {
 
+  .help-text-toggler {
+    display: none;
+  }
+
   .thumbnail-uploader-el {
     &.status-hidden .result-container .workflow-status {
       display: none;
@@ -72,6 +76,19 @@
     .wizard-header-top-row {
       .ai-helper-mask {
         background-color: @admin-bg-light-gray; // enforce background color
+      }
+
+      .ai-dialog-control {
+        display: block !important; // trick to make the input field width stay same on hover
+        visibility: hidden;
+        position: static;
+        margin: auto 6px;
+      }
+
+      &:focus-within {
+        .ai-dialog-control {
+          visibility: visible;
+        }
       }
     }
 
@@ -389,7 +406,7 @@
     cursor: pointer;
 
     &::before {
-      color: @admin-font-gray3;
+      color: @admin-dark-gray;
     }
 
     &:hover::before {
@@ -535,10 +552,6 @@
     .thumbnail-uploader-el, .wizard-header, .wizard-steps-panel {
       * {
         pointer-events: none;
-      }
-
-      .help-text-toggler {
-        pointer-events: all;
       }
     }
 

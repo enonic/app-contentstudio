@@ -320,7 +320,7 @@ export class RegionView
 
         this.insertChild(componentView, index);
         this.registerComponentView(componentView, index);
-        this.notifyItemViewAdded(componentView, newlyCreated || dragged);
+        this.notifyItemViewAdded(componentView, newlyCreated);
         this.refreshEmptyState();
     }
 

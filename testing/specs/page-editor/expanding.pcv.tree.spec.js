@@ -141,7 +141,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             assert.ok(result.includes('Main'), 'main item should be displayed in the modal dialog');
             assert.ok(result.includes('text1'), 'text component should be displayed in the modal dialog');
             assert.ok(result.includes('text2'), 'the second text component should be displayed in the modal dialog');
-            assert.equal(result.length, 4, "4 items should be displayed in PCV after deleting the layout item")
+            assert.equal(result.length, 4, "4 items should be displayed in PCV after deleting the layout item");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

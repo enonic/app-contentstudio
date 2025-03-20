@@ -266,7 +266,7 @@ class HtmlAreaForm extends OccurrencesFormView {
             return await this.clickOnElement(lib.CKE.sourceButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_source_button');
-            throw new Error("Error after clicking on Source button, screenshot: " + screenshot + ' ' + err);
+            throw new Error(`Error occurred during clicking on Source button, htmlArea toolbar, screenshot: ${screenshot}` + err);
         }
     }
 

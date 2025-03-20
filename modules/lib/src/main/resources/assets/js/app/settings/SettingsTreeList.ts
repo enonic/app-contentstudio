@@ -20,7 +20,7 @@ export class SettingsTreeList
     }
 
     protected createItemView(item: SettingsViewItem, readOnly: boolean): SettingsTreeListElement {
-        return new SettingsTreeListElement(item, {scrollParent: this.scrollParent, level: this.level, parentList: this});
+        return new SettingsTreeListElement(item, {scrollParent: this.scrollParent, parentList: this});
     }
 
     protected getItemId(item: SettingsViewItem): string {

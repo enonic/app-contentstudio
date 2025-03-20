@@ -32,13 +32,11 @@ describe('content.image.selector: Image selector dropdown specification', functi
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
             // 2. switch the selector to tree mode:
             await imageSelectorForm.clickOnModeTogglerButton();
-            // 3. Type the image display-name in the filter input:
+            // 3. Type the image display-name in the filter input:(the selctor switches to the flat mode)
             await imageSelectorForm.doFilterOptions(appConst.TEST_IMAGES.KOTEY);
-            // 4. Click on the filtered image:
-            // TODO - check it : Click on the expander-icon for the folder-item in the dropdown-list and expand the folder:
-            await imageSelectorForm.clickOnExpanderIconInOptionsList(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
-            await imageSelectorForm.clickOnImageOptionInTreeMode(appConst.TEST_IMAGES.KOTEY);
-            await imageSelectorForm.clickOnOkAndApplySelectionButton();
+            // 4. Click on the filtered image in flat mode:
+            await imageSelectorForm.clickOnOptionByDisplayName(appConst.TEST_IMAGES.KOTEY);
+            await imageSelectorForm.clickOnApplySelectionButton();
             // 5. Verify that the selected image is displayed in the selected options:
             let result = await imageSelectorForm.getSelectedImages();
             assert.equal(result[0], appConst.TEST_IMAGES.KOTEY, "Expected image should be displayed in the selected options");
@@ -95,6 +93,23 @@ describe('content.image.selector: Image selector dropdown specification', functi
             await studioUtils.saveScreenshot('img_sel_tree_mode_status');
             let statusList = await imageSelectorForm.getImagesStatusInOptions();
             assert.ok(statusList.length >= EXPECTETD_NUMBER_OF_ITEMS_IN_SELECTOR, "Content status should be displayed for each item");
+        });
+
+    it(`GIVEN image-selector is switched to tree mode and expanded WHEN expander-icon for the folder with images has been clicked THEN expected images should be displayed`,
+        async () => {
+            let imageSelectorForm = new ImageSelectorForm();
+            // 1. Open wizard with Image Selector:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
+            // 2. Switch the selector to Tree-mode and expand the test folder:
+            await imageSelectorForm.clickOnModeTogglerButton();
+            // 3. Expand a folder with images:
+            await imageSelectorForm.clickOnExpanderIconInOptionsList(appConst.TEST_FOLDER_NAME);
+            await imageSelectorForm.clickOnImageOptionInTreeMode(appConst.TEST_IMAGES.CAPE);
+            await imageSelectorForm.clickOnApplySelectionButton();
+            // 4. Verify the selected option:
+            await studioUtils.saveScreenshot('img_sel_tree_mode_image_selected');
+            let result = await imageSelectorForm.getSelectedImages();
+            assert.equal(result[0], appConst.TEST_IMAGES.CAPE, "Expected image should be displayed in the selected options");
         });
 
     it(`GIVEN wizard for image-selector is opened WHEN 'dropdown handle' button has been pressed THEN flat mode should be present in the options list`,

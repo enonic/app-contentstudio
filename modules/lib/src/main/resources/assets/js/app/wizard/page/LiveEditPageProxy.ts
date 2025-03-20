@@ -395,8 +395,8 @@ export class LiveEditPageProxy
         }
     }
 
-    public loadComponent(path: ComponentPath, uri: string): void {
-        new LoadComponentViewEvent(path, uri).fire(this.liveEditWindow);
+    public loadComponent(path: ComponentPath, uri: string, isExisting = false): void {
+        new LoadComponentViewEvent(path, uri, isExisting).fire(this.liveEditWindow);
     }
 
     public stopListening(contextWindow: Window) {

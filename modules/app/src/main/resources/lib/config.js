@@ -57,9 +57,6 @@ function getConfig() {
             contentUrl: portal.apiUrl({
                 api: 'content'
             }),
-            licenseUrl: portal.apiUrl({
-                api: 'license'
-            }),
             stylesUrl: portal.apiUrl({
                 api: 'styles'
             }),
@@ -70,7 +67,7 @@ function getConfig() {
                 api: 'export'
             }),
             aiContentOperatorWsServiceUrl: portal.serviceUrl({service: 'ws', application: 'com.enonic.app.ai.contentoperator', type: 'websocket'}),
-            aiTranslatorRestServiceUrl: portal.serviceUrl({service: 'rest', application: 'com.enonic.app.ai.translator'}),
+            aiTranslatorLicenseServiceUrl: portal.serviceUrl({service: 'license', application: 'com.enonic.app.ai.translator'}),
             aiTranslatorWsServiceUrl: portal.serviceUrl(
                 {service: 'ws', application: 'com.enonic.app.ai.translator', type: 'websocket'}),
         },

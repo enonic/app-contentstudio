@@ -1,29 +1,21 @@
-import {applyMixins} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {DependantItemsDialog, DependantItemsDialogConfig} from './DependantItemsDialog';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {TaskProgressInterface} from './TaskProgressInterface';
-import {ProgressBarManager} from './ProgressBarManager';
+import {DependantItemsDialog, DependantItemsDialogConfig} from './DependantItemsDialog';
+import {TaskProgressManager, WithTaskProgress} from './TaskProgressManager';
+
+export interface DependantItemsWithProgressDialogConfig
+    extends DependantItemsDialogConfig {
+    processingLabel: string;
+    processHandler: () => void;
+}
 
 export abstract class DependantItemsWithProgressDialog
     extends DependantItemsDialog
-    implements TaskProgressInterface {
+    implements WithTaskProgress {
 
-    progressManager: ProgressBarManager;
+    protected progressManager: TaskProgressManager;
 
     protected config: DependantItemsWithProgressDialogConfig;
-
-    isProgressBarEnabled: () => boolean;
-
-    pollTask: (taskId: TaskId) => void;
-
-    onProgressComplete: (listener: (taskState: TaskState) => void) => void;
-
-    unProgressComplete: (listener: (taskState: TaskState) => void) => void;
-
-    isExecuting: () => boolean;
-
-    setProcessingLabel: (processingLabel: string) => string;
 
     protected constructor(config: DependantItemsWithProgressDialogConfig) {
         super(config);
@@ -32,7 +24,8 @@ export abstract class DependantItemsWithProgressDialog
     protected initElements() {
         super.initElements();
 
-        TaskProgressInterface.prototype.constructor.call(this, {
+        // Initialize task progress manager with composition
+        this.progressManager = new TaskProgressManager({
             processingLabel: this.config.processingLabel,
             processHandler: this.config.processHandler,
             unlockControlsHandler: () => {
@@ -42,17 +35,33 @@ export abstract class DependantItemsWithProgressDialog
         });
     }
 
+    isProgressBarEnabled(): boolean {
+        return this.progressManager.isProgressBarEnabled();
+    }
+
+    pollTask(taskId: TaskId): void {
+        this.progressManager.pollTask(taskId);
+    }
+
+    onProgressComplete(listener: (taskState: TaskState) => void): void {
+        this.progressManager.onProgressComplete(listener);
+    }
+
+    unProgressComplete(listener: (taskState: TaskState) => void): void {
+        this.progressManager.unProgressComplete(listener);
+    }
+
+    isExecuting(): boolean {
+        return this.progressManager.isExecuting();
+    }
+
+    setProcessingLabel(processingLabel: string): void {
+        this.progressManager.setProcessingLabel(processingLabel);
+    }
+
     protected showLoadMask() {
         if (!this.isProgressBarEnabled()) {
             super.showLoadMask();
         }
     }
 }
-
-export interface DependantItemsWithProgressDialogConfig
-    extends DependantItemsDialogConfig {
-    processingLabel: string;
-    processHandler: () => void;
-}
-
-applyMixins(DependantItemsWithProgressDialog, [TaskProgressInterface]);

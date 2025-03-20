@@ -33,6 +33,20 @@
     }
   }
 
+  .sortable-drag {
+    .item-view-wrapper {
+      .toggle-and-item-wrapper {
+        .toggle:before {
+          transform: rotate(90deg); // making it look like not expanded
+        }
+      }
+    }
+
+    .tree-list {
+      display: none; // hiding cloned tree list
+    }
+  }
+
   .sortable-ghost {
     background-color: @admin-bg-light-blue;
     box-shadow: 1px 5px 20px rgba(51, 51, 51, .5);
@@ -99,6 +113,7 @@
 
   &.draggable {
     position: absolute;
+    overflow: auto;
     width: 400px;
     background-color: rgba(255, 255, 255, 0.9);
     z-index: @z-index-context-window;

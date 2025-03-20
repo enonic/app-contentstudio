@@ -21,7 +21,7 @@ export class ProjectsTreeList
 
     protected createItemView(item: Project, readOnly: boolean): ProjectTreeListElement {
         return new ProjectTreeListElement(item,
-            {helper: this.options.helper, scrollParent: this.scrollParent, level: this.level});
+            {helper: this.options.helper, scrollParent: this.scrollParent});
     }
 
     protected getItemId(item: Project): string {

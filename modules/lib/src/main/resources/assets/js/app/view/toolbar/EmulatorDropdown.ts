@@ -7,12 +7,14 @@ import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSiz
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {EmulatorContext} from '../context/widget/emulator/EmulatorContext';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
+import {AriaHasPopup, AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 
 export class EmulatorDropdown
     extends FilterableListBoxWrapper<EmulatorDevice> {
 
-    private selectedOption: EmulatorOptionViewer;
+    private readonly selectedOption: EmulatorOptionViewer;
 
     constructor() {
         super(new EmulatorListBox(), {
@@ -20,8 +22,19 @@ export class EmulatorDropdown
             maxSelected: 1
         });
 
+        this.setTitle(i18n('field.contextPanel.emulator.description'));
+
         this.selectedOption = new EmulatorOptionViewer(false);
-        this.selectedOption.addClass('selected-option').hide();
+        this.selectedOption
+            .addClass('selected-option')
+            .applyWCAGAttributes({
+                role: AriaRole.BUTTON,
+                tabbable: true,
+                ariaHasPopup: AriaHasPopup.LISTBOX,
+                ariaLabel: i18n('field.contextPanel.emulator.description')
+            });
+
+        this.selectedOption.hide();
 
         this.selectedOption.onClicked(() => {
             this.handleDropdownHandleClicked();

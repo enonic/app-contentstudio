@@ -39,8 +39,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             await insertLinkDialog.typeInLinkTooltip(TEST_TOOLTIP);
             // 3. Insert the name of content ('Templates')
             await insertContentLinkTab.typeTextInFilterInputInContentSelector(TEST_CONTENT_DISPLAY_NAME);
-            // 4. Expand the parent site in the filtered list in 'Tree mode'
-            await insertContentLinkTab.clickOnExpanderIconInOptionsList(SITE.displayName);
+            // 4. The dropdown should be switched to 'Tree mode'
             // 5. Click on 'Templates' option
             await insertContentLinkTab.clickOnOptionByDisplayName(TEST_CONTENT_DISPLAY_NAME);
             // 6. Click on remove-icon and remove the selected option:
@@ -100,7 +99,9 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             // 2. Click on 'show content from entire project' checkbox
             await insertContentLinkTab.clickOnShowContentFromEntireProjectCheckbox();
             // 3. Type the folder name and select filtered folder from Default project:
-            await insertContentLinkTab.selectTargetInContentSelector(appConst.TEST_FOLDER_WITH_IMAGES);
+            await insertContentLinkTab.typeTextInFilterInputInContentSelector(appConst.TEST_FOLDER_WITH_IMAGES);
+            // 4. After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
+            await insertContentLinkTab.clickOnOptionByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
 
             await studioUtils.saveScreenshot('content_link_entire_project_checkbox_hidden');
             // 4. Verify that 'show content from entire project' checkbox gets not visible now:
@@ -155,8 +156,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             await insertLinkDialog.typeInLinkTooltip(TEST_TOOLTIP);
             // 3. Insert the name of content ('Templates')
             await insertContentLinkTab.typeTextInFilterInputInContentSelector(TEST_CONTENT_DISPLAY_NAME);
-            // 4. Expand the parent site in the filtered list in 'Tree mode'
-            await insertContentLinkTab.clickOnExpanderIconInOptionsList(SITE.displayName);
+            // 4. the dropdown should be switched to  'Flat mode'
             // 5. Click on 'Templates' option
             await insertContentLinkTab.clickOnOptionByDisplayName(TEST_CONTENT_DISPLAY_NAME);
             // 6. 'Apply' button should not appear here!
