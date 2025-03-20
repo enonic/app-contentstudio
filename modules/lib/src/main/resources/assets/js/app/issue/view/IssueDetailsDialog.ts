@@ -205,10 +205,14 @@ export class IssueDetailsDialog
             selectedOptionsView: new ContentSelectedOptionsView(),
             maxSelected: 0,
             className: 'multiple-occurrence',
-            getSelectedItems: () => this.issue?.getPublishRequest().getItemsIds()?.map(itemId => itemId.toString()) || [],
+            getSelectedItems: this.getAssignedItems.bind(this),
         };
 
         return new ContentTreeSelectorDropdown(listBox, dropdownOptions);
+    }
+
+    private getAssignedItems(): string[] {
+        return this.issue?.getPublishRequest().getItemsIds()?.map(itemId => itemId.toString()) || [];
     }
 
     protected initTabs(): void {
@@ -681,6 +685,7 @@ export class IssueDetailsDialog
                         // we've probably triggered the save ourselves so just update the pojo and read-only status
                         this.issue = issue;
                         this.setReadOnly(issue && issue.getIssueStatus() === IssueStatus.CLOSED);
+                        this.refreshAssignedItemsListSelection();
                     }
                     return true;
                 }
@@ -723,6 +728,7 @@ export class IssueDetailsDialog
         this.toggleClass('publish-request', isPublishRequest);
 
         this.issue = issue;
+        this.refreshAssignedItemsListSelection();
 
         if (!forceUpdateDialog) {
             return this;
@@ -744,6 +750,18 @@ export class IssueDetailsDialog
         this.updateActionLabels();
 
         return this;
+    }
+
+    private refreshAssignedItemsListSelection(): void {
+        const selectedItems = this.getAssignedItems();
+
+        this.itemSelector.getSelectedItems().forEach(item => {
+            const itemId = item.getId();
+
+            if (selectedItems.indexOf(itemId) < 0) {
+                this.itemSelector.deselect(item, true);
+            }
+        })
     }
 
     private loadAndSetPublishItems(): void {
