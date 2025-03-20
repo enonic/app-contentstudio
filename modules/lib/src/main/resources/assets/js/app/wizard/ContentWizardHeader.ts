@@ -68,6 +68,7 @@ export class ContentWizardHeader
                     getPath: getDataPath,
                     pathElement: this.displayNameEl,
                     aiButtonContainer: this.topRow,
+                    setContextOnFocus: true,
                 });
 
                 new AiAnimationTool({
