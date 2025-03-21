@@ -142,6 +142,7 @@ import {AiToolType} from '@enonic/lib-admin-ui/ai/tool/AiToolType';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
+import {ContentItemPreviewToolbar} from '../view/ContentItemPreviewToolbar';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -614,6 +615,10 @@ export class ContentWizardPanel
 
     public getMainToolbar(): ContentWizardToolbar {
         return super.getMainToolbar() as ContentWizardToolbar;
+    }
+
+    private getWidgetToolbar(): ContentItemPreviewToolbar {
+        return this.getLivePanel().getFrameContainer().getToolbar();
     }
 
     protected createWizardHeader(): WizardHeader {
@@ -1582,6 +1587,7 @@ export class ContentWizardPanel
         const isUpdatedAndRenamed = this.isContentUpdatedAndRenamed(updatedContent);
         this.setPersistedContent(updatedContent);
         this.getMainToolbar().setItem(updatedContent);
+        this.getWidgetToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
         this.workflowStateManager.update();
 
@@ -1719,6 +1725,7 @@ export class ContentWizardPanel
             this.currentPublishStatus = summaryAndStatus.getPublishStatus();
             this.setPersistedContent(summaryAndStatus);
             this.getMainToolbar().setItem(summaryAndStatus);
+            this.getWidgetToolbar().setItem(summaryAndStatus);
             this.wizardActions.setContent(summaryAndStatus).refreshState();
             this.getWizardHeader().toggleNameGeneration(this.currentCompareStatus === CompareStatus.NEW);
             this.workflowStateManager.update();

@@ -2,7 +2,6 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ContentItemPreviewToolbar} from '../../view/ContentItemPreviewToolbar';
 import {LiveEditPageProxy} from './LiveEditPageProxy';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {ContentWizardActions} from '../action/ContentWizardActions';
 import {PreviewActionHelper} from '../../action/PreviewActionHelper';
@@ -39,8 +38,8 @@ export class FrameContainer
         this.appendChildren<Element>(this.toolbar, this.wrapper, this.proxy.getDragMask());
     }
 
-    public setItem(item: ContentSummaryAndCompareStatus) {
-        this.toolbar.setItem(item);
+    public getToolbar(): ContentItemPreviewToolbar {
+        return this.toolbar;
     }
 
     public getWrapper(): DivEl {
