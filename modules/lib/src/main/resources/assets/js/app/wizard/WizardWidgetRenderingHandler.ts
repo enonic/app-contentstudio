@@ -12,8 +12,6 @@ export class WizardWidgetRenderingHandler
     extends WidgetRenderingHandler {
 
     private placeholderView: LiveEditPagePlaceholder;
-    private readonly content: Content;
-    private readonly contentType: ContentType;
     private enabled: boolean;
     private hasControllersDeferred: Q.Deferred<boolean>;
     private hasPageDeferred: Q.Deferred<boolean>;
@@ -21,12 +19,13 @@ export class WizardWidgetRenderingHandler
     constructor(renderer: WidgetRenderer, content: Content, contentType: ContentType) {
         super(renderer);
         this.mode = RenderingMode.EDIT;
-        this.content = content;
-        this.contentType = contentType;
+
+        this.placeholderView.setContentType(contentType);
+        this.placeholderView.setContentId(content.getContentId());
     }
 
     protected createEmptyView(): DivEl {
-        this.placeholderView = new LiveEditPagePlaceholder(this.content.getContentId(), this.contentType);
+        this.placeholderView = new LiveEditPagePlaceholder();
         this.placeholderView.setEnabled(this.enabled);
         this.placeholderView.addClass('no-selection-message');
         return this.placeholderView;

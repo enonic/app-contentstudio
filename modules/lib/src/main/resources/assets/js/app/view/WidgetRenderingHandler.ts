@@ -77,6 +77,8 @@ export class WidgetRenderingHandler {
         this.mask = renderer.getMask();
         this.mode = RenderingMode.INLINE;
         this.previewHelper = new PreviewActionHelper();
+        this.emptyView = this.createEmptyView();
+        this.messageView = this.createErrorView();
     }
 
 
@@ -122,8 +124,6 @@ export class WidgetRenderingHandler {
 
     public layout() {
         this.bindListeners();
-        this.emptyView = this.createEmptyView();
-        this.messageView = this.createErrorView();
         this.renderer.getChildrenContainer().appendChildren(this.emptyView, this.messageView);
     }
 

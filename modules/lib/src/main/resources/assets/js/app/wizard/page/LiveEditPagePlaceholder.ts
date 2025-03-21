@@ -12,9 +12,9 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 export class LiveEditPagePlaceholder
     extends DivEl {
 
-    private readonly contentId: ContentId;
+    private contentId: ContentId;
 
-    private readonly contentType: ContentType;
+    private contentType: ContentType;
 
     private pagePlaceholderInfoBlock?: PagePlaceholderInfoBlock;
 
@@ -22,7 +22,7 @@ export class LiveEditPagePlaceholder
 
     private enabled: boolean = true;
 
-    constructor(contentId: ContentId, type: ContentType) {
+    constructor(contentId?: ContentId, type?: ContentType) {
         super('page-placeholder');
         this.addClass('icon-insert-template');
 
@@ -32,16 +32,16 @@ export class LiveEditPagePlaceholder
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.pagePlaceholderInfoBlock = new PagePlaceholderInfoBlock();
-            this.pagePlaceholderInfoBlock.setTextForContent(this.contentType.getDisplayName());
-            this.controllerDropdown = this.createControllerDropdown();
+            this.pagePlaceholderInfoBlock = new PagePlaceholderInfoBlock(this.contentType);
+
+            this.controllerDropdown = this.createControllerDropdown(this.contentId);
             this.appendChildren<Element>(this.pagePlaceholderInfoBlock, this.controllerDropdown);
             return rendered;
         });
     }
 
-    private createControllerDropdown(): PageDescriptorDropdown {
-        const controllerDropdown: PageDescriptorDropdown = new PageDescriptorDropdown(this.contentId);
+    private createControllerDropdown(contentId?: ContentId): PageDescriptorDropdown {
+        const controllerDropdown: PageDescriptorDropdown = new PageDescriptorDropdown(contentId);
         controllerDropdown.setEnabled(this.enabled);
         controllerDropdown.addClass('page-placeholder-dropdown');
 
@@ -52,6 +52,20 @@ export class LiveEditPagePlaceholder
         });
 
         return controllerDropdown;
+    }
+
+    setContentType(contentType: ContentType): void {
+        this.contentType = contentType;
+        if (this.pagePlaceholderInfoBlock) {
+            this.pagePlaceholderInfoBlock.setTextForContent(contentType.getDisplayName());
+        }
+    }
+
+    setContentId(contentId: ContentId): void {
+        this.contentId = contentId;
+        if (this.controllerDropdown) {
+            this.controllerDropdown?.setContentId(contentId);
+        }
     }
 
     deselectOptions(): void {
