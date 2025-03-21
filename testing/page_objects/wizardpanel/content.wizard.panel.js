@@ -453,15 +453,15 @@ class ContentWizardPanel extends Page {
     }
 
     waitForLiveEditVisible() {
-        return this.waitForElementDisplayed(XPATH.liveEditFrame, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(lib.LIVE_EDIT_FRAME, appConst.mediumTimeout);
     }
 
     waitForLiveEditNotVisible() {
-        return this.waitForElementNotDisplayed(XPATH.liveEditFrame, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(lib.LIVE_EDIT_FRAME, appConst.mediumTimeout);
     }
 
     async getLiveFramePosition() {
-        let el = await this.findElement(XPATH.liveEditFrame);
+        let el = await this.findElement(lib.LIVE_EDIT_FRAME);
         let xValue = parseInt(await el.getLocation('x'));
         let yValue = parseInt(await el.getLocation('y'));
         return {x: xValue, y: yValue};
@@ -524,7 +524,7 @@ class ContentWizardPanel extends Page {
             return await contentPublishDialog.waitForSpinnerNotVisible(appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_when_click_on_publish_button');
-            throw new Error('Error when Publish button has been clicked, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Error when Publish button has been clicked, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -552,7 +552,7 @@ class ContentWizardPanel extends Page {
             let locator = XPATH.container;
             return await this.waitForAttributeHasValue(locator, 'class', 'no-modify-permissions');
         } catch (err) {
-            let screenshot = this.saveScreenshotUniqueName('err_readonly_mode');
+            let screenshot = await this.saveScreenshotUniqueName('err_readonly_mode');
             throw new Error(`Content wizard panel should be in Read only mode! screenshot:${screenshot} ` + err);
         }
     }
