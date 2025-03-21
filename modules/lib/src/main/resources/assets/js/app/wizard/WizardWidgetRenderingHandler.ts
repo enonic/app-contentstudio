@@ -7,6 +7,7 @@ import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {ContentSummary} from '../content/ContentSummary';
 import * as Q from 'q';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class WizardWidgetRenderingHandler
     extends WidgetRenderingHandler {
@@ -31,6 +32,9 @@ export class WizardWidgetRenderingHandler
         return this.placeholderView;
     }
 
+    protected getDefaultMessage(): string {
+        return i18n('field.editing.notAvailable');
+    }
 
     async renderWithWidget(summary: ContentSummary, widget): Promise<boolean> {
         this.hasControllersDeferred = Q.defer<boolean>();

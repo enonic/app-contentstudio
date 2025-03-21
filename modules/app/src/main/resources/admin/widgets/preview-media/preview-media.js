@@ -44,7 +44,8 @@ exports.canRender = function (req) {
     try {
         const params = widgetLib.validateParams(req.params);
 
-        const canRender = __.toNativeObject(bean.canRender(params.id, params.repository, params.branch, params.archive));
+        const canRender = params.mode !== 'edit' &&
+                          __.toNativeObject(bean.canRender(params.id, params.repository, params.branch, params.archive));
 
         log.debug(`Media [CAN_RENDER]: ${canRender}`);
 

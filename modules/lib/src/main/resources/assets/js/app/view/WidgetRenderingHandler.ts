@@ -63,8 +63,6 @@ export class WidgetRenderingHandler {
 
     private summary: ContentSummary;
 
-    private widget: Widget;
-
     protected mode: RenderingMode;
 
     protected renderableChangedListeners: ((isRenderable: boolean, wasRenderable: boolean) => void)[] = [];
@@ -96,7 +94,6 @@ export class WidgetRenderingHandler {
         }
 
         this.summary = summary;
-        this.widget = widget;
 
         this.showMask();
 
@@ -141,7 +138,7 @@ export class WidgetRenderingHandler {
 
     protected createErrorView(): DivEl {
         const previewText: SpanEl = new SpanEl();
-        previewText.setHtml(i18n('field.preview.notAvailable'));
+        previewText.setHtml(this.getDefaultMessage());
         const previewMessage = new DivEl('no-preview-message');
         previewMessage.appendChild(previewText);
         return previewMessage;
@@ -211,7 +208,7 @@ export class WidgetRenderingHandler {
             switch (statusCode) {
             case StatusCode.NOT_FOUND:
             case StatusCode.I_AM_A_TEAPOT:
-                this.setPreviewType(PREVIEW_TYPE.FAILED, messages || [i18n('field.preview.notAvailable')]);
+                this.setPreviewType(PREVIEW_TYPE.FAILED, messages || [this.getDefaultMessage()]);
                 break;
             default:
                 this.setPreviewType(PREVIEW_TYPE.FAILED, messages);
@@ -223,6 +220,10 @@ export class WidgetRenderingHandler {
 
         this.setPreviewType(PREVIEW_TYPE.EMPTY);
         this.hideMask();
+    }
+
+    protected getDefaultMessage(): string {
+        return i18n('field.preview.notAvailable');
     }
 
     protected extractWidgetData(response: Response): Record<string, never> {
