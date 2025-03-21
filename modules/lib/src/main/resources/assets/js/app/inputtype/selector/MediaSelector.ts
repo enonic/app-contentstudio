@@ -139,8 +139,8 @@ export class MediaSelector
         });
         this.contentSelectorDropdown.onShown(() => {
             // shown on occurrences between min and max
-            if (uploader) {
-                uploader.show();
+            if (!this.contentSelectorDropdown.maximumOccurrencesReached()) {
+                uploader?.show();
             }
         });
 
