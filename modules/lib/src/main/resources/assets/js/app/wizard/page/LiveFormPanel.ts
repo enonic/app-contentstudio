@@ -172,15 +172,16 @@ export class LiveFormPanel
         this.contentWizardPanel = config.contentWizardPanel;
         this.contentType = config.contentType;
         this.liveEditPageProxy = config.liveEditPage;
+        this.content = config.liveEditModel.getContent();
 
-        this.widgetRenderingHandler = new WizardWidgetRenderingHandler(this, config.liveEditModel.getContent(), this.contentType);
+        this.widgetRenderingHandler = new WizardWidgetRenderingHandler(this, this.content, this.contentType);
 
         PageNavigationMediator.get().addPageNavigationHandler(this);
 
         this.initEventHandlers();
-        this.setModel(config.liveEditModel);
-
         this.initElements();
+
+        this.setModel(config.liveEditModel);
     }
 
     getIFrameEl(): IFrameEl {
