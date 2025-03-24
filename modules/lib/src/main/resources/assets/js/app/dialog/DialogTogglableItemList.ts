@@ -94,7 +94,7 @@ export class DialogTogglableItemList
         this.canBeEmpty = value;
     }
 
-    private itemChangedHandler(): void {
+    protected itemChangedHandler(): void {
         const isTogglable = this.getItemViews().some(item => {
             return (item.getBrowseItem() as ContentSummaryAndCompareStatus).getContentSummary().hasChildren();
         });

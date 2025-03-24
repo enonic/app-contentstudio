@@ -68,6 +68,12 @@ export class PublishDialogItemList
         });
     }
 
+    setItems(items: ContentSummaryAndCompareStatus[], silent?: boolean): void {
+        super.setItems(items, silent);
+
+        this.itemChangedHandler();
+    }
+
     protected createSelectionItem(viewer: ContentSummaryAndCompareStatusViewer,
                                   browseItem: ContentSummaryAndCompareStatus): TogglableStatusSelectionItem {
 
