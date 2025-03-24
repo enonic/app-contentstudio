@@ -566,6 +566,7 @@ export class ContentWizardPanel
                     if (!this.siteModel && existing.isSite()) {
                         this.initSiteModel(existing as Site);
                     }
+                    this.initFormContext(existing);
                     this.liveEditModel = this.initLiveEditModel(existing);
                 }
 
@@ -870,6 +871,7 @@ export class ContentWizardPanel
         const contentClone: Content = newPersistedContent.clone();
 
         this.initFormContext(contentClone);
+        this.updateLiveEditModel(contentClone);
         this.updateWizard(contentClone, true);
 
         this.debouncedEditorReload();
@@ -1827,8 +1829,6 @@ export class ContentWizardPanel
         }
 
         this.toggleClass('rendered', false);
-
-        this.initFormContext(content);
 
         this.formMask.show();
 
