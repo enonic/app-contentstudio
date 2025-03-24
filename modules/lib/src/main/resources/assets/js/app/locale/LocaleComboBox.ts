@@ -10,7 +10,7 @@ import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {LocaleLoader} from './LocaleLoader';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import * as Q from 'q';
 
 export interface LocaleComboBoxOptions {
     selectedOptionsView?: LocaleSelectedOptionsView;
@@ -19,8 +19,6 @@ export interface LocaleComboBoxOptions {
 
 export class LocaleComboBox
     extends FilterableListBoxWrapperWithSelectedView<Locale> {
-
-    private selectedLocale: Locale;
 
     private loader: LocaleLoader;
 
@@ -58,10 +56,6 @@ export class LocaleComboBox
         this.loader.onErrorOccurred(() => {
            this.loadMask.hide();
         });
-
-        this.onSelectionChanged((selection: SelectionChange<Locale>) => {
-            this.selectedLocale = selection.selected?.length > 0 ? selection.selected[0] : null;
-        });
     }
 
     protected loadListOnShown(): void {
@@ -77,26 +71,18 @@ export class LocaleComboBox
             .build();
     }
 
-    setSelectedLocale(locale: string | Locale): void {
-        if (!locale) {
-            if (this.selectedLocale) {
-                this.deselect(this.selectedLocale);
-            }
-        } else if (locale instanceof Locale) {
-            this.select(locale);
-        } else {
-            if (this.loader.isLoaded()) {
-                this.selectLocaleById(locale);
-            } else {
-                this.loader.load().then(() => {
-                    this.selectLocaleById(locale);
-                }).catch(DefaultErrorHandler.handle);
-            }
-        }
+    setSelectedLocale(id: string): void {
+        this.deselectAll();
+
+        const loaderPromise = this.loader.isLoaded() ? Q.resolve() : this.loader.load();
+
+        loaderPromise.then(() => {
+            this.select(this.getLocaleById(id));
+        }).catch(DefaultErrorHandler.handle);
     }
 
     getSelectedLocate(): Locale {
-        return this.selectedLocale;
+        return this.getSelectedItems()[0];
     }
 
     openForTyping(): void {
@@ -104,15 +90,7 @@ export class LocaleComboBox
     }
 
     getValue(): string {
-        return this.selectedLocale?.getId() || null;
-    }
-
-    private selectLocaleById(id: string): void {
-        const locale: Locale = this.getLocaleById(id);
-
-        if (locale) {
-            this.select(locale);
-        }
+        return this.getSelectedLocate()?.getId() || null;
     }
 
     private getLocaleById(id: string): Locale {
