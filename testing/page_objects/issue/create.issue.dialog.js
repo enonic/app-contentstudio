@@ -195,6 +195,26 @@ class CreateIssueDialog extends Page {
         }
     }
 
+    async typeContentNameInOptionsFilterInput(contentName) {
+        try {
+            let contentSelector = new ContentSelectorDropdown();
+            await contentSelector.filterItem(contentName, this.container);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_issue_dropdown_filtered');
+            throw new Error(`Error in Create issue Dialog, items selector, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async getCheckedOptionsDisplayNameInDropdownList(contentName) {
+        try {
+            let contentSelector = new ContentSelectorDropdown();
+            return await contentSelector.getCheckedOptionsDisplayNameInDropdownList( XPATH.container );
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_issue_dropdown_filtered');
+            throw new Error(`Error in Create issue Dialog, items selector, screenshot: ${screenshot} ` + err);
+        }
+    }
+
     async selectItemsInContentCombobox(contentName) {
         try {
             let contentSelector = new ContentSelectorDropdown();
