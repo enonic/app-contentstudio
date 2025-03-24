@@ -43,6 +43,7 @@ import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {PageComponentsViewExpandHelper} from './PageComponentsViewExpandHelper';
 import {TextComponentType} from '../page/region/TextComponentType';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
 
 enum Modifiers {
     LOCKED = 'locked',
@@ -271,6 +272,8 @@ export class PageComponentsView
             className: 'page-components-selectable-wrapper',
         });
 
+        this.pageComponentsWrapper.setTabIndex(0);
+
         this.contextMenu = new ItemViewContextMenu(null, [], false);
 
         this.pageComponentsWrapper.onSelectionChanged(() => {
@@ -293,6 +296,16 @@ export class PageComponentsView
             }
 
             this.lastSelectedPath = null;
+        });
+
+        const keyNavigator = new SelectableTreeListBoxKeyNavigator(this.pageComponentsWrapper);
+
+        this.pageComponentsWrapper.onFocusIn(() => {
+            keyNavigator.enableKeys();
+        });
+
+        this.pageComponentsWrapper.onFocusOut(() => {
+            keyNavigator.disableKeys();
         });
 
         this.appendChild(this.pageComponentsWrapper);
