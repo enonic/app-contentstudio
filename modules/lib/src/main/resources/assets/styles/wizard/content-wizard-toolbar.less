@@ -7,14 +7,14 @@
 
   .fold-button,
   .@{_COMMON_PREFIX}button {
-    span,
+    > span,
     &::before,
     &::after {
       color: @admin-dark-gray;
     }
 
     &:not(:disabled):hover {
-      span,
+      > span,
       &:before,
       &::after {
         color: @admin-black;
@@ -22,8 +22,10 @@
     }
   }
 
-  > .fold-button {
-    margin-right: auto;
+  .fold-button {
+    .@{_COMMON_PREFIX}dropdown {
+      top: @app-header-height + 1;
+    }
   }
 
   .content-status-wrapper {
@@ -185,7 +187,6 @@
     order: 2;
     height: 100%;
     flex-shrink: 0;
-    flex-grow: 1;
     justify-content: flex-end;
     margin-right: 5px;
   }
@@ -202,7 +203,6 @@
     .content-status-wrapper {
       display: flex;
       justify-content: center;
-      flex-grow: 1;
     }
 
     .details-toggle {
@@ -214,6 +214,10 @@
 @media screen and (max-width: 720px) {
   .content-wizard-toolbar {
     padding: 0;
+
+    .toolbar-publish-controls {
+      margin-left: auto;
+    }
 
     .details-toggle {
       text-align: center;
@@ -266,7 +270,7 @@
     }
 
     &-collaboration {
-      margin-left: 5px;
+      margin: 0 auto;
     }
   }
 
