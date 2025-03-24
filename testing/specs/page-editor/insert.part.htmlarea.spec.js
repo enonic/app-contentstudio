@@ -51,7 +51,6 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             // 1 Click on the toggler and open 'Page Editor'
             await contentWizard.clickOnPageEditorToggler();
             // 2 Select the page descriptor
-            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor('main region');
             // 3 Open the context menu
             await pageComponentsWizardStepForm.openMenu('main');

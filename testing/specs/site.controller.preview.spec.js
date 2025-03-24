@@ -36,7 +36,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await contentWizard.waitForPreviewButtonNotDisplayed();
         });
 
-    it(`WHEN existing site has been selected(application is not added in the site-wizard) THEN 'Preview' button should be disabled in ItemPreviewPanel toolbar`,
+    it(`WHEN existing site has been selected(application is not added yet in the site-wizard) THEN 'Preview' button should be disabled in ItemPreviewPanel toolbar`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select the site
@@ -60,9 +60,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             let pageInspectionPanel = new PageInspectionPanel();
             // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.waitForPreviewButtonNotDisplayed();
-
             // 2. Select a controller:
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
             await contentWizard.pause(700);

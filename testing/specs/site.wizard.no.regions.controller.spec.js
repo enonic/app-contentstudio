@@ -27,7 +27,6 @@ describe('site.wizard.no.regions.controller.spec: checks Save button after selec
             await contentWizard.typeDisplayName(SITE.displayName);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             //site should be automatically saved after selecting the controller
-            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor("no regions");
             // Save button gets disabled after selecting 'no regions':
             await contentWizard.waitForSaveButtonDisabled();

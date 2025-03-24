@@ -141,7 +141,6 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             // 1. layer's context should be loaded automatically.
             // 2. Open the inherited site and select the controller - click on 'Localize' button:
             let contentWizard = await studioUtils.selectContentAndClickOnLocalize(SITE_NAME);
-            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.MAIN_REGION);
             // 3. Click on Reset button:
             let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();

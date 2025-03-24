@@ -36,7 +36,6 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(500);
             // 2. Verify that the site should be saved automatically after selecting a controller
-            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.MAIN_REGION);
             await contentWizard.waitForSaveButtonDisabled();
             // 3. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:

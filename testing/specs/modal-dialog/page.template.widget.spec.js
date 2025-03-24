@@ -58,7 +58,6 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
             await contentWizard.typeDisplayName(TEMPLATE_NAME);
             // 4.Select 'Site' in support selector:
             await pageTemplateForm.filterOptionsAndSelectSupport(appConst.TEMPLATE_SUPPORT.SITE);
-            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor(COUNTRY_LIST_CONTROLLER);
             await contentWizard.waitForSaveButtonDisabled();
 

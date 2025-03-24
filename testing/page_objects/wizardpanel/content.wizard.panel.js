@@ -622,7 +622,7 @@ class ContentWizardPanel extends Page {
 
     async doOpenItemViewContextMenu() {
         try {
-            let selector = `//div[contains(@id,'Panel') and contains(@class,'frame-container')]`;
+            let selector = `//div[contains(@id,'FrameContainer')]`;
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.clickOnElement(selector);
             await this.switchToLiveEditFrame();
@@ -776,8 +776,8 @@ class ContentWizardPanel extends Page {
             await this.waitForOpenRequestButtonVisible();
             return await this.clickOnElement(XPATH.container + XPATH.openRequestButton);
         } catch (err) {
-            await this.saveScreenshot('err_when_click_on_open_req_button');
-            throw new Error('Error when Open Request button has been clicked ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_when_click_on_open_req_button');
+            throw new Error(`Error when Open Request button has been clicked screenshot: ${screenshot}` + err);
         }
     }
 
@@ -1068,12 +1068,12 @@ class ContentWizardPanel extends Page {
     }
 
     async getPageEditorWidth() {
-        let widthProperty = await this.getCSSProperty(XPATH.liveEditFrame, 'width');
+        let widthProperty = await this.getCSSProperty(lib.LIVE_EDIT_FRAME, 'width');
         return widthProperty.value;
     }
 
     async getPageEditorHeight() {
-        let heightProperty = await this.getCSSProperty(XPATH.liveEditFrame, 'height');
+        let heightProperty = await this.getCSSProperty(lib.LIVE_EDIT_FRAME, 'height');
         return heightProperty.value;
     }
 

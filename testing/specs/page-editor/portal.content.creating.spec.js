@@ -43,7 +43,6 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
             // 1. Expand the site and open wizard for new page-template:
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
-            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizard.selectPageDescriptor(TEMPLATE.data.controllerDisplayName);
             // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
