@@ -43,6 +43,7 @@ import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {PageComponentsViewExpandHelper} from './PageComponentsViewExpandHelper';
 import {TextComponentType} from '../page/region/TextComponentType';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
 
 enum Modifiers {
     LOCKED = 'locked',
@@ -294,6 +295,8 @@ export class PageComponentsView
 
             this.lastSelectedPath = null;
         });
+
+        new SelectableTreeListBoxKeyNavigator(this.pageComponentsWrapper);
 
         this.appendChild(this.pageComponentsWrapper);
     }
