@@ -166,7 +166,10 @@ export class ContentTreeSelectorDropdown
 
     protected handleModeChanged(): void {
         this.options.loader.setTreeLoadMode(this.treeMode);
-        this.showDropdown();
+
+        if (!this.selectionLimitReached) {
+            this.showDropdown();
+        }
     }
 
     protected applySelection() {
@@ -192,14 +195,14 @@ export class ContentTreeSelectorDropdown
         });
     }
 
-    protected handleDebouncedSearchValueChange(searchValue: string): void {
-        const hasSearchText = !StringHelper.isBlank(searchValue);
+    protected handleDebouncedSearchValueChange(): void {
+        const hasSearchText = !StringHelper.isBlank(this.searchValue);
 
         if (hasSearchText) {
             if (this.treeMode) {
                 this.modeButton.setActive(false);
             } else {
-                super.handleDebouncedSearchValueChange(searchValue);
+                super.handleDebouncedSearchValueChange();
             }
         } else {
             // switching do default mode if search is empty
@@ -207,7 +210,7 @@ export class ContentTreeSelectorDropdown
                 this.modeButton.setActive(!this.treeMode);
             }
 
-            super.handleDebouncedSearchValueChange(searchValue);
+            super.handleDebouncedSearchValueChange();
         }
 
     }
