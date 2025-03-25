@@ -135,6 +135,7 @@ export class ContentTreeSelectorDropdown
 
             if (this.loadWhenListShown) {
                 this.loadListOnShown();
+                this.loadWhenListShown = false;
             }
         }
     }
@@ -277,5 +278,13 @@ export class ContentTreeSelectorDropdown
         }
 
         return true;
+    }
+
+    isInTreeMode(): boolean {
+        return this.treeMode;
+    }
+
+    setMode(mode: 'tree' | 'flat'): void {
+        this.modeButton.setActive(mode === 'tree');
     }
 }

@@ -224,6 +224,13 @@ export class IssueDialogForm
 
         this.contentItemsSelector.clear();
         this.contentItemsSelector.deselectAll();
+
+        if (this.contentItemsSelector.isInTreeMode()) {
+            this.contentItemsSelector.setMode('flat');
+        }
+
+        this.contentItemsSelector.setLoadWhenListShown();
+
         this.lockContentItemsSelector(false);
     }
 
