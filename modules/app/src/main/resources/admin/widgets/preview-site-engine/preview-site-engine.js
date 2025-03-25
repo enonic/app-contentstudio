@@ -31,6 +31,9 @@ exports.get = function (req) {
         const data = collectResponseData(params, url)
         // don't use 30x redirect here because we want client to be able to read our headers first
         // client will handle redirect manually based on the data
+
+        log.debug(`Site [${req.method}] response: ${JSON.stringify(data)}`);
+
         return widgetLib.widgetResponse(202, data);
     } catch (e) {
         log.error(`Site [${req.method}] error: ${e.message}`);
@@ -66,17 +69,13 @@ function collectResponseData(params, url) {
     const appKeys = getSiteAppKeys(site, params);
     const messages = [];
 
-    log.debug('\nno templates or page/fragment');
-
     const appsMissing = hasMissingApps(appKeys);
     if (appsMissing) {
-        log.debug('\napps missing:' + appsMissing);
         messages.push(widgetLib.i18n('field.preview.missing.description'));
     }
 
-    const hasControllers = hasAvailableControllers(appKeys);
+    const hasControllers = hasAvailableControllers(params, appKeys);
     if (!hasControllers) {
-        log.debug('\nno way to render');
         messages.push(widgetLib.i18n('text.addapplications'));
     }
 
@@ -88,16 +87,20 @@ function collectResponseData(params, url) {
     }
 }
 
-function hasAvailableControllers(appKeys) {
+function hasAvailableControllers(params, appKeys) {
+    return widgetLib.switchContext(params.repository, params.branch, params.archive, function () {
+        return appKeys.some((key) => {
+            const appControllers = schemaLib.listComponents({
+                type: 'PAGE',
+                application: key
+            });
+            //TODO: check app allowed content types
 
-    return appKeys.some((key) => {
-        const appControllers = schemaLib.listComponents({
-            type: 'PAGE',
-            application: key
+            return appControllers.length > 0;
         });
-        //TODO: check app allowed content types
-
-        return appControllers.length > 0;
+    }, function (e) {
+        log.error(`Failed to switch context: ${e.message}`);
+        throw e;
     });
 }
 
