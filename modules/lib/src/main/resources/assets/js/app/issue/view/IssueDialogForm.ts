@@ -16,7 +16,7 @@ import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentId} from '../../content/ContentId';
-import {ContentTreeSelectorDropdown} from '../../inputtype/selector/ContentTreeSelectorDropdown';
+import {ContentTreeSelectorDropdown, ContentTreeSelectorMode} from '../../inputtype/selector/ContentTreeSelectorDropdown';
 import {ContentSummaryOptionDataLoader} from '../../inputtype/ui/selector/ContentSummaryOptionDataLoader';
 import {ContentListBox} from '../../inputtype/selector/ContentListBox';
 import {ContentSelectorDropdownOptions} from '../../inputtype/selector/ContentSelectorDropdown';
@@ -224,6 +224,13 @@ export class IssueDialogForm
 
         this.contentItemsSelector.clear();
         this.contentItemsSelector.deselectAll();
+
+        if (this.contentItemsSelector.isInTreeMode()) {
+            this.contentItemsSelector.setMode(ContentTreeSelectorMode.FLAT);
+        }
+
+        this.contentItemsSelector.setLoadWhenListShown();
+
         this.lockContentItemsSelector(false);
     }
 
