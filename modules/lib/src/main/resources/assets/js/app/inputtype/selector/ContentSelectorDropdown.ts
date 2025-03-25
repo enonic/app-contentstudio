@@ -32,6 +32,10 @@ export class ContentSelectorDropdown
 
     protected options: ContentSelectorDropdownOptions;
 
+    protected searchValue: string;
+
+    protected debouncedSearch: () => void;
+
     protected readonly getSelectedItemsHandler: () => string[];
 
     constructor(listBox, options: ContentSelectorDropdownOptions) {
@@ -52,27 +56,36 @@ export class ContentSelectorDropdown
             .build();
     }
 
+    protected initElements(): void {
+        super.initElements();
+
+        this.searchValue = '';
+
+        this.debouncedSearch = AppHelper.debounce(() => {
+            this.handleDebouncedSearchValueChange();
+        }, 300);
+    }
+
     protected initListeners(): void {
         super.initListeners();
 
         this.listBox.onItemsAdded((items: ContentTreeSelectorItem[]) => {
             this.selectLoadedFlatListItems(items);
         });
-
-        let searchValue = '';
-
-        const debouncedSearch = AppHelper.debounce(() => {
-            this.handleDebouncedSearchValueChange(searchValue);
-        }, 300);
-
-        this.optionFilterInput.onValueChanged((event: ValueChangedEvent) => {
-            searchValue = event.getNewValue();
-            debouncedSearch();
-        });
     }
 
-    protected handleDebouncedSearchValueChange(searchValue: string): void {
-        this.search(searchValue);
+    protected handleValueChange(event: ValueChangedEvent): void {
+        this.searchValue = event.getNewValue();
+
+        if (!this.selectionLimitReached) {
+            this.showDropdown();
+        }
+
+        this.debouncedSearch();
+    }
+
+    protected handleDebouncedSearchValueChange(): void {
+        this.search(this.searchValue);
     }
 
     protected postInitListeners(): void {
