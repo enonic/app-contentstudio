@@ -928,7 +928,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForElementDisplayed(this.pageEditorTogglerButton, appConst.mediumTimeout);
             await this.clickOnElement(this.pageEditorTogglerButton);
-            return await this.pause(1000);
+            return await this.pause(800);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_monitor_icon');
             throw new Error(`Page Editor toggler, screenshot : ${screenshot}  ` + err);
