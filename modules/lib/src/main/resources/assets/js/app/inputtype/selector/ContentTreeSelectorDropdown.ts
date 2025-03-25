@@ -16,14 +16,17 @@ export interface ContentTreeSelectorDropdownOptions
     hideToggleIcon?: boolean;
 }
 
+export enum ContentTreeSelectorMode {
+    TREE = 'tree',
+    FLAT = 'flat',
+}
+
 export class ContentTreeSelectorDropdown
     extends ContentSelectorDropdown {
 
     protected treeList: ContentsTreeList;
 
     protected treeSelectionWrapper: ContentTreeSelectionWrapper;
-
-    protected treeMode: boolean;
 
     protected modeButton: ModeTogglerButton;
 
@@ -54,7 +57,7 @@ export class ContentTreeSelectorDropdown
             .setClickOutsideHandler(this.handleClickOutside.bind(this))
             .setEnterKeyHandler(this.handlerEnterPressedInTree.bind(this));
 
-        this.treeMode = !!this.options.treeMode || false;
+        this.modeButton.setActive(!!this.options.treeMode || false);
         this.loadTreeListOnShow = true;
     }
 
@@ -68,7 +71,6 @@ export class ContentTreeSelectorDropdown
         this.modeButton.onActiveChanged((active: boolean) => {
             const searchValue = this.optionFilterInput.getValue();
             const hasSearchText = !StringHelper.isBlank(searchValue);
-            this.treeMode = active;
             this.applyButton.hide();
 
             if (hasSearchText) {
@@ -118,7 +120,7 @@ export class ContentTreeSelectorDropdown
     protected postInitListeners(): void {
         super.postInitListeners();
 
-        if (this.treeMode) {
+        if (this.isInTreeMode()) {
             this.modeButton.setActive(true);
             this.hideDropdown();
         }
@@ -126,15 +128,16 @@ export class ContentTreeSelectorDropdown
 
     protected doShowDropdown(): void {
         // doing in specific order so key listeners first detached from hidden list and then attached to the shown one
-        if (this.treeMode) {
-            this.setVisibleOnDemand(this.listBox, !this.treeMode);
-            this.setVisibleOnDemand(this.treeSelectionWrapper, this.treeMode);
+        if (this.isInTreeMode()) {
+            this.setVisibleOnDemand(this.listBox, false);
+            this.setVisibleOnDemand(this.treeSelectionWrapper, true);
         } else {
-            this.setVisibleOnDemand(this.treeSelectionWrapper, this.treeMode);
-            this.setVisibleOnDemand(this.listBox, !this.treeMode);
+            this.setVisibleOnDemand(this.treeSelectionWrapper, false);
+            this.setVisibleOnDemand(this.listBox, true);
 
             if (this.loadWhenListShown) {
                 this.loadListOnShown();
+                this.loadWhenListShown = false;
             }
         }
     }
@@ -165,7 +168,7 @@ export class ContentTreeSelectorDropdown
     }
 
     protected handleModeChanged(): void {
-        this.options.loader.setTreeLoadMode(this.treeMode);
+        this.options.loader.setTreeLoadMode(this.isInTreeMode());
 
         if (!this.selectionLimitReached) {
             this.showDropdown();
@@ -179,7 +182,7 @@ export class ContentTreeSelectorDropdown
     }
 
     getItemById(id: string): ContentTreeSelectorItem {
-        return this.treeMode ? this.treeList.getItem(id) : super.getItemById(id);
+        return this.isInTreeMode() ? this.treeList.getItem(id) : super.getItemById(id);
     }
 
     protected selectLoadedTreeListItems(items: ContentTreeSelectorItem[]): void {
@@ -199,15 +202,15 @@ export class ContentTreeSelectorDropdown
         const hasSearchText = !StringHelper.isBlank(this.searchValue);
 
         if (hasSearchText) {
-            if (this.treeMode) {
+            if (this.isInTreeMode()) {
                 this.modeButton.setActive(false);
             } else {
                 super.handleDebouncedSearchValueChange();
             }
         } else {
             // switching do default mode if search is empty
-            if (this.treeMode !== !!this.options.treeMode) {
-                this.modeButton.setActive(!this.treeMode);
+            if (this.isInTreeMode() !== !!this.options.treeMode) {
+                this.modeButton.setActive(!this.isInTreeMode());
             }
 
             super.handleDebouncedSearchValueChange();
@@ -218,7 +221,7 @@ export class ContentTreeSelectorDropdown
     protected search(value?: string): void {
         this.options.loader.setTreeFilterValue(value);
 
-        if (this.treeMode) {
+        if (this.isInTreeMode()) {
             this.loadTreeListOnShow = false;
             this.treeList.clearItems();
             this.treeList.load();
@@ -280,5 +283,13 @@ export class ContentTreeSelectorDropdown
         }
 
         return true;
+    }
+
+    isInTreeMode(): boolean {
+        return this.modeButton.isActive();
+    }
+
+    setMode(mode: ContentTreeSelectorMode): void {
+        this.modeButton.setActive(mode === ContentTreeSelectorMode.TREE);
     }
 }
