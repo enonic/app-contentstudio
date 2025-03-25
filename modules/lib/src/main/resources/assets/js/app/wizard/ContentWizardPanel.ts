@@ -561,8 +561,6 @@ export class ContentWizardPanel
                 AI.get().setContentType(this.contentType);
                 AI.get().updateInstructions(this.getApplicationsConfigs());
                 AI.get().setCompareStatus(this.persistedCompareStatus);
-
-                return this.loadAndSetPageState(loader.content?.getPage()?.clone());
             })
             .then(() => super.doLoadData())
             .finally(() => {
@@ -579,6 +577,8 @@ export class ContentWizardPanel
                 }
                 this.initFormContext(existing);
                 this.liveEditModel = this.initLiveEditModel(existing);
+
+                return this.loadAndSetPageState(existing.getPage()?.clone());
             });
     }
 
