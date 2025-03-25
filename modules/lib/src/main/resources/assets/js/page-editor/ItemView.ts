@@ -678,6 +678,7 @@ export abstract class ItemView
                     } as ItemViewSelectedEventConfig;
 
                     this.select(config, menuPosition);
+                    this.focusPlaceholderIfEmpty();
                 }
 
             } else if (isViewInsideSelectedContainer && rightClicked) {
@@ -893,6 +894,12 @@ export abstract class ItemView
 
     private selectPlaceholder() {
         this.placeholder?.select();
+    }
+
+    focusPlaceholderIfEmpty(): void {
+        if (this.isEmpty()) {
+            this.placeholder?.focus();
+        }
     }
 
     private deselectPlaceholder() {

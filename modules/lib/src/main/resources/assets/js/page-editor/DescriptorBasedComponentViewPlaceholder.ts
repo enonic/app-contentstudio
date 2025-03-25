@@ -62,11 +62,21 @@ export abstract class DescriptorBasedComponentViewPlaceholder
     select(): void {
         if (!this.componentView.hasDescriptor()) {
             this.comboBox.show();
-            this.comboBox.giveFocus();
         }
     }
 
     deselect(): void {
         this.comboBox.hide();
+    }
+
+    focus(): void {
+        if (!this.isRendered()) {
+            this.whenRendered(() => this.focus());
+        } else {
+            if (!this.componentView.hasDescriptor()) {
+                this.comboBox.giveFocus();
+            }
+        }
+
     }
 }
