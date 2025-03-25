@@ -203,7 +203,7 @@ export class WidgetRenderingHandler {
         const statusCode = response.status;
         if (statusCode > 0) {
 
-            const messages = data?.messages;
+            const messages: string[] = (data?.messages as string[])?.length ? data.messages : undefined;
 
             switch (statusCode) {
             case StatusCode.NOT_FOUND:

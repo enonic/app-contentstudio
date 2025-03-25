@@ -558,25 +558,28 @@ export class ContentWizardPanel
                 this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNameLabel());
                 this.wizardHeader.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
 
-                const existing: Content = this.getPersistedItem();
-                if (existing) {
-                    this.wizardHeader.setDisplayName(existing.getDisplayName());
-                    this.wizardHeader.setName(existing.getName().toString());
-
-                    if (!this.siteModel && existing.isSite()) {
-                        this.initSiteModel(existing as Site);
-                    }
-                    this.initFormContext(existing);
-                    this.liveEditModel = this.initLiveEditModel(existing);
-                }
-
-
                 AI.get().setContentType(this.contentType);
                 AI.get().updateInstructions(this.getApplicationsConfigs());
                 AI.get().setCompareStatus(this.persistedCompareStatus);
 
                 return this.loadAndSetPageState(loader.content?.getPage()?.clone());
-            }).then(() => super.doLoadData());
+            })
+            .then(() => super.doLoadData())
+            .finally(() => {
+                // persisted item is always present now
+                // for existing content it was loaded
+                // for new content it was saved in super.doLoadData()
+                const existing: Content = this.getPersistedItem();
+
+                this.wizardHeader.setDisplayName(existing.getDisplayName());
+                this.wizardHeader.setName(existing.getName().toString());
+
+                if (!this.siteModel && existing.isSite()) {
+                    this.initSiteModel(existing as Site);
+                }
+                this.initFormContext(existing);
+                this.liveEditModel = this.initLiveEditModel(existing);
+            });
     }
 
     private loadAndSetPageState(page: Page): Q.Promise<void> {

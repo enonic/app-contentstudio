@@ -81,7 +81,7 @@ function collectResponseData(params, url) {
     }
 
     return {
-        messages,
+        messages: messages.length ? messages : undefined,
         hasControllers: /*!params.auto &&*/ hasControllers,
         hasPage: isPageOrFragment,
         redirect: url
