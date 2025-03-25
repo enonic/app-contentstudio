@@ -134,18 +134,23 @@ module.exports = {
     },
 
     async insertContentLinkInCke(text, contentDisplayName, entireProject) {
-        let insertLinkDialog = new InsertLinkDialog();
-        let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
-        await insertLinkDialog.typeInLinkTextInput(text);
-        if (entireProject) {
-            await insertLinkDialogContentPanel.clickOnShowContentFromEntireProjectCheckbox();
+        try {
+            let insertLinkDialog = new InsertLinkDialog();
+            let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
+            await insertLinkDialog.typeInLinkTextInput(text);
+            if (entireProject) {
+                await insertLinkDialogContentPanel.clickOnShowContentFromEntireProjectCheckbox();
+            }
+            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(contentDisplayName);
+            // After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(contentDisplayName);
+            await this.saveScreenshot('content_link_dialog');
+            await insertLinkDialog.clickOnInsertButton();
+            return await insertLinkDialog.pause(700);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_insert_content_link');
+            throw new Error(`Error when insert content link in CKE, screenshot: ${screenshot} ` + err);
         }
-        await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(contentDisplayName);
-        // After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
-        await insertLinkDialogContentPanel.clickOnOptionByDisplayName(contentDisplayName);
-        await this.saveScreenshot('content_link_dialog');
-        await insertLinkDialog.clickOnInsertButton();
-        return await insertLinkDialog.pause(700);
     },
     async doCloseCurrentBrowserTab() {
         let title = await this.getBrowser().getTitle();

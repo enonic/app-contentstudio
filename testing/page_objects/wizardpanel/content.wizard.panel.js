@@ -67,8 +67,16 @@ const XPATH = {
 
 class ContentWizardPanel extends Page {
 
+    get previewItemToolbar() {
+        return XPATH.container + XPATH.contentItemPreviewToolbar;
+    }
+
+    get emulatorDropdown() {
+        return this.previewItemToolbar + lib.LIVE_VIEW.EMULATOR_DROPDOWN;
+    }
+
     get previewWidgetDropdown() {
-        return XPATH.container + XPATH.contentItemPreviewToolbar + lib.PREVIEW_WIDGET.DIV_DROPDOWN;
+        return this.previewItemToolbar + lib.LIVE_VIEW.DIV_DROPDOWN;
     }
 
     get displayNameInput() {
@@ -147,8 +155,9 @@ class ContentWizardPanel extends Page {
         return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Localize');
     }
 
+    // Preview button on the previewItemToolbar
     get previewButton() {
-        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Preview');
+        return this.previewItemToolbar + lib.actionButtonStrict('Preview');
     }
 
     get controllerOptionFilterInput() {
@@ -782,12 +791,13 @@ class ContentWizardPanel extends Page {
     }
 
     async getContentStatus() {
+        let locator = this.previewItemToolbar+  XPATH.status;
         let result = await this.getDisplayedElements(XPATH.container + XPATH.status);
         return await result[0].getText();
     }
 
     waitForContentStatus(expectedStatus) {
-        let selector = XPATH.container +
+        let selector = this.previewItemToolbar +
                        `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status') and text()='${expectedStatus}']`;
         let message = "Element still not displayed! timeout is " + appConst.mediumTimeout + "  " + selector;
         return this.getBrowser().waitUntil(() => {
@@ -968,6 +978,7 @@ class ContentWizardPanel extends Page {
 
     async clickOnPreviewButton() {
         try {
+            await this.waitForPreviewButtonDisplayed();
             await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout);
             await this.clickOnElement(this.previewButton);
             return await this.pause(2000);
@@ -1176,6 +1187,40 @@ class ContentWizardPanel extends Page {
             throw new Error(`Error occurred during selecting option in Preview Widget, screenshot: ${screenshot} ` + err);
         }
     }
+    // Gets the selected option in the 'Preview dropdown' Auto, Media, etc.
+    async getSelectedOptionInPreviewWidget() {
+        let locator = this.previewWidgetDropdown + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
+    async waitForPreviewButtonDisabled() {
+        try {
+            await this.waitForPreviewButtonDisplayed();
+            await this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_disabled');
+            throw new Error(`Content Wizard - Preview button should be displayed and disabled, screenshot  : ${screenshot} ` + err);
+        }
+    }
+    // returns the selected option in the 'Emulator dropdown' '100%', '375px', etc.
+    async getSelectedOptionInEmulatorDropdown() {
+        try {
+            let locator = this.emulatorDropdown + lib.H6_DISPLAY_NAME;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_emulator_dropdown');
+            throw new Error(`Emulator dropdown - error occurred during getting the selected option, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async getNoPreviewMessage() {
+        let locator = XPATH.container + lib.LIVE_VIEW.NO_PREVIEW_MSG_SPAN;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
 }
 
 module.exports = ContentWizardPanel;

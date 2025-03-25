@@ -85,9 +85,6 @@ module.exports = Object.freeze({
         BUTTON: "//div[contains(@class,'help-text-button')]",
         TEXT: "//div[contains(@class,'help-text visible')]/p",
     },
-    PREVIEW_WIDGET: {
-        DIV_DROPDOWN: "//div[contains(@id,'PreviewWidgetDropdown')]",
-    },
     DROPDOWN_SELECTOR: {
         contentListElementByDisplayName: (container, displayName) => {
             return container +
@@ -269,5 +266,11 @@ module.exports = Object.freeze({
     },
     INSPECT_PANEL: {
         DESCRIPTOR_VIEWER_DIV: "//div[contains(@id,'DescriptorViewer')]",
+    },
+    LIVE_VIEW: {
+        EMULATOR_DROPDOWN: "//div[contains(@id,'EmulatorDropdown')]",
+        DIV_DROPDOWN: "//div[contains(@id,'PreviewWidgetDropdown')]",
+        PREVIEW_NOT_AVAILABLE_SPAN: "//div[@class='no-preview-message']//span[text()='Preview not available']",
+        NO_PREVIEW_MSG_SPAN: "//div[@class='no-preview-message']//span",
     }
 });
