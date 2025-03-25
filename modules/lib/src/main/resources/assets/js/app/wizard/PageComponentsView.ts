@@ -272,6 +272,8 @@ export class PageComponentsView
             className: 'page-components-selectable-wrapper',
         });
 
+        this.pageComponentsWrapper.setTabIndex(0);
+
         this.contextMenu = new ItemViewContextMenu(null, [], false);
 
         this.pageComponentsWrapper.onSelectionChanged(() => {
@@ -296,7 +298,15 @@ export class PageComponentsView
             this.lastSelectedPath = null;
         });
 
-        new SelectableTreeListBoxKeyNavigator(this.pageComponentsWrapper);
+        const keyNavigator = new SelectableTreeListBoxKeyNavigator(this.pageComponentsWrapper);
+
+        this.pageComponentsWrapper.onFocusIn(() => {
+            keyNavigator.enableKeys();
+        });
+
+        this.pageComponentsWrapper.onFocusOut(() => {
+            keyNavigator.disableKeys();
+        });
 
         this.appendChild(this.pageComponentsWrapper);
     }

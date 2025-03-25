@@ -664,8 +664,4 @@ export class TextComponentView
 
         TextComponentView.lastFocusedView = this;
     }
-
-    protected isFocusToFrameRequired(): boolean {
-        return !this.anyEditorHasFocus();
-    }
 }
