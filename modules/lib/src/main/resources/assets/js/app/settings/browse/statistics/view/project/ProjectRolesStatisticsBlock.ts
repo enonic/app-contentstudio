@@ -42,7 +42,7 @@ export class ProjectRolesStatisticsBlock extends StatisticsBlock {
         this.authorsColumn.setItems([]);
         this.contributorsColumn.setItems([]);
 
-        if (!ProjectHelper.isAvailable(item.getData())) {
+        if (item.isDefaultProject() || !ProjectHelper.isAvailable(item.getData())) {
             this.hide();
         } else {
             this.show();

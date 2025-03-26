@@ -11,6 +11,8 @@ import {ApplicationConfigHelper} from './ApplicationConfigHelper';
 export class Project
     implements Equitable {
 
+    public static DEFAULT_PROJECT_NAME: string = 'default';
+
     private readonly name: string;
 
     private readonly displayName: string;

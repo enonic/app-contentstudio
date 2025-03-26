@@ -41,11 +41,23 @@ export class ProjectHelper {
         return userPrincipals.some((userPrincipal: PrincipalKey) => owners.some((owner: PrincipalKey) => owner.equals(userPrincipal)));
     }
 
+    public static isDefault(project: Project): boolean {
+        return project.getName() === Project.DEFAULT_PROJECT_NAME;
+    }
+
     public static fetchProject(name: string): Q.Promise<Project> {
         return new ProjectGetRequest(name).sendAndParse().then((project: Project) => project);
     }
 
     public static sortProjects(item1: Project, item2: Project): number {
+        if (ProjectHelper.isDefault(item1)) {
+            return -1;
+        }
+
+        if (ProjectHelper.isDefault(item2)) {
+            return 1;
+        }
+
         return item1.getName().localeCompare(item2.getName());
     }
 

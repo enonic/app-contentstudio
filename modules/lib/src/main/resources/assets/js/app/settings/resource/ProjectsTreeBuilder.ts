@@ -31,7 +31,7 @@ export class ProjectsTreeBuilder {
             return Q(null);
         }
 
-        if (this.hasParent(project)) {
+        if (this.isDefaultOrHasParent(project)) {
             return this.fetchTree(this.projectsWithoutParent.pop());
         }
 
@@ -48,7 +48,7 @@ export class ProjectsTreeBuilder {
     }
 
     private addParents(project: Project, projectsTreeItems: ProjectsTreeItem[]) {
-        if (this.hasParent(project)) {
+        if (this.isDefaultOrHasParent(project)) {
             return;
         }
 
@@ -68,8 +68,8 @@ export class ProjectsTreeBuilder {
         this.addParents(notAvailableParentProject, projectsTreeItems);
     }
 
-    private hasParent(project: Project): boolean {
-        return this.projectsTree.some((p: Project) => project.hasMainParentByName(p.getName()));
+    private isDefaultOrHasParent(project: Project): boolean {
+        return ProjectHelper.isDefault(project) || this.projectsTree.some((p: Project) => project.hasMainParentByName(p.getName()));
     }
 
     private getProjectsWithoutParents(): Project[] {

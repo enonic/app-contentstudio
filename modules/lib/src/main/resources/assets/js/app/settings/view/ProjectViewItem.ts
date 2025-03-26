@@ -65,6 +65,10 @@ export class ProjectViewItem
         return this.data.hasParents() ? SettingsTypes.get().getLayer() : SettingsTypes.get().getProject();
     }
 
+    isDefaultProject(): boolean {
+        return ProjectHelper.isDefault(this.data);
+    }
+
     getSiteConfigs(): ApplicationConfig[] {
         return this.data.getSiteConfigs();
     }
@@ -82,7 +86,7 @@ export class ProjectViewItem
     }
 
     isDeleteAllowed(loginResult: LoginResult): boolean {
-        return loginResult.isContentAdmin();
+        return loginResult.isContentAdmin() && !this.isDefaultProject();
     }
 
     equals(o: Equitable): boolean {

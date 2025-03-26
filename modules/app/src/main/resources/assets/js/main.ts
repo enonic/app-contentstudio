@@ -303,6 +303,12 @@ const getParentProject = (project: Project, projects: Project[]): Project => {
 };
 
 const getFirstAvailableProject = (projects: Project[]): Project => {
+    const defaultProject: Project = projects.find((project: Project) => project.getName() === Project.DEFAULT_PROJECT_NAME);
+
+    if (defaultProject) {
+        return defaultProject;
+    }
+
     return projects.find((p: Project) => ProjectHelper.isAvailable(p));
 };
 
