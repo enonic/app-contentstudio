@@ -60,6 +60,23 @@ Turn off <<security#content_security_policy,Content Security Policy>> by setting
 contentSecurityPolicy.enabled=false
 ----
 
+
+== Enable Default Content Project
+
+<<projects#default_project,Default Content Project>> is not shown in Content Studio by default.
+
+If you need the Default project (for example, you already have content in it and want to continue working with it after
+upgrading to Content Studio 5), enable it by setting `settings.hideDefaultProject` property to `false`.
+
+.com.enonic.app.contentstudio.cfg
+[source,properties]
+----
+settings.hideDefaultProject=false
+----
+
+IMPORTANT: If the Default project is hidden (default behaviour) and a logged-in user doesn't have access to any projects and has necessary permissions,
+he/she will be asked to create a new content project using <<settings#new_project_wizard,multistep wizard>>.
+
 == Publishing Wizard
 
 === Disable "Mark as Ready" action
