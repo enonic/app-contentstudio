@@ -40,9 +40,9 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             await renamePublishedContentDialog.waitForDialogClosed();
             // 3. Verify that 'modify path' span remains visible in wizard page after updating the path:
             await contentWizard.waitForModifyPathSpanDisplayed();
-            await studioUtils.saveScreenshot('moved_folder');
             // 4. Open Page Editor with Preview Widget, Verify that status gets Moved
             await contentWizard.clickOnPageEditorToggler();
+            await studioUtils.saveScreenshot('moved_folder');
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.MOVED);
             let actualStatus = await contentWizard.getContentStatus();
             assert.equal(actualStatus, appConst.CONTENT_STATUS.MOVED, "Only the one 'Moved' status should appear in the wizard toolbar");

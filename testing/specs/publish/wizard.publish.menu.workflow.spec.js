@@ -145,6 +145,8 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             // 4. Click on Unpublish button in the dialog:
             await contentUnpublishDialog.clickOnUnpublishButton();
             await contentUnpublishDialog.waitForDialogClosed();
+            // Open Preview Item toolbar:
+            await contentWizard.clickOnPageEditorToggler();
             // 5. Status should be Unpublished and 'Mark as Ready' button should be visible
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.UNPUBLISHED);
             await contentWizard.waitForMarkAsReadyButtonVisible();
