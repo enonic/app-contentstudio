@@ -726,9 +726,9 @@ export class ContentWizardPanel
             liveFormPanel.removeClass('rendering');
         });
 
-        this.toggleMinimizeListener = (event: ActivatedEvent) => {
-            this.toggleMinimize(event.getIndex());
-        };
+        liveFormPanel.onRenderableChanged((renderable: boolean) => {
+            this.contextView.setIsPageRenderable(renderable);
+        });
 
         this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
         this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
@@ -2446,7 +2446,7 @@ export class ContentWizardPanel
         // });
 
         return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
-            this.contextView.updateWidgetsVisibility();
+            this.contextView.updateSelectedWidget();
         });
     }
 
@@ -2529,7 +2529,7 @@ export class ContentWizardPanel
         this.wizardHeader?.setOnline(!content.isNew());
         this.wizardHeader?.setPath(this.getWizardHeaderPath());
         this.wizardHeader?.setDir(Locale.supportsRtl(content.getLanguage()) ? LangDirection.RTL : LangDirection.AUTO);
-        this.contextView?.setItem(content).then(() => this.contextView.updateWidgetsVisibility());
+        this.contextView?.setItem(content);
     }
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {
