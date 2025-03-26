@@ -34,7 +34,13 @@ exports.get = function (req) {
 
         log.debug(`Site [${req.method}] response: ${JSON.stringify(data)}`);
 
-        return widgetLib.widgetResponse(202, data);
+        if (params.mode === 'inline' || params.mode === 'edit') {
+            // we handle that on the client in inline and edit modes
+            return widgetLib.widgetResponse(200, data);
+        } else {
+            // in other modes we leave it to browser to handle the redirect
+            return widgetLib.redirectResponse(url, data);
+        }
     } catch (e) {
         log.error(`Site [${req.method}] error: ${e.message}`);
         return widgetLib.widgetResponse(500);

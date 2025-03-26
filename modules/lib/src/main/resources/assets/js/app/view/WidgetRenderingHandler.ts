@@ -249,10 +249,9 @@ export class WidgetRenderingHandler {
         let widget: Widget;
         let isOk: boolean;
         let data: Record<string, never>;
-        const config = selectedWidget.getConfig();
         if (isAuto) {
-            // clear previous previewUrl
-            config.setProperty("previewUrl", undefined);
+            // clear previous preview url for this mode
+            this.previewHelper.setPreviewUrl(selectedWidget, undefined);
         }
         for (widget of items) {
             const url = this.previewHelper.getUrl(summary, widget, this.mode) + '&auto=' + isAuto;
@@ -270,7 +269,8 @@ export class WidgetRenderingHandler {
             }
         }
         if (isAuto && isOk) {
-            selectedWidget.getConfig().setProperty("previewUrl", response.url);
+            // don't save the final url, because they are different for different modes
+            this.previewHelper.setPreviewUrl(selectedWidget, widget.getUrl());
         }
 
         return [isOk, widget, response, data];

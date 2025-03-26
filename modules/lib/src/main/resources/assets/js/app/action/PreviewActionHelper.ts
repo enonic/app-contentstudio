@@ -39,6 +39,14 @@ export class PreviewActionHelper {
         return isBlocked;
     }
 
+    setPreviewUrl(widget: Widget, url?: string) {
+        widget.getConfig().setProperty("previewUrl", url);
+    }
+
+    getPreviewUrl(widget: Widget): string {
+        return widget.getConfig().getProperty("previewUrl");
+    }
+
     getUrl(content: ContentSummary, widget?: Widget, mode: RenderingMode = RenderingMode.INLINE): string {
         if (!content) {
             throw new Error('Content parameter is required for preview');
@@ -48,10 +56,9 @@ export class PreviewActionHelper {
             return UriHelper.getPortalUri(content.getPath().toString(), mode);
         }
 
-        let url = widget.getConfig().getProperty("previewUrl");
-        if (url) {
-            return url;
-        } else {
+        let url = this.getPreviewUrl(widget);
+        // in case of automatic widget that will be url of the widget that actually renders the content
+        if (!url) {
             url = widget.getUrl();
         }
 
