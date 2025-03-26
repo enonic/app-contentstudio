@@ -1184,7 +1184,7 @@ class ContentWizardPanel extends Page {
             await this.pause(200);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_preview_widget');
-            throw new Error(`Error occurred during selecting option in Preview Widget, screenshot: ${screenshot} ` + err);
+            throw new Error(`Content Wizard, Error occurred during selecting option in Preview Widget, screenshot: ${screenshot} ` + err);
         }
     }
     // Gets the selected option in the 'Preview dropdown' Auto, Media, etc.

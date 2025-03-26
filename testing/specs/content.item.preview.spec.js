@@ -54,18 +54,17 @@ describe('content.item.preview.spec - Select a content file and check expected i
             await studioUtils.waitForElementDisplayed("//pre[contains(.,'Belarus')]");
         });
 
-    it(
-        `GIVEN existing *.txt file is selected WHEN 'Enonic rendering' option has been selected THEN 'Please add an application...' should be loaded in Preview Panel`,
+    it(`GIVEN existing *.txt file is selected WHEN 'Enonic rendering' option has been selected THEN '404' should be loaded in Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(TEXT_CONTENT_NAME);
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await studioUtils.saveScreenshot('text_attachment_site_engine_preview');
-            // 'Preview' button should be enabled for a text file and MEDIA option
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
-            // Verify  - 'preview not available' message should be displayed: 'Please add an application to your site to enable rendering of this item'
-            let message = await contentItemPreviewPanel.getNoPreviewMessage();
-            assert.equal(message, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE_ADD_APP, "Expected message should be displayed");
+            // 'Preview' button should be enabled for a text file and 'Enonic rendering' option
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            // Verify  - '404' error should be displayed in the iframe in Live View
+            await contentItemPreviewPanel.switchToLiveViewFrame();
+            await contentItemPreviewPanel.waitFor404ErrorDisplayed();
         });
 
     it(`GIVEN existing *.txt file is selected WHEN 'JSON' option has been selected THEN expected text should be loaded in Preview Panel`,
@@ -101,12 +100,12 @@ describe('content.item.preview.spec - Select a content file and check expected i
             await studioUtils.findAndSelectItem(PPTX_CONTENT_NAME);
             // 2. Select 'Media' in the Preview widget dropdown:
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
-            // 3. Verify that 'Preview' button is disabled
+            // 3. Verify that 'Preview' button is enabled when 'Enonic rendering' is selected
             await studioUtils.saveScreenshot('site_engine_preview_button_disabled_for_pptx');
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
-            let message = await contentItemPreviewPanel.getNoPreviewMessage();
-            // 4. Verify - 'Please add an application to your site to enable rendering of this item'
-            assert.equal(message, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE_ADD_APP, 'expected message should be displayed');
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            // Verify  - '404' error should be displayed in the iframe in Live View
+            await contentItemPreviewPanel.switchToLiveViewFrame();
+            await contentItemPreviewPanel.waitFor404ErrorDisplayed();
         });
 
     it(`WHEN existing 'pptx' content has been selected AND 'Media' option has been selected THEN 'Preview' button should be disabled in Item Preview Panel`,
