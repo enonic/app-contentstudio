@@ -136,7 +136,7 @@ class ContentWizardPanel extends Page {
     }
 
     get showChangesToolbarButton() {
-        return XPATH.toolbar + XPATH.showChangesButtonToolbar;
+        return this.previewItemToolbar + XPATH.showChangesButtonToolbar;
     }
 
     get workflowIconAndValidation() {
@@ -176,8 +176,8 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.wizardToolbarHelpButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_help_textx_button"));
-            throw new Error("Help texts toggler button is not displayed in the wizard! " + err);
+            let screenshot = await this.saveScreenshotUniqueName("err_help_textx_button");
+            throw new Error(`Help texts toggler button is not displayed in the wizard! screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -187,7 +187,7 @@ class ContentWizardPanel extends Page {
             return await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_localize_enabled_button');
-            throw Error('Localize button should be enabled, screenshot: ' + screenshot + ' ' + err);
+            throw new Error('Localize button should be enabled, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -223,7 +223,7 @@ class ContentWizardPanel extends Page {
             }
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_details_panel');
-            throw new Error("Details Panel, screenshot:" + screenshot + ' ' + err);
+            throw new Error(`Details Panel, screenshot:${screenshot}`  + err);
         }
     }
 
@@ -587,7 +587,7 @@ class ContentWizardPanel extends Page {
             return result.includes('invalid');
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_wizard_validation');
-            throw new Error('error, content validation screenshot: ' + screenshot + "  " + err);
+            throw new Error(`error, content validation screenshot:${screenshot} `  + err);
         }
     }
 
@@ -597,7 +597,7 @@ class ContentWizardPanel extends Page {
             await this.waitUntilInvalid(locator);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_wizard_validation');
-            throw new Error('Validation Error: invalid-icon did not appear in content-wizard screenshot: ' + screenshot + " " + err);
+            throw new Error(`Validation Error: invalid-icon did not appear in content-wizard screenshot: ${screenshot}`  + err);
         }
     }
 
