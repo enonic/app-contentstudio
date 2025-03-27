@@ -19,6 +19,7 @@ import {GetPreviewRequest} from '../../../../macro/resource/GetPreviewRequest';
 import {GetPreviewStringRequest} from '../../../../macro/resource/GetPreviewStringRequest';
 import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import {MacroPreview} from '../../../../macro/MacroPreview';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export class MacroDockedPanel
     extends DockedPanel {
@@ -126,9 +127,19 @@ export class MacroDockedPanel
         return this.macroDescriptor.getKey().getRefString().toUpperCase() === 'SYSTEM:EMBED';
     }
 
+    private getSanitizedData(): PropertyTree {
+        const propertyTree = new PropertyTree(this.data);
+        const bodyProperty = this.data.getProperty('body');
+
+        if (bodyProperty) {
+            propertyTree.setString('body', bodyProperty.getIndex(), StringHelper.escapeHtml(bodyProperty.getString()));
+        }
+
+        return propertyTree;
+    }
+
     private fetchMacroString(): Q.Promise<string> {
-        return new GetPreviewStringRequest(new PropertyTree(this.data),
-            this.macroDescriptor.getKey()).sendAndParse();
+        return new GetPreviewStringRequest(this.getSanitizedData(), this.macroDescriptor.getKey()).sendAndParse();
     }
 
     public getMacroPreviewString(): Q.Promise<string> {
@@ -138,7 +149,7 @@ export class MacroDockedPanel
         } else {
             this.configPanelLoadMask.show();
             this.fetchMacroString().then((macroString: string) => {
-                deferred.resolve(macroString);
+                deferred.resolve(StringHelper.htmlToString(macroString));
             }).catch((reason) => {
                 deferred.reject(reason);
             }).finally(() => {
