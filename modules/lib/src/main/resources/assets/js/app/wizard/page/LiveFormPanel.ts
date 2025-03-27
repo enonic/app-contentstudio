@@ -178,8 +178,8 @@ export class LiveFormPanel
 
         PageNavigationMediator.get().addPageNavigationHandler(this);
 
-        this.initEventHandlers();
         this.initElements();
+        this.initEventHandlers();
 
         this.setModel(config.liveEditModel);
     }
