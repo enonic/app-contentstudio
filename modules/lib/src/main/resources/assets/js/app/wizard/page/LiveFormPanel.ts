@@ -281,6 +281,17 @@ export class LiveFormPanel
 
             if (panel instanceof DescriptorBasedComponentInspectionPanel) {
                 this.updateButtonsVisibility(panel.getSelectedValue());
+                const viewedComponent = panel.getComponent();
+                const persistedComponent = this.contentWizardPanel.getContentAfterLayout().getPage()?.getComponentByPath(
+                    viewedComponent.getPath());
+
+                if (persistedComponent instanceof DescriptorBasedComponent) {
+                    // component with default values may have different property tree after the layout process, sync it with persisted
+                    if (!panel.hasNonDefaultValues() && !panel.hasNonDefaultNumberOfOccurrences() &&
+                        !persistedComponent.equals(viewedComponent)) {
+                        persistedComponent.setConfig(viewedComponent.getConfig().copy());
+                    }
+                }
             } else if (panel instanceof PageInspectionPanel) {
                 const selectedValue = panel.getSelectedValue()?.getData();
                 this.updateButtonsVisibility(selectedValue instanceof Descriptor ? selectedValue : null);
@@ -726,15 +737,6 @@ export class LiveFormPanel
         return this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
             this.pageSkipReload = false;
             this.loadComponent(path);
-
-            // saved component will have default config props populated, so we need to make it a part of a state
-            const changedComponent = PageState.getState().getComponentByPath(path);
-            const persistedComponent = this.contentWizardPanel.getPersistedItem().getPage()?.getComponentByPath(path);
-
-            if (changedComponent instanceof DescriptorBasedComponent && persistedComponent instanceof DescriptorBasedComponent) {
-                changedComponent.setConfig(persistedComponent.getConfig().copy());
-                this.inspectComponentOnDemand(changedComponent);
-            }
         });
     }
 

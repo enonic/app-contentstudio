@@ -2644,6 +2644,10 @@ export class ContentWizardPanel
         AI.get().setContent(newPersistedItem);
     }
 
+    getContentAfterLayout(): Content {
+        return this.contentAfterLayout;
+    }
+
     isHeaderValidForSaving(): boolean {
         return !this.getWizardHeader() || this.getWizardHeader().isValidForSaving();
     }
