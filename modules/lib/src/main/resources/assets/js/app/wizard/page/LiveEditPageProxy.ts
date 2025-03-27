@@ -69,7 +69,6 @@ import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEve
 import {ComponentMovedEvent} from '../../page/region/ComponentMovedEvent';
 import {ComponentRemovedOnMoveEvent} from '../../page/region/ComponentRemovedOnMoveEvent';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {LiveEditPage} from '../../../page-editor/LiveEditPage';
 import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {SetPageLockStateEvent} from '../../../page-editor/event/incoming/manipulation/SetPageLockStateEvent';
 import {SetModifyAllowedEvent} from '../../../page-editor/event/incoming/manipulation/SetModifyAllowedEvent';
@@ -91,6 +90,7 @@ import {SetComponentStateEvent} from '../../../page-editor/event/incoming/manipu
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {PageReloadRequestedEvent} from '../../../page-editor/event/outgoing/manipulation/PageReloadRequestedEvent';
 import {WizardWidgetRenderingHandler} from '../WizardWidgetRenderingHandler';
+import {SessionStorageHelper} from '../../util/SessionStorageHelper';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -124,10 +124,9 @@ export class LiveEditPageProxy
         PageNavigationMediator.get().addPageNavigationHandler(this);
 
         WindowDOM.get().onUnload(() => {
-            sessionStorage.removeItem(
-                `${LiveEditPage.SELECTED_PATH_STORAGE_KEY}:${this.liveEditModel.getContent().getContentId().toString()}`);
-            sessionStorage.removeItem(
-                `${LiveEditPage.SELECTED_TEXT_CURSOR_POS_STORAGE_KEY}:${this.liveEditModel.getContent().getContentId().toString()}`);
+            const contentId = this.liveEditModel.getContent().getContentId().toString();
+            SessionStorageHelper.updateSelectedPathInStorage(contentId, null);
+            SessionStorageHelper.updateSelectedTextCursorPosInStorage(contentId, null);
         });
 
         this.listenToMainFrameEvents();
