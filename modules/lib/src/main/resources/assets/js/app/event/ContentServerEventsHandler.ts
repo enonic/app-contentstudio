@@ -1,4 +1,3 @@
- 
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
 import {ContentDeletedEvent} from './ContentDeletedEvent';
@@ -6,8 +5,6 @@ import {BatchContentServerEvent} from './BatchContentServerEvent';
 import {ContentUpdatedEvent} from './ContentUpdatedEvent';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {CompareStatusChecker} from '../content/CompareStatus';
-import {ContentIds} from '../content/ContentIds';
 import {Branch} from '../versioning/Branch';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentServerChangeItem} from './ContentServerChangeItem';
@@ -18,7 +15,6 @@ import {ContentPath} from '../content/ContentPath';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {MovedContentItem} from '../browse/MovedContentItem';
-import {ContentSummary} from '../content/ContentSummary';
 
 export const CONTENT_SERVER_EVENTS_HANDLER_KEY: string = 'ContentServerEventsHandler';
 
@@ -405,7 +401,7 @@ export class ContentServerEventsHandler {
         });
 
         if (currentRepoChanges.length > 0) {
-            this.handleCurrentRepoChanges(currentRepoChanges, event.getType());
+            this.handleCurrentRepoChanges(this.filterDuplicates(currentRepoChanges), event.getType());
         }
 
         if (otherReposChanges.length > 0) {
@@ -545,5 +541,17 @@ export class ContentServerEventsHandler {
             .then((data: ContentSummaryAndCompareStatus[]) => {
                 this.notifyContentCreated(data);
             }).catch(DefaultErrorHandler.handle);
+    }
+
+    private filterDuplicates(changeItems: ContentServerChangeItem[]): ContentServerChangeItem[] {
+        const result = [];
+
+        changeItems.filter((changeItem: ContentServerChangeItem) => {
+           if (!result.some(item => item.equals(changeItem))) {
+               result.push(changeItem);
+           }
+        });
+
+        return result;
     }
 }
