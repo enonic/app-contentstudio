@@ -511,12 +511,16 @@ export class ContentBrowsePanel
             new ContentSummaryBuilder().setId(toDeleteItem.id.toString()).build()));
         this.selectionWrapper.deselect(itemsToDeselect);
 
-        toDeleteItems.forEach((toDeleteItem) => {
-            this.findAndUpdateParentsLists(toDeleteItem);
+        const filteredChildren = toDeleteItems.filter(toDeleteItem => {
+            return !toDeleteItems.some(item => toDeleteItem.path.isDescendantOf(item.path));
+        });
+
+        filteredChildren.forEach((toDeleteItem) => {
+            this.deleteItemAndUpdateParentsLists(toDeleteItem);
         });
     }
 
-    private findAndUpdateParentsLists(toDeleteItem: DeletedContentItem): void {
+    private deleteItemAndUpdateParentsLists(toDeleteItem: DeletedContentItem): void {
         this.treeListBox.findParentLists(toDeleteItem.path).forEach(parentList => {
             if (parentList.wasAlreadyShownAndLoaded()) {
                 this.removeItemFromParentList(parentList, toDeleteItem);

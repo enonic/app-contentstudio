@@ -2,9 +2,11 @@ import {NodeEventNodeJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {NodeServerChangeItem, NodeServerChangeItemBuilder} from '@enonic/lib-admin-ui/event/NodeServerChangeItem';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ContentServerChangeItem
-    extends NodeServerChangeItem {
+    extends NodeServerChangeItem implements Equitable {
 
     private readonly contentId: ContentId;
 
@@ -45,6 +47,32 @@ export class ContentServerChangeItem
             .build();
 
         return pathNoRoot;
+    }
+
+    equals(o: Equitable): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ContentServerChangeItem)) {
+            return false;
+        }
+
+        let other = o as ContentServerChangeItem;
+
+        if (!ObjectHelper.stringEquals(this.id, other.id)) {
+            return false;
+        }
+
+        if (!ObjectHelper.stringEquals(this.branch, other.branch)) {
+            return false;
+        }
+
+        if (!ObjectHelper.stringEquals(this.repo, other.repo)) {
+            return false;
+        }
+
+        if (!ObjectHelper.equals(this.path, other.path)) {
+            return false;
+        }
+
+        return ObjectHelper.equals(this.newPath, other.newPath);
     }
 }
 
