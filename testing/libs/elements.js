@@ -176,6 +176,10 @@ module.exports = Object.freeze({
     itemByDisplayName: displayName => {
         return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
     },
+    projectItemByDisplayName: displayName => {
+        return `//a[contains(@id,'ProjectListItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
+    },
+
     itemStrictByDisplayName: displayName => {
         return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and text()='${displayName}']]`
     },
