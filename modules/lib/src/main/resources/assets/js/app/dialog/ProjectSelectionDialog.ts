@@ -11,6 +11,7 @@ import {ProjectListWithMissingRequest} from '../settings/resource/ProjectListWit
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 
 export class ProjectSelectionDialog
     extends ModalDialog {
@@ -125,7 +126,11 @@ export class ProjectSelectionDialog
 
         if (currentProjectName) {
             this.projectsList.getItemViews().forEach((itemView: ProjectListItem) => {
-                itemView.toggleClass('selected', itemView.getProject().getName() === currentProjectName);
+                const isCurrentProject = itemView.getProject().getName() === currentProjectName;
+                itemView.toggleClass('selected', isCurrentProject);
+                if (isCurrentProject) {
+                    itemView.whenRendered(() => setTimeout(() => itemView.giveFocus(), 100));
+                }
             });
         }
     }
@@ -152,7 +157,13 @@ export class ProjectSelectionDialog
             this.projectsList.getItemViews()[this.projectsList.getItemViews().length - 1] as ProjectListItem;
 
         lastProject.onKeyDown((event: KeyboardEvent) => {
-            setTimeout(() => event.key === 'Tab' && firstProject.getHTMLElement().focus(), 1);
+            if (KeyHelper.isTabKey(event) && !KeyHelper.isShiftKeyPressed(event)) {
+                setTimeout(() => {
+                    firstProject.giveFocus();
+                }, 1);
+                event.preventDefault();
+                event.stopPropagation();
+            }
         });
     }
 

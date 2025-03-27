@@ -13,6 +13,7 @@ export class ProjectListItem
 
         this.projectViewer = new ProjectViewer();
         this.projectViewer.setObject(project);
+        this.projectViewer.removeTabbable();
     }
 
     getProject(): Project {
