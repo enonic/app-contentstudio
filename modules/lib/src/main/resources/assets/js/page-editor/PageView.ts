@@ -233,6 +233,7 @@ export class PageView
                 if (event.isNewlyCreated()) {
                     const config = {itemView, position: null, newlyCreated: true} as ItemViewSelectedEventConfig;
                     itemView.select(config, ItemViewContextMenuPosition.NONE);
+                    itemView.focusPlaceholderIfEmpty();
                 }
             }
         };

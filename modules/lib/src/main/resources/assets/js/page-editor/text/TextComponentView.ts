@@ -667,10 +667,6 @@ export class TextComponentView
         TextComponentView.lastFocusedView = this;
     }
 
-    protected isFocusToFrameRequired(): boolean {
-        return !this.anyEditorHasFocus();
-    }
-
     private restoreSelection(): void {
         const contentId = this.getLiveEditParams().contentId;
         const selectedItemViewPath: ComponentPath = SessionStorageHelper.getSelectedPathFromStorage(contentId);

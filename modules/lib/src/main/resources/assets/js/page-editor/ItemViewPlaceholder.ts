@@ -31,4 +31,8 @@ export class ItemViewPlaceholder
     deselect() {
         // must be implemented by children
     }
+
+    focus(): void {
+        //
+    }
 }

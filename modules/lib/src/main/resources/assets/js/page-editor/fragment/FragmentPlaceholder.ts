@@ -95,11 +95,18 @@ export class FragmentPlaceholder
             this.whenRendered(() => this.select());
         } else {
             this.comboboxWrapper.show();
-            this.fragmentDropdown.giveFocus();
         }
     }
 
     deselect() {
         this.comboboxWrapper.hide();
+    }
+
+    focus(): void {
+        if (!this.isRendered()) {
+            this.whenRendered(() => this.focus());
+        } else {
+            this.fragmentDropdown.giveFocus();
+        }
     }
 }
