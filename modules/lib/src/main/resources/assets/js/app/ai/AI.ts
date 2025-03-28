@@ -103,7 +103,7 @@ export class AI {
         AiTranslatorNoLicenseEvent.on(this.handleNoLicenseEvent);
 
         this.getContentOperator()?.setup({
-            sharedSocketUrl: `${CONFIG.getString('assetsUri')}/shared-socket.js`,
+            sharedSocketUrl: CONFIG.getString('sharedSocketUrl'),
         });
         this.getTranslator()?.setup({
             licenseServiceUrl: CONFIG.getString('services.aiTranslatorLicenseServiceUrl'),
