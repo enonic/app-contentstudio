@@ -206,7 +206,6 @@ export class ContentWizardToolbar
             actions.getArchiveAction(),
             actions.getDuplicateAction(),
             actions.getMoveAction(),
-            actions.getPreviewAction(),
         ]);
         super.addGreedySpacer();
     }
