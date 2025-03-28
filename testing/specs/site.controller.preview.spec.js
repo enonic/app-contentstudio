@@ -68,8 +68,8 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await contentWizard.pause(700);
             // 3. Verify that Preview button gets visible in the preview toolbar:
             await contentWizard.waitForPreviewButtonDisplayed();
-            // 4. Context Window loads automatically, click on 'Page' tab:
-            await contextWindow.clickOnTabBarItem('Page');
+            // 4. Context Window loads automatically, click on 'Inspect' tab:
+            await contextWindow.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             // 5. Click on dropdown handle and expand options:
             let actualOptions = await pageInspectionPanel.getOptionsDescriptionInPageTemplateDropdown();
             // 6. Verify actual options:

@@ -205,6 +205,10 @@ module.exports = Object.freeze({
         PAGE: 'Page',
         DETAILS: 'Details'
     },
+    CONTEXT_WINDOW_TABS: {
+        INSPECT: 'Inspect',
+        INSERT: 'INSERT',
+    },
     CONTROLLER_NAME: {
         DEFAULT: 'default',
         MAIN_REGION: 'main region',
