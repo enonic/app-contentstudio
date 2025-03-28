@@ -1,5 +1,5 @@
 import {computed, map} from 'nanostores';
-import {WS_PROTOCOL, WS_URL} from './constants';
+import {WS_PROTOCOL} from './constants';
 import {isWebSocketMessage, WebSocketMessage} from './data';
 
 type WebSocketState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected';
@@ -51,7 +51,7 @@ let reconnectTimeout: number;
 
 let customMessageHandler: (message: Record<string, unknown>) => void;
 
-export function connect(customHandler: (message: Record<string, unknown>) => void): void {
+export function connect(url: string, customHandler: (message: Record<string, unknown>) => void): void {
     const {state, connection} = $websocket.get();
 
     if (state === 'connecting' || state === 'connected') {
@@ -64,7 +64,7 @@ export function connect(customHandler: (message: Record<string, unknown>) => voi
         cleanup(connection);
     }
 
-    const ws = new WebSocket(WS_URL, [WS_PROTOCOL]);
+    const ws = new WebSocket(url, [WS_PROTOCOL]);
     $websocket.setKey('connection', ws);
 
     $websocket.setKey('state', 'connecting');
@@ -95,7 +95,7 @@ export function connect(customHandler: (message: Record<string, unknown>) => voi
     ws.onclose = () => {
         clearTimeout(connectionTimeout);
         cleanup(ws);
-        scheduleReconnect();
+        scheduleReconnect(url);
     };
 
     ws.onerror = e => {
@@ -112,10 +112,10 @@ function disconnect(): void {
     }
 }
 
-function scheduleReconnect(): void {
+function scheduleReconnect(url: string): void {
     incrementReconnectAttempts();
     reconnectTimeout = setTimeout(() => {
-        connect(customMessageHandler);
+        connect(url, customMessageHandler);
     }, $reconnectTimeout.get());
 }
 

@@ -9,6 +9,7 @@ import {
 } from './data/collaboration';
 import {
     ConnectedWorkerMessage,
+    InitWorkerMessage,
     OutWorkerMessage,
     ReceivedWorkerMessage,
     SendWorkerMessage,
@@ -112,7 +113,7 @@ function connect(): void {
 
     cleanup(connection);
 
-    const sharedSocketUrl = `${CONFIG.getString('assetsUri')}/shared-socket.js`;
+    const sharedSocketUrl = CONFIG.getString('sharedSocketUrl');
     const worker = new SharedWorker(sharedSocketUrl, {type: 'module'});
 
     worker.onerror = event => {
@@ -174,6 +175,7 @@ function cleanup(worker: Optional<SharedWorker>): void {
 function handleConnected(message: ConnectedWorkerMessage): void {
     $worker.setKey('state', 'connected');
     $worker.setKey('clientId', message.payload.clientId);
+    sendInit();
 }
 
 function handleDisconnected(): void {
@@ -237,6 +239,14 @@ function unsubscribe(listener: ReceivedListener): void {
 //
 //* Send
 //
+
+function sendInit(): void {
+    const {connection} = $worker.get();
+    connection?.port.postMessage({
+        type: 'init',
+        payload: {wsUrl: CONFIG.getString('services.eventsUrl')},
+    } satisfies InitWorkerMessage);
+}
 
 export function subscribeToOperation(operation: string): void {
     const {connection} = $worker.get();
