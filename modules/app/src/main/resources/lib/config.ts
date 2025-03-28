@@ -66,6 +66,9 @@ export function getConfig(locales: string[]): Record<string, unknown> {
             exportServiceUrl: portalLib.apiUrl({
                 api: 'export'
             }),
+            eventsUrl: portalLib.apiUrl({
+                api: 'events'
+            }),
             aiTranslatorLicenseServiceUrl: portalLib.serviceUrl({service: 'license', application: 'com.enonic.app.ai.translator'}),
             aiTranslatorWsServiceUrl: portalLib.serviceUrl(
                 {service: 'ws', application: 'com.enonic.app.ai.translator', type: 'websocket'}),
@@ -84,6 +87,9 @@ export function getConfig(locales: string[]): Record<string, unknown> {
             api: 'event'
         }),
         phrasesAsJson: JSON.stringify(getPhrases(locales)),
+        sharedSocketUrl: portalLib.assetUrl({
+            path: 'shared-socket.js'
+        }),
         launcherUrl: adminLib.widgetUrl({
             application: 'com.enonic.xp.app.main',
             widget: 'launcher',

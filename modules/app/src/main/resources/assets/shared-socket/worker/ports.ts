@@ -1,6 +1,6 @@
 import {WebSocketMessage} from '../websocket/data';
-import {sendMessage} from '../websocket/init';
-import {isInWorkerMessage, OutWorkerMessage} from './data';
+import {connect as connectWebSocket, sendMessage} from '../websocket/init';
+import {isInWorkerMessage, isMessageWithMetadata, OutWorkerMessage} from './data';
 import {subscribe, unsubscribe, unsubscribeAll} from './subscriptions';
 
 const ports = new Map<MessagePort, string>();
@@ -63,6 +63,18 @@ function handlePortMessage(port: MessagePort, event: MessageEvent): void {
     }
 
     switch (message.type) {
+        case 'init':
+            connectWebSocket(message.payload.wsUrl, (payload: Record<string, unknown>): void => {
+                const clientId = isMessageWithMetadata(payload) ? payload.metadata.clientId : undefined;
+                if (clientId) {
+                    sendToId(clientId, {type: 'received', payload});
+                } else {
+                    broadcast({type: 'received', payload});
+                }
+            });
+            subscribe(portId, message.payload.wsUrl);
+            break;
+
         case 'subscribe':
             subscribe(portId, message.payload.operation);
             break;
