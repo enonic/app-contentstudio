@@ -223,7 +223,7 @@ class ContentWizardPanel extends Page {
             }
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_details_panel');
-            throw new Error(`Details Panel, screenshot:${screenshot}`  + err);
+            throw new Error(`Details Panel, screenshot:${screenshot}` + err);
         }
     }
 
@@ -587,7 +587,7 @@ class ContentWizardPanel extends Page {
             return result.includes('invalid');
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_wizard_validation');
-            throw new Error(`error, content validation screenshot:${screenshot} `  + err);
+            throw new Error(`error, content validation screenshot:${screenshot} ` + err);
         }
     }
 
@@ -597,7 +597,7 @@ class ContentWizardPanel extends Page {
             await this.waitUntilInvalid(locator);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_wizard_validation');
-            throw new Error(`Validation Error: invalid-icon did not appear in content-wizard screenshot: ${screenshot}`  + err);
+            throw new Error(`Validation Error: invalid-icon did not appear in content-wizard screenshot: ${screenshot}` + err);
         }
     }
 
@@ -722,7 +722,8 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.unpublishMenuItem, appConst.mediumTimeout);
             await this.clickOnElement(this.unpublishMenuItem);
         } catch (err) {
-            throw new Error("Error occurred after clicking on unpublish menu item " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_unpublish_menu_item');
+            throw new Error(`Error occurred after clicking on unpublish menu item , screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -791,7 +792,7 @@ class ContentWizardPanel extends Page {
     }
 
     async getContentStatus() {
-        let locator = this.previewItemToolbar+  XPATH.status;
+        let locator = this.previewItemToolbar + XPATH.status;
         let result = await this.getDisplayedElements(XPATH.container + XPATH.status);
         return await result[0].getText();
     }
@@ -860,13 +861,12 @@ class ContentWizardPanel extends Page {
     async clickOnMarkAsReadyButton() {
         try {
             let selector = XPATH.container + XPATH.publishMenuButton + XPATH.markAsReadyButton;
-            let aa = await this.findElements(selector);
             await this.waitForMarkAsReadyButtonVisible();
             await this.clickOnElement(selector);
             return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_mark_as_ready_btn');
-            throw new Error(`Error during clicking on Mark As Ready Button, screenshot: ${screenshot} ` + err);
+            throw new Error(`Error during clicking on 'Mark As Ready' Button, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -888,8 +888,8 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.publishButton, appConst.shortTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_publish_btn'));
-            throw new Error("Content Wizard - 'Publish...' button should be present" + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_publish_btn');
+            throw new Error(`Content Wizard - 'Publish...' button should be displayed, screenshot:${screenshot}` + err);
         }
     }
 
@@ -992,12 +992,22 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(this.previewButton, appConst.mediumTimeout);
     }
 
-    waitForPreviewButtonEnabled() {
-        return this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout);
+    async waitForPreviewButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_button');
+            throw new Error(`Preview button should be enabled, screenshot: ${screenshot} ` + err);
+        }
     }
 
-    waitForPreviewButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.previewButton, appConst.mediumTimeout);
+    async waitForPreviewButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.previewButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_button');
+            throw new Error(`Preview button should not be displayed, screenshot: ${screenshot} ` + err);
+        }
     }
 
     waitForValidationPathMessageDisplayed() {
@@ -1029,7 +1039,7 @@ class ContentWizardPanel extends Page {
             }, {timeout: appConst.mediumTimeout, timeoutMsg: "'Click to rename the content' tooltip should be displayed"});
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_path_input_tooltip');
-            throw new Error("Path input, tooltip should be displayed, screenshot:" + screenshot + ' ' + err);
+            throw new Error(`Path input, tooltip should be displayed, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -1187,6 +1197,7 @@ class ContentWizardPanel extends Page {
             throw new Error(`Content Wizard, Error occurred during selecting option in Preview Widget, screenshot: ${screenshot} ` + err);
         }
     }
+
     // Gets the selected option in the 'Preview dropdown' Auto, Media, etc.
     async getSelectedOptionInPreviewWidget() {
         let locator = this.previewWidgetDropdown + lib.H6_DISPLAY_NAME;
@@ -1203,6 +1214,7 @@ class ContentWizardPanel extends Page {
             throw new Error(`Content Wizard - Preview button should be displayed and disabled, screenshot  : ${screenshot} ` + err);
         }
     }
+
     // returns the selected option in the 'Emulator dropdown' '100%', '375px', etc.
     async getSelectedOptionInEmulatorDropdown() {
         try {

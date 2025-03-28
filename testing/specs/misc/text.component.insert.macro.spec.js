@@ -56,6 +56,7 @@ describe('Text Component - insert embed iframe and preview the site', function (
             await studioUtils.saveScreenshot('embed_iframe_text_component');
             await contentWizard.waitAndClickOnSave();
             // 9. Click on 'Preview' button:
+            await contentWizard.clickOnPageEditorToggler();
             await contentWizard.clickOnPreviewButton();
             await contentWizard.pause(3000);
             // 10. Switch to the next browser tab:

@@ -112,23 +112,6 @@ class BaseDetailsPanel extends Page {
         }
     }
 
-    async clickOnEmulatorOptionsItem() {
-        let widgetSelectorDropdown = new WidgetSelectorDropdown();
-        await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.EMULATOR);
-    }
-
-    async openEmulatorWidget() {
-        try {
-            await this.clickOnWidgetSelectorDropdownHandle();
-            await this.clickOnEmulatorOptionsItem();
-        } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_widget_selector'));
-            await this.refresh();
-            await this.pause(3000);
-            await this.clickOnWidgetSelectorDropdownHandle();
-            await this.clickOnEmulatorOptionsItem();
-        }
-    }
 
     async getSelectedOptionsDisplayName() {
         let widgetSelectorDropdown = new WidgetSelectorDropdown();
