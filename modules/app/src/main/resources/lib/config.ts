@@ -67,6 +67,9 @@ export function getConfig(): Record<string, unknown> {
             exportServiceUrl: portalLib.apiUrl({
                 api: 'export'
             }),
+            eventsUrl: portalLib.apiUrl({
+                api: 'events'
+            }),
             aiTranslatorLicenseServiceUrl: portalLib.serviceUrl({service: 'license', application: 'com.enonic.app.ai.translator'}),
             aiTranslatorWsServiceUrl: portalLib.serviceUrl(
                 {service: 'ws', application: 'com.enonic.app.ai.translator', type: 'websocket'}),
@@ -83,6 +86,9 @@ export function getConfig(): Record<string, unknown> {
         eventApiUrl: portalLib.apiUrl({
             application: 'admin',
             api: 'event'
+        }),
+        sharedSocketUrl: portalLib.assetUrl({
+            path: 'shared-socket.js'
         }),
         phrasesAsJson: JSON.stringify(getPhrases()),
         launcherUrl: adminLib.widgetUrl({

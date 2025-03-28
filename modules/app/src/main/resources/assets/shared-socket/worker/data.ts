@@ -10,13 +10,15 @@ type WorkerMessageWithPayload<T, P extends Record<string, unknown> = Record<stri
 //* Incoming Messages
 //
 
+export type InitWorkerMessage = WorkerMessageWithPayload<'init', {wsUrl: string}>;
+
 export type SubscribeWorkerMessage = WorkerMessageWithPayload<'subscribe', {operation: string}>;
 
 export type UnsubscribeWorkerMessage = WorkerMessageWithPayload<'unsubscribe', {operation: string}>;
 
 export type SendWorkerMessage = WorkerMessageWithPayload<'send'>;
 
-export type InWorkerMessage = SubscribeWorkerMessage | UnsubscribeWorkerMessage | SendWorkerMessage;
+export type InWorkerMessage = InitWorkerMessage | SubscribeWorkerMessage | UnsubscribeWorkerMessage | SendWorkerMessage;
 
 //
 //* Outgoing Messages
@@ -60,6 +62,7 @@ export function isWorkerMessage(message: unknown): message is InWorkerMessage | 
 
 export function isInWorkerMessage(message: unknown): message is InWorkerMessage {
     return isWorkerMessage(message) && (
+            message.type === 'init' ||
             message.type === 'subscribe' ||
             message.type === 'unsubscribe' ||
             message.type === 'send'

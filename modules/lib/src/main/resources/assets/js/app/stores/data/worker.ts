@@ -17,13 +17,15 @@ type OutMessage = CollaborationOutMessage | ServerOutMessage;
 //* Client -> Worker
 //
 
+export type InitWorkerMessage = WorkerMessageWithPayload<'init', {wsUrl: string}>;
+
 export type SubscribeWorkerMessage = WorkerMessageWithPayload<'subscribe', {operation: string}>;
 
 export type UnsubscribeWorkerMessage = WorkerMessageWithPayload<'unsubscribe', {operation: string}>;
 
 export type SendWorkerMessage = WorkerMessageWithPayload<'send', InMessage>;
 
-export type InWorkerMessage = SubscribeWorkerMessage | UnsubscribeWorkerMessage | SendWorkerMessage;
+export type InWorkerMessage = InitWorkerMessage | SubscribeWorkerMessage | UnsubscribeWorkerMessage | SendWorkerMessage;
 
 //
 //* Worker -> Client
