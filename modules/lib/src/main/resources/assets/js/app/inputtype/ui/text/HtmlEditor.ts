@@ -741,7 +741,7 @@ export class HtmlEditor {
         const range = this.editor.getSelection().getRanges()[0];
         const startNode = range.startContainer;
         const endNode = range.endContainer;
-        const isAfterOrBeforeLink = startNode.getParent()?.is('a') || range.getNextNode()?.is('a');
+        const isAfterOrBeforeLink = startNode.getParent()?.is('a') || range.getNextNode()?.is?.('a');
 
         // checking that cursor is at the end of the same text node, like at place where link ends and other text starts right after it
         if (isAfterOrBeforeLink && startNode.$ === endNode.$ && range.startOffset === range.endOffset && range.startOffset === startNode.getText().length ||
