@@ -141,6 +141,12 @@ class SiteForm extends Page {
         return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 
+    async isApplicationUninstalled(displayName) {
+        let locator = XPATH.selectedAppByDisplayName(displayName);
+        let attr = await this.getAttribute(locator, 'class');
+        return attr.includes('uninstalled');
+    }
+
     waitForRemoveApplicationIconNotDisplayed(displayName) {
         let locator = XPATH.selectedAppByDisplayName(displayName) + lib.REMOVE_ICON;
         return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
