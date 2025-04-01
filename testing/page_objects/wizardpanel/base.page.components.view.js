@@ -202,7 +202,7 @@ class BasePageComponentView extends Page {
 
     async swapComponents(sourceName, destinationName) {
         let sourceElem = this.container + xpath.componentByName(sourceName);
-        let destinationElem = this.container + xpath.container + xpath.componentByName(destinationName);
+        let destinationElem = this.container  + xpath.componentByName(destinationName);
         let source = await this.findElement(sourceElem);
         let destination = await this.findElement(destinationElem);
         await source.dragAndDrop(destination);
