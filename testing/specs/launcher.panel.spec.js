@@ -14,14 +14,17 @@ describe('launcher.panel.spec: tests for Launcher Panel', function () {
         webDriverHelper.setupBrowser();
     }
 
-    it("WHEN su is logged in THEN 'Home' link should be active, 'Super User' is current user",
+    const LAUNCHER_DASHBOARD_IS_ACTIVE = 'Dashboard';
+
+    it("WHEN su is logged in THEN 'Dashboard' link should be active, 'Super User' is current user",
         async () => {
             let launcherPanel = new LauncherPanel();
             await launcherPanel.waitForPanelDisplayed();
+            await studioUtils.saveScreenshot('launcher_panel_active_row')
             let currentUser = await launcherPanel.getCurrentUser();
             assert.equal(currentUser, appConst.systemUsersDisplayName.SUPER_USER);
-            let result = await launcherPanel.getActiveRowId();
-            assert.equal(result, 'home', 'link with id==home should be active');
+            let appName = await launcherPanel.getActiveRowName();
+            assert.equal(appName, LAUNCHER_DASHBOARD_IS_ACTIVE, 'Dashboard link should be active');
         });
 
     it("GIVEN su is logged in WHEN 'Close XP menu' button has been clicked THEN launcher panel gets not visible",
@@ -33,7 +36,7 @@ describe('launcher.panel.spec: tests for Launcher Panel', function () {
             await launcherPanel.waitForPanelClosed();
         });
 
-    it("GIVEN navigated to Content Studio tab WHEN launcher panel has been opened THEN content studio link should be active",
+    it("GIVEN navigated to 'Content Studio' tab WHEN launcher panel has been opened THEN 'Content Studio' link should be active",
         async () => {
             let launcherPanel = new LauncherPanel();
             let result = await launcherPanel.isPanelOpened();
@@ -44,10 +47,10 @@ describe('launcher.panel.spec: tests for Launcher Panel', function () {
             // 1. Click on 'Content Studio' link
             await launcherPanel.clickOnContentStudioLink();
             // 2. Open Launcher Panel in the tab with browse panel:
-            await studioUtils.doSwitchToContentBrowsePanel();
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await launcherPanel.clickOnLauncherToggler();
-            let id = await launcherPanel.getActiveRowId();
-            assert.ok(id.includes('contentstudio'), 'contentstudio link should be active');
+            let appNAme = await launcherPanel.getActiveRowName();
+            assert.equal(appNAme, 'Content Studio', 'contentstudio link should be active');
         });
 
     it("GIVEN su is logged in WHEN 'Log out' link has been clicked THEN login page should be loaded",

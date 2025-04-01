@@ -23,6 +23,7 @@ const CreateRequestPublishDialog = require('../page_objects/issue/create.request
 const ProjectSelectionDialog = require('../page_objects/project/project.selection.dialog');
 const SettingsBrowsePanel = require('../page_objects/project/settings.browse.panel');
 const UserBrowsePanel = require('../page_objects/users/userbrowse.panel');
+const AppBrowsePanel = require('../page_objects/applications/applications.browse.panel');
 const UserWizard = require('../page_objects/users/user.wizard');
 const NewPrincipalDialog = require('../page_objects/users/new.principal.dialog');
 const PrincipalFilterPanel = require('../page_objects/users/principal.filter.panel');
@@ -331,7 +332,7 @@ module.exports = {
     async doCloseWizardAndSwitchContentStudioTab() {
         await this.doCloseCurrentBrowserTab();
         let browsePanel = new BrowsePanel();
-        await this.switchToTab(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+        await this.switchToTab(appConst.BROWSER_XP_TITLES.CONTENT_STUDIO);
         await browsePanel.pause(400);
     },
     async doAddSite(site, noControllers) {
@@ -664,7 +665,7 @@ module.exports = {
     async navigateToContentStudioCloseProjectSelectionDialog(userName, password) {
         try {
             await this.clickOnContentStudioLink(userName, password);
-            await this.switchToTab(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+            await this.switchToTab(appConst.BROWSER_XP_TITLES.CONTENT_STUDIO);
             await this.closeProjectSelectionDialog();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
@@ -692,7 +693,7 @@ module.exports = {
     async doSwitchToContentBrowsePanel() {
         try {
             let browsePanel = new BrowsePanel();
-            await this.switchToTab(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+            await this.switchToTab(appConst.BROWSER_XP_TITLES.CONTENT_STUDIO);
             console.log('switched to content browse panel...');
             await browsePanel.waitForGridLoaded(appConst.longTimeout);
             return browsePanel;
@@ -726,7 +727,7 @@ module.exports = {
         try {
             let projectSelectionDialog = new ProjectSelectionDialog();
             let browsePanel = new BrowsePanel();
-            await this.switchToTab(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+            await this.switchToTab(appConst.BROWSER_XP_TITLES.CONTENT_STUDIO);
             console.log('switched to content browse panel...');
             let isLoaded = await projectSelectionDialog.isDialogLoaded();
             if (isLoaded) {
@@ -743,7 +744,7 @@ module.exports = {
     async doSwitchToHome() {
         console.log('testUtils:switching to Home page...');
         let homePage = new HomePage();
-        await this.switchToTab(appConst.BROWSER_TITLES.XP_HOME);
+        await this.switchToTab(appConst.BROWSER_XP_TITLES.XP_HOME);
         return await homePage.waitForLoaded(appConst.mediumTimeout);
 
     },
@@ -950,6 +951,26 @@ module.exports = {
             throw new Error('error when navigate to Users app ' + err);
         }
     },
+    async navigateToApplications(userName, password) {
+        try {
+            let launcherPanel = new LauncherPanel();
+            let isDisplayed = await launcherPanel.isDisplayed(appConst.mediumTimeout);
+            if (isDisplayed) {
+                console.log('Launcher Panel is opened, click on the `Users` link...');
+                await launcherPanel.pause(300);
+                await launcherPanel.clickOnApplicationsLink();
+            } else {
+                console.log('Login Page is opened, type a password and name...');
+                let loginPage = new LoginPage();
+                await loginPage.doLogin(userName, password);
+                await launcherPanel.clickOnApplicationsLink();
+            }
+            await this.doSwitchToApplicationsBrowsePanel();
+        } catch (err) {
+            await this.saveScreenshotUniqueName('err_navigate_to_users');
+            throw new Error('error when navigate to Applications app ' + err);
+        }
+    },
     async doLoginAndClickOnUsersLink(userName, password) {
         let loginPage = new LoginPage();
         await loginPage.doLogin(userName, password);
@@ -958,17 +979,18 @@ module.exports = {
         await launcherPanel.clickOnUsersLink();
         return await loginPage.pause(1000);
     },
-    doSwitchToUsersApp() {
-        console.log('testUtils:switching to users app...');
-        let browsePanel = new UserBrowsePanel();
-        return this.getBrowser().switchWindow('Users - Enonic XP Admin').then(() => {
+    async doSwitchToUsersApp() {
+        try {
+            console.log('testUtils:switching to users app...');
+            let browsePanel = new UserBrowsePanel();
+            await this.getBrowser().switchWindow('Users - Enonic XP Admin');
             console.log('switched to Users app...');
-            return browsePanel.waitForSpinnerNotVisible();
-        }).then(() => {
+            await browsePanel.waitForSpinnerNotVisible();
             return browsePanel.waitForUsersGridLoaded(appConst.mediumTimeout);
-        }).catch(err => {
-            throw new Error('Error when switching to Users App ' + err);
-        })
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_switch_to_users_app');
+            throw new Error(`Error during switching to Users App , screenshot:${screenshot} ` + err);
+        }
     },
     async addSystemUser(userData) {
         let userWizard = new UserWizard();
@@ -1143,5 +1165,13 @@ module.exports = {
         await scheduleWidgetItem.clickOnEditScheduleButton();
         await editScheduleDialog.waitForLoaded();
         return editScheduleDialog;
-    }
+    },
+    async doSwitchToApplicationsBrowsePanel() {
+        let appBrowsePanel = new AppBrowsePanel();
+        console.log('testUtils:switching to Applications app...');
+        await this.getBrowser().switchWindow(appConst.BROWSER_XP_TITLES.APPLICATIONS_TITLE);
+        console.log("switched to Applications app...");
+        await appBrowsePanel.waitForSpinnerNotVisible();
+        return await appBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
+    },
 };

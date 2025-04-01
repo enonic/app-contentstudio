@@ -73,9 +73,11 @@ module.exports = Object.freeze({
         ARIA_LABEL: 'aria-label',
         ARIA_HAS_POPUP: 'aria-haspopup',
     },
-    BROWSER_TITLES: {
+    BROWSER_XP_TITLES: {
         CONTENT_STUDIO: 'Content Studio - Enonic XP Admin',
         XP_HOME: 'Enonic XP Home',
+        APPLICATIONS_TITLE: `Applications - Enonic XP Admin`,
+
     },
     NOTIFICATION_MESSAGES: {
         YOUR_COMMENT_ADDED: 'Your comment is added to the issue.',
@@ -210,6 +212,29 @@ module.exports = Object.freeze({
     },
     LAYOUT_NAME: {
         COL_3: '3-col',
+        COL_2: '25/75',
+        CENTERED: 'Centered',
+    },
+    LAYOUT_REGION: {
+        LEFT: 'left',
+        CENTER: 'center',
+        RIGHT: 'right',
+    },
+    PART_NAME: {
+        CITIES_LIST: 'Cities List',
+        PART_WITH_ERROR: 'part-with-error',
+    },
+    PCV_MENU_ITEM: {
+        INSERT: 'Insert',
+        REMOVE: 'Remove',
+        PART: 'Part',
+        TEXT: 'Text',
+        SELECT_PARENT: 'Select parent',
+        RESET: 'Reset',
+        INSPECT: 'Inspect',
+        FRAGMENT:'Fragment',
+        DUPLICATE: 'Duplicate',
+        LAYOUT: 'Layout',
     },
     EMULATOR_RESOLUTION: {
         FULL_SIZE: 'Full Size',
@@ -319,6 +344,7 @@ module.exports = Object.freeze({
         IMG_SELECTOR_0_0: 'imageselector0_0',
         IMG_SELECTOR_0_1: 'imageselector0_1',
         IMG_SELECTOR_1_1: 'imageselector1_1',
+        IMG_SEL_TOGGLE_HIDDEN:'image-sel-toggle-hidden',
         IMG_SELECTOR_2_4: 'imageselector2_4',
         DOUBLE_MIN_MAX: 'double_max',
         DOUBLE_DEFAULT_2_4: 'double2_4_def',
