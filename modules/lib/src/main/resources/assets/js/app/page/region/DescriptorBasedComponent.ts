@@ -39,12 +39,12 @@ export abstract class DescriptorBasedComponent
         this.descriptorKey = descriptorKey;
 
         if (!ObjectHelper.equals(oldDescriptorKeyValue, this.descriptorKey)) {
+            this.setConfig(new PropertyTree(), true);
             this.notifyComponentUpdated(new ComponentDescriptorUpdatedEvent(this.getPath(), this.descriptorKey));
-            this.setConfig(new PropertyTree());
         }
     }
 
-    setConfig(config: PropertyTree) {
+    setConfig(config: PropertyTree, silent?: boolean): void {
         const oldValue: PropertyTree = this.config;
         if (oldValue) {
             this.config.unChanged(this.configChangedHandler);
@@ -52,7 +52,7 @@ export abstract class DescriptorBasedComponent
         this.config = config;
         this.config.onChanged(this.configChangedHandler);
 
-        if (!ObjectHelper.equals(oldValue, config)) {
+        if (!silent && !ObjectHelper.equals(oldValue, config)) {
             this.notifyComponentUpdated(new ComponentConfigUpdatedEvent(this.getPath(), config));
         }
     }
