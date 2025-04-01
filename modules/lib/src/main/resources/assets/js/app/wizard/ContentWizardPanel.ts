@@ -620,7 +620,7 @@ export class ContentWizardPanel
                     return Q.resolve();
                 }
 
-                return this.saveChangesWithoutValidation();
+                return this.saveChangesWithoutValidation().thenResolve(undefined);
             }
         });
     }
@@ -1784,13 +1784,14 @@ export class ContentWizardPanel
         return PermissionHelper.hasPermission(Permission.MODIFY, this.getPersistedItem().getPermissions());
     }
 
-    saveChangesWithoutValidation(reloadPageEditor?: boolean): Q.Promise<void> {
+    saveChangesWithoutValidation(reloadPageEditor?: boolean): Q.Promise<Content> {
         this.skipValidation = true;
         this.reloadPageEditorOnSave = reloadPageEditor;
 
-        return this.saveChanges().then(() => {
+        return this.saveChanges().then((content: Content) => {
             this.skipValidation = false;
             this.reloadPageEditorOnSave = true;
+            return content;
         });
     }
 
@@ -2639,6 +2640,10 @@ export class ContentWizardPanel
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
         AI.get().setContent(newPersistedItem);
+    }
+
+    getContentAfterLayout(): Content {
+        return this.contentAfterLayout;
     }
 
     isHeaderValidForSaving(): boolean {
