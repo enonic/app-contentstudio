@@ -52,7 +52,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
             // 6. Verify that the selected image is displayed in the dependent items block:
             let dependantItems = await contentPublishDialog.getDisplayNameInDependentItems();
-            let isPresent = await dependantItems.some(item=>item.includes(appConst.TEST_IMAGES.TELK));
+            let isPresent = await dependantItems.some(item => item.includes(appConst.TEST_IMAGES.TELK));
             assert.ok(isPresent, "Publish Wizard - The selected image should be displayed in Dependent Items block");
         });
 
@@ -88,6 +88,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             // 2. select an image:
             await imageSelectorForm.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME1);
+            await studioUtils.saveScreenshot('issue_image_selector');
             // 3. Verify the expected selected option:
             let names = await imageSelectorForm.getSelectedImages();
             assert.equal(names[0], IMAGE_DISPLAY_NAME1);
@@ -95,7 +96,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();
             // 5. Verify that 'Save' button gets enabled:
             await contentWizard.waitForSaveButtonEnabled();
-            await studioUtils.saveScreenshot("test_workflow_icon_2");
+            await studioUtils.saveScreenshot('test_workflow_icon_2');
             // 6. Verify the workflow state:
             let iconState = await contentWizard.getContentWorkflowState();
             assert.equal(iconState, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "The content gets 'Ready for publishing'");

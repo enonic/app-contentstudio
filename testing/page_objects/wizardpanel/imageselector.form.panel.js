@@ -143,7 +143,8 @@ class ImageSelectorForm extends BaseSelectorForm {
         try {
             let imageSelectorDropdown = new ImageSelectorDropdown();
             await this.typeTextInInput(this.optionsFilterInput, displayName);
-            return await imageSelectorDropdown.clickOnFilteredByDisplayNameItem(displayName, XPATH.container);
+            await imageSelectorDropdown.clickOnFilteredByDisplayNameItem(displayName, XPATH.container);
+            await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_img_selector_option');
             throw new Error(`Image -Selector , error during selecting the option: screenshot ${screenshot} ` + err);
