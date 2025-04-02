@@ -608,7 +608,11 @@ export abstract class ItemView
     }
 
     protected isPlaceholderNeeded(): boolean {
-        return this.isEmpty();
+        return this.isEmpty() || this.hasRenderingError();
+    }
+
+    protected hasRenderingError(): boolean {
+        return this.getEl().getAttribute('data-portal-placeholder-error') === 'true';
     }
 
     protected addPlaceholder(): void {
