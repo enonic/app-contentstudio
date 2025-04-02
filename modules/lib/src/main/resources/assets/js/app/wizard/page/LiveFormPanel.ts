@@ -161,6 +161,10 @@ export class LiveFormPanel
 
     private widgetRenderingHandler: WizardWidgetRenderingHandler;
 
+    private componentToInspectAfterSave: Component;
+
+    private waitingForContentUpdateEvent: boolean;
+
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
@@ -249,6 +253,7 @@ export class LiveFormPanel
 
             if (panel instanceof DescriptorBasedComponentInspectionPanel) {
                 this.updateButtonsVisibility(panel.getSelectedValue());
+                this.syncViewedComponentWithPersisted(panel);
             } else if (panel instanceof PageInspectionPanel) {
                 const selectedValue = panel.getSelectedValue()?.getData();
                 this.updateButtonsVisibility(selectedValue instanceof Descriptor ? selectedValue : null);
@@ -260,8 +265,22 @@ export class LiveFormPanel
         });
     }
 
-    private updateButtonsVisibility(descriptor?: Descriptor): void {
-        this.inspectionsPanel.setButtonContainerVisible(descriptor?.getConfig()?.getFormItems().length > 0);
+    private syncViewedComponentWithPersisted(panel: DescriptorBasedComponentInspectionPanel<DescriptorBasedComponent>) {
+        const viewedComponent = panel.getComponent();
+
+        if (!viewedComponent || !viewedComponent.getDescriptorKey()) {
+            return;
+        }
+
+        const persistedComponent = this.contentWizardPanel.getContentAfterLayout().getPage()?.getComponentByPath(
+            viewedComponent.getPath());
+
+        if (persistedComponent instanceof DescriptorBasedComponent) {
+            // component with default values may have different property tree after the layout process, sync it with persisted
+            if (!panel.hasNonDefaultValues() && !panel.hasNonDefaultNumberOfOccurrences() && !persistedComponent.equals(viewedComponent)) {
+                persistedComponent.setConfig(viewedComponent.getConfig().copy());
+            }
+        }
     }
 
     private initMaskHandlers() {
@@ -355,6 +374,13 @@ export class LiveFormPanel
 
     private handleThisContentUpdated(updated: ContentSummaryAndCompareStatus): void {
         SaveAsTemplateAction.get()?.setContentSummary(updated.getContentSummary());
+
+        this.waitingForContentUpdateEvent = false;
+
+        if (this.componentToInspectAfterSave) {
+            this.inspectComponentOnDemand(this.componentToInspectAfterSave);
+            this.componentToInspectAfterSave = null;
+        }
     }
 
     private handleFragmentUpdate(fragment: ContentSummaryAndCompareStatus): void {
@@ -645,17 +671,25 @@ export class LiveFormPanel
         assertNotNull(path, 'component path cannot be null');
         this.pageSkipReload = true;
 
-        return this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
+        this.waitingForContentUpdateEvent = true;
+
+        return this.contentWizardPanel.saveChangesWithoutValidation(false).then((content: Content) => {
             this.pageSkipReload = false;
             this.loadComponent(path);
 
-            // saved component will have default config props populated, so we need to make it a part of a state
-            const changedComponent = PageState.getState().getComponentByPath(path);
-            const persistedComponent = this.contentWizardPanel.getPersistedItem().getPage()?.getComponentByPath(path);
+            const savedComponent = content.getPage().getComponentByPath(path);
+            const stateComponent = PageState.getState().getComponentByPath(path);
 
-            if (changedComponent instanceof DescriptorBasedComponent && persistedComponent instanceof DescriptorBasedComponent) {
-                changedComponent.setConfig(persistedComponent.getConfig().copy());
-                this.inspectComponentOnDemand(changedComponent);
+            // saved and viewed components must be equal to avoid unwanted live edit reloads
+            if (savedComponent instanceof DescriptorBasedComponent && stateComponent instanceof DescriptorBasedComponent) {
+                stateComponent.setConfig(savedComponent.getConfig().copy(), true);
+
+                // don't inspect and layout a new component until save event is received
+                if (this.waitingForContentUpdateEvent) {
+                    this.componentToInspectAfterSave = stateComponent;
+                } else {
+                    this.inspectComponentOnDemand(stateComponent);
+                }
             }
         });
     }
@@ -1007,6 +1041,10 @@ export class LiveFormPanel
 
     getFrameContainer() {
         return this.frameContainer;
+    }
+
+    private updateButtonsVisibility(descriptor?: Descriptor): void {
+        this.inspectionsPanel.setButtonContainerVisible(descriptor?.getConfig()?.getFormItems().length > 0);
     }
 
     setToggleContextPanelHandler(handler: () => void) {

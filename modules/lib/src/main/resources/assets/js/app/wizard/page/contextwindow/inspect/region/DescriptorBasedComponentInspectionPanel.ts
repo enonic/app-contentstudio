@@ -32,7 +32,7 @@ export interface DescriptorBasedComponentInspectionPanelConfig
 export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends DescriptorBasedComponent>
     extends ComponentInspectionPanel<COMPONENT> {
 
-    private formView: FormView;
+    private formView: FormViewExt;
 
     private form: DescriptorBasedDropdownForm;
 
@@ -218,7 +218,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.mask();
         const form: Form = descriptor.getConfig();
         const config: PropertyTree = this.component.getConfig();
-        this.formView = new FormView(this.liveEditModel.getFormContext(), form, config.getRoot());
+        this.formView = new FormViewExt(this.liveEditModel.getFormContext(), form, config.getRoot());
         this.formView.setLazyRender(false);
         this.appendChild(this.formView);
         this.component.setDisableEventForwarding(true);
@@ -267,11 +267,30 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.component = null;
     }
 
+    hasNonDefaultValues(): boolean {
+        return !!this.formView?.hasNonDefaultValues();
+    }
+
+    hasNonDefaultNumberOfOccurrences(): boolean {
+        return !!this.formView?.hasNonDefaultNumberOfOccurrences();
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.appendChild(this.form);
 
             return rendered;
         });
+    }
+}
+
+class FormViewExt extends FormView {
+
+    hasNonDefaultValues(): boolean {
+        return this.formItemViews.some((formItem) => formItem.hasNonDefaultValues());
+    }
+
+    hasNonDefaultNumberOfOccurrences(): boolean {
+        return this.formItemViews.some((formItem) => formItem.hasNonDefaultNumberOfOccurrences());
     }
 }

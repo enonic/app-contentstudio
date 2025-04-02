@@ -10,7 +10,7 @@ import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
@@ -94,8 +94,19 @@ export class SiteConfigurator
         }
 
         return new GetApplicationsRequest(appKeys).sendAndParse().then((apps: Application[]) => {
-            this.comboBox.select(apps, true);
+            const result = appKeys.map((appKey: ApplicationKey) => {
+               return apps.find((app: Application) => app.getApplicationKey().equals(appKey)) || this.makeMissingApp(appKey);
+            });
+            this.comboBox.select(result, true);
         });
+    }
+
+    private makeMissingApp(appKey: ApplicationKey): Application {
+        const builder = new ApplicationBuilder();
+        builder.applicationKey = appKey;
+        builder.displayName = appKey.toString();
+
+        return builder.build();
     }
 
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
@@ -273,6 +284,7 @@ export class SiteConfigurator
             }
             const selectedOptionView: SiteConfiguratorSelectedOptionView = this.getMatchedOption(comboBox, event);
             selectedOptionView?.update();
+            this.comboBox.setLoadWhenListShown();
         };
 
         ApplicationEvent.on((event: ApplicationEvent) => handleAppEvent(event));
