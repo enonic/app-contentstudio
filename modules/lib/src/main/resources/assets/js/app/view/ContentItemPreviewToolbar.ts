@@ -60,7 +60,6 @@ export class ContentItemPreviewToolbar
         ResponsiveManager.fireResizeEvent();
 
         super.setItem(item);
-        this.previewButton.getAction().setEnabled(false);
     }
 
     public getWidgetSelector(): PreviewWidgetDropdown {

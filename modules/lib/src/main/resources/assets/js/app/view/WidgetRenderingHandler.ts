@@ -96,6 +96,9 @@ export class WidgetRenderingHandler {
         this.summary = summary;
 
         this.showMask();
+        if (this.previewAction) {
+            this.previewAction.setEnabled(false);
+        }
 
         return this.doIsRenderableWithWidget(summary, widget).then(([renderable, actualWidget, response, data]) => {
             deferred.resolve(renderable);
@@ -196,9 +199,7 @@ export class WidgetRenderingHandler {
     }
 
     protected handlePreviewFailure(response?: Response, data?: Record<string, never>) {
-        if (this.previewAction) {
-            this.previewAction.setEnabled(false);
-        }
+        // previewAction was set to false in the beginning of loading
 
         const statusCode = response.status;
         if (statusCode > 0) {
