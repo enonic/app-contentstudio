@@ -869,6 +869,7 @@ export class LiveFormPanel
     }
 
     private doInspectComponent(component: Component, showPanel: boolean) {
+        console.log('LiveFormPanel.doInspectComponent', component.getType(), component.getPath().toString(), showPanel);
         const showInspectionPanel = (panel: BaseInspectionPanel) =>
             this.contextWindow.showInspectionPanel(
                 getInspectParameters({

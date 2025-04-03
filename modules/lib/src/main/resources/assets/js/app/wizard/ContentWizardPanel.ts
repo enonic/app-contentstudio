@@ -877,7 +877,7 @@ export class ContentWizardPanel
         this.updateLiveEditModel(contentClone);
         this.updateWizard(contentClone, true);
 
-        this.debouncedEditorReload();
+        this.debouncedEditorReload(false);
 
         if (!ObjectHelper.equals(PageState.getState(), contentClone.getPage())) {
             this.loadAndSetPageState(contentClone.getPage()).then(() => {
