@@ -85,7 +85,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             // Verify - 'Save' button remains enabled after switching templates #6484
             await contentWizard.waitForSaveButtonDisabled();
             // 6. Details Panel should be loaded
-            // TODO  add test for new functionality:
+            // TODO #8203 add test for new functionality:
             //await pageInspectionPanel.waitForNotDisplayed();
             //await wizardDetailsPanel.waitForDetailsPanelLoaded();
             // 7. Controller selector should be loaded in Live Edit:

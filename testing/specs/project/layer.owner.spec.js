@@ -22,6 +22,7 @@ const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.cod
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
 const TextComponentCke = require('../../page_objects/components/text.component');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -255,6 +256,9 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             await contentWizard.waitForPreviewButtonEnabled();
             // 3. Reset button has been clicked
             await contentWizard.clickOnResetButton();
+            let confirmationDialog = new ConfirmationDialog();
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
             // 6. Verify that 'Preview' button is enabled in the ItemPreview toolbar:
             await contentWizard.waitForPreviewButtonEnabled();
             // 7. Click on Localize button in the wizard-toolbar:
