@@ -189,6 +189,8 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await contentWizard.waitForSaveButtonDisabled();
         });
 
+    // https://github.com/enonic/app-contentstudio/issues/4988
+    //  Page Component View dialog is not correctly refreshed after layout descriptor is changed #4988
     it("GIVEN existing fragment is opened WHEN 2-col layout replaced with 3-col layout THEN 3 columns should be present in Live Edit",
         async () => {
             let pageComponentView = new PageComponentView();
@@ -205,10 +207,17 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             // 4. Expand the dropdown and select another option:
             await layoutInspectionPanel.clickOnLayoutDropdownHandle();
             await layoutInspectionPanel.clickOnOptionInLayoutDropdown(LAYOUT_3_COL);
+            // layout descriptor has been changed - notification message should appear(content is saved):
             await contentWizard.waitForNotificationMessage();
+            let result = await pageComponentView.getPageComponentsDisplayName();
+            await studioUtils.saveScreenshot('layout_config_inspect_panel_updated');
+            assert.ok(result.includes('3-col'), '3-col item should be displayed in PCV');
+            assert.ok(result.includes('Left'), 'Left region item should be displayed in PCV');
+            assert.ok(result.includes('Center'), 'Center region item should be displayed in PCV');
+            assert.ok(result.includes('Right'), 'Right region item should be displayed in PCV');
             // 5. Verify that new layout is displayed in the Live Edit:
             let actualColumnNumber = await liveFormPanel.getLayoutColumnNumber();
-            assert.equal(actualColumnNumber, 3, "Three column should be present in the layout")
+            assert.equal(actualColumnNumber, 3, "Three column should be present in the layout");
         });
 
     it("GIVEN the second site has been saved WHEN fragment component has been inserted THEN fragments from the first site should not be available in the second site",
@@ -228,14 +237,14 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             // 3. Insert the fragment-component:
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
-            await studioUtils.saveScreenshot("fragment_layout_inspection1");
+            await studioUtils.saveScreenshot('fragment_layout_inspection1');
             await pageComponentView.selectMenuItem(["Insert", "Fragment"]);
             // 4. Verify that 'Edit Fragment' button is disabled
-            await studioUtils.saveScreenshot("fragment_layout_inspection2");
+            await studioUtils.saveScreenshot('fragment_layout_inspection2');
             await fragmentInspectionPanel.waitForEditFragmentButtonDisabled();
             // 5. Expand the fragment dropdown options and verify that the list of options is empty:'No matching items'
             await fragmentInspectionPanel.clickOnFragmentDropdownHandle();
-            await studioUtils.saveScreenshot("fragment_inspect_panel_empty_options");
+            await studioUtils.saveScreenshot('fragment_inspect_panel_empty_options');
             // 6. Verify that 'No matching items' text is displayed in the fragment dropdown (fragments from another sites should not be available)
             await fragmentInspectionPanel.waitForEmptyOptionsMessage();
         });

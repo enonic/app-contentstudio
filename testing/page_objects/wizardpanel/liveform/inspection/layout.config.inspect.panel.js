@@ -1,7 +1,7 @@
 /**
  * Created on 24.01.2023
  */
-const Page = require('../../../page');
+const LayoutInspectionPanel = require('./layout.inspection.panel');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const SingleSelectionOptionSet = require('../../optionset/single.selection.option.set.view');
@@ -14,7 +14,7 @@ const xpath = {
 };
 
 //Context Window, Inspect tab for Layout Component with cfg file
-class LayoutConfigInspectPanel extends Page {
+class LayoutConfigInspectPanel extends LayoutInspectionPanel {
 
     get option1TextInput() {
         return xpath.container + xpath.option1NameInput;
@@ -71,7 +71,6 @@ class LayoutConfigInspectPanel extends Page {
         await this.clickOnElement(locator);
         return await this.pause(1000);
     }
-
 }
 
 module.exports = LayoutConfigInspectPanel;

@@ -61,7 +61,7 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             assert.ok(result.includes('Main'), 'main item should be displayed in the modal dialog');
             assert.ok(result.includes('Centered'), 'text component should be displayed in the modal dialog');
             assert.ok(result.includes('Center'), 'the second text component should be displayed in the modal dialog');
-            assert.equal(result.length, 4, "4 items should be displayed in PCV after deleting the layout item")
+            assert.equal(result.length, 4, "4 items should be displayed in PCV after deleting the layout item");
         });
 
     it("GIVEN layer component has been inserted WHEN selected option has been reset and Apply button pressed in 'Inspect Panel' THEN new changes should be applied in Inspect Panel",
