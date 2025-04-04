@@ -980,7 +980,7 @@ export class ContentWizardPanel
 
                     if (this.reloadPageEditorOnSave && this.livePanel) {
 
-                        this.livePanel.loadPage().then(() => {
+                        this.livePanel.loadPage(false).then(() => {
                             this.refreshLivePanel(content.clone()).then(() => {
                                 resolve(content.clone());
                             });

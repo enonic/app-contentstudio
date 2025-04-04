@@ -118,8 +118,8 @@ export class TextComponentView
         };
 
         this.onEditorReady(() => {
-           this.refreshEmptyState();
-            this.restoreSelection();
+            this.refreshEmptyState();
+            this.restoreCursorPosition();
         });
 
         this.bindWindowFocusEvents();
@@ -320,7 +320,7 @@ export class TextComponentView
                 if (this.isEditorReady()) {
                     this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
                 }
-           //     this.setHtml(TextComponentView.DEFAULT_TEXT, false);
+                //     this.setHtml(TextComponentView.DEFAULT_TEXT, false);
             }
         } else {
             if (this.isEditorReady()) {
@@ -571,7 +571,7 @@ export class TextComponentView
 
         if (!this.isEditorReady()) {
             this.onEditorReady(() => {
-               this.focusEditor();
+                this.focusEditor();
             });
 
             return false;
@@ -667,17 +667,11 @@ export class TextComponentView
         TextComponentView.lastFocusedView = this;
     }
 
-    private restoreSelection(): void {
+    private restoreCursorPosition(): void {
         const contentId = this.getLiveEditParams().contentId;
         const selectedItemViewPath: ComponentPath = SessionStorageHelper.getSelectedPathFromStorage(contentId);
 
-        if (!selectedItemViewPath) {
-            return;
-        }
-
         if (this.getPath().equals(selectedItemViewPath)) {
-            this.selectWithoutMenu();
-            this.scrollComponentIntoView();
 
             const textEditorCursorPos: HtmlEditorCursorPosition = SessionStorageHelper.getSelectedTextCursorPosInStorage(contentId);
 

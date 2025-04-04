@@ -184,14 +184,25 @@ export class LiveEditPage {
 
             this.registerGlobalListeners();
 
+            this.restoreSelection(event.getParams().contentId);
+
             if (LiveEditPage.debug) {
                 console.debug('LiveEditPage: done live edit initializing in ' + (Date.now() - startTime) + 'ms');
             }
 
-            // this.restoreSelection();
-
             new LiveEditPageViewReadyEvent().fire();
         }).catch(DefaultErrorHandler.handle);
+    }
+
+    private restoreSelection(contentId: string): void {
+        const selectedItemViewPath: ComponentPath = SessionStorageHelper.getSelectedPathFromStorage(contentId);
+
+        const selected: ItemView = selectedItemViewPath && this.pageView.getComponentViewByPath(selectedItemViewPath);
+
+        if (selected) {
+            selected.selectWithoutMenu();
+            selected.scrollComponentIntoView();
+        }
     }
 
     public destroy(win: Window = window): void {
