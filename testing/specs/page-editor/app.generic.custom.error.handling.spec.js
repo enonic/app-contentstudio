@@ -35,8 +35,8 @@ describe('Custom error handling - specification. Verify that application error p
             await contentWizard.selectPageDescriptor(CONTROLLER_WITH_ERROR, false);
             await contentWizard.pause(500);
             await studioUtils.saveScreenshot('site_controller_with_errors');
-            // 3. Verify that 'Preview' button is not displayed in the wizard:
-            await contentWizard.waitForPreviewButtonNotDisplayed();
+            // 3. Verify that 'Preview' button is disabled in the Preview wizard-toolbar:
+            await contentWizard.waitForPreviewButtonDisabled();
             // 4. 'Hide Page Editor' button should be visible
             await contentWizard.waitForHidePageEditorTogglerButtonDisplayed();
             await contentWizard.waitForMinimizeLiveEditTogglerDisplayed()

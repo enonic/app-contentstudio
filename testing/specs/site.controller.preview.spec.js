@@ -108,8 +108,8 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await pageComponentView.openMenu(CONTROLLER_NAME);
             // 3. Click on the 'Reset' menu item:
             await pageComponentView.selectMenuItem(['Reset']);
-            // 4. Verify that 'Preview' button gets not visible in the wizard toolbar:
-            await contentWizard.waitForPreviewButtonNotDisplayed();
+            // 4. Verify that 'Preview' button gets disabled in the Preview wizard toolbar:
+            await contentWizard.waitForPreviewButtonDisabled();
             // 5. Verify that Controller Options Filter input gets visible:
             await contentWizard.waitForControllerOptionFilterInputVisible();
             // 6. Verify that 'Preview' button is disabled in browse-toolbar:
