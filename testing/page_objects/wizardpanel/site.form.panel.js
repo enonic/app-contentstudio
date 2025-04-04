@@ -147,12 +147,17 @@ class SiteForm extends Page {
     }
 
     async openSiteConfiguratorDialog(displayName) {
-        let selector = XPATH.selectedAppByDisplayName(displayName) + XPATH.editIcon;
-        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-        await this.clickOnElement(selector);
-        let siteConfigDialog = new SiteConfigDialog();
-        await siteConfigDialog.waitForDialogOpened();
-        return await siteConfigDialog.pause(1000);
+        try {
+            let selector = XPATH.selectedAppByDisplayName(displayName) + XPATH.editIcon;
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            await this.clickOnElement(selector);
+            let siteConfigDialog = new SiteConfigDialog();
+            await siteConfigDialog.waitForDialogOpened();
+            return await siteConfigDialog.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_open_site_configurator_dialog');
+            throw new Error(`Error occurred in Site wizard, site configurator dialog, screenshot: ${screenshot} ` + err);
+        }
     }
 
     async isSiteConfiguratorViewInvalid(displayName) {
