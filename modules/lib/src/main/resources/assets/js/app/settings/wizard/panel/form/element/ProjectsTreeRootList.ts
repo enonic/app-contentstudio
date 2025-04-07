@@ -30,7 +30,7 @@ export class ProjectsTreeRootList extends ProjectsTreeList {
 
     protected createItemView(item: Project, readOnly: boolean): ProjectTreeListElement {
         return new ProjectTreeListElement(item,
-            {helper: this.options.helper, scrollParent: this.scrollParent, isFilterMode: this.isFilterMode()});
+            {helper: this.options.helper, scrollParent: this.scrollParent, isFilterMode: this.isFilterMode(), parentList: this});
     }
 
     protected handleLazyLoad(): void {
