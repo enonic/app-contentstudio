@@ -26,7 +26,6 @@ import {DeletedContentItem} from './DeletedContentItem';
 import {ContentSummary, ContentSummaryBuilder} from '../content/ContentSummary';
 import {ContentId} from '../content/ContentId';
 import {ContentPath, ContentPathBuilder} from '../content/ContentPath';
-import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContextView} from '../view/context/ContextView';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
 import {MovedContentItem} from './MovedContentItem';
@@ -70,8 +69,6 @@ export class ContentBrowsePanel
     protected toolbar: ListBoxToolbar<ContentAndStatusTreeSelectorItem>;
 
     protected contextMenu: TreeGridContextMenu;
-
-    protected keyNavigator: SelectableTreeListBoxKeyNavigator<ContentSummaryAndCompareStatus>;
 
     protected selectionWrapper: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>;
 
@@ -180,12 +177,15 @@ export class ContentBrowsePanel
 
         this.treeActions = new ContentTreeActions(this.selectionWrapper);
         this.contextMenu = new TreeGridContextMenu(this.treeActions);
-        this.keyNavigator = new SelectableTreeListBoxKeyNavigator(this.selectionWrapper);
 
         const panel = new SelectableListBoxPanel(this.selectionWrapper, this.toolbar);
         panel.addClass('content-selectable-list-box-panel');
 
         return panel;
+    }
+
+    protected createKeyNavigator(): SelectableTreeListBoxKeyNavigator<ContentSummaryAndCompareStatus> {
+        return new SelectableTreeListBoxKeyNavigator(this.selectionWrapper);
     }
 
     protected getBrowseActions(): ContentTreeActions {

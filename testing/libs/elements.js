@@ -271,6 +271,11 @@ module.exports = Object.freeze({
     INSPECT_PANEL: {
         DESCRIPTOR_VIEWER_DIV: "//div[contains(@id,'DescriptorViewer')]",
     },
+    MARKET_MODAL_DIALOG: {
+        rowByDisplayName(displayName) {
+            return `//li[contains(@id,'MarketListViewer') and (descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')])]`;
+        },
+    },
     LIVE_VIEW: {
         EMULATOR_DROPDOWN: "//div[contains(@id,'EmulatorDropdown')]",
         DIV_DROPDOWN: "//div[contains(@id,'PreviewWidgetDropdown')]",

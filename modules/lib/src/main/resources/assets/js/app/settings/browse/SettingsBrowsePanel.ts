@@ -87,11 +87,13 @@ export class SettingsBrowsePanel
             refreshAction: () => this.treeListBox.load(),
         });
 
-        new SelectableTreeListBoxKeyNavigator(this.selectionWrapper);
-
         this.toolbar.getSelectionPanelToggler().hide();
 
         return new SelectableListBoxPanel(this.selectionWrapper, this.toolbar);
+    }
+
+    protected createKeyNavigator(): SelectableTreeListBoxKeyNavigator<SettingsViewItem> {
+        return new SelectableTreeListBoxKeyNavigator(this.selectionWrapper);
     }
 
     protected createToolbar(): SettingsBrowseToolbar {

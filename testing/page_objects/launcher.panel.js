@@ -44,6 +44,14 @@ class LauncherPanel extends Page {
         return await this.pause(500);
     }
 
+    async clickOnApplicationsLink() {
+        await this.waitForElementDisplayed(this.applicationsLink, appConst.mediumTimeout);
+        await this.waitForElementEnabled(this.applicationsLink, appConst.mediumTimeout);
+        await this.pause(400);
+        await this.clickOnElement(this.applicationsLink);
+        return await this.pause(500);
+    }
+
     async clickOnContentStudioLink() {
         try {
             await this.waitForElementDisplayed(this.contentStudioLink, appConst.longTimeout);

@@ -73,9 +73,11 @@ module.exports = Object.freeze({
         ARIA_LABEL: 'aria-label',
         ARIA_HAS_POPUP: 'aria-haspopup',
     },
-    BROWSER_TITLES: {
+    BROWSER_XP_TITLES: {
         CONTENT_STUDIO: 'Content Studio - Enonic XP Admin',
         XP_HOME: 'Enonic XP Home',
+        APPLICATIONS_TITLE: `Applications - Enonic XP Admin`,
+
     },
     NOTIFICATION_MESSAGES: {
         YOUR_COMMENT_ADDED: 'Your comment is added to the issue.',

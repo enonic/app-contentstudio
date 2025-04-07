@@ -38,7 +38,7 @@ export class PageComponentsViewDragHandler {
             filter: '.toggle, .region',
             sort: true,
             delay: 20, // need to hold touch/mouse pressed 20ms before drag starts
-            animation: 150,
+            animation: 300,
             forceFallback: true,
             onStart: (event: SortableEvent) => this.handleStart(event),
             onEnd: (event: SortableEvent) => this.handleEnd(event),
@@ -48,6 +48,7 @@ export class PageComponentsViewDragHandler {
 
     private handleEnd(event: Sortable.SortableEvent): void {
         this.setDropAllowed(false);
+        this.rootList.removeClass('component-dragging');
         Body.get().unMouseMove(this.moveHelperHandler);
         Body.get().removeChild(DragHelper.get());
 
@@ -93,6 +94,7 @@ export class PageComponentsViewDragHandler {
 
     private handleStart(event: SortableEvent): void {
         this.setDropAllowed(true);
+        this.rootList.addClass('component-dragging');
         Body.get().appendChild(DragHelper.get());
         Body.get().onMouseMove(this.moveHelperHandler);
 
