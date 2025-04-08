@@ -150,7 +150,7 @@ export class AttachmentUploader
         }).catch(DefaultErrorHandler.handle);
     }
 
-    private deleteAttachmentIfNotUsed(attachmentName: string): Q.Promise<void> {
+    private deleteAttachmentIfNotUsed(attachmentName: string): Q.Promise<Content | null> {
         return this.isAttachmentInUse(attachmentName) ? Q(null) : this.deleteAttachment(attachmentName);
     }
 
