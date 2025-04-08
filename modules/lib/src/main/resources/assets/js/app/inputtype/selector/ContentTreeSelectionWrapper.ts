@@ -1,7 +1,8 @@
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import {SelectableListBoxNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxNavigator';
+import {SelectableListBoxFocusNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxFocusNavigator';
 import {TreeListElement} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class ContentTreeSelectionWrapper
     extends SelectableListBoxWrapper<ContentTreeSelectorItem> {
@@ -9,6 +10,8 @@ export class ContentTreeSelectionWrapper
     private clickOutsideHandler: () => boolean;
 
     private enterKeyHandler: () => boolean;
+
+    private focusNavigator?: SelectableListBoxFocusNavigator<ContentTreeSelectorItem>;
 
     toggleItemWrapperSelected(itemId: string, isSelected: boolean) {
         super.toggleItemWrapperSelected(itemId, isSelected);
@@ -23,15 +26,27 @@ export class ContentTreeSelectionWrapper
     protected initListeners(): void {
         super.initListeners();
 
-        this.addKeyNavigation();
+        this.focusNavigator = this.createSelectionNavigator();
     }
 
-    protected createSelectionNavigator(): SelectableListBoxNavigator<ContentTreeSelectorItem> {
-        return super.createSelectionNavigator()
+    protected createSelectionNavigator(): SelectableListBoxFocusNavigator<ContentTreeSelectorItem> {
+        return new SelectableListBoxFocusNavigator(this.listBox, this.itemsWrappers)
             .setClickOutsideHandler(this.handleClickOutside.bind(this))
             .setEnterKeyHandler(this.handlerEnterPressed.bind(this))
+            .setSpaceHandler(this.handleSpacePressed.bind(this))
             .setLeftKeyHandler(this.handleLeftKey.bind(this))
             .setRightKeyHandler(this.handleRightKey.bind(this));
+    }
+
+    protected handleSpacePressed(): boolean {
+        const focusedItem: ContentTreeSelectorItem = this.focusNavigator.getFocusedItem();
+
+        if (focusedItem) {
+            this.handleUserToggleAction(focusedItem);
+            return false;
+        }
+
+        return true;
     }
 
     protected handleClickOutside(): boolean {
@@ -53,7 +68,7 @@ export class ContentTreeSelectionWrapper
     }
 
     protected handleLeftKey(): boolean {
-        const focusedItem = this.selectionNavigator.getFocusedItem();
+        const focusedItem = this.focusNavigator.getFocusedItem();
 
         if (focusedItem) {
             const view = this.listBox.getItemView(focusedItem);
@@ -67,7 +82,7 @@ export class ContentTreeSelectionWrapper
     }
 
     protected handleRightKey(): boolean {
-        const focusedItem = this.selectionNavigator.getFocusedItem();
+        const focusedItem = this.focusNavigator.getFocusedItem();
 
         if (focusedItem) {
             const view = this.listBox.getItemView(focusedItem);
@@ -79,8 +94,8 @@ export class ContentTreeSelectionWrapper
         return true;
     }
 
-    getNavigator(): SelectableListBoxNavigator<ContentTreeSelectorItem> {
-        return this.selectionNavigator;
+    getNavigator(): SelectableListBoxFocusNavigator<ContentTreeSelectorItem> {
+        return this.focusNavigator;
     }
 
     unSelectAllExcept(ids: string[]): void {
@@ -89,5 +104,12 @@ export class ContentTreeSelectionWrapper
                 this.deselect(selectedItem, true);
             }
         });
+    }
+
+    protected addItemWrapper(id: string, wrapper: Element): void {
+        super.addItemWrapper(id, wrapper);
+
+        // if list is already shown and new item added to it then add tabindex manually
+        this.focusNavigator?.notifyItemWrapperAdded(wrapper);
     }
 }
