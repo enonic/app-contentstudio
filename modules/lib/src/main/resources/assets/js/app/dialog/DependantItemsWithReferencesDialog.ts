@@ -196,7 +196,6 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
 
             return this.cleanLoadDescendants().then((descendants: ContentSummaryAndCompareStatus[]) => {
                 this.setDependantItems(descendants);
-                return Q(null);
             }).finally(() => {
                 this.notifyResize();
                 this.hideLoadMask();

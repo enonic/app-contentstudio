@@ -52,7 +52,6 @@ export class IssueCommentsList
 
         return new ListIssueCommentsRequest(issue.getId()).sendAndParse().then((response: ListIssueCommentsResponse) => {
             this.setItems(response.getIssueComments());
-            return Q(null);
         });
     }
 

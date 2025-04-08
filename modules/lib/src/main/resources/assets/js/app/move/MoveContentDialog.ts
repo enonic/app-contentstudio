@@ -172,7 +172,7 @@ export class MoveContentDialog
         });
     }
 
-    private getTargetContentSite(targetContent: ContentTreeSelectorItem): Q.Promise<ContentSummary> {
+    private getTargetContentSite(targetContent: ContentTreeSelectorItem): Q.Promise<ContentSummary | null> {
         if (!targetContent) {
             return Q(null);
         }
@@ -184,7 +184,7 @@ export class MoveContentDialog
         return this.getParentSite(targetContent.getContent());
     }
 
-    private getContentParentSite(content: ContentSummary): Q.Promise<ContentSummary> {
+    private getContentParentSite(content: ContentSummary): Q.Promise<ContentSummary | null> {
         if (content.isSite()) {
             return Q(null);
         }

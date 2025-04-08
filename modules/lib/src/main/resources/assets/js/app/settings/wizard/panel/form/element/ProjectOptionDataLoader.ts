@@ -55,7 +55,7 @@ export class ProjectOptionDataLoader
         const innerListener = (event: LoadedDataEvent<Project>) => {
             listener(event.getData());
             this.unLoadedData(innerListener);
-            return Q.resolve();
+            return Q();
         };
 
         this.onLoadedData(innerListener);

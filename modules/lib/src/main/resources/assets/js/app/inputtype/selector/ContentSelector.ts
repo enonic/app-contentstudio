@@ -293,8 +293,6 @@ export class ContentSelector
             if (isNewButtonToBeAdded) {
                 this.addNewContentButton();
             }
-
-            return Q.resolve();
         }).catch(DefaultErrorHandler.handle);
     }
 
@@ -328,7 +326,7 @@ export class ContentSelector
         this.setLayoutInProgress(false);
         this.setupSortable();
 
-        return Q.resolve();
+        return Q();
     }
 
     protected createOptionDataLoaderBuilder(): ContentSummaryOptionDataLoaderBuilder {

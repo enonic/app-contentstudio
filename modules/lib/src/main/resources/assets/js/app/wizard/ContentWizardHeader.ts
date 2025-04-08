@@ -119,8 +119,6 @@ export class ContentWizardHeader
                     if (this.asyncNameChecksRunning === 1 && exists === this.isNameUnique) {
                         this.updateIsNameUnique(!exists || !this.isNameChanged());
                     }
-
-                    return Q();
                 }).catch(DefaultErrorHandler.handle).finally(() => {
                     this.asyncNameChecksRunning--;
                     this.unlock();

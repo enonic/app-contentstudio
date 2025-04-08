@@ -99,16 +99,14 @@ export class ProjectItemNameWizardStepForm
     }
 
     layout(item: ProjectViewItem): Q.Promise<void> {
-        if (!item) {
-            return Q(null);
+        if (item) {
+            this.descriptionInput.setValue(item.getDescription(), true);
+            this.nameFormItem.setValue(item.getName(), true);
+            this.disableProjectNameHelpText();
+            this.disableProjectNameInput();
         }
 
-        this.descriptionInput.setValue(item.getDescription(), true);
-        this.nameFormItem.setValue(item.getName(), true);
-        this.disableProjectNameHelpText();
-        this.disableProjectNameInput();
-
-        return Q(null);
+        return Q();
     }
 
     disableParentProjectElements() {

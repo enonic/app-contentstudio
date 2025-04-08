@@ -595,7 +595,6 @@ export class ContentWizardPanel
 
         return pagePromise.then((page: Page | null) => {
             PageState.setState(page);
-            return Q.resolve();
         });
     }
 
@@ -617,7 +616,7 @@ export class ContentWizardPanel
             className: 'content-wizard-toolbar',
             compareVersionsPreHook: () => {
                 if (!this.hasUnsavedChanges()) {
-                    return Q.resolve();
+                    return Q();
                 }
 
                 return this.saveChangesWithoutValidation().thenResolve(undefined);
@@ -878,7 +877,7 @@ export class ContentWizardPanel
             });
         }
 
-        return Q.resolve();
+        return Q();
     }
 
     private doUpdateModifiedPersistedContent(viewedContent: Content, newPersistedContent: Content): void {
@@ -919,7 +918,7 @@ export class ContentWizardPanel
 
     private resetLivePanel(contentClone: Content): Q.Promise<void> {
         if (!this.livePanel) {
-            return Q.resolve();
+            return Q();
         }
 
         this.getLivePanel().setHasPage(!!contentClone.getPage());
@@ -930,7 +929,7 @@ export class ContentWizardPanel
                 this.updateLiveEditModel(contentClone);
             }
 
-            return Q.resolve();
+            return Q();
         }
 
         if (this.getPersistedItem().getPage()) {
@@ -943,7 +942,7 @@ export class ContentWizardPanel
 
     private handleNonRenderablePage(): Q.Promise<void> {
         this.liveEditModel = null;
-        return Q.resolve();
+        return Q();
     }
 
     private unloadPage(): Q.Promise<void> {
@@ -951,7 +950,7 @@ export class ContentWizardPanel
         this.livePanel.unloadPage();
         this.removePCV();
 
-        return Q.resolve();
+        return Q();
     }
 
     private availableSizeChangedHandler(item: ResponsiveItem) {
@@ -1815,7 +1814,7 @@ export class ContentWizardPanel
         this.updateMissingOrStoppedApplications().catch(DefaultErrorHandler.handle);
 
         if (!this.getLivePanel()) {
-            return Q(null);
+            return Q();
         }
 
         this.setupWizardLiveEdit();
@@ -1825,11 +1824,11 @@ export class ContentWizardPanel
 
         if (this.isRenderable() && !this.isWithinSite()) {
             this.debouncedEditorReload(false);
-            return Q.resolve();
+            return Q();
         }
 
         this.updateLiveEditModel(content);
-        return Q.resolve();
+        return Q();
     }
 
     // sync persisted content extra data with xData
@@ -1970,8 +1969,6 @@ export class ContentWizardPanel
                         const debouncedUpdate: () => void = AppHelper.debounce(this.updatePublishStatusOnDataChange.bind(this), 100);
 
                         this.onPageStateChanged(debouncedUpdate);
-
-                        return Q(null);
                     });
                 });
             });
@@ -2133,7 +2130,6 @@ export class ContentWizardPanel
 
         return xDataStepForm.layout(formContext, data, xDataForm).then(() => {
             this.syncPersistedItemWithXData(xDataStepForm.getXDataName(), data);
-            return Q(null);
         });
     }
 
@@ -2158,8 +2154,8 @@ export class ContentWizardPanel
         return Q(persistedContent);
     }
 
-    private produceCreateContentRequest(): Q.Promise<CreateContentRequest> {
-        return this.contentType.getContentTypeName().isMedia() ? Q(null) : Q.resolve(this.doCreateContentRequest());
+    private produceCreateContentRequest(): Q.Promise<CreateContentRequest | null> {
+        return this.contentType.getContentTypeName().isMedia() ? Q(null) : Q(this.doCreateContentRequest());
     }
 
     private doCreateContentRequest(): CreateContentRequest {

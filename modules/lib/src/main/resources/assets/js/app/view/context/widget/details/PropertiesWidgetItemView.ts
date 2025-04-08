@@ -50,10 +50,9 @@ export abstract class PropertiesWidgetItemView
             }
 
             this.hide();
-            return Q.resolve();
         }
 
-        return Q.resolve();
+        return Q();
     }
 
     protected isAllowedToBeShown(): boolean {
@@ -72,16 +71,13 @@ export abstract class PropertiesWidgetItemView
                 return this.fetchExtraData().then(() => {
                     this.layoutProperties();
                     this.layoutEditLink();
-                    return Q.resolve();
                 });
             }
-
-            return Q.resolve();
         });
     }
 
     protected fetchExtraData(): Q.Promise<void> {
-        return Q.resolve();
+        return Q();
     }
 
     protected layoutProperties(): void {

@@ -164,8 +164,6 @@ export class CollaborationEl
             }
 
             this.addCollaborators(collaborators);
-
-            return Q(null);
         }).catch(DefaultErrorHandler.handle);
     }
 

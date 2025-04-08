@@ -54,7 +54,7 @@ export class ProjectApplicationsDialogStep
         super.setParentProjects(projects);
 
         if (!this.getProjectApplicationsComboBox()) {
-            return Q(null);
+            return Q();
         }
 
         return this.getProjectApplicationsComboBox().setParentProjects(projects);

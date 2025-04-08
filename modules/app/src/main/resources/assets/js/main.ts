@@ -278,8 +278,6 @@ const handleCurrentProjectDeleted = () => {
         } else {
             ProjectContext.get().setNotAvailable();
         }
-
-        return Q.resolve();
     }).catch(DefaultErrorHandler.handle);
 };
 
@@ -608,23 +606,21 @@ function initProjectContext(application: Application): Q.Promise<void> {
 
             if (currentProject) {
                 ProjectContext.get().setProject(currentProject);
-                return Q(null);
+                return;
             }
         }
 
         if (projects.length === 1 && ProjectHelper.isAvailable(projects[0])) {
             ProjectContext.get().setProject(projects[0]);
-            return Q(null);
+            return;
         }
 
         if (projects.length === 0) {
             ProjectContext.get().setNotAvailable();
-            return Q.resolve();
+            return;
         }
 
         ProjectSelectionDialog.get().open();
-
-        return Q(null);
     });
 }
 

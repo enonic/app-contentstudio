@@ -650,8 +650,6 @@ export class PageComponentsView
                     PageEventsManager.get().notifyTextComponentEditRequested(path);
                 }
             }
-
-            return Q.resolve();
         });
     }
 
@@ -713,12 +711,8 @@ export class PageComponentsView
                 if (item) {
                     this.pageComponentsWrapper.select(item);
                 }
-
-                return Q.resolve();
             });
         }
-
-        return Q.resolve();
     }
 
     private scrollToItem(path: ComponentPath): void {

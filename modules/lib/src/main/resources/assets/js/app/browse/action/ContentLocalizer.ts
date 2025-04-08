@@ -13,7 +13,7 @@ export class ContentLocalizer {
 
     localizeAndEdit(contents: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
         if (!contents || contents.length === 0) {
-            return Q.resolve();
+            return Q();
         }
 
         this.contents = contents;
@@ -47,11 +47,9 @@ export class ContentLocalizer {
                         updatedItems.map((item: ContentSummary) => ContentSummaryAndCompareStatus.fromContentSummary(item));
                     ContentEventsProcessor.handleEdit(new EditContentEvent(itemsToOpen).setIsLocalized(true));
                 }
-
-                return Q.resolve();
             });
         }
 
-        return Q.resolve();
+        return Q();
     }
 }
