@@ -58,7 +58,6 @@ export class AttachmentUploader
         return super.update(propertyArray, unchangedOnly).then(() => {
             this.doRefresh();
             this.notifyValueChanged(new ValueChangedEvent(null, -1));
-            return Q(null); //new Promise(null);
         });
     }
 
@@ -151,7 +150,7 @@ export class AttachmentUploader
     }
 
     private deleteAttachmentIfNotUsed(attachmentName: string): Q.Promise<void> {
-        return this.isAttachmentInUse(attachmentName) ? Q(null) : this.deleteAttachment(attachmentName);
+        return this.isAttachmentInUse(attachmentName) ? Q() : this.deleteAttachment(attachmentName);
     }
 
     private isAttachmentInUse(attachmentName: string): boolean {
@@ -193,7 +192,7 @@ export class AttachmentUploader
             .setRequestProject(this.context.project)
             .addAttachmentName(itemName)
             .sendAndParse()
-            .then((content) => null);
+            .then(Q);
     }
 
     private createUploaderWrapper(): DivEl {
