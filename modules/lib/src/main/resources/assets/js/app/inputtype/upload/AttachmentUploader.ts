@@ -187,12 +187,13 @@ export class AttachmentUploader
         return PageHelper.getPropertyValueUsageCount(page, attachmentInputName, attachmentName) > 1;
     }
 
-    private deleteAttachment(itemName: string): Q.Promise<Content> {
+    private deleteAttachment(itemName: string): Q.Promise<void> {
         return new DeleteAttachmentRequest()
             .setContentId(this.context.content.getContentId())
             .setRequestProject(this.context.project)
             .addAttachmentName(itemName)
-            .sendAndParse();
+            .sendAndParse()
+            .then((content) => null);
     }
 
     private createUploaderWrapper(): DivEl {
