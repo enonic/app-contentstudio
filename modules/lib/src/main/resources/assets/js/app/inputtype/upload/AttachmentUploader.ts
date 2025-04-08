@@ -58,7 +58,6 @@ export class AttachmentUploader
         return super.update(propertyArray, unchangedOnly).then(() => {
             this.doRefresh();
             this.notifyValueChanged(new ValueChangedEvent(null, -1));
-            return Q(null); //new Promise(null);
         });
     }
 
@@ -151,7 +150,7 @@ export class AttachmentUploader
     }
 
     private deleteAttachmentIfNotUsed(attachmentName: string): Q.Promise<void> {
-        return this.isAttachmentInUse(attachmentName) ? Q(null) : this.deleteAttachment(attachmentName);
+        return this.isAttachmentInUse(attachmentName) ? Q() : this.deleteAttachment(attachmentName);
     }
 
     private isAttachmentInUse(attachmentName: string): boolean {
@@ -187,12 +186,13 @@ export class AttachmentUploader
         return PageHelper.getPropertyValueUsageCount(page, attachmentInputName, attachmentName) > 1;
     }
 
-    private deleteAttachment(itemName: string): Q.Promise<Content> {
+    private deleteAttachment(itemName: string): Q.Promise<void> {
         return new DeleteAttachmentRequest()
             .setContentId(this.context.content.getContentId())
             .setRequestProject(this.context.project)
             .addAttachmentName(itemName)
-            .sendAndParse();
+            .sendAndParse()
+            .then(Q);
     }
 
     private createUploaderWrapper(): DivEl {
