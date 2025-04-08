@@ -75,18 +75,15 @@ export class ContentWizardDataLoader {
     private loadDataForEdit(params: ContentWizardPanelParams): Q.Promise<ContentWizardDataLoader> {
         const sitePromise: Q.Promise<void> = this.loadSite(params.contentId).then((loadedSite: Site) => {
             this.siteContent = loadedSite;
-            return Q(null);
         });
 
         const contentPromise: Q.Promise<void> = this.loadContent(params.contentId).then((loadedContent: Content) => {
             this.content = loadedContent;
-            return Q(null);
         });
 
         const modelsPromise: Q.Promise<void> = Q.all([sitePromise, contentPromise]).then(() => {
             return ContentWizardDataLoader.loadDefaultModels(this.siteContent, this.content.getType()).then((defaultModels) => {
                 this.defaultModels = defaultModels;
-                return Q(null);
             });
         });
 
@@ -107,8 +104,6 @@ export class ContentWizardDataLoader {
                         this.compareStatus = compareStatus.getCompareStatus();
                         this.publishStatus = compareStatus.getPublishStatus();
                     }
-
-                    return Q(null);
                 });
         });
 

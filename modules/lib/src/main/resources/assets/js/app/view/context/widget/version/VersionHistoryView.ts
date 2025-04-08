@@ -118,11 +118,9 @@ export class VersionHistoryView extends WidgetItemView {
 
                 this.versionListView.setContent(this.content);
                 this.versionListView.setItems(items);
-
-                return Q.resolve();
             });
         }
 
-        return Q.resolve();
+        return Q();
     }
 }

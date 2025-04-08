@@ -26,13 +26,11 @@ export class PageHelper {
 
     public static fetchAndInjectLayoutRegions(layout: LayoutComponent): Q.Promise<void> {
         if (!layout?.hasDescriptor()) {
-            return Q.resolve();
+            return Q();
         }
 
         return this.loadDescriptor(layout.getDescriptorKey(), LayoutComponentType.get()).then((descriptor: Descriptor) => {
             layout.setDescriptor(descriptor);
-
-            return Q.resolve();
         });
     }
 

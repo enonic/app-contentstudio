@@ -71,7 +71,6 @@ export class ContentSummaryListViewer
 
         return request.sendAndGet().then((imageResponse: ImageResponse) => {
             this.handleImageResponse(imageResponse);
-            return Q(null);
         });
     }
 

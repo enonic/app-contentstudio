@@ -71,8 +71,6 @@ export class ProjectReadAccessFormItem
 
         return new GetPrincipalsByKeysRequest(readAccess.getPrincipalsKeys()).sendAndParse().then((principals: Principal[]) => {
             this.getPrincipalComboBox().select(principals, silent);
-
-            return Q(null);
         }).catch(DefaultErrorHandler.handle);
     }
 
@@ -147,7 +145,6 @@ export class ProjectReadAccessFormItem
         const parentProject = this.parentProjects[0];
         this.layoutReadAccess(parentProject.getReadAccess(), parentProject.getPermissions(), false).then(() => {
             this.notifyAccessCopiedFromParent();
-            return Q.resolve();
         });
     }
 

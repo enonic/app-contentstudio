@@ -183,7 +183,7 @@ export class CompareWithPublishedVersionDialog
         if (updateDiff) {
             return this.displayDiff();
         } else {
-            return Q.resolve();
+            return Q();
         }
     }
 
@@ -193,7 +193,7 @@ export class CompareWithPublishedVersionDialog
         if (updateDiff) {
             return this.displayDiff();
         } else {
-            return Q.resolve();
+            return Q();
         }
     }
 

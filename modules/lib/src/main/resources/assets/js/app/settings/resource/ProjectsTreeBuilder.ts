@@ -28,7 +28,7 @@ export class ProjectsTreeBuilder {
 
     private fetchTree(project: Project): Q.Promise<void> {
         if (!project) {
-            return Q(null);
+            return Q();
         }
 
         if (this.hasParent(project)) {

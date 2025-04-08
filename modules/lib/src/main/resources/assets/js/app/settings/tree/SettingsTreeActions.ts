@@ -41,7 +41,7 @@ export class SettingsTreeActions
             this.SYNC.updateState();
         }
 
-        return Q.resolve();
+        return Q();
     }
 
     private isEditAllowed(selectedItems: SettingsViewItem[]): boolean {

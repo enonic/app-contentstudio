@@ -10,17 +10,17 @@ export class PageComponentsViewExpandHelper {
     }
 
     loadAndExpandToItemRecursively(target: ComponentPath, currentList: PageComponentsTreeGrid,
-                                   currentPathToExpand: ComponentPath): Q.Promise<ComponentsTreeItem> {
+                                   currentPathToExpand: ComponentPath): Q.Promise<ComponentsTreeItem | null> {
         const listElement = currentList.getItemViews().find(
             (view: PageComponentsListElement) => view.getComponentPath().equals(currentPathToExpand)) as PageComponentsListElement;
 
         if (listElement) {
             if (target.equals(currentPathToExpand)) {
-                return Q.resolve(listElement.getItem());
+                return Q(listElement.getItem());
             }
 
             if (!listElement.hasChildren()) {
-                return Q.resolve();
+                return Q(null);
             }
 
             listElement.expand();
@@ -31,7 +31,7 @@ export class PageComponentsViewExpandHelper {
             });
         }
 
-        return Q.resolve();
+        return Q(null);
     }
 
     private waitForListItemsAdded(listElement: PageComponentsListElement): Q.Promise<void> {

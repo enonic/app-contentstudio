@@ -45,7 +45,7 @@ export class UpdatePersistedContentRoutine
         if (isContentChanged || this.hasNamesChanged()) {
             promise = this.doHandleUpdateContent(context, isContentChanged);
         } else {
-            promise = Q(null);
+            promise = Q();
         }
 
         if (isPageChanged) {
@@ -74,15 +74,15 @@ export class UpdatePersistedContentRoutine
     private doHandlePage(context: RoutineContext): Q.Promise<void> {
         const pageCUDRequest: PageCUDRequest = this.producePageCUDRequest(context.content, this.viewedContent);
 
-        if (pageCUDRequest != null) {
-            return pageCUDRequest.sendAndParse()
-                .then((content: Content): void => {
-                    context.content = content;
-                    context.pageUpdated = true;
-                });
-        } else {
-            return Q(null);
+        if (pageCUDRequest == null) {
+            return Q();
         }
+
+        return pageCUDRequest.sendAndParse()
+            .then((content: Content): void => {
+                context.content = content;
+                context.pageUpdated = true;
+            });
     }
 
     private hasNamesChanged(): boolean {

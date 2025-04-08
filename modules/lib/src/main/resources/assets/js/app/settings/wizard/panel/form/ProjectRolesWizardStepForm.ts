@@ -39,7 +39,7 @@ export class ProjectRolesWizardStepForm
 
     layout(item: ProjectViewItem): Q.Promise<void> {
         if (!item) {
-            return Q(null);
+            return Q();
         }
 
         return this.rolesFormItem.layoutAccessCombobox(item.getPermissions());

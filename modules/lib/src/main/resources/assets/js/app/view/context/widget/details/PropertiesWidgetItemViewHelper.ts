@@ -24,8 +24,6 @@ export abstract class PropertiesWidgetItemViewHelper {
                 if (isAllowed) {
                     result.push(PropertiesWizardStepFormFactory.getWizardStepForm(formType));
                 }
-
-                return Q.resolve();
             });
 
             resultPromises.push(p);

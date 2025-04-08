@@ -184,15 +184,13 @@ export class LinkModalDialog
 
     private fetchParentSite(): Q.Promise<void> {
         if (!this.contentId) {
-            return Q.resolve();
+            return Q();
         }
 
         return new GetNearestSiteRequest(this.contentId).sendAndParse().then((parentSite: Site) => {
             if (parentSite) {
                 this.parentSitePath = parentSite.getPath().toString();
             }
-
-            return Q.resolve();
         });
     }
 

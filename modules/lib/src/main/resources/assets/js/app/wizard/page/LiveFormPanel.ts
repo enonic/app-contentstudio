@@ -228,8 +228,6 @@ export class LiveFormPanel
             if (isChanged) {
                 this.debouncedUpdateFunc();
             }
-
-            return Q.resolve();
         }).catch(DefaultErrorHandler.handle);
     }
 

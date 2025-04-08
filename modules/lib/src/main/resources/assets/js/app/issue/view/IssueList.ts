@@ -167,7 +167,7 @@ export class IssueList
     private fetchItems(append?: boolean): Q.Promise<void> {
         const skipLoad = !this.needToLoad();
         if (skipLoad) {
-            return Q(null);
+            return Q();
         }
 
         this.showLoadMask();
