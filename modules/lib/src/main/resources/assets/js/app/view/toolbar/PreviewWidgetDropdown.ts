@@ -219,7 +219,7 @@ export class PreviewWidgetOptionViewer
     }
 
     resolveIconUrl(object: PreviewWidgetOption): string {
-        return object.getIconUrl();
+        return object.getFullIconUrl();
     }
 
     resolveIconClass(object: PreviewWidgetOption): string {

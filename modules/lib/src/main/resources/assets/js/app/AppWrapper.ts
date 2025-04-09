@@ -13,7 +13,7 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {GetWidgetsByInterfaceRequest} from './resource/GetWidgetsByInterfaceRequest';
 import {Widget, WidgetConfig} from '@enonic/lib-admin-ui/content/Widget';
-import {WidgetHelper, WidgetElement} from '@enonic/lib-admin-ui/widget/WidgetHelper';
+import {WidgetElement, WidgetHelper} from '@enonic/lib-admin-ui/widget/WidgetHelper';
 import {ContentAppContainer} from './ContentAppContainer';
 import {Router} from './Router';
 import {UrlAction} from './UrlAction';
@@ -149,7 +149,7 @@ export class AppWrapper
     }
 
     private updateUrl(widget: Widget): void {
-        if (widget.getUrl() === UrlAction.BROWSE.toString()) {
+        if (widget.getFullUrl() === UrlAction.BROWSE.toString()) {
             Router.get().setHash(UrlAction.BROWSE);
             return;
         }
@@ -182,7 +182,7 @@ export class AppWrapper
             return;
         }
 
-        fetch(widget.getUrl())
+        fetch(widget.getFullUrl())
             .then(response => response.text())
             .then((html: string) => {
                 WidgetHelper.createFromHtmlAndAppend(html, this.widgetsBlock)
@@ -300,7 +300,7 @@ export class AppWrapper
 
     private isAppStopStartEvent(event: ApplicationEvent): boolean {
         return ApplicationEventType.STOPPED === event.getEventType() || ApplicationEventType.UNINSTALLED === event.getEventType()
-            || ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED === event.getEventType();
+               || ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED === event.getEventType();
     }
 
     doRender(): Q.Promise<boolean> {
