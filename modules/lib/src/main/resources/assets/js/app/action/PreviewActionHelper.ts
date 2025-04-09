@@ -59,7 +59,7 @@ export class PreviewActionHelper {
         let url = this.getPreviewUrl(widget);
         // in case of automatic widget that will be url of the widget that actually renders the content
         if (!url) {
-            url = widget.getUrl();
+            url = widget.getFullUrl();
         }
 
         const params = new URLSearchParams({
