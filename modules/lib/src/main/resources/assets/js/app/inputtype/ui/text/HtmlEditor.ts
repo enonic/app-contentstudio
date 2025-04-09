@@ -930,7 +930,7 @@ class HtmlEditorConfigBuilder {
         ['Styles', 'Bold', 'Italic', 'Underline'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
-        ['FindAndReplace', 'SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
+        ['Language', 'FindAndReplace', 'SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
         ['Table'], ['PasteModeSwitcher']
     ];
 
@@ -1025,7 +1025,7 @@ class HtmlEditorConfigBuilder {
             ],
             removePlugins: this.getPluginsToRemove(),
             removeButtons: this.disabledTools?.join(),
-            extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog,findAndReplace',
+            extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog,findAndReplace,language',
             extraAllowedContent: this.getExtraAllowedContent(),
             stylesSet: `custom-${this.editorParams.getEditorContainerId()}`,
             image2_disableResizer: true,
