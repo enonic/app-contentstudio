@@ -169,6 +169,7 @@ export class LiveFormPanel
     private hideLoadMaskHandler: () => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
     private contentPermissionsUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
+    private reloadNeededHandler: () => void;
 
     constructor(config: LiveFormPanelConfig) {
         super('live-form-panel widget-preview-panel');
@@ -179,6 +180,8 @@ export class LiveFormPanel
         this.content = config.liveEditModel.getContent();
 
         this.widgetRenderingHandler = new WizardWidgetRenderingHandler(this, this.content, this.contentType);
+
+        this.reloadNeededHandler = () => this.widgetRenderingHandler.refreshPlaceholder();
 
         PageNavigationMediator.get().addPageNavigationHandler(this);
 
@@ -578,6 +581,12 @@ export class LiveFormPanel
     }
 
     setModel(liveEditModel: LiveEditModel) {
+
+        if (this.liveEditModel) {
+            this.liveEditModel?.getSiteModel()?.unApplicationAdded(this.reloadNeededHandler);
+            this.liveEditModel?.getSiteModel()?.unApplicationRemoved(this.reloadNeededHandler);
+        }
+
         this.liveEditModel = liveEditModel;
         this.content = liveEditModel.getContent();
         this.defaultModels = liveEditModel.getDefaultModels();
@@ -597,10 +606,8 @@ export class LiveFormPanel
 
         this.handleContentUpdatedEvent();
 
-        const reloadNeededHandler = () => this.widgetRenderingHandler.refreshPlaceholder();
-
-        this.liveEditModel?.getSiteModel()?.onApplicationAdded(reloadNeededHandler);
-        this.liveEditModel?.getSiteModel()?.onApplicationRemoved(reloadNeededHandler);
+        this.liveEditModel?.getSiteModel()?.onApplicationAdded(this.reloadNeededHandler);
+        this.liveEditModel?.getSiteModel()?.onApplicationRemoved(this.reloadNeededHandler);
     }
 
     private handleContentUpdatedEvent() {

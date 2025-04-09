@@ -94,7 +94,6 @@ import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
 import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {Router} from '../Router';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
-import {ApplicationAddedEvent} from '../site/ApplicationAddedEvent';
 import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
 import {SiteModel} from '../site/SiteModel';
 import {UrlAction} from '../UrlAction';
@@ -309,7 +308,7 @@ export class ContentWizardPanel
                 this.livePanel.loadPage(clearInspection)
                     .then((isRenderable) => {
                         if (wasRenderable !== isRenderable) {
-                            return this.refreshLivePanel(this.getPersistedItem().clone());
+                            return this.refreshLivePanel(this.getCurrentItem());
                         }
                     })
                     .then(() => {
@@ -339,17 +338,15 @@ export class ContentWizardPanel
         const debouncedSaveOnAppChange = AppHelper.debounce(saveOnAppChange, 300);
 
         this.applicationAddedListener = (applicationConfig: ApplicationConfig) => {
-            this.addXDataStepForms(applicationConfig.getApplicationKey());
-            applicationKeys.push(applicationConfig.getApplicationKey());
-        };
 
-        ApplicationAddedEvent.on((event: ApplicationAddedEvent) => {
-            if (!applicationKeys.some((key: ApplicationKey) => key.equals(event.getApplicationKey()))) {
-                applicationKeys.push(event.getApplicationKey());
+            const applicationKey = applicationConfig.getApplicationKey();
+            if (!applicationKeys.some((key: ApplicationKey) => key.equals(applicationKey))) {
+                this.addXDataStepForms(applicationKey);
+                applicationKeys.push(applicationKey);
             }
 
             debouncedSaveOnAppChange();
-        });
+        };
 
         this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {
             this.removeXDataStepForms(event.getApplicationKey()).then((removedXDataCount: number) => {
@@ -360,7 +357,7 @@ export class ContentWizardPanel
                     return;
                 }
 
-                saveOnAppChange(removedXDataCount > 0);
+                debouncedSaveOnAppChange(removedXDataCount > 0);
             }).catch(DefaultErrorHandler.handle);
         };
 
@@ -567,7 +564,7 @@ export class ContentWizardPanel
                 // persisted item is always present now
                 // for existing content it was loaded
                 // for new content it was saved in super.doLoadData()
-                const existing: Content = this.getPersistedItem();
+                const existing: Content = this.getCurrentItem();
 
                 this.wizardHeader.setDisplayName(existing.getDisplayName());
                 this.wizardHeader.setName(existing.getName().toString());
@@ -871,7 +868,7 @@ export class ContentWizardPanel
         }
 
         this.setPersistedItem(newPersistedContent);
-        const contentClone: Content = newPersistedContent.clone();
+        const contentClone: Content = this.getCurrentItem();
 
         this.initFormContext(contentClone);
         this.updateLiveEditModel(contentClone);
@@ -964,35 +961,38 @@ export class ContentWizardPanel
         this.wizardHeader.toggleEnabled(false);
         const previousPersistedItem = this.getPersistedItem();
 
-        return super.saveChanges().then((content: Content) => {
+        return super.saveChanges().then(() => {
+            const currentContent = this.getCurrentItem();
 
             if (ContentWizardPanel.debug) {
-                console.debug('ContentWizardPanel.saveChanges for: ' + content.getPath().toString());
+                console.debug('ContentWizardPanel.saveChanges for: ' + currentContent.getPath().toString());
             }
 
             return Q.Promise<Content>((resolve, reject) => {
 
-                if (!content.equals(previousPersistedItem)) {
+                if (!currentContent.equals(previousPersistedItem)) {
 
                     // needed before loadPage in case content was moved
                     // because content path is used to load the page
-                    this.updateLiveEditModel(content);
+                    this.updateLiveEditModel(currentContent);
 
                     if (this.reloadPageEditorOnSave && this.livePanel) {
 
                         this.livePanel.loadPage(false).then(() => {
-                            this.refreshLivePanel(content.clone()).then(() => {
-                                resolve(content.clone());
+                            // set the new property set to the form so that we receive change events
+                            this.updateWizardStepForms(currentContent.getContentData());
+                            this.refreshLivePanel(currentContent).then(() => {
+                                resolve(currentContent);
                             });
                         });
 
                     } else {
-                        resolve(content.clone());
+                        resolve(currentContent);
                     }
 
 
                 } else {
-                    resolve(content.clone());
+                    resolve(currentContent);
                 }
 
             });
@@ -1043,11 +1043,12 @@ export class ContentWizardPanel
         }
     }
 
+
     doLayout(persistedContent: Content): Q.Promise<void> {
 
         return super.doLayout(persistedContent).then(() => {
 
-            const persistedContentCopy = persistedContent.clone();
+            const currentContent = this.getCurrentItem();
 
             if (ContentWizardPanel.debug) {
                 console.debug('ContentWizardPanel.doLayout at ' + new Date().toISOString(), persistedContent);
@@ -1064,7 +1065,7 @@ export class ContentWizardPanel
                 if (viewedContent.equals(persistedContent) || this.skipValidation) {
 
                     // force update wizard with server bounced values to erase incorrect ones
-                    this.updateWizard(persistedContentCopy, false);
+                    this.updateWizard(currentContent, false);
 
                     this.livePanel?.loadPage().catch(DefaultErrorHandler.handle);
 
@@ -1099,22 +1100,22 @@ export class ContentWizardPanel
                     console.warn(' persistedContent: ', persistedContent);
 
                     if (persistedContent.getType().isDescendantOfMedia()) {
-                        this.updateXDataStepForms(persistedContentCopy);
+                        this.updateXDataStepForms(currentContent);
                     } else {
                         new ConfirmationDialog()
                             .setQuestion(i18n('dialog.confirm.contentDiffers'))
-                            .setYesCallback(() => void this.doLayoutPersistedItem(persistedContentCopy))
+                            .setYesCallback(() => void this.doLayoutPersistedItem(currentContent))
                             .setNoCallback(() => { /* empty */
                             })
                             .show();
                     }
                 }
 
-                return this.updatePersistedContent(persistedContentCopy);
+                return this.updatePersistedContent(currentContent);
 
             } else {
 
-                return this.doLayoutPersistedItem(persistedContentCopy).then(() => {
+                return this.doLayoutPersistedItem(currentContent).then(() => {
                     return this.updatePersistedContent(persistedContent);
                 });
             }
@@ -1990,7 +1991,7 @@ export class ContentWizardPanel
     }
 
     private addXDataSteps(xDatas: XData[]): Q.Promise<void> {
-        const content: Content = this.getPersistedItem().clone();
+        const content: Content = this.getCurrentItem();
         const formViewLayoutPromises: Q.Promise<void>[] = [];
 
         const formsAdded: XDataWizardStepForm[] = this.createXDataWizardStepForms(xDatas);
@@ -2330,7 +2331,7 @@ export class ContentWizardPanel
     }
 
     private initFormContext(persistedItem: Content) {
-        const content: Content = persistedItem.clone();
+        const content: Content = this.getCurrentItem();
 
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.initFormContext');
@@ -2513,6 +2514,10 @@ export class ContentWizardPanel
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
         AI.get().setContent(newPersistedItem);
+    }
+
+    protected convertToCurrentItem(content: Content): Content {
+        return content ? content.clone() : null;
     }
 
     getContentAfterLayout(): Content {
