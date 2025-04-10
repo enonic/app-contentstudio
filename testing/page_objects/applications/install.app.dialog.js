@@ -35,7 +35,7 @@ class InstallAppDialog extends Page {
 
     async waitForAppInstalled(appName) {
         try {
-            return await this.waitForElementDisplayed(XPATH.installedStatusByName(appName), appConst.longTimeout)
+            return await this.waitForElementDisplayed(XPATH.installedStatusByName(appName), appConst.saveProjectTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_inst_status');
             throw new Error(`Install App Dialog - App status for : ${appName} should be 'Installed', screenshot ${screenshot} ` + err);

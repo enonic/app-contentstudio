@@ -152,7 +152,6 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await studioUtils.saveScreenshot('components_view_site_reverted');
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             await pageComponentViewDialog.waitForNotDisplayed();
-            await contentWizard.clickOnPageEditorToggler();
             // 6. Verify the note in  Live Form panel
             let message = await contentWizard.getNoPreviewMessage();
             // 'Please add an application to your site to enable rendering of this item'
