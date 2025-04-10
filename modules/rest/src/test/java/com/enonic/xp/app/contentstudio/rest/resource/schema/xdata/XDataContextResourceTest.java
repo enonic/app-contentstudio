@@ -2,10 +2,14 @@ package com.enonic.xp.app.contentstudio.rest.resource.schema.xdata;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.Locale;
 
+import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
-import org.mockito.Mockito;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
@@ -42,7 +46,9 @@ import com.enonic.xp.site.SiteService;
 import com.enonic.xp.site.XDataMapping;
 import com.enonic.xp.site.XDataMappings;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class XDataContextResourceTest
@@ -65,13 +71,13 @@ public class XDataContextResourceTest
     @Override
     protected XDataContextResource getResourceInstance()
     {
-        mixinService = Mockito.mock( MixinService.class );
-        xDataService = Mockito.mock( XDataService.class );
-        localeService = Mockito.mock( LocaleService.class );
-        contentService = Mockito.mock( ContentService.class );
-        siteService = Mockito.mock( SiteService.class );
-        contentTypeService = Mockito.mock( ContentTypeService.class );
-        projectService = Mockito.mock( ProjectService.class );
+        mixinService = mock( MixinService.class );
+        xDataService = mock( XDataService.class );
+        localeService = mock( LocaleService.class );
+        contentService = mock( ContentService.class );
+        siteService = mock( SiteService.class );
+        contentTypeService = mock( ContentTypeService.class );
+        projectService = mock( ProjectService.class );
 
         final XDataContextResource resource = new XDataContextResource();
         resource.setMixinService( mixinService );
@@ -82,12 +88,19 @@ public class XDataContextResourceTest
         resource.setContentTypeService( contentTypeService );
         resource.setProjectService( projectService );
 
-        final AdminRestConfig config = Mockito.mock( AdminRestConfig.class );
+        final AdminRestConfig config = mock( AdminRestConfig.class );
         when( config.contentTypePatternMode() ).thenReturn( "MATCH" );
 
         resource.activate( config );
 
-        Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+
+        final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
+        when( mockRequest.getServerName() ).thenReturn( "localhost" );
+        when( mockRequest.getScheme() ).thenReturn( "http" );
+        when( mockRequest.getServerPort() ).thenReturn( 80 );
+        when( mockRequest.getLocales() ).thenReturn( Collections.enumeration( Collections.singleton( Locale.US ) ) );
+        ResteasyContext.getContextDataMap().put( HttpServletRequest.class, mockRequest );
 
         return resource;
     }
@@ -107,15 +120,15 @@ public class XDataContextResourceTest
                 XDataMapping.create().xDataName( xdata1.getName() ).allowContentTypes( "app:testContentType" ).optional( false ).build() ) )
             .build();
 
-        Mockito.when( siteService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( siteDescriptor );
+        when( siteService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( siteDescriptor );
 
-        Mockito.when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
-        Mockito.when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
+        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
+        when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
 
-        Mockito.when( mixinService.getByNames( Mockito.any() ) ).thenReturn( Mixins.empty() );
-        Mockito.when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
-        Mockito.when( xDataService.getByNames( XDataNames.empty() ) ).thenReturn( XDatas.empty() );
-        Mockito.when( xDataService.getByName( xdata1.getName() ) ).thenReturn( xdata1 );
+        when( mixinService.getByNames( any() ) ).thenReturn( Mixins.empty() );
+        when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
+        when( xDataService.getByNames( XDataNames.empty() ) ).thenReturn( XDatas.empty() );
+        when( xDataService.getByName( xdata1.getName() ) ).thenReturn( xdata1 );
 
         String result =
             request().path( "cms/default/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
@@ -138,17 +151,17 @@ public class XDataContextResourceTest
                 XDataMapping.create().xDataName( xdata2.getName() ).allowContentTypes( "app:testContentType|^app:*" ).build() ) )
             .build();
 
-        Mockito.when( siteService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( siteDescriptor );
+        when( siteService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( siteDescriptor );
 
-        Mockito.when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
-        Mockito.when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
+        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
+        when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
 
-        Mockito.when( mixinService.getByNames( Mockito.any() ) ).thenReturn( Mixins.empty() );
-        Mockito.when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
-        Mockito.when( xDataService.getByNames( XDataNames.from( xdata2.getName() ) ) ).thenReturn( XDatas.from( xdata2 ) );
-        Mockito.when( xDataService.getByName( xdata2.getName() ) ).thenReturn( xdata2 );
+        when( mixinService.getByNames( any() ) ).thenReturn( Mixins.empty() );
+        when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
+        when( xDataService.getByNames( XDataNames.from( xdata2.getName() ) ) ).thenReturn( XDatas.from( xdata2 ) );
+        when( xDataService.getByName( xdata2.getName() ) ).thenReturn( xdata2 );
 
-        Mockito.when( xDataService.getByApplication( Mockito.any() ) ).thenReturn( XDatas.from( xdata2 ) );
+        when( xDataService.getByApplication( any() ) ).thenReturn( XDatas.from( xdata2 ) );
 
         String result =
             request().path( "cms/default/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
@@ -165,13 +178,13 @@ public class XDataContextResourceTest
         final Content content = mockContent( contentType.getName() );
         final Site site = createSite( contentType.getName().getApplicationKey() );
 
-        Mockito.when( siteService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( null );
+        when( siteService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( null );
 
-        Mockito.when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
-        Mockito.when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
+        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
+        when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
 
-        Mockito.when( mixinService.getByNames( Mockito.any() ) ).thenReturn( Mixins.empty() );
-        Mockito.when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
+        when( mixinService.getByNames( any() ) ).thenReturn( Mixins.empty() );
+        when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
 
         String result =
             request().path( "cms/default/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
@@ -200,18 +213,18 @@ public class XDataContextResourceTest
             .addSiteConfig( SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build() )
             .build();
 
-        Mockito.when( projectService.get( isA( ProjectName.class ) ) ).thenReturn( project );
+        when( projectService.get( isA( ProjectName.class ) ) ).thenReturn( project );
 
-        Mockito.when( siteService.getDescriptor( ApplicationKey.from( "myapplication" ) ) ).thenReturn( siteDescriptor );
+        when( siteService.getDescriptor( ApplicationKey.from( "myapplication" ) ) ).thenReturn( siteDescriptor );
 
-        Mockito.when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
+        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
 
-        Mockito.when( mixinService.getByNames( Mockito.any() ) ).thenReturn( Mixins.empty() );
-        Mockito.when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
-        Mockito.when( xDataService.getByNames( XDataNames.from( xdata2.getName() ) ) ).thenReturn( XDatas.from( xdata2 ) );
-        Mockito.when( xDataService.getByName( xdata2.getName() ) ).thenReturn( xdata2 );
+        when( mixinService.getByNames( any() ) ).thenReturn( Mixins.empty() );
+        when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
+        when( xDataService.getByNames( XDataNames.from( xdata2.getName() ) ) ).thenReturn( XDatas.from( xdata2 ) );
+        when( xDataService.getByName( xdata2.getName() ) ).thenReturn( xdata2 );
 
-        Mockito.when( xDataService.getByApplication( Mockito.any() ) ).thenReturn( XDatas.from( xdata2 ) );
+        when( xDataService.getByApplication( any() ) ).thenReturn( XDatas.from( xdata2 ) );
 
         String result = ContextBuilder.create()
             .repositoryId( project.getName().getRepoId() )
@@ -258,9 +271,9 @@ public class XDataContextResourceTest
 
     private Content mockContent( final ContentTypeName contentTypeName )
     {
-        final Content content = Mockito.mock( Content.class );
-        Mockito.when( content.getType() ).thenReturn(contentTypeName );
-        Mockito.when( content.getId() ).thenReturn( ContentId.from( "contentId" ) );
+        final Content content = mock( Content.class );
+        when( content.getType() ).thenReturn(contentTypeName );
+        when( content.getId() ).thenReturn( ContentId.from( "contentId" ) );
         return content;
     }
 
@@ -271,8 +284,8 @@ public class XDataContextResourceTest
             .superType( ContentTypeName.folder() )
             .xData( xDataNames )
             .build();
-        Mockito.when( contentTypeService.getByName( GetContentTypeParams.from( contentType.getName() ) ) ).thenReturn( contentType );
-        Mockito.when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( contentType ) );
+        when( contentTypeService.getByName( GetContentTypeParams.from( contentType.getName() ) ) ).thenReturn( contentType );
+        when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( contentType ) );
 
         return contentType;
     }

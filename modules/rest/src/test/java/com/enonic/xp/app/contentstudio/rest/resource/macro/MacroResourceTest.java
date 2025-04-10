@@ -1,14 +1,14 @@
 package com.enonic.xp.app.contentstudio.rest.resource.macro;
 
 import java.util.Collections;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
+import java.util.Locale;
 
 import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
-import org.mockito.Mockito;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.MediaType;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
@@ -37,6 +37,7 @@ import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,12 +62,12 @@ public class MacroResourceTest
     @Override
     protected Object getResourceInstance()
     {
-        this.macroDescriptorService = Mockito.mock( MacroDescriptorService.class );
-        this.macroProcessorFactory = Mockito.mock( MacroProcessorFactory.class );
-        this.portalUrlService = Mockito.mock( PortalUrlService.class );
-        this.contentService = Mockito.mock( ContentService.class );
-        this.localeService = Mockito.mock( LocaleService.class );
-        this.mixinService = Mockito.mock( MixinService.class );
+        this.macroDescriptorService = mock( MacroDescriptorService.class );
+        this.macroProcessorFactory = mock( MacroProcessorFactory.class );
+        this.portalUrlService = mock( PortalUrlService.class );
+        this.contentService = mock( ContentService.class );
+        this.localeService = mock( LocaleService.class );
+        this.mixinService = mock( MixinService.class );
 
         MacroResource macroResource = new MacroResource();
         macroResource.setMacroDescriptorService( this.macroDescriptorService );
@@ -75,6 +76,13 @@ public class MacroResourceTest
         macroResource.setContentService( this.contentService );
         macroResource.setLocaleService( this.localeService );
         macroResource.setMixinService( this.mixinService );
+
+        final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
+        when( mockRequest.getServerName() ).thenReturn( "localhost" );
+        when( mockRequest.getScheme() ).thenReturn( "http" );
+        when( mockRequest.getServerPort() ).thenReturn( 80 );
+        when( mockRequest.getLocales() ).thenReturn( Collections.enumeration( Collections.singleton( Locale.US ) ) );
+        ResteasyContext.getContextDataMap().put( HttpServletRequest.class, mockRequest );
 
         return macroResource;
     }
@@ -87,14 +95,14 @@ public class MacroResourceTest
         final MacroDescriptor macroDescriptor2 = newMacroDescriptor( "my-app2:macro2", "B macro" );
         final MacroDescriptor macroDescriptor3 = newMacroDescriptor( "my-app3:macro3", "C macro" );
 
-        Mockito.when( this.macroDescriptorService.getByApplication( ApplicationKey.SYSTEM ) )
+        when( this.macroDescriptorService.getByApplication( ApplicationKey.SYSTEM ) )
             .thenReturn( MacroDescriptors.from( macroDescriptor1 ) );
-        Mockito.when( this.macroDescriptorService.getByApplication( ApplicationKey.from( "appKey1" ) ) )
+        when( this.macroDescriptorService.getByApplication( ApplicationKey.from( "appKey1" ) ) )
             .thenReturn( MacroDescriptors.from( macroDescriptor2 ) );
-        Mockito.when( this.macroDescriptorService.getByApplication( ApplicationKey.from( "appKey2" ) ) )
+        when( this.macroDescriptorService.getByApplication( ApplicationKey.from( "appKey2" ) ) )
             .thenReturn( MacroDescriptors.from( macroDescriptor3 ) );
 
-        Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String response = request().
             path( DEFAULT_URI_PREFIX + "macro/getByApps" ).
@@ -123,23 +131,23 @@ public class MacroResourceTest
         final MacroDescriptor macroDescriptor2 = newMacroDescriptor( "my-app2:macro2", "B macro", "key.b.display-name", "key.description" );
         final MacroDescriptor macroDescriptor3 = newMacroDescriptor( "my-app3:macro3", "C macro", "key.c.display-name" );
 
-        Mockito.when( this.macroDescriptorService.getByApplication( ApplicationKey.SYSTEM ) )
+        when( this.macroDescriptorService.getByApplication( ApplicationKey.SYSTEM ) )
             .thenReturn( MacroDescriptors.from( macroDescriptor1 ) );
-        Mockito.when( this.macroDescriptorService.getByApplication( ApplicationKey.from( "appKey1" ) ) )
+        when( this.macroDescriptorService.getByApplication( ApplicationKey.from( "appKey1" ) ) )
             .thenReturn( MacroDescriptors.from( macroDescriptor2 ) );
-        Mockito.when( this.macroDescriptorService.getByApplication( ApplicationKey.from( "appKey2" ) ) )
+        when( this.macroDescriptorService.getByApplication( ApplicationKey.from( "appKey2" ) ) )
             .thenReturn( MacroDescriptors.from( macroDescriptor3 ) );
 
-        final MessageBundle messageBundle = Mockito.mock( MessageBundle.class );
-        Mockito.when( messageBundle.localize( "key.label" ) ).thenReturn( "translated.label" );
-        Mockito.when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
-        Mockito.when( messageBundle.localize( "key.description" ) ).thenReturn( "translated.description" );
-        Mockito.when( messageBundle.localize( "key.a.display-name" ) ).thenReturn( "translated.A.displayName" );
-        Mockito.when( messageBundle.localize( "key.b.display-name" ) ).thenReturn( "translated.B.displayName" );
-        Mockito.when( messageBundle.localize( "key.c.display-name" ) ).thenReturn( "translated.C.displayName" );
+        final MessageBundle messageBundle = mock( MessageBundle.class );
+        when( messageBundle.localize( "key.label" ) ).thenReturn( "translated.label" );
+        when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
+        when( messageBundle.localize( "key.description" ) ).thenReturn( "translated.description" );
+        when( messageBundle.localize( "key.a.display-name" ) ).thenReturn( "translated.A.displayName" );
+        when( messageBundle.localize( "key.b.display-name" ) ).thenReturn( "translated.B.displayName" );
+        when( messageBundle.localize( "key.c.display-name" ) ).thenReturn( "translated.C.displayName" );
 
-        Mockito.when( this.localeService.getBundle( Mockito.any(), Mockito.any() ) ).thenReturn( messageBundle );
-        Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( this.localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String response = request().
             path( DEFAULT_URI_PREFIX + "macro/getByApps" ).
@@ -169,13 +177,13 @@ public class MacroResourceTest
                 build();
         };
 
-        Mockito.when( this.macroDescriptorService.getByKey( MacroKey.from( "test:uppercase" ) ) ).thenReturn( macroDescriptor );
-        Mockito.when( this.macroProcessorFactory.fromScript( any() ) ).thenReturn( macroProcessor );
-        Mockito.when( this.portalUrlService.pageUrl( any() ) ).thenReturn( "/site/preview/draft/mysite/page" );
+        when( this.macroDescriptorService.getByKey( MacroKey.from( "test:uppercase" ) ) ).thenReturn( macroDescriptor );
+        when( this.macroProcessorFactory.fromScript( any() ) ).thenReturn( macroProcessor );
+        when( this.portalUrlService.pageUrl( any() ) ).thenReturn( "/site/preview/draft/mysite/page" );
 
         final Site site = newSite();
-        Mockito.when( this.contentService.getByPath( any() ) ).thenReturn( site );
-        Mockito.when( this.contentService.getNearestSite( any() ) ).thenReturn( site );
+        when( this.contentService.getByPath( any() ) ).thenReturn( site );
+        when( this.contentService.getNearestSite( any() ) ).thenReturn( site );
 
         final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
         when( mockRequest.getServerName() ).thenReturn( "localhost" );
@@ -204,7 +212,7 @@ public class MacroResourceTest
             form( form ).
             build();
 
-        Mockito.when( this.macroDescriptorService.getByKey( MacroKey.from( "test:uppercase" ) ) ).thenReturn( macroDescriptor );
+        when( this.macroDescriptorService.getByKey( MacroKey.from( "test:uppercase" ) ) ).thenReturn( macroDescriptor );
 
         String response = request().path( DEFAULT_URI_PREFIX + "macro/previewString" ).
             entity( readFromFile( "preview_string_macro_params.json" ), MediaType.APPLICATION_JSON_TYPE ).

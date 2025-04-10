@@ -5,12 +5,11 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Locale;
 
-import javax.ws.rs.core.CacheControl;
-
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import com.google.common.io.ByteSource;
+
+import jakarta.ws.rs.core.CacheControl;
 
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.attachment.Attachment;
@@ -40,8 +39,8 @@ import static com.enonic.xp.media.MediaInfo.IMAGE_INFO_IMAGE_WIDTH;
 import static com.enonic.xp.media.MediaInfo.IMAGE_INFO_PIXEL_SIZE;
 import static com.enonic.xp.media.MediaInfo.MEDIA_INFO_BYTE_SIZE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 public class ContentIconResourceTest
     extends AdminResourceTestSupport
@@ -55,10 +54,10 @@ public class ContentIconResourceTest
     {
         ContentIconResource resource = new ContentIconResource();
 
-        contentService = Mockito.mock( ContentService.class );
-        imageService = Mockito.mock( ImageService.class );
+        contentService = mock( ContentService.class );
+        imageService = mock( ImageService.class );
 
-        MediaInfoService mediaInfoService = Mockito.mock( MediaInfoService.class );
+        MediaInfoService mediaInfoService = mock( MediaInfoService.class );
 
         resource.setContentService( contentService );
         resource.setImageService( imageService );
@@ -75,10 +74,10 @@ public class ContentIconResourceTest
 
         Content content = createContent( "content-id", thumbnail, "my-content-type" );
 
-        Mockito.when( contentService.getById( content.getId() ) ).thenReturn( content );
+        when( contentService.getById( content.getId() ) ).thenReturn( content );
 
         ByteSource byteSource = ByteSource.wrap( new byte[]{1, 2, 3} );
-        Mockito.when( imageService.readImage( Mockito.isA( ReadImageParams.class ) ) ).thenReturn( byteSource );
+        when( imageService.readImage( isA( ReadImageParams.class ) ) ).thenReturn( byteSource );
 
         MockRestResponse result = request().path( "content/icon/content-id" ).
             queryParam( "contentId", "content-id" ).
@@ -102,10 +101,10 @@ public class ContentIconResourceTest
     {
         Content content = createContent( "content-id", ContentTypeName.imageMedia().toString() );
 
-        Mockito.when( contentService.getById( content.getId() ) ).thenReturn( content );
+        when( contentService.getById( content.getId() ) ).thenReturn( content );
 
         ByteSource byteSource = ByteSource.wrap( new byte[]{1, 2, 3} );
-        Mockito.when( imageService.readImage( Mockito.isA( ReadImageParams.class ) ) ).thenReturn( byteSource );
+        when( imageService.readImage( isA( ReadImageParams.class ) ) ).thenReturn( byteSource );
 
         MockRestResponse result = request().path( "content/icon/content-id" ).
             queryParam( "contentId", "content-id" ).
@@ -121,10 +120,10 @@ public class ContentIconResourceTest
     {
         Content content = createContent( "content-id", null, ContentTypeName.vectorMedia(), "image/svg+xml" );
 
-        Mockito.when( contentService.getById( content.getId() ) ).thenReturn( content );
+        when( contentService.getById( content.getId() ) ).thenReturn( content );
 
         ByteSource byteSource = ByteSource.wrap( new byte[]{1, 2, 3} );
-        Mockito.when( contentService.getBinary( content.getId(), content.getAttachments().get( 0 ).getBinaryReference() ) )
+        when( contentService.getBinary( content.getId(), content.getAttachments().get( 0 ).getBinaryReference() ) )
             .thenReturn( byteSource );
 
         MockRestResponse result = request().path( "content/icon/content-id" ).
@@ -141,7 +140,7 @@ public class ContentIconResourceTest
     {
         Content content = createContent( "content-id" );
 
-        Mockito.when( contentService.getById( content.getId() ) ).thenReturn( content );
+        when( contentService.getById( content.getId() ) ).thenReturn( content );
 
         MockRestResponse result = request().path( "content/icon/content-id" ).
             queryParam( "contentId", "content-id" ).
@@ -170,16 +169,16 @@ public class ContentIconResourceTest
 
         Content content = createContent( "content-id", thumbnail, "my-content-type" );
 
-        Mockito.when( contentService.getById( content.getId() ) ).thenReturn( content );
+        when( contentService.getById( content.getId() ) ).thenReturn( content );
 
-        Mockito.when( imageService.readImage( Mockito.isA( ReadImageParams.class ) ) ).thenThrow( new IOException( "io error message" ) );
+        when( imageService.readImage( isA( ReadImageParams.class ) ) ).thenThrow( new IOException( "io error message" ) );
 
-        final IOException ex = assertThrows( IOException.class, () -> {
-            request().path( "content/icon/content-id" ).
-                queryParam( "contentId", "content-id" ).
-                queryParam( "ts", "2" ).get();
-        } );
-        assertEquals( "io error message", ex.getMessage() );
+        final MockRestResponse get = request().path( "content/icon/content-id" ).
+            queryParam( "contentId", "content-id" ).
+            queryParam( "ts", "2" ).get();
+
+        assertEquals( 500, get.getStatus() );
+        assertEquals( "java.io.IOException: io error message", get.getAsString() );
     }
 
     @Test
@@ -189,7 +188,7 @@ public class ContentIconResourceTest
         Content content = createContent( "content-id", ContentTypeName.imageMedia().toString() );
         content = Content.create( content ).attachments( Attachments.create().build() ).build();
 
-        Mockito.when( contentService.getById( content.getId() ) ).thenReturn( content );
+        when( contentService.getById( content.getId() ) ).thenReturn( content );
 
         MockRestResponse result = request().path( "content/icon/content-id" ).
             queryParam( "contentId", "content-id" ).

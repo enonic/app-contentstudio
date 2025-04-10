@@ -33,7 +33,7 @@ public class ValidationErrorJson
         this.errorCode = errorCode.toString();
 
         final String localizeMessage =
-            localeMessageResolver.localizeMessage( errorCode.getApplicationKey(), i18nKey, validationError.getArgs().toArray() );
+            localeMessageResolver.localizeMessage( i18nKey, null, validationError.getArgs().toArray() );
 
         this.message = Optional.ofNullable( localizeMessage )
             .or( () -> Optional.ofNullable( validationError.getMessage() ) )

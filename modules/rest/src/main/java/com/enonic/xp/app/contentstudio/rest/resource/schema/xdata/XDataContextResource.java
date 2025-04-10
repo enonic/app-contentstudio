@@ -8,12 +8,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -91,7 +93,7 @@ public final class XDataContextResource
 
     @GET
     @Path("getContentXData")
-    public XDataListJson getContentXData( @QueryParam("contentId") final String id )
+    public XDataListJson getContentXData( @QueryParam("contentId") final String id, @Context HttpServletRequest request )
     {
         final ContentId contentId = ContentId.from( id );
         final Content content = this.contentService.getById( contentId );
@@ -106,19 +108,20 @@ public final class XDataContextResource
 
         getProjectXData( content ).forEach( resultXData::putIfAbsent );
 
-        result.addXDatas( createXDataListJson( resultXData ) );
+        result.addXDatas( createXDataListJson( resultXData, request ) );
 
         return result;
     }
 
-    private List<XDataJson> createXDataListJson( final Map<XData, Boolean> xDatas )
+    private List<XDataJson> createXDataListJson( final Map<XData, Boolean> xDatas, @Context HttpServletRequest request )
     {
         return xDatas.keySet()
             .stream()
             .map( xData -> XDataJson.create()
                 .setXData( xData )
                 .setIconUrlResolver( this.mixinIconUrlResolver )
-                .setLocaleMessageResolver( new LocaleMessageResolver( localeService, xData.getName().getApplicationKey() ) )
+                .setLocaleMessageResolver(
+                    new LocaleMessageResolver( localeService, xData.getName().getApplicationKey(), request.getLocales() ) )
                 .setInlineMixinResolver( new InlineMixinResolver( mixinService ) )
                 .setOptional( xDatas.get( xData ) )
                 .build() )

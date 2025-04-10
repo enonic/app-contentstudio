@@ -1,11 +1,12 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.jr.ob.JSON;
 
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPath;
@@ -75,12 +76,19 @@ public class RunnableTaskResult
 
     public String toJson()
     {
-        final ObjectNode map = JsonNodeFactory.instance.objectNode();
-
-        map.put( "state", getState().toString() );
-        map.put( "message", getMessage() );
-
-        return map.toString();
+        try
+        {
+            return JSON.std.composeString()
+                .startObject()
+                .put( "state", getState().toString() )
+                .put( "message", getMessage() )
+                .end()
+                .finish();
+        }
+        catch ( IOException e )
+        {
+            throw new UncheckedIOException( "Failed to make a JSON", e );
+        }
     }
 
     public static Builder create()
