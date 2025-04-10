@@ -1,20 +1,24 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.page;
 
+import java.util.Enumeration;
+import java.util.Locale;
 import java.util.stream.Collectors;
-
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.ImmutableList;
+
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.json.content.page.PageDescriptorJson;
@@ -46,12 +50,13 @@ public final class PageDescriptorResource
     private MixinService mixinService;
 
     @GET
-    public PageDescriptorJson getByKey( @QueryParam("key") final String pageDescriptorKey )
+    public PageDescriptorJson getByKey( @QueryParam("key") final String pageDescriptorKey, @Context HttpServletRequest request )
     {
         final DescriptorKey key = DescriptorKey.from( pageDescriptorKey );
         final PageDescriptor descriptor = pageDescriptorService.getByKey( key );
 
-        final LocaleMessageResolver localeMessageResolver = new LocaleMessageResolver( this.localeService, key.getApplicationKey() );
+        final LocaleMessageResolver localeMessageResolver =
+            new LocaleMessageResolver( this.localeService, key.getApplicationKey(), request.getLocales() );
         final InlineMixinResolver inlineMixinResolver = new InlineMixinResolver( this.mixinService );
         final PageDescriptorJson json = new PageDescriptorJson( descriptor, localeMessageResolver, inlineMixinResolver );
         return json;
@@ -59,12 +64,13 @@ public final class PageDescriptorResource
 
     @GET
     @Path("list/by_application")
-    public PageDescriptorListJson getByApplication( @QueryParam("applicationKey") final String applicationKey )
+    public PageDescriptorListJson getByApplication( @QueryParam("applicationKey") final String applicationKey,
+                                                    @Context HttpServletRequest request )
     {
         final PageDescriptors pageDescriptors = this.pageDescriptorService.getByApplication( ApplicationKey.from( applicationKey ) );
 
         final LocaleMessageResolver localeMessageResolver =
-            new LocaleMessageResolver( this.localeService, ApplicationKey.from( applicationKey ) );
+            new LocaleMessageResolver( this.localeService, ApplicationKey.from( applicationKey ), request.getLocales() );
         return new PageDescriptorListJson( PageDescriptors.from( pageDescriptors ), localeMessageResolver,
                                            new InlineMixinResolver( mixinService ) );
     }
@@ -72,19 +78,26 @@ public final class PageDescriptorResource
     @POST
     @Path("list/by_applications")
     @Consumes(MediaType.APPLICATION_JSON)
-    public PageDescriptorListJson getByApplications( final GetByApplicationsParams params )
+    public PageDescriptorListJson getByApplications( final GetByApplicationsParams params, @Context HttpServletRequest request )
     {
         ImmutableList.Builder<PageDescriptorJson> pageDescriptorsJsonBuilder = new ImmutableList.Builder();
 
         params.getApplicationKeys().forEach( applicationKey -> {
-            pageDescriptorsJsonBuilder.addAll( this.pageDescriptorService.getByApplication( applicationKey ).
-                stream().
-                map( pageDescriptor -> new PageDescriptorJson( pageDescriptor, new LocaleMessageResolver( localeService, applicationKey ),
-                                                               new InlineMixinResolver( mixinService ) ) ).
-                collect( Collectors.toList() ) );
+            pageDescriptorsJsonBuilder.addAll( this.pageDescriptorService.getByApplication( applicationKey )
+                                                   .stream()
+                                                   .map( p -> createPageDescriptorJson( p, applicationKey, request.getLocales() ) )
+                                                   .collect( Collectors.toList() ) );
         } );
 
         return new PageDescriptorListJson( pageDescriptorsJsonBuilder.build() );
+    }
+
+    private PageDescriptorJson createPageDescriptorJson( final PageDescriptor pageDescriptor, final ApplicationKey applicationKey,
+                                                         final Enumeration<Locale> locales )
+
+    {
+        return new PageDescriptorJson( pageDescriptor, new LocaleMessageResolver( localeService, applicationKey, locales ),
+                                       new InlineMixinResolver( mixinService ) );
     }
 
     @Reference

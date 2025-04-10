@@ -1,5 +1,8 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
+import java.util.Enumeration;
+import java.util.Locale;
+
 import com.enonic.xp.aggregation.Aggregation;
 import com.enonic.xp.aggregation.Aggregations;
 import com.enonic.xp.aggregation.BucketAggregation;
@@ -24,6 +27,8 @@ public class FindContentByQuertResultJsonFactory
 
     private final JsonObjectsFactory jsonObjectsFactory;
 
+    private final Enumeration<Locale> locales;
+
     private final String expand;
 
     private FindContentByQuertResultJsonFactory( final Builder builder )
@@ -34,6 +39,7 @@ public class FindContentByQuertResultJsonFactory
         aggregations = builder.aggregations;
         jsonObjectsFactory = builder.jsonObjectsFactory;
         expand = builder.expand;
+        locales = builder.locales;
     }
 
     private static void addContents( final Contents contents, final AbstractContentQueryResultJson.Builder builder )
@@ -81,7 +87,7 @@ public class FindContentByQuertResultJsonFactory
 
         if ( Expand.FULL.matches( expand ) )
         {
-            builder = ContentQueryResultJson.newBuilder( jsonObjectsFactory );
+            builder = ContentQueryResultJson.newBuilder( jsonObjectsFactory, locales );
         }
         else if ( Expand.SUMMARY.matches( expand ) )
         {
@@ -112,6 +118,8 @@ public class FindContentByQuertResultJsonFactory
         private JsonObjectsFactory jsonObjectsFactory;
 
         private String expand;
+
+        private Enumeration<Locale> locales;
 
         private Builder()
         {
@@ -150,6 +158,12 @@ public class FindContentByQuertResultJsonFactory
         public Builder expand( final String val )
         {
             expand = val;
+            return this;
+        }
+
+        public Builder locales( final Enumeration<Locale> val )
+        {
+            locales = val;
             return this;
         }
 

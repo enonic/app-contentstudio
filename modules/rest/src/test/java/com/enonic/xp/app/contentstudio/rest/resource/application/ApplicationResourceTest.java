@@ -2,14 +2,19 @@ package com.enonic.xp.app.contentstudio.rest.resource.application;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Locale;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
 import org.osgi.framework.Version;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import com.enonic.xp.app.Application;
 import com.enonic.xp.app.ApplicationDescriptor;
@@ -50,6 +55,17 @@ public class ApplicationResourceTest
     private LocaleService localeService;
 
     private MixinService mixinService;
+
+    @BeforeEach
+    public void setup()
+    {
+        final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
+        when( mockRequest.getServerName() ).thenReturn( "localhost" );
+        when( mockRequest.getScheme() ).thenReturn( "http" );
+        when( mockRequest.getServerPort() ).thenReturn( 80 );
+        when( mockRequest.getLocales() ).thenReturn( Collections.enumeration( Collections.singleton( Locale.US ) ) );
+        ResteasyContext.getContextDataMap().put( HttpServletRequest.class, mockRequest );
+    }
 
     @Test
     public void get_application_by_key()

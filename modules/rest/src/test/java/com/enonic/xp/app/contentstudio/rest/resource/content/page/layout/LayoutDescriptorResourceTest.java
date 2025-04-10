@@ -1,10 +1,14 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.page.layout;
 
-import javax.ws.rs.core.MediaType;
+import java.util.Collections;
+import java.util.Locale;
 
+import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
-import org.mockito.Mockito;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.MediaType;
 
 import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
@@ -22,6 +26,11 @@ import com.enonic.xp.region.RegionDescriptor;
 import com.enonic.xp.region.RegionDescriptors;
 import com.enonic.xp.schema.mixin.MixinService;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class LayoutDescriptorResourceTest
     extends AdminResourceTestSupport
 {
@@ -34,9 +43,9 @@ public class LayoutDescriptorResourceTest
     @Override
     protected Object getResourceInstance()
     {
-        layoutDescriptorService = Mockito.mock( LayoutDescriptorService.class );
-        localeService = Mockito.mock( LocaleService.class );
-        mixinService = Mockito.mock( MixinService.class );
+        layoutDescriptorService = mock( LayoutDescriptorService.class );
+        localeService = mock( LocaleService.class );
+        mixinService = mock( MixinService.class );
 
         final JsonObjectsFactory jsonObjectsFactory = new JsonObjectsFactory();
         jsonObjectsFactory.setLocaleService( localeService );
@@ -44,6 +53,13 @@ public class LayoutDescriptorResourceTest
         final LayoutDescriptorResource resource = new LayoutDescriptorResource();
         resource.setLayoutDescriptorService( layoutDescriptorService );
         resource.setJsonObjectsFactory( jsonObjectsFactory );
+
+        final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
+        when( mockRequest.getServerName() ).thenReturn( "localhost" );
+        when( mockRequest.getScheme() ).thenReturn( "http" );
+        when( mockRequest.getServerPort() ).thenReturn( 80 );
+        when( mockRequest.getLocales() ).thenReturn( Collections.enumeration( Collections.singleton( Locale.US ) ) );
+        ResteasyContext.getContextDataMap().put( HttpServletRequest.class, mockRequest );
 
         return resource;
     }
@@ -73,8 +89,8 @@ public class LayoutDescriptorResourceTest
             key( key ).
             build();
 
-        Mockito.when( layoutDescriptorService.getByKey( key ) ).thenReturn( layoutDescriptor );
-        Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( layoutDescriptorService.getByKey( key ) ).thenReturn( layoutDescriptor );
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String jsonString = request().path( "content/page/layout/descriptor" ).
             queryParam( "key", "application:fancy-layout" ).get().getAsString();
@@ -111,16 +127,16 @@ public class LayoutDescriptorResourceTest
             key( key ).
             build();
 
-        Mockito.when( layoutDescriptorService.getByKey( key ) ).thenReturn( layoutDescriptor );
+        when( layoutDescriptorService.getByKey( key ) ).thenReturn( layoutDescriptor );
 
-        final MessageBundle messageBundle = Mockito.mock( MessageBundle.class );
-        Mockito.when( messageBundle.localize( "key.label" ) ).thenReturn( "translated.label" );
-        Mockito.when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
-        Mockito.when( messageBundle.localize( "key.display-name" ) ).thenReturn( "translated.displayName" );
-        Mockito.when( messageBundle.localize( "key.description" ) ).thenReturn( "translated.description" );
+        final MessageBundle messageBundle = mock( MessageBundle.class );
+        when( messageBundle.localize( "key.label" ) ).thenReturn( "translated.label" );
+        when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
+        when( messageBundle.localize( "key.display-name" ) ).thenReturn( "translated.displayName" );
+        when( messageBundle.localize( "key.description" ) ).thenReturn( "translated.description" );
 
-        Mockito.when( this.localeService.getBundle( Mockito.any(), Mockito.any() ) ).thenReturn( messageBundle );
-        Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( this.localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String jsonString = request().path( "content/page/layout/descriptor" ).
             queryParam( "key", "application:fancy-layout" ).get().getAsString();
@@ -158,9 +174,9 @@ public class LayoutDescriptorResourceTest
             .key( DescriptorKey.from( "application:putty-layout" ) )
             .build();
 
-        Mockito.when( layoutDescriptorService.getByApplications( ApplicationKeys.from( "application1", "application2", "application3" ) ) )
+        when( layoutDescriptorService.getByApplications( ApplicationKeys.from( "application1", "application2", "application3" ) ) )
             .thenReturn( LayoutDescriptors.from( layoutDescriptor1, layoutDescriptor2 ) );
-        Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String jsonString = request().path( "content/page/layout/descriptor/list/by_applications" )
             .entity( readFromFile( "get_by_applications_params.json" ), MediaType.APPLICATION_JSON_TYPE )

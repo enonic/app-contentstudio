@@ -1,7 +1,9 @@
 package com.enonic.xp.app.contentstudio.rest.resource.issue;
 
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -56,7 +58,7 @@ public class IssueNotificationParamsFactory
         this.securityService = builder.securityService;
         this.contentService = builder.contentService;
         this.contentTypeIconResolver = new ContentTypeIconResolver( builder.contentTypeService );
-        this.localeMessageResolver = new LocaleMessageResolver( builder.localeService, ApplicationKey.SYSTEM );
+        this.localeMessageResolver = new LocaleMessageResolver( builder.localeService, ApplicationKey.SYSTEM, builder.locales );
         this.issue = builder.issue;
         this.comments = builder.comments;
         this.recipients = builder.recipients;
@@ -178,6 +180,8 @@ public class IssueNotificationParamsFactory
 
         private LocaleService localeService;
 
+        private Enumeration<Locale> locales;
+
         private Builder()
         {
         }
@@ -227,6 +231,12 @@ public class IssueNotificationParamsFactory
         public Builder localeService( final LocaleService localeService )
         {
             this.localeService = localeService;
+            return this;
+        }
+
+        public Builder locales( final Enumeration<Locale> locales )
+        {
+            this.locales = locales;
             return this;
         }
 

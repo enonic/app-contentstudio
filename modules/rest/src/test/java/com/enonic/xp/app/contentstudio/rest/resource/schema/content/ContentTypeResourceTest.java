@@ -8,18 +8,22 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 
+import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
-import org.mockito.Mockito;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.form.FieldSet;
@@ -46,6 +50,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
 public class ContentTypeResourceTest
     extends AdminResourceTestSupport
@@ -71,13 +78,20 @@ public class ContentTypeResourceTest
     protected Object getResourceInstance()
     {
         this.resource = new ContentTypeResource();
-        contentTypeService = Mockito.mock( ContentTypeService.class );
-        localeService = Mockito.mock( LocaleService.class );
-        mixinService = Mockito.mock( MixinService.class );
+        contentTypeService = mock( ContentTypeService.class );
+        localeService = mock( LocaleService.class );
+        mixinService = mock( MixinService.class );
 
         this.resource.setContentTypeService( contentTypeService );
         this.resource.setLocaleService( localeService );
         this.resource.setMixinService( mixinService );
+
+        final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
+        when( mockRequest.getServerName() ).thenReturn( "localhost" );
+        when( mockRequest.getScheme() ).thenReturn( "http" );
+        when( mockRequest.getServerPort() ).thenReturn( 80 );
+        when( mockRequest.getLocales() ).thenReturn( Collections.enumeration( Collections.singleton( Locale.US ) ) );
+        ResteasyContext.getContextDataMap().put( HttpServletRequest.class, mockRequest );
 
         return this.resource;
     }
@@ -102,8 +116,8 @@ public class ContentTypeResourceTest
                 build() ).
             build();
 
-        Mockito.when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
-        Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         // execute
         String jsonString = request().path( "schema/content" )
@@ -142,14 +156,14 @@ public class ContentTypeResourceTest
                 build() ).
             build();
 
-        Mockito.when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
 
-        final MessageBundle messageBundle = Mockito.mock( MessageBundle.class );
-        Mockito.when( messageBundle.localize( "key.label" ) ).thenReturn( "translated.label" );
-        Mockito.when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
+        final MessageBundle messageBundle = mock( MessageBundle.class );
+        when( messageBundle.localize( "key.label" ) ).thenReturn( "translated.label" );
+        when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
 
-        Mockito.when( this.localeService.getBundle( Mockito.any(), Mockito.any() ) ).thenReturn( messageBundle );
-        Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( this.localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         // execute
         String jsonString = request().path( "schema/content" )
@@ -188,14 +202,14 @@ public class ContentTypeResourceTest
                 build() ).
             build();
 
-        Mockito.when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
 
-        final MessageBundle messageBundle = Mockito.mock( MessageBundle.class );
-        Mockito.when( messageBundle.localize( "key.label" ) ).thenReturn( "translated.label" );
-        Mockito.when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
+        final MessageBundle messageBundle = mock( MessageBundle.class );
+        when( messageBundle.localize( "key.label" ) ).thenReturn( "translated.label" );
+        when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
 
-        Mockito.when( this.localeService.getBundle( Mockito.any(), Mockito.any() ) ).thenReturn( messageBundle );
-        Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( this.localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         // execute
         String jsonString = request().path( "schema/content" )
@@ -242,14 +256,14 @@ public class ContentTypeResourceTest
                 build() ).
             build();
 
-        Mockito.when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
 
-        final MessageBundle messageBundle = Mockito.mock( MessageBundle.class );
-        Mockito.when( messageBundle.localize( "key.label" ) ).thenReturn( "translated.label" );
-        Mockito.when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
+        final MessageBundle messageBundle = mock( MessageBundle.class );
+        when( messageBundle.localize( "key.label" ) ).thenReturn( "translated.label" );
+        when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
 
-        Mockito.when( this.localeService.getBundle( Mockito.any(), Mockito.any() ) ).thenReturn( messageBundle );
-        Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( this.localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         // execute
         String jsonString = request().path( "schema/content" )
@@ -288,17 +302,17 @@ public class ContentTypeResourceTest
                 build() ).
             build();
 
-        Mockito.when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
 
-        final MessageBundle messageBundle = Mockito.mock( MessageBundle.class );
-        Mockito.when( messageBundle.localize( "key.label" ) ).thenReturn( "translated.label" );
-        Mockito.when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
-        Mockito.when( messageBundle.localize( "key.display-name" ) ).thenReturn( "translated.displayName" );
-        Mockito.when( messageBundle.localize( "key.description" ) ).thenReturn( "translated.description" );
-        Mockito.when( messageBundle.localize( "key.displayNameLabel" ) ).thenReturn( "translated.displayNameLabel" );
+        final MessageBundle messageBundle = mock( MessageBundle.class );
+        when( messageBundle.localize( "key.label" ) ).thenReturn( "translated.label" );
+        when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
+        when( messageBundle.localize( "key.display-name" ) ).thenReturn( "translated.displayName" );
+        when( messageBundle.localize( "key.description" ) ).thenReturn( "translated.description" );
+        when( messageBundle.localize( "key.displayNameLabel" ) ).thenReturn( "translated.displayNameLabel" );
 
-        Mockito.when( this.localeService.getBundle( Mockito.any(), Mockito.any() ) ).thenReturn( messageBundle );
-        Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( this.localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         // execute
         String jsonString = request().path( "schema/content" )
@@ -394,8 +408,8 @@ public class ContentTypeResourceTest
             addFormItem( formOptionSet ).
             build();
 
-        Mockito.when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
-        Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         // execute
         String jsonString = request().path( "schema/content" )
@@ -426,7 +440,7 @@ public class ContentTypeResourceTest
                 build() ).
             build();
 
-        Mockito.when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( contentType ) );
+        when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( contentType ) );
 
         // execute
         String jsonString = request().
@@ -527,7 +541,7 @@ public class ContentTypeResourceTest
     public void testContentTypeIcon_notFound()
         throws Exception
     {
-        Mockito.when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( null );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( null );
 
         assertThrows( WebApplicationException.class, () -> {
             try
@@ -553,7 +567,7 @@ public class ContentTypeResourceTest
 
         final ContentTypeNames contentTypeNames = ContentTypeNames.from( ContentTypeName.documentMedia(), ContentTypeName.audioMedia() );
 
-        Mockito.when( contentTypeService.getMimeTypes( contentTypeNames ) ).thenReturn( mimeTypes );
+        when( contentTypeService.getMimeTypes( contentTypeNames ) ).thenReturn( mimeTypes );
 
         final Collection<String> result =
             this.resource.getMimeTypes( ContentTypeName.documentMedia().toString() + "," + ContentTypeName.audioMedia().toString() );
@@ -568,6 +582,6 @@ public class ContentTypeResourceTest
         final List<ContentType> list = new ArrayList<>();
         list.add( contentType );
         final GetContentTypeParams params = new GetContentTypeParams().contentTypeName( contentType.getName() );
-        Mockito.when( contentTypeService.getByName( params ) ).thenReturn( contentType );
+        when( contentTypeService.getByName( params ) ).thenReturn( contentType );
     }
 }

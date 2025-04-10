@@ -3,9 +3,13 @@ package com.enonic.xp.app.contentstudio.rest.resource.schema.content;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.Locale;
 
+import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
@@ -27,6 +31,8 @@ import com.enonic.xp.site.SiteConfigs;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ContentTypeContextResourceTest
     extends AdminResourceTestSupport
@@ -52,13 +58,20 @@ public class ContentTypeContextResourceTest
     protected Object getResourceInstance()
     {
         this.resource = new ContentTypeContextResource();
-        contentTypeService = Mockito.mock( ContentTypeService.class );
-        contentService = Mockito.mock( ContentService.class );
-        localeService = Mockito.mock( LocaleService.class );
+        contentTypeService = mock( ContentTypeService.class );
+        contentService = mock( ContentService.class );
+        localeService = mock( LocaleService.class );
 
         this.resource.setContentTypeService( contentTypeService );
         this.resource.setLocaleService( localeService );
         this.resource.setContentService( contentService );
+
+        final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
+        when( mockRequest.getServerName() ).thenReturn( "localhost" );
+        when( mockRequest.getScheme() ).thenReturn( "http" );
+        when( mockRequest.getServerPort() ).thenReturn( 80 );
+        when( mockRequest.getLocales() ).thenReturn( Collections.enumeration( Collections.singleton( Locale.US ) ) );
+        ResteasyContext.getContextDataMap().put( HttpServletRequest.class, mockRequest );
 
         return this.resource;
     }
@@ -81,9 +94,9 @@ public class ContentTypeContextResourceTest
                 build() ).
             build();
 
-        Mockito.when( contentTypeService.getByApplication( isA( ApplicationKey.class ) ) ).thenReturn( ContentTypes.from( contentType ) );
+        when( contentTypeService.getByApplication( isA( ApplicationKey.class ) ) ).thenReturn( ContentTypes.from( contentType ) );
         final Site site = newSite();
-        Mockito.when( contentService.getNearestSite( eq( ContentId.from( "1004242" ) ) ) ).thenReturn( site );
+        when( contentService.getNearestSite( eq( ContentId.from( "1004242" ) ) ) ).thenReturn( site );
 
         // execute
         String jsonString = request().

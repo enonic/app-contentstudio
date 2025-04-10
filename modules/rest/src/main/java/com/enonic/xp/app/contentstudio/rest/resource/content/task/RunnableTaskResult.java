@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPath;
 
@@ -75,12 +72,20 @@ public class RunnableTaskResult
 
     public String toJson()
     {
-        final ObjectNode map = JsonNodeFactory.instance.objectNode();
+        return "{\"state\":\"" + escapeJson(getState().toString()) + "\",\"message\":\"" + escapeJson(getMessage()) + "\"}";
+    }
 
-        map.put( "state", getState().toString() );
-        map.put( "message", getMessage() );
-
-        return map.toString();
+    private String escapeJson( String value )
+    {
+        return value == null
+            ? ""
+            : value.replace( "\\", "\\\\" )
+                .replace( "\"", "\\\"" )
+                .replace( "\b", "\\b" )
+                .replace( "\f", "\\f" )
+                .replace( "\n", "\\n" )
+                .replace( "\r", "\\r" )
+                .replace( "\t", "\\t" );
     }
 
     public static Builder create()

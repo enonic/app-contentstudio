@@ -1,13 +1,13 @@
 package com.enonic.xp.app.contentstudio.json.form;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.data.Value;
@@ -112,14 +112,15 @@ public class InputJson
         return this.inputType;
     }
 
-    public ObjectNode getConfig()
+    public Map<String, List<Map<String, String>>> getConfig()
     {
         final InputTypeConfig config = this.input.getInputTypeConfig();
 
-        final ObjectNode json = JsonNodeFactory.instance.objectNode();
+        final Map<String, List<Map<String, String>>> json = new LinkedHashMap<>();
         for ( final String name : config.getNames() )
         {
-            json.set( name, toJson( config.getProperties( name ) ) );
+
+            json.put( name, toJson( config.getProperties( name ) ) );
         }
 
         return json;
@@ -136,9 +137,9 @@ public class InputJson
         this.defaultValue = defaultValue;
     }
 
-    private ArrayNode toJson( final Collection<InputTypeProperty> properties )
+    private List<Map<String, String>> toJson( final Collection<InputTypeProperty> properties )
     {
-        final ArrayNode json = JsonNodeFactory.instance.arrayNode();
+        final List<Map<String, String>> json = new ArrayList<>( );
         for ( final InputTypeProperty property : properties )
         {
             json.add( toJson( property ) );
@@ -147,9 +148,9 @@ public class InputJson
         return json;
     }
 
-    private ObjectNode toJson( final InputTypeProperty property )
+    private Map<String, String> toJson( final InputTypeProperty property )
     {
-        final ObjectNode json = JsonNodeFactory.instance.objectNode();
+        final Map<String, String> json = new LinkedHashMap<>();
 
         String propertyValue = property.getValue();
 

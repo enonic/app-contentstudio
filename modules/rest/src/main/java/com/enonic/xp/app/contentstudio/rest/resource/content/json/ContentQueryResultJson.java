@@ -1,7 +1,9 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.json;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -18,9 +20,9 @@ public class ContentQueryResultJson
         this.contents = ImmutableSet.copyOf( builder.contents );
     }
 
-    public static Builder newBuilder( final JsonObjectsFactory jsonObjectsFactory )
+    public static Builder newBuilder( final JsonObjectsFactory jsonObjectsFactory, final Enumeration<Locale> locales )
     {
-        return new Builder( jsonObjectsFactory );
+        return new Builder( jsonObjectsFactory, locales );
     }
 
     public static class Builder
@@ -28,17 +30,20 @@ public class ContentQueryResultJson
     {
         private final JsonObjectsFactory jsonObjectsFactory;
 
+        private final Enumeration<Locale> locales;
+
         private final List<ContentJson> contents = new ArrayList<>();
 
-        public Builder( final JsonObjectsFactory jsonObjectsFactory )
+        public Builder( final JsonObjectsFactory jsonObjectsFactory, final Enumeration<Locale> locales )
         {
             this.jsonObjectsFactory = jsonObjectsFactory;
+            this.locales = locales;
         }
 
         @Override
         public Builder addContent( final Content content )
         {
-            this.contents.add( jsonObjectsFactory.createContentJson( content ) );
+            this.contents.add( jsonObjectsFactory.createContentJson( content, locales ) );
             return this;
         }
 
