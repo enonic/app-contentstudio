@@ -2,10 +2,10 @@ package com.enonic.xp.app.contentstudio.rest.resource.content;
 
 import java.util.Set;
 
-import javax.ws.rs.container.DynamicFeature;
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.FeatureContext;
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.container.DynamicFeature;
+import jakarta.ws.rs.container.ResourceInfo;
+import jakarta.ws.rs.core.FeatureContext;
+import jakarta.ws.rs.ext.Provider;
 
 import com.enonic.xp.app.contentstudio.rest.resource.archive.ArchiveResource;
 import com.enonic.xp.app.contentstudio.rest.resource.content.page.PageResource;

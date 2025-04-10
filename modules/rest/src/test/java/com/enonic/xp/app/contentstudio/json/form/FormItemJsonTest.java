@@ -2,12 +2,15 @@ package com.enonic.xp.app.contentstudio.json.form;
 
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Locale;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.form.FieldSet;
 import com.enonic.xp.form.FormItemSet;
@@ -22,14 +25,27 @@ import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.inputtype.InputTypeProperty;
 import com.enonic.xp.support.JsonTestHelper;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class FormItemJsonTest
 {
 
     private final JsonTestHelper jsonTestHelper;
 
+    private LocaleService localeService;
+
     public FormItemJsonTest()
     {
         jsonTestHelper = new JsonTestHelper( this );
+    }
+
+    @BeforeEach
+    public void setUp()
+    {
+        localeService = mock(LocaleService.class);
+        when( localeService.getBundle( any( ApplicationKey.class), any( Locale.class) ) ).thenReturn( null );
     }
 
     @Test
@@ -47,7 +63,7 @@ public class FormItemJsonTest
             helpText( "Help text" ).
             occurrences( 1, 3 ).
             inputType( InputTypeName.TEXT_LINE ).
-            build(), new LocaleMessageResolver( Mockito.mock( LocaleService.class ) ) );
+            build(), new LocaleMessageResolver( localeService, ApplicationKey.BASE, Collections.emptyEnumeration() ) );
 
         JsonNode json = jsonTestHelper.objectToJson( inputJson );
         this.jsonTestHelper.assertJsonEquals( jsonTestHelper.loadTestJson( "input.json" ), json );
@@ -67,7 +83,7 @@ public class FormItemJsonTest
             helpText( "Help text" ).
             occurrences( 1, 3 ).
             inputType( InputTypeName.TEXT_AREA ).
-            build(), new LocaleMessageResolver( Mockito.mock( LocaleService.class ) ) );
+            build(), new LocaleMessageResolver(  localeService, ApplicationKey.BASE, Collections.emptyEnumeration()  ) );
 
         JsonNode json = jsonTestHelper.objectToJson( inputJson );
         this.jsonTestHelper.assertJsonEquals( jsonTestHelper.loadTestJson( "inputWithConfig.json" ), json );
@@ -77,12 +93,10 @@ public class FormItemJsonTest
     public void serialization_of_Input_with_config_translation()
         throws IOException
     {
-        final LocaleService localeService = Mockito.mock( LocaleService.class );
-
-        final MessageBundle messageBundle = Mockito.mock( MessageBundle.class );
-        Mockito.when( messageBundle.localize( "translate.option" ) ).thenReturn( "translatedOptionValue" );
-
-        Mockito.when( localeService.getBundle( Mockito.any(), Mockito.any() ) ).thenReturn( messageBundle );
+        final LocaleService localeService = mock( LocaleService.class );
+        final MessageBundle messageBundle = mock( MessageBundle.class );
+        when( messageBundle.localize( "translate.option" ) ).thenReturn( "translatedOptionValue" );
+        when( localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
 
         InputJson inputJson = new InputJson( Input.create().
             name( "myTextLine" ).
@@ -99,7 +113,7 @@ public class FormItemJsonTest
                 attribute( "i18n", "translate.option" ).
                 build() ).
                 build() ).
-            build(), new LocaleMessageResolver( localeService ) );
+            build(), new LocaleMessageResolver(  localeService, ApplicationKey.BASE, Collections.emptyEnumeration()  ) );
 
         JsonNode json = jsonTestHelper.objectToJson( inputJson );
         this.jsonTestHelper.assertJsonEquals( jsonTestHelper.loadTestJson( "inputWithConfigTranslation.json" ), json );
@@ -117,7 +131,7 @@ public class FormItemJsonTest
             occurrences( 0, 10 ).
             addFormItem( Input.create().name( "myTextLine" ).label( "myTextLine" ).inputType( InputTypeName.TEXT_LINE ).build() ).
             addFormItem( Input.create().name( "myDate" ).label( "myDate" ).inputType( InputTypeName.DATE ).build() ).
-            build(), new LocaleMessageResolver( Mockito.mock( LocaleService.class ) ) );
+            build(), new LocaleMessageResolver(  localeService, ApplicationKey.BASE, Collections.emptyEnumeration()  ) );
 
         JsonNode json = jsonTestHelper.objectToJson( formItemSetJson );
         this.jsonTestHelper.assertJsonEquals( jsonTestHelper.loadTestJson( "formItemSet.json" ), json );
@@ -137,7 +151,7 @@ public class FormItemJsonTest
                 inputTypeProperty( InputTypeProperty.create( "option", "label1" ).attribute( "value", "value1" ).build() ).
                 inputTypeProperty( InputTypeProperty.create( "option", "label2" ).attribute( "value", "value2" ).build() ).
                 build() ).
-            build(), new LocaleMessageResolver( Mockito.mock( LocaleService.class ) ) );
+            build(), new LocaleMessageResolver(  localeService, ApplicationKey.BASE, Collections.emptyEnumeration()  ) );
 
         JsonNode json = jsonTestHelper.objectToJson( fieldSetJson );
         this.jsonTestHelper.assertJsonEquals( jsonTestHelper.loadTestJson( "fieldSet.json" ), json );
@@ -179,7 +193,7 @@ public class FormItemJsonTest
                         addFormItem(
                             Input.create().name( "myTextLine2" ).label( "myTextLine2" ).inputType( InputTypeName.TEXT_LINE ).build() )
                     .build() ).
-            build(), new LocaleMessageResolver( Mockito.mock( LocaleService.class ) ) );
+            build(), new LocaleMessageResolver(  localeService, ApplicationKey.BASE, Collections.emptyEnumeration() ) );
 
         JsonNode json = jsonTestHelper.objectToJson( formOptionSetJson );
         this.jsonTestHelper.assertJsonEquals( jsonTestHelper.loadTestJson( "optionSet.json" ), json );

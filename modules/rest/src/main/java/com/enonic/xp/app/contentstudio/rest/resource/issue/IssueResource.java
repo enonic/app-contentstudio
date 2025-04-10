@@ -8,15 +8,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.annotation.security.RolesAllowed;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -125,16 +125,17 @@ public final class IssueResource
             }
         }
 
-        final IssueNotificationParams createdParams = IssueNotificationParamsFactory.create().
-            securityService( securityService ).
-            contentService( contentService ).
-            contentTypeService( contentTypeService ).
-            localeService( localeService ).
-            issue( issue ).
-            comments( comments ).
-            url( request.getHeader( HttpHeaders.REFERER ) ).
-            build().
-            createdParams();
+        final IssueNotificationParams createdParams = IssueNotificationParamsFactory.create()
+            .securityService( securityService )
+            .contentService( contentService )
+            .contentTypeService( contentTypeService )
+            .localeService( localeService )
+            .locales( request.getLocales() )
+            .issue( issue )
+            .comments( comments )
+            .url( request.getHeader( HttpHeaders.REFERER ) )
+            .build()
+            .createdParams();
 
         issueNotificationsSender.notifyIssueCreated( createdParams );
 
@@ -199,6 +200,7 @@ public final class IssueResource
                 contentService( contentService ).
                 contentTypeService( contentTypeService ).
                 localeService( localeService ).
+                locales( request.getLocales() ).
                 issue( issue ).
                 comments( comments ).
                 url( request.getHeader( HttpHeaders.REFERER ) ).
@@ -216,6 +218,7 @@ public final class IssueResource
                 contentService( contentService ).
                 contentTypeService( contentTypeService ).
                 localeService( localeService ).
+                locales( request.getLocales() ).
                 issue( issue ).
                 comments( comments ).
                 url( request.getHeader( HttpHeaders.REFERER ) );
@@ -279,6 +282,7 @@ public final class IssueResource
                 contentService( contentService ).
                 contentTypeService( contentTypeService ).
                 localeService( localeService ).
+                locales( request.getLocales() ).
                 issue( issue ).
                 comments( results.getIssueComments() ).
                 url( request.getHeader( HttpHeaders.REFERER ) ).

@@ -2,13 +2,12 @@ package com.enonic.xp.app.contentstudio.rest.resource.content;
 
 import java.nio.charset.StandardCharsets;
 
-import javax.ws.rs.WebApplicationException;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import com.google.common.io.ByteSource;
+
+import jakarta.ws.rs.WebApplicationException;
 
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.attachment.Attachment;
@@ -23,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ContentMediaResourceTest
     extends AdminResourceTestSupport
@@ -39,7 +40,7 @@ public class ContentMediaResourceTest
     protected ContentMediaResource getResourceInstance()
     {
         contentMediaResource = new ContentMediaResource();
-        contentService = Mockito.mock( ContentService.class );
+        contentService = mock( ContentService.class );
 
         contentMediaResource.setContentService( contentService );
 
@@ -130,7 +131,7 @@ public class ContentMediaResourceTest
             build() ).
             build();
 
-        Mockito.when( this.contentService.getById( media.getId() ) ).thenReturn( media );
+        when( this.contentService.getById( media.getId() ) ).thenReturn( media );
 
         final WebApplicationException ex = assertThrows( WebApplicationException.class, () -> {
             contentMediaResource.media( media.getId().toString(), "word", false );
@@ -160,11 +161,11 @@ public class ContentMediaResourceTest
         final Attachment attachment1 = content.getAttachments().byName( "document.pdf" );
         final Attachment attachment2 = content.getAttachments().byName( "byName.pdf" );
 
-        Mockito.when( this.contentService.getById( content.getId() ) ).thenReturn( content );
+        when( this.contentService.getById( content.getId() ) ).thenReturn( content );
 
-        Mockito.when( this.contentService.getBinary( content.getId(), attachment1.getBinaryReference() ) )
+        when( this.contentService.getBinary( content.getId(), attachment1.getBinaryReference() ) )
             .thenReturn( ByteSource.wrap( ATTACHMENT_DATA_1 ) );
-        Mockito.when( this.contentService.getBinary( content.getId(), attachment2.getBinaryReference() ) )
+        when( this.contentService.getBinary( content.getId(), attachment2.getBinaryReference() ) )
             .thenReturn( ByteSource.wrap( ATTACHMENT_DATA_2 ) );
 
         return content;
@@ -191,7 +192,7 @@ public class ContentMediaResourceTest
     private Media createMedia()
     {
         Media media = createMediaBuilder().build();
-        Mockito.when( this.contentService.getById( media.getId() ) ).thenReturn( media );
+        when( this.contentService.getById( media.getId() ) ).thenReturn( media );
 
         return media;
     }

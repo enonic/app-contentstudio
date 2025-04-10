@@ -2,16 +2,18 @@ package com.enonic.xp.app.contentstudio.rest.resource.schema.content;
 
 import java.util.Collection;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Response;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.CacheControl;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -59,7 +61,7 @@ public final class ContentTypeResource
     private MixinService mixinService;
 
     @GET
-    public ContentTypeJson get( @QueryParam("name") final String nameAsString )
+    public ContentTypeJson get( @QueryParam("name") final String nameAsString, @Context HttpServletRequest request )
     {
         final ContentTypeName name = ContentTypeName.from( nameAsString );
         final GetContentTypeParams getContentTypes = GetContentTypeParams.from( name );
@@ -70,7 +72,7 @@ public final class ContentTypeResource
             throw new WebApplicationException( String.format( "ContentType [%s] not found", name ), Response.Status.NOT_FOUND );
         }
         final LocaleMessageResolver localeMessageResolver =
-            new LocaleMessageResolver( this.localeService, contentType.getName().getApplicationKey() );
+            new LocaleMessageResolver( this.localeService, contentType.getName().getApplicationKey(), request.getLocales() );
 
         return ContentTypeJson.
             create().
@@ -83,14 +85,14 @@ public final class ContentTypeResource
 
     @GET
     @Path("all")
-    public ContentTypeSummaryListJson all()
+    public ContentTypeSummaryListJson all( @Context HttpServletRequest request )
     {
-        return list();
+        return list( request );
     }
 
     @GET
     @Path("list")
-    public ContentTypeSummaryListJson list()
+    public ContentTypeSummaryListJson list( @Context HttpServletRequest request )
     {
 
         final ContentTypes contentTypes = contentTypeService.getAll();
@@ -100,7 +102,7 @@ public final class ContentTypeResource
         contentTypes.forEach( contentType -> {
             summariesJsonBuilder.add( new ContentTypeSummaryJson( contentType, this.contentTypeIconUrlResolver,
                                                                   new LocaleMessageResolver( localeService, contentType.getName()
-                                                                      .getApplicationKey() ) ) );
+                                                                      .getApplicationKey(), request.getLocales() ) ) );
         } );
 
         return new ContentTypeSummaryListJson( summariesJsonBuilder.build() );
@@ -115,12 +117,13 @@ public final class ContentTypeResource
 
     @GET
     @Path("byApplication")
-    public ContentTypeSummaryListJson getByApplication( @QueryParam("applicationKey") final String applicationKey )
+    public ContentTypeSummaryListJson getByApplication( @QueryParam("applicationKey") final String applicationKey,
+                                                        @Context HttpServletRequest request )
     {
         final ContentTypes contentTypes = contentTypeService.getByApplication( ApplicationKey.from( applicationKey ) );
 
         final LocaleMessageResolver localeMessageResolver =
-            new LocaleMessageResolver( this.localeService, ApplicationKey.from( applicationKey ) );
+            new LocaleMessageResolver( this.localeService, ApplicationKey.from( applicationKey ), request.getLocales() );
         return new ContentTypeSummaryListJson( contentTypes, this.contentTypeIconUrlResolver, localeMessageResolver );
     }
 

@@ -43,7 +43,7 @@ public final class ContentJson
 
     public ContentJson( final Content content, final ContentIconUrlResolver iconUrlResolver,
                         final ContentPrincipalsResolver contentPrincipalsResolver, final ComponentNameResolver componentNameResolver,
-                        final ContentListTitleResolver contentListTitleResolver, final LocaleMessageResolver localeMessageResolver )
+                        final ContentListTitleResolver contentListTitleResolver, final List<ValidationErrorJson> localizedValidationErrors )
     {
         super( content, iconUrlResolver, contentListTitleResolver );
         this.data = PropertyTreeJson.toJson( content.getData() );
@@ -60,11 +60,7 @@ public final class ContentJson
         final Principals principals = contentPrincipalsResolver.resolveAccessControlListPrincipals( content.getPermissions() );
         this.accessControlList = AccessControlEntriesJson.from( content.getPermissions(), principals );
         this.inheritPermissions = content.inheritsPermissions();
-        this.validationErrors = Optional.ofNullable( content.getValidationErrors() )
-            .map( ValidationErrors::stream )
-            .orElse( Stream.empty() )
-            .map( ve -> new ValidationErrorJson( ve, localeMessageResolver ) )
-            .collect( Collectors.toList() );
+        this.validationErrors = localizedValidationErrors;
     }
 
     public List<PropertyArrayJson> getData()

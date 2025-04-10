@@ -1,10 +1,18 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.enonic.xp.app.contentstudio.json.content.ContentJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentSummaryJson;
+import com.enonic.xp.app.contentstudio.json.content.ValidationErrorJson;
 import com.enonic.xp.app.contentstudio.json.content.page.PageDescriptorJson;
 import com.enonic.xp.app.contentstudio.json.content.page.region.LayoutDescriptorJson;
 import com.enonic.xp.app.contentstudio.json.content.page.region.PartDescriptorJson;
@@ -14,6 +22,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeI
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ValidationErrors;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.region.LayoutDescriptor;
@@ -45,36 +54,42 @@ public class JsonObjectsFactory
         int i = 0;
     }
 
-    public PartDescriptorJson createPartDescriptorJson( final PartDescriptor descriptor )
+    public PartDescriptorJson createPartDescriptorJson( final PartDescriptor descriptor, final Enumeration<Locale> locales )
     {
-        return new PartDescriptorJson( descriptor, new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey() ),
+        return new PartDescriptorJson( descriptor, new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey(), locales ),
                                        new InlineMixinResolver( mixinService ) );
     }
 
-    public PageDescriptorJson createPageDescriptorJson( final PageDescriptor descriptor )
+    public PageDescriptorJson createPageDescriptorJson( final PageDescriptor descriptor, final Enumeration<Locale> locales )
     {
-        return new PageDescriptorJson( descriptor, new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey() ),
+        return new PageDescriptorJson( descriptor, new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey(), locales ),
                                        new InlineMixinResolver( mixinService ) );
     }
 
-    public LayoutDescriptorJson createLayoutDescriptorJson( final LayoutDescriptor descriptor )
+    public LayoutDescriptorJson createLayoutDescriptorJson( final LayoutDescriptor descriptor, final Enumeration<Locale> locales )
     {
-        return new LayoutDescriptorJson( descriptor, new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey() ),
+        return new LayoutDescriptorJson( descriptor,
+                                         new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey(), locales ),
                                          new InlineMixinResolver( mixinService ) );
     }
 
-    public ContentTypeSummaryJson createContentTypeSummaryJson( final ContentType contentType )
+    public ContentTypeSummaryJson createContentTypeSummaryJson( final ContentType contentType, final Enumeration<Locale> locales )
     {
         return new ContentTypeSummaryJson( contentType, this.contentTypeIconUrlResolver,
-                                           new LocaleMessageResolver( localeService, contentType.getName().getApplicationKey() ) );
+                                           new LocaleMessageResolver( localeService, contentType.getName().getApplicationKey(), locales ) );
     }
 
-    public ContentJson createContentJson( final Content content )
+    public ContentJson createContentJson( final Content content, final Enumeration<Locale> locales )
     {
-        final LocaleMessageResolver localeMessageResolver = new LocaleMessageResolver( this.localeService );
+        final List<ValidationErrorJson> localizedValidationErrors = Optional.ofNullable( content.getValidationErrors() )
+            .map( ValidationErrors::stream )
+            .orElse( Stream.empty() )
+            .map( ve -> new ValidationErrorJson( ve, new LocaleMessageResolver( localeService, ve.getErrorCode().getApplicationKey(),
+                                                                                locales ) ) )
+            .collect( Collectors.toList() );
 
         return new ContentJson( content, contentIconUrlResolver, principalsResolver, componentNameResolver, contentListTitleResolver,
-                                localeMessageResolver );
+                                localizedValidationErrors );
     }
 
     public ContentSummaryJson createContentSummaryJson( final Content content )

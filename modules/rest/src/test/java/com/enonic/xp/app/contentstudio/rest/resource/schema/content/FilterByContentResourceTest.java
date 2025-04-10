@@ -1,11 +1,15 @@
 package com.enonic.xp.app.contentstudio.rest.resource.schema.content;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.MediaType;
 
+import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
 
@@ -61,6 +65,13 @@ class FilterByContentResourceTest
         config = mock( AdminRestConfig.class );
         when( config.contentTypePatternMode() ).thenReturn( "MATCH" );
         filterByContentResolver.activate( config );
+
+        final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
+        when( mockRequest.getServerName() ).thenReturn( "localhost" );
+        when( mockRequest.getScheme() ).thenReturn( "http" );
+        when( mockRequest.getServerPort() ).thenReturn( 80 );
+        when( mockRequest.getLocales() ).thenReturn( Collections.enumeration( Collections.singleton( Locale.US ) ) );
+        ResteasyContext.getContextDataMap().put( HttpServletRequest.class, mockRequest );
 
         return resource;
     }

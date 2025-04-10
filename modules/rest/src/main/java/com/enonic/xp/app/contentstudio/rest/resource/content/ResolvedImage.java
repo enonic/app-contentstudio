@@ -3,8 +3,8 @@ package com.enonic.xp.app.contentstudio.rest.resource.content;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.CacheControl;
+import jakarta.ws.rs.core.Response;
 
 import com.google.common.io.ByteSource;
 
