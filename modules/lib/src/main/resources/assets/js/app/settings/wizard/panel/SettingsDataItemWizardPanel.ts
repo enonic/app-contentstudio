@@ -296,11 +296,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     protected abstract getIconClass(): string;
 
     protected doLoadData(): Q.Promise<ITEM> {
-        if (!this.getPersistedItem()) {
-            return Q(null);
-        } else {
-            return Q(this.getPersistedItem());
-        }
+        return Q(this.getPersistedItem());
     }
 
     protected abstract createStepsForms(persistedItem?: ITEM): SettingDataItemWizardStepForm<ITEM>[];

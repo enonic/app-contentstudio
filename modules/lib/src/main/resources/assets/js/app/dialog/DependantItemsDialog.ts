@@ -331,8 +331,6 @@ export abstract class DependantItemsDialog
         return this.resolveDescendants().then((resolvedIds: ContentId[]) => {
             this.resolvedIds = resolvedIds;
             this.dependantIds = resolvedIds.filter((resolveId: ContentId) => !ids.some((id: ContentId) => id.equals(resolveId)));
-
-            return Q(null);
         });
     }
 

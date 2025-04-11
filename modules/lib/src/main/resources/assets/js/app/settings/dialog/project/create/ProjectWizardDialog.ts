@@ -64,7 +64,7 @@ export class ProjectWizardDialog
 
     private setParentProjectsInDialogStep(step: ProjectDialogStep): Q.Promise<void> {
         if (!(step instanceof ProjectDialogStep)) {
-            return Q(null);
+            return Q();
         }
 
         if (step instanceof ProjectApplicationsDialogStep) {
@@ -75,7 +75,7 @@ export class ProjectWizardDialog
         if (this.isParentProjectStep(step)) {
             this.config.parentProjects = null;
         }
-        return Q(null);
+        return Q();
     }
 
     protected displayStep(step: ProjectDialogStep): Q.Promise<void> {
@@ -148,7 +148,6 @@ export class ProjectWizardDialog
                     this.close();
 
                     showFeedback(i18n('notify.settings.project.created', project.getName()));
-                    return Q.resolve();
                 });
             });
         }).catch(DefaultErrorHandler.handle).finally(() => this.unlock());
@@ -186,7 +185,7 @@ export class ProjectWizardDialog
         const readAccess: ProjectAccessDialogStepData = this.getReadAccess();
 
         if (permissions.isEmpty() && readAccess.getAccess() !== ProjectReadAccessType.CUSTOM) {
-            return Q.resolve();
+            return Q();
         }
 
         return this.updateProjectPermissions(projectName, permissions, readAccess);

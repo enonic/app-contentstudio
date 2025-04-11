@@ -126,7 +126,7 @@ export class ProjectApplicationsComboBox
     layout(item: ProjectViewItem): Q.Promise<void> {
         const siteConfigs = item.getSiteConfigs();
         if (!item || siteConfigs.length === 0) {
-            return Q(null);
+            return Q();
         }
 
         return this.layoutSiteConfigs(siteConfigs);

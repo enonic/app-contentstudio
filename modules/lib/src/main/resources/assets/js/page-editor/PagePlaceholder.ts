@@ -80,8 +80,6 @@ export class PagePlaceholder
             this.infoBlock.setEmptyText();
             this.infoBlock.addClass('empty');
         }
-
-        return Q.resolve();
     };
 
     remove() {

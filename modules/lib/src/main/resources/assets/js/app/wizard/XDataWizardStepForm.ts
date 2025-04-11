@@ -69,7 +69,7 @@ export class XDataWizardStepForm
     resetForm(): Q.Promise<void> {
         this.resetData();
 
-        return this.enabled ? this.doLayout(this.form, this.data) : Q(null);
+        return this.enabled ? this.doLayout(this.form, this.data) : Q();
     }
 
     layout(formContext: ContentFormContext, data: PropertyTree, form: Form): Q.Promise<void> {
@@ -84,7 +84,7 @@ export class XDataWizardStepForm
             this.formView = new FormView(this.formContext, form, data.getRoot());
         }
 
-        return Q(null);
+        return Q();
     }
 
     update(data: PropertyTree, unchangedOnly: boolean = true): Q.Promise<void> {
@@ -113,7 +113,7 @@ export class XDataWizardStepForm
         this.setVisible(this.enabled);
 
         if (!changed) {
-            return Q(null);
+            return Q();
         }
 
         let promise: Q.Promise<void>;
@@ -125,7 +125,6 @@ export class XDataWizardStepForm
 
                 promise = this.doLayout(this.form, this.data).then(() => {
                     this.validate();
-                    return Q(null);
                 });
             }
         } else {
@@ -148,7 +147,7 @@ export class XDataWizardStepForm
             this.notifyEnableChanged(value);
         }
 
-        return promise != null ? promise : Q(null);
+        return promise != null ? promise : Q();
     }
 
     onEnableChanged(listener: (value: boolean) => void) {

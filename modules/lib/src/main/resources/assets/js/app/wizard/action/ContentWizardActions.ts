@@ -293,7 +293,7 @@ export class ContentWizardActions
                   !existing.isDataInherited()
         });
 
-        return Q.resolve();
+        return Q();
     }
 
     setDeleteOnlyMode(content: Content, valueOn: boolean = true) {

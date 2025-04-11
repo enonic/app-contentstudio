@@ -42,7 +42,7 @@ export class ProjectApplicationSelectedOptionView
         this.appendChild(this.projectApplicationViewer);
         this.appendActionButtons();
 
-        return Q.resolve();
+        return Q(true);
     }
 
     layoutForm(): Q.Promise<void> {

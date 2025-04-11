@@ -68,8 +68,6 @@ export class ContentWizardStepForm
             if (form.getFormItems().length === 0) {
                 this.hide();
             }
-
-            return Q(null);
         });
     }
 

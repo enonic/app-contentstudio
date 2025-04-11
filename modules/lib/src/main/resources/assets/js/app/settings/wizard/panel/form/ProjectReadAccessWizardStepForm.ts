@@ -22,7 +22,7 @@ export class ProjectReadAccessWizardStepForm
 
     layout(item: ProjectViewItem): Q.Promise<void> {
         if (!item) {
-            return Q(null);
+            return Q();
         }
 
         const layoutPromises: Q.Promise<void>[] = [];
@@ -32,12 +32,12 @@ export class ProjectReadAccessWizardStepForm
             this.readAccessFormItem.layoutReadAccess(item.getReadAccess(), item.getPermissions())
         );
 
-        return Q.all(layoutPromises).spread(() => Q());
+        return Q.all(layoutPromises).spread(Q);
     }
 
     private layoutLanguage(language: string): Q.Promise<void> {
         if (!language) {
-            return Q(null);
+            return Q();
         }
 
         this.localeFormItem.getLocaleCombobox().setSelectedLocale(language);

@@ -261,10 +261,10 @@ export class ProjectWizardPanel
     private updateAccessAndPermissionsForExistingProject(project: Project, language: string): Q.Promise<Project> {
         return this.updatePermissionsIfNeeded(project).then(() => {
             const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
-            const readAccessPromise: Q.Promise<TaskId> = this.isReadAccessChanged() ?
+            const readAccessPromise: Q.Promise<TaskId | null> = this.isReadAccessChanged() ?
                                                          this.updateProjectReadAccess(project.getName(), readAccess) : Q(null);
 
-            return readAccessPromise.then((taskId: TaskId) => {
+            return readAccessPromise.then((taskId: TaskId | null) => {
                 const result = Q.defer<Project>();
                 if (taskId) {
                     let taskState;

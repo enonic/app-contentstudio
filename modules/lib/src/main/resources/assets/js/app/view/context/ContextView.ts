@@ -330,7 +330,6 @@ export class ContextView
 
         return this.activeWidget.updateWidgetItemViews().then(() => {
             this.activeWidget.slideIn();
-            return Q.resolve();
         }).catch(DefaultErrorHandler.handle);
     }
 

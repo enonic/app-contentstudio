@@ -212,7 +212,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
 
             if (items.length === 0) {
                 this.toggleVisibilityNoItemsSelected();
-                return Q(null);
+                return;
             }
 
             this.toggleVisibility(state);
@@ -286,8 +286,6 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
                     this.getAction(ActionName.SHOW_NEW_DIALOG).setEnabled(false);
                     this.getAction(ActionName.SORT).setEnabled(false);
                 }
-
-                return Q();
             }));
         }
 

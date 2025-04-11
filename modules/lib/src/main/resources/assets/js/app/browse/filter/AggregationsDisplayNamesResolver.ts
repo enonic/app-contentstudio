@@ -93,7 +93,7 @@ export class AggregationsDisplayNamesResolver {
             .map((bucket: Bucket) => PrincipalKey.fromString(bucket.getKey()));
 
         if (unknownPrincipals.length === 0) {
-            return Q.resolve();
+            return Q();
         }
 
         return new GetPrincipalsByKeysRequest(unknownPrincipals).sendAndParse().then((principals: Principal[]) => {
@@ -104,8 +104,6 @@ export class AggregationsDisplayNamesResolver {
             });
 
             this.updateKnownPrincipals(principalsAggregation);
-
-            return Q.resolve();
         });
     }
 
@@ -126,7 +124,7 @@ export class AggregationsDisplayNamesResolver {
                 }
             });
 
-            return Q.resolve();
+            return Q();
         }
 
         return new GetLocalesRequest().sendAndParse().then((locales: Locale[]) => {
@@ -147,7 +145,7 @@ export class AggregationsDisplayNamesResolver {
                 bucket.setDisplayName(this.contentTypes.get(bucket.getKey()) || bucket.getKey());
             });
 
-            return Q.resolve();
+            return Q();
         }
 
         return new GetAllContentTypesRequest().sendAndParse().then((items: ContentTypeSummary[]) => {

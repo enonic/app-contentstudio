@@ -65,8 +65,6 @@ export class ContentAppBar
             const project: Project = projects.find((p: Project) => p.getName() === currentProjectName);
             this.selectedProjectViewer.setObject(project);
             this.selectedProjectViewer.toggleClass('multi-projects', projects.length > 1);
-
-            return Q.resolve();
         }).catch(DefaultErrorHandler.handle);
     }
 

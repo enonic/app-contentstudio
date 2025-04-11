@@ -213,7 +213,7 @@ export class ContentBrowseFilterPanel
 
         return this.getAndUpdateAggregations().then((aggregationsQueryResult: AggregationsQueryResult) => {
             if (aggregationsQueryResult.getMetadata().getTotalHits() > 0) {
-                return Q.resolve();
+                return;
             }
 
             if (this.dependenciesSection.isActive()) {
@@ -231,7 +231,6 @@ export class ContentBrowseFilterPanel
 
         return this.getAndUpdateAggregations().then(() => {
             this.notifySearchEvent(this.aggregationsFetcher.createContentQuery(this.getSearchInputValues()));
-            return Q.resolve();
         });
     }
 
@@ -273,7 +272,6 @@ export class ContentBrowseFilterPanel
 
         return this.displayNamesResolver.updateAggregationsDisplayNames(aggregations, this.getCurrentUserKeyAsString()).then(() => {
             this.updateAggregations(aggregations);
-            return Q.resolve();
         });
     }
 
@@ -307,8 +305,6 @@ export class ContentBrowseFilterPanel
             if (!suppressEvent) {
                 this.notifySearchEvent();
             }
-
-            return Q.resolve();
         });
     }
 

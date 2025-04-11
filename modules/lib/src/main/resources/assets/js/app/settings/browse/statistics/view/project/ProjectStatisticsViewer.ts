@@ -85,13 +85,12 @@ export class ProjectStatisticsViewer
 
     private loadAllProjects(): Q.Promise<void> {
         if (this.allProjects && !this.projectsUpdateRequired) {
-            return Q(null);
+            return Q();
         }
 
         return new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
             this.allProjects = projects;
             this.projectsUpdateRequired = false;
-            return Q(null);
         });
     }
 }

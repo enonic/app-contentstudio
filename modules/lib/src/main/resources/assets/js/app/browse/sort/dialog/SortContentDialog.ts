@@ -193,7 +193,7 @@ export class SortContentDialog
                 if (!!result.getContentsExistMap()[this.selectedContent.getId()]) {
                     return new ContentSummaryAndCompareStatusFetcher().fetch(this.selectedContent.getContentId(), parentProject);
                 } else {
-                    return Q(null);
+                    return null;
                 }
             });
     }

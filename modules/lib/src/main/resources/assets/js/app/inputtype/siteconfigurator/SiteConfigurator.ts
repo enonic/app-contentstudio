@@ -90,7 +90,7 @@ export class SiteConfigurator
         const appKeys = this.getKeysFromPropertyArray(propertyArray);
 
         if (!appKeys?.length) {
-            return Q.resolve();
+            return Q();
         }
 
         return new GetApplicationsRequest(appKeys).sendAndParse().then((apps: Application[]) => {

@@ -33,7 +33,7 @@ export class ProjectApplicationsWizardStepForm
 
     layout(item: ProjectViewItem): Q.Promise<void> {
         if (!item) {
-            return Q.resolve();
+            return Q();
         }
 
         return this.applicationsFormItem.layout(item);

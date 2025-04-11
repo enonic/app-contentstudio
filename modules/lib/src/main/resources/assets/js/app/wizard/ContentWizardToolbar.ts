@@ -164,7 +164,6 @@ export class ContentWizardToolbar
     private fetchProjectInfo() {
         new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
             this.initProjectViewer(projects);
-            return Q.resolve();
         }).catch((reason) => {
             this.initProjectViewer([
                 Project.create()
