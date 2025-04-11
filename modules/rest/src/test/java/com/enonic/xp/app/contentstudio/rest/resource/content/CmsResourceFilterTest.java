@@ -1,11 +1,10 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.FeatureContext;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+
+import jakarta.ws.rs.container.ResourceInfo;
+import jakarta.ws.rs.core.FeatureContext;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.page.PageDescriptorResource;
 import com.enonic.xp.app.contentstudio.rest.resource.content.page.PageResource;
@@ -15,6 +14,8 @@ import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeR
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.FilterByContentResource;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.xdata.XDataResource;
 import com.enonic.xp.jaxrs.JaxRsComponent;
+
+import static org.mockito.Mockito.*;
 
 public class CmsResourceFilterTest
 {
@@ -29,8 +30,8 @@ public class CmsResourceFilterTest
     {
         this.feature = new CmsResourceDynamicFeature();
 
-        resourceInfo = Mockito.mock( ResourceInfo.class );
-        featureContext = Mockito.mock( FeatureContext.class );
+        resourceInfo = mock( ResourceInfo.class );
+        featureContext = mock( FeatureContext.class );
     }
 
     @Test
@@ -51,20 +52,18 @@ public class CmsResourceFilterTest
     @Test
     public void not_supported()
     {
-        Mockito.doReturn( PageDescriptorResource.class ).when( resourceInfo ).getResourceClass();
+        doReturn( PageDescriptorResource.class ).when( resourceInfo ).getResourceClass();
         feature.configure( resourceInfo, featureContext );
 
-        Mockito.verify( featureContext, Mockito.times( 0 ) ).register( Mockito.isA( CmsResourceFilter.class ) );
+        verify( featureContext, times( 0 ) ).register( isA( CmsResourceFilter.class ) );
     }
 
     private void checkResource( final Class<? extends JaxRsComponent> resourceClass )
     {
-        Mockito.doReturn( resourceClass ).when( resourceInfo ).getResourceClass();
+        doReturn( resourceClass ).when( resourceInfo ).getResourceClass();
         feature.configure( resourceInfo, featureContext );
-        Mockito.verify( featureContext, Mockito.times( 1 ) ).register( Mockito.isA( CmsResourceFilter.class ) );
+        verify( featureContext, times( 1 ) ).register( isA( CmsResourceFilter.class ) );
 
-        Mockito.reset( featureContext );
+        reset( featureContext );
     }
-
-
 }

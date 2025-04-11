@@ -1,15 +1,19 @@
 package com.enonic.xp.app.contentstudio.rest.resource.schema.xdata;
 
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -69,7 +73,8 @@ public final class XDataResource
     @GET
     @Path("getApplicationXDataForContentType")
     public XDataListJson getApplicationXDataForContentType( @QueryParam("contentTypeName") final String contentTypeName,
-                                                            @QueryParam("applicationKey") final String key )
+                                                            @QueryParam("applicationKey") final String key,
+                                                            @Context HttpServletRequest request )
     {
         final XDataListJson result = new XDataListJson();
 
@@ -78,19 +83,19 @@ public final class XDataResource
         final Map<XData, Boolean> siteXData =
             this.getXDatasByContentType( siteDescriptor.getXDataMappings(), ContentTypeName.from( contentTypeName ) );
 
-        result.addXDatas( createXDataListJson( siteXData ) );
+        result.addXDatas( createXDataListJson( siteXData, request.getLocales() ) );
 
         return result;
     }
 
-    private List<XDataJson> createXDataListJson( final Map<XData, Boolean> xDatas )
+    private List<XDataJson> createXDataListJson( final Map<XData, Boolean> xDatas, final Enumeration<Locale> locales )
     {
         return xDatas.keySet()
             .stream()
             .map( xData -> XDataJson.create()
                 .setXData( xData )
                 .setIconUrlResolver( this.mixinIconUrlResolver )
-                .setLocaleMessageResolver( new LocaleMessageResolver( localeService, xData.getName().getApplicationKey() ) )
+                .setLocaleMessageResolver( new LocaleMessageResolver( localeService, xData.getName().getApplicationKey(), locales ) )
                 .setInlineMixinResolver( new InlineMixinResolver( mixinService ) )
                 .setOptional( xDatas.get( xData ) )
                 .build() )

@@ -3,10 +3,9 @@ package com.enonic.xp.app.contentstudio.rest.resource.task;
 import java.time.Instant;
 import java.util.Arrays;
 
-import javax.ws.rs.WebApplicationException;
-
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+
+import jakarta.ws.rs.WebApplicationException;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
@@ -19,6 +18,8 @@ import com.enonic.xp.task.TaskState;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TaskResourceTest
     extends AdminResourceTestSupport
@@ -30,7 +31,7 @@ public class TaskResourceTest
     @Override
     protected Object getResourceInstance()
     {
-        this.taskService = Mockito.mock( TaskService.class );
+        this.taskService = mock( TaskService.class );
 
         this.taskResource = new TaskResource();
         taskResource.setTaskService( this.taskService );
@@ -66,7 +67,7 @@ public class TaskResourceTest
             .progress( TaskProgress.create().current( 42 ).total( 42 ).info( "Process completed" ).build() )
             .build();
 
-        Mockito.when( this.taskService.getAllTasks() ).thenReturn( Arrays.asList( taskInfo1, taskInfo2 ) );
+        when( this.taskService.getAllTasks() ).thenReturn( Arrays.asList( taskInfo1, taskInfo2 ) );
 
         String response = request().path( "tasks" ).get().getAsString();
 
@@ -89,7 +90,7 @@ public class TaskResourceTest
             .progress( TaskProgress.create().current( 2 ).total( 10 ).info( "Processing items" ).build() )
             .build();
 
-        Mockito.when( this.taskService.getTaskInfo( taskId ) ).thenReturn( taskInfo );
+        when( this.taskService.getTaskInfo( taskId ) ).thenReturn( taskInfo );
 
         String response = request().path( "tasks/" + taskId ).get().getAsString();
 

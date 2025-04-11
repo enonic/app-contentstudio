@@ -2,10 +2,14 @@ package com.enonic.xp.app.contentstudio.rest.resource.schema.xdata;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.Locale;
 
+import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
-import org.mockito.Mockito;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
@@ -26,6 +30,9 @@ import com.enonic.xp.site.SiteService;
 import com.enonic.xp.site.XDataMapping;
 import com.enonic.xp.site.XDataMappings;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class XDataResourceTest
@@ -51,10 +58,10 @@ public class XDataResourceTest
     @Override
     protected XDataResource getResourceInstance()
     {
-        mixinService = Mockito.mock( MixinService.class );
-        xDataService = Mockito.mock( XDataService.class );
-        localeService = Mockito.mock( LocaleService.class );
-        siteService = Mockito.mock( SiteService.class );
+        mixinService = mock( MixinService.class );
+        xDataService = mock( XDataService.class );
+        localeService = mock( LocaleService.class );
+        siteService = mock( SiteService.class );
 
         final XDataResource resource = new XDataResource();
         resource.setMixinService( mixinService );
@@ -62,12 +69,19 @@ public class XDataResourceTest
         resource.setLocaleService( localeService );
         resource.setSiteService( siteService );
 
-        final AdminRestConfig config = Mockito.mock( AdminRestConfig.class );
+        final AdminRestConfig config = mock( AdminRestConfig.class );
         when( config.contentTypePatternMode() ).thenReturn( "MATCH" );
 
         resource.activate( config );
 
-        Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+
+        final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
+        when( mockRequest.getServerName() ).thenReturn( "localhost" );
+        when( mockRequest.getScheme() ).thenReturn( "http" );
+        when( mockRequest.getServerPort() ).thenReturn( 80 );
+        when( mockRequest.getLocales() ).thenReturn( Collections.enumeration( Collections.singleton( Locale.US ) ) );
+        ResteasyContext.getContextDataMap().put( HttpServletRequest.class, mockRequest );
 
         return resource;
     }
@@ -130,17 +144,17 @@ public class XDataResourceTest
                 build() ) ).
             build();
 
-        Mockito.when( siteService.getDescriptor( contentTypeName.getApplicationKey() ) ).thenReturn( siteDescriptor );
+        when( siteService.getDescriptor( contentTypeName.getApplicationKey() ) ).thenReturn( siteDescriptor );
 
-        Mockito.when( mixinService.getByNames( Mockito.any() ) ).thenReturn( Mixins.empty() );
-        Mockito.when( xDataService.getByNames( XDataNames.from( xdata2.getName().toString(), xdata3.getName().toString() ) ) )
+        when( mixinService.getByNames( any() ) ).thenReturn( Mixins.empty() );
+        when( xDataService.getByNames( XDataNames.from( xdata2.getName().toString(), xdata3.getName().toString() ) ) )
             .thenReturn( XDatas.from( xdata2 ) );
 
-        Mockito.when( xDataService.getByName( xdata1.getName() ) ).thenReturn( xdata1 );
-        Mockito.when( xDataService.getByName( xdata2.getName() ) ).thenReturn( xdata2 );
-        Mockito.when( xDataService.getByName( xdata3.getName() ) ).thenReturn( xdata3 );
+        when( xDataService.getByName( xdata1.getName() ) ).thenReturn( xdata1 );
+        when( xDataService.getByName( xdata2.getName() ) ).thenReturn( xdata2 );
+        when( xDataService.getByName( xdata3.getName() ) ).thenReturn( xdata3 );
 
-        Mockito.when( xDataService.getByApplication( Mockito.any() ) ).thenReturn( XDatas.from( xdata2 ) );
+        when( xDataService.getByApplication( any() ) ).thenReturn( XDatas.from( xdata2 ) );
 
         String result = request().path( "schema/xdata/getApplicationXDataForContentType" ).
             queryParam( "contentTypeName", contentTypeName.toString() ).

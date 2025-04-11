@@ -3,8 +3,10 @@ package com.enonic.xp.app.contentstudio.rest.resource.issue;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -13,7 +15,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import com.enonic.xp.content.CompareContentResult;
 import com.enonic.xp.content.CompareContentResults;
@@ -30,6 +31,7 @@ import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.i18n.LocaleService;
+import com.enonic.xp.i18n.MessageBundle;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.issue.Issue;
 import com.enonic.xp.issue.IssueComment;
@@ -52,9 +54,12 @@ import com.enonic.xp.security.User;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class IssueNotificationsSenderImplTest
 {
@@ -77,18 +82,21 @@ public class IssueNotificationsSenderImplTest
     @BeforeEach
     public void setUp()
     {
-        mailService = Mockito.mock( MailService.class );
-        securityService = Mockito.mock( SecurityService.class );
-        contentService = Mockito.mock( ContentService.class );
+        mailService = mock( MailService.class );
+        securityService = mock( SecurityService.class );
+        contentService = mock( ContentService.class );
         issueNotificationsSender = new IssueNotificationsSenderImpl( mailService );
-        contentTypeService = Mockito.mock( ContentTypeService.class );
-        localeService = Mockito.mock( LocaleService.class );
+        contentTypeService = mock( ContentTypeService.class );
+        localeService = mock( LocaleService.class );
 
         notificationFactoryBuilder =
             IssueNotificationParamsFactory.create().contentService( contentService ).securityService( securityService ).localeService(
                 localeService ).contentTypeService( contentTypeService );
 
         mailCaptor = ArgumentCaptor.forClass( SendMailParams.class );
+
+        final MessageBundle messageBundle = mock( MessageBundle.class );
+        when( localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
     }
 
     @Test
@@ -100,14 +108,16 @@ public class IssueNotificationsSenderImplTest
         final Issue issue = createIssue( creator.getKey(), PrincipalKeys.from( approver.getKey() ) );
         final Contents contents = Contents.empty();
 
-        Mockito.when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
-        Mockito.when( securityService.getUser( issue.getApproverIds().first() ) ).thenReturn( Optional.of( approver ) );
-        Mockito.when( contentService.getByIds( Mockito.any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
+        when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
+        when( securityService.getUser( issue.getApproverIds().first() ) ).thenReturn( Optional.of( approver ) );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
 
         IssueNotificationParams params = notificationFactoryBuilder.
             issue( issue ).
             comments( this.createComments( creator.getKey() ) ).
             url( "url" ).
+            localeService( localeService ).
+            locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
             build().
             createdParams();
 
@@ -119,7 +129,7 @@ public class IssueNotificationsSenderImplTest
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( contentService, times( 1 ) ).getByIds( any() );
-        verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
+        verify( contentService, times( 1 ) ).compare( any( CompareContentsParams.class ) );
     }
 
     @Test
@@ -131,14 +141,16 @@ public class IssueNotificationsSenderImplTest
         final Issue issue = createIssue( creator.getKey(), PrincipalKeys.from( approver.getKey() ) );
         final Contents contents = Contents.empty();
 
-        Mockito.when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
-        Mockito.when( securityService.getUser( issue.getApproverIds().first() ) ).thenReturn( Optional.of( approver ) );
-        Mockito.when( contentService.getByIds( Mockito.any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
+        when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
+        when( securityService.getUser( issue.getApproverIds().first() ) ).thenReturn( Optional.of( approver ) );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
 
         IssueNotificationParams params = notificationFactoryBuilder.
             issue( issue ).
             comments( this.createComments( creator.getKey() ) ).
             url( "url" ).
+            localeService( localeService ).
+            locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
             build().
             createdParams();
 
@@ -147,7 +159,7 @@ public class IssueNotificationsSenderImplTest
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( mailService, never() ).send( any( SendMailParams.class ) );
         verify( contentService, times( 1 ) ).getByIds( any() );
-        verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
+        verify( contentService, times( 1 ) ).compare( any( CompareContentsParams.class ) );
     }
 
     @Test
@@ -161,15 +173,17 @@ public class IssueNotificationsSenderImplTest
         final Issue issue = createIssue( creator.getKey(), approverIds );
         final Contents contents = Contents.empty();
 
-        Mockito.when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
+        when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
         approvers.stream()
-            .forEach( approver -> Mockito.when( securityService.getUser( approver.getKey() ) ).thenReturn( Optional.of( approver ) ) );
-        Mockito.when( contentService.getByIds( Mockito.any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
+            .forEach( approver -> when( securityService.getUser( approver.getKey() ) ).thenReturn( Optional.of( approver ) ) );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
 
         IssueNotificationParams params = notificationFactoryBuilder.
             issue( issue ).
             comments( this.createComments( creator.getKey() ) ).
             url( "url" ).
+            localeService( localeService ).
+            locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
             build().
             createdParams();
 
@@ -181,7 +195,7 @@ public class IssueNotificationsSenderImplTest
         verify( securityService, times( 4 ) ).getUser( any() );
         verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( contentService, times( 1 ) ).getByIds( any() );
-        verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
+        verify( contentService, times( 1 ) ).compare( any( CompareContentsParams.class ) );
     }
 
     @Test
@@ -197,15 +211,17 @@ public class IssueNotificationsSenderImplTest
         final Issue issue = createIssue( creator.getKey(), modifier.getKey(), approverIds );
         final Contents contents = Contents.empty();
 
-        Mockito.when( securityService.getUser( issue.getModifier() ) ).thenReturn( Optional.of( modifier ) );
+        when( securityService.getUser( issue.getModifier() ) ).thenReturn( Optional.of( modifier ) );
         approvers.stream()
-            .forEach( approver -> Mockito.when( securityService.getUser( approver.getKey() ) ).thenReturn( Optional.of( approver ) ) );
-        Mockito.when( contentService.getByIds( Mockito.any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
+            .forEach( approver -> when( securityService.getUser( approver.getKey() ) ).thenReturn( Optional.of( approver ) ) );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
 
         IssueNotificationParams params = notificationFactoryBuilder.
             issue( issue ).
             comments( this.createComments( creator.getKey() ) ).
             url( "url" ).
+            localeService( localeService ).
+            locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
             build().
             createdParams();
 
@@ -217,7 +233,7 @@ public class IssueNotificationsSenderImplTest
         verify( securityService, times( 4 ) ).getUser( any() );
         verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( contentService, times( 1 ) ).getByIds( any() );
-        verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
+        verify( contentService, times( 1 ) ).compare( any( CompareContentsParams.class ) );
     }
 
     private void verifyRecipients( final SendMailParams msg, final Set<String> recipients )
@@ -270,11 +286,11 @@ public class IssueNotificationsSenderImplTest
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
             build();
 
-        Mockito.when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
-        Mockito.when( securityService.getUser( issue.getApproverIds().first() ) ).thenReturn( Optional.of( approver ) );
-        Mockito.when( contentService.getByIds( Mockito.any( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( content ) );
-        Mockito.when( contentService.compare( Mockito.any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
-        Mockito.when( contentTypeService.getByName( Mockito.isA( GetContentTypeParams.class ) ) )
+        when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
+        when( securityService.getUser( issue.getApproverIds().first() ) ).thenReturn( Optional.of( approver ) );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( content ) );
+        when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
                              .name( "mycontenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
@@ -285,6 +301,8 @@ public class IssueNotificationsSenderImplTest
             issue( issue ).
             comments( this.createComments( creator.getKey() ) ).
             url( "url" ).
+            localeService( localeService ).
+            locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
             build().
             updatedParams();
 
@@ -296,7 +314,7 @@ public class IssueNotificationsSenderImplTest
         verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
-        verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
+        verify( contentService, times( 1 ) ).compare( any( CompareContentsParams.class ) );
     }
 
     @Test
@@ -317,10 +335,10 @@ public class IssueNotificationsSenderImplTest
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
             build();
 
-        Mockito.when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
-        Mockito.when( contentService.getByIds( Mockito.any( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( content ) );
-        Mockito.when( contentService.compare( Mockito.any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
-        Mockito.when( contentTypeService.getByName( Mockito.isA( GetContentTypeParams.class ) ) )
+        when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( content ) );
+        when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
                              .name( "mycontenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
@@ -331,15 +349,17 @@ public class IssueNotificationsSenderImplTest
             issue( issue ).
             comments( this.createComments( creator.getKey() ) ).
             url( "url" ).
+            localeService( localeService ).
+            locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
             build().
             updatedParams();
 
         createContextRepo( "myproject" ).runWith( () -> issueNotificationsSender.notifyIssueCreated( params ) );
 
-        verify( mailService, Mockito.never() ).send( any( SendMailParams.class ) );
+        verify( mailService, never() ).send( any( SendMailParams.class ) );
         verify( securityService, times( 1 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
-        verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
+        verify( contentService, times( 1 ) ).compare( any( CompareContentsParams.class ) );
     }
 
     @Test
@@ -363,12 +383,12 @@ public class IssueNotificationsSenderImplTest
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
             build();
 
-        Mockito.when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
+        when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
         approvers.stream()
-            .forEach( approver -> Mockito.when( securityService.getUser( approver.getKey() ) ).thenReturn( Optional.of( approver ) ) );
-        Mockito.when( contentService.getByIds( Mockito.any( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( content ) );
-        Mockito.when( contentService.compare( Mockito.any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
-        Mockito.when( contentTypeService.getByName( Mockito.isA( GetContentTypeParams.class ) ) )
+            .forEach( approver -> when( securityService.getUser( approver.getKey() ) ).thenReturn( Optional.of( approver ) ) );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( content ) );
+        when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
                              .name( "mycontenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
@@ -379,6 +399,8 @@ public class IssueNotificationsSenderImplTest
             issue( issue ).
             comments( this.createComments( creator.getKey() ) ).
             url( "url" ).
+            localeService( localeService ).
+            locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
             build().
             updatedParams();
 
@@ -387,10 +409,10 @@ public class IssueNotificationsSenderImplTest
         final SendMailParams msg = getMessageSent();
         verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), approvers.get( 2 ).getEmail(), creator.getEmail() ) );
         verifyIssueLink( msg );
-        verify( mailService, Mockito.times( 1 ) ).send( any( SendMailParams.class ) );
+        verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 4 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
-        verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
+        verify( contentService, times( 1 ) ).compare( any( CompareContentsParams.class ) );
     }
 
     @Test
@@ -412,11 +434,11 @@ public class IssueNotificationsSenderImplTest
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
             build();
 
-        Mockito.when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
-        Mockito.when( securityService.getUser( issue.getApproverIds().first() ) ).thenReturn( Optional.of( approver ) );
-        Mockito.when( contentService.getByIds( Mockito.any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
-        Mockito.when( contentService.compare( Mockito.any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
-        Mockito.when( contentTypeService.getByName( Mockito.isA( GetContentTypeParams.class ) ) )
+        when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
+        when( securityService.getUser( issue.getApproverIds().first() ) ).thenReturn( Optional.of( approver ) );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
+        when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
                              .name( "mycontenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
@@ -427,6 +449,8 @@ public class IssueNotificationsSenderImplTest
             issue( issue ).
             comments( this.createComments( User.ANONYMOUS.getKey() ) ).
             url( "url" ).
+            localeService( localeService ).
+            locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
             build().
             commentedParams();
 
@@ -438,7 +462,7 @@ public class IssueNotificationsSenderImplTest
         verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
-        verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
+        verify( contentService, times( 1 ) ).compare( any( CompareContentsParams.class ) );
     }
 
     @Test
@@ -460,11 +484,11 @@ public class IssueNotificationsSenderImplTest
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
             build();
 
-        Mockito.when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
-        Mockito.when( securityService.getUser( issue.getApproverIds().first() ) ).thenReturn( Optional.of( approver ) );
-        Mockito.when( contentService.getByIds( Mockito.any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
-        Mockito.when( contentService.compare( Mockito.any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
-        Mockito.when( contentTypeService.getByName( Mockito.isA( GetContentTypeParams.class ) ) )
+        when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
+        when( securityService.getUser( issue.getApproverIds().first() ) ).thenReturn( Optional.of( approver ) );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
+        when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
                              .name( "mycontenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
@@ -475,6 +499,8 @@ public class IssueNotificationsSenderImplTest
             issue( issue ).
             comments( this.createComments( User.ANONYMOUS.getKey() ) ).
             url( "url" ).
+            localeService( localeService ).
+            locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
             build().
             commentedParams();
 
@@ -483,7 +509,7 @@ public class IssueNotificationsSenderImplTest
         verify( mailService, never() ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
-        verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
+        verify( contentService, times( 1 ) ).compare( any( CompareContentsParams.class ) );
     }
 
     @Test
@@ -507,12 +533,12 @@ public class IssueNotificationsSenderImplTest
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
             build();
 
-        Mockito.when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
+        when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
         approvers.stream()
-            .forEach( approver -> Mockito.when( securityService.getUser( approver.getKey() ) ).thenReturn( Optional.of( approver ) ) );
-        Mockito.when( contentService.getByIds( Mockito.any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
-        Mockito.when( contentService.compare( Mockito.any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
-        Mockito.when( contentTypeService.getByName( Mockito.isA( GetContentTypeParams.class ) ) )
+            .forEach( approver -> when( securityService.getUser( approver.getKey() ) ).thenReturn( Optional.of( approver ) ) );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
+        when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
                              .name( "mycontenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
@@ -523,6 +549,8 @@ public class IssueNotificationsSenderImplTest
             issue( issue ).
             comments( this.createComments( User.ANONYMOUS.getKey() ) ).
             url( "url" ).
+            localeService( localeService ).
+            locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
             build().
             commentedParams();
 
@@ -534,7 +562,7 @@ public class IssueNotificationsSenderImplTest
         verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 3 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
-        verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
+        verify( contentService, times( 1 ) ).compare( any( CompareContentsParams.class ) );
     }
 
     @Test
@@ -546,14 +574,16 @@ public class IssueNotificationsSenderImplTest
         final Issue issue = createIssue( creator.getKey(), PrincipalKeys.from( approver.getKey() ) );
         final Contents contents = Contents.empty();
 
-        Mockito.when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
-        Mockito.when( securityService.getUser( issue.getApproverIds().first() ) ).thenReturn( Optional.of( approver ) );
-        Mockito.when( contentService.getByIds( Mockito.any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
+        when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
+        when( securityService.getUser( issue.getApproverIds().first() ) ).thenReturn( Optional.of( approver ) );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
 
         IssuePublishedNotificationParams params = notificationFactoryBuilder.
             issue( issue ).
             comments( this.createComments( creator.getKey() ) ).
             url( "url" ).
+            localeService( localeService ).
+            locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
             build().
             publishedParams();
 
@@ -565,7 +595,7 @@ public class IssueNotificationsSenderImplTest
         verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
-        verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
+        verify( contentService, times( 1 ) ).compare( any( CompareContentsParams.class ) );
     }
 
     @Test
@@ -577,14 +607,16 @@ public class IssueNotificationsSenderImplTest
         final Issue issue = createIssue( creator.getKey(), PrincipalKeys.from( approver.getKey() ) );
         final Contents contents = Contents.empty();
 
-        Mockito.when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
-        Mockito.when( securityService.getUser( approver.getKey() ) ).thenReturn( Optional.of( approver ) );
-        Mockito.when( contentService.getByIds( Mockito.any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
+        when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
+        when( securityService.getUser( approver.getKey() ) ).thenReturn( Optional.of( approver ) );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
 
         IssuePublishedNotificationParams params = notificationFactoryBuilder.
             issue( issue ).
             comments( this.createComments( creator.getKey() ) ).
             url( "url" ).
+            localeService( localeService ).
+            locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
             build().
             publishedParams();
 
@@ -593,7 +625,7 @@ public class IssueNotificationsSenderImplTest
         verify( mailService, never() ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
-        verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
+        verify( contentService, times( 1 ) ).compare( any( CompareContentsParams.class ) );
     }
 
     @Test
@@ -617,12 +649,12 @@ public class IssueNotificationsSenderImplTest
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
             build();
 
-        Mockito.when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
+        when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
         approvers.stream()
-            .forEach( approver -> Mockito.when( securityService.getUser( approver.getKey() ) ).thenReturn( Optional.of( approver ) ) );
-        Mockito.when( contentService.getByIds( Mockito.any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
-        Mockito.when( contentService.compare( Mockito.any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
-        Mockito.when( contentTypeService.getByName( Mockito.isA( GetContentTypeParams.class ) ) )
+            .forEach( approver -> when( securityService.getUser( approver.getKey() ) ).thenReturn( Optional.of( approver ) ) );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( contents );
+        when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
+        when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
                              .name( "mycontenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
@@ -633,6 +665,8 @@ public class IssueNotificationsSenderImplTest
             issue( issue ).
             comments( this.createComments( creator.getKey() ) ).
             url( "url" ).
+            localeService( localeService ).
+            locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
             build().
             publishedParams();
 
@@ -644,7 +678,7 @@ public class IssueNotificationsSenderImplTest
         verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 3 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
-        verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
+        verify( contentService, times( 1 ) ).compare( any( CompareContentsParams.class ) );
     }
 
     private Context createContextRepo( final String projectName )

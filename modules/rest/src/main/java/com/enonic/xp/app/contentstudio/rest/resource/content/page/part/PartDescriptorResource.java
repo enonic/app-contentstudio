@@ -2,18 +2,20 @@ package com.enonic.xp.app.contentstudio.rest.resource.content.page.part;
 
 import java.util.stream.Collectors;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.CacheControl;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -46,21 +48,22 @@ public final class PartDescriptorResource
     private static final PartImageHelper HELPER = new PartImageHelper();
 
     @GET
-    public PartDescriptorJson getByKey( @QueryParam("key") final String partDescriptorKey )
+    public PartDescriptorJson getByKey( @QueryParam("key") final String partDescriptorKey, @Context HttpServletRequest request )
     {
         final DescriptorKey key = DescriptorKey.from( partDescriptorKey );
         final PartDescriptor descriptor = partDescriptorService.getByKey( key );
 
-        return jsonObjectsFactory.createPartDescriptorJson( descriptor );
+        return jsonObjectsFactory.createPartDescriptorJson( descriptor, request.getLocales() );
     }
 
     @GET
     @Path("list/by_application")
-    public PartDescriptorsJson getByApplication( @QueryParam("applicationKey") final String applicationKey )
+    public PartDescriptorsJson getByApplication( @QueryParam("applicationKey") final String applicationKey,
+                                                 @Context HttpServletRequest request )
     {
         return new PartDescriptorsJson( partDescriptorService.getByApplication( ApplicationKey.from( applicationKey ) )
                                             .stream()
-                                            .map( jsonObjectsFactory::createPartDescriptorJson )
+                                            .map( d -> jsonObjectsFactory.createPartDescriptorJson( d, request.getLocales() ) )
                                             .collect( Collectors.toUnmodifiableList() ) );
     }
 
@@ -68,11 +71,11 @@ public final class PartDescriptorResource
     @POST
     @Path("list/by_applications")
     @Consumes(MediaType.APPLICATION_JSON)
-    public PartDescriptorsJson getByApplications( final GetByApplicationsParams params )
+    public PartDescriptorsJson getByApplications( final GetByApplicationsParams params, @Context HttpServletRequest request )
     {
         return new PartDescriptorsJson( this.partDescriptorService.getByApplications( params.getApplicationKeys() )
                                             .stream()
-                                            .map( jsonObjectsFactory::createPartDescriptorJson )
+                                            .map( d -> jsonObjectsFactory.createPartDescriptorJson( d, request.getLocales() ) )
                                             .collect( Collectors.toUnmodifiableList() ) );
     }
 

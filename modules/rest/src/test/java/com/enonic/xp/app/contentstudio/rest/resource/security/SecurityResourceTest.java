@@ -7,12 +7,12 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Optional;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
 
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.jaxrs.impl.MockRestResponse;
@@ -35,6 +35,11 @@ import com.enonic.xp.web.HttpStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SecurityResourceTest
     extends AdminResourceTestSupport
@@ -52,7 +57,7 @@ public class SecurityResourceTest
     @Override
     protected SecurityResource getResourceInstance()
     {
-        securityService = Mockito.mock( SecurityService.class );
+        securityService = mock( SecurityService.class );
 
         final SecurityResource resource = new SecurityResource();
 
@@ -72,7 +77,7 @@ public class SecurityResourceTest
             addPrincipal( Role.create().key( RoleKeys.EVERYONE ).displayName( "everyone" ).build() ).
             build();
 
-        Mockito.when( securityService.query( Mockito.isA( PrincipalQuery.class ) ) ).thenReturn( principalQueryResult );
+        when( securityService.query( isA( PrincipalQuery.class ) ) ).thenReturn( principalQueryResult );
 
         String result = request().
             path( "security/principals" ).
@@ -83,7 +88,7 @@ public class SecurityResourceTest
             queryParam( "size", "10" ).
             get().getAsString();
 
-        Mockito.verify( securityService, Mockito.times( 1 ) ).query( queryCaptor.capture() );
+        verify( securityService, times( 1 ) ).query( queryCaptor.capture() );
 
         assertEquals( "query", queryCaptor.getValue().getSearchText() );
         assertEquals( 2, queryCaptor.getValue().getPrincipalTypes().size() );
@@ -180,9 +185,9 @@ public class SecurityResourceTest
         Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.from( "user:local:a" ) ) ).thenReturn(
             userRes );
         final PrincipalKeys membershipKeys = PrincipalKeys.from( group1.getKey(), group2.getKey() );
-        Mockito.when( securityService.getMemberships( PrincipalKey.from( "user:local:a" ) ) ).thenReturn( membershipKeys );
+        when( securityService.getMemberships( PrincipalKey.from( "user:local:a" ) ) ).thenReturn( membershipKeys );
         final Principals memberships = Principals.from( group1, group2 );
-        Mockito.when( securityService.getPrincipals( membershipKeys ) ).thenReturn( memberships );
+        when( securityService.getPrincipals( membershipKeys ) ).thenReturn( memberships );
 
         String jsonString = request().
             path( "security/principals/" + URLEncoder.encode( "user:local:a", StandardCharsets.UTF_8 ) ).
@@ -210,7 +215,7 @@ public class SecurityResourceTest
         PrincipalRelationship member1 = PrincipalRelationship.from( group.getKey() ).to( PrincipalKey.from( "user:system:user1" ) );
         PrincipalRelationship member2 = PrincipalRelationship.from( group.getKey() ).to( PrincipalKey.from( "user:system:user2" ) );
         PrincipalRelationships members = PrincipalRelationships.from( member1, member2 );
-        Mockito.when( securityService.getRelationships( PrincipalKey.from( "group:system:group-a" ) ) ).thenReturn( members );
+        when( securityService.getRelationships( PrincipalKey.from( "group:system:group-a" ) ) ).thenReturn( members );
 
         String jsonString = request().
             path( "security/principals/" + URLEncoder.encode( "group:system:group-a", StandardCharsets.UTF_8 ) ).
@@ -244,12 +249,12 @@ public class SecurityResourceTest
         PrincipalRelationship member1 = PrincipalRelationship.from( group.getKey() ).to( PrincipalKey.from( "user:system:user1" ) );
         PrincipalRelationship member2 = PrincipalRelationship.from( group.getKey() ).to( PrincipalKey.from( "user:system:user2" ) );
         PrincipalRelationships members = PrincipalRelationships.from( member1, member2 );
-        Mockito.when( securityService.getRelationships( PrincipalKey.from( "group:system:group-a" ) ) ).thenReturn( members );
+        when( securityService.getRelationships( PrincipalKey.from( "group:system:group-a" ) ) ).thenReturn( members );
 
         final PrincipalKeys membershipKeys = PrincipalKeys.from( role.getKey() );
-        Mockito.when( securityService.getMemberships( PrincipalKey.from( "group:system:group-a" ) ) ).thenReturn( membershipKeys );
+        when( securityService.getMemberships( PrincipalKey.from( "group:system:group-a" ) ) ).thenReturn( membershipKeys );
         final Principals memberships = Principals.from( role );
-        Mockito.when( securityService.getPrincipals( membershipKeys ) ).thenReturn( memberships );
+        when( securityService.getPrincipals( membershipKeys ) ).thenReturn( memberships );
 
         String jsonString = request().
             path( "security/principals/" + URLEncoder.encode( "group:system:group-a", StandardCharsets.UTF_8 ) ).
@@ -277,7 +282,7 @@ public class SecurityResourceTest
         PrincipalRelationship membership1 = PrincipalRelationship.from( role.getKey() ).to( PrincipalKey.from( "user:system:user1" ) );
         PrincipalRelationship membership2 = PrincipalRelationship.from( role.getKey() ).to( PrincipalKey.from( "user:system:user2" ) );
         PrincipalRelationships memberships = PrincipalRelationships.from( membership1, membership2 );
-        Mockito.when( securityService.getRelationships( PrincipalKey.from( "role:superuser" ) ) ).thenReturn( memberships );
+        when( securityService.getRelationships( PrincipalKey.from( "role:superuser" ) ) ).thenReturn( memberships );
 
         String jsonString = request().
             path( "security/principals/" + URLEncoder.encode( "role:superuser", StandardCharsets.UTF_8 ) ).
@@ -292,8 +297,8 @@ public class SecurityResourceTest
         SecurityResource securityResource = getResourceInstance();
 
         final Optional<? extends Principal> userRes = Optional.ofNullable( null );
-        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.from( "role:superuser" ) ) ).thenReturn(
-            userRes );
+        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.from( "role:superuser" ) ) )
+            .thenReturn( userRes );
 
         final WebApplicationException ex = assertThrows( WebApplicationException.class, () -> {
             securityResource.getPrincipalByKey( "role:superuser", null );
@@ -327,12 +332,12 @@ public class SecurityResourceTest
             modifiedTime( Instant.now( clock ) ).
             build();
 
-        Mockito.when( securityService.getPrincipals( PrincipalKeys.from( user.getKey(), group.getKey(), role.getKey() ) ) ).thenReturn(
+        when( securityService.getPrincipals( PrincipalKeys.from( user.getKey(), group.getKey(), role.getKey() ) ) ).thenReturn(
             Principals.from( user, group, role ) );
 
-        Mockito.when( securityService.getRelationships( PrincipalKey.from( group.getKey().toString() ) ) ).thenReturn(
+        when( securityService.getRelationships( PrincipalKey.from( group.getKey().toString() ) ) ).thenReturn(
             PrincipalRelationships.empty() );
-        Mockito.when( securityService.getRelationships( PrincipalKey.from( role.getKey().toString() ) ) ).thenReturn(
+        when( securityService.getRelationships( PrincipalKey.from( role.getKey().toString() ) ) ).thenReturn(
             PrincipalRelationships.empty() );
 
         final String jsonString = request().

@@ -2,19 +2,21 @@ package com.enonic.xp.app.contentstudio.rest.resource.issue;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
-
+import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.MediaType;
 
 import com.enonic.xp.app.contentstudio.json.issue.DeleteIssueCommentResultJson;
 import com.enonic.xp.app.contentstudio.json.issue.IssueCommentJson;
@@ -41,6 +43,8 @@ import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.context.LocalScope;
+import com.enonic.xp.i18n.LocaleService;
+import com.enonic.xp.i18n.MessageBundle;
 import com.enonic.xp.issue.CreateIssueCommentParams;
 import com.enonic.xp.issue.CreateIssueParams;
 import com.enonic.xp.issue.CreatePublishRequestIssueParams;
@@ -82,6 +86,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class IssueResourceTest
     extends AdminResourceTestSupport
@@ -98,23 +109,28 @@ public class IssueResourceTest
 
     private ProjectService projectService;
 
+    private HttpServletRequest mockRequest;
+
+    private LocaleService localeService;
+
     @Override
     protected IssueResource getResourceInstance()
     {
         final IssueResource resource = new IssueResource();
 
-        issueService = Mockito.mock( IssueService.class );
-        contentService = Mockito.mock( ContentService.class );
-        Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) )
+        issueService = mock( IssueService.class );
+        contentService = mock( ContentService.class );
+        localeService = mock( LocaleService.class);
+        when( contentService.getByIds( isA( GetContentByIdsParams.class ) ) )
             .thenReturn( Contents.from( this.createContent() ) );
-        contentTypeService = Mockito.mock( ContentTypeService.class );
-        issueNotificationsSender = Mockito.mock( IssueNotificationsSender.class );
-        securityService = Mockito.mock( SecurityService.class );
-        projectService = Mockito.mock( ProjectService.class );
-        Mockito.when( securityService.getAllMemberships( Mockito.isA( PrincipalKey.class ) ) )
+        contentTypeService = mock( ContentTypeService.class );
+        issueNotificationsSender = mock( IssueNotificationsSender.class );
+        securityService = mock( SecurityService.class );
+        projectService = mock( ProjectService.class );
+        when( securityService.getAllMemberships( isA( PrincipalKey.class ) ) )
             .thenReturn( PrincipalKeys.from( "role:system:one" ) );
-        Mockito.when( securityService.getUser( User.ANONYMOUS.getKey() ) ).thenReturn( Optional.of( User.ANONYMOUS ) );
-        Mockito.when( projectService.getPermissions( Mockito.isA( ProjectName.class ) ) ).thenReturn( createProjectPermissions() );
+        when( securityService.getUser( User.ANONYMOUS.getKey() ) ).thenReturn( Optional.of( User.ANONYMOUS ) );
+        when( projectService.getPermissions( isA( ProjectName.class ) ) ).thenReturn( createProjectPermissions() );
 
         resource.setIssueService( issueService );
         resource.setIssueNotificationsSender( issueNotificationsSender );
@@ -122,6 +138,17 @@ public class IssueResourceTest
         resource.setContentService( contentService );
         resource.setContentTypeService( contentTypeService );
         resource.setProjectService( projectService );
+        resource.setLocaleService( localeService );
+
+        this.mockRequest = mock( HttpServletRequest.class );
+        when( mockRequest.getServerName() ).thenReturn( "localhost" );
+        when( mockRequest.getScheme() ).thenReturn( "http" );
+        when( mockRequest.getServerPort() ).thenReturn( 80 );
+        when( mockRequest.getLocales() ).thenReturn( Collections.enumeration( Collections.singleton( Locale.US ) ) );
+        ResteasyContext.getContextDataMap().put( HttpServletRequest.class, mockRequest );
+
+        final MessageBundle messageBundle = mock( MessageBundle.class );
+        when( localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
 
         return resource;
     }
@@ -160,20 +187,19 @@ public class IssueResourceTest
 
             final Issue issue = this.createIssue();
             final IssueComment comment = IssueComment.create().text( issue.getDescription() ).creator( issue.getCreator() ).build();
-            final HttpServletRequest request = Mockito.mock( HttpServletRequest.class );
             final IssueResource issueResource = getResourceInstance();
             final ArgumentCaptor<CreateIssueCommentParams> commentCaptor = ArgumentCaptor.forClass( CreateIssueCommentParams.class );
 
-            Mockito.when( issueService.create( Mockito.any( CreateIssueParams.class ) ) ).thenReturn( issue );
-            Mockito.when( issueService.createComment( Mockito.any( CreateIssueCommentParams.class ) ) ).thenReturn( comment );
+            when( issueService.create( any( CreateIssueParams.class ) ) ).thenReturn( issue );
+            when( issueService.createComment( any( CreateIssueCommentParams.class ) ) ).thenReturn( comment );
 
-            issueResource.create( params, request );
+            issueResource.create( params, mockRequest );
 
-            Mockito.verify( issueService ).createComment( commentCaptor.capture() );
-            Mockito.verify( issueService, Mockito.times( 1 ) ).create( Mockito.any( CreateIssueParams.class ) );
-            Mockito.verify( issueService, Mockito.times( 1 ) ).createComment( Mockito.any( CreateIssueCommentParams.class ) );
-            Mockito.verify( issueNotificationsSender, Mockito.times( 1 ) )
-                .notifyIssueCreated( Mockito.isA( IssueNotificationParams.class ) );
+            verify( issueService ).createComment( commentCaptor.capture() );
+            verify( issueService, times( 1 ) ).create( any( CreateIssueParams.class ) );
+            verify( issueService, times( 1 ) ).createComment( any( CreateIssueCommentParams.class ) );
+            verify( issueNotificationsSender, times( 1 ) )
+                .notifyIssueCreated( isA( IssueNotificationParams.class ) );
 
             assertEquals( "desc", commentCaptor.getValue().getText() );
             assertEquals( issue.getId(), commentCaptor.getValue().getIssue() );
@@ -191,21 +217,20 @@ public class IssueResourceTest
 
             final Issue issue = this.createPublishRequestIssue();
             final IssueComment comment = IssueComment.create().text( issue.getDescription() ).creator( issue.getCreator() ).build();
-            final HttpServletRequest request = Mockito.mock( HttpServletRequest.class );
             final IssueResource issueResource = getResourceInstance();
             final ArgumentCaptor<CreateIssueCommentParams> commentCaptor = ArgumentCaptor.forClass( CreateIssueCommentParams.class );
             final ArgumentCaptor<CreateIssueParams> paramCaptor = ArgumentCaptor.forClass( CreateIssueParams.class );
 
-            Mockito.when( issueService.create( Mockito.any( CreateIssueParams.class ) ) ).thenReturn( issue );
-            Mockito.when( issueService.createComment( Mockito.any( CreateIssueCommentParams.class ) ) ).thenReturn( comment );
+            when( issueService.create( any( CreateIssueParams.class ) ) ).thenReturn( issue );
+            when( issueService.createComment( any( CreateIssueCommentParams.class ) ) ).thenReturn( comment );
 
-            issueResource.create( params, request );
+            issueResource.create( params, mockRequest );
 
-            Mockito.verify( issueService ).createComment( commentCaptor.capture() );
-            Mockito.verify( issueService, Mockito.times( 1 ) ).create( paramCaptor.capture() );
-            Mockito.verify( issueService, Mockito.times( 1 ) ).createComment( Mockito.any( CreateIssueCommentParams.class ) );
-            Mockito.verify( issueNotificationsSender, Mockito.times( 1 ) )
-                .notifyIssueCreated( Mockito.isA( IssueNotificationParams.class ) );
+            verify( issueService ).createComment( commentCaptor.capture() );
+            verify( issueService, times( 1 ) ).create( paramCaptor.capture() );
+            verify( issueService, times( 1 ) ).createComment( any( CreateIssueCommentParams.class ) );
+            verify( issueNotificationsSender, times( 1 ) )
+                .notifyIssueCreated( isA( IssueNotificationParams.class ) );
 
             assertEquals( "desc", commentCaptor.getValue().getText() );
             assertEquals( issue.getId(), commentCaptor.getValue().getIssue() );
@@ -225,17 +250,16 @@ public class IssueResourceTest
                                      null );
 
             final Issue issue = this.createIssue();
-            final HttpServletRequest request = Mockito.mock( HttpServletRequest.class );
             final IssueResource issueResource = getResourceInstance();
 
-            Mockito.when( issueService.create( Mockito.any( CreateIssueParams.class ) ) ).thenReturn( issue );
+            when( issueService.create( any( CreateIssueParams.class ) ) ).thenReturn( issue );
 
-            issueResource.create( params, request );
+            issueResource.create( params, mockRequest );
 
-            Mockito.verify( issueService, Mockito.times( 1 ) ).create( Mockito.any( CreateIssueParams.class ) );
-            Mockito.verify( issueService, Mockito.never() ).createComment( Mockito.any( CreateIssueCommentParams.class ) );
-            Mockito.verify( issueNotificationsSender, Mockito.times( 1 ) )
-                .notifyIssueCreated( Mockito.isA( IssueNotificationParams.class ) );
+            verify( issueService, times( 1 ) ).create( any( CreateIssueParams.class ) );
+            verify( issueService, never() ).createComment( any( CreateIssueCommentParams.class ) );
+            verify( issueNotificationsSender, times( 1 ) )
+                .notifyIssueCreated( isA( IssueNotificationParams.class ) );
         });
     }
 
@@ -352,16 +376,15 @@ public class IssueResourceTest
         final CreateIssueJson params =
             new CreateIssueJson( null, "title", "", Arrays.asList( user.toString() ), createPublishRequest(), null );
 
-        final HttpServletRequest request = Mockito.mock( HttpServletRequest.class );
         final IssueResource issueResource = getResourceInstance();
-        Mockito.when( issueService.create( Mockito.isA( CreateIssueParams.class ) ) ).thenReturn( this.createIssue() );
-        Mockito.when( securityService.getAllMemberships( Mockito.isA( PrincipalKey.class ) ) ).thenReturn( memberships );
+        when( issueService.create( isA( CreateIssueParams.class ) ) ).thenReturn( this.createIssue() );
+        when( securityService.getAllMemberships( isA( PrincipalKey.class ) ) ).thenReturn( memberships );
 
         ArgumentCaptor<CreateIssueParams> issueParamsArgumentCaptor = ArgumentCaptor.forClass( CreateIssueParams.class );
 
-        issueResource.create( params, request );
+        issueResource.create( params, this.mockRequest );
 
-        Mockito.verify( issueService ).create( issueParamsArgumentCaptor.capture() );
+        verify( issueService ).create( issueParamsArgumentCaptor.capture() );
         assertTrue( issueParamsArgumentCaptor.getValue().getApproverIds().isNotEmpty() );
     }
 
@@ -372,14 +395,13 @@ public class IssueResourceTest
             final CreateIssueJson params =
                 new CreateIssueJson( null, "title", "", Arrays.asList( User.ANONYMOUS.getKey().toString() ), createPublishRequest(), null );
 
-            final HttpServletRequest request = Mockito.mock( HttpServletRequest.class );
             final IssueResource issueResource = getResourceInstance();
             ArgumentCaptor<CreateIssueParams> issueParamsArgumentCaptor = ArgumentCaptor.forClass( CreateIssueParams.class );
-            Mockito.when( issueService.create( Mockito.isA( CreateIssueParams.class ) ) ).thenReturn( this.createIssue() );
+            when( issueService.create( isA( CreateIssueParams.class ) ) ).thenReturn( this.createIssue() );
 
-            issueResource.create( params, request );
+            issueResource.create( params, mockRequest );
 
-            Mockito.verify( issueService ).create( issueParamsArgumentCaptor.capture() );
+            verify( issueService ).create( issueParamsArgumentCaptor.capture() );
 
             assertTrue( issueParamsArgumentCaptor.getValue().getApproverIds().isEmpty() );
         });
@@ -392,11 +414,11 @@ public class IssueResourceTest
         createLocalSession();
         final FindIssuesResult findIssuesResult = FindIssuesResult.create().hits( 2 ).totalHits( 4 ).build();
         final IssueResource issueResource = getResourceInstance();
-        Mockito.when( issueService.findIssues( Mockito.any( IssueQuery.class ) ) ).thenReturn( findIssuesResult );
+        when( issueService.findIssues( any( IssueQuery.class ) ) ).thenReturn( findIssuesResult );
         final IssueStatsJson result = issueResource.getStats();
 
         assertNotNull( result );
-        Mockito.verify( issueService, Mockito.times( 6 ) ).findIssues( Mockito.any( IssueQuery.class ) );
+        verify( issueService, times( 6 ) ).findIssues( any( IssueQuery.class ) );
     }
 
     @Test
@@ -406,11 +428,11 @@ public class IssueResourceTest
         createLocalSession();
         final FindIssuesResult findIssuesResult = FindIssuesResult.create().hits( 2 ).totalHits( 4 ).build();
         final IssueResource issueResource = getResourceInstance();
-        Mockito.when( issueService.findIssues( Mockito.any( IssueQuery.class ) ) ).thenReturn( findIssuesResult );
+        when( issueService.findIssues( any( IssueQuery.class ) ) ).thenReturn( findIssuesResult );
         final IssueStatsJson result = issueResource.getStatsByType( new CountStatsJson( "STANDARD" ) );
 
         assertNotNull( result );
-        Mockito.verify( issueService, Mockito.times( 6 ) ).findIssues( Mockito.any( IssueQuery.class ) );
+        verify( issueService, times( 6 ) ).findIssues( any( IssueQuery.class ) );
     }
 
     @Test
@@ -423,12 +445,12 @@ public class IssueResourceTest
         final List<Issue> issues = List.of( issue );
         final IssueResource issueResource = getResourceInstance();
         final FindIssuesResult result = FindIssuesResult.create().hits( 2 ).totalHits( 4 ).issues( issues ).build();
-        Mockito.when( issueService.findIssues( Mockito.any( IssueQuery.class ) ) ).thenReturn( result );
-        Mockito.when( securityService.getUser( Mockito.any( PrincipalKey.class ) ) ).thenReturn( Optional.empty() );
+        when( issueService.findIssues( any( IssueQuery.class ) ) ).thenReturn( result );
+        when( securityService.getUser( any( PrincipalKey.class ) ) ).thenReturn( Optional.empty() );
 
         issueResource.listIssues( new ListIssuesJson( "OPEN", true, true, true, 0, 10 ) );
 
-        Mockito.verify( issueService, Mockito.times( 1 ) ).findIssues( Mockito.any( IssueQuery.class ) );
+        verify( issueService, times( 1 ) ).findIssues( any( IssueQuery.class ) );
     }
 
     @Test
@@ -439,12 +461,12 @@ public class IssueResourceTest
 
         final FindIssuesResult result = FindIssuesResult.create().hits( 2 ).totalHits( 4 ).issues( List.of( createIssue() ) ).build();
 
-        Mockito.when( issueService.findIssues( Mockito.any( IssueQuery.class ) ) ).thenReturn( result );
-        Mockito.when( securityService.getUser( Mockito.any( PrincipalKey.class ) ) ).thenReturn( Optional.empty() );
+        when( issueService.findIssues( any( IssueQuery.class ) ) ).thenReturn( result );
+        when( securityService.getUser( any( PrincipalKey.class ) ) ).thenReturn( Optional.empty() );
 
         request().path( "issue/findIssues" ).entity( "{}", MediaType.APPLICATION_JSON_TYPE ).post().getAsString();
 
-        Mockito.verify( issueService, Mockito.times( 1 ) ).findIssues( Mockito.any( IssueQuery.class ) );
+        verify( issueService, times( 1 ) ).findIssues( any( IssueQuery.class ) );
     }
 
     @Test
@@ -454,10 +476,10 @@ public class IssueResourceTest
         final Instant createdTime = Instant.now();
         final Issue issue = createIssue();
 
-        Mockito.when( this.issueService.getIssue( issue.getId() ) ).thenReturn( issue );
+        when( this.issueService.getIssue( issue.getId() ) ).thenReturn( issue );
         List<IssueComment> comments = List.of( this.createIssueComment( createdTime ) );
         FindIssueCommentsResult result = FindIssueCommentsResult.create().hits( 1 ).totalHits( 3 ).comments( comments ).build();
-        Mockito.when( this.issueService.findComments( Mockito.any( IssueCommentQuery.class ) ) ).thenReturn( result );
+        when( this.issueService.findComments( any( IssueCommentQuery.class ) ) ).thenReturn( result );
 
         final Map<String, String> params = Map.of( "id", issue.getId().toString() );
         final String expected = Interpolator.classic().interpolate( readFromFile( "get_issue_result.json" ), params::get );
@@ -476,10 +498,10 @@ public class IssueResourceTest
         final Instant createdTime = Instant.now();
         final Issue issue = createPublishRequestIssue();
 
-        Mockito.when( this.issueService.getIssue( issue.getId() ) ).thenReturn( issue );
+        when( this.issueService.getIssue( issue.getId() ) ).thenReturn( issue );
         List<IssueComment> comments = List.of( this.createIssueComment( createdTime ) );
         FindIssueCommentsResult result = FindIssueCommentsResult.create().hits( 1 ).totalHits( 3 ).comments( comments ).build();
-        Mockito.when( this.issueService.findComments( Mockito.any( IssueCommentQuery.class ) ) ).thenReturn( result );
+        when( this.issueService.findComments( any( IssueCommentQuery.class ) ) ).thenReturn( result );
 
         final Map<String, String> params = Map.of( "id", issue.getId().toString() );
         final String expected = Interpolator.classic().interpolate( readFromFile( "get_issue_scheduled_result.json" ), params::get );
@@ -497,8 +519,8 @@ public class IssueResourceTest
     {
         final Issue issue = createIssue();
 
-        Mockito.when( this.issueService.getIssue( issue.getId() ) ).thenReturn( issue );
-        Mockito.when( this.issueService.findComments( Mockito.any( IssueCommentQuery.class ) ) )
+        when( this.issueService.getIssue( issue.getId() ) ).thenReturn( issue );
+        when( this.issueService.findComments( any( IssueCommentQuery.class ) ) )
             .thenReturn( FindIssueCommentsResult.create().build() );
 
         final Map<String, String> params = Map.of( "id", issue.getId().toString() );
@@ -528,17 +550,17 @@ public class IssueResourceTest
                                      createPublishRequest(), null );
 
             IssueResource resource = getResourceInstance();
-            Mockito.when( issueService.getIssue( Mockito.isA( IssueId.class ) ) ).thenReturn( issue );
-            Mockito.when( issueService.update( Mockito.any( UpdateIssueParams.class ) ) ).thenReturn( issue );
-            Mockito.when( issueService.findComments( Mockito.any( IssueCommentQuery.class ) ) )
+            when( issueService.getIssue( isA( IssueId.class ) ) ).thenReturn( issue );
+            when( issueService.update( any( UpdateIssueParams.class ) ) ).thenReturn( issue );
+            when( issueService.findComments( any( IssueCommentQuery.class ) ) )
                 .thenReturn( FindIssueCommentsResult.create().build() );
-            Mockito.when( securityService.getUser( PrincipalKey.from( "user:system:admin" ) ) ).thenReturn( Optional.of( admin ) );
+            when( securityService.getUser( PrincipalKey.from( "user:system:admin" ) ) ).thenReturn( Optional.of( admin ) );
 
-            resource.update( params, Mockito.mock( HttpServletRequest.class ) );
+            resource.update( params, mockRequest );
 
-            Mockito.verify( issueService, Mockito.times( 1 ) ).update( Mockito.any( UpdateIssueParams.class ) );
-            Mockito.verify( issueNotificationsSender, Mockito.times( 1 ) )
-                .notifyIssueUpdated( Mockito.isA( IssueUpdatedNotificationParams.class ) );
+            verify( issueService, times( 1 ) ).update( any( UpdateIssueParams.class ) );
+            verify( issueNotificationsSender, times( 1 ) )
+                .notifyIssueUpdated( isA( IssueUpdatedNotificationParams.class ) );
         });
     }
 
@@ -558,17 +580,17 @@ public class IssueResourceTest
                                      createPublishRequest(), createPublishRequestSchedule() );
 
             IssueResource resource = getResourceInstance();
-            Mockito.when( issueService.getIssue( Mockito.isA( IssueId.class ) ) ).thenReturn( issue );
-            Mockito.when( issueService.update( Mockito.any( UpdateIssueParams.class ) ) ).thenReturn( issue );
-            Mockito.when( issueService.findComments( Mockito.any( IssueCommentQuery.class ) ) )
+            when( issueService.getIssue( isA( IssueId.class ) ) ).thenReturn( issue );
+            when( issueService.update( any( UpdateIssueParams.class ) ) ).thenReturn( issue );
+            when( issueService.findComments( any( IssueCommentQuery.class ) ) )
                 .thenReturn( FindIssueCommentsResult.create().build() );
-            Mockito.when( securityService.getUser( PrincipalKey.from( "user:system:admin" ) ) ).thenReturn( Optional.of( admin ) );
+            when( securityService.getUser( PrincipalKey.from( "user:system:admin" ) ) ).thenReturn( Optional.of( admin ) );
 
-            resource.update( params, Mockito.mock( HttpServletRequest.class ) );
+            resource.update( params, mockRequest );
 
-            Mockito.verify( issueService, Mockito.times( 1 ) ).update( Mockito.any( UpdateIssueParams.class ) );
-            Mockito.verify( issueNotificationsSender, Mockito.times( 1 ) )
-                .notifyIssueUpdated( Mockito.isA( IssueUpdatedNotificationParams.class ) );
+            verify( issueService, times( 1 ) ).update( any( UpdateIssueParams.class ) );
+            verify( issueNotificationsSender, times( 1 ) )
+                .notifyIssueUpdated( isA( IssueUpdatedNotificationParams.class ) );
         });
     }
 
@@ -581,16 +603,16 @@ public class IssueResourceTest
             new UpdateIssueJson( issue.getId().toString(), "title", "desc", "Closed", true, false, null, createPublishRequest(), null );
 
         IssueResource resource = getResourceInstance();
-        Mockito.when( issueService.getIssue( Mockito.isA( IssueId.class ) ) ).thenReturn( issue );
-        Mockito.when( issueService.update( Mockito.any( UpdateIssueParams.class ) ) ).thenReturn( issue );
-        Mockito.when( issueService.findComments( Mockito.any( IssueCommentQuery.class ) ) )
+        when( issueService.getIssue( isA( IssueId.class ) ) ).thenReturn( issue );
+        when( issueService.update( any( UpdateIssueParams.class ) ) ).thenReturn( issue );
+        when( issueService.findComments( any( IssueCommentQuery.class ) ) )
             .thenReturn( FindIssueCommentsResult.create().build() );
 
-        resource.update( params, Mockito.mock( HttpServletRequest.class ) );
+        resource.update( params, mockRequest );
 
-        Mockito.verify( issueService, Mockito.times( 1 ) ).update( Mockito.any( UpdateIssueParams.class ) );
-        Mockito.verify( issueNotificationsSender, Mockito.times( 1 ) )
-            .notifyIssuePublished( Mockito.isA( IssuePublishedNotificationParams.class ) );
+        verify( issueService, times( 1 ) ).update( any( UpdateIssueParams.class ) );
+        verify( issueNotificationsSender, times( 1 ) )
+            .notifyIssuePublished( isA( IssuePublishedNotificationParams.class ) );
     }
 
     @Test
@@ -610,19 +632,19 @@ public class IssueResourceTest
                                      createPublishRequest(), null );
 
             IssueResource resource = getResourceInstance();
-            Mockito.when( issueService.getIssue( Mockito.isA( IssueId.class ) ) ).thenReturn( issue );
-            Mockito.when( issueService.update( Mockito.any( UpdateIssueParams.class ) ) ).thenReturn( issue );
-            Mockito.when( issueService.findComments( Mockito.any( IssueCommentQuery.class ) ) )
+            when( issueService.getIssue( isA( IssueId.class ) ) ).thenReturn( issue );
+            when( issueService.update( any( UpdateIssueParams.class ) ) ).thenReturn( issue );
+            when( issueService.findComments( any( IssueCommentQuery.class ) ) )
                 .thenReturn( FindIssueCommentsResult.create().build() );
-            Mockito.when( securityService.getUser( PrincipalKey.from( "user:system:admin" ) ) ).thenReturn( Optional.of( admin ) );
+            when( securityService.getUser( PrincipalKey.from( "user:system:admin" ) ) ).thenReturn( Optional.of( admin ) );
 
-            resource.update( params, Mockito.mock( HttpServletRequest.class ) );
+            resource.update( params, mock( HttpServletRequest.class ) );
 
-            Mockito.verify( issueService, Mockito.times( 1 ) ).update( Mockito.any( UpdateIssueParams.class ) );
-            Mockito.verify( issueNotificationsSender, Mockito.times( 0 ) )
-                .notifyIssueUpdated( Mockito.isA( IssueUpdatedNotificationParams.class ) );
-            Mockito.verify( issueNotificationsSender, Mockito.times( 0 ) )
-                .notifyIssuePublished( Mockito.isA( IssuePublishedNotificationParams.class ) );
+            verify( issueService, times( 1 ) ).update( any( UpdateIssueParams.class ) );
+            verify( issueNotificationsSender, times( 0 ) )
+                .notifyIssueUpdated( isA( IssueUpdatedNotificationParams.class ) );
+            verify( issueNotificationsSender, times( 0 ) )
+                .notifyIssuePublished( isA( IssuePublishedNotificationParams.class ) );
         });
     }
 
@@ -637,17 +659,17 @@ public class IssueResourceTest
             new CreateIssueCommentJson( issue.getId().toString(), comment.getText(), comment.getCreator().toString(), false );
 
         IssueResource resource = getResourceInstance();
-        Mockito.when( securityService.getUser( params.creator ) ).thenReturn( Optional.ofNullable( creator ) );
-        Mockito.when( issueService.getIssue( params.issueId ) ).thenReturn( issue );
-        Mockito.when( issueService.createComment( Mockito.any( CreateIssueCommentParams.class ) ) ).thenReturn( comment );
-        Mockito.when( issueService.findComments( Mockito.any( IssueCommentQuery.class ) ) )
+        when( securityService.getUser( params.creator ) ).thenReturn( Optional.ofNullable( creator ) );
+        when( issueService.getIssue( params.issueId ) ).thenReturn( issue );
+        when( issueService.createComment( any( CreateIssueCommentParams.class ) ) ).thenReturn( comment );
+        when( issueService.findComments( any( IssueCommentQuery.class ) ) )
             .thenReturn( FindIssueCommentsResult.create().build() );
 
-        resource.comment( params, Mockito.mock( HttpServletRequest.class ) );
+        resource.comment( params, mockRequest );
 
-        Mockito.verify( issueService, Mockito.times( 1 ) ).createComment( Mockito.any( CreateIssueCommentParams.class ) );
-        Mockito.verify( issueNotificationsSender, Mockito.times( 1 ) )
-            .notifyIssueCommented( Mockito.isA( IssueCommentedNotificationParams.class ) );
+        verify( issueService, times( 1 ) ).createComment( any( CreateIssueCommentParams.class ) );
+        verify( issueNotificationsSender, times( 1 ) )
+            .notifyIssueCommented( isA( IssueCommentedNotificationParams.class ) );
     }
 
     @Test
@@ -660,10 +682,10 @@ public class IssueResourceTest
             new CreateIssueCommentJson( issue.getId().toString(), comment.getText(), comment.getCreator().toString(), false );
 
         IssueResource resource = getResourceInstance();
-        Mockito.when( issueService.getIssue( params.issueId ) ).thenReturn( issue );
-        Mockito.when( securityService.getUser( params.creator ) ).thenReturn( Optional.empty() );
+        when( issueService.getIssue( params.issueId ) ).thenReturn( issue );
+        when( securityService.getUser( params.creator ) ).thenReturn( Optional.empty() );
 
-        assertThrows( PrincipalNotFoundException.class, () -> resource.comment( params, Mockito.mock( HttpServletRequest.class ) ) );
+        assertThrows( PrincipalNotFoundException.class, () -> resource.comment( params, mock( HttpServletRequest.class ) ) );
     }
 
     @Test
@@ -676,10 +698,10 @@ public class IssueResourceTest
             new CreateIssueCommentJson( issue.getId().toString(), comment.getText(), comment.getCreator().toString(), false );
 
         IssueResource resource = getResourceInstance();
-        Mockito.when( issueService.getIssue( params.issueId ) ).thenThrow( new IssueNotFoundException( issue.getId() ) );
-        Mockito.when( securityService.getUser( params.creator ) ).thenReturn( Optional.of( User.ANONYMOUS ) );
+        when( issueService.getIssue( params.issueId ) ).thenThrow( new IssueNotFoundException( issue.getId() ) );
+        when( securityService.getUser( params.creator ) ).thenReturn( Optional.of( User.ANONYMOUS ) );
 
-        assertThrows( IssueNotFoundException.class, () -> resource.comment( params, Mockito.mock( HttpServletRequest.class ) ) );
+        assertThrows( IssueNotFoundException.class, () -> resource.comment( params, mock( HttpServletRequest.class ) ) );
     }
 
     @Test
@@ -691,7 +713,7 @@ public class IssueResourceTest
 
         FindIssueCommentsResult result = FindIssueCommentsResult.create().comments( List.of( comment ) ).hits( 1 ).totalHits( 10 ).build();
 
-        Mockito.when( this.issueService.findComments( Mockito.any( IssueCommentQuery.class ) ) ).thenReturn( result );
+        when( this.issueService.findComments( any( IssueCommentQuery.class ) ) ).thenReturn( result );
 
         final Map<String, String> params = Map.of( "createdTime", comment.getCreated().toString(), "id", comment.getId().toString() );
         final String expected = Interpolator.classic().interpolate( readFromFile( "get_issue_comments_result.json" ), params::get );
@@ -711,12 +733,12 @@ public class IssueResourceTest
         final UpdateIssueCommentJson params = new UpdateIssueCommentJson( comment.getId().toString(), comment.getText() );
 
         IssueResource resource = getResourceInstance();
-        Mockito.when( issueService.updateComment( Mockito.any( UpdateIssueCommentParams.class ) ) ).thenReturn( comment );
+        when( issueService.updateComment( any( UpdateIssueCommentParams.class ) ) ).thenReturn( comment );
 
         IssueCommentJson json = resource.updateComment( params );
 
         assertEquals( json.getText(), comment.getText() );
-        Mockito.verify( issueService, Mockito.times( 1 ) ).updateComment( Mockito.any( UpdateIssueCommentParams.class ) );
+        verify( issueService, times( 1 ) ).updateComment( any( UpdateIssueCommentParams.class ) );
     }
 
     @Test
@@ -727,7 +749,7 @@ public class IssueResourceTest
         IssueResource resource = getResourceInstance();
 
         DeleteIssueCommentResult result = new DeleteIssueCommentResult( NodeIds.from( comment.getId() ) );
-        Mockito.when( this.issueService.deleteComment( Mockito.any( DeleteIssueCommentParams.class ) ) ).thenReturn( result );
+        when( this.issueService.deleteComment( any( DeleteIssueCommentParams.class ) ) ).thenReturn( result );
 
         DeleteIssueCommentJson params = new DeleteIssueCommentJson( comment.getId().toString() );
         DeleteIssueCommentResultJson resultJson = resource.deleteComment( params );
