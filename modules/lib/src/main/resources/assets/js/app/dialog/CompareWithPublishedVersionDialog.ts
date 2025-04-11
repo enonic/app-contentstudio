@@ -182,9 +182,9 @@ export class CompareWithPublishedVersionDialog
 
         if (updateDiff) {
             return this.displayDiff();
-        } else {
-            return Q();
         }
+
+        return Q();
     }
 
     private setPublishedVersion(version: string, updateDiff: boolean = true): Q.Promise<void> {
@@ -192,9 +192,9 @@ export class CompareWithPublishedVersionDialog
 
         if (updateDiff) {
             return this.displayDiff();
-        } else {
-            return Q();
-        }
+    }
+
+        return Q();
     }
 
     private displayDiff(): Q.Promise<void> {

@@ -932,23 +932,14 @@ export class ContentWizardPanel
             return Q();
         }
 
+        this.liveEditModel = null;
+
         if (this.getPersistedItem().getPage()) {
             this.updateLiveEditModel(contentClone);
-            return this.handleNonRenderablePage();
+        } else {
+            this.livePanel.unloadPage();
+            this.removePCV();
         }
-
-        return this.unloadPage();
-    }
-
-    private handleNonRenderablePage(): Q.Promise<void> {
-        this.liveEditModel = null;
-        return Q();
-    }
-
-    private unloadPage(): Q.Promise<void> {
-        this.liveEditModel = null;
-        this.livePanel.unloadPage();
-        this.removePCV();
 
         return Q();
     }
