@@ -13,7 +13,7 @@ const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialo
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 
-describe('display.source.button.spec - tests for Display Source button in html area', function () {
+describe('display.source.button.spec - tests for user with Content Manager Expert role and  Display Source button', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -21,17 +21,18 @@ describe('display.source.button.spec - tests for Display Source button in html a
     let USER;
     let SITE;
 
-    it.skip(`Precondition 1: new user with 'Content Manager Expert'  role should be created`,
+    it(`Precondition 1: new user with 'Content Manager Expert' and Author roles should be created`,
         async () => {
             // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName('user');
-            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP_EXPERT, appConst.SYSTEM_ROLES.CM_APP];
+            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP_EXPERT, appConst.SYSTEM_ROLES.CM_APP,
+                'Default - Author'];
             USER = builder.buildUser(userName, appConst.PASSWORD.MEDIUM, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
         });
 
-    it.skip('Precondition 2: new site should be created by SU',
+    it('Precondition 2: new site should be created by SU',
         async () => {
             let contentWizard = new ContentWizard();
             let editPermissionsDialog = new EditPermissionsDialog();
@@ -48,7 +49,7 @@ describe('display.source.button.spec - tests for Display Source button in html a
             await contentWizard.pause(1000);
             // 4. Add 'Full access' permissions for the just created user and click on Apply button:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
+            //await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
             await editPermissionsDialog.filterAndSelectPrincipal(USER.displayName);
             await editPermissionsDialog.showAceMenuAndSelectItem(USER.displayName, appConst.permissions.FULL_ACCESS);
             await editPermissionsDialog.pause(500);
@@ -57,14 +58,14 @@ describe('display.source.button.spec - tests for Display Source button in html a
             await studioUtils.doLogout();
         });
 
-    it.skip("GIVEN user with role 'Content Manager Expert' is logged in WHEN content with html area has been opened THEN 'Source' button should be displayed in the htmlArea toolbar",
+    it("GIVEN user with roles 'Author ' and 'Content Manager Expert' is logged in WHEN content with html area has been opened THEN 'Source' button should be displayed in the htmlArea toolbar",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let sourceCodeDialog = new SourceCodeDialog();
             await studioUtils.navigateToContentStudioApp(USER.displayName, appConst.PASSWORD.MEDIUM);
             // 1. Open wizard for new content with htmlArea:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
-            // 2. Verify that 'Source' button is displayed in the htmlArea toolbar
+            // 2. Verify that 'Source' button is displayed for 'Content Manager Expert'
             await htmlAreaForm.clickOnSourceButton();
             await studioUtils.saveScreenshot('cm_expert_source_button');
             await sourceCodeDialog.waitForDialogLoaded();
@@ -72,7 +73,7 @@ describe('display.source.button.spec - tests for Display Source button in html a
 
     // Verifies issue Edit/Delete icons in the Site configurator should be hidden for non-admin users #3496
     // https://github.com/enonic/app-contentstudio/issues/3496
-    it.skip("GIVEN user with role 'Content Manager Expert' is signing in WHEN existing site has been opened THEN 'Edit configurator' and 'remove application' icons should be hidden",
+    it("GIVEN user with roles 'Author' and 'Content Manager Expert' is signing in WHEN existing site has been opened THEN 'Edit configurator' and 'remove application' icons should be hidden",
         async () => {
             let siteFormPanel = new SiteFormPanel();
             await studioUtils.navigateToContentStudioApp(USER.displayName, appConst.PASSWORD.MEDIUM);
@@ -99,5 +100,4 @@ describe('display.source.button.spec - tests for Display Source button in html a
         }
         return console.log('specification starting: ' + this.title);
     });
-
 });

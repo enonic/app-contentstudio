@@ -139,7 +139,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_0_0);
             await contentWizard.typeDisplayName(appConst.generateRandomName('atest'));
             // 2. Do enable the x-data:
-            await contentWizard.clickOnXdataTogglerByName('Text Area x-data');
+            await contentWizard.clickOnXdataTogglerByName(TEXT_AREA_X_DATA_NAME);
             // 3. Save the content:
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('xdata_textarea_required_validation_message');
