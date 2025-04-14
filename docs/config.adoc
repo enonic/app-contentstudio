@@ -4,61 +4,128 @@
 
 This section describes how to configure Content Studio via the config file.
 
-The file should be called `com.enonic.app.contentstudio.cfg` and placed into the `$XP_HOME/config` folder of your XP installation.
+.Add config properties to this file:
+[source,filename]
+----
+$XP_HOME/config/com.enonic.app.contentstudio.cfg
+----
 
 == Matching mode for content type patterns
 
-Defines matching mode for content type patterns. Can be `MATCH` or `LEGACY`. Default: `MATCH`.
-See https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/contentselector#allowContentType[description].
-
-.Set matching mode
 [source,properties]
 ----
 contentTypePatternMode = MATCH
 ----
 
+Defines matching mode for content type patterns. Can be `MATCH` or `LEGACY`. Default: `MATCH`.
+See https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/contentselector#allowContentType[description].
+
+
+
 == Max file upload size
 
-Used for setting size limit on attachments, media content and both project and content thumbnail uploads
-
-.Limit file size
 [source,properties]
 ----
 uploadMaxFileSize = 100mb
 ----
 
-== Content path transliteration
+Used for setting size limit on attachments, media content and both project and content thumbnail uploads
 
-Turn off automatic transliteration of content path when generating it based on a value typed into the display name field in the Content form.
 
-.com.enonic.app.contentstudio.cfg
+== Disable path name transliteration
+
 [source,properties]
 ----
 contentWizard.allowPathTransliteration=false
 ----
 
+Turn off automatic transliteration of name when generating it based on a value typed into the display name field in the Content form.
+
+
 == Content Security Policy
 
-IMPORTANT: You may need to tweak CSP settings in Content Studio _only_ if you are building a widget which will be embedded inside Content Studio where you want to allow references to external resources or other potentially unsafe (from the CSP point of view) actions. If CSP
-errors appear when your content is rendered (when you preview or edit content in Content Studio), then you need to configure CSP settings in https://developer.enonic.com/docs/xp/stable/deployment/config#admin[XP admin config].
+Enonic XP and Content Studio enforces several layers of Content Security Policy (CSP) to prevent cross-site scripting, clickjacking and other code injection attacks resulting from execution of malicious content in the trusted web page context.
 
-You can provide your own header for <<security#_content_security_policy,Content Security Policy>> using `contentSecurityPolicy.header` property.
-For example, Google Analytics injects its own scripts referring to external domains, so
-we are using the following CSP headers for the Google Analytics widget not to be blocked in Content Studio:
+You may override the default CSP header via the `contentSecurityPolicy.header` property.
 
-.com.enonic.app.contentstudio.cfg
-[source,properties]
-----
-contentSecurityPolicy.header=default-src 'self'; connect-src 'self' ws: wss: https://*.gstatic.com https://*.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.googleapis.com https://*.gstatic.com; object-src 'none'; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data:; frame-src 'self' https://*.googleapis.com
-----
+=== Widgets
+Content Studio uses widgets from other applications extensively. As widgets are loaded into Content Studio's context, they must apply with the Content Studio CSP.
 
-Turn off <<security#content_security_policy,Content Security Policy>> by setting `contentSecurityPolicy.enabled` property to `false`.
+By default, widgets with inline scripts/styles or scripts loaded from external domains will be blocked.
 
-.com.enonic.app.contentstudio.cfg
+==== Example: Google Analytics Widget
+
+The https://market.enonic.com/vendors/enonic/google-analytics[Google analytics app^] injects its own scripts referring to an external domains. See CSP example in the https://developer.enonic.com/docs/google-analytics/stable#content_security_policy[GA app documentation^].
+
+==== Example: Disable CSP
+
+If you trust all of the widgets you use in Content Studio, you may disable the CSP completely:
+
 [source,properties]
 ----
 contentSecurityPolicy.enabled=false
 ----
+
+=== Site Engine Preview
+Content Studio's preview uses an Iframe to isolate the front-end.
+
+In production, front-ends built with the Enonic site engine deployed on custom domains. In preview mode however, the site engine is accessed in the same domain and URL context as Content Studio. To mitigate this Site Engine has a standard preview CSP to protect Content Studio and the XP admin.
+
+If your site is not working properly in preview mode, consider improving the implementation. Details on tuning the Site Engine CSP are described in the  https://developer.enonic.com/docs/xp/stable/deployment/config#admin[XP configuration documentation^].
+
+NOTE: While using Site Engine in visual edit mode, the CSP is strictly enforced, and is currently not possible to override.
+
+== Publishing Wizard
+
+=== Disable "Mark as Ready" action
+
+[source,properties]
+----
+publishingWizard.allowContentUpdate = false
+----
+
+Whenever the Publishing Wizard contains at least one item that is "_Work in progress_", publishing will be disabled. The editor can solve
+this by clicking the "*Mark as ready*" link on top of the dialog, which will mark all such items as "_Ready for Publishing_".
+
+image::pubwiz-mark-as-ready.png[Mark as ready action in the Publishing Wizard, 823w]
+
+To add another level of restriction and prevent accidental publishing of items that are not ready for publishing, the "*Mark as ready*" bulk action
+can be disabled by adding the parameter above to the config file.
+
+
+=== Default publish from time
+
+[source,properties]
+----
+publishingWizard.defaultPublishFromTime = 12:00
+----
+
+The default value can be changed by setting the `publishingWizard.defaultPublishFromTime` config property.
+
+image::pubwiz-online-from.png[Default Online From time in the Publishing Wizard, 754w]
+
+
+=== Exclude optional dependencies
+
+[source,properties]
+----
+publishingWizard.excludeDependencies = true
+----
+
+By default, all dependencies of content items staged for publishing will also be included to ensure no broken
+references will appear online. Some of these (for example, all the ascendants of selected items or their inbound dependencies) are required for publishing and cannot be excluded from the publishing batch, while others (like outbound dependencies) are optional.
+
+image::pubwiz-dependencies-all.png[Publishing Wizard - all dependencies, 822w]
+
+It's possible to overrule the default behaviour of including all the dependencies by setting the `publishingWizard.excludeDependencies` config property to `true`.
+
+With this flag turned on, only mandatory dependencies will be included, while optional can be added from the "*Show excluded*" mode.
+
+image::pubwiz-dependencies-mandatory.png[Publishing Wizard - mandatory dependencies, 822w]
+
+image::pubwiz-dependencies-optional.png[Publishing Wizard - optional dependencies, 821w]
+
+IMPORTANT: Use this flag with caution. It makes it very simple to publish a content without its outgoing dependencies which may result in broken references, missing images etc.
 
 
 == Enable Default Content Project
@@ -76,58 +143,3 @@ settings.hideDefaultProject=false
 
 IMPORTANT: If the Default project is hidden (default behaviour) and a logged-in user doesn't have access to any projects and has necessary permissions,
 he/she will be asked to create a new content project using <<settings#new_project_wizard,multistep wizard>>.
-
-== Publishing Wizard
-
-=== Disable "Mark as Ready" action
-
-Whenever the Publishing Wizard contains at least one item that is "_Work in progress_", publishing will be disabled. The editor can solve
-this by clicking the "*Mark as ready*" link on top of the dialog, which will mark all such items as "_Ready for Publishing_".
-
-image::pubwiz-mark-as-ready.png[Mark as ready action in the Publishing Wizard, 75%]
-
-To add another level of restriction and prevent accidental publishing of items that are not ready for publishing, the "*Mark as ready*" bulk action
-can be disabled by adding the following parameter to the config file:
-
-.Hide Mark as Ready action in the Publishing Wizard
-[source,properties]
-----
-publishingWizard.allowContentUpdate = false
-----
-
-=== Default Online From time
-
-Default Online From time is set to 08:00 by default. This default value can be changed by setting the `publishingWizard.defaultPublishFromTime` config property.
-
-image::pubwiz-online-from.png[Default Online From time in the Publishing Wizard, 75%]
-
-
-.Default Online From time in the Publishing Wizard
-[source,properties]
-----
-publishingWizard.defaultPublishFromTime = 08:00
-----
-
-=== Exclude optional dependencies
-
-By default, all dependencies of content items staged for publishing will also be included to ensure no broken
-references will appear online. Some of these (for example, all the ascendants of selected items or their inbound dependencies)
-are required for publishing and cannot be excluded from the publishing batch, while others (like outbound dependencies) are optional.
-
-image::pubwiz-dependencies-all.png[Publishing Wizard - all dependencies, 75%]
-
-It's possible to overrule the default behaviour of including all the dependencies by setting the `publishingWizard.excludeDependencies` config property to `true`.
-
-.Exclude optional dependencies
-[source,properties]
-----
-publishingWizard.excludeDependencies = true
-----
-
-With this flag turned on, only mandatory dependencies will be included, while optional can be added from the "*Show excluded*" mode.
-
-image::pubwiz-dependencies-mandatory.png[Publishing Wizard - mandatory dependencies, 75%]
-
-image::pubwiz-dependencies-optional.png[Publishing Wizard - optional dependencies, 75%]
-
-IMPORTANT: Use this flag with caution. It makes it very simple to publish a content without its outgoing dependencies which may result in broken references, missing images etc.
