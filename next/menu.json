@@ -1,6 +1,44 @@
 {
   "menuItems": [
     {
+      "title": "Projects",
+      "document": "projects",
+      "menuItems": [
+        {
+          "title": "Settings",
+          "document" : "settings"
+        },
+        {
+          "title": "Layers",
+          "document" : "layers"
+        }
+      ]
+    },
+    {
+      "title": "Actions",
+      "document": "actions",
+      "menuItems": [
+        {
+          "title": "Keyboard Shortcuts",
+          "document": "keyboard-shortcuts"
+        },
+        {
+          "title": "Permissions",
+          "document": "permissions"
+        }
+      ]
+    },
+    {
+      "title": "Built-in types",
+      "document": "content-types",
+      "menuItems": [
+        {
+          "title": "Content Variants",
+          "document": "variants"
+        }         
+      ]
+    },
+    {
       "title": "Navigator",
       "document": "navigator"
     },
@@ -13,7 +51,7 @@
             "document" : "editor/content-form"
         },
         {
-            "title": "Page Editor",
+            "title": "Visual Editor",
             "document" : "editor/page-editor"
         },
         {
@@ -23,36 +61,16 @@
         {
           "title": "Component Types",
           "document" : "editor/component-types"
-      },
+        },
         {
             "title": "Rich Text Editor",
             "document" : "editor/rich-text-editor"
+        },
+        {
+          "title": "Workflow",
+          "document": "workflow"
         }
       ]
-    },
-    {
-      "title": "Projects",
-      "document": "projects"
-    },
-    {
-      "title": "Layers",
-      "document" : "layers"
-    },
-    {
-      "title": "Workflow",
-      "document": "workflow"
-    },
-    {
-      "title": "Content Types",
-      "document": "content-types"
-    },
-    {
-      "title": "Variants",
-      "document": "variants"
-    },
-    {
-      "title": "Actions",
-      "document": "actions"
     },
     {
       "title": "Issues",
@@ -65,22 +83,6 @@
     {
       "title": "Widgets",
       "document": "widgets"
-    },
-    {
-      "title": "Permissions",
-      "document": "permissions"
-    },
-    {
-      "title": "Security",
-      "document": "security"
-    },
-    {
-      "title": "Keyboard Shortcuts",
-      "document": "keyboard-shortcuts"
-    },
-    {
-      "title": "Settings",
-      "document" : "settings"
     },
     {
       "title": "Configuration",

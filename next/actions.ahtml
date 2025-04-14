@@ -502,7 +502,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-new.png" alt="dialog new">
+<img src="actions/images/dialog-new.png" alt="Complete list of available content types" width="723w">
 </div>
 </div>
 <div class="admonitionblock note">
@@ -549,7 +549,7 @@ To filter the list of items — simply start typing on your keyboard to filter t
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-new-search.png" alt="dialog new search">
+<img src="actions/images/dialog-new-search.png" alt="Filtered list of content types" width="720w">
 </div>
 </div>
 <div class="paragraph">
@@ -574,7 +574,7 @@ There are two ways to upload files:</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-new-media.png" alt="dialog new media">
+<img src="actions/images/dialog-new-media.png" alt="Drag&#8217;n drop to create media content from files" width="721w">
 </div>
 </div>
 <div class="admonitionblock note">
@@ -669,7 +669,7 @@ Online content will instantly go offline after archiving or deleting.
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-archive.png" alt="Archive item(s) dialog" width="75%">
+<img src="actions/images/dialog-archive.png" alt="Archive item(s) dialog" width="1216w">
 </div>
 </div>
 <div class="paragraph">
@@ -677,7 +677,7 @@ Online content will instantly go offline after archiving or deleting.
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-archive-references.png" alt="Reference check in the Archive item(s) dialog" width="75%">
+<img src="actions/images/dialog-archive-references.png" alt="Reference check in the Archive item(s) dialog" width="935w">
 </div>
 </div>
 </div>
@@ -706,7 +706,7 @@ Online content will instantly go offline after archiving or deleting.
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-duplicate.png" alt="dialog duplicate">
+<img src="actions/images/dialog-duplicate.png" alt="Duplicate items and chidren" width="727w">
 </div>
 </div>
 <div class="admonitionblock note">
@@ -762,7 +762,7 @@ There&#8217;s a special item at the top of the dropdown&#8217;s list called "Pro
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-move.png" alt="Move dialog" width="50%">
+<img src="actions/images/dialog-move.png" alt="Move items by selecting target parent" width="980w">
 </div>
 </div>
 <div class="admonitionblock note">
@@ -782,7 +782,7 @@ Current parent of the selected item and the item itself will be disabled inside 
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/notification-move.png" alt="Move notification" width="75%">
+<img src="actions/images/notification-move.png" alt="Notification showing the item was moved" width="672w">
 </div>
 </div>
 </div>
@@ -817,7 +817,7 @@ Current parent of the selected item and the item itself will be disabled inside 
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-sort.png" alt="dialog sort">
+<img src="actions/images/dialog-sort.png" alt="Set default sorting order for items in the tree" width="730w">
 </div>
 </div>
 <div class="paragraph">
@@ -831,7 +831,7 @@ Current parent of the selected item and the item itself will be disabled inside 
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-sort-grid.png" alt="dialog sort grid">
+<img src="actions/images/dialog-sort-grid.png" alt="Sorting info is visible in the tree structure" width="741w">
 </div>
 </div>
 </div>
@@ -884,7 +884,7 @@ Current parent of the selected item and the item itself will be disabled inside 
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-publish-button.png" alt="Publish button" width="50%">
+<img src="actions/images/dialog-publish-button.png" alt="Publish actions" width="302w">
 </div>
 </div>
 <div class="paragraph">
@@ -1009,7 +1009,7 @@ If you want to add back dependent items excluded by mistake, click <strong>Show 
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-publish-excluded.png" alt="Excluded dependencies" width="75%">
+<img src="actions/images/dialog-publish-excluded.png" alt="Publishing wizard with excluded dependencies" width="934w">
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -1027,7 +1027,7 @@ In this special mode only the mandatory dependencies will be auto-included, the 
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-publish-auto-excluded.png" alt="Auto-excluded dependencies" width="75%">
+<img src="actions/images/dialog-publish-auto-excluded.png" alt="Auto-excluded dependencies" width="747w">
 </div>
 </div>
 </div>
@@ -1038,7 +1038,7 @@ In this special mode only the mandatory dependencies will be auto-included, the 
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-publish-invalid.png" alt="Invalid publication" width="75%">
+<img src="actions/images/dialog-publish-invalid.png" alt="Invalid state blocks publishing" width="938w">
 </div>
 </div>
 <div class="paragraph">
@@ -1064,7 +1064,7 @@ Some items might be required for publication and cannot be excluded (like parent
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-publish-valid.png" alt="Valid publication" width="75%">
+<img src="actions/images/dialog-publish-valid.png" alt="Valid items enables publishing" width="940w">
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -1088,7 +1088,7 @@ when the content should be online. "Publish Now" button will then change its lab
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/publishing-wizard-schedule.png" alt="publishing wizard schedule">
+<img src="actions/images/publishing-wizard-schedule.png" alt="Optionally schedule publish from and to" width="937w">
 </div>
 </div>
 <div class="admonitionblock note">
@@ -1138,7 +1138,7 @@ The total number of content items that will be taken offline will appear on the 
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-unpublish.png" alt="dialog unpublish">
+<img src="actions/images/dialog-unpublish.png" alt="Unpublish items and children" width="934w">
 </div>
 </div>
 <div class="admonitionblock note">
@@ -1158,7 +1158,7 @@ Just like with deletion, you will be asked to confirm the Unpublish action by en
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-unpublish-references.png" alt="Reference check in the Unpublish dialog" width="75%">
+<img src="actions/images/dialog-unpublish-references.png" alt="Reference check in the Unpublish dialog" width="754w">
 </div>
 </div>
 </div>
@@ -1203,7 +1203,7 @@ In-depth reference on the publish requests can be found <a href="workflow.ahtml#
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-03-14 15:57:24 UTC
+Last updated 2025-04-14 21:52:50 UTC
 </div>
 </div>
 </body>
