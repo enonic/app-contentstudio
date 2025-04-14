@@ -1,7 +1,7 @@
 archivesBaseName = 'lib-contentstudio-rest'
 
 dependencies {
-    implementation "com.fasterxml.jackson.jr:jackson-jr-objects:2.18.1"
+    implementation "com.fasterxml.jackson.jr:jackson-jr-objects:2.18.3"
     compileOnly "com.enonic.xp:core-api:${xpVersion}"
     compileOnly "com.enonic.xp:jaxrs-api:${xpVersion}"
     compileOnly "com.enonic.xp:admin-api:${xpVersion}"
