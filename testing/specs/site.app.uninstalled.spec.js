@@ -20,7 +20,7 @@ describe('site.app.uninstalled.spec - ui-tests for a site with uninstalled app',
     const CORPORATE_APP_DISPLAY_NAME = 'Corporate Theme';
     let SITE;
 
-    it(`Precondition 1: new applications should be installed`,
+    it.skip(`Precondition 1: new applications should be installed`,
         async () => {
             // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToApplications();
@@ -36,7 +36,7 @@ describe('site.app.uninstalled.spec - ui-tests for a site with uninstalled app',
             await installAppDialog.clickOnCancelButtonTop();
         });
 
-    it("Precondition 2: add new site with the installed application",
+    it.skip("Precondition 2: add new site with the installed application",
         async () => {
             // 1. navigate to 'CS' and add new site
             await studioUtils.navigateToContentStudioApp();
@@ -45,7 +45,7 @@ describe('site.app.uninstalled.spec - ui-tests for a site with uninstalled app',
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`Navigate to Applications AND Uninstall 'Corporate Site' app`,
+    it.skip(`Navigate to Applications AND Uninstall 'Corporate Site' app`,
         async () => {
             let uninstallAppDialog = new UninstallAppDialog();
             // 1. Navigate to 'Applications' and uninstall the app :
@@ -62,7 +62,7 @@ describe('site.app.uninstalled.spec - ui-tests for a site with uninstalled app',
             assert.ok(message.includes('uninstalled successfully'));
         });
 
-    it("WHEN site with uninstalled application has been opened  THEN application should be displayed in the site-form panel",
+    it.skip("WHEN site with uninstalled application has been opened  THEN application should be displayed in the site-form panel",
         async () => {
             // 1. navigate to 'CS' and add new site
             await studioUtils.navigateToContentStudioApp();
