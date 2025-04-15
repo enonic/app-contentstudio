@@ -24,6 +24,7 @@ describe('Tests for site configurator modal dialog with multi-selection Option S
         });
 
     // Verifies: Default options in option-set don't get selected in site configurator #4629
+    // https://github.com/enonic/app-contentstudio/issues/4629
     it(`GIVEN site configurator dialog is opened WHEN the default selected option has been clicked and Apply button has been pressed THEN all options are unselected after reopening the dialog`,
         async () => {
             let siteFormPanel = new SiteFormPanel();

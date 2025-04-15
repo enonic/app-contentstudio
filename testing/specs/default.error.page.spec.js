@@ -22,7 +22,7 @@ describe('default.error.page.spec tests for Default error page', function () {
 
     it(`Preconditions: test site should be created`, async () => {
         let displayName = contentBuilder.generateRandomName('site');
-        SITE = contentBuilder.buildSite(displayName, 'description', ['First Selenium App'], CONTROLLER_NAME);
+        SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
         await studioUtils.doAddSite(SITE);
     });
 
@@ -47,8 +47,8 @@ describe('default.error.page.spec tests for Default error page', function () {
             await studioUtils.saveScreenshot('default-error-page');
             // 6. Verify that Default Error Page is loaded:
             let pageSource = await studioUtils.getPageSource();
-            assert.ok(pageSource.includes("500 - Internal Server Error"), "Expected title should be loaded");
-            assert.ok(pageSource.includes("D'oh!"), "Expected message should be loaded");
+            assert.ok(pageSource.includes("Error 500"), "Default error page should be loaded");
+            assert.ok(pageSource.includes("Oops, something went wrong!"), "Expected message should be loaded");
         });
 
     it("WHEN part with errors has been removed THEN new inserted component should be displayed without the red icon",
@@ -72,7 +72,6 @@ describe('default.error.page.spec tests for Default error page', function () {
             let isInvalid = await pageComponentView.isComponentItemInvalid(appConst.LAYOUT_NAME.CENTERED);
             assert.ok(isInvalid=== false, 'The layout-component should be displayed as valid in PCV');
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

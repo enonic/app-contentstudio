@@ -19,6 +19,8 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
     }
 
     let SITE;
+    // The app does not have controllers, but has a site configurator:
+    const APP_WITH_REQ_CONFIGURATOR = appConst.TEST_APPS_NAME.SECOND_SEL_APP;
 
     it(`GIVEN wizard for new site has been opened WHEN an application that does not have controllers has been selected THEN Save button remains enabled`,
         async () => {
@@ -28,7 +30,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(appConst.generateRandomName('site'));
             // 2. Select an application that does not have controllers:
-            await siteFormPanel.filterOptionsAndSelectApplication(appConst.APP_WITH_CONFIGURATOR);
+            await siteFormPanel.filterOptionsAndSelectApplication(APP_WITH_REQ_CONFIGURATOR);
             await contentWizard.pause(1000);
             await studioUtils.saveScreenshot('site_app_has_no_controllers');
             // 3. Verify that Save button remains enabled after selecting this application:
@@ -40,12 +42,12 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             let siteFormPanel = new SiteFormPanel();
             let siteConfiguratorDialog = new SiteConfiguratorDialog();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'test for site configurator', [appConst.APP_WITH_CONFIGURATOR]);
+            SITE = contentBuilder.buildSite(displayName, 'test for site configurator', [APP_WITH_REQ_CONFIGURATOR]);
             await studioUtils.doAddSite(SITE, true);
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on Edit icon and open Site Configurator Dialog:
-            await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_WITH_CONFIGURATOR);
+            await siteFormPanel.openSiteConfiguratorDialog(APP_WITH_REQ_CONFIGURATOR);
             await studioUtils.saveScreenshot('site_configurator_1');
             // 3. Verify that this input is focused by default( issue#427)
             let isElementFocused = await siteConfiguratorDialog.isFocused(`//input[contains(@name,'trackingId')]`);
@@ -75,7 +77,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
         async () => {
             let siteFormPanel = new SiteFormPanel();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            let isInvalid = await siteFormPanel.isSiteConfiguratorViewInvalid(appConst.APP_WITH_CONFIGURATOR);
+            let isInvalid = await siteFormPanel.isSiteConfiguratorViewInvalid(APP_WITH_REQ_CONFIGURATOR);
             assert.ok(isInvalid, 'Selected option view should be red colour because, the required input is empty');
         });
 
@@ -86,13 +88,13 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             let secondAppSiteConfiguratorDialog = new SecondAppSiteConfiguratorDialog();
             // 1. Open the site and open Site Configurator Dialog:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_WITH_CONFIGURATOR);
+            await siteFormPanel.openSiteConfiguratorDialog(APP_WITH_REQ_CONFIGURATOR);
             // 2. Fill the required input:
             await secondAppSiteConfiguratorDialog.typeInTextInTrackingIdInput('test');
             // 3. Click on 'Apply' button and close the dialog:
             await secondAppSiteConfiguratorDialog.clickOnApplyButton();
             // 4. Verify that SiteConfiguratorView gets valid:
-            await siteFormPanel.waitUntilSiteConfiguratorViewValid(appConst.APP_WITH_CONFIGURATOR);
+            await siteFormPanel.waitUntilSiteConfiguratorViewValid(APP_WITH_REQ_CONFIGURATOR);
             await studioUtils.saveScreenshot('site_conf_gets_valid');
             // 5. Verify that red icon gets not visible:
             let isInvalid = await contentWizard.isContentInvalid();
@@ -106,7 +108,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             let secondAppSiteConfiguratorDialog = new SecondAppSiteConfiguratorDialog();
             // 1. Open the site and open Site Configurator Dialog:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_WITH_CONFIGURATOR);
+            await siteFormPanel.openSiteConfiguratorDialog(APP_WITH_REQ_CONFIGURATOR);
             // 2. Clear the required text input:
             await secondAppSiteConfiguratorDialog.typeInTextInTrackingIdInput("");
             // 3. Verify that 'Apply' button gets disabled

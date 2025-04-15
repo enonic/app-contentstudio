@@ -22,11 +22,12 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
     const CONTROLLER_NAME = 'main region';
     const LAYOUT_NULL = 'Layout Null';
     const TEST_TEXT = 'test1';
+    const PART_NAME = appConst.PART_NAME.CITIES_LIST;
 
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.FIRST_SELENIUM_APP], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -67,9 +68,9 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             // 3. Insert a part with config:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Part']);
-            await liveFormPanel.selectPartByDisplayName('Cities List');
+            await liveFormPanel.selectPartByDisplayName(PART_NAME);
             await contentWizard.switchToMainFrame();
-            await pageComponentView.openMenu('Cities List');
+            await pageComponentView.openMenu(PART_NAME);
             // 4. Click on 'Save as Fragment' menu item. (Save the part as fragment)
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.waitForNotificationMessage();
