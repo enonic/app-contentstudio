@@ -20,7 +20,8 @@ import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 
-interface SiteConfiguratorComboBoxOptions extends ListBoxInputOptions<Application> {
+interface SiteConfiguratorComboBoxOptions
+    extends ListBoxInputOptions<Application> {
     loader: SiteApplicationLoader;
 }
 
@@ -35,7 +36,7 @@ export class SiteConfiguratorComboBox
                 formContext: ContentFormContext, value?: string) {
 
         super(new SiteConfiguratorListBox(), {
-            maxSelected:  maxOccurrences,
+            maxSelected: maxOccurrences,
             selectedOptionsView: new SiteConfiguratorSelectedOptionsView(siteConfigProvider, formContext),
             className: 'site-configurator-combobox',
             loader: new SiteApplicationLoader({
@@ -128,7 +129,9 @@ export class SiteConfiguratorComboBox
     }
 
     selectByKey(key: string, silent?: boolean): void {
-        const app = this.getLoader().getResults().find((app: Application) => app.getApplicationKey().toString() === key) ||
+        const results = this.getLoader().getResults();
+        const app = results ?
+                    results.find((app: Application) => app.getApplicationKey().toString() === key) :
                     this.listBox.getItem(key);
 
         if (app) {
