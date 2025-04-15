@@ -95,7 +95,7 @@ export class SiteConfigurator
 
         return new GetApplicationsRequest(appKeys).sendAndParse().then((apps: Application[]) => {
             const result = appKeys.map((appKey: ApplicationKey) => {
-               return apps.find((app: Application) => app.getApplicationKey().equals(appKey)) || this.makeMissingApp(appKey);
+                return apps.find((app: Application) => app.getApplicationKey().equals(appKey)) || this.makeMissingApp(appKey);
             });
             this.comboBox.select(result, true);
         });
@@ -124,10 +124,24 @@ export class SiteConfigurator
             const selectedOptionViews = propertyArray.map(property =>
                 this.selectOptionFromProperty(property)?.getOptionView() as SiteConfiguratorSelectedOptionView);
 
-            const updatePromises = selectedOptionViews.filter(view => !!view).map((view, index) => {
-                const configSet = propertyArray.get(index).getPropertySet().getProperty(ApplicationConfig.PROPERTY_CONFIG).getPropertySet();
-                return view.getFormView().update(configSet, unchangedOnly);
-            });
+            const updatePromises = selectedOptionViews.filter(view => !!view)
+                .map((view, index) => {
+                    // Race alert !
+                    // selectOptionsFromProperty() above creates and inserts option view
+                    // but we are not waiting for it to be rendered before calling update()
+                    // what causes NPE in some input views, so wait until it's rendered !
+                    return Q.Promise((resolve, reject) => {
+                        const configSet = propertyArray.get(index).getPropertySet()
+                            .getProperty(ApplicationConfig.PROPERTY_CONFIG).getPropertySet();
+
+                        view.whenRendered(() => {
+                            view.getFormView()
+                                .update(configSet, unchangedOnly)
+                                .then(resolve)
+                                .catch(reject);
+                        });
+                    });
+                });
 
             return Q.all(updatePromises).then(() => {
                 this.ignorePropertyChange(ignorePropertyChange);
@@ -247,9 +261,9 @@ export class SiteConfigurator
                     const property = this.getPropertyArray().getProperties()
                         .filter(p => p.hasNonNullValue())
                         .find((property) => {
-                        const config = this.makeSiteConfigFromProperty(property);
-                        return deselected.getApplicationKey().equals(config.getApplicationKey());
-                    });
+                            const config = this.makeSiteConfigFromProperty(property);
+                            return deselected.getApplicationKey().equals(config.getApplicationKey());
+                        });
 
                     if (property) {
                         this.getPropertyArray().remove(property.getIndex());
@@ -313,7 +327,7 @@ export class SiteConfigurator
 
     validate(silent: boolean = true) {
         this.comboBox.getSelectedOptionViews().forEach((view: SiteConfiguratorSelectedOptionView) => {
-             view.getFormView().validate(true);
+            view.getFormView().validate(true);
         });
 
         super.validate(silent);

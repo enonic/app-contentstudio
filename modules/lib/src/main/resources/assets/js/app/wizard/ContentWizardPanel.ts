@@ -575,7 +575,7 @@ export class ContentWizardPanel
                 this.initFormContext(existing);
                 this.liveEditModel = this.initLiveEditModel(existing);
 
-                return this.loadAndSetPageState(existing.getPage()?.clone());
+                return this.loadAndSetPageState(existing.getPage());
             });
     }
 
@@ -870,8 +870,8 @@ export class ContentWizardPanel
         this.setPersistedItem(newPersistedContent);
         const contentClone: Content = this.getCurrentItem();
 
-        this.initFormContext(contentClone);
         this.updateLiveEditModel(contentClone);
+        this.initFormContext(contentClone); // depends on this.site updated in updateLiveEditModel
         this.updateWizard(contentClone, true);
 
         this.debouncedEditorReload(false);
@@ -980,16 +980,20 @@ export class ContentWizardPanel
 
                         this.livePanel.loadPage(false).then(() => {
                             // set the new property set to the form so that we receive change events
-                            this.updateWizardStepForms(currentContent.getContentData());
-                            this.refreshLivePanel(currentContent).then(() => {
+                            const formsPromise = this.updateWizardStepForms(currentContent.getContentData());
+                            const livePromise = this.refreshLivePanel(currentContent);
+                            Q.all([formsPromise, livePromise]).then(() => {
+                                this.refreshContentAfterLayout();
                                 resolve(currentContent);
+                            }).catch(reason => {
+                                DefaultErrorHandler.handle(reason);
+                                reject(reason);
                             });
                         });
 
                     } else {
                         resolve(currentContent);
                     }
-
 
                 } else {
                     resolve(currentContent);
@@ -1111,12 +1115,12 @@ export class ContentWizardPanel
                     }
                 }
 
-                return this.updatePersistedContent(currentContent);
+                return this.fetchAndUpdatePersistedContentSummary(currentContent);
 
             } else {
 
                 return this.doLayoutPersistedItem(currentContent).then(() => {
-                    return this.updatePersistedContent(persistedContent);
+                    return this.fetchAndUpdatePersistedContentSummary(currentContent);
                 });
             }
 
@@ -1276,15 +1280,18 @@ export class ContentWizardPanel
         this.updateXDataStepForms(newPersistedContent);
         this.updateThumbnailWithContent(newPersistedContent);
 
+        this.refreshContentAfterLayout();
+
         this.showFeedbackContentSaved(newPersistedContent);
     }
 
     private updateWizard(content: Content, unchangedOnly: boolean = true) {
         this.updateThumbnailWithContent(content);
         this.getWizardHeader().updateByContent(content);
-        this.updateWizardStepForms(content.getContentData(), unchangedOnly);
         this.updateXDataStepForms(content, unchangedOnly);
         this.resetLastFocusedElement();
+        return this.updateWizardStepForms(content.getContentData(), unchangedOnly)
+            .then(() => this.refreshContentAfterLayout());
     }
 
     private removeXDataSteps(xDatas: XData[]) {
@@ -1380,7 +1387,7 @@ export class ContentWizardPanel
         const publishOrUnpublishHandler = (contents: ContentSummaryAndCompareStatus[]) => {
             contents.forEach(content => {
                 if (this.isCurrentContentId(content.getContentId())) {
-                    this.setUpdatedContent(content);
+                    this.updateContentSummary(content);
                     this.getWizardHeader().toggleNameGeneration(content.getCompareStatus() !== CompareStatus.EQUAL);
                 }
             });
@@ -1587,11 +1594,11 @@ export class ContentWizardPanel
             .refreshState();
     }
 
-    private setUpdatedContent(updatedContent: ContentSummaryAndCompareStatus) {
+    private updateContentSummary(updatedContent: ContentSummaryAndCompareStatus) {
         this.currentCompareStatus = updatedContent.getCompareStatus();
         this.currentPublishStatus = updatedContent.getPublishStatus();
         const isUpdatedAndRenamed = this.isContentUpdatedAndRenamed(updatedContent);
-        this.setPersistedContent(updatedContent);
+        this.setPersistedContentSummary(updatedContent);
         this.getMainToolbar().setItem(updatedContent);
         this.getWidgetToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
@@ -1600,6 +1607,10 @@ export class ContentWizardPanel
         if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
             this.isFirstUpdateAndRenameEventSkiped = false;
         }
+    }
+
+    private refreshContentAfterLayout() {
+        this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
     }
 
     private isContentUpdatedAndRenamed(updatedContent: ContentSummaryAndCompareStatus): boolean {
@@ -1627,7 +1638,7 @@ export class ContentWizardPanel
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.handlePersistedContentUpdate for: ' + updatedContent.getPath().toString());
         }
-        this.setUpdatedContent(updatedContent);
+        this.updateContentSummary(updatedContent);
 
         this.fetchPersistedContent().then((content: Content) => {
             return this.updatePersistedContentIfChanged(content);
@@ -1725,11 +1736,11 @@ export class ContentWizardPanel
         this.livePanel?.setModel(this.liveEditModel);
     }
 
-    private updatePersistedContent(persistedContent: Content) {
+    private fetchAndUpdatePersistedContentSummary(persistedContent: Content) {
         return this.contentFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
             this.currentCompareStatus = summaryAndStatus.getCompareStatus();
             this.currentPublishStatus = summaryAndStatus.getPublishStatus();
-            this.setPersistedContent(summaryAndStatus);
+            this.setPersistedContentSummary(summaryAndStatus);
             this.getMainToolbar().setItem(summaryAndStatus);
             this.getWidgetToolbar().setItem(summaryAndStatus);
             this.wizardActions.setContent(summaryAndStatus).refreshState();
@@ -1857,7 +1868,7 @@ export class ContentWizardPanel
                 AI.get().setDataTree(this.contentWizardStepForm.getData());
                 AI.get().setContentHeader(this.wizardHeader);
 
-                this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
+                this.refreshContentAfterLayout();
 
                 this.xDataWizardStepForms.resetState();
 
@@ -2510,7 +2521,6 @@ export class ContentWizardPanel
 
     protected setPersistedItem(newPersistedItem: Content): void {
         super.setPersistedItem(newPersistedItem);
-        this.contentAfterLayout = this.getPersistedItem();
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
         AI.get().setContent(newPersistedItem);
@@ -2528,7 +2538,7 @@ export class ContentWizardPanel
         return !this.getWizardHeader() || this.getWizardHeader().isValidForSaving();
     }
 
-    private setPersistedContent(content: ContentSummaryAndCompareStatus) {
+    private setPersistedContentSummary(content: ContentSummaryAndCompareStatus) {
         ContentContext.get().setContent(content);
         this.persistedPublishStatus = content.getPublishStatus();
         this.persistedCompareStatus = content.getCompareStatus();
