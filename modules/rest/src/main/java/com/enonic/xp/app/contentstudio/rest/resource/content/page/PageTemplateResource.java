@@ -68,7 +68,7 @@ public final class PageTemplateResource
     {
         final PageTemplateKey pageTemplateKey = PageTemplateKey.from( pageTemplateKeyAsString );
         final PageTemplate pageTemplate = pageTemplateService.getByKey( pageTemplateKey );
-        return jsonObjectsFactory.createContentJson( pageTemplate, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( pageTemplate, request );
     }
 
     @GET
@@ -82,7 +82,7 @@ public final class PageTemplateResource
         final ContentListMetaData metaData =
             ContentListMetaData.create().totalHits( pageTemplates.getSize() ).hits( pageTemplates.getSize() ).build();
         return new ContentListJson<>( pageTemplates.toContents(), metaData,
-                                      c -> jsonObjectsFactory.createContentJson( c, request.getLocales() ) );
+                                      c -> jsonObjectsFactory.createContentJson( c, request ) );
     }
 
     @GET
@@ -98,7 +98,7 @@ public final class PageTemplateResource
         final ContentListMetaData metaData =
             ContentListMetaData.create().totalHits( filteredPageTemplates.getSize() ).hits( filteredPageTemplates.getSize() ).build();
         return new ContentListJson<>( filteredPageTemplates.toContents(), metaData,
-                                      c -> jsonObjectsFactory.createContentJson( c, request.getLocales() ) );
+                                      c -> jsonObjectsFactory.createContentJson( c, request ) );
     }
 
     @GET
@@ -117,7 +117,7 @@ public final class PageTemplateResource
         {
             return null;
         }
-        return jsonObjectsFactory.createContentJson( pageTemplate, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( pageTemplate, request );
     }
 
     @GET
@@ -179,7 +179,7 @@ public final class PageTemplateResource
         templateParams.name( ensureUniqueName( templateParams.getSite(), templateParams.getName() ) );
 
         PageTemplate template = this.pageTemplateService.create( templateParams );
-        return jsonObjectsFactory.createContentJson( template, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( template, request );
     }
 
     private ContentName ensureUniqueName( ContentPath parent, ContentName name )

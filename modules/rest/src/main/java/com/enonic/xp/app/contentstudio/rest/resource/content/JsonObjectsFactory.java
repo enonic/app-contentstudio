@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import com.enonic.xp.app.contentstudio.json.content.ContentJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentSummaryJson;
 import com.enonic.xp.app.contentstudio.json.content.ValidationErrorJson;
@@ -35,29 +37,26 @@ import com.enonic.xp.security.SecurityService;
 @Component(service = JsonObjectsFactory.class)
 public class JsonObjectsFactory
 {
-    private ContentTypeIconUrlResolver contentTypeIconUrlResolver;
-
     private LocaleService localeService;
 
     private MixinService mixinService;
 
-    private ContentIconUrlResolver contentIconUrlResolver;
+    private ContentTypeService contentTypeService;
 
     private ContentPrincipalsResolver principalsResolver;
 
     private ComponentNameResolver componentNameResolver;
-
-    private ContentListTitleResolver contentListTitleResolver;
 
     public JsonObjectsFactory()
     {
         int i = 0;
     }
 
-    public PartDescriptorJson createPartDescriptorJson( final PartDescriptor descriptor, final Enumeration<Locale> locales )
+    public PartDescriptorJson createPartDescriptorJson( final PartDescriptor descriptor, final HttpServletRequest request )
     {
-        return new PartDescriptorJson( descriptor, new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey(), locales ),
-                                       new InlineMixinResolver( mixinService ) );
+        return new PartDescriptorJson( descriptor, new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey(),
+                                                                              request.getLocales() ),
+                                       new InlineMixinResolver( mixinService ), request );
     }
 
     public PageDescriptorJson createPageDescriptorJson( final PageDescriptor descriptor, final Enumeration<Locale> locales )
@@ -73,28 +72,33 @@ public class JsonObjectsFactory
                                          new InlineMixinResolver( mixinService ) );
     }
 
-    public ContentTypeSummaryJson createContentTypeSummaryJson( final ContentType contentType, final Enumeration<Locale> locales )
+    public ContentTypeSummaryJson createContentTypeSummaryJson( final ContentType contentType, final HttpServletRequest request )
     {
-        return new ContentTypeSummaryJson( contentType, this.contentTypeIconUrlResolver,
-                                           new LocaleMessageResolver( localeService, contentType.getName().getApplicationKey(), locales ) );
+        final ContentTypeIconUrlResolver contentTypeIconUrlResolver =
+            new ContentTypeIconUrlResolver( new ContentTypeIconResolver( contentTypeService ), request );
+
+        return new ContentTypeSummaryJson( contentType, contentTypeIconUrlResolver,
+                                           new LocaleMessageResolver( localeService, contentType.getName().getApplicationKey(),
+                                                                      request.getLocales() ), request );
     }
 
-    public ContentJson createContentJson( final Content content, final Enumeration<Locale> locales )
+    public ContentJson createContentJson( final Content content, final HttpServletRequest request )
     {
         final List<ValidationErrorJson> localizedValidationErrors = Optional.ofNullable( content.getValidationErrors() )
             .map( ValidationErrors::stream )
             .orElse( Stream.empty() )
             .map( ve -> new ValidationErrorJson( ve, new LocaleMessageResolver( localeService, ve.getErrorCode().getApplicationKey(),
-                                                                                locales ) ) )
+                                                                                request.getLocales() ) ) )
             .collect( Collectors.toList() );
 
-        return new ContentJson( content, contentIconUrlResolver, principalsResolver, componentNameResolver, contentListTitleResolver,
-                                localizedValidationErrors );
+        return new ContentJson( content, new ContentIconUrlResolver( contentTypeService, request ), principalsResolver,
+                                componentNameResolver, new ContentListTitleResolver( contentTypeService ), localizedValidationErrors );
     }
 
-    public ContentSummaryJson createContentSummaryJson( final Content content )
+    public ContentSummaryJson createContentSummaryJson( final Content content, final HttpServletRequest request )
     {
-        return new ContentSummaryJson( content, contentIconUrlResolver, contentListTitleResolver );
+        return new ContentSummaryJson( content, new ContentIconUrlResolver( contentTypeService, request ),
+                                       new ContentListTitleResolver( contentTypeService ) );
     }
 
     @Reference
@@ -112,9 +116,7 @@ public class JsonObjectsFactory
     @Reference
     public void setContentTypeService( final ContentTypeService contentTypeService )
     {
-        this.contentTypeIconUrlResolver = new ContentTypeIconUrlResolver( new ContentTypeIconResolver( contentTypeService ) );
-        this.contentIconUrlResolver = new ContentIconUrlResolver( contentTypeService );
-        this.contentListTitleResolver = new ContentListTitleResolver( contentTypeService );
+        this.contentTypeService = contentTypeService;
     }
 
     @Reference

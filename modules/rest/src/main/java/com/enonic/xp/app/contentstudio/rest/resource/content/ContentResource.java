@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +17,17 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.io.ByteSource;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,17 +42,6 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Modified;
-import org.osgi.service.component.annotations.Reference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.io.ByteSource;
 
 import com.enonic.xp.app.ApplicationWildcardMatcher;
 import com.enonic.xp.app.contentstudio.json.content.CompareContentResultsJson;
@@ -255,8 +254,6 @@ public final class ContentResource
 
     private RelationshipTypeService relationshipTypeService;
 
-    private ContentTypeIconUrlResolver contentTypeIconUrlResolver;
-
     private BinaryExtractor extractor;
 
     private TaskService taskService;
@@ -286,7 +283,7 @@ public final class ContentResource
     public ContentJson create( final CreateContentJson params, @Context HttpServletRequest request )
     {
         final Content persistedContent = contentService.create( params.getCreateContent() );
-        return jsonObjectsFactory.createContentJson( persistedContent, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( persistedContent, request );
     }
 
     @POST
@@ -328,7 +325,7 @@ public final class ContentResource
 
         final Content persistedContent = ContextBuilder.copyOf(ContextAccessor.current()).branch(ContentConstants.BRANCH_DRAFT).build().callWith(() -> contentService.create( createMediaParams ));
 
-        return jsonObjectsFactory.createContentJson( persistedContent, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( persistedContent, request );
     }
 
     @POST
@@ -366,7 +363,7 @@ public final class ContentResource
 
         final Content persistedContent = contentService.create( createMediaParams );
 
-        return jsonObjectsFactory.createContentJson( persistedContent, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( persistedContent, request );
     }
 
     @POST
@@ -396,7 +393,7 @@ public final class ContentResource
 
         final Content persistedContent = contentService.update( params );
 
-        return jsonObjectsFactory.createContentJson( persistedContent, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( persistedContent, request );
     }
 
     @POST
@@ -406,7 +403,7 @@ public final class ContentResource
     {
         final Content persistedContent = this.doCreateAttachment( AttachmentNames.THUMBNAIL, form );
 
-        return jsonObjectsFactory.createContentJson( persistedContent, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( persistedContent, request );
     }
 
     @POST
@@ -430,7 +427,7 @@ public final class ContentResource
             new UpdateContentParams().contentId( json.getContentId() ).removeAttachments( json.getAttachmentReferences() );
 
         final Content content = contentService.update( params );
-        return jsonObjectsFactory.createContentJson( content, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( content, request );
     }
 
     @POST
@@ -449,7 +446,7 @@ public final class ContentResource
 
     @POST
     @Path("localize")
-    public ContentListJson<ContentSummaryJson> localize( final LocalizeContentsJson params )
+    public ContentListJson<ContentSummaryJson> localize( final LocalizeContentsJson params, @Context HttpServletRequest request )
     {
         if ( params.getContentIds().isEmpty() )
         {
@@ -466,7 +463,7 @@ public final class ContentResource
         final ContentListMetaData metaData =
             ContentListMetaData.create().totalHits( contents.getSize() ).hits( contents.getSize() ).build();
 
-        return new ContentListJson<>( contents, metaData, jsonObjectsFactory::createContentSummaryJson );
+        return new ContentListJson<>( contents, metaData, c -> jsonObjectsFactory.createContentSummaryJson(c, request) );
     }
 
     private Content localizeContent( final ContentId id, final Locale language )
@@ -518,7 +515,7 @@ public final class ContentResource
 
         if ( json.getContentName().equals( updatedContent.getName() ) )
         {
-            return jsonObjectsFactory.createContentJson( updatedContent, request.getLocales() );
+            return jsonObjectsFactory.createContentJson( updatedContent, request );
         }
 
         try
@@ -526,7 +523,7 @@ public final class ContentResource
             // in case content with same name and path was created in between content updated and renamed
             final RenameContentParams renameParams = makeRenameParams( json.getRenameContentParams() );
             final Content renamedContent = contentService.rename( renameParams );
-            return jsonObjectsFactory.createContentJson( renamedContent, request.getLocales() );
+            return jsonObjectsFactory.createContentJson( renamedContent, request );
         }
         catch ( ContentAlreadyExistsException e )
         {
@@ -575,31 +572,33 @@ public final class ContentResource
 
     @POST
     @Path("getDependencies")
-    public GetDependenciesResultJson getDependencies( final GetDependenciesJson params )
+    public GetDependenciesResultJson getDependencies( final GetDependenciesJson params, @Context HttpServletRequest request )
     {
         final boolean isMasterQuery = ContentConstants.BRANCH_MASTER.equals( params.getBranch() );
 
         return ContextBuilder.from( ContextAccessor.current() )
             .branch( isMasterQuery ? ContentConstants.BRANCH_MASTER : ContentConstants.BRANCH_DRAFT )
             .build()
-            .callWith( () -> new GetDependenciesResultJson( doGetDependencies( params ) ) );
+            .callWith( () -> new GetDependenciesResultJson( doGetDependencies( params, request ) ) );
     }
 
-    private Map<String, DependenciesJson> doGetDependencies( final GetDependenciesJson params )
+    private Map<String, DependenciesJson> doGetDependencies( final GetDependenciesJson params, final HttpServletRequest request )
     {
         final Map<String, DependenciesJson> result = new HashMap<>();
+        final ContentTypeIconUrlResolver resolver =
+            new ContentTypeIconUrlResolver( new ContentTypeIconResolver( contentTypeService ), request );
 
         params.getContentIds().forEach( ( id -> {
             final ContentDependencies dependencies = contentService.getDependencies( id );
 
             final List<DependenciesAggregationJson> inbound = dependencies.getInbound()
                 .stream()
-                .map( aggregation -> new DependenciesAggregationJson( aggregation, this.contentTypeIconUrlResolver ) )
+                .map( aggregation -> new DependenciesAggregationJson( aggregation, resolver ) )
                 .collect( Collectors.toList() );
 
             final List<DependenciesAggregationJson> outbound = dependencies.getOutbound()
                 .stream()
-                .map( aggregation -> new DependenciesAggregationJson( aggregation, this.contentTypeIconUrlResolver ) )
+                .map( aggregation -> new DependenciesAggregationJson( aggregation, resolver ) )
                 .collect( Collectors.toList() );
 
             result.put( id.toString(), new DependenciesJson( inbound, outbound ) );
@@ -838,7 +837,7 @@ public final class ContentResource
                                                                               .contentId( ContentId.from( params.getContentId() ) )
                                                                               .silent( params.isSilent() )
                                                                               .build() );
-        return jsonObjectsFactory.createContentJson( updatedContent, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
 
     @POST
@@ -923,24 +922,24 @@ public final class ContentResource
         }
         else if ( EXPAND_SUMMARY.equalsIgnoreCase( expandParam ) )
         {
-            return jsonObjectsFactory.createContentSummaryJson( content );
+            return jsonObjectsFactory.createContentSummaryJson( content, request );
         }
         else
         {
-            return jsonObjectsFactory.createContentJson( content, request.getLocales() );
+            return jsonObjectsFactory.createContentJson( content, request );
         }
     }
 
     @POST
     @Path("resolveByIds")
-    public ContentListJson<ContentSummaryJson> getByIds( final ContentIdsJson params )
+    public ContentListJson<ContentSummaryJson> getByIds( final ContentIdsJson params, @Context HttpServletRequest request )
     {
         final Contents contents = contentService.getByIds( new GetContentByIdsParams( params.getContentIds() ) );
 
         final ContentListMetaData metaData =
             ContentListMetaData.create().totalHits( contents.getSize() ).hits( contents.getSize() ).build();
 
-        return new ContentListJson<>( contents, metaData, jsonObjectsFactory::createContentSummaryJson );
+        return new ContentListJson<>( contents, metaData, c -> jsonObjectsFactory.createContentSummaryJson(c, request) );
     }
 
     @POST
@@ -986,11 +985,11 @@ public final class ContentResource
         }
         else if ( EXPAND_SUMMARY.equalsIgnoreCase( expandParam ) )
         {
-            return jsonObjectsFactory.createContentSummaryJson( content );
+            return jsonObjectsFactory.createContentSummaryJson( content, request );
         }
         else
         {
-            return jsonObjectsFactory.createContentJson( content, request.getLocales() );
+            return jsonObjectsFactory.createContentJson( content, request );
         }
     }
 
@@ -1092,7 +1091,7 @@ public final class ContentResource
         final Content nearestSite = this.contentService.getNearestSite( contentId );
         if ( nearestSite != null )
         {
-            return jsonObjectsFactory.createContentJson( nearestSite, request.getLocales() );
+            return jsonObjectsFactory.createContentJson( nearestSite, request );
         }
         else
         {
@@ -1116,12 +1115,12 @@ public final class ContentResource
             .childOrder( ChildOrder.from( childOrder ) )
             .build();
 
-        return doGetByParent( expandParam, params, request.getLocales() );
+        return doGetByParent( expandParam, params, request );
     }
 
     @POST
     @Path("batch")
-    public ContentListJson<ContentSummaryJson> listBatched( final BatchContentJson json )
+    public ContentListJson<ContentSummaryJson> listBatched( final BatchContentJson json, @Context HttpServletRequest request )
     {
         final ContentPaths contentsToBatch = ContentPaths.from( json.getContentPaths() );
 
@@ -1130,11 +1129,11 @@ public final class ContentResource
         final ContentListMetaData metaData =
             ContentListMetaData.create().totalHits( contents.getSize() ).hits( contents.getSize() ).build();
 
-        return new ContentListJson<>( contents, metaData, jsonObjectsFactory::createContentSummaryJson );
+        return new ContentListJson<>( contents, metaData, c -> jsonObjectsFactory.createContentSummaryJson(c, request) );
     }
 
     private ContentListJson<?> doGetByParent( final String expandParam, final FindContentByParentParams params,
-                                              final Enumeration<Locale> locales )
+                                              final HttpServletRequest request )
     {
         final FindContentByParentResult result = contentService.findByParent( params );
 
@@ -1147,11 +1146,11 @@ public final class ContentResource
         }
         else if ( EXPAND_FULL.equalsIgnoreCase( expandParam ) )
         {
-            return new ContentListJson<>( result.getContents(), metaData, c -> jsonObjectsFactory.createContentJson( c, locales ) );
+            return new ContentListJson<>( result.getContents(), metaData, c -> jsonObjectsFactory.createContentJson( c, request ) );
         }
         else
         {
-            return new ContentListJson<>( result.getContents(), metaData, jsonObjectsFactory::createContentSummaryJson );
+            return new ContentListJson<>( result.getContents(), metaData, c -> jsonObjectsFactory.createContentSummaryJson( c, request ) );
         }
     }
 
@@ -1307,7 +1306,7 @@ public final class ContentResource
                 .contents( contents )
                 .aggregations( findResult.getAggregations() )
                 .jsonObjectsFactory( jsonObjectsFactory )
-                .locales( request.getLocales() )
+                .request( request )
                 .expand( contentQueryJson.getExpand() )
                 .hits( findResult.getHits() )
                 .totalHits( findResult.getTotalHits() )
@@ -1320,7 +1319,8 @@ public final class ContentResource
     @Path("findVariants")
     public ContentListJson<ContentSummaryJson> findVariants( @QueryParam("id") final String id,
                                                              @QueryParam("from") @DefaultValue(value = "0") final Integer fromParam,
-                                                             @QueryParam("size") @DefaultValue(value = "10") final Integer sizeParam )
+                                                             @QueryParam("size") @DefaultValue(value = "10") final Integer sizeParam,
+                                                             @Context HttpServletRequest request )
     {
         final QueryExpr queryExpr =
             QueryExpr.from( CompareExpr.eq( FieldExpr.from( "variantOf" ), ValueExpr.string( Objects.requireNonNull( id ) ) ),
@@ -1334,7 +1334,7 @@ public final class ContentResource
         final ContentListMetaData metaData =
             ContentListMetaData.create().totalHits( contents.getSize() ).hits( contents.getSize() ).build();
 
-        return new ContentListJson<>( contents, metaData, jsonObjectsFactory::createContentSummaryJson );
+        return new ContentListJson<>( contents, metaData, c -> jsonObjectsFactory.createContentSummaryJson(c, request) );
     }
 
     @POST
@@ -1357,7 +1357,7 @@ public final class ContentResource
             .contents( this.contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) )
             .aggregations( findResult.getAggregations() )
             .jsonObjectsFactory( jsonObjectsFactory )
-            .locales( request.getLocales() )
+            .request( request )
             .expand( contentQueryJson.getExpand() )
             .hits( findResult.getHits() )
             .totalHits( findResult.getTotalHits() )
@@ -1414,7 +1414,7 @@ public final class ContentResource
             targetContentPaths.stream().map( ContentPath::asRelative ).collect( Collectors.toList() );
 
         final List<ContentTreeSelectorJson> resultItems = layersContents.stream()
-            .map( content -> new ContentTreeSelectorJson( jsonObjectsFactory.createContentJson( content, request.getLocales() ),
+            .map( content -> new ContentTreeSelectorJson( jsonObjectsFactory.createContentJson( content, request ),
                                                           relativeTargetContentPaths.contains( content.getPath().asRelative() ),
                                                           relativeTargetContentPaths.stream()
                                                               .anyMatch( path -> path.isChildOf( content.getPath().asRelative() ) ) ) )
@@ -1891,7 +1891,6 @@ public final class ContentResource
     public void setContentTypeService( final ContentTypeService contentTypeService )
     {
         this.contentTypeService = contentTypeService;
-        this.contentTypeIconUrlResolver = new ContentTypeIconUrlResolver( new ContentTypeIconResolver( contentTypeService ) );
     }
 
     @Reference

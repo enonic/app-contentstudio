@@ -6,8 +6,7 @@ const contextLib = require('/lib/xp/context');
 const i18n = require('/lib/xp/i18n');
 const authLib = require('/lib/xp/auth');
 
-function getPhrases() {
-    const locales = admin.getLocales();
+function getPhrases(locales) {
     const phrases = {};
     const bundles = ['i18n/common', 'i18n/phrases', 'i18n/cs-plus', 'i18n/dialogs', 'i18n/page-editor', 'i18n/wcag'];
 
@@ -23,7 +22,7 @@ function getPhrases() {
     return phrases;
 }
 
-function getConfig() {
+function getConfig(locales) {
     const context = contextLib.get();
     const branch = context.branch;
     const allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
@@ -52,7 +51,7 @@ function getConfig() {
         branch,
         enableCollaboration,
         defaultPublishFromTime,
-        locale: admin.getLocale(),
+        locale: locales[0],
         services: {
             contentUrl: portal.apiUrl({
                 api: 'content'
@@ -84,7 +83,7 @@ function getConfig() {
             application: 'admin',
             api: 'event'
         }),
-        phrasesAsJson: JSON.stringify(getPhrases()),
+        phrasesAsJson: JSON.stringify(getPhrases(locales)),
         launcherUrl: admin.widgetUrl({
             application: 'com.enonic.xp.app.main',
             widget: 'launcher',

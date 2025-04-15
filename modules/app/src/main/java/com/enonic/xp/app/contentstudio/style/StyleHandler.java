@@ -1,6 +1,8 @@
 package com.enonic.xp.app.contentstudio.style;
 
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import com.enonic.xp.app.ApplicationKey;
@@ -35,6 +37,8 @@ public final class StyleHandler
 
     private String project;
 
+    private List<Locale> locales;
+
     public StyleDescriptorMapper getStyles()
     {
         return ContextBuilder.from( ContextAccessor.current() )
@@ -47,7 +51,7 @@ public final class StyleHandler
 
                 final StyleDescriptors styles = this.styleDescriptorService.getByApplications( applicationKeys );
 
-                return new StyleDescriptorMapper( styles, localeService );
+                return new StyleDescriptorMapper( styles, localeService, locales );
             } );
     }
 
@@ -80,6 +84,11 @@ public final class StyleHandler
     public void setProject( final String value )
     {
         this.project = value;
+    }
+
+    public void setLocales( final List<String> locales )
+    {
+        this.locales = locales.stream().map( Locale::forLanguageTag ).toList();
     }
 
     @Override

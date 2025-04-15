@@ -53,7 +53,7 @@ public final class PartDescriptorResource
         final DescriptorKey key = DescriptorKey.from( partDescriptorKey );
         final PartDescriptor descriptor = partDescriptorService.getByKey( key );
 
-        return jsonObjectsFactory.createPartDescriptorJson( descriptor, request.getLocales() );
+        return jsonObjectsFactory.createPartDescriptorJson( descriptor, request );
     }
 
     @GET
@@ -63,7 +63,7 @@ public final class PartDescriptorResource
     {
         return new PartDescriptorsJson( partDescriptorService.getByApplication( ApplicationKey.from( applicationKey ) )
                                             .stream()
-                                            .map( d -> jsonObjectsFactory.createPartDescriptorJson( d, request.getLocales() ) )
+                                            .map( d -> jsonObjectsFactory.createPartDescriptorJson( d, request ) )
                                             .collect( Collectors.toUnmodifiableList() ) );
     }
 
@@ -75,7 +75,7 @@ public final class PartDescriptorResource
     {
         return new PartDescriptorsJson( this.partDescriptorService.getByApplications( params.getApplicationKeys() )
                                             .stream()
-                                            .map( d -> jsonObjectsFactory.createPartDescriptorJson( d, request.getLocales() ) )
+                                            .map( d -> jsonObjectsFactory.createPartDescriptorJson( d, request ) )
                                             .collect( Collectors.toUnmodifiableList() ) );
     }
 

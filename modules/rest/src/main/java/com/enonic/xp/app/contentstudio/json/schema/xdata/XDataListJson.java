@@ -8,7 +8,6 @@ import com.google.common.base.Preconditions;
 
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.MixinIconUrlResolver;
 import com.enonic.xp.schema.xdata.XDatas;
 
 public class XDataListJson
@@ -25,7 +24,6 @@ public class XDataListJson
         this.list = builder.xDatas.stream().map( xData -> XDataJson.
             create().
             setXData( xData ).
-            setIconUrlResolver( builder.iconUrlResolver ).
             setLocaleMessageResolver( builder.localeMessageResolver ).
             setInlineMixinResolver( builder.inlineMixinResolver ).
             build() ).collect( Collectors.toList() );
@@ -50,8 +48,6 @@ public class XDataListJson
     {
         private XDatas xDatas = XDatas.empty();
 
-        private MixinIconUrlResolver iconUrlResolver;
-
         private LocaleMessageResolver localeMessageResolver;
 
         private InlineMixinResolver inlineMixinResolver;
@@ -63,12 +59,6 @@ public class XDataListJson
         public Builder setXDatas( final XDatas xDatas )
         {
             this.xDatas = xDatas;
-            return this;
-        }
-
-        public Builder setIconUrlResolver( final MixinIconUrlResolver iconUrlResolver )
-        {
-            this.iconUrlResolver = iconUrlResolver;
             return this;
         }
 
@@ -87,7 +77,6 @@ public class XDataListJson
         private void validate()
         {
             Preconditions.checkNotNull( localeMessageResolver );
-            Preconditions.checkNotNull( iconUrlResolver );
             Preconditions.checkNotNull( inlineMixinResolver );
         }
 

@@ -42,10 +42,6 @@ public final class ContentTypeContextResource
 {
     private ContentTypeService contentTypeService;
 
-    private ContentTypeIconUrlResolver contentTypeIconUrlResolver;
-
-    private ContentTypeIconResolver contentTypeIconResolver;
-
     private LocaleService localeService;
 
     private ContentService contentService;
@@ -73,13 +69,16 @@ public final class ContentTypeContextResource
             contentTypes = ContentTypes.empty();
         }
 
+        final ContentTypeIconUrlResolver contentTypeIconUrlResolver =
+            new ContentTypeIconUrlResolver( new ContentTypeIconResolver( contentTypeService ), request );
+
         ImmutableList.Builder<ContentTypeSummaryJson> summariesJsonBuilder = new ImmutableList.Builder();
 
         contentTypes.forEach( type -> {
-            summariesJsonBuilder.add( new ContentTypeSummaryJson( type, this.contentTypeIconUrlResolver,
+            summariesJsonBuilder.add( new ContentTypeSummaryJson( type, contentTypeIconUrlResolver,
                                                                   new LocaleMessageResolver( localeService,
                                                                                              type.getName().getApplicationKey(),
-                                                                                             request.getLocales() ) ) );
+                                                                                             request.getLocales() ), request ) );
         } );
 
         return new ContentTypeSummaryListJson( summariesJsonBuilder.build() );
@@ -89,8 +88,6 @@ public final class ContentTypeContextResource
     public void setContentTypeService( final ContentTypeService contentTypeService )
     {
         this.contentTypeService = contentTypeService;
-        this.contentTypeIconResolver = new ContentTypeIconResolver( contentTypeService );
-        this.contentTypeIconUrlResolver = new ContentTypeIconUrlResolver( this.contentTypeIconResolver );
     }
 
     @Reference
