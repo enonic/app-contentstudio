@@ -8,7 +8,6 @@ import com.enonic.xp.app.contentstudio.json.ItemJson;
 import com.enonic.xp.app.contentstudio.json.form.FormJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.MixinIconUrlResolver;
 import com.enonic.xp.schema.xdata.XData;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -117,8 +116,6 @@ public class XDataJson
 
         private Boolean isOptional = false;
 
-        private MixinIconUrlResolver iconUrlResolver;
-
         private LocaleMessageResolver localeMessageResolver;
 
         private InlineMixinResolver inlineMixinResolver;
@@ -139,12 +136,6 @@ public class XDataJson
             return this;
         }
 
-        public Builder setIconUrlResolver( final MixinIconUrlResolver iconUrlResolver )
-        {
-            this.iconUrlResolver = iconUrlResolver;
-            return this;
-        }
-
         public Builder setLocaleMessageResolver( final LocaleMessageResolver localeMessageResolver )
         {
             this.localeMessageResolver = localeMessageResolver;
@@ -160,7 +151,6 @@ public class XDataJson
         private void validate()
         {
             Preconditions.checkNotNull( localeMessageResolver );
-            Preconditions.checkNotNull( iconUrlResolver );
             Preconditions.checkNotNull( inlineMixinResolver );
         }
 

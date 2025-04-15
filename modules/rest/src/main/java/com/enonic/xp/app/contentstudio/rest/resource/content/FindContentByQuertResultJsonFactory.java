@@ -1,7 +1,6 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
-import java.util.Enumeration;
-import java.util.Locale;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.enonic.xp.aggregation.Aggregation;
 import com.enonic.xp.aggregation.Aggregations;
@@ -27,7 +26,7 @@ public class FindContentByQuertResultJsonFactory
 
     private final JsonObjectsFactory jsonObjectsFactory;
 
-    private final Enumeration<Locale> locales;
+    private final HttpServletRequest request;
 
     private final String expand;
 
@@ -39,7 +38,7 @@ public class FindContentByQuertResultJsonFactory
         aggregations = builder.aggregations;
         jsonObjectsFactory = builder.jsonObjectsFactory;
         expand = builder.expand;
-        locales = builder.locales;
+        request = builder.request;
     }
 
     private static void addContents( final Contents contents, final AbstractContentQueryResultJson.Builder builder )
@@ -87,11 +86,11 @@ public class FindContentByQuertResultJsonFactory
 
         if ( Expand.FULL.matches( expand ) )
         {
-            builder = ContentQueryResultJson.newBuilder( jsonObjectsFactory, locales );
+            builder = ContentQueryResultJson.newBuilder( jsonObjectsFactory, request );
         }
         else if ( Expand.SUMMARY.matches( expand ) )
         {
-            builder = ContentSummaryQueryResultJson.newBuilder( jsonObjectsFactory );
+            builder = ContentSummaryQueryResultJson.newBuilder( jsonObjectsFactory, request );
         }
         else
         {
@@ -119,7 +118,7 @@ public class FindContentByQuertResultJsonFactory
 
         private String expand;
 
-        private Enumeration<Locale> locales;
+        private HttpServletRequest request;
 
         private Builder()
         {
@@ -161,9 +160,9 @@ public class FindContentByQuertResultJsonFactory
             return this;
         }
 
-        public Builder locales( final Enumeration<Locale> val )
+        public Builder request( final HttpServletRequest val )
         {
-            locales = val;
+            request = val;
             return this;
         }
 

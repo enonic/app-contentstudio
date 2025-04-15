@@ -1,5 +1,7 @@
 package com.enonic.xp.app.contentstudio.rest.resource.macro;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.IconUrlResolver;
 import com.enonic.xp.icon.Icon;
@@ -13,8 +15,9 @@ public class MacroIconUrlResolver
 
     private final MacroIconResolver macroIconResolver;
 
-    public MacroIconUrlResolver( final MacroIconResolver macroIconResolver )
+    public MacroIconUrlResolver( final MacroIconResolver macroIconResolver, final HttpServletRequest request )
     {
+        super( request );
         this.macroIconResolver = macroIconResolver;
     }
 
@@ -29,6 +32,6 @@ public class MacroIconUrlResolver
     {
         final String baseUrl = REST_SCHEMA_ICON_URL + macroKey.toString();
         final Icon icon = macroIconResolver.resolveIcon( macroKey );
-        return generateIconUrl( baseUrl, icon );
+        return generateIconUrl( baseUrl, icon  );
     }
 }

@@ -43,7 +43,7 @@ public class FilterByContentResource
     public ContentTypeSummaryListJson contentTypes( GetContentTypesJson json, @Context HttpServletRequest request )
     {
         return new ContentTypeSummaryListJson( filterByContentResolver.contentTypes( json.getContentId(), json.getAllowedContentTypes() )
-                                                   .map( t -> jsonObjectsFactory.createContentTypeSummaryJson(t, request.getLocales()) )
+                                                   .map( t -> jsonObjectsFactory.createContentTypeSummaryJson(t, request) )
                                                    .collect( Collectors.toUnmodifiableList() ) );
     }
 
@@ -61,7 +61,7 @@ public class FilterByContentResource
     public PartDescriptorsJson parts( @QueryParam("contentId") final String contentId, @Context HttpServletRequest request )
     {
         return new PartDescriptorsJson( filterByContentResolver.parts( ContentId.from( contentId ) )
-                                            .map( p -> jsonObjectsFactory.createPartDescriptorJson(p, request.getLocales()) )
+                                            .map( p -> jsonObjectsFactory.createPartDescriptorJson(p, request) )
                                             .collect( Collectors.toUnmodifiableList() ) );
     }
 

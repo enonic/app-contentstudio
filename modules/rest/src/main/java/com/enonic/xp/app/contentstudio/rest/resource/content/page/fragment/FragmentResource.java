@@ -51,7 +51,7 @@ public final class FragmentResource
             .build();
         final Content fragmentContent = this.fragmentService.create( command );
 
-        return jsonObjectsFactory.createContentJson( fragmentContent, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( fragmentContent, request );
     }
 
     private ContentPath getContentPath( final ContentId contentId )

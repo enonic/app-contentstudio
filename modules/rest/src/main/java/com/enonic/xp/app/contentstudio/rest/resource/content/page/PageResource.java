@@ -46,7 +46,7 @@ public final class PageResource
         final CreatePageParams command = params.getCreatePage();
         final Content updatedContent = this.pageService.create( command );
 
-        return jsonObjectsFactory.createContentJson( updatedContent, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
 
     @POST
@@ -57,7 +57,7 @@ public final class PageResource
         final UpdatePageParams command = params.getUpdatePage();
         final Content updatedContent = this.pageService.update( command );
 
-        return jsonObjectsFactory.createContentJson( updatedContent, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
 
     @GET
@@ -68,7 +68,7 @@ public final class PageResource
         final ContentId contentId = ContentId.from( contentIdAsString );
         final Content updatedContent = this.pageService.delete( contentId );
 
-        return jsonObjectsFactory.createContentJson( updatedContent, request.getLocales() );
+        return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
 
     @Reference

@@ -1658,7 +1658,7 @@ public class ContentResourceTest
 
         GetDependenciesResultJson result = contentResource.getDependencies(
             new GetDependenciesJson( List.of( content1.getId().toString(), content2.getId().toString() ),
-                                     ContentConstants.BRANCH_DRAFT.getValue() ) );
+                                     ContentConstants.BRANCH_DRAFT.getValue() ), request );
 
         assertEquals( 1, result.getDependencies().get( content1.getId().toString() ).getInbound().size() );
         assertEquals( 2L, result.getDependencies().get( content1.getId().toString() ).getInbound().get( 0 ).getCount() );
@@ -1745,15 +1745,15 @@ public class ContentResourceTest
             .thenReturn( Contents.from( content1, content2 ) );
 
         ContentListJson result =
-            contentResource.getByIds( new ContentIdsJson( List.of( content1.getId().toString(), content2.getId().toString() ) ) );
+            contentResource.getByIds( new ContentIdsJson( List.of( content1.getId().toString(), content2.getId().toString() ) ), request );
 
         assertEquals( 2L, result.getMetadata().getHits() );
         assertEquals( 2L, result.getMetadata().getTotalHits() );
 
         assertEquals( 2, result.getContents().size() );
-        assertEquals( new ContentSummaryJson( content1, new ContentIconUrlResolver( contentTypeService ),
+        assertEquals( new ContentSummaryJson( content1, new ContentIconUrlResolver( contentTypeService, request ),
                                               new ContentListTitleResolver( contentTypeService ) ), result.getContents().get( 0 ) );
-        assertEquals( new ContentSummaryJson( content2, new ContentIconUrlResolver( contentTypeService ),
+        assertEquals( new ContentSummaryJson( content2, new ContentIconUrlResolver( contentTypeService, request ),
                                               new ContentListTitleResolver( contentTypeService ) ), result.getContents().get( 1 ) );
     }
 
@@ -1844,9 +1844,9 @@ public class ContentResourceTest
         componentNameResolver.setLayoutDescriptorService( layoutDescriptorService );
         componentNameResolver.setPartDescriptorService( partDescriptorService );
 
-        assertEquals(
-            new ContentJson( site, new ContentIconUrlResolver( contentTypeService ), new ContentPrincipalsResolver( securityService ),
-                             componentNameResolver, new ContentListTitleResolver( contentTypeService ), Collections.emptyList() ), result );
+        assertEquals( new ContentJson( site, new ContentIconUrlResolver( contentTypeService, request ),
+                                       new ContentPrincipalsResolver( securityService ), componentNameResolver,
+                                       new ContentListTitleResolver( contentTypeService ), Collections.emptyList() ), result );
     }
 
     @Test
@@ -2685,7 +2685,7 @@ public class ContentResourceTest
         Content content = createContent( contentId, "content-name", "myapplication:content-type" );
         when( this.contentService.update( any( UpdateContentParams.class ) ) ).thenReturn( content );
 
-        instance.localize( params );
+        instance.localize( params, request );
 
         verify( this.contentService, times( 1 ) ).update( argumentCaptor.capture() );
         assertTrue( argumentCaptor.getValue().getContentId().equals( ContentId.from( contentId ) ) );
@@ -2698,7 +2698,7 @@ public class ContentResourceTest
         final LocalizeContentsJson params = new LocalizeContentsJson( new ArrayList<>(), "en" );
 
         // test & assert
-        final WebApplicationException exception = assertThrows( WebApplicationException.class, () -> instance.localize( params ) );
+        final WebApplicationException exception = assertThrows( WebApplicationException.class, () -> instance.localize( params, request ) );
 
         assertEquals( "Can't localize content: no content IDs provided", exception.getMessage() );
 

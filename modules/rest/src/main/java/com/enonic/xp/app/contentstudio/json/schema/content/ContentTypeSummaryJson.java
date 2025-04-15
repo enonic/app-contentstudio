@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import com.enonic.xp.app.contentstudio.json.ChangeTraceableJson;
 import com.enonic.xp.app.contentstudio.json.ItemJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
@@ -27,7 +29,7 @@ public class ContentTypeSummaryJson
     private final ImmutableList<String> metadataMixinNames;
 
     public ContentTypeSummaryJson( final ContentType contentType, final ContentTypeIconUrlResolver iconUrlResolver,
-                                   final LocaleMessageResolver localeMessageResolver )
+                                   final LocaleMessageResolver localeMessageResolver, final HttpServletRequest request )
     {
         this.contentType = contentType;
         this.localeMessageResolver = localeMessageResolver;

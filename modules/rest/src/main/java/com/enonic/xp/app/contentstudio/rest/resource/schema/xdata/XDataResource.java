@@ -6,6 +6,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
@@ -15,11 +20,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Modified;
-import org.osgi.service.component.annotations.Reference;
-
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationWildcardMatcher;
 import com.enonic.xp.app.contentstudio.json.schema.xdata.XDataJson;
@@ -28,8 +28,6 @@ import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.MixinIconResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.MixinIconUrlResolver;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.schema.content.ContentTypeName;
@@ -58,8 +56,6 @@ public final class XDataResource
     private LocaleService localeService;
 
     private MixinService mixinService;
-
-    private MixinIconUrlResolver mixinIconUrlResolver;
 
     private ApplicationWildcardMatcher.Mode contentTypeParseMode;
 
@@ -94,7 +90,6 @@ public final class XDataResource
             .stream()
             .map( xData -> XDataJson.create()
                 .setXData( xData )
-                .setIconUrlResolver( this.mixinIconUrlResolver )
                 .setLocaleMessageResolver( new LocaleMessageResolver( localeService, xData.getName().getApplicationKey(), locales ) )
                 .setInlineMixinResolver( new InlineMixinResolver( mixinService ) )
                 .setOptional( xDatas.get( xData ) )
@@ -147,7 +142,6 @@ public final class XDataResource
     public void setMixinService( final MixinService mixinService )
     {
         this.mixinService = mixinService;
-        this.mixinIconUrlResolver = new MixinIconUrlResolver( new MixinIconResolver( mixinService ) );
     }
 }
 

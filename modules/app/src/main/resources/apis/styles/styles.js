@@ -13,7 +13,7 @@ exports.get = function (req) {
         };
     }
 
-    var styles = getStyles(contentId, project);
+    var styles = getStyles(contentId, project, req.locales);
     var cssUrls = [];
     for (var i = 0; i < styles.css.length; i++) {
         if (styles.css[i]) {
@@ -33,9 +33,10 @@ exports.get = function (req) {
     };
 };
 
-var getStyles = function (contentId, project) {
+var getStyles = function (contentId, project, locales) {
     var bean = __.newBean('com.enonic.xp.app.contentstudio.style.StyleHandler');
     bean.contentId = __.nullOrValue(contentId);
     bean.project = __.nullOrValue(project);
+    bean.locales = __.nullOrValue(locales);
     return __.toNativeObject(bean.getStyles());
 };

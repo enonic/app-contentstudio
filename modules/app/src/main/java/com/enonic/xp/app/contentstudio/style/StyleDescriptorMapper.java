@@ -1,6 +1,8 @@
 package com.enonic.xp.app.contentstudio.style;
 
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.enonic.xp.app.ApplicationKey;
@@ -19,10 +21,14 @@ public class StyleDescriptorMapper
 
     private final LocaleService localeService;
 
-    public StyleDescriptorMapper( final StyleDescriptors styleDescriptors, final LocaleService localeService )
+    private final List<Locale> locales;
+
+    public StyleDescriptorMapper( final StyleDescriptors styleDescriptors, final LocaleService localeService,
+                                  final List<Locale> locales )
     {
         this.styleDescriptors = styleDescriptors;
         this.localeService = localeService;
+        this.locales = locales;
     }
 
     @Override
@@ -86,7 +92,7 @@ public class StyleDescriptorMapper
         LocaleMessageResolver localeMessageResolver = new LocaleMessageResolver( localeService, applicationKey );
         if ( !isBlank( styleElement.getDisplayNameI18nKey() ) )
         {
-            return localeMessageResolver.localizeMessage( styleElement.getDisplayNameI18nKey(), styleElement.getDisplayName() );
+            return localeMessageResolver.localizeMessage( styleElement.getDisplayNameI18nKey(), styleElement.getDisplayName(), locales );
         }
         else
         {

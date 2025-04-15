@@ -2,6 +2,8 @@ package com.enonic.xp.app.contentstudio.json.schema.content;
 
 import com.google.common.base.Preconditions;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import com.enonic.xp.app.contentstudio.json.form.FormJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
@@ -16,7 +18,7 @@ public class ContentTypeJson
 
     public ContentTypeJson( final Builder builder )
     {
-        super( builder.contentType, builder.contentTypeIconUrlResolver, builder.localeMessageResolver );
+        super( builder.contentType, builder.contentTypeIconUrlResolver, builder.localeMessageResolver, builder.request );
         this.form = new FormJson( builder.contentType.getForm(), builder.localeMessageResolver, builder.inlineMixinResolver );
     }
 
@@ -39,6 +41,8 @@ public class ContentTypeJson
         private LocaleMessageResolver localeMessageResolver;
 
         private InlineMixinResolver inlineMixinResolver;
+
+        private HttpServletRequest request;
 
         private Builder()
         {
@@ -69,12 +73,19 @@ public class ContentTypeJson
             return this;
         }
 
+        public Builder setRequest( final HttpServletRequest request )
+        {
+            this.request = request;
+            return this;
+        }
+
         private void validate()
         {
             Preconditions.checkNotNull( contentType );
             Preconditions.checkNotNull( localeMessageResolver );
             Preconditions.checkNotNull( contentTypeIconUrlResolver );
             Preconditions.checkNotNull( inlineMixinResolver );
+            Preconditions.checkNotNull( request );
         }
 
         public ContentTypeJson build()

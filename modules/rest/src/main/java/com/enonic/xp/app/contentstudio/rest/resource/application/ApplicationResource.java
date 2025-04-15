@@ -1,10 +1,11 @@
 package com.enonic.xp.app.contentstudio.rest.resource.application;
 
 import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,9 +19,6 @@ import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import com.enonic.xp.app.Application;
 import com.enonic.xp.app.ApplicationDescriptor;
@@ -67,22 +65,15 @@ public final class ApplicationResource
 
     private MixinService mixinService;
 
-    private final ApplicationIconUrlResolver iconUrlResolver;
-
     private static final ApplicationImageHelper HELPER = new ApplicationImageHelper();
-
-    public ApplicationResource()
-    {
-        iconUrlResolver = new ApplicationIconUrlResolver();
-    }
 
     @GET
     public ApplicationJson getByKey( @QueryParam("applicationKey") String applicationKey, @Context HttpServletRequest request )
     {
-        return doGetByKey( ApplicationKey.from( applicationKey ), request.getLocales() );
+        return doGetByKey( ApplicationKey.from( applicationKey ), request );
     }
 
-    private ApplicationJson doGetByKey( final ApplicationKey appKey, final Enumeration<Locale> locales )
+    private ApplicationJson doGetByKey( final ApplicationKey appKey, final HttpServletRequest request )
     {
         final Application application = this.applicationService.getInstalledApplication( appKey );
 
@@ -91,10 +82,10 @@ public final class ApplicationResource
             throw new ApplicationNotFoundException( appKey );
         }
 
-        return applicationToJson( application, locales );
+        return applicationToJson( application, request );
     }
 
-    private ApplicationJson applicationToJson( final Application application, final Enumeration<Locale> locales )
+    private ApplicationJson applicationToJson( final Application application, final HttpServletRequest request )
     {
         final ApplicationKey appKey = application.getKey();
         final boolean local = this.applicationService.isLocalApplication( appKey );
@@ -108,8 +99,8 @@ public final class ApplicationResource
             .setApplicationDescriptor( appDescriptor )
             .setSiteDescriptor( siteDescriptor )
             .setIdProviderDescriptor( idProviderDescriptor )
-            .setIconUrlResolver( this.iconUrlResolver )
-            .setLocaleMessageResolver( new LocaleMessageResolver( this.localeService, appKey, locales ) )
+            .setIconUrlResolver( new ApplicationIconUrlResolver( request ) )
+            .setLocaleMessageResolver( new LocaleMessageResolver( this.localeService, appKey, request.getLocales() ) )
             .setInlineMixinResolver( new InlineMixinResolver( this.mixinService ) )
             .build();
     }
@@ -124,7 +115,7 @@ public final class ApplicationResource
             .stream()
             .map( this.applicationService::get )
             .filter( Objects::nonNull )
-            .map( a -> this.applicationToJson( a, request.getLocales() ) )
+            .map( a -> this.applicationToJson( a, request ) )
             .forEach( listJson::add );
 
         return listJson;
@@ -158,7 +149,7 @@ public final class ApplicationResource
                               .setApplicationDescriptor( appDescriptor )
                               .setSiteDescriptor( siteDescriptor )
                               .setIdProviderDescriptor( idProviderDescriptor )
-                              .setIconUrlResolver( this.iconUrlResolver )
+                              .setIconUrlResolver( new ApplicationIconUrlResolver( request ) )
                               .setLocaleMessageResolver(
                                   new LocaleMessageResolver( this.localeService, applicationKey, request.getLocales() ) )
                               .setInlineMixinResolver( new InlineMixinResolver( this.mixinService ) )
