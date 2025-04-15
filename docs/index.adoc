@@ -11,28 +11,26 @@ NOTE: *Install?* Content Studio is available as an application for Enonic XP, an
 == Overview
 
 Content Studio provides editors with an efficient way of creating, and curating content without technical skills.
-A core concept is that any content item has a specific <<content-types#,Content type>>.
-
-A set of standard content types come with the system, but the real benefit lies in custom defined content types.
-Custom content types are defined by developers, and provided through apps.
 
 Content is organized within <<projects#,Content Projects>>. Content can be re-used, localized or augmented across different projects through a feature called <<layers#, content layering>>.
 
 Editors will commonly use the <<navigator#,navigator panel>> to browse, search and perform actions on one or more items.
 
-<<issues#,Issues>> can be created and assigned to users of Content Studio in order to get stuff done, and assist with workflow related tasks, such as getting content published.
+Use documentation menu for more details
+
+== Subscribe for more
+
+Content Studio is open source and free for everyone. Customers with a valid Enonic subscription additionally get access to Enonic licensed applications. Several of these add advanced capabilities to Content Studio, such as the <<archive#, archive browser>> and <<ai#, AI assistant>>. 
+
+Appliccable features are marked with "Subscription required" thoughout the documentation.
+
+Visit Enonic Market for the https://market.enonic.com/licensed[complete list of licensed applications]
+
 
 == Browser support
 
-Content Studio works in all modern browsers.  We are explicitly testing it and supporting it for the latest versions of
-Google Chrome, Apple Safari, Mozilla Firefox and Microsoft Edge.
+Content Studio works in all modern browsers.  We are explicitly testing it and supporting it for the latest versions of Google Chrome, Apple Safari, Mozilla Firefox and Microsoft Edge.
 
-== Content Studio+
-
-An extended version of Content Studio called "*Content Studio+*" contains additional features that expand standard functionality of the app.
-This application can be installed directly from the https://market.enonic.com/vendors/enonic/content-studio-plus[Enonic Market].
-
-NOTE: *Content Studio+* requires XP 7.6.0 (or higher) and is available only for subscription customers with a valid license from Enonic
 
 == Release notes
 
