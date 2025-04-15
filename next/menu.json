@@ -51,6 +51,10 @@
             "document" : "editor/content-form"
         },
         {
+          "title": "Ai assistant",
+          "document": "ai"
+        },
+        {
             "title": "Visual Editor",
             "document" : "editor/page-editor"
         },
