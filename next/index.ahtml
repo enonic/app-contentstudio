@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#overview">Overview</a></li>
-<li><a href="#subscribe_for_more">Subscribe for more</a></li>
+<li><a href="#go_beyond">Go beyond</a></li>
 <li><a href="#browser_support">Browser support</a></li>
 <li><a href="#release_notes">Release notes</a></li>
 </ul>
@@ -492,13 +492,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="subscribe_for_more"><a class="link" href="#subscribe_for_more">Subscribe for more</a></h2>
+<h2 id="go_beyond"><a class="link" href="#go_beyond">Go beyond</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Content Studio is open source and free for everyone. Customers with a valid Enonic subscription additionally get access to Enonic licensed applications. Several of these add advanced capabilities to Content Studio, such as the <a href="archive.ahtml">archive browser</a> and <a href="ai.ahtml">AI assistant</a>.</p>
-</div>
-<div class="paragraph">
-<p>Appliccable features are marked with "Subscription required" thoughout the documentation.</p>
+<p>Content Studio is free and open source, but also highly extendable. A subscription gives you access to licensed applications that extend Content Studio with advanced capabilities like an <a href="ai.ahtml">AI assistant</a>, the <a href="archive.ahtml">archive browser</a> and <a href="layers.ahtml#ai-translation">automated translations</a>.</p>
 </div>
 <div class="paragraph">
 <p>Visit Enonic Market for the <a href="https://market.enonic.com/licensed">complete list of licensed applications</a></p>
@@ -524,7 +521,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-16 17:54:34 UTC
+Last updated 2025-04-16 18:02:31 UTC
 </div>
 </div>
 </body>
