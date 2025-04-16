@@ -15,7 +15,7 @@ There are three ways to open the *New Content* dialog in Content Studio:
 * By clicking the `New` button in the toolbar;
 * By clicking `New` in the context menu, which is accessible by right-clicking an item.
 
-image::dialog-new.png[]
+image::dialog-new.png[Complete list of available content types,723w]
 
 NOTE: The *New Content* dialog will use the context of the selected content to create the new item. If no context is set, the item will be created on the root level.
 
@@ -30,7 +30,7 @@ The *New Content* dialog lets you choose from available content types, based on 
 
 TIP: To filter the list of items — simply start typing on your keyboard to filter the list of available content types.
 
-image::dialog-new-search.png[]
+image::dialog-new-search.png[Filtered list of content types,720w]
 
 Once a content type is selected, a new item is created, and the content editor is launched in a new tab.
 
@@ -43,7 +43,7 @@ There are two ways to upload files:
 * Click the upload icon placed in the top right of the dialog;
 * Drag'n drop — also supports bulk uploading.
 
-image::dialog-new-media.png[]
+image::dialog-new-media.png[Drag'n drop to create media content from files,721w]
 
 NOTE: When uploading files, the underlying content type is automatically detected from the file type file uploaded.
 
@@ -76,11 +76,11 @@ button dropdown in the *Archive item(s)* dialog.
 
 IMPORTANT: Online content will instantly go offline after archiving or deleting.
 
-image::dialog-archive.png[Archive item(s) dialog, 75%]
+image::dialog-archive.png[Archive item(s) dialog, 1216w]
 
 If any of the items in the dialog has an inbound dependency (is referenced by another content), a warning will be shown on top of the dialog and the action button will be disabled. User can either click "Ignore inbound references" link to ignore the warning and proceed with archiving/deletion, or click "Show references" link for every referenced item and remove the references (the dialog will be automatically refreshed).
 
-image::dialog-archive-references.png[Reference check in the Archive item(s) dialog, 75%]
+image::dialog-archive-references.png[Reference check in the Archive item(s) dialog, 935w]
 
 
 == Duplicate
@@ -94,7 +94,7 @@ There are two ways to open this dialog in Content Studio:
 
 In the dialog, you can choose whether child items of selected content(s) should also be duplicated or not by pressing the tree icon to the left of the content. Pressing the "Duplicate" button in the dialog will trigger the duplicate operation which will be visualized by a progress bar if the process is taking more than a few seconds. Duplicates will get a new id and path names will be postfixed with `-copy` or `-copy-*` with a number instead of an asterisk starting with `2` if it is not the first copy.
 
-image::dialog-duplicate.png[]
+image::dialog-duplicate.png[Duplicate items and chidren, 727w]
 
 NOTE: When the `Duplicate` button is clicked from inside the Content Wizard, only the current item will be selected in the dialog.
 
@@ -113,13 +113,13 @@ This action moves the selected item(s) with all children and current permissions
 
 TIP: There's a special item at the top of the dropdown's list called "Project root". Select it if you want to move the selected item(s) to the root of the content project.
 
-image::dialog-move.png[Move dialog, 50%]
+image::dialog-move.png[Move items by selecting target parent, 980w]
 
 NOTE: Current parent of the selected item and the item itself will be disabled inside the Mode dialog's dropdown.
 
 Once the items are moved a notification will pop up at the bottom of the page. If the items were moved from the Content Navigator, this notification will contain the new parent's path which can be clicked to locate and expand the new parent item in the Content Navigator to help the user quickly find the moved item(s) in their new location.
 
-image::notification-move.png[Move notification, 75%]
+image::notification-move.png[Notification showing the item was moved, 672w]
 
 == Sort
 
@@ -136,7 +136,7 @@ The default sorting is by the *Modified date* in descending order.
 
 You can sort items in ascending or descending order by Modified date, Created date, Display name or Publish date. Children can also be manually sorted by simply dragging them in the *Sort items* dialog.
 
-image::dialog-sort.png[]
+image::dialog-sort.png[Set default sorting order for items in the tree, 730w]
 
 Once items are sorted, the parent content will have an arrow in the browse view tree grid pointed up or down to denote ascending or descending. If the content is manually sorted, an icon with three horizontal bars will appear.
 
@@ -144,7 +144,7 @@ Clicking the bars or arrow icon will open the *Sort items* dialog.
 
 In the image below, `/Posts/Featured Image` is sorted by Display name in ascending order, `/Posts/Gotham Sure Is A Big Town` is sorted by Published date in ascending order, and `/Posts` has custom sorting.
 
-image::dialog-sort-grid.png[]
+image::dialog-sort-grid.png[Sorting info is visible in the tree structure, 741w]
 
 
 == Preview
@@ -169,7 +169,7 @@ There are three ways to open the *Publishing Wizard* dialog in Content Studio:
 * By using the `Publish` button in the toolbar
 * By right-clicking an item in the Content Navigator and selecting `Publish` from the context menu
 
-image::dialog-publish-button.png[Publish button, 50%]
+image::dialog-publish-button.png[Publish actions, 302w]
 
 The Publish button in the toolbar has a dropdown menu with various actions for currently selected item(s).
 
@@ -225,18 +225,18 @@ Optional dependencies & child items can be excluded from the publishing batch us
 
 TIP: If you want to add back dependent items excluded by mistake, click *Show excluded* link above the list and all excluded items will reappear in the list. Select the items you want to put back, and click "Apply".
 
-image::dialog-publish-excluded.png[Excluded dependencies, 75%]
+image::dialog-publish-excluded.png[Publishing wizard with excluded dependencies, 934w]
 
 TIP: It's possible to overrule the default behaviour of automatic inclusion of all the dependencies by using the Content Studio's <<config#exclude_optional_dependencies, config file>>.
 In this special mode only the mandatory dependencies will be auto-included, the optional ones will be auto-excluded and can be included manually.
 
-image::dialog-publish-auto-excluded.png[Auto-excluded dependencies, 75%]
+image::dialog-publish-auto-excluded.png[Auto-excluded dependencies, 747w]
 
 === Validation
 
 Content Studio has a built-in validation which ensures that items to be published are valid, ready for publishing and are allowed to be published by current user.
 
-image::dialog-publish-invalid.png[Invalid publication, 75%]
+image::dialog-publish-invalid.png[Invalid state blocks publishing, 938w]
 
 If the list of items to be published contains invalid items or items that are still in the "In progress" workflow state or items that current user is not allowed to publish, the warning section will be shown on top of the dialog, displaying all failed validation checks. The "Publish" button will then be disabled and "problematic" items will be shown on top of the list.
 
@@ -246,7 +246,7 @@ NOTE: Some items might be required for publication and cannot be excluded (like 
 
 If all the checks have successfully passed, the "Publish" button will be enabled and the warning section will say that everything is ready for publishing.
 
-image::dialog-publish-valid.png[Valid publication, 75%]
+image::dialog-publish-valid.png[Valid items enables publishing, 940w]
 
 TIP: Use "Mark as ready" link up in the status bar to mark all in-progress items as ready for publishing.
 
@@ -255,7 +255,7 @@ TIP: Use "Mark as ready" link up in the status bar to mark all in-progress items
 The Calendar icon in the *Publishing Wizard* dialog will open a section on top of the dialog where you can schedule the period of time
 when the content should be online. "Publish Now" button will then change its label to "Schedule".
 
-image::publishing-wizard-schedule.png[]
+image::publishing-wizard-schedule.png[Optionally schedule publish from and to, 937w]
 
 NOTE: Only offline items will be scheduled. All other changes will be published immediately.
 
@@ -276,14 +276,14 @@ There are two ways to open this dialog in Content Studio:
 
 Unpublishing a published content that is marked for deletion will first take it offline and then delete it.
 
-image::dialog-unpublish.png[]
+image::dialog-unpublish.png[Unpublish items and children, 934w]
 
 NOTE: Just like with deletion, you will be asked to confirm the Unpublish action by entering the total number of items to be unpublished.
 
 
 If any of the items in the dialog has a *published* inbound dependency (is referenced by another *published* content), a warning will be shown on top of the dialog and the action button will be disabled. User can either click "Ignore inbound references" link to ignore the warning and proceed with unpublishing, or click "Show references" link for every referenced item, remove the references and publish the changes.
 
-image::dialog-unpublish-references.png[Reference check in the Unpublish dialog, 75%]
+image::dialog-unpublish-references.png[Reference check in the Unpublish dialog, 754w]
 
 
 == Create Issue
