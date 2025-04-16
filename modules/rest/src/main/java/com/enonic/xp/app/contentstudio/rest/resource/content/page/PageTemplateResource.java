@@ -3,14 +3,16 @@ package com.enonic.xp.app.contentstudio.rest.resource.content.page;
 import java.io.IOException;
 import java.util.function.Predicate;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -61,17 +63,17 @@ public final class PageTemplateResource
     private JsonObjectsFactory jsonObjectsFactory;
 
     @GET
-    public ContentJson getByKey( @QueryParam("key") final String pageTemplateKeyAsString )
+    public ContentJson getByKey( @QueryParam("key") final String pageTemplateKeyAsString, @Context HttpServletRequest request )
         throws IOException
     {
         final PageTemplateKey pageTemplateKey = PageTemplateKey.from( pageTemplateKeyAsString );
         final PageTemplate pageTemplate = pageTemplateService.getByKey( pageTemplateKey );
-        return jsonObjectsFactory.createContentJson( pageTemplate );
+        return jsonObjectsFactory.createContentJson( pageTemplate, request );
     }
 
     @GET
     @Path("list")
-    public ContentListJson<ContentJson> list( @QueryParam("siteId") String siteIdAsString )
+    public ContentListJson<ContentJson> list( @QueryParam("siteId") String siteIdAsString, @Context HttpServletRequest request )
     {
 
         final ContentId siteId = ContentId.from( siteIdAsString );
@@ -79,13 +81,15 @@ public final class PageTemplateResource
 
         final ContentListMetaData metaData =
             ContentListMetaData.create().totalHits( pageTemplates.getSize() ).hits( pageTemplates.getSize() ).build();
-        return new ContentListJson<>( pageTemplates.toContents(), metaData, jsonObjectsFactory::createContentJson );
+        return new ContentListJson<>( pageTemplates.toContents(), metaData,
+                                      c -> jsonObjectsFactory.createContentJson( c, request ) );
     }
 
     @GET
     @Path("listByCanRender")
     public ContentListJson<ContentJson> listByCanRender( @QueryParam("siteId") String siteIdAsString,
-                                                         @QueryParam("contentTypeName") String contentTypeName )
+                                                         @QueryParam("contentTypeName") String contentTypeName,
+                                                         @Context HttpServletRequest request )
     {
         final ContentId siteId = ContentId.from( siteIdAsString );
         final PageTemplates pageTemplates = pageTemplateService.getBySite( siteId );
@@ -93,13 +97,15 @@ public final class PageTemplateResource
         final PageTemplates filteredPageTemplates = pageTemplates.filter( spec );
         final ContentListMetaData metaData =
             ContentListMetaData.create().totalHits( filteredPageTemplates.getSize() ).hits( filteredPageTemplates.getSize() ).build();
-        return new ContentListJson<>( filteredPageTemplates.toContents(), metaData, jsonObjectsFactory::createContentJson );
+        return new ContentListJson<>( filteredPageTemplates.toContents(), metaData,
+                                      c -> jsonObjectsFactory.createContentJson( c, request ) );
     }
 
     @GET
     @Path("default")
     public ContentJson getDefault( @QueryParam("siteId") String siteIdAsString,
-                                   @QueryParam("contentTypeName") String contentTypeNameAsString )
+                                   @QueryParam("contentTypeName") String contentTypeNameAsString,
+                                   @Context HttpServletRequest request )
     {
         final ContentId siteId = ContentId.from( siteIdAsString );
         final ContentTypeName contentTypeName = ContentTypeName.from( contentTypeNameAsString );
@@ -111,7 +117,7 @@ public final class PageTemplateResource
         {
             return null;
         }
-        return jsonObjectsFactory.createContentJson( pageTemplate );
+        return jsonObjectsFactory.createContentJson( pageTemplate, request );
     }
 
     @GET
@@ -166,14 +172,14 @@ public final class PageTemplateResource
     @POST
     @Path("create")
     @Consumes(MediaType.APPLICATION_JSON)
-    public ContentJson create( final CreatePageTemplateJson params )
+    public ContentJson create( final CreatePageTemplateJson params, @Context HttpServletRequest request )
     {
         CreatePageTemplateParams templateParams = params.getCreateTemplate();
 
         templateParams.name( ensureUniqueName( templateParams.getSite(), templateParams.getName() ) );
 
         PageTemplate template = this.pageTemplateService.create( templateParams );
-        return jsonObjectsFactory.createContentJson( template );
+        return jsonObjectsFactory.createContentJson( template, request );
     }
 
     private ContentName ensureUniqueName( ContentPath parent, ContentName name )

@@ -1,5 +1,7 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import com.enonic.xp.aggregation.Aggregation;
 import com.enonic.xp.aggregation.Aggregations;
 import com.enonic.xp.aggregation.BucketAggregation;
@@ -24,6 +26,8 @@ public class FindContentByQuertResultJsonFactory
 
     private final JsonObjectsFactory jsonObjectsFactory;
 
+    private final HttpServletRequest request;
+
     private final String expand;
 
     private FindContentByQuertResultJsonFactory( final Builder builder )
@@ -34,6 +38,7 @@ public class FindContentByQuertResultJsonFactory
         aggregations = builder.aggregations;
         jsonObjectsFactory = builder.jsonObjectsFactory;
         expand = builder.expand;
+        request = builder.request;
     }
 
     private static void addContents( final Contents contents, final AbstractContentQueryResultJson.Builder builder )
@@ -81,11 +86,11 @@ public class FindContentByQuertResultJsonFactory
 
         if ( Expand.FULL.matches( expand ) )
         {
-            builder = ContentQueryResultJson.newBuilder( jsonObjectsFactory );
+            builder = ContentQueryResultJson.newBuilder( jsonObjectsFactory, request );
         }
         else if ( Expand.SUMMARY.matches( expand ) )
         {
-            builder = ContentSummaryQueryResultJson.newBuilder( jsonObjectsFactory );
+            builder = ContentSummaryQueryResultJson.newBuilder( jsonObjectsFactory, request );
         }
         else
         {
@@ -112,6 +117,8 @@ public class FindContentByQuertResultJsonFactory
         private JsonObjectsFactory jsonObjectsFactory;
 
         private String expand;
+
+        private HttpServletRequest request;
 
         private Builder()
         {
@@ -150,6 +157,12 @@ public class FindContentByQuertResultJsonFactory
         public Builder expand( final String val )
         {
             expand = val;
+            return this;
+        }
+
+        public Builder request( final HttpServletRequest val )
+        {
+            request = val;
             return this;
         }
 

@@ -4,19 +4,21 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.CacheControl;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import com.enonic.xp.app.Application;
 import com.enonic.xp.app.ApplicationDescriptor;
@@ -63,22 +65,15 @@ public final class ApplicationResource
 
     private MixinService mixinService;
 
-    private final ApplicationIconUrlResolver iconUrlResolver;
-
     private static final ApplicationImageHelper HELPER = new ApplicationImageHelper();
 
-    public ApplicationResource()
-    {
-        iconUrlResolver = new ApplicationIconUrlResolver();
-    }
-
     @GET
-    public ApplicationJson getByKey( @QueryParam("applicationKey") String applicationKey )
+    public ApplicationJson getByKey( @QueryParam("applicationKey") String applicationKey, @Context HttpServletRequest request )
     {
-        return doGetByKey( ApplicationKey.from( applicationKey ) );
+        return doGetByKey( ApplicationKey.from( applicationKey ), request );
     }
 
-    private ApplicationJson doGetByKey( final ApplicationKey appKey )
+    private ApplicationJson doGetByKey( final ApplicationKey appKey, final HttpServletRequest request )
     {
         final Application application = this.applicationService.getInstalledApplication( appKey );
 
@@ -87,10 +82,10 @@ public final class ApplicationResource
             throw new ApplicationNotFoundException( appKey );
         }
 
-        return applicationToJson( application );
+        return applicationToJson( application, request );
     }
 
-    private ApplicationJson applicationToJson( final Application application )
+    private ApplicationJson applicationToJson( final Application application, final HttpServletRequest request )
     {
         final ApplicationKey appKey = application.getKey();
         final boolean local = this.applicationService.isLocalApplication( appKey );
@@ -104,22 +99,23 @@ public final class ApplicationResource
             .setApplicationDescriptor( appDescriptor )
             .setSiteDescriptor( siteDescriptor )
             .setIdProviderDescriptor( idProviderDescriptor )
-            .setIconUrlResolver( this.iconUrlResolver )
-            .setLocaleMessageResolver( new LocaleMessageResolver( this.localeService, appKey ) )
+            .setIconUrlResolver( new ApplicationIconUrlResolver( request ) )
+            .setLocaleMessageResolver( new LocaleMessageResolver( this.localeService, appKey, request.getLocales() ) )
             .setInlineMixinResolver( new InlineMixinResolver( this.mixinService ) )
             .build();
     }
 
     @POST
     @Path("getApplicationsByKeys")
-    public ListApplicationJson getByKeys( final ApplicationKeysJson params )
+    public ListApplicationJson getByKeys( final ApplicationKeysJson params, @Context HttpServletRequest request )
     {
         final ListApplicationJson listJson = new ListApplicationJson();
 
         params.getApplicationKeys()
-            .stream().map( this.applicationService::get )
+            .stream()
+            .map( this.applicationService::get )
             .filter( Objects::nonNull )
-            .map( this::applicationToJson )
+            .map( a -> this.applicationToJson( a, request ) )
             .forEach( listJson::add );
 
         return listJson;
@@ -127,7 +123,7 @@ public final class ApplicationResource
 
     @GET
     @Path("getSiteApplications")
-    public ListApplicationJson getSiteApplications( @QueryParam("query") final String query )
+    public ListApplicationJson getSiteApplications( @QueryParam("query") final String query, @Context HttpServletRequest request )
     {
         final ListApplicationJson json = new ListApplicationJson();
 
@@ -153,8 +149,9 @@ public final class ApplicationResource
                               .setApplicationDescriptor( appDescriptor )
                               .setSiteDescriptor( siteDescriptor )
                               .setIdProviderDescriptor( idProviderDescriptor )
-                              .setIconUrlResolver( this.iconUrlResolver )
-                              .setLocaleMessageResolver( new LocaleMessageResolver( this.localeService, applicationKey ) )
+                              .setIconUrlResolver( new ApplicationIconUrlResolver( request ) )
+                              .setLocaleMessageResolver(
+                                  new LocaleMessageResolver( this.localeService, applicationKey, request.getLocales() ) )
                               .setInlineMixinResolver( new InlineMixinResolver( this.mixinService ) )
                               .build() );
             }

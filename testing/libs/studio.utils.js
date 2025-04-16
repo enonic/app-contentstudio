@@ -155,7 +155,7 @@ module.exports = {
     },
     async doCloseCurrentBrowserTab() {
         let title = await this.getBrowser().getTitle();
-        if (title != 'Enonic XP Home') {
+        if (title !== 'Enonic XP Home') {
             //return await this.getBrowser().closeWindow();
             return await this.getBrowser().execute('window.close();')
         }

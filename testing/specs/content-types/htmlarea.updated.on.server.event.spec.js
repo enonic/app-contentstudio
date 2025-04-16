@@ -47,7 +47,7 @@ describe('htmlarea.updated.on.server.event.spec: tests for updating html area on
             await contentWizard.waitForNotificationMessage();
             // 3. Open a same content item with HtmlArea in two browser tabs:
             //  Close then reopen the tab with 'Content Studio'
-            await studioUtils.doCloseWindowTabByTitle(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+            await studioUtils.doCloseWindowTabByTitle(appConst.BROWSER_XP_TITLES.CONTENT_STUDIO);
             // Open the tab with Content Browse Panel (index of the tab is 2)
             await launcherPanel.clickOnContentStudioLink();
             await studioUtils.doSwitchToContentBrowsePanel();

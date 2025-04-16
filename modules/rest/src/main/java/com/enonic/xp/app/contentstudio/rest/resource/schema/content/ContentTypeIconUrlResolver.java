@@ -1,5 +1,7 @@
 package com.enonic.xp.app.contentstudio.rest.resource.schema.content;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.IconUrlResolver;
 import com.enonic.xp.icon.Icon;
@@ -14,8 +16,9 @@ public final class ContentTypeIconUrlResolver
 
     private final ContentTypeIconResolver contentTypeIconResolver;
 
-    public ContentTypeIconUrlResolver( final ContentTypeIconResolver contentTypeIconResolver )
+    public ContentTypeIconUrlResolver( final ContentTypeIconResolver contentTypeIconResolver, final HttpServletRequest request )
     {
+        super( request );
         this.contentTypeIconResolver = contentTypeIconResolver;
     }
 

@@ -34,17 +34,12 @@ exports.renderTemplate = function (params) {
     return response;
 };
 
-exports.getParams = function (path) {
+exports.getParams = function (path, locales) {
     const isBrowseMode = path === admin.getToolUrl(app.name, 'main');
     const aiContentOperatorApp = appLib.get({key: AI_CONTENT_OPERATOR_APP_KEY});
     const aiTranslatorApp = appLib.get({key: AI_TRANSLATOR_APP_KEY});
     const isAiContentOperatorEnabled = aiContentOperatorApp != null && aiContentOperatorApp.started && !isBrowseMode;
     const isAiTranslatorEnabled = aiTranslatorApp != null && aiTranslatorApp.started && !isBrowseMode;
-    const locales = admin.getLocales();
-    const toolUrlBase = admin.getToolUrl(
-        app.name,
-        'main'
-    );
 
     return {
         assetsUri: portal.assetUrl({path: ''}),
@@ -55,18 +50,15 @@ exports.getParams = function (path) {
         }),
         aiContentOperatorAssetsUrl: isAiContentOperatorEnabled ? portal.assetUrl({application: AI_CONTENT_OPERATOR_APP_KEY}) : undefined,
         aiTranslatorAssetsUrl: isAiTranslatorEnabled ? portal.assetUrl({application: AI_TRANSLATOR_APP_KEY}) : undefined,
-        launcherPath: admin.getLauncherPath(),
         configScriptId: configLib.configJsonId,
-        configAsJson: JSON.stringify(configLib.getConfig(), null, 4).replace(/<(\/?script|!--)/gi, "\\u003C$1"),
-        toolBaseUrl: toolUrlBase,
-        toolAppName: app.name,
+        configAsJson: JSON.stringify(configLib.getConfig(locales), null, 4).replace(/<(\/?script|!--)/gi, "\\u003C$1"),
         isBrowseMode: isBrowseMode,
         aiLocales: locales ? locales.join(',') : '',
     };
 };
 
 function handleGet(req) {
-    const params = exports.getParams(req.path);
+    const params = exports.getParams(req.path, req.locales);
     return exports.renderTemplate(params);
 }
 

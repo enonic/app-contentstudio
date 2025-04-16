@@ -2,13 +2,15 @@ package com.enonic.xp.app.contentstudio.rest.resource.schema.content;
 
 import java.util.stream.Collectors;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -38,37 +40,37 @@ public class FilterByContentResource
 
     @POST
     @Path("contentTypes")
-    public ContentTypeSummaryListJson contentTypes( GetContentTypesJson json )
+    public ContentTypeSummaryListJson contentTypes( GetContentTypesJson json, @Context HttpServletRequest request )
     {
         return new ContentTypeSummaryListJson( filterByContentResolver.contentTypes( json.getContentId(), json.getAllowedContentTypes() )
-                                                   .map( jsonObjectsFactory::createContentTypeSummaryJson )
+                                                   .map( t -> jsonObjectsFactory.createContentTypeSummaryJson(t, request) )
                                                    .collect( Collectors.toUnmodifiableList() ) );
     }
 
     @GET
     @Path("layouts")
-    public LayoutDescriptorsJson layouts( @QueryParam("contentId") final String contentId )
+    public LayoutDescriptorsJson layouts( @QueryParam("contentId") final String contentId, @Context HttpServletRequest request )
     {
         return new LayoutDescriptorsJson( filterByContentResolver.layouts( ContentId.from( contentId ) )
-                                              .map( jsonObjectsFactory::createLayoutDescriptorJson )
+                                              .map( l -> jsonObjectsFactory.createLayoutDescriptorJson(l, request.getLocales()) )
                                               .collect( Collectors.toUnmodifiableList() ) );
     }
 
     @GET
     @Path("parts")
-    public PartDescriptorsJson parts( @QueryParam("contentId") final String contentId )
+    public PartDescriptorsJson parts( @QueryParam("contentId") final String contentId, @Context HttpServletRequest request )
     {
         return new PartDescriptorsJson( filterByContentResolver.parts( ContentId.from( contentId ) )
-                                            .map( jsonObjectsFactory::createPartDescriptorJson )
+                                            .map( p -> jsonObjectsFactory.createPartDescriptorJson(p, request) )
                                             .collect( Collectors.toUnmodifiableList() ) );
     }
 
     @GET
     @Path("pages")
-    public PageDescriptorListJson pages( @QueryParam("contentId") final String contentId )
+    public PageDescriptorListJson pages( @QueryParam("contentId") final String contentId, @Context HttpServletRequest request )
     {
         return new PageDescriptorListJson( filterByContentResolver.pages( ContentId.from( contentId ) )
-                                               .map( jsonObjectsFactory::createPageDescriptorJson )
+                                               .map( p -> jsonObjectsFactory.createPageDescriptorJson(p, request.getLocales()) )
                                                .collect( Collectors.toUnmodifiableList() ) );
     }
 

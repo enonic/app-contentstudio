@@ -6,21 +6,22 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.security.RolesAllowed;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.html.HtmlEscapers;
+
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
@@ -62,7 +63,6 @@ import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.web.HttpMethod;
-import com.enonic.xp.web.servlet.ServletRequestUrlHelper;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
@@ -76,8 +76,6 @@ public final class MacroResource
 
     private MacroDescriptorService macroDescriptorService;
 
-    private MacroIconUrlResolver macroIconUrlResolver;
-
     private MacroProcessorFactory macroProcessorFactory;
 
     private PortalUrlService portalUrlService;
@@ -90,23 +88,27 @@ public final class MacroResource
 
     @POST
     @Path("getByApps")
-    public MacrosJson getMacrosByApps( final ApplicationKeysParam appKeys )
+    public MacrosJson getMacrosByApps( final ApplicationKeysParam appKeys, @Context HttpServletRequest request )
     {
         final Set<ApplicationKey> keys = appKeys.getKeys();
         keys.add( ApplicationKey.SYSTEM );
 
         final List<MacroDescriptorJson> macroDescriptorJsons = new ArrayList<>();
 
+        final MacroIconUrlResolver macroIconUrlResolver =
+            new MacroIconUrlResolver( new MacroIconResolver( this.macroDescriptorService ), request );
+
         ApplicationKeys.from( keys ).forEach( applicationKey -> {
-            macroDescriptorJsons.addAll( this.macroDescriptorService.getByApplication( applicationKey ).
-                stream().
-                map( macroDescriptor -> MacroDescriptorJson.create().
-                    setMacroDescriptor( macroDescriptor ).
-                    setMacroIconUrlResolver( macroIconUrlResolver ).
-                    setLocaleMessageResolver( new LocaleMessageResolver( localeService, applicationKey ) ).
-                    setInlineMixinResolver( new InlineMixinResolver( mixinService ) ).
-                    build() ).
-                collect( Collectors.toList() ) );
+            macroDescriptorJsons.addAll( this.macroDescriptorService.getByApplication( applicationKey )
+                                             .stream()
+                                             .map( macroDescriptor -> MacroDescriptorJson.create()
+                                                 .setMacroDescriptor( macroDescriptor )
+                                                 .setMacroIconUrlResolver( macroIconUrlResolver )
+                                                 .setLocaleMessageResolver(
+                                                     new LocaleMessageResolver( localeService, applicationKey, request.getLocales() ) )
+                                                 .setInlineMixinResolver( new InlineMixinResolver( mixinService ) )
+                                                 .build() )
+                                             .collect( Collectors.toList() ) );
         } );
 
         return new MacrosJson( macroDescriptorJsons );
@@ -114,7 +116,9 @@ public final class MacroResource
 
     @POST
     @Path("preview")
-    public PreviewMacroResultJson macroPreview( @PathParam("project") final String projectName, @javax.ws.rs.core.Context HttpServletRequest httpRequest, final PreviewMacroJson previewMacroJson )
+    public PreviewMacroResultJson macroPreview( @PathParam("project") final String projectName,
+                                                @Context HttpServletRequest request,
+                                                final PreviewMacroJson previewMacroJson )
     {
         final MacroKey macroKey = previewMacroJson.getMacroKey();
         final MacroDescriptor macroDescriptor = this.macroDescriptorService.getByKey( macroKey );
@@ -130,7 +134,7 @@ public final class MacroResource
 
         final ApplicationKey appKey = macroDescriptor.getKey().getApplicationKey();
 
-        final PortalRequest portalRequest = createPortalRequest( httpRequest, previewMacroJson.getContentPath(), appKey, projectName );
+        final PortalRequest portalRequest = createPortalRequest( request, previewMacroJson.getContentPath(), appKey, projectName );
         final MacroContext macroContext = createMacroContext( macroDescriptor, previewMacroJson.getFormData(), portalRequest );
 
         final PortalResponse response = macroProcessor.process( macroContext );
@@ -153,7 +157,8 @@ public final class MacroResource
         return new PreviewMacroStringResultJson( macro );
     }
 
-    private PortalRequest createPortalRequest( final HttpServletRequest req, final ContentPath contentPath, final ApplicationKey appKey, final String projectName )
+    private PortalRequest createPortalRequest( final HttpServletRequest req, final ContentPath contentPath, final ApplicationKey appKey,
+                                               final String projectName )
     {
         final PortalRequest portalRequest = new PortalRequest();
         final String baseUri = "/admin/site/" + RenderMode.EDIT;
@@ -165,10 +170,10 @@ public final class MacroResource
         portalRequest.setBaseUri( baseUri );
         portalRequest.setMode( RenderMode.EDIT );
         portalRequest.setBranch( ContentConstants.BRANCH_DRAFT );
-        portalRequest.setScheme( ServletRequestUrlHelper.getScheme( req ) );
-        portalRequest.setHost( ServletRequestUrlHelper.getHost( req ) );
-        portalRequest.setPort( ServletRequestUrlHelper.getPort( req ) );
-        portalRequest.setRemoteAddress( ServletRequestUrlHelper.getRemoteAddress( req ) );
+        portalRequest.setScheme( req.getScheme() );
+        portalRequest.setHost( req.getServerName() );
+        portalRequest.setPort( req.getServerPort() );
+        portalRequest.setRemoteAddress( req.getRemoteAddr() );
         portalRequest.setContentPath( contentPath );
         portalRequest.setRepositoryId( repositoryId );
         portalRequest.setRawPath( baseUri + "/" + projectName + "/" + ContentConstants.BRANCH_DRAFT + contentPath );
@@ -176,15 +181,11 @@ public final class MacroResource
         setHeaders( req, portalRequest );
         setCookies( req, portalRequest );
 
-        final PageUrlParams pageFullUrlParams = new PageUrlParams().
-            portalRequest( portalRequest ).
-            path( contentPath.toString() ).
-            type( UrlTypeConstants.ABSOLUTE );
+        final PageUrlParams pageFullUrlParams =
+            new PageUrlParams().portalRequest( portalRequest ).path( contentPath.toString() ).type( UrlTypeConstants.ABSOLUTE );
         portalRequest.setUrl( portalUrlService.pageUrl( pageFullUrlParams ) );
 
-        final PageUrlParams pageUrlParams = new PageUrlParams().
-            portalRequest( portalRequest ).
-            path( contentPath.toString() );
+        final PageUrlParams pageUrlParams = new PageUrlParams().portalRequest( portalRequest ).path( contentPath.toString() );
         portalRequest.setPath( portalUrlService.pageUrl( pageUrlParams ) );
 
         portalRequest.setApplicationKey( appKey );
@@ -282,8 +283,6 @@ public final class MacroResource
     public void setMacroDescriptorService( final MacroDescriptorService macroDescriptorService )
     {
         this.macroDescriptorService = macroDescriptorService;
-        MacroIconResolver macroIconResolver = new MacroIconResolver(this.macroDescriptorService);
-        this.macroIconUrlResolver = new MacroIconUrlResolver(macroIconResolver);
     }
 
     @Reference

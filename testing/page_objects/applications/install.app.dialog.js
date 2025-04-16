@@ -70,7 +70,7 @@ class InstallAppDialog extends Page {
 
     async waitForGridLoaded() {
         try {
-            await this.waitForElementDisplayed(this.grid + lib.H6_DISPLAY_NAME, appConst.longTimeout)
+            await this.waitForElementDisplayed(this.grid + lib.H6_DISPLAY_NAME, 30000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_install_dialog_grid');
             throw new Error(`Install App dialog, grid was not loaded! screenshot: ${screenshot}  ` + err);

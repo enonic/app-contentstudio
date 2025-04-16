@@ -1,5 +1,7 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import com.enonic.xp.app.ApplicationNotFoundException;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconResolver;
@@ -15,10 +17,13 @@ public final class ContentIconUrlResolver
 {
     private final ContentTypeIconUrlResolver contentTypeIconUrlResolver;
 
-    public ContentIconUrlResolver( final ContentTypeService contentTypeService )
+    private final HttpServletRequest servletRequest;
+
+    public ContentIconUrlResolver( final ContentTypeService contentTypeService, final HttpServletRequest servletRequest )
     {
         final ContentTypeIconResolver contentTypeIconResolver = new ContentTypeIconResolver( contentTypeService );
-        this.contentTypeIconUrlResolver = new ContentTypeIconUrlResolver( contentTypeIconResolver );
+        this.contentTypeIconUrlResolver = new ContentTypeIconUrlResolver( contentTypeIconResolver, servletRequest );
+        this.servletRequest = servletRequest;
     }
 
     public String resolve( final Content content )
@@ -65,9 +70,10 @@ public final class ContentIconUrlResolver
 
     private String makeIconPath( final Content content )
     {
-        return ServletRequestUrlHelper.createUri(
-            ResourceConstants.REST_ROOT + "cms/" + getProjectName() + "/" + getLayer() + "/content/icon/" + content.getId() + "?ts=" +
-                content.getModifiedTime().toEpochMilli() );
+        return ServletRequestUrlHelper.createUri( servletRequest,
+                                                  ResourceConstants.REST_ROOT + "cms/" + getProjectName() + "/" + getLayer() +
+                                                      "/content/icon/" + content.getId() + "?ts=" +
+                                                      content.getModifiedTime().toEpochMilli() );
     }
 
     private String getProjectName()

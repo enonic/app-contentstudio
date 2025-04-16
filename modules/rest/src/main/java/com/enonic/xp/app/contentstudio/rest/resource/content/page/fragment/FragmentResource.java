@@ -1,11 +1,13 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.page.fragment;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -39,7 +41,7 @@ public final class FragmentResource
     @POST
     @Path("create")
     @Consumes(MediaType.APPLICATION_JSON)
-    public ContentJson createFragment( final CreateFragmentJson params )
+    public ContentJson createFragment( final CreateFragmentJson params, @Context HttpServletRequest request )
     {
         final CreateFragmentParams command = CreateFragmentParams.create()
             .parent( getContentPath( params.getParent() ) )
@@ -49,7 +51,7 @@ public final class FragmentResource
             .build();
         final Content fragmentContent = this.fragmentService.create( command );
 
-        return jsonObjectsFactory.createContentJson( fragmentContent );
+        return jsonObjectsFactory.createContentJson( fragmentContent, request );
     }
 
     private ContentPath getContentPath( final ContentId contentId )

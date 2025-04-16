@@ -1,13 +1,15 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.page;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -39,34 +41,34 @@ public final class PageResource
     @POST
     @Path("create")
     @Consumes(MediaType.APPLICATION_JSON)
-    public ContentJson create( final CreatePageJson params )
+    public ContentJson create( final CreatePageJson params, @Context HttpServletRequest request )
     {
         final CreatePageParams command = params.getCreatePage();
         final Content updatedContent = this.pageService.create( command );
 
-        return jsonObjectsFactory.createContentJson( updatedContent );
+        return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
 
     @POST
     @Path("update")
     @Consumes(MediaType.APPLICATION_JSON)
-    public ContentJson update( final UpdatePageJson params )
+    public ContentJson update( final UpdatePageJson params, @Context HttpServletRequest request )
     {
         final UpdatePageParams command = params.getUpdatePage();
         final Content updatedContent = this.pageService.update( command );
 
-        return jsonObjectsFactory.createContentJson( updatedContent );
+        return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
 
     @GET
     @Path("delete")
     @Consumes(MediaType.APPLICATION_JSON)
-    public ContentJson delete( @QueryParam("contentId") final String contentIdAsString )
+    public ContentJson delete( @QueryParam("contentId") final String contentIdAsString, @Context HttpServletRequest request )
     {
         final ContentId contentId = ContentId.from( contentIdAsString );
         final Content updatedContent = this.pageService.delete( contentId );
 
-        return jsonObjectsFactory.createContentJson( updatedContent );
+        return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
 
     @Reference

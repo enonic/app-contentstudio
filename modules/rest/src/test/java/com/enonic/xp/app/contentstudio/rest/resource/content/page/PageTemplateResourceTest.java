@@ -1,15 +1,17 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.page;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import javax.ws.rs.core.MediaType;
-
+import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.MediaType;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
@@ -51,7 +53,11 @@ import com.enonic.xp.site.mapping.ControllerMappingDescriptors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PageTemplateResourceTest
     extends AdminResourceTestSupport
@@ -73,7 +79,7 @@ public class PageTemplateResourceTest
     @Override
     protected Object getResourceInstance()
     {
-        contentTypeService = Mockito.mock( ContentTypeService.class );
+        contentTypeService = mock( ContentTypeService.class );
 
         knownContentTypes = new HashSet<>( BuiltinContentTypesAccessor.getAll() );
 
@@ -84,10 +90,10 @@ public class PageTemplateResourceTest
                 .findAny()
                 .orElseThrow() );
 
-        pageTemplateService = Mockito.mock( PageTemplateService.class );
-        securityService = Mockito.mock( SecurityService.class );
-        siteService = Mockito.mock( SiteService.class );
-        contentService = Mockito.mock( ContentService.class );
+        pageTemplateService = mock( PageTemplateService.class );
+        securityService = mock( SecurityService.class );
+        siteService = mock( SiteService.class );
+        contentService = mock( ContentService.class );
 
         final JsonObjectsFactory jsonObjectsFactory = new JsonObjectsFactory();
         jsonObjectsFactory.setContentTypeService( contentTypeService );
@@ -106,7 +112,7 @@ public class PageTemplateResourceTest
         throws Exception
     {
         Content content = createContent( "83ac6e65-791b-4398-9ab5-ff5cab999036", "content-name", "myapplication:content-type" );
-        Mockito.when( this.contentService.getById( Mockito.isA( ContentId.class ) ) ).thenReturn( content );
+        when( this.contentService.getById( isA( ContentId.class ) ) ).thenReturn( content );
 
         String response = request().path( "content/page/template/isRenderable" ).
             queryParam( "contentId", content.getId().toString() ).
@@ -120,7 +126,7 @@ public class PageTemplateResourceTest
         throws Exception
     {
         Content content = createContent( "83ac6e65-791b-4398-9ab5-ff5cab999036", "content-name", "myapplication:content-type" );
-        Mockito.when( this.contentService.getById( Mockito.isA( ContentId.class ) ) )
+        when( this.contentService.getById( isA( ContentId.class ) ) )
             .thenThrow( new ContentNotFoundException( content.getId(), Branch.from( "draft" ) ) );
 
         String response = request().path( "content/page/template/isRenderable" ).
@@ -135,7 +141,7 @@ public class PageTemplateResourceTest
         throws Exception
     {
         Content content = createContent( "83ac6e65-791b-4398-9ab5-ff5cab999036", "content-name", ContentTypeName.fragment().toString() );
-        Mockito.when( this.contentService.getById( Mockito.isA( ContentId.class ) ) ).thenReturn( content );
+        when( this.contentService.getById( isA( ContentId.class ) ) ).thenReturn( content );
 
         String response = request().path( "content/page/template/isRenderable" ).
             queryParam( "contentId", content.getId().toString() ).
@@ -150,10 +156,10 @@ public class PageTemplateResourceTest
     {
         PageTemplate pageTemplate =
             createPageTemplate( "88811414-9967-4f59-a76e-5de250441e50", "content-name", "myapplication:content-type" );
-        Mockito.when( contentService.getById( Mockito.eq( pageTemplate.getId() ) ) ).thenReturn( pageTemplate );
+        when( contentService.getById( eq( pageTemplate.getId() ) ) ).thenReturn( pageTemplate );
 
         Site site = createSite( "8dcb8d39-e3be-4b2d-99dd-223666fc900c", "my-site", SiteConfigs.empty() );
-        Mockito.when( contentService.getNearestSite( Mockito.eq( pageTemplate.getId() ) ) ).thenReturn( site );
+        when( contentService.getNearestSite( eq( pageTemplate.getId() ) ) ).thenReturn( site );
 
         String response = request().path( "content/page/template/isRenderable" ).
             queryParam( "contentId", pageTemplate.getId().toString() ).
@@ -168,7 +174,7 @@ public class PageTemplateResourceTest
     {
         PageTemplate pageTemplate =
             createPageTemplate( "88811414-9967-4f59-a76e-5de250441e50", "content-name", "myapplication:content-type", null );
-        Mockito.when( contentService.getById( Mockito.eq( pageTemplate.getId() ) ) ).thenReturn( pageTemplate );
+        when( contentService.getById( eq( pageTemplate.getId() ) ) ).thenReturn( pageTemplate );
 
         String response = request().path( "content/page/template/isRenderable" ).
             queryParam( "contentId", pageTemplate.getId().toString() ).
@@ -182,14 +188,14 @@ public class PageTemplateResourceTest
         throws Exception
     {
         Content content = createContent( "83ac6e65-791b-4398-9ab5-ff5cab999036", "content-name", "myapplication:content-type" );
-        Mockito.when( contentService.getById( Mockito.eq( content.getId() ) ) ).thenReturn( content );
+        when( contentService.getById( eq( content.getId() ) ) ).thenReturn( content );
 
         PageTemplate pageTemplate =
             createPageTemplate( "88811414-9967-4f59-a76e-5de250441e50", "content-name", "myapplication:content-type" );
-        Mockito.when( pageTemplateService.getBySite( Mockito.isA( ContentId.class ) ) ).thenReturn( PageTemplates.from( pageTemplate ) );
+        when( pageTemplateService.getBySite( isA( ContentId.class ) ) ).thenReturn( PageTemplates.from( pageTemplate ) );
 
         Site site = createSite( "8dcb8d39-e3be-4b2d-99dd-223666fc900c", "my-site", SiteConfigs.empty() );
-        Mockito.when( contentService.getNearestSite( Mockito.eq( content.getId() ) ) ).thenReturn( site );
+        when( contentService.getNearestSite( eq( content.getId() ) ) ).thenReturn( site );
 
         String response = request().path( "content/page/template/isRenderable" ).
             queryParam( "contentId", content.getId().toString() ).
@@ -204,11 +210,11 @@ public class PageTemplateResourceTest
     {
         Content content =
             createContentWithPageController( "83ac6e65-791b-4398-9ab5-ff5cab999036", "content-name", "myapplication:content-type" );
-        Mockito.when( contentService.getById( Mockito.eq( content.getId() ) ) ).thenReturn( content );
+        when( contentService.getById( eq( content.getId() ) ) ).thenReturn( content );
 
         Site site = createSite( "8dcb8d39-e3be-4b2d-99dd-223666fc900c", "my-site", SiteConfigs.empty() );
-        Mockito.when( contentService.getNearestSite( Mockito.eq( content.getId() ) ) ).thenReturn( site );
-        Mockito.when( pageTemplateService.getBySite( Mockito.isA( ContentId.class ) ) ).thenReturn( PageTemplates.empty() );
+        when( contentService.getNearestSite( eq( content.getId() ) ) ).thenReturn( site );
+        when( pageTemplateService.getBySite( isA( ContentId.class ) ) ).thenReturn( PageTemplates.empty() );
 
         String response = request().path( "content/page/template/isRenderable" ).
             queryParam( "contentId", content.getId().toString() ).
@@ -222,21 +228,21 @@ public class PageTemplateResourceTest
         throws Exception
     {
         Content content = createContent( "83ac6e65-791b-4398-9ab5-ff5cab999036", "content-name", "myapplication:content-type" );
-        Mockito.when( contentService.getById( Mockito.eq( content.getId() ) ) ).thenReturn( content );
+        when( contentService.getById( eq( content.getId() ) ) ).thenReturn( content );
 
         final SiteConfig siteConfig =
             SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build();
         final SiteConfigs siteConfigs = SiteConfigs.from( siteConfig );
         Site site = createSite( "8dcb8d39-e3be-4b2d-99dd-223666fc900c", "my-site", siteConfigs );
-        Mockito.when( contentService.getNearestSite( Mockito.eq( content.getId() ) ) ).thenReturn( site );
-        Mockito.when( pageTemplateService.getBySite( Mockito.isA( ContentId.class ) ) ).thenReturn( PageTemplates.empty() );
+        when( contentService.getNearestSite( eq( content.getId() ) ) ).thenReturn( site );
+        when( pageTemplateService.getBySite( isA( ContentId.class ) ) ).thenReturn( PageTemplates.empty() );
         final ControllerMappingDescriptor mapingDescriptor = ControllerMappingDescriptor.create().
             contentConstraint( "type:'.*:content-type'" ).
             controller( ResourceKey.from( "myapplication:/some/path" ) ).
             build();
         final SiteDescriptor siteDescriptor =
             SiteDescriptor.create().mappingDescriptors( ControllerMappingDescriptors.from( mapingDescriptor ) ).build();
-        Mockito.when( siteService.getDescriptor( Mockito.isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
+        when( siteService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
 
         String response = request().path( "content/page/template/isRenderable" ).
             queryParam( "contentId", content.getId().toString() ).
@@ -249,15 +255,22 @@ public class PageTemplateResourceTest
     public void createPageTemplateWithExistingPathShouldIncrementCounter()
         throws Exception
     {
+        final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
+        when( mockRequest.getServerName() ).thenReturn( "localhost" );
+        when( mockRequest.getScheme() ).thenReturn( "http" );
+        when( mockRequest.getServerPort() ).thenReturn( 80 );
+        when( mockRequest.getLocales() ).thenReturn( Collections.enumeration( Collections.singleton( Locale.US ) ) );
+        ResteasyContext.getContextDataMap().put( HttpServletRequest.class, mockRequest );
+
         ContentPath templatePath = ContentPath.from( "myapplication/_templates/template-myapplication" );
         ContentPath templatePath1 = ContentPath.from( "myapplication/_templates/template-myapplication-1" );
         ContentPath templatePath2 = ContentPath.from( "myapplication/_templates/template-myapplication-2" );
-        Mockito.when( contentService.contentExists( Mockito.eq( templatePath ) ) ).thenReturn( true );
-        Mockito.when( contentService.contentExists( Mockito.eq( templatePath1 ) ) ).thenReturn( true );
-        Mockito.when( contentService.contentExists( Mockito.eq( templatePath2 ) ) ).thenReturn( false );
+        when( contentService.contentExists( eq( templatePath ) ) ).thenReturn( true );
+        when( contentService.contentExists( eq( templatePath1 ) ) ).thenReturn( true );
+        when( contentService.contentExists( eq( templatePath2 ) ) ).thenReturn( false );
 
         PageTemplate template = createPageTemplate( "template-id", "template-myapplication-2", "myapplication:content-type" );
-        Mockito.when( pageTemplateService.create( Mockito.argThat(
+        when( pageTemplateService.create( argThat(
             ( CreatePageTemplateParams params ) -> ContentName.from( "template-myapplication-2" ).equals( params.getName() ) ) ) )
             .thenReturn( template );
 

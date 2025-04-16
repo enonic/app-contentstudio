@@ -1,20 +1,17 @@
 package com.enonic.xp.app.contentstudio.style;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.i18n.MessageBundle;
-import com.enonic.xp.web.servlet.ServletRequestHolder;
 
 public final class LocaleMessageResolver
 {
-    private LocaleService localeService;
+    private final LocaleService localeService;
 
-    private ApplicationKey applicationKey;
+    private final ApplicationKey applicationKey;
 
     public LocaleMessageResolver( final LocaleService localeService, final ApplicationKey applicationKey )
     {
@@ -22,9 +19,9 @@ public final class LocaleMessageResolver
         this.applicationKey = applicationKey;
     }
 
-    public String localizeMessage( final String key, final String defaultValue )
+    public String localizeMessage( final String key, final String defaultValue, final List<Locale> locales)
     {
-        final MessageBundle bundle = this.localeService.getBundle( applicationKey, getLocale() );
+        final MessageBundle bundle = this.localeService.getBundle( applicationKey, getLocale(locales) );
 
         if ( bundle == null )
         {
@@ -34,14 +31,8 @@ public final class LocaleMessageResolver
         return localizedValue != null ? localizedValue : defaultValue;
     }
 
-    private Locale getLocale()
+    private Locale getLocale( final List<Locale> locales )
     {
-        final HttpServletRequest req = ServletRequestHolder.getRequest();
-        if ( req == null )
-        {
-            return null;
-        }
-
-        return localeService.getSupportedLocale( Collections.list( req.getLocales() ) , applicationKey );
+        return localeService.getSupportedLocale( locales , applicationKey );
     }
 }

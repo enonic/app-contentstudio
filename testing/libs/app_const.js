@@ -226,6 +226,7 @@ module.exports = Object.freeze({
         RIGHT: 'right',
     },
     PART_NAME: {
+        CITY_CREATION: 'City Creation',
         CITIES_LIST: 'Cities List',
         PART_WITH_ERROR: 'part-with-error',
     },

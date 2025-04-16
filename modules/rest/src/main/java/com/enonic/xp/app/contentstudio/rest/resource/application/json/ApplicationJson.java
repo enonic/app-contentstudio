@@ -229,6 +229,7 @@ public class ApplicationJson
             this.local = local;
             return this;
         }
+
     }
 
 }

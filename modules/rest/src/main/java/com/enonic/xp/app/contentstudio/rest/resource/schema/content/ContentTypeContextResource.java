@@ -3,21 +3,22 @@ package com.enonic.xp.app.contentstudio.rest.resource.schema.content;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.ImmutableList;
 
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+
 import com.enonic.xp.app.contentstudio.json.schema.content.ContentTypeSummaryJson;
 import com.enonic.xp.app.contentstudio.json.schema.content.ContentTypeSummaryListJson;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.SchemaImageHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.i18n.LocaleService;
@@ -25,7 +26,6 @@ import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
-import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
@@ -42,17 +42,13 @@ public final class ContentTypeContextResource
 {
     private ContentTypeService contentTypeService;
 
-    private ContentTypeIconUrlResolver contentTypeIconUrlResolver;
-
-    private ContentTypeIconResolver contentTypeIconResolver;
-
     private LocaleService localeService;
 
     private ContentService contentService;
 
     @GET
     @Path("byContent")
-    public ContentTypeSummaryListJson byContent( @QueryParam("contentId") final String content )
+    public ContentTypeSummaryListJson byContent( @QueryParam("contentId") final String content, @Context HttpServletRequest request )
     {
         final ContentId contentId = ContentId.from( content );
         final Site site = contentService.getNearestSite( contentId );
@@ -60,11 +56,12 @@ public final class ContentTypeContextResource
         final ContentTypes contentTypes;
         if ( site != null )
         {
-            final List<ContentType> types = site.getSiteConfigs().stream().
-                map( SiteConfig::getApplicationKey ).
-                map( ( appKey ) -> contentTypeService.getByApplication( appKey ) ).
-                flatMap( AbstractImmutableEntityList::stream ).
-                collect( Collectors.toList() );
+            final List<ContentType> types = site.getSiteConfigs()
+                .stream()
+                .map( SiteConfig::getApplicationKey )
+                .map( ( appKey ) -> contentTypeService.getByApplication( appKey ) )
+                .flatMap( AbstractImmutableEntityList::stream )
+                .collect( Collectors.toList() );
             contentTypes = ContentTypes.from( types );
         }
         else
@@ -72,12 +69,16 @@ public final class ContentTypeContextResource
             contentTypes = ContentTypes.empty();
         }
 
+        final ContentTypeIconUrlResolver contentTypeIconUrlResolver =
+            new ContentTypeIconUrlResolver( new ContentTypeIconResolver( contentTypeService ), request );
+
         ImmutableList.Builder<ContentTypeSummaryJson> summariesJsonBuilder = new ImmutableList.Builder();
 
         contentTypes.forEach( type -> {
-            summariesJsonBuilder.add( new ContentTypeSummaryJson( type, this.contentTypeIconUrlResolver,
+            summariesJsonBuilder.add( new ContentTypeSummaryJson( type, contentTypeIconUrlResolver,
                                                                   new LocaleMessageResolver( localeService,
-                                                                                             type.getName().getApplicationKey() ) ) );
+                                                                                             type.getName().getApplicationKey(),
+                                                                                             request.getLocales() ), request ) );
         } );
 
         return new ContentTypeSummaryListJson( summariesJsonBuilder.build() );
@@ -87,8 +88,6 @@ public final class ContentTypeContextResource
     public void setContentTypeService( final ContentTypeService contentTypeService )
     {
         this.contentTypeService = contentTypeService;
-        this.contentTypeIconResolver = new ContentTypeIconResolver( contentTypeService );
-        this.contentTypeIconUrlResolver = new ContentTypeIconUrlResolver( this.contentTypeIconResolver );
     }
 
     @Reference
