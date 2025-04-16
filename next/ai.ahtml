@@ -5,8 +5,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
-<meta name="author" content="Juke AI brings artificial intelligence to Content Studio. As it evolves it will help out with a range of daily content management chors.">
-<title>Juke - AI content assistant</title>
+<meta name="author" content="Juke AI brings artificial intelligence to Content Studio.">
+<title>Juke - AI content operator</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -438,9 +438,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Juke - AI content assistant</h1>
+<h1>Juke - AI content operator</h1>
 <div class="details">
-<span id="author" class="author">Juke AI brings artificial intelligence to Content Studio. As it evolves it will help out with a range of daily content management chors.</span><br>
+<span id="author" class="author">Juke AI brings artificial intelligence to Content Studio.</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -452,28 +452,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#retry">Retry</a></li>
 <li><a href="#insert">Insert</a></li>
 <li><a href="#variants">Variants</a></li>
-<li><a href="#standard_instructions">Standard instructions</a></li>
+<li><a href="#general_instructions">General instructions</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Over time, Juke will evolve to help out with a range of daily content management chors.</p>
+</div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="installation"><a class="link" href="#installation">Installation</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The <a href="https://market.enonic.com/vendors/enonic/juke-ai">Juke AI Content operator application</a> must be installed and configured before you can use the features described here.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Access to Juke IA requires a valid Enonic subscription
-</td>
-</tr>
-</table>
 </div>
 </div>
 </div>
@@ -481,11 +476,19 @@ Access to Juke IA requires a valid Enonic subscription
 <h2 id="interface"><a class="link" href="#interface">Interface</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To launch the Juke chat interface, you may either click the Juke icon in the Content Editor’s toolbar, or the Juke icon appearing next to an active form field. This will open a modal chat interface where you can communicate with with Juke.</p>
+<p>To launch the Juke chat interface, you may either click the Juke icon in the Content Editor’s toolbar, or the Juke icon appearing next to an active form field.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="ai/images/cat.png" alt="TODO" width="400w">
+<img src="ai/images/juke-toolbar.png" alt="Click the Juke icon to activate the chat" width="410w">
+</div>
+</div>
+<div class="paragraph">
+<p>This will open a modal chat interface where you can communicate with with Juke.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ai/images/juke-chat.png" alt="Interact with Juke in the chat" width="639w">
 </div>
 </div>
 <div class="admonitionblock note">
@@ -495,7 +498,7 @@ Access to Juke IA requires a valid Enonic subscription
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Integration with AI is in early stages, errors may occur and
+Juke AI is in early stages. Errors may occur, and responses will improve over time
 </td>
 </tr>
 </table>
@@ -509,21 +512,9 @@ Integration with AI is in early stages, errors may occur and
 <p>Create a new blog post about pros and cons of social media. Maximum 1000 characters.</p>
 </li>
 <li>
-<p>Make the article’s tone more upbeat</p>
+<p>Make the article&#8217;s tone more upbeat</p>
 </li>
 </ul>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Juke is currently limited to TextLine, TextArea and HtmlArea fields in the main content type form
-</td>
-</tr>
-</table>
 </div>
 </div>
 </div>
@@ -535,7 +526,7 @@ Juke is currently limited to TextLine, TextArea and HtmlArea fields in the main 
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="ai/images/cat.png" alt="TODO" width="400w">
+<img src="ai/images/juke-context.png" alt="Context field is listed above chat input" width="636w">
 </div>
 </div>
 <div class="paragraph">
@@ -548,7 +539,7 @@ Juke is currently limited to TextLine, TextArea and HtmlArea fields in the main 
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Juke currently works only with data fields from the content type schema. Processing of fields inside X-data and component config fields is not yet supported.
+Juke is currently limited to TextLine, TextArea and HtmlArea fields in the main content type form
 </td>
 </tr>
 </table>
@@ -575,7 +566,7 @@ If no context is set, you may mention fields at the root level of your content
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="ai/images/cat.png" alt="TODO" width="400w">
+<img src="ai/images/juke-mention.png" alt="type @ to reveal list of contextual input fields" width="776w">
 </div>
 </div>
 <div class="paragraph">
@@ -585,9 +576,6 @@ If no context is set, you may mention fields at the root level of your content
 <ul>
 <li>
 <p>Expand the list in <code>@Article body</code> from 3 to 5 items and turn it into a numbered list</p>
-</li>
-<li>
-<p>Give 3 variants of <code>@Teaser</code> and <code>@Display Name</code></p>
 </li>
 <li>
 <p>Create <code>@Display Name</code> based on <code>@Article body</code></p>
@@ -604,7 +592,7 @@ If no context is set, you may mention fields at the root level of your content
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="ai/images/cat.png" alt="TODO" width="400w">
+<img src="ai/images/juke-retry.png" alt="Click retry icon to give it another shot" width="635w">
 </div>
 </div>
 </div>
@@ -613,18 +601,18 @@ If no context is set, you may mention fields at the root level of your content
 <h2 id="insert"><a class="link" href="#insert">Insert</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Juke may provide field value responses. Simply click the <code>Apply</code> icon next to value in order to update the form directly.</p>
-</div>
-<div class="paragraph">
-<p>If Juke provides multiple field values, you may use the <code>Apply all</code> icon to insert all values into the form with a single click.</p>
-</div>
-<div class="paragraph">
-<p>Finally, the <code>Copy to buffer</code> icon will copy a proposal to your clipboard, allowing you to paste it manually later.</p>
+<p>Juke may provide field value responses. Simply click the <code>Insert</code> icon next to value in order to update the form directly.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="ai/images/cat.png" alt="TODO" width="400w">
+<img src="ai/images/juke-insert.png" alt="Clicking insert icon will copy the text into the respective field" width="665w">
 </div>
+</div>
+<div class="paragraph">
+<p>If Juke provides multiple field values, you may use the <code>Insert all</code> icon to insert all values into the form with a single click.</p>
+</div>
+<div class="paragraph">
+<p>Finally, the <code>Copy to buffer</code> icon will copy the text to your clipboard, allowing you to paste it manually later.</p>
 </div>
 </div>
 </div>
@@ -632,30 +620,43 @@ If no context is set, you may mention fields at the root level of your content
 <h2 id="variants"><a class="link" href="#variants">Variants</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>On demain, Juke may provide multiple variants for a single field. Use the arrow icons next to the response which you can use to navigate through the suggestions, and insert values as required.</p>
+<p>On demand, Juke may provide multiple variants for a single field. Use the arrow icons next to the response which you can use to navigate through the suggestions, and insert values as required.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="ai/images/cat.png" alt="TODO" width="400w">
+<img src="ai/images/juke-variants.png" alt="Ask for multiple suggestions related to a field" width="634w">
 </div>
+</div>
+<div class="paragraph">
+<p>Sample prompts:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Give 3 variants of <code>@Teaser</code> and <code>@Display Name</code></p>
+</li>
+<li>
+<p>Make 2 suggestions for <code>@Abstract</code></p>
+</li>
+</ul>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="standard_instructions"><a class="link" href="#standard_instructions">Standard instructions</a></h2>
+<h2 id="general_instructions"><a class="link" href="#general_instructions">General instructions</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You may define standard instructions for Juke that apply to a specific project, or a site within your project.</p>
+<p>You may provide a standard prompt for Juke. These instructions may be specified at project or site level.</p>
 </div>
 <div class="paragraph">
-<p>For instance you may want Juke ot use a consistent tone of voice, or provide other relevant details about the content you are working on. This way - Juke will provide consistent responses every time.</p>
+<p>For instance you may want Juke ot use a consistent tone of voice, or provide other relevant details about the content you are working on. This helps Juke produce more relevant responses every time.</p>
 </div>
 <div class="paragraph">
-<p>To configure this, add the <code>Juke AI Content Operator</code> application to your project or site, and configure it by filling in the <code>custom instructions</code> field.</p>
+<p>By adding the <code>Juke AI Content Operator</code> application to your project or site, you may provide <code>custom instructions</code> as desired</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="ai/images/cat.png" alt="TODO" width="400w">
+<img src="ai/images/juke-instructions.png" alt="Provide general instructions via app settings" width="733w">
 </div>
 </div>
 <div class="admonitionblock note">
@@ -675,7 +676,7 @@ Working with application settings requires "Project owner" roles or higher.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-15 21:12:17 UTC
+Last updated 2025-04-16 07:44:07 UTC
 </div>
 </div>
 </body>
