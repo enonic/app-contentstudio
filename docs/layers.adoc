@@ -65,7 +65,7 @@ NOTE: For inherited items btn:[Edit] is replaced with btn:[Localize]
 
 This should open the Content Editor. You may now edit and publish the item as if it was created locally. This process effectively terminates further inheritance from the parent item.
 
-
+[#ai-translation]
 == AI translation
 
 NOTE: The https://market.enonic.com/vendors/enonic/ai-translator[Juke AI translator] application must be installed to access the features described in this section

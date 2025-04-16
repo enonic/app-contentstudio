@@ -18,11 +18,9 @@ Editors will commonly use the <<navigator#,navigator panel>> to browse, search a
 
 Use documentation menu for more details
 
-== Subscribe for more
+== Go beyond
 
-Content Studio is open source and free for everyone. Customers with a valid Enonic subscription additionally get access to Enonic licensed applications. Several of these add advanced capabilities to Content Studio, such as the <<archive#, archive browser>> and <<ai#, AI assistant>>. 
-
-Appliccable features are marked with "Subscription required" thoughout the documentation.
+Content Studio is free and open source, but also highly extendable. A subscription gives you access to licensed applications that extend Content Studio with advanced capabilities like an <<ai#, AI assistant>>, the <<archive#, archive browser>> and <<layers#ai-translation, automated translations>>.
 
 Visit Enonic Market for the https://market.enonic.com/licensed[complete list of licensed applications]
 
