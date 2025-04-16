@@ -445,7 +445,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#installation">Installation</a></li>
 <li><a href="#interface">Interface</a></li>
 <li><a href="#field_context">Field context</a></li>
 <li><a href="#mentions">Mentions</a></li>
@@ -462,13 +461,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>Over time, Juke will evolve to help out with a range of daily content management chors.</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="installation"><a class="link" href="#installation">Installation</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The <a href="https://market.enonic.com/vendors/enonic/juke-ai">Juke AI Content operator application</a> must be installed and configured before you can use the features described here.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <a href="https://market.enonic.com/vendors/enonic/ai-operator">Juke AI Content operator</a> application must be installed to access the features described in this chapter
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -488,7 +491,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="ai/images/juke-chat.png" alt="Interact with Juke in the chat" width="639w">
+<img src="ai/images/juke-chat.png" alt="Interact with Juke in the chat" width="638w">
 </div>
 </div>
 <div class="admonitionblock note">
@@ -503,34 +506,21 @@ Juke AI is in early stages. Errors may occur, and responses will improve over ti
 </tr>
 </table>
 </div>
-<div class="paragraph">
-<p><strong>Sample prompts:</strong></p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Create a new blog post about pros and cons of social media. Maximum 1000 characters.</p>
-</li>
-<li>
-<p>Make the article&#8217;s tone more upbeat</p>
-</li>
-</ul>
-</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="field_context"><a class="link" href="#field_context">Field context</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Clicking a supported input field in the content form will instantly set the selected field as the chat context. This means Juke is instructued to work with the selected field.</p>
+<p>It may often be useful to focus Juke&#8217;s attention on a specific field. Clicking or focusing on a supported form field will instantly trigger Juke&#8217;s attention, by setting the field as a chat context.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="ai/images/juke-context.png" alt="Context field is listed above chat input" width="636w">
+<img src="ai/images/juke-context.png" alt="The field &quot;Abstract&quot; is set as context" width="636w">
 </div>
 </div>
 <div class="paragraph">
-<p>To clear the context, simply click the <code>x</code> to the right</p>
+<p>To clear the context, simply click the <code>x</code> to the right.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -539,7 +529,7 @@ Juke AI is in early stages. Errors may occur, and responses will improve over ti
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Juke is currently limited to TextLine, TextArea and HtmlArea fields in the main content type form
+Juke is currently limited to work with TextLine, TextArea and HtmlArea fields in the main content type form. More will follow soon.
 </td>
 </tr>
 </table>
@@ -550,7 +540,7 @@ Juke is currently limited to TextLine, TextArea and HtmlArea fields in the main 
 <h2 id="mentions"><a class="link" href="#mentions">Mentions</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Fields may also be mentioned directly in the chat. Pressing <code>@</code> in the input will list all fields in the scope of the current context. Select the field from the list to make it part of your prompt.</p>
+<p>Fields may also be mentioned directly in the chat. Pressing <code>@</code> in the input will list all available fields in the scope of the current context. Select a field from the list to make it part of your prompt.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -676,7 +666,7 @@ Working with application settings requires "Project owner" roles or higher.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-16 12:09:27 UTC
+Last updated 2025-04-16 17:54:34 UTC
 </div>
 </div>
 </body>
