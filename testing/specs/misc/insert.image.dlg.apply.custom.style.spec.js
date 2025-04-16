@@ -25,7 +25,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
     it(`Preconditions: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 

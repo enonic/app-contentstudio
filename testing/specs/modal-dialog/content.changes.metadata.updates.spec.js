@@ -24,7 +24,7 @@ describe('content.changes.metadata.updated, tests to verify the bug #7128', func
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description 1', [appConst.TEST_APPS_NAME.APP_WITH_CONFIG_OPTION_SET]);
+            SITE = contentBuilder.buildSite(displayName, 'description 1', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             await studioUtils.doAddReadySite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
