@@ -282,10 +282,12 @@ export class ContentWizardActions
     enableActionsForExisting(existing: Content): Q.Promise<void> {
         this.persistedContent = existing;
 
-        this.enableActionsForExistingByPermissions(existing);
-
         this.enableActions({
-            ARCHIVE: existing.isDeletable(),
+            ARCHIVE: existing.isDeletable()
+        });
+
+        this.enableActionsForExistingByPermissions(existing);
+        this.enableActions({
             SAVE: existing.isEditable() && this.wizardPanel.hasUnsavedChanges() && !this.isPendingDelete() &&
                   !existing.isDataInherited()
         });

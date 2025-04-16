@@ -575,7 +575,7 @@ export class ContentWizardPanel
                 this.initFormContext(existing);
                 this.liveEditModel = this.initLiveEditModel(existing);
 
-                return this.loadAndSetPageState(existing.getPage());
+                return this.loadAndSetPageState(existing.getPage()?.clone());
             });
     }
 
@@ -870,11 +870,9 @@ export class ContentWizardPanel
         this.setPersistedItem(newPersistedContent);
         const contentClone: Content = this.getCurrentItem();
 
+        this.initFormContext(contentClone);
         this.updateLiveEditModel(contentClone);
-        this.initFormContext(contentClone); // depends on this.site updated in updateLiveEditModel
-        this.updateWizard(contentClone, true).then(() => {
-            this.updateButtonsState();
-        });
+        this.updateWizard(contentClone, true);
 
         this.debouncedEditorReload(false);
 
@@ -895,6 +893,7 @@ export class ContentWizardPanel
         }
 
         this.wizardActions.setDeleteOnlyMode(viewedContent, false);
+        this.updateButtonsState();
     }
 
     private refreshLivePanel(contentClone: Content): Q.Promise<void> {
@@ -981,19 +980,16 @@ export class ContentWizardPanel
 
                         this.livePanel.loadPage(false).then(() => {
                             // set the new property set to the form so that we receive change events
-                            const formsPromise = this.updateWizardStepForms(currentContent.getContentData());
-                            const livePromise = this.refreshLivePanel(currentContent);
-                            Q.all([formsPromise, livePromise]).then(() => {
+                            this.updateWizardStepForms(currentContent.getContentData());
+                            this.refreshLivePanel(currentContent).then(() => {
                                 resolve(currentContent);
-                            }).catch(reason => {
-                                DefaultErrorHandler.handle(reason);
-                                reject(reason);
                             });
                         });
 
                     } else {
                         resolve(currentContent);
                     }
+
 
                 } else {
                     resolve(currentContent);
@@ -1004,7 +1000,6 @@ export class ContentWizardPanel
             this.contentUpdateDisabled = false;
             this.isRename = false;
             if (this.isRendered()) {
-                this.refreshContentAfterLayout();
                 this.updateButtonsState();
             }
             this.wizardHeader.toggleEnabled(true);
@@ -1116,12 +1111,12 @@ export class ContentWizardPanel
                     }
                 }
 
-                return this.fetchAndUpdatePersistedContentSummary(currentContent);
+                return this.updatePersistedContent(currentContent);
 
             } else {
 
                 return this.doLayoutPersistedItem(currentContent).then(() => {
-                    return this.fetchAndUpdatePersistedContentSummary(currentContent);
+                    return this.updatePersistedContent(persistedContent);
                 });
             }
 
@@ -1281,18 +1276,15 @@ export class ContentWizardPanel
         this.updateXDataStepForms(newPersistedContent);
         this.updateThumbnailWithContent(newPersistedContent);
 
-        this.refreshContentAfterLayout();
-
         this.showFeedbackContentSaved(newPersistedContent);
     }
 
     private updateWizard(content: Content, unchangedOnly: boolean = true) {
         this.updateThumbnailWithContent(content);
         this.getWizardHeader().updateByContent(content);
+        this.updateWizardStepForms(content.getContentData(), unchangedOnly);
         this.updateXDataStepForms(content, unchangedOnly);
         this.resetLastFocusedElement();
-        return this.updateWizardStepForms(content.getContentData(), unchangedOnly)
-            .then(() => this.refreshContentAfterLayout());
     }
 
     private removeXDataSteps(xDatas: XData[]) {
@@ -1388,7 +1380,7 @@ export class ContentWizardPanel
         const publishOrUnpublishHandler = (contents: ContentSummaryAndCompareStatus[]) => {
             contents.forEach(content => {
                 if (this.isCurrentContentId(content.getContentId())) {
-                    this.updateContentSummary(content);
+                    this.setUpdatedContent(content);
                     this.getWizardHeader().toggleNameGeneration(content.getCompareStatus() !== CompareStatus.EQUAL);
                 }
             });
@@ -1595,11 +1587,11 @@ export class ContentWizardPanel
             .refreshState();
     }
 
-    private updateContentSummary(updatedContent: ContentSummaryAndCompareStatus) {
+    private setUpdatedContent(updatedContent: ContentSummaryAndCompareStatus) {
         this.currentCompareStatus = updatedContent.getCompareStatus();
         this.currentPublishStatus = updatedContent.getPublishStatus();
         const isUpdatedAndRenamed = this.isContentUpdatedAndRenamed(updatedContent);
-        this.setPersistedContentSummary(updatedContent);
+        this.setPersistedContent(updatedContent);
         this.getMainToolbar().setItem(updatedContent);
         this.getWidgetToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
@@ -1608,10 +1600,6 @@ export class ContentWizardPanel
         if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
             this.isFirstUpdateAndRenameEventSkiped = false;
         }
-    }
-
-    private refreshContentAfterLayout() {
-        this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
     }
 
     private isContentUpdatedAndRenamed(updatedContent: ContentSummaryAndCompareStatus): boolean {
@@ -1639,7 +1627,7 @@ export class ContentWizardPanel
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.handlePersistedContentUpdate for: ' + updatedContent.getPath().toString());
         }
-        this.updateContentSummary(updatedContent);
+        this.setUpdatedContent(updatedContent);
 
         this.fetchPersistedContent().then((content: Content) => {
             return this.updatePersistedContentIfChanged(content);
@@ -1737,11 +1725,11 @@ export class ContentWizardPanel
         this.livePanel?.setModel(this.liveEditModel);
     }
 
-    private fetchAndUpdatePersistedContentSummary(persistedContent: Content) {
+    private updatePersistedContent(persistedContent: Content) {
         return this.contentFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
             this.currentCompareStatus = summaryAndStatus.getCompareStatus();
             this.currentPublishStatus = summaryAndStatus.getPublishStatus();
-            this.setPersistedContentSummary(summaryAndStatus);
+            this.setPersistedContent(summaryAndStatus);
             this.getMainToolbar().setItem(summaryAndStatus);
             this.getWidgetToolbar().setItem(summaryAndStatus);
             this.wizardActions.setContent(summaryAndStatus).refreshState();
@@ -1869,7 +1857,7 @@ export class ContentWizardPanel
                 AI.get().setDataTree(this.contentWizardStepForm.getData());
                 AI.get().setContentHeader(this.wizardHeader);
 
-                this.refreshContentAfterLayout();
+                this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
 
                 this.xDataWizardStepForms.resetState();
 
@@ -2522,6 +2510,7 @@ export class ContentWizardPanel
 
     protected setPersistedItem(newPersistedItem: Content): void {
         super.setPersistedItem(newPersistedItem);
+        this.contentAfterLayout = this.getPersistedItem();
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
         AI.get().setContent(newPersistedItem);
@@ -2539,7 +2528,7 @@ export class ContentWizardPanel
         return !this.getWizardHeader() || this.getWizardHeader().isValidForSaving();
     }
 
-    private setPersistedContentSummary(content: ContentSummaryAndCompareStatus) {
+    private setPersistedContent(content: ContentSummaryAndCompareStatus) {
         ContentContext.get().setContent(content);
         this.persistedPublishStatus = content.getPublishStatus();
         this.persistedCompareStatus = content.getCompareStatus();
