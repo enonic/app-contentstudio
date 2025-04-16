@@ -35,7 +35,7 @@
         {
           "title": "Content Variants",
           "document": "variants"
-        }         
+        }
       ]
     },
     {
@@ -51,7 +51,7 @@
             "document" : "editor/content-form"
         },
         {
-          "title": "Ai assistant",
+          "title": "AI assistant",
           "document": "ai"
         },
         {

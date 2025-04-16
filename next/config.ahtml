@@ -453,11 +453,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#publishing_wizard">Publishing Wizard</a>
 <ul class="sectlevel2">
 <li><a href="#disable_mark_as_ready_action">Disable "Mark as Ready" action</a></li>
-</ul>
-</li>
-<li><a href="#publishing_wizard_2">Publishing Wizard</a>
-<ul class="sectlevel2">
-<li><a href="#disable_mark_as_ready_action_2">Disable "Mark as Ready" action</a></li>
 <li><a href="#default_publish_from_time">Default publish from time</a></li>
 <li><a href="#exclude_optional_dependencies">Exclude optional dependencies</a></li>
 </ul>
@@ -591,19 +586,6 @@ While using Site Engine in visual edit mode, the CSP is strictly enforced, and i
 <pre class="highlight"><code class="language-properties" data-lang="properties">publishingWizard.allowContentUpdate = false</code></pre>
 </div>
 </div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="publishing_wizard_2"><a class="link" href="#publishing_wizard_2">Publishing Wizard</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="disable_mark_as_ready_action_2"><a class="link" href="#disable_mark_as_ready_action_2">Disable "Mark as Ready" action</a></h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-properties" data-lang="properties">publishingWizard.allowContentUpdate = false</code></pre>
-</div>
-</div>
 <div class="paragraph">
 <p>Whenever the Publishing Wizard contains at least one item that is "<em>Work in progress</em>", publishing will be disabled. The editor can solve
 this by clicking the "<strong>Mark as ready</strong>" link on top of the dialog, which will mark all such items as "<em>Ready for Publishing</em>".</p>
@@ -715,7 +697,7 @@ he/she will be asked to create a new content project using <a href="settings.aht
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-16 09:25:40 UTC
+Last updated 2025-04-16 12:09:27 UTC
 </div>
 </div>
 </body>
