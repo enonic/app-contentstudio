@@ -42,7 +42,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
             await imageSelectorForm.waitForToggleIconNotDisplayed();
             // 3. Insert a image-name in the filter input:
             await imageSelectorForm.typeTextInOptionsFilterInput(appConst.TEST_IMAGES.SPUMANS);
-            // 4. Verify that the toggle icon is not displayed in the Image Selector
+            // 4. Verify that the toggle icon is not displayed in the Image Selector, because the toggle icon is hidden in the config:
             await imageSelectorForm.waitForToggleIconNotDisplayed();
         });
 
