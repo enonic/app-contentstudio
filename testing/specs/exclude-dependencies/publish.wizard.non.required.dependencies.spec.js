@@ -32,6 +32,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES],
                 appConst.CONTROLLER_NAME.MAIN_REGION);
             await studioUtils.doAddSite(SITE);
+            await studioUtils.saveScreenshot('issue_open2');
             let folderName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(folderName);
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
@@ -44,19 +45,17 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             let textComponentCke = new TextComponentCke();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Select the 'main region' page controller:
-            //await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.MAIN_REGION)
-            // 3. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 4. Insert a text-component in PCV modal dialog:
+            // 3. Insert a text-component in PCV modal dialog:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            // 5. Close the details panel
+            // 4. Close the details panel
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
-            // 6. Open Insert Link dialog
+            // 5. Open Insert Link dialog
             await textComponentCke.clickOnInsertLinkButton();
-            // 7. Insert the content-link(link to a folder in the root directory):
+            // 6. Insert the content-link(link to a folder in the root directory):
             await studioUtils.insertContentLinkInCke(CONTENT_LINK_TITLE, TEST_FOLDER.displayName, true);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -138,7 +137,26 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             await createIssueDialog.waitForShowExcludedItemsButtonDisplayed();
             // 5. Verify that dependency list is empty:
             let depItems = await createIssueDialog.getDisplayNameInDependentItems();
-            //assert.equal(depItems.length, 0, 'dependencies list should be empty');
+            // assert.equal(depItems.length, 0, 'dependencies list should be empty');
+        });
+
+    // Verifies https://github.com/enonic/app-contentstudio/issues/8552
+    // Assigned items list is not refreshed on issue upd in Issue dialog #8552
+    it("GIVEN Site is selected AND 'Create Issue' dialog has been opened WHEN content selector has been expanded THEN selected in browse panel item should be checked in the dropdown list",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let createIssueDialog = new CreateIssueDialog();
+            // 1. Select the existing site with:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.pause(500);
+            // 2. Open 'Create Issue' dialog:
+            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
+            await createIssueDialog.waitForDialogLoaded();
+            // 3. The selected item should be checked in the dropdown list:
+            await createIssueDialog.typeContentNameInOptionsFilterInput(SITE.displayName);
+            await studioUtils.saveScreenshot('create_issue_options_filtered');
+            let actualContent = await createIssueDialog.getCheckedOptionsDisplayNameInDropdownList();
+            assert.ok(actualContent.includes(SITE.displayName), 'The site should be in the options list');
         });
 
     it("GIVEN Site is selected AND 'Create Issue' dialog has been opened WHEN dependant item has been selected in 'Items' combobox THEN non-required dependency item gets not visible in the modal dialog",
@@ -147,7 +165,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             let createIssueDialog = new CreateIssueDialog();
             // 1. Select the existing site with a dependency click on 'Mark as Ready' button::
             await studioUtils.findAndSelectItem(SITE.displayName);
-            await contentBrowsePanel.pause(1500);
+            await contentBrowsePanel.pause(500);
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             // 2. Create issue dialog should be loaded:
             await createIssueDialog.waitForDialogLoaded();

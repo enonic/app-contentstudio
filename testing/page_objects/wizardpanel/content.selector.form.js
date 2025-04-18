@@ -68,7 +68,7 @@ class ContentSelectorForm extends BaseSelectorForm {
             await this.waitForElementDisplayed(this.addNewContentButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
-            throw new Error('Add new button is not displayed, screenshot:' + screenshot + ' ' + err);
+            throw new Error(`'Add new' button is not displayed, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -77,7 +77,7 @@ class ContentSelectorForm extends BaseSelectorForm {
             await this.waitForElementNotDisplayed(this.addNewContentButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
-            throw new Error('Add new button should not be displayed, screenshot:' + screenshot + ' ' + err);
+            throw new Error(`'Add new' button should not be displayed, screenshot:${screenshot} `  + err);
         }
     }
 
@@ -93,7 +93,7 @@ class ContentSelectorForm extends BaseSelectorForm {
             await contentSelectorDropdown.clickOnFilteredByDisplayNameItemAndClickOnApply(optionDisplayName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_combobox');
-            throw new Error("Error occurred in content combobox, screenshot:" + screenshot + " " + err)
+            throw new Error(`Error occurred in content combobox, screenshot:${screenshot} `  + err)
         }
     }
 
@@ -148,29 +148,9 @@ class ContentSelectorForm extends BaseSelectorForm {
         let contentSelector = new ContentSelectorDropdown();
         return await contentSelector.getMode(XPATH.container);
     }
-
     async getCheckedOptionsDisplayNameInDropdownList() {
-        let locator = XPATH.container + "//ul[contains(@id,'ContentListBox')]"+  "//li[contains(@class,'item-view-wrapper')]";//lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM;
-        let optionElements = await this.findElements(locator);
-        let checkedOptionElements = await this.doFilterCheckedOptionsElements(optionElements);
-        let pr = await checkedOptionElements.map(async (el) => {
-            let e = await el.$(".//h6[contains(@class,'main-name')]");
-            return await e.getText();
-
-        });
-        let result = await Promise.all(pr);
-        return result;
-    }
-
-    async doFilterCheckedOptionsElements(elements) {
-        let pr = await elements.map(async (el) => await this.isOptionItemChecked(el));
-        let result = await Promise.all(pr);
-        return elements.filter((el, i) => result[i]);
-    }
-
-    async isOptionItemChecked(el) {
-        let value = await el.getAttribute('class');
-        return value.includes('checked');
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.getCheckedOptionsDisplayNameInDropdownList(XPATH.container);
     }
 }
 
