@@ -74,7 +74,7 @@ class CreateIssueDialog extends Page {
             await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_create_issue_btn');
-            throw new Error('create issue dialog: ' + screenshot + ' ' + err);
+            throw new Error(`create issue dialog:${screenshot} `  + err);
         }
     }
 
@@ -91,7 +91,7 @@ class CreateIssueDialog extends Page {
             await this.clickOnElement(this.addItemsButton)
         } catch (err) {
             let screenshot = await this.saveScreenshot('err_click_add_items');
-            throw new Error('Error occurred in Create Issue dialog - screenshot' + screenshot + '  ' + err);
+            throw new Error(`Error occurred in Create Issue dialog - screenshot:${screenshot} `  + err);
         }
     }
 
@@ -113,7 +113,7 @@ class CreateIssueDialog extends Page {
             await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_include_children');
-            throw new Error("Error when clicking on 'include children' icon , screenshot:" + screenshot + '  ' + err);
+            throw new Error(`Error when clicking on 'include children' icon , screenshot:${screenshot}`  + err);
         }
     }
 
@@ -139,7 +139,7 @@ class CreateIssueDialog extends Page {
             await this.pause(2000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_create_issue_loaded');
-            throw new Error('Create issue dialog: ' + screenshot + ' ' + err);
+            throw new Error(`Create issue dialog: screenshot ${screenshot}`  + err);
         }
     }
 
@@ -195,13 +195,33 @@ class CreateIssueDialog extends Page {
         }
     }
 
+    async typeContentNameInOptionsFilterInput(contentName) {
+        try {
+            let contentSelector = new ContentSelectorDropdown();
+            await contentSelector.filterItem(contentName, this.container);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_issue_dropdown_filtered');
+            throw new Error(`Error in Create issue Dialog, items selector, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async getCheckedOptionsDisplayNameInDropdownList(contentName) {
+        try {
+            let contentSelector = new ContentSelectorDropdown();
+            return await contentSelector.getCheckedOptionsDisplayNameInDropdownList( XPATH.container );
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_issue_dropdown_filtered');
+            throw new Error(`Error in Create issue Dialog, items selector, screenshot: ${screenshot} ` + err);
+        }
+    }
+
     async selectItemsInContentCombobox(contentName) {
         try {
             let contentSelector = new ContentSelectorDropdown();
             return await contentSelector.selectFilteredByDisplayNameContentMulti(contentName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_items_combo');
-            throw new Error("Error in Create issue Dialog, items combobox, screenshot:  " + screenshot + ' ' + err);
+            throw new Error(`Error in Create issue Dialog, items combobox, screenshot:${screenshot}  `  + err);
         }
     }
 
@@ -221,7 +241,7 @@ class CreateIssueDialog extends Page {
             await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error('Create Issue dialog, Show Excluded button, screenshot  ' + screenshot + ' ' + err);
+            throw new Error(`Create Issue dialog, Show Excluded button, screenshot:${screenshot}  `  + err);
         }
     }
 
@@ -230,7 +250,7 @@ class CreateIssueDialog extends Page {
             return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error(`Create Issue, 'Show excluded button' should be visible! screenshot: ${screenshot} ` + +err)
+            throw new Error(`Create Issue, 'Show excluded button' should be visible! screenshot: ${screenshot} `  +err)
         }
     }
 
@@ -259,7 +279,7 @@ class CreateIssueDialog extends Page {
             return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + +err)
+            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} `  +err)
         }
     }
 
