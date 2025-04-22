@@ -1,11 +1,11 @@
 const mustache = require('/lib/mustache');
 const contextLib = require('/lib/xp/context');
 const contentLib = require('/lib/xp/content');
-const portalLib = require('/lib/xp/portal');
 const nodeLib = require('/lib/xp/node');
 const adminLib = require('/lib/xp/admin');
 const i18nLib = require('/lib/xp/i18n');
 const helper = require('/helpers/dashboard-helper');
+const assetLib = require('/lib/enonic/asset');
 
 function localise(locale, key) {
     return i18nLib.localize({
@@ -28,7 +28,7 @@ function handleGet() {
         contentItemsCount,
         languagesCount,
         openIssuesCount,
-        stylesUrl: portalLib.assetUrl({
+        stylesUrl: assetLib.assetUrl({
             path: 'styles/widgets/stats.css'
         }),
         toolUrl: adminLib.getToolUrl(app.name, 'main'),

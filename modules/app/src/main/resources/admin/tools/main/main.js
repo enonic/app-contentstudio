@@ -6,6 +6,7 @@ const mustache = require('/lib/mustache');
 const portal = require('/lib/xp/portal');
 const i18n = require('/lib/xp/i18n');
 const configLib = require('/lib/config');
+const assetLib = require('/lib/enonic/asset');
 
 const AI_TRANSLATOR_APP_KEY = 'com.enonic.app.ai.translator';
 const AI_CONTENT_OPERATOR_APP_KEY = 'com.enonic.app.ai.contentoperator';
@@ -42,7 +43,7 @@ exports.getParams = function (path, locales) {
     const isAiTranslatorEnabled = aiTranslatorApp != null && aiTranslatorApp.started && !isBrowseMode;
 
     return {
-        assetsUri: portal.assetUrl({path: ''}),
+        assetsUri: assetLib.assetUrl({path: ''}),
         appName: i18n.localize({
             key: 'admin.tool.displayName',
             bundles: ['i18n/phrases'],

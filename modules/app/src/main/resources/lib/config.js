@@ -5,6 +5,7 @@ const portal = require('/lib/xp/portal');
 const contextLib = require('/lib/xp/context');
 const i18n = require('/lib/xp/i18n');
 const authLib = require('/lib/xp/auth');
+const assetLib = require('/lib/enonic/asset');
 
 function getPhrases(locales) {
     const phrases = {};
@@ -42,7 +43,7 @@ function getConfig(locales) {
         excludeDependencies,
         allowPathTransliteration,
         adminUrl: admin.getBaseUri(),
-        assetsUri: portal.assetUrl({
+        assetsUri: assetLib.assetUrl({
             path: ''
         }),
         toolUri: toolUri,

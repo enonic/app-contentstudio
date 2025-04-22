@@ -1,11 +1,11 @@
 const mustache = require('/lib/mustache');
 const contentLib = require('/lib/xp/content');
-const portalLib = require('/lib/xp/portal');
 const contextLib = require('/lib/xp/context');
 const encodingLib = require('/lib/text-encoding');
 const adminLib = require('/lib/xp/admin');
 const authLib = require('/lib/xp/auth');
 const helper = require('/helpers/dashboard-helper');
+const assetLib = require('/lib/enonic/asset');
 
 const baseToolUri = adminLib.getToolUrl(app.name, 'main');
 const currentUser = authLib.getUser();
@@ -18,7 +18,7 @@ const handleGet = (req) => {
 
     const params = {
         items: sortedByDateItems.slice(0, showLast),
-        stylesUri: portalLib.assetUrl({
+        stylesUri: assetLib.assetUrl({
             path: 'styles/widgets/recent.css'
         }),
     };
