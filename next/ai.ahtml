@@ -5,8 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
-<meta name="author" content="Juke AI brings artificial intelligence to Content Studio.">
-<title>Juke - AI content operator</title>
+<title>Juke - AI Content Operator</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -438,10 +437,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Juke - AI content operator</h1>
-<div class="details">
-<span id="author" class="author">Juke AI brings artificial intelligence to Content Studio.</span><br>
-</div>
+<h1>Juke - AI Content Operator</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
@@ -459,7 +455,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Over time, Juke will evolve to help out with a range of daily content management chors.</p>
+<p>Juke AI brings artificial intelligence to Content Studio. Over time, Juke will evolve to help out with a range of daily content management chores.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -487,7 +483,7 @@ The <a href="https://market.enonic.com/vendors/enonic/ai-operator">Juke AI Conte
 </div>
 </div>
 <div class="paragraph">
-<p>This will open a modal chat interface where you can communicate with with Juke.</p>
+<p>This will open a modal chat interface where you can communicate with Juke.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -501,7 +497,7 @@ The <a href="https://market.enonic.com/vendors/enonic/ai-operator">Juke AI Conte
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Juke AI is in early stages. Errors may occur, and responses will improve over time
+Juke AI is in early development stages. Errors may occur, and responses will improve over time.
 </td>
 </tr>
 </table>
@@ -512,7 +508,7 @@ Juke AI is in early stages. Errors may occur, and responses will improve over ti
 <h2 id="field_context"><a class="link" href="#field_context">Field context</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>It may often be useful to focus Juke&#8217;s attention on a specific field. Clicking or focusing on a supported form field will instantly trigger Juke&#8217;s attention, by setting the field as a chat context.</p>
+<p>It may often be useful to focus Juke&#8217;s attention on a specific field. Clicking or focusing on a supported form field will instantly trigger Juke&#8217;s attention by setting the field in the chat context.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -540,7 +536,7 @@ Juke is currently limited to work with TextLine, TextArea and HtmlArea fields in
 <h2 id="mentions"><a class="link" href="#mentions">Mentions</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Fields may also be mentioned directly in the chat. Pressing <code>@</code> in the input will list all available fields in the scope of the current context. Select a field from the list to make it part of your prompt.</p>
+<p>Fields may also be mentioned directly in the chat. Pressing <code>@</code> inside the chat&#8217;s input will list all available fields in the scope of the current context. Select a field from the list to make it a part of your prompt.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -578,7 +574,7 @@ If no context is set, you may mention fields at the root level of your content
 <h2 id="retry"><a class="link" href="#retry">Retry</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>If you are not satisfied with the response provided by Juke or the request failes, use the «retry» icon to make Juke reprocess the instruction.</p>
+<p>If you are not satisfied with the response provided by Juke or the request fails, use the «retry» icon to make Juke reprocess the instruction.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -636,10 +632,10 @@ If no context is set, you may mention fields at the root level of your content
 <h2 id="general_instructions"><a class="link" href="#general_instructions">General instructions</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You may provide a standard prompt for Juke. These instructions may be specified at project or site level.</p>
+<p>You may provide a standard prompt for Juke. These instructions may be specified at a project or site level.</p>
 </div>
 <div class="paragraph">
-<p>For instance you may want Juke ot use a consistent tone of voice, or provide other relevant details about the content you are working on. This helps Juke produce more relevant responses every time.</p>
+<p>For instance, you may want Juke to use a consistent tone of voice or provide other relevant details about the content you are working on. This helps Juke produce more relevant responses every time.</p>
 </div>
 <div class="paragraph">
 <p>By adding the <code>Juke AI Content Operator</code> application to your project or site, you may provide <code>custom instructions</code> as desired</p>
@@ -666,7 +662,7 @@ Working with application settings requires "Project owner" roles or higher.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-22 09:50:12 UTC
+Last updated 2025-04-22 10:45:40 UTC
 </div>
 </div>
 </body>

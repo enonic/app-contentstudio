@@ -524,7 +524,7 @@ Content Studio 5.3 requires XP 7.15.0 or higher.
 <div class="paragraph">
 <p>Content Studio has been adapted to support ecosystem of Juke applications, new AI-powered extensions that enable high-level
 assistance for content editors. In this release Content Studio provides integration with Juke apps responsible for
-content localisation (<strong>Juke Translator</strong>) and content creation (<strong>Juke Content Operator</strong>).</p>
+content localisation (<a href="layers.ahtml#ai-translation">Juke Translator</a>) and content creation (<a href="ai.ahtml">Juke Content Operator</a>).</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -1077,7 +1077,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-22 09:50:12 UTC
+Last updated 2025-04-22 10:45:40 UTC
 </div>
 </div>
 </body>

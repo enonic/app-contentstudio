@@ -625,7 +625,7 @@ The <a href="https://market.enonic.com/vendors/enonic/ai-translator">Juke AI tra
 </table>
 </div>
 <div class="paragraph">
-<p>With the Juke AI translator enabled, clicking <b class="button">Localize</b> will instantly reveal the translation dialog. Here you may optionally provide detailed instructions, or simply hit <b class="button">Translate</b>. This will automatically translate all text field within your content - just watch it go.</p>
+<p>With the Juke AI translator enabled, clicking <b class="button">Localize</b> will instantly reveal the translation dialog. Here you may optionally provide detailed instructions, or simply hit <b class="button">Translate</b>. This will automatically translate all text fields within your content - just watch it go.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -635,7 +635,7 @@ The <a href="https://market.enonic.com/vendors/enonic/ai-translator">Juke AI tra
 <div class="sect2">
 <h3 id="general_instructions"><a class="link" href="#general_instructions">General instructions</a></h3>
 <div class="paragraph">
-<p>Often, it can be useful to provide standard translation instructions for your content. By adding the appliaction to your project or site, you may configure standard translation instructions that will be used throughout the scope of your content.</p>
+<p>Often, it can be useful to provide standard translation instructions for your content. By adding the application to your project or site, you may configure standard translation instructions that will be used throughout the scope of your content.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -661,7 +661,7 @@ Changing these settings require <code>Project Owner</code> role or higher.
 <h2 id="reset"><a class="link" href="#reset">Reset</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You may reset a localized item by clicking <b class="button">Reset</b> from within the content editor. This will effectively return the item to it&#8217;s original inherited state.</p>
+<p>You may reset a localized item by clicking <b class="button">Reset</b> from within the content editor. This will effectively return the item to its original inherited state.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -762,7 +762,7 @@ Read about the high-level concept of Content Layers <a href="https://developer.e
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-22 09:50:12 UTC
+Last updated 2025-04-22 10:45:40 UTC
 </div>
 </div>
 </body>
