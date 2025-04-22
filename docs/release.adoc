@@ -11,6 +11,10 @@ TIP: Release Notes for Content Studio 4.x can be found https://developer.enonic.
 
 IMPORTANT: Content Studio 5.3 requires XP 7.15.0 or higher.
 
+=== What's new
+
+video::PG_OzKGDow8[youtube, 75%]
+
 === Juke AI support
 
 Content Studio has been adapted to support ecosystem of Juke applications, new AI-powered extensions that enable high-level
