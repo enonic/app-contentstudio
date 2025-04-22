@@ -150,6 +150,35 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await pageComponentView.waitForItemSelected('main');
         });
 
+    // Verify the issue - Keyboard navigation not working in the Page Components View #8586
+    // https://github.com/enonic/app-contentstudio/issues/8586
+    it(`WHEN Arrow down/up has been pressed THEN expected item gets selected in PCV tree`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            // 1. Open existing site and open 'Page Component View':
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Select an item:
+            await pageComponentView.clickOnComponent('main region');
+            // 4. Press the Arrow down key:
+            await pageComponentView.pressArrowDown();
+            await studioUtils.saveScreenshot('arrow_down_key_pressed_1_pcv');
+            // 5. Verify that the next item gets selected:
+            await pageComponentView.waitForItemSelected('main');
+            // 6. Press the Arrow down key:
+            await pageComponentView.pressArrowDown();
+            await studioUtils.saveScreenshot('arrow_down_key_pressed_2_pcv');
+            // 7. Verify that the next item gets selected:
+            await pageComponentView.waitForItemSelected('test1');
+            // 8. Press the Arrow Up key:
+            await pageComponentView.pressArrowUp();
+            await studioUtils.saveScreenshot('arrow_up_key_pressed_pcv');
+            // 9. Verify that the previous item gets selected:
+            await pageComponentView.waitForItemSelected('main');
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => {
         let insertAnchorDialog = new InsertAnchorDialog();

@@ -40,6 +40,11 @@ class BaseSelectorForm extends Page {
         return await this.pause(500);
     }
 
+    async clickInOptionsFilterInput() {
+        await this.clickOnElement(this.optionsFilterInput);
+        return await this.pause(500);
+    }
+
     async swapOptions(sourceName, destinationName) {
         let sourceLocator = this.selectedOptionByDisplayName(sourceName);
         let destinationLocator = this.selectedOptionByDisplayName(destinationName);
