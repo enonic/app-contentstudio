@@ -1,6 +1,7 @@
 = Layers and localisation
 :toc: right
 :imagesdir: layers/images
+:experimental:
 
 Content Studio offers an advanced concept for localization called Layering
 
