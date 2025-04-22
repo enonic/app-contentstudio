@@ -590,7 +590,7 @@ Language shown in brackets after content&#8217;s display name means shows that l
 <h2 id="localizing"><a class="link" href="#localizing">Localizing</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To localize an inherited item, simply select it and click btn:[Localize].</p>
+<p>To localize an inherited item, simply select it and click <b class="button">Localize</b>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -599,7 +599,7 @@ Language shown in brackets after content&#8217;s display name means shows that l
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-For inherited items btn:[Edit] is replaced with btn:[Localize]
+For inherited items <b class="button">Edit</b> is replaced with <b class="button">Localize</b>
 </td>
 </tr>
 </table>
@@ -625,7 +625,7 @@ The <a href="https://market.enonic.com/vendors/enonic/ai-translator">Juke AI tra
 </table>
 </div>
 <div class="paragraph">
-<p>With the Juke AI translator enabled, clicking btn:[Localize] will instantly reveal the translation dialog. Here you may optionally provide detailed instructions, or simply hit btn:[Translate]. This will automatically translate all text field within your content - just watch it go.</p>
+<p>With the Juke AI translator enabled, clicking <b class="button">Localize</b> will instantly reveal the translation dialog. Here you may optionally provide detailed instructions, or simply hit <b class="button">Translate</b>. This will automatically translate all text field within your content - just watch it go.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -661,7 +661,7 @@ Changing these settings require <code>Project Owner</code> role or higher.
 <h2 id="reset"><a class="link" href="#reset">Reset</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You may reset a localized item by clicking btn:[Reset] from within the content editor. This will effectively return the item to it&#8217;s original inherited state.</p>
+<p>You may reset a localized item by clicking <b class="button">Reset</b> from within the content editor. This will effectively return the item to it&#8217;s original inherited state.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -762,7 +762,7 @@ Read about the high-level concept of Content Layers <a href="https://developer.e
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-16 18:02:31 UTC
+Last updated 2025-04-22 09:50:12 UTC
 </div>
 </div>
 </body>

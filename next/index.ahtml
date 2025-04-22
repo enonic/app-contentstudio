@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#introduction">Introduction</a></li>
+<li><a href="#intro_videos">Intro videos</a></li>
 <li><a href="#overview">Overview</a></li>
 <li><a href="#go_beyond">Go beyond</a></li>
 <li><a href="#browser_support">Browser support</a></li>
@@ -453,13 +453,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Content Management interface for Enonic XP</p>
+<p>Enonic XP&#8217;s Content Management interface</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
-<div class="sectionbody">
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -467,7 +462,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<strong>Install?</strong> Content Studio is available as an application for Enonic XP, and can be installed from <a href="https://market.enonic.com/vendors/enonic/content-studio">Enonic Market</a>
+Content Studio can be installed from <a href="https://market.enonic.com/vendors/enonic/content-studio">Enonic Market</a>
 </td>
 </tr>
 </table>
@@ -475,10 +470,18 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
+<h2 id="intro_videos"><a class="link" href="#intro_videos">Intro videos</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We have compiled a page packed with short videos demonstrating Content Studio&#8217;s features and capabilities. <a href="https://www.enonic.com/resources/content-studio-videos">Check it out</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="overview"><a class="link" href="#overview">Overview</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Content Studio provides editors with an efficient way of creating, and curating content without technical skills.</p>
+<p>Content Studio provide editors with an efficient way of creating and curating content without technical skills.</p>
 </div>
 <div class="paragraph">
 <p>Content is organized within <a href="projects.ahtml">Content Projects</a>. Content can be re-used, localized or augmented across different projects through a feature called <a href="layers.ahtml">content layering</a>.</p>
@@ -487,7 +490,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Editors will commonly use the <a href="navigator.ahtml">navigator panel</a> to browse, search and perform actions on one or more items.</p>
 </div>
 <div class="paragraph">
-<p>Use documentation menu for more details</p>
+<p>The <a href="editor.ahtml">content editor</a> offers a consistent and intuitive interface for editing and previewing your content.</p>
 </div>
 </div>
 </div>
@@ -521,7 +524,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-16 18:02:31 UTC
+Last updated 2025-04-22 09:50:12 UTC
 </div>
 </div>
 </body>
