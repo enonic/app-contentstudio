@@ -2,7 +2,8 @@
 :toc: right
 :imagesdir: images
 
-This panel is a multi-function tool that can be toggled open and closed with the cog icon at the right of the toolbar.  It is used in conjunction with the <<./page-editor#, Page Editor>> to work with components on the page.  There are five different widgets available on the pull down menu in a basic installation, and custom tools may be developed or added from Market.
+This panel is a multi-function tool that can be toggled open and closed with the cog icon on the right of the toolbar.  It is used in conjunction with the <<./page-editor#, Page Editor>> to work with components on the page.
+The panel contains a widget selector consisting of a few built-in widgets shown on top of the list, followed by custom widgets coming from installed applications.
 
 == Components
 
@@ -45,9 +46,3 @@ image::context-panel_history.png[Version history, 275px]
 Here are two quick links to content that are referencing the current content (inbound) and content that the current conntent is referencing (outbound).  Click on either box to see the content in a new window.
 
 image::context-panel_dependencies.png[Dependencies, 276px]
-
-== Emulator
-
-This widget has buttons for emulating various sized devices. The page editor will shrink and expand to fit the selected device size.
-
-image::context-panel_emulator.png[Emulator, 631px]

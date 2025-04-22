@@ -1,103 +1,113 @@
-= Content Layers and localisation
+= Layers and localisation
 :toc: right
 :imagesdir: layers/images
+:experimental:
 
-Content Studio is offering an advanced concept called Content Layers. A layer is essentially a <<projects#, Content project>> that inherits content from a parent project.
-
+Content Studio offers an advanced concept for localization called Layering
 
 == Concept
 
-Inherited content can be edited in the local layer (localized), renamed, organized differently or even archived.
+Layers are essentially a <<projects#, Content project>> that inherits content from a different project.
 
-New content can be created, modified and published within a layer, just like for any other project.
+Inherited content can be edited (localised), renamed, re-organized, published or even archived within a single layer. You may also create new content, just like you would in a regular project.
+
+Layers are created and managed just like any other project, but you must specify a parent project, from where it will inherit content.
 
 == How it works
 
-You can have as many layers as you need, for instance: Project *A* can have a child project *B* which has a child
+You may have any number of layers, organlized in different ways based on your requirements. Here are some examples
+
+Nested layers:: Project *A* has a child project *B* which has a child
 project *C* (and so on).
 
-There may also exist multiple child layers, so *B'* may also inherit from project *A*.
-
-Content changes will be propagated through the different layers automatically.
-
-For a single content item, propagation will stop if the content has been localized in a specific layer.
+Siblings:: You may have multiple children so both *B* and *B'* inherit from project *A*.
 
 == Inheritance model
 
-With the example above, any content created in *A* will be automatically appear in the child *B* and the grand-child *C*.
+Changes to content in a parent layer automatically propagates to child layers unless the item has been localized in the specific layer.
 
-If the content is then modified in *B* it will no longer get updates from *A*, but new modifications will still be synchronised from *B* down to *C*.
+Example from the above structure:
 
-If you modify a content in the layer *C*, it will stop inheriting content changes from the layer *B*. However, the same content in *B* still
-inherits content changes from its parent project *A*, until it's localised in *B* as well.
-
-
-== Inheritance types
-To enable different actions on an while keeping as much of the inheritance going, there are 4 different types of values that are supported independently:
-
-* content data
-* sorting
-* parent (location in content tree)
-* and name
-
-This means, for example, if a child layer *B* has inherited an entire website from its parent *A*, you can change sorting order of content items inside this site in *B*. This will stop inheritance of _sorting_ from *A*, however inheritance of _content data_, _name_, and _parent_ will still continue.
-
-Another example, is that you can move a content to a different location in the tree (change parent content), but it will still be inheriting _data_, _name_ and _sorting_.
+Content in project *A* will be automatically propagate to *B*, and from there to *C*. If *B* gets localized, it will no longer recieve updates from *A*. The modified content from *B* will however still trickle down to *C*.
 
 
-== Localising inherited content
+== Listing view
 
-In the Content Navigator localised content will be greyed out, providing visual difference from a local content manually created directly in this layer.
+Inherited content in the navigator list will appear as dimmed, providing a visual difference from content that has been localized, or created directly in this layer.
 
-image::layer-localisation.png[Layer localisation, 457]
+Also, all inherited items will have a small blue cloud icon next to it - regardless if it is has been localized or not.
 
-To localise (translate) an inherited content item, select it in the content tree and click *Localise* button in the Content Navigator toolbar
+image::layer-localisation.png[Locally created item is not dimmed, 457]
+Sample structure with a single local item
 
-image::layer-localisation-1.png[Content localisation, 457]
-
-NOTE: *Edit* button is replaced with *Localise* for inherited content.
+image::layer-localisation-2.png[Content localisation, 457]
+Here the "Search" item is localized to "Søk". The content name has also been localized to "sok".
 
 TIP: Language shown in brackets after content's display name means shows that language of this content is different from language of the current layer.
 
-The *Localize* button will open the Content Wizard for the selected content item and set language of the current layer for the item. You
-can now translate the content to language of the layer or make any other changes. When you save the changes, the content item will no longer be considered inherited and changes made for this item in the parent project/layer will no longer be synchronised down to this layer.
+== Inheritance types
+To make the inheritance flexible, there are four different kinds of inhertance:
 
-In the example below, "_Search_" page from the parent project with English language was localised in the Norwegian layer and translated to "_Søk_".
+* data (your content)
+* sorting (of child items)
+* parent (location in tree structure)
+* and name (name in tree)
 
-image::layer-localisation-2.png[Content localisation, 457]
-
-TIP: The purpose of the blue "cloud" icon over the content item icon is to distinguish localised inherited content from local content created
-directly in this layer (like "_Local page_" in the example above).
-
-As mentioned above, it's possible to rearrange inherited content without localising it. The same goes for sorting. In the example below
-the "_Search_" page was moved under "_Posts_" folder but is still inheriting content changes from the parent project.
+An example of how this works is that you can move a content to a different location in the tree (change parent), but it _data_, _name_ and _sorting_ will still be inherited from the parent
 
 image::layer-localisation-3.png[Content localisation, 457]
 
-You can reset changes made for an inherited item and restore inheritance from the parent level by clicking *Reset* button in the Content Wizard.
+
+== Localizing
+
+To localize an inherited item, simply select it and click btn:[Localize].
+
+NOTE: For inherited items btn:[Edit] is replaced with btn:[Localize]
+
+This should open the Content Editor. You may now edit and publish the item as if it was created locally. This process effectively terminates further inheritance from the parent item.
+
+[#ai-translation]
+== AI translation
+
+NOTE: The https://market.enonic.com/vendors/enonic/ai-translator[Juke AI translator] application must be installed to access the features described in this section
+
+With the Juke AI translator enabled, clicking btn:[Localize] will instantly reveal the translation dialog. Here you may optionally provide detailed instructions, or simply hit btn:[Translate]. This will automatically translate all text fields within your content - just watch it go.
+
+image::juke-translator.png[Juke AI translator dialog, 907]
+
+=== General instructions
+
+Often, it can be useful to provide standard translation instructions for your content. By adding the application to your project or site, you may configure standard translation instructions that will be used throughout the scope of your content.
+
+image::juke-translator-settings.png[Form to configure general translation instructions, 744]
+
+NOTE: Changing these settings require `Project Owner` role or higher.
+
+== Reset
+
+You may reset a localized item by clicking btn:[Reset] from within the content editor. This will effectively return the item to its original inherited state.
 
 image::layer-content-reset.png[Reset localisation, 617]
 
-IMPORTANT: All changes made to the content item in the current layer will be lost.
 
+== Layers Panel
 
-== Layers Widget
-
-NOTE: The Layers widget is bundled with <<../#content_studio,Content Studio+>> application available only for users with Enonic license.
+NOTE: The https://market.enonic.com/vendors/enonic/content-studio-plus[Content Studio+] application must be installed to access the features described in this section
 
 The Layers widget enables user to see status of a specific content item in all existing layers in the system.
 
-Box of the current layer is highlighted with blue border, and you can see how many layers there are above (_Ascendants_)
-and below (_Descendants_) the current one. Each box has an action button (*Localise* or *Edit* for the current layer and *Open* for other layers)
-which can be displayed if you expand the box with a left-click.
+The current layer is highlighted with blue border. You can also see how many parents (_Ascendants_)
+and children (_Descendants_) the current item has.
 
-image::layer-widget-1.png[Layers Widget, 240]
+By clicking an item, a related action button will appear.
 
-image::layer-widget-3.png[Layers Widget, 240]
+image::layer-widget-1.png[Layers Widget, 275]
+
+image::layer-widget-3.png[Layers Widget, 274]
 
 Boxes of parent layers where the content item is not localised are hidden by default and can be displayed by clicking on the Ascendants link.
 
-image::layer-widget-2.png[Layers Widget, 240]
+image::layer-widget-2.png[Layers Widget, 274]
 
 TIP: You can localise content in the current layer directly from the widget.
 
@@ -115,6 +125,4 @@ TIP: Read about the high-level concept of Content Layers https://developer.enoni
 
 == Management
 
-Layers are created and managed just like any other project. The only notable difference is that you select a parent project to inherit content from.
 
-More details are available in the <<settings#, settings chapter>>

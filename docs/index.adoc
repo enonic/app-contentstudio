@@ -2,37 +2,36 @@
 :toc: right
 :imagesdir: images
 
-Content Management interface for Enonic XP
+Enonic XP's Content Management interface
 
-== Introduction
+NOTE: Content Studio can be installed from https://market.enonic.com/vendors/enonic/content-studio[Enonic Market]
 
-NOTE: *Install?* Content Studio is available as an application for Enonic XP, and can be installed from https://market.enonic.com/vendors/enonic/content-studio[Enonic Market]
+== Intro videos
+
+We have compiled a page packed with short videos demonstrating Content Studio's features and capabilities. https://www.enonic.com/resources/content-studio-videos[Check it out].
+
 
 == Overview
 
-Content Studio provides editors with an efficient way of creating, and curating content without technical skills.
-A core concept is that any content item has a specific <<content-types#,Content type>>.
-
-A set of standard content types come with the system, but the real benefit lies in custom defined content types.
-Custom content types are defined by developers, and provided through apps.
+Content Studio provide editors with an efficient way of creating and curating content without technical skills.
 
 Content is organized within <<projects#,Content Projects>>. Content can be re-used, localized or augmented across different projects through a feature called <<layers#, content layering>>.
 
 Editors will commonly use the <<navigator#,navigator panel>> to browse, search and perform actions on one or more items.
 
-<<issues#,Issues>> can be created and assigned to users of Content Studio in order to get stuff done, and assist with workflow related tasks, such as getting content published.
+The <<editor#, content editor>> offers a consistent and intuitive interface for editing and previewing your content.
+
+== Go beyond
+
+Content Studio is free and open source, but also highly extendable. A subscription gives you access to licensed applications that extend Content Studio with advanced capabilities like an <<ai#, AI assistant>>, the <<archive#, archive browser>> and <<layers#ai-translation, automated translations>>.
+
+Visit Enonic Market for the https://market.enonic.com/licensed[complete list of licensed applications]
+
 
 == Browser support
 
-Content Studio works in all modern browsers.  We are explicitly testing it and supporting it for the latest versions of
-Google Chrome, Apple Safari, Mozilla Firefox and Microsoft Edge.
+Content Studio works in all modern browsers.  We are explicitly testing it and supporting it for the latest versions of Google Chrome, Apple Safari, Mozilla Firefox and Microsoft Edge.
 
-== Content Studio+
-
-An extended version of Content Studio called "*Content Studio+*" contains additional features that expand standard functionality of the app.
-This application can be installed directly from the https://market.enonic.com/vendors/enonic/content-studio-plus[Enonic Market].
-
-NOTE: *Content Studio+* requires XP 7.6.0 (or higher) and is available only for subscription customers with a valid license from Enonic
 
 == Release notes
 

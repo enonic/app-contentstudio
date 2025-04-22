@@ -5,6 +5,7 @@ on:
     branches:
       - "master"
       - "5.2"
+      - "5.3-docs"
     paths:
       - 'docs/**'
   workflow_dispatch:

@@ -32,7 +32,7 @@ in the parent project/layer. It's an effective way to "clean up" a layer of unwa
 
 == View archived content
 
-NOTE: Access to Archive requires <<../#content_studio,Content Studio+>>
+NOTE: The archive browser is part of https://market.enonic.com/vendors/enonic/content-studio-plus[Content Studio+].
 
 image::archived-content.png[Archived contents, 600]
 
