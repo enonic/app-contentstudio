@@ -1,26 +1,25 @@
-= Juke - AI content operator
+= Juke - AI Content Operator
 :toc: right
 :imagesdir: ai/images
-Juke AI brings artificial intelligence to Content Studio. 
 
-Over time, Juke will evolve to help out with a range of daily content management chors.
+Juke AI brings artificial intelligence to Content Studio. Over time, Juke will evolve to help out with a range of daily content management chores.
 
 NOTE: The https://market.enonic.com/vendors/enonic/ai-operator[Juke AI Content operator] application must be installed to access the features described in this chapter
 
 == Interface
-To launch the Juke chat interface, you may either click the Juke icon in the Content Editor’s toolbar, or the Juke icon appearing next to an active form field. 
+To launch the Juke chat interface, you may either click the Juke icon in the Content Editor’s toolbar, or the Juke icon appearing next to an active form field.
 
 image::juke-toolbar.png[Click the Juke icon to activate the chat, 410w]
 
-This will open a modal chat interface where you can communicate with with Juke.
+This will open a modal chat interface where you can communicate with Juke.
 
 image::juke-chat.png[Interact with Juke in the chat, 638w]
 
-NOTE: Juke AI is in early stages. Errors may occur, and responses will improve over time
+NOTE: Juke AI is in early development stages. Errors may occur, and responses will improve over time.
 
 == Field context
 
-It may often be useful to focus Juke's attention on a specific field. Clicking or focusing on a supported form field will instantly trigger Juke's attention, by setting the field as a chat context.
+It may often be useful to focus Juke's attention on a specific field. Clicking or focusing on a supported form field will instantly trigger Juke's attention by setting the field in the chat context.
 
 image::juke-context.png[The field "Abstract" is set as context, 636w]
 
@@ -29,7 +28,7 @@ To clear the context, simply click the `x` to the right.
 NOTE: Juke is currently limited to work with TextLine, TextArea and HtmlArea fields in the main content type form. More will follow soon.
 
 == Mentions
-Fields may also be mentioned directly in the chat. Pressing `@` in the input will list all available fields in the scope of the current context. Select a field from the list to make it part of your prompt.
+Fields may also be mentioned directly in the chat. Pressing `@` inside the chat's input will list all available fields in the scope of the current context. Select a field from the list to make it a part of your prompt.
 
 NOTE: If no context is set, you may mention fields at the root level of your content
 
@@ -41,7 +40,7 @@ image::juke-mention.png[type @ to reveal list of contextual input fields, 776w]
 * Create `@Display Name` based on `@Article body`
 
 == Retry
-If you are not satisfied with the response provided by Juke or the request failes, use the «retry» icon to make Juke reprocess the instruction.
+If you are not satisfied with the response provided by Juke or the request fails, use the «retry» icon to make Juke reprocess the instruction.
 
 image::juke-retry.png[Click retry icon to give it another shot, 635w]
 
@@ -68,9 +67,9 @@ Sample prompts:
 
 == General instructions
 
-You may provide a standard prompt for Juke. These instructions may be specified at project or site level.
+You may provide a standard prompt for Juke. These instructions may be specified at a project or site level.
 
-For instance you may want Juke ot use a consistent tone of voice, or provide other relevant details about the content you are working on. This helps Juke produce more relevant responses every time.
+For instance, you may want Juke to use a consistent tone of voice or provide other relevant details about the content you are working on. This helps Juke produce more relevant responses every time.
 
 By adding the `Juke AI Content Operator` application to your project or site, you may provide `custom instructions` as desired
 
