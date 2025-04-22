@@ -14,12 +14,8 @@
     },
     {
       "label": "stable",
-      "checkout": "5.2",
+      "checkout": "5.3",
       "latest": true
-    },
-    {
-      "label": "next",
-      "checkout": "5.3-docs"
     }
   ]
 }
