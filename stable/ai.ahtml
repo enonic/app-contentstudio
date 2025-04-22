@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
-<title>Content Form</title>
+<title>Juke - AI Content Operator</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,13 +437,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Content Form</h1>
+<h1>Juke - AI Content Operator</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#header">Header</a></li>
-<li><a href="#form">Form</a></li>
-<li><a href="#page_components_tree">Page Components tree</a></li>
+<li><a href="#interface">Interface</a></li>
+<li><a href="#field_context">Field context</a></li>
+<li><a href="#mentions">Mentions</a></li>
+<li><a href="#retry">Retry</a></li>
+<li><a href="#insert">Insert</a></li>
+<li><a href="#variants">Variants</a></li>
+<li><a href="#general_instructions">General instructions</a></li>
 </ul>
 </div>
 </div>
@@ -451,26 +455,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This panel appears on the left side of the page after content is created or while being edited. It is here the form appears in which content
-data is entered. The structure and fields in the form are determined by the <strong>content type</strong> which is defined in the application code.
-The content editor panel can be collapsed to give the page editor more room by clicking the arrow icon on the top right of the panel.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/editor-form.png" alt="Editor form" width="75%">
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="header"><a class="link" href="#header">Header</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The top of the content form has the content type icon, the Display Name, and the content path name.
-The default icon can be replaced with a thumbnail image by clicking on it and uploading an image file.
-When the Display Name is being changed, the path name will change accordingly, to a URL-friendly version.
-It is also possible for the Display Name to be generated dynamically using values from other form
-fields by using a <a href="https://developer.enonic.com/docs/xp/stable/cms/content-types#display_name_expressions">Display Name expression</a>.</p>
+<p>Juke AI brings artificial intelligence to Content Studio. Over time, Juke will evolve to help out with a range of daily content management chores.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -479,54 +464,7 @@ fields by using a <a href="https://developer.enonic.com/docs/xp/stable/cms/conte
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Value of the Path field must be unique and will be validated against existing content every time the field is changed.
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-For a new content, Path will be auto-generated as you type into the Display Name field. International letters will be automatically
-transliterated into their english equivalents. It&#8217;s possible to turn off this behaviour in the Content Studio&#8217;s <a href="../config.ahtml#content_path_transliteration">config file</a>.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>After a content has been published, the Path field gets locked and user must click the path to rename content in the dedicated
-modal dialog. These precautions aim to prevent accidental breaking of external hard-coded links.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/editor-rename-path.png" alt="Rename content dialog" width="548w">
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="form"><a class="link" href="#form">Form</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Underneath the header is the toolbar with clickable navigation steps that correspond to different sections of the content form. The first one is always
-the content type name followed by optional <strong>X-data</strong> steps (if any). Clicking on an item in the toolbar will scroll the content
-form down to the corresponding section.</p>
-</div>
-<div class="paragraph">
-<p>Clicking the "&lt;" icon in the menu toolbar will collapse the Content Form and automatically undock the Page Components tree.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-If you collapse the tree, your browser will remember this selection and won&#8217;t reopen it the next time you collapse the form.
+The <a href="https://market.enonic.com/vendors/enonic/ai-operator">Juke AI Content operator</a> application must be installed to access the features described in this chapter
 </td>
 </tr>
 </table>
@@ -534,26 +472,22 @@ If you collapse the tree, your browser will remember this selection and won&#821
 </div>
 </div>
 <div class="sect1">
-<h2 id="page_components_tree"><a class="link" href="#page_components_tree">Page Components tree</a></h2>
+<h2 id="interface"><a class="link" href="#interface">Interface</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When content has a controller the toolbar menu will have a step called "Page". This form step contains a hierarchical tree representation
-of all the components and regions on the page, including the page itself. This tree makes it very easy to manage content structure without having to use the Page Editor.</p>
-</div>
-<div class="paragraph">
-<p>Selecting a component in the tree will highlight the component in the Page Editor and display its configuration in the <a href="../widgets.ahtml#insert-tab">Components</a> widget.
-The triple dot icon on the right of each component will open a context menu. This menu is the same as the one that would open for the same component
-in the <a href="page-editor.ahtml#editing-page">Page Editor</a>.</p>
-</div>
-<div class="paragraph">
-<p>Components can be rearranged directly in the tree with drag’n’drop function.</p>
-</div>
-<div class="paragraph">
-<p>In the image below, a part called <strong>Latest comments</strong> is selected in the Page Components view and highlighted with a blue border/mask in the Page Editor. The selected part&#8217;s configuration form is displayed in the Components widget on the right.</p>
+<p>To launch the Juke chat interface, you may either click the Juke icon in the Content Editor’s toolbar, or the Juke icon appearing next to an active form field.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/page-editor-components-docked.png" alt="Page Components" width="75%">
+<img src="ai/images/juke-toolbar.png" alt="Click the Juke icon to activate the chat" width="410w">
+</div>
+</div>
+<div class="paragraph">
+<p>This will open a modal chat interface where you can communicate with Juke.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ai/images/juke-chat.png" alt="Interact with Juke in the chat" width="638w">
 </div>
 </div>
 <div class="admonitionblock note">
@@ -563,7 +497,162 @@ in the <a href="page-editor.ahtml#editing-page">Page Editor</a>.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-For fragments and page templates the Page Components tree will be inside the first form step.
+Juke AI is in early development stages. Errors may occur, and responses will improve over time.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="field_context"><a class="link" href="#field_context">Field context</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It may often be useful to focus Juke&#8217;s attention on a specific field. Clicking or focusing on a supported form field will instantly trigger Juke&#8217;s attention by setting the field in the chat context.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ai/images/juke-context.png" alt="The field &quot;Abstract&quot; is set as context" width="636w">
+</div>
+</div>
+<div class="paragraph">
+<p>To clear the context, simply click the <code>x</code> to the right.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Juke is currently limited to work with TextLine, TextArea and HtmlArea fields in the main content type form. More will follow soon.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="mentions"><a class="link" href="#mentions">Mentions</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Fields may also be mentioned directly in the chat. Pressing <code>@</code> inside the chat&#8217;s input will list all available fields in the scope of the current context. Select a field from the list to make it a part of your prompt.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If no context is set, you may mention fields at the root level of your content
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ai/images/juke-mention.png" alt="type @ to reveal list of contextual input fields" width="776w">
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Sample prompts:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Expand the list in <code>@Article body</code> from 3 to 5 items and turn it into a numbered list</p>
+</li>
+<li>
+<p>Create <code>@Display Name</code> based on <code>@Article body</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="retry"><a class="link" href="#retry">Retry</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you are not satisfied with the response provided by Juke or the request fails, use the «retry» icon to make Juke reprocess the instruction.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ai/images/juke-retry.png" alt="Click retry icon to give it another shot" width="635w">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="insert"><a class="link" href="#insert">Insert</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Juke may provide field value responses. Simply click the <code>Insert</code> icon next to value in order to update the form directly.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ai/images/juke-insert.png" alt="Clicking insert icon will copy the text into the respective field" width="665w">
+</div>
+</div>
+<div class="paragraph">
+<p>If Juke provides multiple field values, you may use the <code>Insert all</code> icon to insert all values into the form with a single click.</p>
+</div>
+<div class="paragraph">
+<p>Finally, the <code>Copy to buffer</code> icon will copy the text to your clipboard, allowing you to paste it manually later.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="variants"><a class="link" href="#variants">Variants</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>On demand, Juke may provide multiple variants for a single field. Use the arrow icons next to the response which you can use to navigate through the suggestions, and insert values as required.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ai/images/juke-variants.png" alt="Ask for multiple suggestions related to a field" width="634w">
+</div>
+</div>
+<div class="paragraph">
+<p>Sample prompts:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Give 3 variants of <code>@Teaser</code> and <code>@Display Name</code></p>
+</li>
+<li>
+<p>Make 2 suggestions for <code>@Abstract</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="general_instructions"><a class="link" href="#general_instructions">General instructions</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You may provide a standard prompt for Juke. These instructions may be specified at a project or site level.</p>
+</div>
+<div class="paragraph">
+<p>For instance, you may want Juke to use a consistent tone of voice or provide other relevant details about the content you are working on. This helps Juke produce more relevant responses every time.</p>
+</div>
+<div class="paragraph">
+<p>By adding the <code>Juke AI Content Operator</code> application to your project or site, you may provide <code>custom instructions</code> as desired</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ai/images/juke-instructions.png" alt="Provide general instructions via app settings" width="733w">
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Working with application settings requires "Project owner" roles or higher.
 </td>
 </tr>
 </table>
@@ -573,7 +662,7 @@ For fragments and page templates the Page Components tree will be inside the fir
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-22 10:45:40 UTC
+Last updated 2025-04-22 11:17:04 UTC
 </div>
 </div>
 </body>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
-<title>Content Layers and localisation</title>
+<title>Layers and localisation</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,16 +437,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Content Layers and localisation</h1>
+<h1>Layers and localisation</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#concept">Concept</a></li>
 <li><a href="#how_it_works">How it works</a></li>
 <li><a href="#inheritance_model">Inheritance model</a></li>
+<li><a href="#listing_view">Listing view</a></li>
 <li><a href="#inheritance_types">Inheritance types</a></li>
-<li><a href="#localising_inherited_content">Localising inherited content</a></li>
-<li><a href="#layers_widget">Layers Widget</a></li>
+<li><a href="#localizing">Localizing</a></li>
+<li><a href="#ai-translation">AI translation</a>
+<ul class="sectlevel2">
+<li><a href="#general_instructions">General instructions</a></li>
+</ul>
+</li>
+<li><a href="#reset">Reset</a></li>
+<li><a href="#layers_panel">Layers Panel</a></li>
 <li><a href="#management">Management</a></li>
 </ul>
 </div>
@@ -455,7 +462,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Content Studio is offering an advanced concept called Content Layers. A layer is essentially a <a href="projects.ahtml">Content project</a> that inherits content from a parent project.</p>
+<p>Content Studio offers an advanced concept for localization called Layering</p>
 </div>
 </div>
 </div>
@@ -463,10 +470,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="concept"><a class="link" href="#concept">Concept</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Inherited content can be edited in the local layer (localized), renamed, organized differently or even archived.</p>
+<p>Layers are essentially a <a href="projects.ahtml">Content project</a> that inherits content from a different project.</p>
 </div>
 <div class="paragraph">
-<p>New content can be created, modified and published within a layer, just like for any other project.</p>
+<p>Inherited content can be edited (localised), renamed, re-organized, published or even archived within a single layer. You may also create new content, just like you would in a regular project.</p>
+</div>
+<div class="paragraph">
+<p>Layers are created and managed just like any other project, but you must specify a parent project, from where it will inherit content.</p>
 </div>
 </div>
 </div>
@@ -474,17 +484,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="how_it_works"><a class="link" href="#how_it_works">How it works</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You can have as many layers as you need, for instance: Project <strong>A</strong> can have a child project <strong>B</strong> which has a child
+<p>You may have any number of layers, organlized in different ways based on your requirements. Here are some examples</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Nested layers</dt>
+<dd>
+<p>Project <strong>A</strong> has a child project <strong>B</strong> which has a child
 project <strong>C</strong> (and so on).</p>
-</div>
-<div class="paragraph">
-<p>There may also exist multiple child layers, so <strong>B'</strong> may also inherit from project <strong>A</strong>.</p>
-</div>
-<div class="paragraph">
-<p>Content changes will be propagated through the different layers automatically.</p>
-</div>
-<div class="paragraph">
-<p>For a single content item, propagation will stop if the content has been localized in a specific layer.</p>
+</dd>
+<dt class="hdlist1">Siblings</dt>
+<dd>
+<p>You may have multiple children so both <strong>B</strong> and <strong>B'</strong> inherit from project <strong>A</strong>.</p>
+</dd>
+</dl>
 </div>
 </div>
 </div>
@@ -492,77 +505,40 @@ project <strong>C</strong> (and so on).</p>
 <h2 id="inheritance_model"><a class="link" href="#inheritance_model">Inheritance model</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>With the example above, any content created in <strong>A</strong> will be automatically appear in the child <strong>B</strong> and the grand-child <strong>C</strong>.</p>
+<p>Changes to content in a parent layer automatically propagates to child layers unless the item has been localized in the specific layer.</p>
 </div>
 <div class="paragraph">
-<p>If the content is then modified in <strong>B</strong> it will no longer get updates from <strong>A</strong>, but new modifications will still be synchronised from <strong>B</strong> down to <strong>C</strong>.</p>
+<p>Example from the above structure:</p>
 </div>
 <div class="paragraph">
-<p>If you modify a content in the layer <strong>C</strong>, it will stop inheriting content changes from the layer <strong>B</strong>. However, the same content in <strong>B</strong> still
-inherits content changes from its parent project <strong>A</strong>, until it&#8217;s localised in <strong>B</strong> as well.</p>
+<p>Content in project <strong>A</strong> will be automatically propagate to <strong>B</strong>, and from there to <strong>C</strong>. If <strong>B</strong> gets localized, it will no longer recieve updates from <strong>A</strong>. The modified content from <strong>B</strong> will however still trickle down to <strong>C</strong>.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="inheritance_types"><a class="link" href="#inheritance_types">Inheritance types</a></h2>
+<h2 id="listing_view"><a class="link" href="#listing_view">Listing view</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To enable different actions on an while keeping as much of the inheritance going, there are 4 different types of values that are supported independently:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>content data</p>
-</li>
-<li>
-<p>sorting</p>
-</li>
-<li>
-<p>parent (location in content tree)</p>
-</li>
-<li>
-<p>and name</p>
-</li>
-</ul>
+<p>Inherited content in the navigator list will appear as dimmed, providing a visual difference from content that has been localized, or created directly in this layer.</p>
 </div>
 <div class="paragraph">
-<p>This means, for example, if a child layer <strong>B</strong> has inherited an entire website from its parent <strong>A</strong>, you can change sorting order of content items inside this site in <strong>B</strong>. This will stop inheritance of <em>sorting</em> from <strong>A</strong>, however inheritance of <em>content data</em>, <em>name</em>, and <em>parent</em> will still continue.</p>
-</div>
-<div class="paragraph">
-<p>Another example, is that you can move a content to a different location in the tree (change parent content), but it will still be inheriting <em>data</em>, <em>name</em> and <em>sorting</em>.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="localising_inherited_content"><a class="link" href="#localising_inherited_content">Localising inherited content</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>In the Content Navigator localised content will be greyed out, providing visual difference from a local content manually created directly in this layer.</p>
+<p>Also, all inherited items will have a small blue cloud icon next to it - regardless if it is has been localized or not.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="layers/images/layer-localisation.png" alt="Layer localisation" width="457">
+<img src="layers/images/layer-localisation.png" alt="Locally created item is not dimmed" width="457">
 </div>
 </div>
 <div class="paragraph">
-<p>To localise (translate) an inherited content item, select it in the content tree and click <strong>Localise</strong> button in the Content Navigator toolbar</p>
+<p>Sample structure with a single local item</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="layers/images/layer-localisation-1.png" alt="Content localisation" width="457">
+<img src="layers/images/layer-localisation-2.png" alt="Content localisation" width="457">
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<strong>Edit</strong> button is replaced with <strong>Localise</strong> for inherited content.
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>Here the "Search" item is localized to "Søk". The content name has also been localized to "sok".</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -576,64 +552,65 @@ Language shown in brackets after content&#8217;s display name means shows that l
 </tr>
 </table>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="inheritance_types"><a class="link" href="#inheritance_types">Inheritance types</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The <strong>Localize</strong> button will open the Content Wizard for the selected content item and set language of the current layer for the item. You
-can now translate the content to language of the layer or make any other changes. When you save the changes, the content item will no longer be considered inherited and changes made for this item in the parent project/layer will no longer be synchronised down to this layer.</p>
+<p>To make the inheritance flexible, there are four different kinds of inhertance:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>data (your content)</p>
+</li>
+<li>
+<p>sorting (of child items)</p>
+</li>
+<li>
+<p>parent (location in tree structure)</p>
+</li>
+<li>
+<p>and name (name in tree)</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p>In the example below, "<em>Search</em>" page from the parent project with English language was localised in the Norwegian layer and translated to "<em>Søk</em>".</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="layers/images/layer-localisation-2.png" alt="Content localisation" width="457">
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-The purpose of the blue "cloud" icon over the content item icon is to distinguish localised inherited content from local content created
-directly in this layer (like "<em>Local page</em>" in the example above).
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>As mentioned above, it&#8217;s possible to rearrange inherited content without localising it. The same goes for sorting. In the example below
-the "<em>Search</em>" page was moved under "<em>Posts</em>" folder but is still inheriting content changes from the parent project.</p>
+<p>An example of how this works is that you can move a content to a different location in the tree (change parent), but it <em>data</em>, <em>name</em> and <em>sorting</em> will still be inherited from the parent</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="layers/images/layer-localisation-3.png" alt="Content localisation" width="457">
 </div>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="localizing"><a class="link" href="#localizing">Localizing</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>You can reset changes made for an inherited item and restore inheritance from the parent level by clicking <strong>Reset</strong> button in the Content Wizard.</p>
+<p>To localize an inherited item, simply select it and click <b class="button">Localize</b>.</p>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="layers/images/layer-content-reset.png" alt="Reset localisation" width="617">
-</div>
-</div>
-<div class="admonitionblock important">
+<div class="admonitionblock note">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-important" title="Important"></i>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-All changes made to the content item in the current layer will be lost.
+For inherited items <b class="button">Edit</b> is replaced with <b class="button">Localize</b>
 </td>
 </tr>
 </table>
 </div>
+<div class="paragraph">
+<p>This should open the Content Editor. You may now edit and publish the item as if it was created locally. This process effectively terminates further inheritance from the parent item.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="layers_widget"><a class="link" href="#layers_widget">Layers Widget</a></h2>
+<h2 id="ai-translation"><a class="link" href="#ai-translation">AI translation</a></h2>
 <div class="sectionbody">
 <div class="admonitionblock note">
 <table>
@@ -642,7 +619,68 @@ All changes made to the content item in the current layer will be lost.
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The Layers widget is bundled with <a href="../.ahtml#content_studio">Content Studio+</a> application available only for users with Enonic license.
+The <a href="https://market.enonic.com/vendors/enonic/ai-translator">Juke AI translator</a> application must be installed to access the features described in this section
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>With the Juke AI translator enabled, clicking <b class="button">Localize</b> will instantly reveal the translation dialog. Here you may optionally provide detailed instructions, or simply hit <b class="button">Translate</b>. This will automatically translate all text fields within your content - just watch it go.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="layers/images/juke-translator.png" alt="Juke AI translator dialog" width="907">
+</div>
+</div>
+<div class="sect2">
+<h3 id="general_instructions"><a class="link" href="#general_instructions">General instructions</a></h3>
+<div class="paragraph">
+<p>Often, it can be useful to provide standard translation instructions for your content. By adding the application to your project or site, you may configure standard translation instructions that will be used throughout the scope of your content.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="layers/images/juke-translator-settings.png" alt="Form to configure general translation instructions" width="744">
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Changing these settings require <code>Project Owner</code> role or higher.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="reset"><a class="link" href="#reset">Reset</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You may reset a localized item by clicking <b class="button">Reset</b> from within the content editor. This will effectively return the item to its original inherited state.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="layers/images/layer-content-reset.png" alt="Reset localisation" width="617">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="layers_panel"><a class="link" href="#layers_panel">Layers Panel</a></h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <a href="https://market.enonic.com/vendors/enonic/content-studio-plus">Content Studio+</a> application must be installed to access the features described in this section
 </td>
 </tr>
 </table>
@@ -651,18 +689,20 @@ The Layers widget is bundled with <a href="../.ahtml#content_studio">Content Stu
 <p>The Layers widget enables user to see status of a specific content item in all existing layers in the system.</p>
 </div>
 <div class="paragraph">
-<p>Box of the current layer is highlighted with blue border, and you can see how many layers there are above (<em>Ascendants</em>)
-and below (<em>Descendants</em>) the current one. Each box has an action button (<strong>Localise</strong> or <strong>Edit</strong> for the current layer and <strong>Open</strong> for other layers)
-which can be displayed if you expand the box with a left-click.</p>
+<p>The current layer is highlighted with blue border. You can also see how many parents (<em>Ascendants</em>)
+and children (<em>Descendants</em>) the current item has.</p>
+</div>
+<div class="paragraph">
+<p>By clicking an item, a related action button will appear.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="layers/images/layer-widget-1.png" alt="Layers Widget" width="240">
+<img src="layers/images/layer-widget-1.png" alt="Layers Widget" width="275">
 </div>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="layers/images/layer-widget-3.png" alt="Layers Widget" width="240">
+<img src="layers/images/layer-widget-3.png" alt="Layers Widget" width="274">
 </div>
 </div>
 <div class="paragraph">
@@ -670,7 +710,7 @@ which can be displayed if you expand the box with a left-click.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="layers/images/layer-widget-2.png" alt="Layers Widget" width="240">
+<img src="layers/images/layer-widget-2.png" alt="Layers Widget" width="274">
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -716,18 +756,13 @@ Read about the high-level concept of Content Layers <a href="https://developer.e
 <div class="sect1">
 <h2 id="management"><a class="link" href="#management">Management</a></h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p>Layers are created and managed just like any other project. The only notable difference is that you select a parent project to inherit content from.</p>
-</div>
-<div class="paragraph">
-<p>More details are available in the <a href="settings.ahtml">settings chapter</a></p>
-</div>
+
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-22 10:45:38 UTC
+Last updated 2025-04-22 11:17:04 UTC
 </div>
 </div>
 </body>

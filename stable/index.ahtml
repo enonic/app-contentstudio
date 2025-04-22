@@ -441,10 +441,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#introduction">Introduction</a></li>
+<li><a href="#intro_videos">Intro videos</a></li>
 <li><a href="#overview">Overview</a></li>
+<li><a href="#go_beyond">Go beyond</a></li>
 <li><a href="#browser_support">Browser support</a></li>
-<li><a href="#content_studio">Content Studio+</a></li>
 <li><a href="#release_notes">Release notes</a></li>
 </ul>
 </div>
@@ -453,13 +453,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Content Management interface for Enonic XP</p>
+<p>Enonic XP&#8217;s Content Management interface</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
-<div class="sectionbody">
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -467,7 +462,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<strong>Install?</strong> Content Studio is available as an application for Enonic XP, and can be installed from <a href="https://market.enonic.com/vendors/enonic/content-studio">Enonic Market</a>
+Content Studio can be installed from <a href="https://market.enonic.com/vendors/enonic/content-studio">Enonic Market</a>
 </td>
 </tr>
 </table>
@@ -475,15 +470,18 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
+<h2 id="intro_videos"><a class="link" href="#intro_videos">Intro videos</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We have compiled a page packed with short videos demonstrating Content Studio&#8217;s features and capabilities. <a href="https://www.enonic.com/resources/content-studio-videos">Check it out</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="overview"><a class="link" href="#overview">Overview</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Content Studio provides editors with an efficient way of creating, and curating content without technical skills.
-A core concept is that any content item has a specific <a href="content-types.ahtml">Content type</a>.</p>
-</div>
-<div class="paragraph">
-<p>A set of standard content types come with the system, but the real benefit lies in custom defined content types.
-Custom content types are defined by developers, and provided through apps.</p>
+<p>Content Studio provide editors with an efficient way of creating and curating content without technical skills.</p>
 </div>
 <div class="paragraph">
 <p>Content is organized within <a href="projects.ahtml">Content Projects</a>. Content can be re-used, localized or augmented across different projects through a feature called <a href="layers.ahtml">content layering</a>.</p>
@@ -492,7 +490,18 @@ Custom content types are defined by developers, and provided through apps.</p>
 <p>Editors will commonly use the <a href="navigator.ahtml">navigator panel</a> to browse, search and perform actions on one or more items.</p>
 </div>
 <div class="paragraph">
-<p><a href="issues.ahtml">Issues</a> can be created and assigned to users of Content Studio in order to get stuff done, and assist with workflow related tasks, such as getting content published.</p>
+<p>The <a href="editor.ahtml">content editor</a> offers a consistent and intuitive interface for editing and previewing your content.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="go_beyond"><a class="link" href="#go_beyond">Go beyond</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Content Studio is free and open source, but also highly extendable. A subscription gives you access to licensed applications that extend Content Studio with advanced capabilities like an <a href="ai.ahtml">AI assistant</a>, the <a href="archive.ahtml">archive browser</a> and <a href="layers.ahtml#ai-translation">automated translations</a>.</p>
+</div>
+<div class="paragraph">
+<p>Visit Enonic Market for the <a href="https://market.enonic.com/licensed">complete list of licensed applications</a></p>
 </div>
 </div>
 </div>
@@ -500,29 +509,7 @@ Custom content types are defined by developers, and provided through apps.</p>
 <h2 id="browser_support"><a class="link" href="#browser_support">Browser support</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Content Studio works in all modern browsers.  We are explicitly testing it and supporting it for the latest versions of
-Google Chrome, Apple Safari, Mozilla Firefox and Microsoft Edge.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="content_studio"><a class="link" href="#content_studio">Content Studio+</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>An extended version of Content Studio called "<strong>Content Studio+</strong>" contains additional features that expand standard functionality of the app.
-This application can be installed directly from the <a href="https://market.enonic.com/vendors/enonic/content-studio-plus">Enonic Market</a>.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<strong>Content Studio+</strong> requires XP 7.6.0 (or higher) and is available only for subscription customers with a valid license from Enonic
-</td>
-</tr>
-</table>
+<p>Content Studio works in all modern browsers.  We are explicitly testing it and supporting it for the latest versions of Google Chrome, Apple Safari, Mozilla Firefox and Microsoft Edge.</p>
 </div>
 </div>
 </div>
@@ -537,7 +524,7 @@ This application can be installed directly from the <a href="https://market.enon
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-22 10:45:38 UTC
+Last updated 2025-04-22 11:17:04 UTC
 </div>
 </div>
 </body>

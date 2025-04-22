@@ -441,6 +441,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
+<li><a href="#first_project">First project</a></li>
+<li><a href="#project_selector">Project selector</a></li>
 <li><a href="#project_context">Project context</a></li>
 <li><a href="#project_layering">Project layering</a></li>
 </ul>
@@ -450,13 +452,39 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Content Studio allows you to organize your content in multiple independent repositories.</p>
+<p>Content Studio allows you to organize your content in multiple independent repositories aka Projects.</p>
 </div>
 <div class="paragraph">
 <p>Content Projects also offer individual access control and permissions, as well as other settings to toggle features and language(s) for the project.</p>
 </div>
 <div class="paragraph">
-<p>Privileged users can manage projects via <a href="settings.ahtml">Content Studio settings</a>.</p>
+<p>Privileged users can create and manage projects via <a href="settings.ahtml">Content Studio settings</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="first_project"><a class="link" href="#first_project">First project</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For new Enonic installations, you will have to <a href="settings.ahtml#new_project_wizard">create an project</a> to get started.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="projects/images/context-no-projects.png" alt="No projects" width="987w">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="project_selector"><a class="link" href="#project_selector">Project selector</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you have access to multiple projects, you can easily swich to a different project in the context selector</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="projects/images/project-switcher.png" alt="Project switcher" width="1226w">
+</div>
 </div>
 </div>
 </div>
@@ -464,28 +492,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="project_context"><a class="link" href="#project_context">Project context</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The project context is always visible in the Content Studio header. If you have access to multiple projects, you can easily swich to a different project in the context selector:
-Project context can be switched at any time by using project selector in the Content Studio header:</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/project-switcher.png" alt="Project switcher" width="1226w">
-</div>
-</div>
-<div class="paragraph">
-<p>The project is also visible when you are editing a single content item:</p>
+<p>The project context is always visible in the Content Studio header, including when you are editing a single content item:</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="projects/images/content-wizard-context.png" alt="Context in Content Wizard" width="789w">
-</div>
-</div>
-<div class="paragraph">
-<p>For new Enonic installations, you will have to <a href="settings.ahtml#new_project_wizard">create an initial content project</a>.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/context-no-projects.png" alt="No projects" width="987w">
 </div>
 </div>
 </div>
@@ -501,7 +512,7 @@ Project context can be switched at any time by using project selector in the Con
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-22 10:45:38 UTC
+Last updated 2025-04-22 11:17:04 UTC
 </div>
 </div>
 </body>
