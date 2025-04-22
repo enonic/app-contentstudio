@@ -33,6 +33,24 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await studioUtils.doAddFolder(FOLDER_1);
         });
 
+    // Verify the bug - Dropdown should open on down arrow #3966
+    // https://github.com/enonic/lib-admin-ui/issues/3966
+    it(`GIVEN wizard with content-selector is opened WHEN 'Arrow Down' key has been pressed in the selector THEN selector should be expanded in in tree mode`,
+        async () => {
+            let contentSelectorForm = new ContentSelectorForm();
+            // 1. Wizard for Content-Selector in tree mode is opened:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_2_8);
+            // 2. Move the focus to the selector:
+            await contentSelectorForm.clickInOptionsFilterInput();
+            // 3. Press the Arrow Down key:
+            await contentSelectorForm.pressArrowDown();
+            await studioUtils.saveScreenshot('selector_tree_mode_arrow_down_pressed');
+            // 4. Verify that options in the expanded selector(tree mode):
+            let items = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
+            assert.ok(items.includes(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME),
+                'Expected folder should be displayed in the expanded list');
+        });
+
     // Verifies Content selector in tree mode not reloaded after clearing input #8525
     // https://github.com/enonic/app-contentstudio/issues/8525
     it(`GIVEN a text has been inserted/cleared in Options Filter Input WHEN filter input has been cleared THEN options should be reloaded in tree mode`,
