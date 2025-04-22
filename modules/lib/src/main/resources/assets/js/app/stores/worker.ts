@@ -16,7 +16,7 @@ import {
     SubscribeWorkerMessage,
     UnsubscribeWorkerMessage
 } from './data/worker';
-
+import {SharedSocketProxy} from './utils/SharedSocketProxy';
 type WorkerLifecycle = 'mounting' | 'mounted' | 'unmounting' | 'unmounted';
 
 type WorkerState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected';
@@ -25,7 +25,7 @@ interface WorkerStore {
     lifecycle: WorkerLifecycle;
     state: WorkerState;
     ready: boolean;
-    connection: Optional<SharedWorker>;
+    connection: Optional<SharedSocketProxy>;
     clientId: Optional<string>;
     online: boolean;
 }
@@ -114,30 +114,14 @@ function connect(): void {
     cleanup(connection);
 
     const sharedSocketUrl = CONFIG.getString('sharedSocketUrl');
-    const worker = new SharedWorker(sharedSocketUrl, {type: 'module'});
+    const proxy = new SharedSocketProxy(sharedSocketUrl);
 
-    worker.onerror = event => {
-        // TODO: Handle error
-        console.error(event);
-    };
+    proxy.onMessage(handleMessage);
 
-    worker.port.onmessageerror = event => {
-        // TODO: Handle error
-        console.error(event);
-    };
-
-    $worker.setKey('connection', worker);
+    $worker.setKey('connection', proxy);
     $worker.setKey('state', 'connecting');
 
-    worker.port.addEventListener('message', event => {
-        handleMessage(event as MessageEvent<OutWorkerMessage>);
-    });
-
-    worker.port.addEventListener('error', event => {
-        console.error(event);
-    });
-
-    worker.port.start();
+    proxy.open();
 }
 
 function disconnect(): void {
@@ -157,11 +141,11 @@ function handleOffline(): void {
     $worker.setKey('online', false);
 }
 
-function cleanup(worker: Optional<SharedWorker>): void {
-    worker?.port.close();
+function cleanup(proxy: Optional<SharedSocketProxy>): void {
+    proxy?.close();
 
     const {connection} = $worker.get();
-    if (worker !== connection) {
+    if (connection !== proxy) {
         return;
     }
 
@@ -190,9 +174,7 @@ function handleDisconnected(): void {
 //* Receive
 //
 
-function handleMessage(event: MessageEvent<OutWorkerMessage>): void {
-    const message = event.data;
-
+function handleMessage(message: OutWorkerMessage): void {
     switch (message.type) {
         case 'connected':
             handleConnected(message);
@@ -216,7 +198,7 @@ function handleMessage(event: MessageEvent<OutWorkerMessage>): void {
 //* Listeners
 //
 
-export function subscribe(listener: ReceivedListener = () => {}): () => void {
+export function subscribe(listener: ReceivedListener = () => { }): () => void {
     const wasEmpty = _listeners.size === 0;
 
     _listeners.add(listener);
@@ -242,7 +224,7 @@ function unsubscribe(listener: ReceivedListener): void {
 
 function sendInit(): void {
     const {connection} = $worker.get();
-    connection?.port.postMessage({
+    connection?.send({
         type: 'init',
         payload: {wsUrl: CONFIG.getString('services.eventsUrl')},
     } satisfies InitWorkerMessage);
@@ -250,7 +232,7 @@ function sendInit(): void {
 
 export function subscribeToOperation(operation: string): void {
     const {connection} = $worker.get();
-    connection?.port.postMessage({
+    connection?.send({
         type: 'subscribe',
         payload: {operation},
     } satisfies SubscribeWorkerMessage);
@@ -258,15 +240,16 @@ export function subscribeToOperation(operation: string): void {
 
 export function unsubscribeFromOperation(operation: string): void {
     const {connection} = $worker.get();
-    connection?.port.postMessage({
+    connection?.send({
         type: 'unsubscribe',
         payload: {operation},
     } satisfies UnsubscribeWorkerMessage);
 }
+
 function sendMessage(message: InMessage): void {
     const {connection, state} = $worker.get();
     if (connection && state === 'connected') {
-        connection.port.postMessage({type: 'send', payload: message} satisfies SendWorkerMessage);
+        connection.send({type: 'send', payload: message} satisfies SendWorkerMessage);
     }
 }
 
@@ -277,21 +260,25 @@ function sendMessage(message: InMessage): void {
 export function sendJoin(contentId: string, project: string): void {
     const {clientId} = $worker.get();
     if (clientId) {
-        sendMessage({type: MessageType.JOIN, payload: {
-            contentId,
-            project,
-            clientId,
-        }} satisfies JoinMessage);
+        sendMessage({
+            type: MessageType.JOIN, payload: {
+                contentId,
+                project,
+                clientId,
+            }
+        } satisfies JoinMessage);
     }
 }
 
 export function sendLeave(contentId: string, project: string): void {
     const {clientId} = $worker.get();
     if (clientId) {
-        sendMessage({type: MessageType.LEAVE, payload: {
-            contentId,
-            project,
-            clientId,
-        }} satisfies LeaveMessage);
+        sendMessage({
+            type: MessageType.LEAVE, payload: {
+                contentId,
+                project,
+                clientId,
+            }
+        } satisfies LeaveMessage);
     }
 }

@@ -1,12 +1,18 @@
+import {initialize as initializeFallback} from './fallback/init';
 import {initialize as initializeSharedWorker} from './worker/init';
 
-export function isSharedWorkerScope(scope: WindowOrWorkerGlobalScope): scope is SharedWorkerGlobalScope {
-    return 'onconnect' in scope;
+function isSharedWorkerScope(scope: WindowOrWorkerGlobalScope): scope is SharedWorkerGlobalScope {
+    return self !== undefined && 'onconnect' in scope;
 }
 
-if (!isSharedWorkerScope(self)) {
-    // TODO: Initialize the WebSocket directly in the main thread
-    throw new Error('Script is not executed in a SharedWorker.');
-} else {
+function isSharedWorkerSupported(): boolean {
+    return typeof SharedWorker !== 'undefined';
+}
+
+if (isSharedWorkerScope(self)) {
     initializeSharedWorker(self);
+} else if (!isSharedWorkerSupported()) {
+    initializeFallback();
+} else {
+    throw new Error('Script must be executed in a SharedWorker.');
 }
