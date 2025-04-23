@@ -765,10 +765,13 @@ class ContentWizardPanel extends Page {
         return this.getBrowser().keys(['Control', 'Alt', 'p']);
     }
 
-    waitForShowPublishMenuButtonVisible() {
-        return this.waitForElementDisplayed(this.publishDropDownHandle, appConst.mediumTimeout).catch(err => {
+    // dropdown handle in ContentWizardPublishMenuButton selector:
+    async waitForShowPublishMenuButtonVisible() {
+        try {
+            await this.waitForElementDisplayed(this.publishDropDownHandle, appConst.mediumTimeout)
+        } catch (err) {
             throw new Error("Wizard - drop down handle in Publish menu is not visible!" + err);
-        })
+        }
     }
 
     async waitForMarkAsReadyButtonVisible() {
@@ -1229,6 +1232,11 @@ class ContentWizardPanel extends Page {
 
     async getNoPreviewMessage() {
         let locator = XPATH.container + lib.LIVE_VIEW.NO_PREVIEW_MSG_SPAN;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
+    }
+    async get500ErrorText() {
+        let locator = "//h3";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }

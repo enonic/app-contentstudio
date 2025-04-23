@@ -41,7 +41,9 @@ describe('Custom error handling - specification. Verify that application error p
             await contentWizard.waitForHidePageEditorTogglerButtonDisplayed();
             await contentWizard.waitForMinimizeLiveEditTogglerDisplayed()
             // 5. Verify that 'Failed to render content preview' message appears in the wizard page:
-            await contentWizard.waitForErrorMessageInLiveFormPanel(ERROR_MESSAGE_LIVE_EDIT);
+            let messages = await contentWizard.getNoPreviewMessage();
+            assert.ok(messages.includes(ERROR_MESSAGE_LIVE_EDIT), "Expected message should be displayed in the LivView");
+            assert.ok(messages.includes('Please check logs for errors'), "Expected message should be displayed in the LivView");
             await studioUtils.doCloseCurrentBrowserTab();
             await studioUtils.doSwitchToContentBrowsePanel();
             // 6. Verify that 'Preview' button is disabled in the browse panel toolbar:
@@ -50,7 +52,22 @@ describe('Custom error handling - specification. Verify that application error p
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
         });
 
-    it(`GIVEN existing site(controller has a error) has been selected WHEN 'Enonic rendering' has been selected in Preview Dropdown THEN expected error message should be displayed in the Preview Panel`,
+    it(`GIVEN existing site(controller has errors) has been opened WHEN 'Enonic rendering' has been selected in Wizard LivView THEN expected error message should be displayed in the Preview Panel`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            // 1. Select the site:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            // 2. Select 'Enonic rendering' in the Preview Dropdown:
+            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
+            // 3. Verify the error message in the LiveView:
+            await contentWizard.switchToLiveEditFrame()
+            let actualResult = await contentWizard.get500ErrorText();
+            assert.equal(actualResult[0], '500 - Internal Server Error', "Expected message should be displayed in the Wizard LiveView");
+            // 4. Verify the Preview button is enabled in the wizard toolbar:
+            await contentWizard.switchToParentFrame();
+            await contentWizard.waitForPreviewButtonEnabled();
+        });
+    it(`GIVEN existing site(controller has errors) has been selected WHEN 'Enonic rendering' has been selected in Preview Dropdown THEN expected error message should be displayed in the Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select the site:
