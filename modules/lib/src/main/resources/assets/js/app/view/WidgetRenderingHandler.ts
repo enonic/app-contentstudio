@@ -158,7 +158,11 @@ export class WidgetRenderingHandler {
             this.renderer.addClass('widget-preview');
             break;
         }
-        case PREVIEW_TYPE.FAILED:
+        case PREVIEW_TYPE.FAILED: {
+            this.renderer.addClass('message-preview');
+            this.showPreviewMessages(messages || [i18n('field.preview.failed'), i18n('field.preview.failed.description')]);
+            break;
+        }
         case PREVIEW_TYPE.MISSING: {
             this.renderer.addClass('message-preview');
             this.showPreviewMessages(messages || [i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
@@ -209,7 +213,7 @@ export class WidgetRenderingHandler {
             switch (statusCode) {
             case StatusCode.NOT_FOUND:
             case StatusCode.I_AM_A_TEAPOT:
-                this.setPreviewType(PREVIEW_TYPE.FAILED, messages || [this.getDefaultMessage()]);
+                this.setPreviewType(PREVIEW_TYPE.MISSING, messages || [this.getDefaultMessage()]);
                 break;
             default:
                 this.setPreviewType(PREVIEW_TYPE.FAILED, messages);
