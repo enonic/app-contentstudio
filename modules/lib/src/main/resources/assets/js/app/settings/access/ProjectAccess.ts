@@ -8,7 +8,7 @@ export enum ProjectAccess {
     AUTHOR = 'author'
 }
 
-export const PROJECT_ACCESS_OPTIONS: AccessOption[] = [
+export const getProjectAccessOptions = (): AccessOption[] => [
     {id: ProjectAccess.OWNER, displayName: i18n('settings.projects.access.owner')},
     {id: ProjectAccess.EDITOR, displayName: i18n('settings.projects.access.editor')},
     {id: ProjectAccess.CONTRIBUTOR, displayName: i18n('settings.projects.access.contributor')},
