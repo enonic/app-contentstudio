@@ -15,13 +15,13 @@ function localise(locale, key) {
     });
 }
 
-function handleGet() {
+function handleGet(req) {
     const view = resolve('./stats.html');
     const projects = helper.getProjects();
     const contentItemsCount = '' + countItemsInRepos(projects);
     const languagesCount = '' + countLanguagesInRepos(projects);
     const openIssuesCount = '' + countIssuesInRepos(projects);
-    const locales = adminLib.getLocales();
+    const locales = req.locales
 
     const params = {
         projectsCount: projects.length,

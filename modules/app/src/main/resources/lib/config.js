@@ -41,7 +41,7 @@ function getConfig(locales) {
         allowContentUpdate,
         excludeDependencies,
         allowPathTransliteration,
-        adminUrl: admin.getBaseUri(),
+        adminUrl: admin.getHomeToolUrl(),
         assetsUri: portal.assetUrl({
             path: ''
         }),
