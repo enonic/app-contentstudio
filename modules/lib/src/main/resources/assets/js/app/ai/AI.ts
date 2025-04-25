@@ -88,8 +88,8 @@ export class AI {
         this.aiContentDataHelper = new AiContentDataHelper();
         this.aiToolHelper = AiToolHelper.get();
 
-        const hasPlugins = Object.keys(window.Enonic?.AI ?? {}).length > 0;
-        if (!hasPlugins) {
+        const isAiEnabled = CONFIG.isTrue('aiEnabled');
+        if (!isAiEnabled) {
             return;
         }
 
@@ -103,35 +103,45 @@ export class AI {
         AiContentOperatorInteractionEvent.on(this.handleInteractionEvent);
         AiTranslatorNoLicenseEvent.on(this.handleNoLicenseEvent);
 
-        this.getContentOperator()?.setup({
-            wsServiceUrl: CONFIG.getString('services.aiContentOperatorWsServiceUrl')
-        });
-        this.getTranslator()?.setup({
-            licenseServiceUrl: CONFIG.getString('services.aiTranslatorLicenseServiceUrl'),
-            wsServiceUrl: CONFIG.getString('services.aiTranslatorWsServiceUrl')
-        });
+        AI.onAILoaded(() => {
+            this.getContentOperator()?.setup({
+                wsServiceUrl: CONFIG.getString('services.aiContentOperatorWsServiceUrl')
+            });
+            this.getTranslator()?.setup({
+                licenseServiceUrl: CONFIG.getString('services.aiTranslatorLicenseServiceUrl'),
+                wsServiceUrl: CONFIG.getString('services.aiTranslatorWsServiceUrl')
+            });
 
-        ProjectContext.get().whenInitialized(() => {
-            new AiUpdateDataEvent({language: this.createContentLanguage()}).fire();
+            ProjectContext.get().whenInitialized(() => {
+                new AiUpdateDataEvent({language: this.createContentLanguage()}).fire();
 
-            const tag = ProjectContext.get().getProject().getLanguage();
-            void new GetLocalesRequest().setSearchQuery(tag).sendAndParse().then((locales) => {
-                this.setLocales(locales);
+                const tag = ProjectContext.get().getProject().getLanguage();
+                void new GetLocalesRequest().setSearchQuery(tag).sendAndParse().then((locales) => {
+                    this.setLocales(locales);
+                }).catch(DefaultErrorHandler.handle);
+            });
+
+            void new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+                const currentUser = loginResult.getUser();
+                const fullName = currentUser.getDisplayName();
+                const names = fullName.split(' ').map(word => word.substring(0, 1));
+                const shortName = (names.length >= 2 ? names.join('') : fullName).substring(0, 2).toUpperCase();
+                const user = {fullName, shortName} as const;
+                new AiContentOperatorConfigureEvent({user}).fire();
             }).catch(DefaultErrorHandler.handle);
         });
-
-        void new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            const currentUser = loginResult.getUser();
-            const fullName = currentUser.getDisplayName();
-            const names = fullName.split(' ').map(word => word.substring(0, 1));
-            const shortName = (names.length >= 2 ? names.join('') : fullName).substring(0, 2).toUpperCase();
-            const user = {fullName, shortName} as const;
-            new AiContentOperatorConfigureEvent({user}).fire();
-        }).catch(DefaultErrorHandler.handle);
     }
 
     static get(): AI {
         return AI.instance ?? (AI.instance = new AI());
+    }
+
+    private static onAILoaded(callback: () => void) {
+        if (document.readyState === 'complete') {
+            callback();
+        } else {
+            window.addEventListener('load', callback, {once: true});
+        }
     }
 
     setContent(content: Content): void {
@@ -195,12 +205,12 @@ export class AI {
 
     private notifyInstructionsChanged(plugin: EnonicAiPlugin, instructions: string): void {
         switch (plugin) {
-        case 'contentOperator':
-            new AiContentOperatorConfigureEvent({instructions}).fire();
-            break;
-        case 'translator':
-            new AiTranslatorConfigureEvent({instructions}).fire();
-            break;
+            case 'contentOperator':
+                new AiContentOperatorConfigureEvent({instructions}).fire();
+                break;
+            case 'translator':
+                new AiTranslatorConfigureEvent({instructions}).fire();
+                break;
         }
     }
 
@@ -288,9 +298,9 @@ export class AI {
         const pathWithGroup = `${AiContentDataHelper.DATA_PREFIX}${event.path.startsWith('/') ? '' : '/'}${event.path}`;
 
         switch (event.interaction) {
-        case 'click':
-            this.handleClickInteractionEvent(pathWithGroup);
-            break;
+            case 'click':
+                this.handleClickInteractionEvent(pathWithGroup);
+                break;
         }
     }
 
