@@ -2,7 +2,6 @@
 
 const widgetLib = require('/lib/export/widget');
 const adminLib = require('/lib/xp/admin');
-const contextLib = require('/lib/xp/context');
 
 const SHORTCUT_TYPE = 'base:shortcut';
 
@@ -53,7 +52,7 @@ exports.canRender = function (req) {
 
 function createUrl(req, params) {
     const project = params.repository.substring('com.enonic.cms.'.length);
-    const baseUri = adminLib.getBaseUri();
+    const baseUri = adminLib.getHomeToolUrl();
     const normalizedBaseUri = baseUri === '/' ? '' : baseUri;
     return `${normalizedBaseUri}/site/${params.mode}/${project}/${params.branch}${params.path}`;
 }

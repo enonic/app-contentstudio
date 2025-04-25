@@ -40,6 +40,7 @@ dependencies {
     include "com.enonic.xp:lib-event:${xpVersion}"
     include "com.enonic.xp:lib-app:${xpVersion}"
     include "com.enonic.xp:lib-schema:${xpVersion}"
+    include "com.enonic.xp:lib-i18n:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
     include "com.enonic.lib:lib-mustache:2.1.1"
     include "com.enonic.lib:lib-http-client:3.2.2"
