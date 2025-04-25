@@ -1,10 +1,10 @@
 /*global app, resolve*/
 
 const admin = require('/lib/xp/admin');
-const appLib = require('/lib/xp/app');
 const mustache = require('/lib/mustache');
 const portal = require('/lib/xp/portal');
 const i18n = require('/lib/xp/i18n');
+const aiLib = require('/lib/ai');
 const configLib = require('/lib/config');
 
 const AI_TRANSLATOR_APP_KEY = 'com.enonic.app.ai.translator';
@@ -36,10 +36,10 @@ exports.renderTemplate = function (params) {
 
 exports.getParams = function (path, locales) {
     const isBrowseMode = path === admin.getToolUrl(app.name, 'main');
-    const aiContentOperatorApp = appLib.get({key: AI_CONTENT_OPERATOR_APP_KEY});
-    const aiTranslatorApp = appLib.get({key: AI_TRANSLATOR_APP_KEY});
-    const isAiContentOperatorEnabled = aiContentOperatorApp != null && aiContentOperatorApp.started && !isBrowseMode;
-    const isAiTranslatorEnabled = aiTranslatorApp != null && aiTranslatorApp.started && !isBrowseMode;
+
+    const isAiContentOperatorEnabled = aiLib.aiContentOperatorRunning && !isBrowseMode;
+    const isAiTranslatorEnabled = aiLib.aiTranslatorRunning && !isBrowseMode;
+    const isAiEnabled = isAiContentOperatorEnabled || isAiTranslatorEnabled;
 
     return {
         assetsUri: portal.assetUrl({path: ''}),
@@ -51,7 +51,7 @@ exports.getParams = function (path, locales) {
         aiContentOperatorAssetsUrl: isAiContentOperatorEnabled ? portal.assetUrl({application: AI_CONTENT_OPERATOR_APP_KEY}) : undefined,
         aiTranslatorAssetsUrl: isAiTranslatorEnabled ? portal.assetUrl({application: AI_TRANSLATOR_APP_KEY}) : undefined,
         configScriptId: configLib.configJsonId,
-        configAsJson: JSON.stringify(configLib.getConfig(locales), null, 4).replace(/<(\/?script|!--)/gi, "\\u003C$1"),
+        configAsJson: JSON.stringify(configLib.getConfig(locales, isAiEnabled), null, 4).replace(/<(\/?script|!--)/gi, "\\u003C$1"),
         isBrowseMode: isBrowseMode,
         aiLocales: locales ? locales.join(',') : '',
     };

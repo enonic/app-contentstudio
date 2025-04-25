@@ -22,7 +22,7 @@ function getPhrases(locales) {
     return phrases;
 }
 
-function getConfig(locales) {
+function getConfig(locales, aiEnabled) {
     const context = contextLib.get();
     const branch = context.branch;
     const allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
@@ -93,7 +93,8 @@ function getConfig(locales) {
             }
         }),
         user,
-        principals: authLib.getMemberships(user.key, true)
+        principals: authLib.getMemberships(user.key, true),
+        aiEnabled,
     };
 }
 
