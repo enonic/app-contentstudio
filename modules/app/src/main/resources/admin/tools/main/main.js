@@ -1,8 +1,8 @@
 const admin = require('/lib/xp/admin');
-const appLib = require('/lib/xp/app');
 const mustache = require('/lib/mustache');
 const portal = require('/lib/xp/portal');
 const i18n = require('/lib/xp/i18n');
+const aiLib = require('/lib/ai');
 
 const AI_TRANSLATOR_APP_KEY = 'com.enonic.app.ai.translator';
 const AI_CONTENT_OPERATOR_APP_KEY = 'com.enonic.app.ai.contentoperator';
@@ -34,11 +34,8 @@ exports.renderTemplate = function (params) {
 exports.getParams = function (path) {
     const isBrowseMode = path === admin.getToolUrl(app.name, 'main');
 
-    const aiContentOperatorApp = appLib.get({key: AI_CONTENT_OPERATOR_APP_KEY});
-    const aiTranslatorApp = appLib.get({key: AI_TRANSLATOR_APP_KEY});
-
-    const isAiContentOperatorEnabled = aiContentOperatorApp != null && aiContentOperatorApp.started && !isBrowseMode;
-    const isAiTranslatorEnabled = aiTranslatorApp != null && aiTranslatorApp.started && !isBrowseMode;
+    const isAiContentOperatorEnabled = aiLib.aiContentOperatorRunning && !isBrowseMode;
+    const isAiTranslatorEnabled = aiLib.aiTranslatorRunning && !isBrowseMode;
 
     const locales = admin.getLocales();
 

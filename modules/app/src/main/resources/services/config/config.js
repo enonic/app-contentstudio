@@ -1,10 +1,11 @@
 /*global app, resolve*/
 
 const admin = require('/lib/xp/admin');
+const aiLib = require('/lib/ai');
 const portal = require('/lib/xp/portal');
 const contextLib = require('/lib/xp/context');
 
-function handleGet() {
+function handleGet(request) {
     const context = contextLib.get();
     const branch = context.branch;
     const allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
@@ -13,6 +14,9 @@ function handleGet() {
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
     const hideDefaultProject = app.config['settings.hideDefaultProject'] !== 'false';
     const defaultPublishFromTime = parseTime(app.config['publishingWizard.defaultPublishFromTime']);
+
+    const isBrowseMode = request.path === admin.getToolUrl(app.name, 'main');
+    const aiEnabled = !isBrowseMode && (aiLib.aiContentOperatorRunning || aiLib.aiTranslatorRunning);
 
     return {
         status: 200,
@@ -49,6 +53,7 @@ function handleGet() {
                 aiTranslatorWsServiceUrl: portal.serviceUrl(
                     {service: 'ws', application: 'com.enonic.app.ai.translator', type: 'websocket'}),
             },
+            aiEnabled,
             theme: 'light',
             /* Remove in CS/lib-admin-ui 5.0 */
             launcher: {
