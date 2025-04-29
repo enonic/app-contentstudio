@@ -4,7 +4,9 @@
 
 Juke AI brings artificial intelligence to Content Studio. Over time, Juke will evolve to help out with a range of daily content management chores.
 
-NOTE: The https://market.enonic.com/vendors/enonic/ai-operator[Juke AI Content operator] application must be installed to access the features described in this chapter
+TIP: The https://market.enonic.com/vendors/enonic/ai-operator[Juke AI Content operator] application must be installed to access the features described in this chapter
+
+NOTE: Juke AI is in early development stages. Errors may occur, and responses will improve over time. See <<#known_issues, Known issues>> for more details.
 
 == Interface
 To launch the Juke chat interface, you may either click the Juke icon in the Content Editor’s toolbar, or the Juke icon appearing next to an active form field.
@@ -15,7 +17,6 @@ This will open a modal chat interface where you can communicate with Juke.
 
 image::juke-chat.png[Interact with Juke in the chat, 638w]
 
-NOTE: Juke AI is in early development stages. Errors may occur, and responses will improve over time.
 
 == Field context
 
@@ -77,4 +78,14 @@ image::juke-instructions.png[Provide general instructions via app settings, 733w
 
 NOTE: Working with application settings requires "Project owner" roles or higher.
 
+== Known issues
 
+Known limitations in current version
+
+* Not optimized for general chat
+* Only works with text-based fields
+* Set instances may not be a context
+* Only works with fields in the main content type form
+* Only availabe in "Edit" context
+* Initial greeting is hardcoded (not AI generated)
+* <<layers#, AI localization>> can't be invoked from chat
