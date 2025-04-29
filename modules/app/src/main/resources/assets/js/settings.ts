@@ -8,6 +8,7 @@ import {JSONObject} from '@enonic/lib-admin-ui/types';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 const waitForWidgetElemAttached = (elemId: string): void => {
     const body: Body = Body.get();
@@ -43,17 +44,17 @@ const init = async (configScriptId: string, elemId: string): Promise<void> => {
     }
 };
 
-void (async (currentScript: HTMLOrSVGScriptElement) => {
-    if (!currentScript) {
+(() => {
+    if (!document.currentScript) {
         throw Error('Legacy browsers are not supported');
     }
 
-    const configScriptId: string = currentScript.getAttribute('data-config-script-id');
-    const elemId: string = currentScript.getAttribute('data-widget-id');
+    const configScriptId = document.currentScript.getAttribute('data-config-script-id');
+    const elemId: string = document.currentScript.getAttribute('data-widget-id');
 
     if (!configScriptId || !elemId) {
         throw Error('Missing attributes on inject script');
     }
 
-    await init(configScriptId, elemId);
-})(document.currentScript);
+    init(configScriptId, elemId).catch(DefaultErrorHandler.handle);
+})();
