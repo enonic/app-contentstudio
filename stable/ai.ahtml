@@ -448,6 +448,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#insert">Insert</a></li>
 <li><a href="#variants">Variants</a></li>
 <li><a href="#general_instructions">General instructions</a></li>
+<li><a href="#known_issues">Known issues</a></li>
 </ul>
 </div>
 </div>
@@ -457,6 +458,18 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>Juke AI brings artificial intelligence to Content Studio. Over time, Juke will evolve to help out with a range of daily content management chores.</p>
 </div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+The <a href="https://market.enonic.com/vendors/enonic/ai-operator">Juke AI Content operator</a> application must be installed to access the features described in this chapter
+</td>
+</tr>
+</table>
+</div>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -464,7 +477,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The <a href="https://market.enonic.com/vendors/enonic/ai-operator">Juke AI Content operator</a> application must be installed to access the features described in this chapter
+Juke AI is in early development stages. Errors may occur, and responses will improve over time. See <a href="#known_issues">Known issues</a> for more details.
 </td>
 </tr>
 </table>
@@ -489,18 +502,6 @@ The <a href="https://market.enonic.com/vendors/enonic/ai-operator">Juke AI Conte
 <div class="content">
 <img src="ai/images/juke-chat.png" alt="Interact with Juke in the chat" width="638w">
 </div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Juke AI is in early development stages. Errors may occur, and responses will improve over time.
-</td>
-</tr>
-</table>
 </div>
 </div>
 </div>
@@ -659,10 +660,43 @@ Working with application settings requires "Project owner" roles or higher.
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="known_issues"><a class="link" href="#known_issues">Known issues</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Known limitations in current version</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Not optimized for general chat</p>
+</li>
+<li>
+<p>Only works with text-based fields</p>
+</li>
+<li>
+<p>Set instances may not be a context</p>
+</li>
+<li>
+<p>Only works with fields in the main content type form</p>
+</li>
+<li>
+<p>Only availabe in "Edit" context</p>
+</li>
+<li>
+<p>Initial greeting is hardcoded (not AI generated)</p>
+</li>
+<li>
+<p><a href="layers.ahtml">AI localization</a> can&#8217;t be invoked from chat</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-22 13:07:19 UTC
+Last updated 2025-04-29 15:05:33 UTC
 </div>
 </div>
 </body>
