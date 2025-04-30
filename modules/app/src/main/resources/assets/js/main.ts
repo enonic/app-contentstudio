@@ -423,7 +423,7 @@ async function startApplication() {
 
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
-    const {EditPermissionsDialog} = await import('lib-contentstudio/app/wizard/EditPermissionsDialog');
+    const {EditPermissionsDialog} = await import('lib-contentstudio/app/dialog/permissions/EditPermissionsDialog');
     let editPermissionsDialog = null;
 
     OpenEditPermissionsDialogEvent.on((event: OpenEditPermissionsDialogEvent) => {

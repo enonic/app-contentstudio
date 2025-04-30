@@ -5,6 +5,7 @@ import {AccessControlList} from '../access/AccessControlList';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {ApplyPermissionsScope} from '../dialog/permissions/PermissionsData';
 
 export class ApplyContentPermissionsRequest
     extends CmsContentResourceRequest<TaskId> {
@@ -13,11 +14,14 @@ export class ApplyContentPermissionsRequest
 
     private permissions: AccessControlList;
 
-    private overwriteChildPermissions: boolean;
+    private addPermissions: AccessControlList;
+
+    private removePermissions: AccessControlList;
+
+    private scope: ApplyPermissionsScope;
 
     constructor() {
         super();
-        this.overwriteChildPermissions = false;
         this.setMethod(HttpMethod.POST);
         this.addRequestPathElements('applyPermissions');
     }
@@ -32,18 +36,18 @@ export class ApplyContentPermissionsRequest
         return this;
     }
 
-    /*
-    * @deprecated Use new API instead
-    * */
-    setInheritPermissions(inheritPermissions: boolean): ApplyContentPermissionsRequest {
+    setAddPermissions(addPermissions: AccessControlList): ApplyContentPermissionsRequest {
+        this.addPermissions = addPermissions;
         return this;
     }
 
-    /*
-    * @deprecated Use new API instead
-    * */
-    setOverwriteChildPermissions(overwriteChildPermissions: boolean): ApplyContentPermissionsRequest {
-        this.overwriteChildPermissions = overwriteChildPermissions;
+    setRemovePermissions(removePermissions: AccessControlList): ApplyContentPermissionsRequest {
+        this.removePermissions = removePermissions;
+        return this;
+    }
+
+    setScope(value: ApplyPermissionsScope): ApplyContentPermissionsRequest {
+        this.scope = value;
         return this;
     }
 
@@ -51,7 +55,9 @@ export class ApplyContentPermissionsRequest
         return {
             contentId: this.id.toString(),
             permissions: this.permissions ? this.permissions.toJson() : undefined,
-            scope: this.overwriteChildPermissions ? 'TREE' : 'SINGLE'
+            addPermissions: this.addPermissions ? this.addPermissions.toJson() : undefined,
+            removePermissions: this.removePermissions ? this.removePermissions.toJson() : undefined,
+            scope: this.scope?.toUpperCase()
         };
     }
 
