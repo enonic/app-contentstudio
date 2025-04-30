@@ -69,6 +69,7 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
             eventsUrl: portalLib.apiUrl({
                 api: 'events'
             }),
+            aiContentOperatorWsServiceUrl: portalLib.serviceUrl({service: 'ws', application: 'com.enonic.app.ai.contentoperator', type: 'websocket'}),
             aiTranslatorLicenseServiceUrl: portalLib.serviceUrl({service: 'license', application: 'com.enonic.app.ai.translator'}),
             aiTranslatorWsServiceUrl: portalLib.serviceUrl(
                 {service: 'ws', application: 'com.enonic.app.ai.translator', type: 'websocket'}),
