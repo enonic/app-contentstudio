@@ -465,7 +465,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-The <a href="https://market.enonic.com/vendors/enonic/ai-operator">Juke AI Content operator</a> application must be installed to access the features described in this chapter
+The <a href="https://market.enonic.com/vendors/enonic/ai-content-operator">Juke AI Content operator</a> application must be installed to access the features described in this chapter
 </td>
 </tr>
 </table>
@@ -696,7 +696,7 @@ Working with application settings requires "Project owner" roles or higher.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-29 15:05:33 UTC
+Last updated 2025-04-30 11:39:07 UTC
 </div>
 </div>
 </body>
