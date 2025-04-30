@@ -44,7 +44,7 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             // 4. Verify that content's status gets 'Moved'
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.MOVED);
             let actualStatus = await contentWizard.getContentStatus();
-            assert.equal(actualStatus, appConst.CONTENT_STATUS.MOVED, "Only the one 'Moved' status should appear in the wizard toolbar");
+            assert.equal(actualStatus, appConst.CONTENT_STATUS.MOVED, `Only the one 'Moved' status should appear in the wizard toolbar`);
 
             let statusWidget = new StatusWidget();
             // 5. Verify that 'Moved' status gets visible in the status widget in Details Panel:
@@ -68,7 +68,7 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.MOVED_MODIFIED);
             let actualStatus = await contentWizard.getContentStatus();
             assert.equal(actualStatus, appConst.CONTENT_STATUS.MOVED_MODIFIED,
-                "'Moved, Modified' status should appear in the wizard toolbar");
+                `'Moved, Modified' status should appear in the wizard toolbar`);
 
             let statusWidget = new StatusWidget();
             // 5. Verify that 'Moved, Modified' status gets visible in the status widget in Details Panel:
@@ -93,7 +93,7 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.MOVED);
             // 5. Verify that 'Moved' status gets visible in the status widget in Details Panel:
             let actualStatus = await contentWizard.getContentStatus();
-            assert.equal(actualStatus, appConst.CONTENT_STATUS.MOVED, "'Moved' status should appear in the wizard toolbar");
+            assert.equal(actualStatus, appConst.CONTENT_STATUS.MOVED, `'Moved' status should appear in the wizard toolbar`);
 
             let statusWidget = new StatusWidget();
             // 5. Verify that 'Moved' status gets visible in the status widget after clicking on Mark as ready:

@@ -462,6 +462,12 @@ class ContentPublishDialog extends Page {
         return attr.includes('removable');
     }
 
+    async clickOnRemoveItemIcon(name) {
+        let locator = XPATH.mainItemDivByName(name) + `//div[@class='icon remove']`;
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+        await this.clickOnElement(locator);
+    }
+
     async clickOnCancelTopButton() {
         await this.pause(400);
         await this.clickOnElement(this.cancelButtonTop);
@@ -504,7 +510,7 @@ class ContentPublishDialog extends Page {
         let number = await this.getText(selector);
         let startIndex = number.indexOf('(');
         if (startIndex === -1) {
-            throw new Error("Content Publish Dialog - error when get a number in  'Publish now' button  ");
+            throw new Error(`Content Publish Dialog - error when get a number in  'Publish now' button  `);
         }
         let endIndex = number.indexOf(')');
         if (endIndex === -1) {
@@ -548,13 +554,13 @@ class ContentPublishDialog extends Page {
 
     async clickOnCloseScheduleFormButton() {
         try {
-            let locator = XPATH.container + XPATH.publishScheduleForm + "//a[contains(@class,'icon-close')]";
+            let locator = XPATH.container + XPATH.publishScheduleForm + `//a[contains(@class,'icon-close')]`;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             await this.clickOnElement(locator);
             return await this.pause(300);
         } catch (err) {
             await this.saveScreenshot('err_close_schedule_form');
-            throw new Error("Publish Schedule Form, close icon: " + err);
+            throw new Error(`Publish Schedule Form, close icon: ` + err);
         }
     }
 
@@ -602,7 +608,7 @@ class ContentPublishDialog extends Page {
     }
 
     async getNumberOfInvalidItems() {
-        let locator = XPATH.container + XPATH.dialogStateBarDiv + "//span[contains(.,'Invalid item(s)')]";
+        let locator = XPATH.container + XPATH.dialogStateBarDiv + `//span[contains(.,'Invalid item(s)')]`;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getAttribute(locator, 'data-count');
     }
