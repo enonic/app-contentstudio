@@ -10,6 +10,5 @@ export enum Permission {
 
 export enum PermissionState {
     ALLOW,
-    DENY,
     INHERIT
 }

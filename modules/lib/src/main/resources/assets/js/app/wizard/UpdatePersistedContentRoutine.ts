@@ -103,9 +103,7 @@ export class UpdatePersistedContentRoutine
                persisted.getLanguage() !== viewed.getLanguage() ||
                !ObjectHelper.dateEquals(persisted.getPublishFromTime(), viewed.getPublishFromTime()) ||
                !ObjectHelper.dateEquals(persisted.getPublishToTime(), viewed.getPublishToTime()) ||
-               !persisted.getPermissions().equals(viewed.getPermissions()) ||
-               persisted.isInheritPermissionsEnabled() !== viewed.isInheritPermissionsEnabled() ||
-               persisted.isOverwritePermissionsEnabled() !== viewed.isOverwritePermissionsEnabled();
+               !persisted.getPermissions().equals(viewed.getPermissions());
     }
 
     private isWorkflowChanged(): boolean {

@@ -16,6 +16,7 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 
 interface AccessControlComboBoxOptions extends ListBoxInputOptions<AccessControlEntry> {
     loader: CSPrincipalLoader;
@@ -27,6 +28,7 @@ export class AccessControlComboBox extends FilterableListBoxWrapperWithSelectedV
 
     constructor() {
         const loader = new CSPrincipalLoader();
+        loader.skipPrincipals([RoleKeys.EVERYONE]); // not showing everyone in the list to avoid confusion
 
         super(new AccessControlListBox(loader), {
             maxSelected:  0,
