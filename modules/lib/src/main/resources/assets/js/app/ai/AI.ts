@@ -105,7 +105,8 @@ export class AI {
 
         AI.onAILoaded(() => {
             this.getContentOperator()?.setup({
-                wsServiceUrl: CONFIG.getString('services.aiContentOperatorWsServiceUrl')
+                sharedSocketUrl: CONFIG.getString('sharedSocketUrl'),
+                wsServiceUrl: AI.getOptionalConfigString('services.aiContentOperatorWsServiceUrl')
             });
             this.getTranslator()?.setup({
                 licenseServiceUrl: CONFIG.getString('services.aiTranslatorLicenseServiceUrl'),
@@ -141,6 +142,14 @@ export class AI {
             callback();
         } else {
             window.addEventListener('load', callback, {once: true});
+        }
+    }
+
+    static getOptionalConfigString(key: string): string | undefined {
+        try {
+            return CONFIG.getString(key);
+        } catch (e) {
+            return undefined;
         }
     }
 
