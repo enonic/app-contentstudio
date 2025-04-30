@@ -4,7 +4,7 @@
 
 Juke AI brings artificial intelligence to Content Studio. Over time, Juke will evolve to help out with a range of daily content management chores.
 
-TIP: The https://market.enonic.com/vendors/enonic/ai-operator[Juke AI Content operator] application must be installed to access the features described in this chapter
+TIP: The https://market.enonic.com/vendors/enonic/ai-content-operator[Juke AI Content operator] application must be installed to access the features described in this chapter
 
 NOTE: Juke AI is in early development stages. Errors may occur, and responses will improve over time. See <<#known_issues, Known issues>> for more details.
 
