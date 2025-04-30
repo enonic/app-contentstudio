@@ -25,9 +25,6 @@ The <<editor#, content editor>> offers a consistent and intuitive interface for 
 
 Content Studio is free and open source, but also highly extendable. A subscription gives you access to licensed applications that extend Content Studio with advanced capabilities like an <<ai#, AI assistant>>, the <<archive#, archive browser>> and <<layers#ai-translation, automated translations>>.
 
-Visit Enonic Market for the https://market.enonic.com/licensed[complete list of licensed applications]
-
-
 == Browser support
 
 Content Studio works in all modern browsers.  We are explicitly testing it and supporting it for the latest versions of Google Chrome, Apple Safari, Mozilla Firefox and Microsoft Edge.
