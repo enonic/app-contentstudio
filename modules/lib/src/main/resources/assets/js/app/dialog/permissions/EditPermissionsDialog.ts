@@ -54,6 +54,8 @@ export class EditPermissionsDialog
 
     private backActionMirror: Action;
 
+    private hasNoChildren: boolean;
+
     constructor() {
         const mainStep = new MainAccessStep();
         const applyToStep = new ApplyAccessToStep();
@@ -172,6 +174,7 @@ export class EditPermissionsDialog
         new GetDescendantsOfContentsRequest(this.contentPath).sendAndParse().then((ids) => {
             this.applyToStep.setup(ids.length + 1);
             this.secondaryAction.setLabel(i18n('dialog.permissions.step.action.submitNow', ids.length + 1));
+            this.hasNoChildren = ids.length === 0;
         }).catch(DefaultErrorHandler.handle);
 
         this.getParentPermissions().then((parentPermissions: AccessControlList) => {
@@ -184,7 +187,15 @@ export class EditPermissionsDialog
         }).done();
     }
 
-    protected showStep(step: DialogStep) {
+    protected showNextStep(): void {
+        if (this.isFirstStep() && this.hasNoChildren) {
+            this.showStep(this.strategyStep); // jump to 3rs step if no children
+        } else {
+            super.showNextStep();
+        }
+    }
+
+    protected showStep(step: DialogStep): void {
         super.showStep(step);
 
         if (this.isLastStep()) {
@@ -197,7 +208,6 @@ export class EditPermissionsDialog
         } else {
             this.backActionMirror.setEnabled(true).setLabel(i18n('dialog.multistep.previous'));
         }
-
     }
 
     protected createHeaderContent(): NamesAndIconView {
@@ -218,13 +228,18 @@ export class EditPermissionsDialog
         this.applyToStep.reset();
         this.strategyStep.reset();
         this.backActionMirror.setEnabled(false);
+        this.hasNoChildren = false;
     }
 
     protected showPreviousStep(): void {
-        if (this.isFirstStep()) {
+        if (this.isFirstStep()) { // we're using back button as reset button for the 1st step
             this.mainStep.reset();
         } else {
-            super.showPreviousStep();
+            if (this.currentStep === this.strategyStep) { // if no children then skip applyTo step
+                this.showStep(this.mainStep);
+            } else {
+                super.showPreviousStep();
+            }
         }
     }
 
