@@ -1,3 +1,5 @@
 export interface EnonicAiContentOperatorSetupData {
-    wsServiceUrl: string;
+    sharedSocketUrl: string;
+    // Keep this for backward compatibility
+    wsServiceUrl: string | undefined;
 }
