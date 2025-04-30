@@ -12,8 +12,7 @@ export class AccessControlEntry
     implements Equitable, Cloneable {
 
     private static ALL_PERMISSIONS: Permission[] = [Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE,
-        Permission.PUBLISH,
-        Permission.READ_PERMISSIONS, Permission.WRITE_PERMISSIONS
+        Permission.PUBLISH
     ];
 
     private allowedPermissions: Permission[];
