@@ -6,5 +6,4 @@ export interface ContentDiff extends ContentSummaryDiff {
     pageObj?: boolean;
     permissions?: boolean;
     attachments?: boolean;
-    inheritPermissions?: boolean;
 }

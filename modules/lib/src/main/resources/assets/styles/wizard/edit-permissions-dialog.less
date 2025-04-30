@@ -1,16 +1,287 @@
 .edit-permissions-dialog {
 
   &.is-processing {
-    .overwrite-child-check,
-    .inherit-perm-check,
-    .form-view {
-      display: none;
+    .modal-dialog-body {
+      .dialog-content {
+        .steps-container {
+          display: none;
+        }
+      }
     }
   }
 
-  .modal-dialog-header {
-    .sub-title {
-      margin-top: 15px;
+  .modal-dialog-body {
+    padding-top: 16px;
+
+    .dialog-content {
+      margin-top: 32px;
+      margin-bottom: 16px;
+
+      .steps-container {
+        .main-access-step {
+          .principals-access-container {
+            margin-bottom: 24px;
+
+            display: grid;
+            grid-template-columns: 1fr auto;
+            grid-template-areas:
+              "label copy"
+              "list list";
+
+            label {
+              grid-area: label;
+              display: flex;
+              align-items: center;
+            }
+
+            .copy-from-parent-button {
+              grid-area: copy;
+              background-color: @admin-white;
+              padding: 4px;
+
+              span {
+                font-size: 12px;
+                color: @admin-black;
+              }
+            }
+
+            .principal-combobox {
+              grid-area: list;
+            }
+
+          }
+
+          .radio-group {
+            padding: 0 4px;
+
+            .radio-button {
+              .label-text{
+                margin-left: 4px;
+              }
+            }
+          }
+        }
+
+        .strategy-step{
+          .strategy-step-container {
+            margin-top:24px;
+
+            .checkbox {
+              margin-left: 10px
+            }
+          }
+        }
+
+        .summary-step {
+          .summary-data-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-auto-rows: 20px;
+            column-gap: 10px;
+            row-gap: 4px;
+
+            dt {
+              white-space: pre;
+              text-overflow: ellipsis;
+              justify-self: end;
+              color: @admin-font-gray2;
+              font-size: 14px;
+            }
+
+            dd {
+              .ellipsis();
+              font-size: 14px;
+
+              > button {
+                .button(@admin-button-blue2, transparent, @admin-button-blue3);
+                padding: 0;
+              }
+            }
+
+            .access-mode-line {
+              span:first-child {
+                text-decoration: line-through;
+                margin-right: 4px;
+              }
+            }
+
+            .summary-principals-line {
+              position: relative;
+              left: -4px;
+
+              button span {
+                padding: 0 4px;
+              }
+            }
+
+            &.no-principals-changed {
+              .summary-principals-line, .summary-principals-label {
+                display: none;
+              }
+            }
+          }
+
+          .summary-principals-changes-container {
+            margin-top: 16px;
+
+            .access-control-changed-items-list {
+              padding: 0 10px;
+
+              .access-control-changed-item-view {
+                margin-top: 8px;
+
+                .access-control-changed-item-principal-with-status {
+                  display: grid;
+                  grid-template-columns: 2fr 1fr;
+
+                  .access-control-changed-item-access {
+                    place-self: center;
+                  }
+                }
+
+                .access-diff-view {
+                  margin: 8px 0;
+                  justify-self: end;
+
+                  .access-line {
+                    margin: 0 4px;
+                    font-size: 14px;
+                    position: relative;
+
+                    &.added {
+                      &::before {
+                        position: absolute;
+                        left: -10px;
+                        content: '+';
+                      }
+                    }
+
+                    &.removed {
+                      text-decoration: line-through;
+                    }
+                  }
+                }
+
+                .access-control-changed-item-permissions {
+                  display: flex;
+                  margin: 8px 0;
+
+                  .permission-state-view {
+                    margin: 5px;
+                    border-radius: 10px;
+                    padding: 1px 17px;
+                    border: 1px solid transparent;
+                    position: relative;
+
+                    &.unchanged {
+                      background-color: @admin-button-blue1;
+                      color: @admin-white;
+                    }
+
+                    &.unset {
+                      border-color: @admin-medium-gray-border;
+                    }
+
+                    &.added {
+                      background-color: @admin-button-blue1;
+                      color: @admin-white;
+
+                      &::before {
+                        position: absolute;
+                        left: 8px;
+                        content: '+';
+                      }
+                    }
+
+                    &.removed {
+                      border-color: @admin-medium-gray-border;
+                      text-decoration: line-through;
+
+                      //&::before {
+                      //  position: absolute;
+                      //  left: 10px;
+                      //  content: '-';
+                      //}
+                    }
+                  }
+                }
+
+                &.removed {
+                  .xp-admin-common-main-name {
+                    text-decoration: line-through;
+                  }
+
+                  .access-control-changed-item-permissions {
+                    display: none;
+                  }
+                }
+
+                &.unchanged {
+                  opacity: 0.5;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &.@{_COMMON_PREFIX}modal-dialog {
+    .modal-dialog-wrapper {
+      .modal-dialog-header {
+        background-color: @admin-bg-light-gray;
+        padding-bottom: 12px;
+
+        .sub-title {
+          margin-top: 15px;
+        }
+
+        .@{_COMMON_PREFIX}wrapper {
+          width: 32px;
+          height: 32px;
+
+          .font-icon-default {
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+          }
+        }
+      }
+    }
+  }
+
+  .dialog-buttons {
+    .button-container {
+      .dropdown-dialog-menu.edit-permissions-dialog-menu {
+        display: none;
+        .@{_COMMON_PREFIX}dropdown-handle {
+          visibility: visible;
+          .button-background(@bg: @admin-button-blue2);
+        }
+      }
+    }
+
+    &.first-step {
+      .button-container {
+        .dialog-button.back-action {
+          visibility: visible;
+        }
+      }
+    }
+  }
+
+  .dialog-buttons {
+    &.last-step:not(.single) {
+      .button-container {
+        .menu-button {
+          display: flex;
+
+          .menu {
+            width: 100%;
+          }
+        }
+      }
     }
   }
 
@@ -27,7 +298,6 @@
   }
 
   .principal-combobox {
-
     .access-control-list {
       padding: 5px 0;
 

@@ -13,16 +13,16 @@ import {GetEffectivePermissionsRequest} from '../resource/GetEffectivePermission
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {Access} from './Access';
 import {EffectivePermission} from './EffectivePermission';
-import {Permission} from '../access/Permission';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {ContentId} from '../content/ContentId';
 import {PrincipalServerEvent} from '../event/PrincipalServerEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ContentHelper} from '../util/ContentHelper';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
+import {Permission} from '../access/Permission';
+import {ContentHelper} from '../util/ContentHelper';
 
 export class UserAccessWidgetItemView
     extends WidgetItemView {
@@ -74,7 +74,6 @@ export class UserAccessWidgetItemView
     }
 
     private layoutBottom(content: Content) {
-
         if (this.hasChild(this.bottomEl)) {
             this.removeChild(this.bottomEl);
         }

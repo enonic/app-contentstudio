@@ -4,22 +4,23 @@ package com.enonic.xp.app.contentstudio.rest.resource.content;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import java.util.stream.StreamSupport;
 
 import com.enonic.xp.security.acl.Permission;
 
 public enum Access
 {
-    READ( Permission.READ ), WRITE( Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE ), PUBLISH( Permission.READ,
-                                                                                                                         Permission.CREATE,
-                                                                                                                         Permission.MODIFY,
-                                                                                                                         Permission.DELETE,
-                                                                                                                         Permission.PUBLISH ), FULL(
-    Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE, Permission.PUBLISH, Permission.READ_PERMISSIONS,
-    Permission.WRITE_PERMISSIONS ), CUSTOM();
+    READ( Permission.READ ),
+
+    WRITE( Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE ),
+
+    PUBLISH( Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE, Permission.PUBLISH ),
+
+    FULL( Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE, Permission.PUBLISH, Permission.WRITE_PERMISSIONS ),
+
+    CUSTOM();
 
     private final EnumSet<Permission> permissions;
 
@@ -30,9 +31,12 @@ public enum Access
 
     public static Access fromPermissions( final Iterable<Permission> permissions )
     {
-        final ImmutableSet<Permission> perms = Sets.immutableEnumSet( permissions );
+        final Set<Permission> filtered = StreamSupport.stream( permissions.spliterator(), true )
+            .filter( p -> p != Permission.READ_PERMISSIONS )
+            .collect( Collectors.toUnmodifiableSet() );
+
         return Stream.of( READ, WRITE, PUBLISH, FULL ).
-            filter( a -> a.hasPermissions( perms ) ).
+            filter( a -> a.hasPermissions( filtered ) ).
             findFirst().
             orElse( CUSTOM );
     }

@@ -6,15 +6,11 @@ import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {AccessControlEntryJson} from './AccessControlEntryJson';
 import {Permission} from './Permission';
 import {PrincipalContainer} from '@enonic/lib-admin-ui/ui/security/PrincipalContainer';
+import {PermissionsHelper} from './PermissionsHelper';
 
 export class AccessControlEntry
     extends PrincipalContainer
     implements Equitable, Cloneable {
-
-    private static ALL_PERMISSIONS: Permission[] = [Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE,
-        Permission.PUBLISH,
-        Permission.READ_PERMISSIONS, Permission.WRITE_PERMISSIONS
-    ];
 
     private allowedPermissions: Permission[];
 
@@ -96,7 +92,7 @@ export class AccessControlEntry
 
     toString(): string {
         let values = '';
-        AccessControlEntry.ALL_PERMISSIONS.forEach((permission: Permission) => {
+        PermissionsHelper.getAllPermissions().forEach((permission: Permission) => {
             if (this.isSet(permission)) {
                 if (values !== '') {
                     values += ', ';

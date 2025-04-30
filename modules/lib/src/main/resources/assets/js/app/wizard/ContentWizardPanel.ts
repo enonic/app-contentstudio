@@ -132,7 +132,7 @@ import {PageComponentsWizardStep} from './PageComponentsWizardStep';
 import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
 import {PageEventsManager} from './PageEventsManager';
 import {PageNavigationEventSource} from './PageNavigationEventData';
-import {PermissionHelper} from './PermissionHelper';
+import {AccessControlHelper} from './AccessControlHelper';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
@@ -1733,11 +1733,11 @@ export class ContentWizardPanel
     }
 
     private isContentPublishableByUser(): boolean {
-        return PermissionHelper.hasPermission(Permission.PUBLISH, this.getPersistedItem().getPermissions());
+        return AccessControlHelper.hasPermission(Permission.PUBLISH, this.getPersistedItem().getPermissions());
     }
 
     private isContentModifiableByUser(): boolean {
-        return PermissionHelper.hasPermission(Permission.MODIFY, this.getPersistedItem().getPermissions());
+        return AccessControlHelper.hasPermission(Permission.MODIFY, this.getPersistedItem().getPermissions());
     }
 
     saveChangesWithoutValidation(reloadPageEditor?: boolean): Q.Promise<Content> {

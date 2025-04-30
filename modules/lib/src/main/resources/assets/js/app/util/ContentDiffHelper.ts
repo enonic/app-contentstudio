@@ -31,10 +31,6 @@ export class ContentDiffHelper {
             diff.attachments = true;
         }
 
-        if (item.isInheritPermissionsEnabled() !== other.isInheritPermissionsEnabled()) {
-            diff.inheritPermissions = true;
-        }
-
         return diff;
     }
 

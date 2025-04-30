@@ -1,0 +1,33 @@
+.permission-selector {
+  padding: 5px;
+}
+
+.permission-toggle {
+  display: inline-block;
+  margin: 5px;
+  border-radius: 10px;
+  padding: 1px 17px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  .notSelectable();
+
+  &.disabled {
+    cursor: default;
+  }
+
+  &.allow {
+    background: @admin-button-blue1;
+    color: white;
+  }
+
+  &.inherit {
+    background: @admin-white;
+    border: 1px solid @admin-medium-gray-border;
+    color: @admin-font-gray3;
+
+    &::before {
+      display: none;
+    }
+  }
+}

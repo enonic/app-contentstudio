@@ -13,7 +13,7 @@ export class PermissionSelector
     extends DivEl {
 
     private toggles: PermissionToggle[] = [];
-    private oldValue: { allow: Permission[]; deny: Permission[] };
+    private oldValue: { allow: Permission[] };
     private valueChangedListeners: ((event: ValueChangedEvent) => void)[] = [];
     private enabled: boolean = true;
 
@@ -40,7 +40,6 @@ export class PermissionSelector
             {name: i18n('security.permission.modify'), value: Permission.MODIFY},
             {name: i18n('security.permission.delete'), value: Permission.DELETE},
             {name: i18n('security.permission.publish'), value: Permission.PUBLISH},
-            {name: i18n('security.permission.readpermissions'), value: Permission.READ_PERMISSIONS},
             {name: i18n('security.permission.writepermissions'), value: Permission.WRITE_PERMISSIONS}
         ];
     }
@@ -60,33 +59,27 @@ export class PermissionSelector
         return this.enabled;
     }
 
-    getValue(): { allow: Permission[]; deny: Permission[] } {
+    getValue(): { allow: Permission[] } {
         let values = {
-            allow: [],
-            deny: []
+            allow: []
         };
         this.toggles.forEach((toggle: PermissionToggle) => {
             switch (toggle.getState()) {
             case PermissionState.ALLOW:
                 values.allow.push(toggle.getValue());
                 break;
-            case PermissionState.DENY:
-                values.deny.push(toggle.getValue());
-                break;
             }
-
         });
+
         return values;
     }
 
-    setValue(newValue: { allow: Permission[]; deny: Permission[] }, silent?: boolean): PermissionSelector {
+    setValue(newValue: { allow: Permission[] }, silent?: boolean): PermissionSelector {
         this.toggles.forEach((toggle: PermissionToggle) => {
             let value = toggle.getValue();
             let state;
             if (newValue.allow.indexOf(value) >= 0) {
                 state = PermissionState.ALLOW;
-            } else if (newValue.deny.indexOf(value) >= 0) {
-                state = PermissionState.DENY;
             } else {
                 state = PermissionState.INHERIT;
             }
@@ -120,7 +113,7 @@ export class PermissionSelector
 export class PermissionToggle
     extends AEl {
 
-    private static STATES: PermissionState[] = [PermissionState.ALLOW, PermissionState.DENY, PermissionState.INHERIT];
+    private static STATES: PermissionState[] = [PermissionState.ALLOW, PermissionState.INHERIT];
     private valueChangedListeners: ((event: ValueChangedEvent) => void)[] = [];
 
     private originalStateIndex: number = -1;

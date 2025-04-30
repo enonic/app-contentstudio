@@ -17,7 +17,7 @@ import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
 import {GetContentPermissionsByIdRequest} from '../../resource/GetContentPermissionsByIdRequest';
 import {GetContentRootPermissionsRequest} from '../../resource/GetContentRootPermissionsRequest';
 import {ContentWizardPanel} from '../ContentWizardPanel';
-import {PermissionHelper} from '../PermissionHelper';
+import {AccessControlHelper} from '../AccessControlHelper';
 import {ArchiveContentAction} from './ArchiveContentAction';
 import {ContentSaveAction} from './ContentSaveAction';
 import {CreateIssueAction} from './CreateIssueAction';
@@ -300,14 +300,14 @@ export class ContentWizardActions
     }
 
     private enableDeleteIfAllowed(content: Content) {
-        let hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE, content.getPermissions());
+        let hasDeletePermission = AccessControlHelper.hasPermission(Permission.DELETE, content.getPermissions());
         this.enableActions({ARCHIVE: hasDeletePermission});
     }
 
     private enableActionsForExistingByPermissions(existing: Content): void {
-        this.userCanModify = PermissionHelper.hasPermission(Permission.MODIFY, existing.getPermissions());
-        const hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE, existing.getPermissions());
-        this.userCanPublish = PermissionHelper.hasPermission(Permission.PUBLISH, existing.getPermissions());
+        this.userCanModify = AccessControlHelper.hasPermission(Permission.MODIFY, existing.getPermissions());
+        const hasDeletePermission = AccessControlHelper.hasPermission(Permission.DELETE, existing.getPermissions());
+        this.userCanPublish = AccessControlHelper.hasPermission(Permission.PUBLISH, existing.getPermissions());
 
         (this.actionsMap.PREVIEW as PreviewAction).setWritePermissions(this.userCanModify);
 
@@ -331,7 +331,7 @@ export class ContentWizardActions
                 (parent: Content) => {
                     new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then(
                         (accessControlList: AccessControlList) => {
-                            let hasParentCreatePermission = PermissionHelper.hasPermission(Permission.CREATE, accessControlList);
+                            let hasParentCreatePermission = AccessControlHelper.hasPermission(Permission.CREATE, accessControlList);
 
                             if (!hasParentCreatePermission) {
                                 this.enableActions({DUPLICATE: false});
@@ -341,7 +341,7 @@ export class ContentWizardActions
         } else {
             new GetContentRootPermissionsRequest().sendAndParse().then(
                 (accessControlList: AccessControlList) => {
-                    let hasParentCreatePermission = PermissionHelper.hasPermission(Permission.CREATE, accessControlList);
+                    let hasParentCreatePermission = AccessControlHelper.hasPermission(Permission.CREATE, accessControlList);
 
                     if (!hasParentCreatePermission) {
                         this.enableActions({DUPLICATE: false});
