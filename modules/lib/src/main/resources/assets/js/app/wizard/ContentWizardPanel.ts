@@ -1939,12 +1939,12 @@ export class ContentWizardPanel
 
                         this.xDataWizardStepForms.resetState();
 
-                        this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
+
                         this.contentWizardStepForm.validate();
                         this.xDataWizardStepForms.validate();
 
                         if (this.isNew()) {
-                            this.contentWizardStepForm.getFormView().highlightInputsOnValidityChange(true);
+                            this.contentWizardStepForm.getFormView().setHideErrorsUntilValidityChange(true);
                         } else {
                             this.displayValidationErrors(!this.isValid());
                         }
@@ -1962,7 +1962,7 @@ export class ContentWizardPanel
                         this.onPageStateChanged(debouncedUpdate);
                     });
                 });
-            });
+            }).catch(DefaultErrorHandler.handle).finally(() => null);
         });
     }
 
@@ -2038,7 +2038,7 @@ export class ContentWizardPanel
             this.pageComponentsView.reload();
         }
 
-        return Q.all(formViewLayoutPromises).thenResolve(null);
+        return Q.all(formViewLayoutPromises).then(() => null).catch(DefaultErrorHandler.handle);
     }
 
     private updateSiteModel(site: Site): void {
@@ -2488,6 +2488,8 @@ export class ContentWizardPanel
             const extraData: ExtraData = content.getExtraDataByName(xDataName);
 
             form.getData().unChanged(this.dataChangedHandler);
+            // we want to display all validation errors after save
+            form.getFormView().setHideErrorsUntilValidityChange(false);
 
             const data: PropertyTree = extraData ? extraData.getData() : new PropertyTree();
             data.onChanged(this.dataChangedHandler);
@@ -2512,12 +2514,15 @@ export class ContentWizardPanel
     private updateWizardStepForms(propertyTree: PropertyTree, unchangedOnly: boolean = true): Q.Promise<void> {
         this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
         this.contentWizardStepForm.getData().unChanged(this.debouncedEnonicAiDataChangedHandler);
+        // we want to display all validation errors after save
+        this.contentWizardStepForm.getFormView().setHideErrorsUntilValidityChange(false);
 
         propertyTree.onChanged(this.dataChangedHandler);
         propertyTree.onChanged(this.debouncedEnonicAiDataChangedHandler);
 
         return this.contentWizardStepForm.update(propertyTree, unchangedOnly).then(() => {
             AI.get().setDataTree(this.contentWizardStepForm.getData());
+            //TODO: why timeout?
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
         });
     }

@@ -1,5 +1,4 @@
 import * as Q from 'q';
-import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
 import {Form} from '@enonic/lib-admin-ui/form/Form';
 import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
@@ -61,7 +60,6 @@ export class ContentWizardStepForm
             this.appendChild(this.formView);
 
             this.formView.onValidityChanged((event: FormValidityChangedEvent) => {
-                this.previousValidation = event.getRecording();
                 this.notifyValidityChanged(new WizardStepValidityChangedEvent(event.isValid()));
             });
 
@@ -72,13 +70,14 @@ export class ContentWizardStepForm
     }
 
     public validate(silent: boolean = false, forceNotify: boolean = false): ValidationRecording {
-        const validationRecord: ValidationRecording = this.formView.validate(silent, forceNotify);
-        this.previousValidation = validationRecord;
-        return validationRecord;
+        return this.formView.validate(silent, forceNotify);
+    }
+
+    public isValid(): boolean {
+        return this.formView.isValid();
     }
 
     public resetValidation() {
-        this.previousValidation = new ValidationRecording();
         this.notifyValidityChanged(new WizardStepValidityChangedEvent(true));
     }
 

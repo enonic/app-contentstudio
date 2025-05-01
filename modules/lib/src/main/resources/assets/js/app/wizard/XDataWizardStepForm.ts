@@ -6,8 +6,9 @@ import {Form} from '@enonic/lib-admin-ui/form/Form';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentFormContext} from '../ContentFormContext';
-import {ExtraData} from '../content/ExtraData';
 import {ContentPanelStripHeader} from './ContentPanelStripHeader';
+import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
+import {ExtraData} from '../content/ExtraData';
 
 export class XDataWizardStepForm
     extends ContentWizardStepForm {
@@ -72,6 +73,14 @@ export class XDataWizardStepForm
         return this.enabled ? this.doLayout(this.form, this.data) : Q();
     }
 
+    public isValid(): boolean {
+        if (!this.isEnabled()) {
+            return true;
+        }
+
+        return super.isValid();
+    }
+
     layout(formContext: ContentFormContext, data: PropertyTree, form: Form): Q.Promise<void> {
         this.enabled = !this.isOptional() || data.getRoot().getPropertyArrays().length > 0;
         return super.layout(formContext, data, form);
@@ -124,6 +133,7 @@ export class XDataWizardStepForm
                 }
 
                 promise = this.doLayout(this.form, this.data).then(() => {
+                    this.formView.setHideErrorsUntilValidityChange(true);
                     this.validate();
                 });
             }
@@ -150,6 +160,13 @@ export class XDataWizardStepForm
         return promise != null ? promise : Q();
     }
 
+    validate(silent: boolean = false, forceNotify: boolean = false): ValidationRecording {
+        if (!this.isEnabled()) {
+            return null;
+        }
+        return super.validate(silent, forceNotify);
+    }
+
     onEnableChanged(listener: (value: boolean) => void) {
         this.enableChangedListeners.push(listener);
     }
@@ -167,12 +184,12 @@ export class XDataWizardStepForm
     }
 
     displayValidationErrors(display: boolean) {
-        if (this.isValidationErrorToBeRendered()) {
+        if (this.shouldShowErrors()) {
             super.displayValidationErrors(display);
         }
     }
 
-    private isValidationErrorToBeRendered(): boolean {
+    private shouldShowErrors(): boolean {
         if (this.formContext?.getFormState().isNew()) {
             return false;
         }
@@ -181,7 +198,7 @@ export class XDataWizardStepForm
             return true;
         }
 
-        return this.isEnabled() && this.isSaved();
+        return this.isEnabled() && !this.formView.isHideValidationErrors();
     }
 
     private isSaved(): boolean {
