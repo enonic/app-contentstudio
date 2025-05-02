@@ -4,6 +4,21 @@ junit = "5.12.2"
 junit-launcher = "1.12.2"
 mockito = "5.17.0"
 assertj = "3.23.1"
+enonicDefaults = "2.0.1"
+xpApp = "3.2.0"
+xpBase = "3.2.0"
+nodeGradle = "3.4.0"
+asciidoctor = "3.3.2"
+htmlSanityCheck = "1.1.6"
+
+# App
+commonsText = "1.13.1"
+libTextEncoding = "2.1.1"
+libMustache = "2.1.1"
+libHttpClient = "3.2.2"
+
+# Rest
+jacksonJrObjects = "2.19.0"
 
 [libraries]
 
@@ -16,3 +31,20 @@ mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockito-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
 
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+
+# App
+commons-text = { module = "org.apache.commons:commons-text", version.ref = "commonsText" }
+lib-text-encoding = { module = "com.enonic.lib:lib-text-encoding", version.ref = "libTextEncoding" }
+lib-mustache = { module = "com.enonic.lib:lib-mustache", version.ref = "libMustache" }
+lib-http-client = { module = "com.enonic.lib:lib-http-client", version.ref = "libHttpClient" }
+
+# Rest
+jackson-jr-objects = { module = "com.fasterxml.jackson.jr:jackson-jr-objects", version.ref = "jacksonJrObjects" }
+
+[plugins]
+enonic-defaults = { id = "com.enonic.defaults", version.ref = "enonicDefaults" }
+enonic-xp-app = { id = "com.enonic.xp.app", version.ref = "xpApp" }
+enonic-xp-base = { id = "com.enonic.xp.base", version.ref = "xpBase" }
+node-gradle = { id = "com.github.node-gradle.node", version.ref = "nodeGradle" }
+asciidoctor-jvm = { id = "org.asciidoctor.jvm.convert", version.ref = "asciidoctor" }
+htmlSanityCheck = { id = "org.aim42.htmlSanityCheck", version.ref = "htmlSanityCheck" }
