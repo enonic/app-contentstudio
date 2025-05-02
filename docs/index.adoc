@@ -23,7 +23,7 @@ The <<editor#, content editor>> offers a consistent and intuitive interface for 
 
 == Go beyond
 
-Content Studio is free and open source, but also highly extendable. A subscription gives you access to licensed applications that extend Content Studio with advanced capabilities like an <<ai#, AI assistant>>, the <<archive#, archive browser>> and <<layers#ai-translation, automated translations>>.
+Content Studio is free and open source, but also highly extendable. A subscription gives you access to licensed applications that extend Content Studio with advanced capabilities like an <<ai#, AI assistant>>, the <<archive#, archive browser>> and <<layers#, automated translations>>.
 
 == Browser support
 
