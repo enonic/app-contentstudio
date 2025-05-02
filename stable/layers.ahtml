@@ -447,7 +447,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#listing_view">Listing view</a></li>
 <li><a href="#inheritance_types">Inheritance types</a></li>
 <li><a href="#localizing">Localizing</a></li>
-<li><a href="#ai-translation">AI translation</a>
+<li><a href="#ai_translation">AI translation</a>
 <ul class="sectlevel2">
 <li><a href="#general_instructions">General instructions</a></li>
 </ul>
@@ -610,7 +610,7 @@ For inherited items <b class="button">Edit</b> is replaced with <b class="button
 </div>
 </div>
 <div class="sect1">
-<h2 id="ai-translation"><a class="link" href="#ai-translation">AI translation</a></h2>
+<h2 id="ai_translation"><a class="link" href="#ai_translation">AI translation</a></h2>
 <div class="sectionbody">
 <div class="admonitionblock note">
 <table>
@@ -762,7 +762,7 @@ Read about the high-level concept of Content Layers <a href="https://developer.e
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-30 13:26:09 UTC
+Last updated 2025-05-02 15:26:51 UTC
 </div>
 </div>
 </body>
