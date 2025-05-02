@@ -824,7 +824,7 @@ export class HtmlEditor {
     }
 
     public static setData(id: string, data: string, callback?: () => void) {
-        CKEDITOR.instances[id].setData(data, !!callback ? {callback: callback} : null);
+        CKEDITOR.instances[id]?.setData(data, !!callback ? {callback: callback} : null);
     }
 
     public static setReadOnly(id: string, value: boolean): void {
