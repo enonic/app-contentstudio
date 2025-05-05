@@ -272,6 +272,7 @@ export class PageComponentsView
             className: 'page-components-selectable-wrapper',
         });
 
+        this.pageComponentsWrapper.setSkipFirstClickOnFocus(true);
         this.pageComponentsWrapper.setTabIndex(0);
 
         this.contextMenu = new ItemViewContextMenu(null, [], false);
@@ -298,15 +299,7 @@ export class PageComponentsView
             this.lastSelectedPath = null;
         });
 
-        const keyNavigator = new SelectableTreeListBoxKeyNavigator(this.pageComponentsWrapper);
-
-        this.pageComponentsWrapper.onFocusIn(() => {
-            keyNavigator.enableKeys();
-        });
-
-        this.pageComponentsWrapper.onFocusOut(() => {
-            keyNavigator.disableKeys();
-        });
+        new SelectableTreeListBoxKeyNavigator(this.pageComponentsWrapper);
 
         this.appendChild(this.pageComponentsWrapper);
     }
