@@ -143,7 +143,7 @@ export class ContentTypeFilter
         });
     }
 
-    private isDirty(): boolean {
+    isDirty(): boolean {
         return !ObjectHelper.stringArrayEquals(this.initiallySelectedItems, this.getSelectedItemsIds());
     }
 

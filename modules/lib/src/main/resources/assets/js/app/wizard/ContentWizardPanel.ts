@@ -527,7 +527,6 @@ export class ContentWizardPanel
         const publishActionHandler = () => {
             if (this.hasUnsavedChanges()) {
                 this.contentWizardStepForm.validate();
-                this.displayValidationErrors(!this.isValid());
             }
         };
 
@@ -809,9 +808,7 @@ export class ContentWizardPanel
                         .setContentCanBePublished(this.checkContentCanBePublished())
                         .setIsValid(isThisValid)
                         .refreshState();
-                    if (!this.isNew()) {
-                        this.displayValidationErrors(!(isThisValid && event.isValid()));
-                    }
+
                 });
 
                 thumbnailUploader.setEnabled(!this.contentType.isImage());
@@ -1943,10 +1940,9 @@ export class ContentWizardPanel
                         this.contentWizardStepForm.validate();
                         this.xDataWizardStepForms.validate();
 
+                        this.displayValidationErrors(true);
                         if (this.isNew()) {
                             this.contentWizardStepForm.getFormView().setHideErrorsUntilValidityChange(true);
-                        } else {
-                            this.displayValidationErrors(!this.isValid());
                         }
 
                         this.enableDisplayNameScriptExecution(this.contentWizardStepForm.getFormView());
@@ -2186,7 +2182,6 @@ export class ContentWizardPanel
         this.contentWizardStepForm.validate();
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => form.isEnabled() ? null : form.resetData());
         this.xDataWizardStepForms.validate();
-        this.displayValidationErrors(!this.isValid());
 
         if (!this.isRename) {
             this.resetWizard();

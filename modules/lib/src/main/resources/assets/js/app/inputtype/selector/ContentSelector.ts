@@ -376,7 +376,7 @@ export class ContentSelector
         });
     }
 
-    private isDirty(): boolean {
+    public isDirty(): boolean {
         return !ObjectHelper.stringArrayEquals(this.initiallySelectedItems, this.getSelectedItemsIds());
     }
 

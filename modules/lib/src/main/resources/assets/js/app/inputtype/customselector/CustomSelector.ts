@@ -136,7 +136,7 @@ export class CustomSelector
         return StringHelper.format(this.requestPath, projectId, contentId);
     }
 
-    private isDirty(): boolean {
+    public isDirty(): boolean {
         return !ObjectHelper.stringArrayEquals(this.initiallySelectedItems, this.getSelectedItemsIds());
     }
 
