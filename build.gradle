@@ -1,10 +1,10 @@
 plugins {
-    id 'com.enonic.defaults' version '2.0.1' apply false
-    id 'com.enonic.xp.app' version '3.2.0' apply false
-    id 'com.enonic.xp.base' version '3.2.0' apply false
-    id 'com.github.node-gradle.node' version '3.4.0' apply false
-    id 'org.asciidoctor.jvm.convert' version '3.3.2'
-    id 'org.aim42.htmlSanityCheck' version '1.1.6'
+    alias(libs.plugins.enonic.defaults) apply false
+    alias(libs.plugins.enonic.xp.app) apply false
+    alias(libs.plugins.enonic.xp.base) apply false
+    alias(libs.plugins.node.gradle) apply false
+    alias(libs.plugins.asciidoctor.jvm)
+    alias(libs.plugins.htmlSanityCheck)
 }
 
 repositories {
@@ -29,12 +29,13 @@ subprojects {
     targetCompatibility = sourceCompatibility
 
     dependencies {
-        testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.2"
-        testImplementation "org.junit.jupiter:junit-jupiter-params:5.9.1"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.9.1"
-        testImplementation "org.mockito:mockito-core:5.12.0"
-        testImplementation "org.mockito:mockito-junit-jupiter:5.12.0"
-        testImplementation "org.assertj:assertj-core:3.23.1"
+        testImplementation platform(libs.junit.bom)
+        testImplementation libs.junit.jupiter
+        testRuntimeOnly  libs.junit.launcher
+
+        testImplementation libs.mockito.core
+        testImplementation libs.mockito.jupiter
+        testImplementation libs.assertj.core
     }
 
     repositories {
