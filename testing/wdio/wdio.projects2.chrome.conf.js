@@ -50,7 +50,7 @@ exports.config = {
     // Set directory to store all logs into
     outputDir: "./build/reports/logs/",
 
-    reporters: ['concise',
+    reporters: ['spec',
         ['allure', {outputDir: './build/reports/allure', disableWebdriverStepsReporting: true, disableWebdriverScreenshotsReporting: true,}],
     ],
 
