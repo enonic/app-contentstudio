@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
-<title>Layers and localisation</title>
+<title>Layers and localization</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -435,9 +435,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article toc2 toc-right">
+<body id="layers" class="article toc2 toc-right">
 <div id="header">
-<h1>Layers and localisation</h1>
+<h1>Layers and localization</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
@@ -447,7 +447,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#listing_view">Listing view</a></li>
 <li><a href="#inheritance_types">Inheritance types</a></li>
 <li><a href="#localizing">Localizing</a></li>
-<li><a href="#ai_translation">AI translation</a>
+<li><a href="#ai-translation">AI translation</a>
 <ul class="sectlevel2">
 <li><a href="#general_instructions">General instructions</a></li>
 </ul>
@@ -473,7 +473,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Layers are essentially a <a href="projects.ahtml">Content project</a> that inherits content from a different project.</p>
 </div>
 <div class="paragraph">
-<p>Inherited content can be edited (localised), renamed, re-organized, published or even archived within a single layer. You may also create new content, just like you would in a regular project.</p>
+<p>Inherited content can be edited (localized), renamed, re-organized, published or even archived within a single layer. You may also create new content, just like you would in a regular project.</p>
 </div>
 <div class="paragraph">
 <p>Layers are created and managed just like any other project, but you must specify a parent project, from where it will inherit content.</p>
@@ -484,7 +484,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="how_it_works"><a class="link" href="#how_it_works">How it works</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You may have any number of layers, organlized in different ways based on your requirements. Here are some examples</p>
+<p>You may have any number of layers, organized in different ways based on your requirements. Here are some examples</p>
 </div>
 <div class="dlist">
 <dl>
@@ -495,7 +495,7 @@ project <strong>C</strong> (and so on).</p>
 </dd>
 <dt class="hdlist1">Siblings</dt>
 <dd>
-<p>You may have multiple children so both <strong>B</strong> and <strong>B'</strong> inherit from project <strong>A</strong>.</p>
+<p>You may have multiple children, so both <strong>B</strong> and <strong>B'</strong> inherit from project <strong>A</strong>.</p>
 </dd>
 </dl>
 </div>
@@ -505,13 +505,13 @@ project <strong>C</strong> (and so on).</p>
 <h2 id="inheritance_model"><a class="link" href="#inheritance_model">Inheritance model</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Changes to content in a parent layer automatically propagates to child layers unless the item has been localized in the specific layer.</p>
+<p>Changes to content in a parent layer automatically propagate to child layers unless the item has been localized in the specific layer.</p>
 </div>
 <div class="paragraph">
 <p>Example from the above structure:</p>
 </div>
 <div class="paragraph">
-<p>Content in project <strong>A</strong> will be automatically propagate to <strong>B</strong>, and from there to <strong>C</strong>. If <strong>B</strong> gets localized, it will no longer recieve updates from <strong>A</strong>. The modified content from <strong>B</strong> will however still trickle down to <strong>C</strong>.</p>
+<p>Content in project <strong>A</strong> will be automatically propagated to <strong>B</strong>, and from there to <strong>C</strong>. If <strong>B</strong> gets localized, it will no longer receive updates from <strong>A</strong>. The modified content from <strong>B</strong> will, however, still trickle down to <strong>C</strong>.</p>
 </div>
 </div>
 </div>
@@ -519,10 +519,10 @@ project <strong>C</strong> (and so on).</p>
 <h2 id="listing_view"><a class="link" href="#listing_view">Listing view</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Inherited content in the navigator list will appear as dimmed, providing a visual difference from content that has been localized, or created directly in this layer.</p>
+<p>Inherited content in the navigator list will appear as dimmed, providing a visual difference from content that has been localized or created directly in this layer.</p>
 </div>
 <div class="paragraph">
-<p>Also, all inherited items will have a small blue cloud icon next to it - regardless if it is has been localized or not.</p>
+<p>Also, all inherited items will have a small blue cloud icon next to it — regardless of whether it has been localized or not.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -547,7 +547,7 @@ project <strong>C</strong> (and so on).</p>
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Language shown in brackets after content&#8217;s display name means shows that language of this content is different from language of the current layer.
+Language shown in brackets after the content&#8217;s display name means shows that the language of this content is different from the language of the current layer.
 </td>
 </tr>
 </table>
@@ -577,7 +577,7 @@ Language shown in brackets after content&#8217;s display name means shows that l
 </ul>
 </div>
 <div class="paragraph">
-<p>An example of how this works is that you can move a content to a different location in the tree (change parent), but it <em>data</em>, <em>name</em> and <em>sorting</em> will still be inherited from the parent</p>
+<p>An example of how this works is that you can move a content to a different location in the tree (change parent), but its <em>data</em>, <em>name</em> and <em>sorting</em> will still be inherited from the parent</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -590,7 +590,7 @@ Language shown in brackets after content&#8217;s display name means shows that l
 <h2 id="localizing"><a class="link" href="#localizing">Localizing</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To localize an inherited item, simply select it and click <b class="button">Localize</b>.</p>
+<p>To localize an inherited item, select it and click <b class="button">Localize</b>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -610,7 +610,7 @@ For inherited items <b class="button">Edit</b> is replaced with <b class="button
 </div>
 </div>
 <div class="sect1">
-<h2 id="ai_translation"><a class="link" href="#ai_translation">AI translation</a></h2>
+<h2 id="ai-translation"><a class="link" href="#ai-translation">AI translation</a></h2>
 <div class="sectionbody">
 <div class="admonitionblock note">
 <table>
@@ -625,7 +625,7 @@ The <a href="https://market.enonic.com/vendors/enonic/ai-translator">Juke AI tra
 </table>
 </div>
 <div class="paragraph">
-<p>With the Juke AI translator enabled, clicking <b class="button">Localize</b> will instantly reveal the translation dialog. Here you may optionally provide detailed instructions, or simply hit <b class="button">Translate</b>. This will automatically translate all text fields within your content - just watch it go.</p>
+<p>With the Juke AI translator enabled, clicking <b class="button">Localize</b> will instantly reveal the translation dialog. Here you may optionally provide detailed instructions or simply hit <b class="button">Translate</b>. This will automatically translate all text fields within your content - just watch it go.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -686,10 +686,10 @@ The <a href="https://market.enonic.com/vendors/enonic/content-studio-plus">Conte
 </table>
 </div>
 <div class="paragraph">
-<p>The Layers widget enables user to see status of a specific content item in all existing layers in the system.</p>
+<p>The Layers widget enables the user to see the status of a specific content item in all existing layers in the system.</p>
 </div>
 <div class="paragraph">
-<p>The current layer is highlighted with blue border. You can also see how many parents (<em>Ascendants</em>)
+<p>The current layer is highlighted with a blue border. You can also see how many parents (<em>Ascendants</em>)
 and children (<em>Descendants</em>) the current item has.</p>
 </div>
 <div class="paragraph">
@@ -706,7 +706,7 @@ and children (<em>Descendants</em>) the current item has.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Boxes of parent layers where the content item is not localised are hidden by default and can be displayed by clicking on the Ascendants link.</p>
+<p>Boxes of parent layers where the content item is not localized are hidden by default and can be displayed by clicking on the Ascendants link.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -736,7 +736,7 @@ click the button to open the modal dialog.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Just like with the Layers widget, you can expand layer boxes in this dialog to either localise or edit the content in the current layer,
+<p>Just like with the Layers widget, you can expand layer boxes in this dialog to either localize or edit the content in the current layer,
 or open it in other layers (given your user has sufficient permissions to access the layer).</p>
 </div>
 <div class="admonitionblock tip">
@@ -762,7 +762,7 @@ Read about the high-level concept of Content Layers <a href="https://developer.e
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-05-02 15:37:00 UTC
+Last updated 2025-05-05 07:58:32 UTC
 </div>
 </div>
 </body>
