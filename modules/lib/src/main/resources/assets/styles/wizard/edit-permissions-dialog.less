@@ -12,9 +12,10 @@
     padding-top: 16px;
 
     .dialog-content {
-      .steps-container {
-        margin-top: 24px;
+      margin-top: 32px;
+      margin-bottom: 32px;
 
+      .steps-container {
         .main-access-step {
           .principals-access-container {
             margin-bottom: 24px;
@@ -78,6 +79,82 @@
             }
           }
         }
+
+        .strategy-step {
+          .strategy-details-container {
+            margin-top: 16px;
+
+            > button {
+              .button(@admin-button-blue2, transparent, @admin-button-blue3);
+              padding: 0 10px;
+            }
+
+            .access-control-changed-items-list {
+              padding: 0 10px;
+
+              .access-control-changed-item-view {
+                margin-top: 8px;
+
+                .access-control-changed-item-principal-with-status {
+                  display: grid;
+                  grid-template-columns: 1fr 120px;
+
+                  .access-control-changed-item-access {
+                    place-self: center;
+                  }
+                }
+
+                .access-control-changed-item-permissions {
+                  display: flex;
+
+                  .permission-state-view {
+                    margin: 5px;
+                    border-radius: 10px;
+                    padding: 1px 17px;
+                    border: 1px solid transparent;
+                    position: relative;
+
+                    &.unchanged {
+                      background-color: @admin-button-blue1;
+                      color: @admin-white;
+                    }
+
+                    &.unset {
+                      border-color: @admin-medium-gray-border;
+                    }
+
+                    &.added {
+                      background-color: @admin-green;
+                      color: @admin-white;
+
+                      &::before {
+                        position: absolute;
+                        left: 8px;
+                        content: '+';
+                      }
+                    }
+
+                    &.removed {
+                      background-color: #fecacf;
+
+                      &::before {
+                        position: absolute;
+                        left: 10px;
+                        content: '-';
+                      }
+                    }
+                  }
+                }
+
+                &.removed {
+                  .xp-admin-common-main-name {
+                    text-decoration: line-through;
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -125,6 +202,18 @@
         .dialog-button.back-action {
           visibility: visible;
         }
+      }
+    }
+  }
+
+  .dialog-buttons.last-step {
+    .button-container {
+      > .forward-action {
+        display: flex !important;
+      }
+
+      .menu-button {
+        display: none;
       }
     }
   }

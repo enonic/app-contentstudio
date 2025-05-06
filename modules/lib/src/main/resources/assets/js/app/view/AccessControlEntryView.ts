@@ -7,6 +7,7 @@ import {Permission} from '../access/Permission';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {PrincipalContainerSelectedEntryView} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
 import {AccessChangedEvent} from '../security/AccessChangedEvent';
+import {all} from 'q';
 
 export class AccessControlEntryView
     extends PrincipalContainerSelectedEntryView<AccessControlEntry> {
@@ -123,7 +124,10 @@ export class AccessControlEntryView
 
     public static getAccessValueFromEntry(ace: AccessControlEntry): Access {
         const allowedPermissions = ace.getAllowedPermissions();
+        return AccessControlEntryView.getAccessValueFromPermissions(allowedPermissions);
+    }
 
+    public static getAccessValueFromPermissions(allowedPermissions: Permission[]): Access {
         if (this.isFullAccess(allowedPermissions)) {
             return Access.FULL;
         }
