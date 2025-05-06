@@ -44,6 +44,7 @@ export class ApplyAccessToStep
         this.applyToRadioGroup.setValue(totalChildren > 0 ?  'tree' : 'single', true);
         this.itemAndChildrenRadioButton.setLabel(`${i18n('dialog.permissions.step.apply.to.all')} (${totalChildren + 1})`);
         this.childrenOnlyRadioButton.setLabel(`${i18n('dialog.permissions.step.apply.to.children')} (${totalChildren})`);
+        this.itemAndChildrenRadioButton.setEnabled(totalChildren > 0);
         this.childrenOnlyRadioButton.setEnabled(totalChildren > 0);
     }
 
