@@ -13,6 +13,7 @@ const NewContentDialog = require('../../page_objects/browsepanel/new.content.dia
 const XDataImageSelector = require('../../page_objects/wizardpanel/wizard-step-form/xdata.image.selector.wizard.step.form');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentSelectorForm = require('../../page_objects/wizardpanel/content.selector.form');
+const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 
 describe('layer.with.app.spec - tests for layer with applications', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -31,6 +32,30 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             let layer = projectUtils.buildLayer(appConst.PROJECTS.DEFAULT_PROJECT_NAME, null, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
                 appConst.APP_CONTENT_TYPES, LAYER_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
+        });
+
+    // Incorrect behaviour inside the Select Project dialog #8616
+    // https://github.com/enonic/app-contentstudio/issues/8616
+    it("GIVEN Project Selection dialog is opened Focus should be set on the current project WHEN Shift+Tab have been pressed THEN the next project should be selected",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let projectSelectionDialog = new ProjectSelectionDialog();
+            // 1. Select the layer's context:
+            await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
+            // 2. Open Project Selection dialog:
+            await contentBrowsePanel.clickOnProjectViewerButton();
+            await projectSelectionDialog.waitForDialogLoaded();
+            await studioUtils.saveScreenshot('project_selection_dialog_current_project');
+            // 3. Verify - The Focus is set on the current project
+            await projectSelectionDialog.waitForSelectedProjectItem(LAYER_DISPLAY_NAME);
+            // 4. Press Shift+Tab
+            await projectSelectionDialog.press_Shift_Tab();
+            // 5. Press 'Enter' key(switch to the next project):
+            await projectSelectionDialog.pressEnterKey();
+            await studioUtils.saveScreenshot('project_selection_dialog_shift_tab_pressed');
+            let currentProject = await contentBrowsePanel.getCurrentProjectDisplayName();
+            // 6. Verify - The next project should be displayed in the Browse Panel:
+            assert.ok(currentProject.includes(LAYER_DISPLAY_NAME) === false, 'The next project should be selected');
         });
 
     // Verify issue https://github.com/enonic/app-contentstudio/issues/5118

@@ -826,7 +826,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return browseDetailsPanel;
     }
 
-    getSelectedProjectDisplayName() {
+    getCurrentProjectDisplayName() {
         let selector = this.projectViewerButton + lib.H6_DISPLAY_NAME + "//span[@class='display-name']";
         return this.getText(selector);
     }

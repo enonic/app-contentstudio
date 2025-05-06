@@ -2,14 +2,17 @@
  * Created on 24/03/2020.
  */
 const Page = require('../page');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const {Key} = require('webdriverio');
 
 const XPATH = {
     container: `//div[contains(@id,'ProjectSelectionDialog')]`,
     title: "//h2[@class='title']",
     projectList: "//ul[contains(@id,'ProjectList')]",
+    projectListItemByDisplayName: (displayName) => {
+        return `//a[contains(@id,'ProjectListItem') and descendant::span[@class='display-name' and text()='${displayName}']]`;
+    }
 };
 
 class ProjectSelectionDialog extends Page {
@@ -23,7 +26,7 @@ class ProjectSelectionDialog extends Page {
             await this.clickOnElement(this.cancelButtonTop);
             return await this.waitForDialogClosed();
         } catch (err) {
-            this.saveScreenshot('err_click_on_cancel_button');
+            await this.saveScreenshot('err_click_on_cancel_button');
             throw new Error('Project Selection dialog, error when clicking on Cancel(Top) button  ' + err);
         }
     }
@@ -86,6 +89,24 @@ class ProjectSelectionDialog extends Page {
         let locator = XPATH.container + "//h6[@class='notification-dialog-text']";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
+    }
+
+    async waitForSelectedProjectItem(displayName) {
+        let locator = XPATH.container + XPATH.projectList + XPATH.projectListItemByDisplayName(displayName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let element = await this.findElement(locator);
+        let attr = await element.getAttribute('class');
+        return attr.includes('selected');
+    }
+
+    async getNameOfSelectedProjectItem() {
+        let locator = XPATH.container + XPATH.projectList + `//a[contains(@id,'ProjectListItem') and contains(@class,'selected')]//span[@class='display-name']]`;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
+    press_Shift_Tab() {
+        return this.browser.keys([Key.Shift, Key.Tab]);
     }
 }
 

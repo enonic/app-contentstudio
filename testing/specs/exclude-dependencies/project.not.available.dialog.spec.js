@@ -54,8 +54,8 @@ describe("project.not.available.dialog.spec - clicking on 'Start Wizard' button"
             await summaryStep.waitForDialogClosed();
             await settingsBrowsePanel.waitForNotificationMessage();
             // 9. project-context should be loaded after creating a project:
-            let actualContext = await contentBrowsePanel.getSelectedProjectDisplayName();
-            assert.equal(actualContext, PROJECT_DISPLAY_NAME, 'Expected name should be displayed in the project selected option(App Bar)');
+            let currentContext = await contentBrowsePanel.getCurrentProjectDisplayName();
+            assert.equal(currentContext, PROJECT_DISPLAY_NAME, 'Expected current project should be displayed in the project viewer in Browse Panel');
         });
 
     it.skip("GIVEN existing the only one project has been deleted THEN 'project not available' modal dialog should be loaded",

@@ -38,13 +38,14 @@ describe('create.content.in.project.spec - create new content in the selected co
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the project in 'Select Context' dialog
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
-            // Verify that 'No open issues' - this label should be in Issues Button:
+            // 2. Verify that 'No open issues' - this label should be in Issues Button:
             let actualLabel = await settingsBrowsePanel.getTextInShowIssuesButton();
             assert.equal(actualLabel, appConst.SHOW_ISSUES_BUTTON_LABEL.NO_OPEN_ISSUES, "'No open issues' should be displayed");
             // Verify that the grid is empty:
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(result.length, 0, 'Browse Panel should not contain content');
-            let actualDisplayName = await contentBrowsePanel.getSelectedProjectDisplayName();
+            // 3. Verify the current project:
+            let actualDisplayName = await contentBrowsePanel.getCurrentProjectDisplayName();
             assert.equal(actualDisplayName, PROJECT_DISPLAY_NAME,
                 'Expected name should be displayed in the project selected option(App Bar)');
         });
