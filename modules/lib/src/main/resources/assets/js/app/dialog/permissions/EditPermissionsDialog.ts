@@ -25,6 +25,8 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import * as Q from 'q';
 import {PermissionsData} from './PermissionsData';
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
+import {AccessControlEntry} from '../../access/AccessControlEntry';
+import {Permission} from '../../access/Permission';
 
 export class EditPermissionsDialog
     extends MultiStepDialog
@@ -82,6 +84,12 @@ export class EditPermissionsDialog
             const isChanged = this.mainStep.isAnyPermissionChanged();
             this.menuButton.setEnabled(isChanged);
             this.backActionMirror.setEnabled(isChanged);
+            this.secondaryAction.setEnabled(isChanged);
+        });
+
+        this.applyToStep.onDataChanged(() => {
+           const applyTo = this.applyToStep.getData().applyTo;
+           this.strategyStep.setStrategy(applyTo === 'single' ? 'reset' : 'merge');
         });
 
         this.backActionMirror = this.getBackAction();
@@ -119,12 +127,7 @@ export class EditPermissionsDialog
         });
 
         this.secondaryAction.onExecuted(() => {
-           if (this.isLastStep()) {
-               this.reset();
-               this.menuButton.setEnabled(false);
-           } else {
-               this.submit();
-           }
+            this.submit();
         });
     }
 
@@ -172,34 +175,55 @@ export class EditPermissionsDialog
         this.displayName = event.getDisplayName();
 
         new GetDescendantsOfContentsRequest(this.contentPath).sendAndParse().then((ids) => {
-            this.applyToStep.setup(ids.length + 1);
-            this.secondaryAction.setLabel(i18n('dialog.permissions.step.action.submitNow', ids.length + 1));
             this.hasNoChildren = ids.length === 0;
+
+            this.applyToStep.setup(ids.length);
+            this.strategyStep.setStrategy(this.hasNoChildren ? 'reset' : 'merge');
+            this.secondaryAction.setLabel(i18n('dialog.permissions.step.action.submitNow', ids.length + 1));
         }).catch(DefaultErrorHandler.handle);
 
         this.getParentPermissions().then((parentPermissions: AccessControlList) => {
             this.open();
 
-            this.mainStep.setup(event.getPermissions().getEntries(), parentPermissions.getEntries());
-            this.summaryStep.setup(event.getPermissions().getEntries());
+            const originalValuesWithoutRedundant = this.removeRedundantPermissions(event.getPermissions().getEntries());
+            const parentPermissionsWithoutRedundant = this.removeRedundantPermissions(parentPermissions.getEntries());
+
+            this.mainStep.setup(originalValuesWithoutRedundant, parentPermissionsWithoutRedundant);
+            this.summaryStep.setup(originalValuesWithoutRedundant);
+            this.strategyStep.setup(originalValuesWithoutRedundant);
         }).catch(() => {
             showWarning(i18n('notify.permissions.inheritError', this.displayName));
         }).done();
     }
 
     protected showNextStep(): void {
-        if (this.isFirstStep() && this.hasNoChildren) {
-            this.showStep(this.strategyStep); // jump to 3rs step if no children
+        if ((this.isFirstStep() && this.hasNoChildren) || (this.isApplyToStep() && this.isApplyToSingleSelected())) {
+            this.showStep(this.summaryStep); // jump to the summary step if no children
         } else {
             super.showNextStep();
         }
     }
 
+    private isApplyToStep(): boolean {
+        return this.currentStep === this.applyToStep;
+    }
+
+    private isApplyToSingleSelected(): boolean {
+        return this.applyToStep.getData().applyTo === 'single';
+    }
+
     protected showStep(step: DialogStep): void {
         super.showStep(step);
 
-        if (this.isLastStep()) {
+        const isLastStep = this.isLastStep();
+        if (isLastStep) {
             this.summaryStep.setCurrentData(this.collectData());
+        }
+
+        this.getButtonRow().toggleClass('last-step', isLastStep);
+
+        if (step === this.strategyStep) {
+            this.strategyStep.setCurrentlySelectedItems(this.collectData().permissions);
         }
 
         if (this.isFirstStep()) {
@@ -235,8 +259,15 @@ export class EditPermissionsDialog
         if (this.isFirstStep()) { // we're using back button as reset button for the 1st step
             this.mainStep.reset();
         } else {
-            if (this.currentStep === this.strategyStep) { // if no children then skip applyTo step
-                this.showStep(this.mainStep);
+            // if no children then skip applyTo and strategy steps; if applyTo is single selected then skip only strategy step
+            if (this.isLastStep()) {
+                if (this.hasNoChildren) {
+                    this.showStep(this.mainStep);
+                } else if (this.isApplyToSingleSelected()) {
+                    this.showStep(this.applyToStep);
+                } else {
+                    super.showPreviousStep();
+                }
             } else {
                 super.showPreviousStep();
             }
@@ -277,6 +308,23 @@ export class EditPermissionsDialog
 
     setProcessingLabel(processingLabel: string): void {
         this.progressManager.setProcessingLabel(processingLabel);
+    }
+
+    private removeRedundantPermissions(permissions: AccessControlEntry[]): AccessControlEntry[] {
+        const result = [];
+
+        // removing unused PERMISSION.READ_PERMISSIONS and PERMISSION.WRITE_PERMISSIONS
+
+        permissions.forEach((item) => {
+            const cloned = item.clone();
+            cloned.setDeniedPermissions([]);
+            cloned.setAllowedPermissions(
+                item.getAllowedPermissions().filter(p => p !== Permission.READ_PERMISSIONS && p !== Permission.WRITE_PERMISSIONS));
+
+            result.push(cloned);
+        });
+
+        return result;
     }
 }
 

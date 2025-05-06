@@ -40,13 +40,11 @@ export class ApplyAccessToStep
         return i18n('dialog.permissions.step.apply.description');
     }
 
-    setup(total: number): void {
-        this.applyToRadioGroup.setValue('tree', true);
-
-        this.itemAndChildrenRadioButton.setLabel(`${i18n('dialog.permissions.step.apply.to.all')} (${total})`);
-        this.childrenOnlyRadioButton.setLabel(`${i18n('dialog.permissions.step.apply.to.children')} (${total - 1})`);
-
-        this.childrenOnlyRadioButton.setEnabled(total > 1);
+    setup(totalChildren: number): void {
+        this.applyToRadioGroup.setValue(totalChildren > 0 ?  'tree' : 'single', true);
+        this.itemAndChildrenRadioButton.setLabel(`${i18n('dialog.permissions.step.apply.to.all')} (${totalChildren + 1})`);
+        this.childrenOnlyRadioButton.setLabel(`${i18n('dialog.permissions.step.apply.to.children')} (${totalChildren})`);
+        this.childrenOnlyRadioButton.setEnabled(totalChildren > 0);
     }
 
     reset(): void {
@@ -68,6 +66,10 @@ export class ApplyAccessToStep
         applyToLabel.insertBeforeEl(this.applyToRadioGroup);
 
         this.reset();
+
+        this.applyToRadioGroup.onValueChanged(() => {
+           this.notifyDataChanged();
+        });
     }
 
 }
