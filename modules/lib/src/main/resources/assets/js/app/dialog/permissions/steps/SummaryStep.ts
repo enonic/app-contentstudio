@@ -77,7 +77,7 @@ export class SummaryStep
         });
 
         return Array.from(diff.values()).filter(p => !p.getPrincipalKey().equals(RoleKeys.EVERYONE)).map(
-            p => p.toString()).join(', ') || '<None>';
+            p => p.getPrincipalDisplayName()).join(', ') || '<None>';
     }
 
     private getApplyToLine(data: PermissionsData): string {

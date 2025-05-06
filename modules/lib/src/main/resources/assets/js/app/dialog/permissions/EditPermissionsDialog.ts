@@ -27,6 +27,7 @@ import {PermissionsData} from './PermissionsData';
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {AccessControlEntry} from '../../access/AccessControlEntry';
 import {Permission} from '../../access/Permission';
+import {PermissionHelper} from '../../wizard/PermissionHelper';
 
 export class EditPermissionsDialog
     extends MultiStepDialog
@@ -42,13 +43,13 @@ export class EditPermissionsDialog
 
     private progressManager: TaskProgressManager;
 
-    private readonly mainStep: MainAccessStep;
+    private mainStep: MainAccessStep;
 
-    private readonly applyToStep: ApplyAccessToStep;
+    private applyToStep: ApplyAccessToStep;
 
-    private readonly strategyStep: StrategyStep;
+    private strategyStep: StrategyStep;
 
-    private readonly summaryStep: SummaryStep;
+    private summaryStep: SummaryStep;
 
     private menuButton: MenuButton;
 
@@ -56,16 +57,9 @@ export class EditPermissionsDialog
 
     private backActionMirror: Action;
 
-    private hasNoChildren: boolean;
-
     constructor() {
-        const mainStep = new MainAccessStep();
-        const applyToStep = new ApplyAccessToStep();
-        const summaryStep = new SummaryStep();
-        const strategyStep = new StrategyStep();
-
         super({
-            steps: [mainStep, applyToStep, strategyStep, summaryStep],
+            steps: [new MainAccessStep(), new ApplyAccessToStep(), new StrategyStep(), new SummaryStep()],
             confirmation: {
                 yesCallback: () => this.submit(),
                 noCallback: () => this.close(),
@@ -74,29 +68,17 @@ export class EditPermissionsDialog
             title: i18n('dialog.permissions.step.title'),
             class: 'edit-permissions-dialog'
         } as MultiStepDialogConfig);
-
-        this.mainStep = mainStep;
-        this.applyToStep = applyToStep;
-        this.strategyStep = strategyStep;
-        this.summaryStep = summaryStep;
-
-        this.mainStep.onDataChanged(() => {
-            const isChanged = this.mainStep.isAnyPermissionChanged();
-            this.menuButton.setEnabled(isChanged);
-            this.backActionMirror.setEnabled(isChanged);
-            this.secondaryAction.setEnabled(isChanged);
-        });
-
-        this.applyToStep.onDataChanged(() => {
-           const applyTo = this.applyToStep.getData().applyTo;
-           this.strategyStep.setStrategy(applyTo === 'single' ? 'reset' : 'merge');
-        });
-
-        this.backActionMirror = this.getBackAction();
     }
 
     protected initElements(): void {
         super.initElements();
+
+        this.mainStep = this.steps[0] as MainAccessStep;
+        this.applyToStep = this.steps[1] as ApplyAccessToStep;
+        this.strategyStep = this.steps[2] as StrategyStep;
+        this.summaryStep = this.steps[3] as SummaryStep;
+
+        this.backActionMirror = this.getBackAction();
 
         this.progressManager = new TaskProgressManager({
             processingLabel: `${i18n('field.progress.applying')}...`,
@@ -129,18 +111,17 @@ export class EditPermissionsDialog
         this.secondaryAction.onExecuted(() => {
             this.submit();
         });
-    }
 
-    private getParentPermissions(): Q.Promise<AccessControlList> {
-        const parentPath = this.contentPath.getParentPath();
+        this.mainStep.onDataChanged(() => {
+            const isChanged = this.mainStep.isAnyPermissionChanged();
+            this.menuButton.setEnabled(isChanged);
+            this.backActionMirror.setEnabled(isChanged);
+            this.secondaryAction.setEnabled(isChanged);
+        });
 
-        if (parentPath?.isNotRoot()) {
-            return new GetContentByPathRequest(parentPath).sendAndParse().then((content: Content) => {
-                return content.getPermissions();
-            });
-        }
-
-        return Q(new AccessControlList());
+        this.applyToStep.onDataChanged(() => {
+            this.strategyStep.setApplyTo(this.applyToStep.getData().applyTo);
+        });
     }
 
     protected submit(): void {
@@ -175,18 +156,16 @@ export class EditPermissionsDialog
         this.displayName = event.getDisplayName();
 
         new GetDescendantsOfContentsRequest(this.contentPath).sendAndParse().then((ids) => {
-            this.hasNoChildren = ids.length === 0;
-
             this.applyToStep.setup(ids.length);
-            this.strategyStep.setStrategy(this.hasNoChildren ? 'reset' : 'merge');
+            this.strategyStep.setApplyTo(ids.length === 0 ? 'single' : 'tree');
             this.secondaryAction.setLabel(i18n('dialog.permissions.step.action.submitNow', ids.length + 1));
         }).catch(DefaultErrorHandler.handle);
 
-        this.getParentPermissions().then((parentPermissions: AccessControlList) => {
+        PermissionHelper.getParentPermissions(this.contentPath.getParentPath()).then((parentPermissions: AccessControlList) => {
             this.open();
 
-            const originalValuesWithoutRedundant = this.removeRedundantPermissions(event.getPermissions().getEntries());
-            const parentPermissionsWithoutRedundant = this.removeRedundantPermissions(parentPermissions.getEntries());
+            const originalValuesWithoutRedundant = PermissionHelper.removeRedundantPermissions(event.getPermissions().getEntries());
+            const parentPermissionsWithoutRedundant = PermissionHelper.removeRedundantPermissions(parentPermissions.getEntries());
 
             this.mainStep.setup(originalValuesWithoutRedundant, parentPermissionsWithoutRedundant);
             this.summaryStep.setup(originalValuesWithoutRedundant);
@@ -194,22 +173,6 @@ export class EditPermissionsDialog
         }).catch(() => {
             showWarning(i18n('notify.permissions.inheritError', this.displayName));
         }).done();
-    }
-
-    protected showNextStep(): void {
-        if ((this.isFirstStep() && this.hasNoChildren) || (this.isApplyToStep() && this.isApplyToSingleSelected())) {
-            this.showStep(this.summaryStep); // jump to the summary step if no children
-        } else {
-            super.showNextStep();
-        }
-    }
-
-    private isApplyToStep(): boolean {
-        return this.currentStep === this.applyToStep;
-    }
-
-    private isApplyToSingleSelected(): boolean {
-        return this.applyToStep.getData().applyTo === 'single';
     }
 
     protected showStep(step: DialogStep): void {
@@ -252,25 +215,13 @@ export class EditPermissionsDialog
         this.applyToStep.reset();
         this.strategyStep.reset();
         this.backActionMirror.setEnabled(false);
-        this.hasNoChildren = false;
     }
 
     protected showPreviousStep(): void {
         if (this.isFirstStep()) { // we're using back button as reset button for the 1st step
             this.mainStep.reset();
         } else {
-            // if no children then skip applyTo and strategy steps; if applyTo is single selected then skip only strategy step
-            if (this.isLastStep()) {
-                if (this.hasNoChildren) {
-                    this.showStep(this.mainStep);
-                } else if (this.isApplyToSingleSelected()) {
-                    this.showStep(this.applyToStep);
-                } else {
-                    super.showPreviousStep();
-                }
-            } else {
-                super.showPreviousStep();
-            }
+            super.showPreviousStep();
         }
     }
 
@@ -308,23 +259,6 @@ export class EditPermissionsDialog
 
     setProcessingLabel(processingLabel: string): void {
         this.progressManager.setProcessingLabel(processingLabel);
-    }
-
-    private removeRedundantPermissions(permissions: AccessControlEntry[]): AccessControlEntry[] {
-        const result = [];
-
-        // removing unused PERMISSION.READ_PERMISSIONS and PERMISSION.WRITE_PERMISSIONS
-
-        permissions.forEach((item) => {
-            const cloned = item.clone();
-            cloned.setDeniedPermissions([]);
-            cloned.setAllowedPermissions(
-                item.getAllowedPermissions().filter(p => p !== Permission.READ_PERMISSIONS && p !== Permission.WRITE_PERMISSIONS));
-
-            result.push(cloned);
-        });
-
-        return result;
     }
 }
 
