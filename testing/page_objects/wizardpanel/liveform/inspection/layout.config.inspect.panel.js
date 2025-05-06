@@ -66,10 +66,15 @@ class LayoutConfigInspectPanel extends LayoutInspectionPanel {
     }
 
     async clickOnApplyButton() {
-        let locator = "//div[contains(@id,'ContextWindow')]" + lib.actionButton('Apply');
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
-        return await this.pause(1000);
+        try {
+            let locator = "//div[contains(@id,'ContextWindow')]" + lib.actionButton('Apply');
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_button');
+            throw new Error(`Layout Inspect Panel, Apply button , screenshot: ${screenshot}` + err);
+        }
     }
 }
 
