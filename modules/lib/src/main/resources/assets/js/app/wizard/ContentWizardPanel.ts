@@ -979,8 +979,7 @@ export class ContentWizardPanel
                     if (this.reloadPageEditorOnSave && this.livePanel) {
 
                         this.livePanel.loadPage(false).then(() => {
-                            // set the new property set to the form so that we receive change events
-                            this.updateWizardStepForms(currentContent.getContentData());
+
                             this.refreshLivePanel(currentContent).then(() => {
                                 resolve(currentContent);
                             });
@@ -2082,6 +2081,11 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => form.isEnabled() ? null : form.resetData());
         this.xDataWizardStepForms.validate();
         this.displayValidationErrors(!this.isValid());
+
+        // set the new property set to the form so that we receive change events
+        // should happen before resetWizard which clears dirty state on inputs
+        const currentContent = this.getCurrentItem();
+        this.updateWizardStepForms(currentContent.getContentData());
 
         if (!this.isRename) {
             this.resetWizard();
