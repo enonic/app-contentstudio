@@ -114,7 +114,7 @@ export class MainAccessStep
     }
 
     setup(originalValues: AccessControlEntry[], parentPermissions: AccessControlEntry[]): void {
-        this.originalValues = this.removeRedundantPermissions(originalValues);
+        this.originalValues = originalValues;
         this.parentPermissions = parentPermissions;
 
         this.layoutPermissions(this.originalValues);
@@ -124,23 +124,6 @@ export class MainAccessStep
         const hasEveryonePermission = this.originalValues.some((item) => item.getPrincipalKey().equals(RoleKeys.EVERYONE));
         this.accessModeRadioGroup.setValue(hasEveryonePermission ? 'public' : 'restricted', true);
         this.notifyDataChanged();
-    }
-
-    private removeRedundantPermissions(permissions: AccessControlEntry[]): AccessControlEntry[] {
-        const result = [];
-
-        // removing unused PERMISSION.READ_PERMISSIONS and PERMISSION.WRITE_PERMISSIONS
-
-        permissions.forEach((item) => {
-           const cloned = item.clone();
-           cloned.setDeniedPermissions([]);
-            cloned.setAllowedPermissions(
-                item.getAllowedPermissions().filter(p => p !== Permission.READ_PERMISSIONS && p !== Permission.WRITE_PERMISSIONS));
-
-            result.push(cloned);
-        });
-
-        return result;
     }
 
     getData(): AccessControlEntry[]  {
