@@ -6,11 +6,10 @@ import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
 import {RadioButton} from '@enonic/lib-admin-ui/ui/RadioButton';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
-import {ApplyPermissionsStrategy} from '../PermissionsData';
+import {ApplyPermissionsScope, ApplyPermissionsStrategy} from '../PermissionsData';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {AccessControlChangedItem, AccessControlChangedItemsList, AccessControlChangedPermissions} from '../AccessControlChangedItemsList';
+import {AccessControlChangedItem, AccessControlChangedItemsList} from '../AccessControlChangedItemsList';
 import {AccessControlEntry} from '../../../access/AccessControlEntry';
-import {Permission} from '../../../access/Permission';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 
 export class StrategyStep extends DialogStep {
@@ -24,6 +23,7 @@ export class StrategyStep extends DialogStep {
 
     private originalValues: AccessControlEntry[] = [];
     private currentValues: AccessControlEntry[] = [];
+    private applyTo: ApplyPermissionsScope;
 
     constructor() {
         super();
@@ -64,8 +64,10 @@ export class StrategyStep extends DialogStep {
         this.originalValues = originalValues;
     }
 
-    setStrategy(val: ApplyPermissionsStrategy): void {
-        this.strategyRadioGroup.setValue(val, true);
+    setApplyTo(val: ApplyPermissionsScope): void {
+        this.applyTo = val;
+        this.strategyRadioGroup.setValue(val === 'single' ? 'reset' : 'merge', true);
+        this.mergeRadioButton.setEnabled(val !== 'single');
     }
 
     setCurrentlySelectedItems(items: AccessControlEntry[]): void {

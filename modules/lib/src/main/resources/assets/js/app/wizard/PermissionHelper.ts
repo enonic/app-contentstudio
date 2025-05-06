@@ -6,6 +6,10 @@ import {Permission} from '../access/Permission';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
+import * as Q from 'q';
+import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
+import {Content} from '../content/Content';
+import {ContentPath} from '../content/ContentPath';
 
 export class PermissionHelper {
 
@@ -50,5 +54,32 @@ export class PermissionHelper {
 
         return principalKeysWithFullAccess.some((principalFullAccess: PrincipalKey) => AuthHelper.getPrincipalsKeys().some(
             (principal: PrincipalKey) => principalFullAccess.equals(principal)));
+    }
+
+    static getParentPermissions(parentPath: ContentPath): Q.Promise<AccessControlList> {
+        if (parentPath?.isNotRoot()) {
+            return new GetContentByPathRequest(parentPath).sendAndParse().then((content: Content) => {
+                return content.getPermissions();
+            });
+        }
+
+        return Q(new AccessControlList());
+    }
+
+    static removeRedundantPermissions(permissions: AccessControlEntry[]): AccessControlEntry[] {
+        const result = [];
+
+        // removing unused PERMISSION.READ_PERMISSIONS and PERMISSION.WRITE_PERMISSIONS
+
+        permissions.forEach((item) => {
+            const cloned = item.clone();
+            cloned.setDeniedPermissions([]);
+            cloned.setAllowedPermissions(
+                item.getAllowedPermissions().filter(p => p !== Permission.READ_PERMISSIONS && p !== Permission.WRITE_PERMISSIONS));
+
+            result.push(cloned);
+        });
+
+        return result;
     }
 }
