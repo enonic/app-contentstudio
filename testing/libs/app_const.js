@@ -63,7 +63,6 @@ module.exports = Object.freeze({
     TEST_FOLDER_NAME: 'all-content-types-images',
     APP_CONTENT_TYPES: 'All Content Types App',
     MY_FIRST_APP: 'My First App',
-    APP_WITH_CONFIGURATOR: 'Second Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
     TAB_TITLE_PART: "/ Content",
@@ -109,10 +108,12 @@ module.exports = Object.freeze({
     TEST_APPS_NAME: {
         APP_CONTENT_TYPES: 'All Content Types App',
         SIMPLE_SITE_APP: 'Simple Site App',
+        // The app has site-configurator with OptionSet
         APP_WITH_CONFIG_OPTION_SET: 'Simple Test Selenium App',
         APP_WITH_METADATA_MIXIN: 'Third Selenium App',
-        FIRST_SELENIUM_APP: 'First Selenium App',
         MY_FIRST_APP: 'My First App',
+        // The app does not have controllers, but has a site configurator:
+        SECOND_SEL_APP: 'Second Selenium App',
     },
 
     VERSIONS_ITEM_HEADER: {

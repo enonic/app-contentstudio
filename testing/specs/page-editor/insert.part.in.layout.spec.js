@@ -24,7 +24,7 @@ describe('insert.part.in.layout.spec - test for parts in a layout', function () 
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.FIRST_SELENIUM_APP], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
