@@ -2,6 +2,7 @@ import * as Q from 'q';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
@@ -11,6 +12,7 @@ import {AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {RenderingMode} from '../rendering/RenderingMode';
 
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {
@@ -19,10 +21,15 @@ export class ContentItemPreviewToolbar
     private emulatorSelector: EmulatorDropdown;
     private previewButton: ActionButton;
     private previewHelper: PreviewActionHelper;
+    private mode: RenderingMode;
+    private intervalMonitor: number | null = null;
 
-    constructor(previewHelper: PreviewActionHelper) {
+    constructor(previewHelper: PreviewActionHelper, mode: RenderingMode = RenderingMode.PREVIEW) {
         super({className: 'content-item-preview-toolbar'});
         this.previewHelper = previewHelper;
+        this.mode = mode;
+
+        this.initListeners();
     }
 
     protected initElements(): void {
@@ -33,6 +40,23 @@ export class ContentItemPreviewToolbar
 
         this.previewButton = new ActionButton(new WidgetPreviewAction(this));
         this.previewButton.addClass('icon-newtab');
+    }
+
+    protected initListeners(): void {
+        super.initListeners();
+
+        this.widgetSelector.onSelectionChanged(() => {
+            this.stopListeningToIFrameClick();
+        });
+
+        this.widgetSelector.onDropdownVisibilityChanged((isVisible: boolean) => {
+            if (!isVisible) {
+                this.stopListeningToIFrameClick();
+                return;
+            }
+
+            this.startListeningToIFrameClick();
+        });
     }
 
     doRender(): Q.Promise<boolean> {
@@ -49,11 +73,14 @@ export class ContentItemPreviewToolbar
         });
     }
 
+    getMode(): RenderingMode {
+        return this.mode;
+    }
+
     setItem(item: ContentSummaryAndCompareStatus) {
         ResponsiveManager.fireResizeEvent();
 
         super.setItem(item);
-        this.previewButton.getAction().setEnabled(false);
     }
 
     public getWidgetSelector(): PreviewWidgetDropdown {
@@ -64,12 +91,33 @@ export class ContentItemPreviewToolbar
         return this.previewButton.getAction() as WidgetPreviewAction;
     }
 
+    public setPreviewAction(action: Action) {
+        this.previewButton.setAction(action);
+    }
+
     public getPreviewActionHelper(): PreviewActionHelper {
         return this.previewHelper;
     }
 
     protected foldOrExpand(): void {
         //
+    }
+
+    private startListeningToIFrameClick() {
+        this.intervalMonitor = setInterval(() => {
+            const elem = document.activeElement;
+            if (elem?.tagName == 'IFRAME') {
+                this.stopListeningToIFrameClick();
+                Body.get().getEl().dispatchEvent('mousedown');
+            }
+        }, 100);
+    }
+
+    private stopListeningToIFrameClick() {
+        if (this.intervalMonitor !== null) {
+            clearInterval(this.intervalMonitor);
+            this.intervalMonitor = null;
+        }
     }
 }
 
@@ -90,7 +138,9 @@ export class WidgetPreviewAction
     }
 
     protected handleExecuted() {
-        this.toolbar.getPreviewActionHelper().openWindow(this.toolbar.getItem().getContentSummary(),
-            this.toolbar.getWidgetSelector().getSelectedWidget());
+        const contentSummary = this.toolbar.getItem().getContentSummary();
+        const selectedWidget = this.toolbar.getWidgetSelector().getSelectedWidget();
+        const mode = this.toolbar.getMode();
+        this.toolbar.getPreviewActionHelper().openWindow(contentSummary, selectedWidget, mode);
     }
 }
