@@ -76,9 +76,12 @@ export class FragmentInspectionPanel
     setModel(liveEditModel: LiveEditModel) {
         super.setModel(liveEditModel);
 
-        this.fragmentSelector
-            .setSitePath(liveEditModel.getSiteModel().getSite().getPath().toString())
-            .setContentPath(liveEditModel.getContent().getPath());
+        const siteModel = liveEditModel.getSiteModel();
+        if (siteModel) {
+            this.fragmentSelector
+                .setSitePath(siteModel.getSite().getPath().toString())
+                .setContentPath(liveEditModel.getContent().getPath());
+        }
     }
 
     doRender(): Q.Promise<boolean> {

@@ -53,12 +53,15 @@ exports.config = {
     // Set directory to store all logs into
     outputDir: "./build/reports/logs/",
 
-    reporters: ['spec',
-        ['allure', {outputDir: './build/reports/allure', disableWebdriverStepsReporting: true, disableWebdriverScreenshotsReporting: true,}],
+    reporters: [['spec', {
+        color: true
+    }],
+        ['allure',
+            {outputDir: './build/reports/allure', disableWebdriverStepsReporting: true, disableWebdriverScreenshotsReporting: true}]
     ],
 
     // Hook that gets executed before the suite starts
     beforeSuite: function (suite) {
         browser.url(this.baseUrl);
-    },
+    }
 };

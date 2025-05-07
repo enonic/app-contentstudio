@@ -23,7 +23,6 @@ import {UrlAction} from '../UrlAction';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {DeletedContentItem} from './DeletedContentItem';
-import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {ContentSummary, ContentSummaryBuilder} from '../content/ContentSummary';
 import {ContentId} from '../content/ContentId';
 import {ContentPath, ContentPathBuilder} from '../content/ContentPath';
@@ -712,8 +711,6 @@ export class ContentBrowsePanel
     }
 
     private handleCUD() {
-        IsRenderableRequest.clearCache();
-
         if (this.selectableListBoxPanel.getSelectedItems().length > 0) {
             this.browseActionsAndPreviewUpdateRequired = true;
             this.debouncedBrowseActionsAndPreviewRefreshOnDemand();
