@@ -36,10 +36,12 @@ describe('Wizard page - verify schedule form', function () {
             await contentWizard.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
             await contentPublishDialog.clickOnCancelTopButton();
+            // 3. Open Page Editor with Preview Widget,
+            await contentWizard.clickOnPageEditorToggler();
             let status = await contentWizard.getContentStatus();
             assert.equal(status, 'New', "New status should be in ContentWizardToolbar");
             await studioUtils.saveScreenshot('schedule_widget_item_not_displayed');
-            // 3. Schedule widget item should not be displayed in the Details widget
+            // 4. Schedule widget item should not be displayed in the Details widget
             await wizardDetailsPanel.waitForScheduleWidgetItemNotDisplayed();
         });
 
@@ -51,16 +53,17 @@ describe('Wizard page - verify schedule form', function () {
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.openPublishMenuAndPublish();
             await contentWizard.waitForNotificationMessage();
-            // 2. Published status should be displayed in the wizard toolbar
+            // 2. Open Page Editor with Preview Widget, Verify that status gets  Published
+            await contentWizard.clickOnPageEditorToggler();
+            // 3. Published status should be displayed in the wizard toolbar
             let status = await contentWizard.getContentStatus();
             assert.equal(status, 'Published', "'Published' status should be displayed in the toolbar");
-
             await studioUtils.saveScreenshot('edit_prop_not_schedule');
             // 4. Schedule widget item appears in the details panel:
             await wizardDetailsPanel.waitForScheduleWidgetItemDisplayed();
-            // 3. Open Edit Properties modal dialog:
+            // 5. Open Edit Properties modal dialog:
             let editScheduleDialog = await studioUtils.openEditScheduleDialog();
-            // 5. Verify the date in Online from input:
+            // 6. Verify the date in Online from input:
             let expectedDate = new Date().toISOString().substring(0, 10);
             let from = await editScheduleDialog.getOnlineFrom();
             assert.ok(from.includes(expectedDate), "Expected date time should be displayed");
@@ -108,6 +111,8 @@ describe('Wizard page - verify schedule form', function () {
             await studioUtils.doUnPublishInWizard();
             await contentWizard.pause(500);
             await studioUtils.saveScreenshot('check_schedule_form_unpublished');
+            // 3. Open Page Editor with Preview Widget
+            await contentWizard.clickOnPageEditorToggler();
             // 4. 'Edit Schedule' widget item should not be displayed in Details Panel
             await wizardDetailsPanel.waitForScheduleWidgetItemNotDisplayed();
             // 5. 'Unpublished' status should be displayed in the toolbar:
@@ -124,23 +129,25 @@ describe('Wizard page - verify schedule form', function () {
             let wizardVersionsWidget = new WizardVersionsWidget();
             // 1. Select and open the unpublished folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            // 2. Expand the publish-menu then click on 'Publish...' menu item:
+            // 3. Open Page Editor with Preview Widget
+            await contentWizard.clickOnPageEditorToggler();
+            // 3. Expand the publish-menu then click on 'Publish...' menu item:
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();
-            // 3. Click on 'Add Schedule' (calendar icon):
+            // 4. Click on 'Add Schedule' (calendar icon):
             await contentPublishDialog.clickOnAddScheduleIcon();
-            // 4. Type a dateTime in future
+            // 5. Type a dateTime in future
             await contentPublishDialog.typeInOnlineFrom(DATE_TIME_IN_FUTURE);
             await contentPublishDialog.typeInOnlineTo(DATE_TIME_TO);
             await studioUtils.saveScreenshot('online_to_set');
             await contentPublishDialog.clickOnOkInPickerPopup();
-            // 5. Press the Schedule button
+            // 6. Press the Schedule button
             await contentPublishDialog.clickOnScheduleButton();
-            // 6. Verify that status is 'Publishing Scheduled''
+            // 7. Verify that status is 'Publishing Scheduled''
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED);
-            // 7. Open  'Versions Panel':
+            // 8. Open  'Versions Panel':
             await contentWizard.openVersionsHistoryPanel();
-            // 8. Verify the status in versions widget
+            // 9. Verify the status in versions widget
             let status = await wizardVersionsWidget.getContentStatus();
             assert.ok(status.includes('Will be published'), "'Will be published' should be present in the versions widget");
             assert.ok(status.includes(DATE_TIME_IN_FUTURE), 'Expected date time in future should be displayed');
@@ -170,11 +177,13 @@ describe('Wizard page - verify schedule form', function () {
             await contentPublishDialog.clickOnOkInPickerPopup();
             // 6. Press 'Schedule' button
             await contentPublishDialog.clickOnScheduleButton();
-            // 7. Verify that status is 'Publishing Scheduled''
+            // 7. Open Page Editor with Preview Widget, Verify that status gets  Publishing Scheduled
+            await contentWizard.clickOnPageEditorToggler();
+            // 8. Verify that status is 'Publishing Scheduled''
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHED);
-            // 8. Open 'Versions Panel':
+            // 9. Open 'Versions Panel':
             await contentWizard.openVersionsHistoryPanel();
-            // 9. Verify the status in versions widget
+            // 10. Verify the status in versions widget
             let status = await wizardVersionsWidget.getContentStatus();
             assert.ok(status.includes('Published until'), "'Published until' should be present in the versions widget");
             assert.ok(status.includes(DATE_TIME_TO), 'Expected date time in future should be displayed');

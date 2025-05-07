@@ -1,9 +1,10 @@
 /*global app, resolve*/
 
-const bean = __.newBean("com.enonic.xp.app.contentstudio.widget.AutomaticPreviewBean");
-
 function handleGet(req) {
-    return __.toNativeObject(bean.renderByInterface('contentstudio.liveview'));
+    return {
+        status: 410,
+        body: 'Automatic widget preview should be handled on the client.'
+    };
 }
 
 exports.get = handleGet;

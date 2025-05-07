@@ -38,7 +38,6 @@ import {RemoveComponentViewEvent} from './event/incoming/manipulation/RemoveComp
 import {ComponentView} from './ComponentView';
 import * as Q from 'q';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
-import * as $ from 'jquery';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {ComponentItemType} from './ComponentItemType';
@@ -48,14 +47,10 @@ import {HTMLAreaHelper} from '../app/inputtype/ui/text/HTMLAreaHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LoadComponentViewEvent} from './event/incoming/manipulation/LoadComponentViewEvent';
 import {LoadComponentFailedEvent} from './event/outgoing/manipulation/LoadComponentFailedEvent';
-import {UriHelper} from '../app/rendering/UriHelper';
-import {RenderingMode} from '../app/rendering/RenderingMode';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {FragmentComponentView} from './fragment/FragmentComponentView';
 import {DuplicateComponentViewEvent} from './event/incoming/manipulation/DuplicateComponentViewEvent';
 import {MoveComponentViewEvent} from './event/incoming/manipulation/MoveComponentViewEvent';
 import {BeforeContentSavedEvent} from '../app/event/BeforeContentSavedEvent';
-import {HtmlEditorCursorPosition} from '../app/inputtype/ui/text/HtmlEditor';
 import {ContentSummaryAndCompareStatusFetcher} from '../app/resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentId} from '../app/content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../app/content/ContentSummaryAndCompareStatus';
@@ -72,12 +67,9 @@ import {SetComponentStateEvent} from './event/incoming/manipulation/SetComponent
 import {PageReloadRequestedEvent} from './event/outgoing/manipulation/PageReloadRequestedEvent';
 import {PageHelper} from '../app/util/PageHelper';
 import {DescriptorBasedComponent} from '../app/page/region/DescriptorBasedComponent';
+import {SessionStorageHelper} from '../app/util/SessionStorageHelper';
 
 export class LiveEditPage {
-
-    public static SELECTED_PATH_STORAGE_KEY: string = 'contentstudio:liveedit:selectedPath';
-
-    public static SELECTED_TEXT_CURSOR_POS_STORAGE_KEY: string = 'contentstudio:liveedit:textCursorPosition';
 
     private pageView: PageView;
 
@@ -189,14 +181,25 @@ export class LiveEditPage {
 
             this.registerGlobalListeners();
 
+            this.restoreSelection(event.getParams().contentId);
+
             if (LiveEditPage.debug) {
                 console.debug('LiveEditPage: done live edit initializing in ' + (Date.now() - startTime) + 'ms');
             }
 
-            this.restoreSelection();
-
             new LiveEditPageViewReadyEvent().fire();
         }).catch(DefaultErrorHandler.handle);
+    }
+
+    private restoreSelection(contentId: string): void {
+        const selectedItemViewPath: ComponentPath = SessionStorageHelper.getSelectedPathFromStorage(contentId);
+
+        const selected: ItemView = selectedItemViewPath && this.pageView.getComponentViewByPath(selectedItemViewPath);
+
+        if (selected) {
+            selected.selectWithoutMenu();
+            selected.scrollComponentIntoView();
+        }
     }
 
     public destroy(win: Window = window): void {
@@ -385,9 +388,11 @@ export class LiveEditPage {
 
         MoveComponentViewEvent.on(this.moveComponentViewRequestedListener);
 
+        const contentId = this.pageView?.getLiveEditParams().contentId;
+
         this.beforeContentSavedListener = (): void => {
-            this.updateSelectedPathInStorage(null);
-            this.updateSelectedTextCursorPosInStorage(null);
+            SessionStorageHelper.removeSelectedPathInStorage(contentId);
+            SessionStorageHelper.removeSelectedTextCursorPosInStorage(contentId);
 
             if (!this.pageView) {
                 return;
@@ -396,13 +401,13 @@ export class LiveEditPage {
             const selected: ItemView = this.pageView.getSelectedView();
 
             if (selected instanceof ComponentView) {
-                this.updateSelectedPathInStorage(selected.getPath());
+                SessionStorageHelper.updateSelectedPathInStorage(contentId, selected.getPath());
 
                 if (this.pageView.isTextEditMode() && selected instanceof TextComponentView) {
-                    this.updateSelectedTextCursorPosInStorage(selected.getCursorPosition());
+                    SessionStorageHelper.updateSelectedTextCursorPosInStorage(contentId, selected.getCursorPosition());
                 }
             } else if (selected instanceof RegionView) {
-                this.updateSelectedPathInStorage(selected.getPath());
+                SessionStorageHelper.updateSelectedPathInStorage(contentId, selected.getPath());
             }
         };
 
@@ -611,89 +616,5 @@ export class LiveEditPage {
         }
 
         return new DOMParser().parseFromString(error.message, 'text/html').title ?? '';
-    }
-
-    private restoreSelection(): void {
-        const selectedItemViewPath: ComponentPath = this.getSelectedPathFromStorage();
-
-        if (!selectedItemViewPath) {
-            return;
-        }
-
-        const selected: ItemView = this.pageView.getComponentViewByPath(selectedItemViewPath);
-
-        if (selected) {
-            selected.selectWithoutMenu();
-            selected.scrollComponentIntoView();
-
-            const textEditorCursorPos: HtmlEditorCursorPosition = this.getSelectedTextCursorPosInStorage();
-
-            if (textEditorCursorPos && selected instanceof TextComponentView) {
-                this.setCursorPositionInTextComponent(selected, textEditorCursorPos);
-                this.updateSelectedTextCursorPosInStorage(null);
-            }
-        }
-    }
-
-    private setCursorPositionInTextComponent(textComponentView: TextComponentView, textEditorCursorPos: HtmlEditorCursorPosition): void {
-        this.pageView.appendContainerForTextToolbar();
-        textComponentView.startPageTextEditMode();
-        $(textComponentView.getHTMLElement()).simulate('click');
-
-        textComponentView.onEditorReady(() =>
-            setTimeout(() => textComponentView.setCursorPosition(textEditorCursorPos), 100)
-        );
-    }
-
-    private updateSelectedPathInStorage(value: ComponentPath | null): void {
-        const contentId: string = this.pageView?.getLiveEditParams().contentId;
-
-        if (!contentId) {
-            return;
-        }
-
-        if (value) {
-            sessionStorage.setItem(`${LiveEditPage.SELECTED_PATH_STORAGE_KEY}:${contentId}`, value.toString());
-        } else {
-            sessionStorage.removeItem(`${LiveEditPage.SELECTED_PATH_STORAGE_KEY}:${contentId}`);
-        }
-    }
-
-    private getSelectedPathFromStorage(): ComponentPath | null {
-        const contentId: string = this.pageView?.getLiveEditParams().contentId;
-
-        if (!contentId) {
-            return;
-        }
-
-        const entry: string = sessionStorage.getItem(`${LiveEditPage.SELECTED_PATH_STORAGE_KEY}:${contentId}`);
-
-        return entry ? ComponentPath.fromString(entry) : null;
-    }
-
-    private updateSelectedTextCursorPosInStorage(pos: HtmlEditorCursorPosition | null): void {
-        const contentId: string = this.pageView?.getLiveEditParams().contentId;
-
-        if (!contentId) {
-            return;
-        }
-
-        if (pos) {
-            sessionStorage.setItem(`${LiveEditPage.SELECTED_TEXT_CURSOR_POS_STORAGE_KEY}:${contentId}`, JSON.stringify(pos));
-        } else {
-            sessionStorage.removeItem(`${LiveEditPage.SELECTED_TEXT_CURSOR_POS_STORAGE_KEY}:${contentId}`);
-        }
-    }
-
-    private getSelectedTextCursorPosInStorage(): HtmlEditorCursorPosition | null {
-        const contentId: string = this.pageView?.getLiveEditParams().contentId;
-
-        if (!contentId) {
-            return;
-        }
-
-        const entry: string = sessionStorage.getItem(`${LiveEditPage.SELECTED_TEXT_CURSOR_POS_STORAGE_KEY}:${contentId}`);
-
-        return entry ? JSON.parse(entry) : null;
     }
 }

@@ -228,7 +228,6 @@ export class ContentWizardActions
 
     refreshActions(): Q.Promise<void> {
         this.actionsMap.SAVE.setVisible(!this.wizardPanel.getPersistedItem().isDataInherited());
-        this.actionsMap.PREVIEW.setVisible(this.isActionEnabled('PREVIEW'));
 
         if (this.wizardPanel.isNew()) {
             this.enableActionsForNew();

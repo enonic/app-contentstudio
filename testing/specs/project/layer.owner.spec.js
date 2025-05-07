@@ -17,6 +17,12 @@ const ProjectWizardDialogParentProjectStep = require('../../page_objects/project
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
 const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
+const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
+const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
+const TextComponentCke = require('../../page_objects/components/text.component');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -68,7 +74,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let applicationsStep = new ProjectWizardDialogApplicationsStep();
-            let parentStep =  new ProjectWizardDialogParentProjectStep();
+            let parentStep = new ProjectWizardDialogParentProjectStep();
             // 1. Do Log in with 'SU':
             await studioUtils.navigateToContentStudioApp();
             await studioUtils.openSettingsPanel();
@@ -109,6 +115,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
     it("GIVEN user with 'Owner'-layer role is logged in WHEN 'inherited' site has been selected THEN 'Localize' button should appear in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             // Verify that Project Selection dialog is loaded, then close it
@@ -120,11 +127,17 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             // 4. Verify that workflow state the same as in the parent project:
             let actualWorkflow = await contentBrowsePanel.getWorkflowStateByName(SITE_NAME);
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
+
+            // 4. Verify that 'Preview' button is enabled in the preview-item-toolbar
+            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            let actualOption = await contentItemPreviewPanel.getSelectedOptionInPreviewWidget();
+            assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
+                'Automatic option should be selected in preview widget by default');
         });
 
     //Verifies - https://github.com/enonic/app-contentstudio/issues/2309
     //Incorrect default action for inherited content #2309
-    it("GIVEN user with 'Owner'-layer role is logged in WHEN 'inherited' site has been selected THEN 'Localize' button should appear in the browse toolbar",
+    it("GIVEN user with 'Owner'-layer role is logged in WHEN 'inherited' site has been selected THEN 'Mark as ready' button should appear in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
@@ -167,7 +180,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             await studioUtils.doLogout();
         });
 
-    it("GIVEN user with 'Owner'-layer role is logged in WHEN 'inherited' site was marked as ready in the parent project THEN workflow in child layer should be 'Ready for publishing'",
+    it("GIVEN 'inherited' site was marked as ready in the parent project THEN workflow in child layer should be 'Ready for publishing'",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
@@ -190,16 +203,79 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             let contentWizard = new ContentWizard();
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
+            // 2. Make a double click on the site:
             await contentBrowsePanel.doubleClickOnRowByDisplayName(SITE.displayName);
             await studioUtils.doSwitchToNewWizard();
             await contentWizard.waitForOpened();
+            // 3. Verify that PCV is disabled:
             await pageComponentsWizardStepForm.waitForLoaded();
             await pageComponentsWizardStepForm.waitForLocked();
+            // 4. Click on Localize button in the wizard-toolbar:
             await contentWizard.clickOnLocalizeButton();
             await studioUtils.saveScreenshot('localized_site_pcv');
+            // 5. Verify the message:
             let message = await contentWizard.waitForNotificationMessage();
             await pageComponentsWizardStepForm.waitForNotLocked();
             assert.equal(message, 'Inherited content is localized', 'Expected notification message should be displayed');
+            // 6. Verify that Preview button is enabled in the ItemPreview toolbar:
+            await contentWizard.waitForPreviewButtonEnabled();
+            let actualOption = await contentWizard.getSelectedOptionInPreviewWidget();
+            assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
+                'Automatic option should be selected in preview widget by default');
+        });
+
+    // Verifies -  Incorrect state for Preview button in inherited site #8613
+    it("GIVEN localized site has been opened WHEN 'Reset' button has been clicked THEN Preview button should enabled in the ItemPreview toolbar",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentWizard = new ContentWizard();
+            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.clickOnEditButton();
+            await studioUtils.doSwitchToNewWizard();
+            await contentWizard.waitForOpened();
+            // 2. Verify that 'Preview' button is enabled in the ItemPreview toolbar:
+            await contentWizard.waitForPreviewButtonEnabled();
+            // 3. Reset button has been clicked
+            await contentWizard.clickOnResetButton();
+            let confirmationDialog = new ConfirmationDialog();
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
+            // 6. Verify that 'Preview' button is enabled in the ItemPreview toolbar:
+            await contentWizard.waitForPreviewButtonEnabled();
+            // 7. Click on Localize button in the wizard-toolbar:
+            await contentWizard.clickOnLocalizeButton();
+            // 8. Verify that 'Preview' button is enabled in the ItemPreview toolbar:
+            await contentWizard.waitForPreviewButtonEnabled();
+        });
+
+    it("GIVEN user with 'Owner'-layer role is logged in WHEN new text component has been inserted THEN 'Source' button should be displayed in the htmlArea toolbar",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentWizard = new ContentWizard();
+            let textComponentCke = new TextComponentCke();
+            let pageComponentView = new PageComponentView();
+            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
+            let htmlAreaForm = new HtmlAreaForm();
+            let sourceCodeDialog = new SourceCodeDialog();
+            // 2. Click on Localise , Open the site:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.clickOnEditButton();
+            await studioUtils.doSwitchToNextTab();
+            await contentWizard.waitForOpened();
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert a text component
+            await pageComponentView.openMenu('main');
+            // 4. Insert new text component:
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await textComponentCke.switchToLiveEditFrame();
+            // 5. Verify that Source button is clickable on the toolbar:
+            await textComponentCke.clickOnSourceButton();
+            await textComponentCke.switchToParentFrame();
+            await sourceCodeDialog.waitForDialogLoaded();
+            await sourceCodeDialog.clickOnCancelButton();
         });
 
     afterEach(async () => {

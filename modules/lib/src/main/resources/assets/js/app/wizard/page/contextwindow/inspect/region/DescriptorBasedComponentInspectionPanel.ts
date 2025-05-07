@@ -110,6 +110,9 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     bindSiteModelListeners() {
         const siteModel: SiteModel = this.liveEditModel.getSiteModel();
+        if (!siteModel) {
+            return;
+        }
 
         siteModel.onSiteModelUpdated(this.debouncedDescriptorsReload);
         siteModel.onApplicationUnavailable(this.applicationUnavailableListener);
@@ -144,7 +147,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         // Ensure displayed config form and selector option are removed when descriptor is removed
         if (event.getPath().equals(this.component?.getPath()) && event instanceof ComponentDescriptorUpdatedEvent) {
             if (event.getDescriptorKey()) {
-                this.cleanFormView();
+                this.updateSelectorValue();
             } else {
                 this.setSelectorValue(null);
             }
@@ -221,14 +224,14 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.component.setDisableEventForwarding(true);
 
         this.timeoutId = setTimeout(() =>
-            this.formView.layout(false)
-                .catch((reason) => DefaultErrorHandler.handle(reason))
-                .finally(() => {
-                    this.unmask();
-                    this.component.setDisableEventForwarding(false);
-                    this.notifyLayoutListeners();
-                })
-                .done(),
+                this.formView.layout(false)
+                    .catch((reason) => DefaultErrorHandler.handle(reason))
+                    .finally(() => {
+                        this.unmask();
+                        this.component.setDisableEventForwarding(false);
+                        this.notifyLayoutListeners();
+                    })
+                    .done(),
             100);
 
     }

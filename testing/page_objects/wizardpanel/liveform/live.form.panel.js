@@ -250,6 +250,7 @@ class LiveFormPanel extends Page {
     async waitForCaptionDisplayed(text) {
         try {
             let locator = xpath.captionByText(text);
+            let aa = await this.findElements(locator);
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_img_caption_live_edit');

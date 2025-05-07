@@ -29,6 +29,7 @@ const XPATH = {
     displayNameInput: "//input[@name='displayName']",
     pathInput: "//input[@name='name']",
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
+    contentItemPreviewToolbar: `//div[contains(@id,'ContentItemPreviewToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
     publishMenuButton: "//div[contains(@id,'ContentWizardPublishMenuButton')]",
     toolbarPublish: "//div[contains(@id,'ContentWizardToolbarPublishControls')]",
@@ -39,7 +40,6 @@ const XPATH = {
     unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish...']",
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
-    liveEditFrame: "//iframe[contains(@class,'live-edit-frame')]",
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
@@ -66,6 +66,18 @@ const XPATH = {
 };
 
 class ContentWizardPanel extends Page {
+
+    get previewItemToolbar() {
+        return XPATH.container + XPATH.contentItemPreviewToolbar;
+    }
+
+    get emulatorDropdown() {
+        return this.previewItemToolbar + lib.LIVE_VIEW.EMULATOR_DROPDOWN;
+    }
+
+    get previewWidgetDropdown() {
+        return this.previewItemToolbar + lib.LIVE_VIEW.DIV_DROPDOWN;
+    }
 
     get displayNameInput() {
         return XPATH.container + XPATH.displayNameInput;
@@ -124,7 +136,7 @@ class ContentWizardPanel extends Page {
     }
 
     get showChangesToolbarButton() {
-        return XPATH.toolbar + XPATH.showChangesButtonToolbar;
+        return this.previewItemToolbar + XPATH.showChangesButtonToolbar;
     }
 
     get workflowIconAndValidation() {
@@ -143,8 +155,9 @@ class ContentWizardPanel extends Page {
         return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Localize');
     }
 
+    // Preview button on the previewItemToolbar
     get previewButton() {
-        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Preview');
+        return this.previewItemToolbar + lib.actionButtonStrict('Preview');
     }
 
     get controllerOptionFilterInput() {
@@ -174,7 +187,7 @@ class ContentWizardPanel extends Page {
             return await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_localize_enabled_button');
-            throw Error('Localize button should be enabled, screenshot: ' + screenshot + ' ' + err);
+            throw new Error(`Localize button should be enabled, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -446,19 +459,19 @@ class ContentWizardPanel extends Page {
     }
 
     switchToLiveEditFrame() {
-        return this.switchToFrame(XPATH.liveEditFrame);
+        return this.switchToFrame(lib.LIVE_EDIT_FRAME);
     }
 
     waitForLiveEditVisible() {
-        return this.waitForElementDisplayed(XPATH.liveEditFrame, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(lib.LIVE_EDIT_FRAME, appConst.mediumTimeout);
     }
 
     waitForLiveEditNotVisible() {
-        return this.waitForElementNotDisplayed(XPATH.liveEditFrame, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(lib.LIVE_EDIT_FRAME, appConst.mediumTimeout);
     }
 
     async getLiveFramePosition() {
-        let el = await this.findElement(XPATH.liveEditFrame);
+        let el = await this.findElement(lib.LIVE_EDIT_FRAME);
         let xValue = parseInt(await el.getLocation('x'));
         let yValue = parseInt(await el.getLocation('y'));
         return {x: xValue, y: yValue};
@@ -549,7 +562,7 @@ class ContentWizardPanel extends Page {
             let locator = XPATH.container;
             return await this.waitForAttributeHasValue(locator, 'class', 'no-modify-permissions');
         } catch (err) {
-            let screenshot = this.saveScreenshotUniqueName('err_readonly_mode');
+            let screenshot = await this.saveScreenshotUniqueName('err_readonly_mode');
             throw new Error(`Content wizard panel should be in Read only mode! screenshot:${screenshot} ` + err);
         }
     }
@@ -619,7 +632,7 @@ class ContentWizardPanel extends Page {
 
     async doOpenItemViewContextMenu() {
         try {
-            let selector = `//div[contains(@id,'Panel') and contains(@class,'frame-container')]`;
+            let selector = `//div[contains(@id,'FrameContainer')]`;
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.clickOnElement(selector);
             await this.switchToLiveEditFrame();
@@ -710,7 +723,8 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.unpublishMenuItem, appConst.mediumTimeout);
             await this.clickOnElement(this.unpublishMenuItem);
         } catch (err) {
-            throw new Error("Error occurred after clicking on unpublish menu item " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_unpublish_menu_item');
+            throw new Error(`Error occurred after clicking on unpublish menu item , screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -768,23 +782,29 @@ class ContentWizardPanel extends Page {
             await this.waitForOpenRequestButtonVisible();
             return await this.clickOnElement(XPATH.container + XPATH.openRequestButton);
         } catch (err) {
-            await this.saveScreenshot('err_when_click_on_open_req_button');
-            throw new Error('Error when Open Request button has been clicked ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_when_click_on_open_req_button');
+            throw new Error(`Error when Open Request button has been clicked screenshot: ${screenshot}` + err);
         }
     }
 
     async getContentStatus() {
+        let locator = this.previewItemToolbar + XPATH.status;
         let result = await this.getDisplayedElements(XPATH.container + XPATH.status);
         return await result[0].getText();
     }
 
-    waitForContentStatus(expectedStatus) {
-        let selector = XPATH.container +
-                       `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status') and text()='${expectedStatus}']`;
-        let message = "Element still not displayed! timeout is " + appConst.mediumTimeout + "  " + selector;
-        return this.getBrowser().waitUntil(() => {
-            return this.isElementDisplayed(selector);
-        }, appConst.mediumTimeout, message);
+    async waitForContentStatus(expectedStatus) {
+        try {
+            let selector = this.previewItemToolbar +
+                           `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status') and text()='${expectedStatus}']`;
+            let message = "Element still not displayed! timeout is " + appConst.mediumTimeout + "  " + selector;
+            await this.getBrowser().waitUntil(async () => {
+                return await this.isElementDisplayed(selector);
+            }, appConst.mediumTimeout, message);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_content_status');
+            throw new Error(`Error when waiting for content status, screenshot: ${screenshot} ` + err);
+        }
     }
 
     async isPublishMenuItemPresent(menuItem) {
@@ -841,13 +861,12 @@ class ContentWizardPanel extends Page {
     async clickOnMarkAsReadyButton() {
         try {
             let selector = XPATH.container + XPATH.publishMenuButton + XPATH.markAsReadyButton;
-            let aa = await this.findElements(selector);
             await this.waitForMarkAsReadyButtonVisible();
             await this.clickOnElement(selector);
             return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_mark_as_ready_btn');
-            throw new Error('Error during clicking on Mark As Ready Button, screenshot:' + screenshot + " " + err);
+            throw new Error(`Error during clicking on 'Mark As Ready' Button, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -909,7 +928,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForElementDisplayed(this.pageEditorTogglerButton, appConst.mediumTimeout);
             await this.clickOnElement(this.pageEditorTogglerButton);
-            return await this.pause(1000);
+            return await this.pause(800);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_monitor_icon');
             throw new Error(`Page Editor toggler, screenshot : ${screenshot}  ` + err);
@@ -959,6 +978,7 @@ class ContentWizardPanel extends Page {
 
     async clickOnPreviewButton() {
         try {
+            await this.waitForPreviewButtonDisplayed();
             await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout);
             await this.clickOnElement(this.previewButton);
             return await this.pause(2000);
@@ -972,12 +992,22 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(this.previewButton, appConst.mediumTimeout);
     }
 
-    waitForPreviewButtonEnabled() {
-        return this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout);
+    async waitForPreviewButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_button');
+            throw new Error(`Preview button should be enabled, screenshot: ${screenshot} ` + err);
+        }
     }
 
-    waitForPreviewButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.previewButton, appConst.mediumTimeout);
+    async waitForPreviewButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.previewButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_button');
+            throw new Error(`Preview button should not be displayed, screenshot: ${screenshot} ` + err);
+        }
     }
 
     waitForValidationPathMessageDisplayed() {
@@ -1059,12 +1089,12 @@ class ContentWizardPanel extends Page {
     }
 
     async getPageEditorWidth() {
-        let widthProperty = await this.getCSSProperty(XPATH.liveEditFrame, 'width');
+        let widthProperty = await this.getCSSProperty(lib.LIVE_EDIT_FRAME, 'width');
         return widthProperty.value;
     }
 
     async getPageEditorHeight() {
-        let heightProperty = await this.getCSSProperty(XPATH.liveEditFrame, 'height');
+        let heightProperty = await this.getCSSProperty(lib.LIVE_EDIT_FRAME, 'height');
         return heightProperty.value;
     }
 
@@ -1149,6 +1179,66 @@ class ContentWizardPanel extends Page {
         let locator = XPATH.toolbarPublish + lib.BUTTONS.DROP_DOWN_HANDLE;
         await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
     }
+
+    async waitForPreviewWidgetDropdownDisplayed() {
+        return await this.waitForElementDisplayed(this.previewWidgetDropdown, appConst.mediumTimeout);
+    }
+
+    async selectOptionInPreviewWidget(optionName) {
+        try {
+            await this.waitForPreviewWidgetDropdownDisplayed();
+            await this.clickOnElement(this.previewWidgetDropdown);
+            let optionSelector = this.previewWidgetDropdown + lib.DROPDOWN_SELECTOR.listItemByDisplayName(optionName);
+            await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
+            await this.clickOnElement(optionSelector);
+            await this.pause(200);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_widget');
+            throw new Error(`Content Wizard, Error occurred during selecting option in Preview Widget, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    // Gets the selected option in the 'Preview dropdown' Auto, Media, etc.
+    async getSelectedOptionInPreviewWidget() {
+        let locator = this.previewWidgetDropdown + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
+    async waitForPreviewButtonDisabled() {
+        try {
+            await this.waitForPreviewButtonDisplayed();
+            await this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_disabled');
+            throw new Error(`Content Wizard - Preview button should be displayed and disabled, screenshot  : ${screenshot} ` + err);
+        }
+    }
+
+    // returns the selected option in the 'Emulator dropdown' '100%', '375px', etc.
+    async getSelectedOptionInEmulatorDropdown() {
+        try {
+            let locator = this.emulatorDropdown + lib.H6_DISPLAY_NAME;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_emulator_dropdown');
+            throw new Error(`Emulator dropdown - error occurred during getting the selected option, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async getNoPreviewMessage() {
+        let locator = XPATH.container + lib.LIVE_VIEW.NO_PREVIEW_MSG_SPAN;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
+    async get500ErrorText() {
+        let locator = "//h3";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
 }
 
 module.exports = ContentWizardPanel;

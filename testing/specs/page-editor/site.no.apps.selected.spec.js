@@ -8,7 +8,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const appConst = require('../../libs/app_const');
 
-describe('site.with.several.templates: click on dropdown handle in Inspection Panel and change a template ', function () {
+describe('site.no.apps.selected: save a site without applications', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -16,10 +16,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
 
     let SITE_NAME = contentBuilder.generateRandomName('site');
 
-    // Verify Don't auto-show preview panel for a site #6040
-    // don't auto-expand the preview panel (the "Monitor" icon should also be "off" by default), if there's no preview or no apps are selected or none
-    // of the selected apps provide controllers (basically, if no controller can be selected in the preview panel).
-    it(`Given wizard for new site has been opened WHEN there's no preview or no apps are selected THEN 'No page controllers found' message should be shown`,
+    it(`Given wizard for new site has been opened WHEN there's no preview or no apps are selected THEN expected message should be shown in Live View`,
         async () => {
             let contentWizard = new ContentWizard();
             // 1. New site-wizard is opened:
@@ -30,11 +27,19 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await contentWizard.waitAndClickOnSave();
             // 3. Verify that "Monitor" icon is "off" and live form panel is not displayed:
             await contentWizard.waitForControllerOptionFilterInputNotVisible();
-            // 4. Click on Page Editor toggler (monitor icon)
-            await contentWizard.clickOnPageEditorToggler();
-            // 5. Verify the note in 'Live Form' panel
-            let message = await contentWizard.getMessageInLiveFormPanel();
-            assert.equal(message, 'No page controllers found', 'Expected message should be displayed in the live form panel');
+            let actualOption = await contentWizard.getSelectedOptionInPreviewWidget();
+            assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
+                'Automatic option should be selected in preview widget by default');
+            let actualSize = await contentWizard.getSelectedOptionInEmulatorDropdown()
+            assert.equal(actualSize, appConst.EMULATOR_RESOLUTION_VALUE.FULL_SIZE,
+                '100% should be selected in emulator dropdown by default');
+            // TODO  uncomment the check for Preview button
+            // 3. Verify that 'Preview' button should be disabled in the wizard PreviewItem toolbar:
+            //await contentWizard.waitForPreviewButtonDisabled();
+            // 5. Verify the note in 'Live View' panel
+            let message = await contentWizard.getNoPreviewMessage();
+            let expectedMessage = 'Please add an application to your site to enable rendering of this item';
+            assert.equal(message, expectedMessage, 'Expected message should be displayed in the live view panel');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
