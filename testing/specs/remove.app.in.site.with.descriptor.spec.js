@@ -39,6 +39,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. remove the application in app-selector:
             await siteFormPanel.removeApplication(APP_1);
+            await studioUtils.saveScreenshot('app_1_removed');
             // 3. Select another application:
             await siteFormPanel.filterOptionsAndSelectApplication(APP_2);
             // 4. the site should be automatically saved after removing the selected options:
@@ -57,8 +58,8 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             // 9. 'Save' button should be disabled after the resetting:
             await contentWizard.waitForSaveButtonDisabled();
-            // 10 'Preview' button gets hidden:
-            await contentWizard.waitForPreviewButtonNotDisplayed();
+            // 10 'Preview' button gets disabled in the Preview item toolbar:
+            await contentWizard.waitForPreviewButtonDisabled();
             // 11. Select the page descriptor from the new selected application
             await contentWizard.selectPageDescriptor(CONTROLLER_APP_2);
             // 12. Verify that Preview button gets displayed again:

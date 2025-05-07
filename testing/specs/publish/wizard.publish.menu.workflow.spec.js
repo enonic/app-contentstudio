@@ -52,6 +52,8 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             // 1. Publish the folder:
             await contentWizard.doPublish();
             await contentWizard.pause(1000);
+            // 2. Open Page Editor with Preview Widget, Verify that status gets  Modified
+            await contentWizard.clickOnPageEditorToggler();
             await studioUtils.saveScreenshot('check_default_action_unpublish');
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED);
@@ -98,6 +100,8 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             // 2. Update the display name:
             await contentWizard.typeDisplayName(NEW_DISPLAY_NAME);
             await contentWizard.waitAndClickOnSave();
+            // 4. Open Page Editor with Preview Widget, Verify that status gets  Modified
+            await contentWizard.clickOnPageEditorToggler();
             // 3. Verify that status is Modified:
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.MODIFIED);
@@ -141,6 +145,8 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             // 4. Click on Unpublish button in the dialog:
             await contentUnpublishDialog.clickOnUnpublishButton();
             await contentUnpublishDialog.waitForDialogClosed();
+            // Open Preview Item toolbar:
+            await contentWizard.clickOnPageEditorToggler();
             // 5. Status should be Unpublished and 'Mark as Ready' button should be visible
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.UNPUBLISHED);
             await contentWizard.waitForMarkAsReadyButtonVisible();

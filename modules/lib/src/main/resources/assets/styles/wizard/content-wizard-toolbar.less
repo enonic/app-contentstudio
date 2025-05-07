@@ -28,14 +28,6 @@
     }
   }
 
-  .content-status-wrapper {
-    display: none; // Is made visible in content-wizard-panel.less
-    order: 1;
-    margin: auto;
-    align-items: center;
-    padding: 0 5px;
-  }
-
   > .toolbar-publish-controls {
     order: 3;
     margin-right: 5px;
@@ -67,43 +59,6 @@
   &:not(.live) .toggle-button {
     &.icon-clipboard,
     &.icon-cog:not(.details-toggle) {
-      display: none;
-    }
-  }
-
-  .toolbar-state-icon {
-    align-items: center;
-    display: none;
-    height: 100%;
-    width: 20px;
-    order: 2;
-    padding: 0 10px;
-
-    &:before {
-      font-size: 20px;
-    }
-
-    &.invalid, &.ready, &.in-progress {
-      display: flex;
-
-      + .toggle-button {
-        margin-left: auto;
-      }
-    }
-
-    &.invalid {
-      .icon-state-invalid();
-    }
-
-    &.ready {
-      .icon-state-ready();
-    }
-
-    &.in-progress {
-      .icon-state-in-progress();
-    }
-
-    &.status-hidden {
       display: none;
     }
   }
@@ -145,14 +100,6 @@
     }
   }
 
-  &.publish-request .toolbar-state-icon.ready::before {
-    display: block;
-    width: 20px;
-    height: 20px;
-    content: "";
-    background-image: url("../../images/publish-request-open.svg");
-    background-size: contain;
-  }
 
   .cycle-button {
     order: 5;
@@ -189,6 +136,7 @@
     flex-shrink: 0;
     justify-content: flex-end;
     margin-right: 5px;
+    margin-left: auto;
   }
 
   .ai-assistant-container {
@@ -235,18 +183,6 @@
       order: 20 !important;
     }
 
-    .toolbar-state-icon {
-      margin-left: auto;
-      padding-right: 0;
-
-      &.invalid, &.ready, &.in-progress {
-
-        + .cycle-button {
-          margin-left: 0;
-        }
-      }
-    }
-
     .project-info {
       min-width: 32px;
       padding-right: 0;
@@ -261,13 +197,6 @@
 
 @media screen and (max-width: 1200px) {
   .content-wizard-toolbar {
-    .content-status-wrapper {
-      padding: 0 50px;
-
-      .author {
-        display: none;
-      }
-    }
 
     &-collaboration {
       margin: 0 auto;

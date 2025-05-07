@@ -18,7 +18,6 @@ import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import * as Q from 'q';
 import {SelectComponentEvent} from '../event/outgoing/navigation/SelectComponentEvent';
 import {SelectedHighlighter} from '../SelectedHighlighter';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
@@ -32,6 +31,8 @@ import {CreateTextComponentViewConfig} from '../CreateTextComponentViewConfig';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {PageUnlockedEvent} from '../event/outgoing/manipulation/PageUnlockedEvent';
 import {PageState} from '../../app/wizard/page/PageState';
+import {ComponentPath} from '../../app/page/region/ComponentPath';
+import {SessionStorageHelper} from '../../app/util/SessionStorageHelper';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder {
@@ -117,7 +118,8 @@ export class TextComponentView
         };
 
         this.onEditorReady(() => {
-           this.refreshEmptyState();
+            this.refreshEmptyState();
+            this.restoreCursorPosition();
         });
 
         this.bindWindowFocusEvents();
@@ -318,7 +320,6 @@ export class TextComponentView
                 if (this.isEditorReady()) {
                     this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
                 }
-           //     this.setHtml(TextComponentView.DEFAULT_TEXT, false);
             }
         } else {
             if (this.isEditorReady()) {
@@ -569,7 +570,7 @@ export class TextComponentView
 
         if (!this.isEditorReady()) {
             this.onEditorReady(() => {
-               this.focusEditor();
+                this.focusEditor();
             });
 
             return false;
@@ -663,5 +664,28 @@ export class TextComponentView
         this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS);
 
         TextComponentView.lastFocusedView = this;
+    }
+
+    private restoreCursorPosition(): void {
+        const contentId = this.getLiveEditParams().contentId;
+        const selectedItemViewPath: ComponentPath = SessionStorageHelper.getSelectedPathFromStorage(contentId);
+
+        if (this.getPath().equals(selectedItemViewPath)) {
+
+            const textEditorCursorPos: HtmlEditorCursorPosition = SessionStorageHelper.getSelectedTextCursorPosInStorage(contentId);
+
+            if (textEditorCursorPos) {
+                this.setCursorPositionInTextComponent(textEditorCursorPos);
+                SessionStorageHelper.removeSelectedTextCursorPosInStorage(contentId);
+            }
+        }
+    }
+
+    private setCursorPositionInTextComponent(textEditorCursorPos: HtmlEditorCursorPosition): void {
+        this.getPageView().appendContainerForTextToolbar();
+        this.startPageTextEditMode();
+        $(this.getHTMLElement()).simulate('click');
+
+        this.setCursorPosition(textEditorCursorPos);
     }
 }

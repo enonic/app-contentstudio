@@ -135,18 +135,23 @@ module.exports = {
     },
 
     async insertContentLinkInCke(text, contentDisplayName, entireProject) {
-        let insertLinkDialog = new InsertLinkDialog();
-        let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
-        await insertLinkDialog.typeInLinkTextInput(text);
-        if (entireProject) {
-            await insertLinkDialogContentPanel.clickOnShowContentFromEntireProjectCheckbox();
-        }
-        await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(contentDisplayName);
+        try {
+            let insertLinkDialog = new InsertLinkDialog();
+            let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
+            await insertLinkDialog.typeInLinkTextInput(text);
+            if (entireProject) {
+                await insertLinkDialogContentPanel.clickOnShowContentFromEntireProjectCheckbox();
+            }
+            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(contentDisplayName);
         // After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
         await insertLinkDialogContentPanel.clickOnOptionByDisplayName(contentDisplayName);
-        await this.saveScreenshot('content_link_dialog');
-        await insertLinkDialog.clickOnInsertButton();
-        return await insertLinkDialog.pause(700);
+            await this.saveScreenshot('content_link_dialog');
+            await insertLinkDialog.clickOnInsertButton();
+            return await insertLinkDialog.pause(700);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_insert_content_link');
+            throw new Error(`Error when insert content link in CKE, screenshot: ${screenshot} ` + err);
+        }
     },
     async doCloseCurrentBrowserTab() {
         let title = await this.getBrowser().getTitle();
@@ -342,6 +347,7 @@ module.exports = {
         await contentWizardPanel.typeData(site);
         // 2. Type the data and save:
         if (site.data.controller) {
+            //await contentWizardPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizardPanel.selectPageDescriptor(site.data.controller);
         }
         if (noControllers) {

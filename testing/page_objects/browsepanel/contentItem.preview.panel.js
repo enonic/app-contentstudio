@@ -9,7 +9,6 @@ const xpath = {
     container: "//div[contains(@id,'ContentItemPreviewPanel')]",
     toolbar: `//div[contains(@id,'ContentItemPreviewToolbar')]`,
     divPreviewWidgetDropdown: "//div[contains(@id,'PreviewWidgetDropdown')]",
-    divEmulatorDropdown: "//div[contains(@id,'EmulatorDropdown')]",
     ulEmulatorListBox: "//ul[contains(@id,'EmulatorListBox')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     issueMenuButton: `//div[contains(@id,'MenuButton')]`,
@@ -29,7 +28,7 @@ class ContentItemPreviewPanel extends Page {
     }
 
     get emulatorDropdown() {
-        return xpath.toolbar + xpath.divEmulatorDropdown;
+        return xpath.toolbar + lib.LIVE_VIEW.EMULATOR_DROPDOWN;
     }
 
     get previewWidgetDropdown() {
@@ -352,7 +351,7 @@ class ContentItemPreviewPanel extends Page {
 
     // return items in the expanded emulator dropdown:
     async getEmulatorResolutions() {
-        let locator = xpath.divEmulatorDropdown + xpath.ulEmulatorListBox + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM +
+        let locator = lib.LIVE_VIEW.EMULATOR_DROPDOWN + xpath.ulEmulatorListBox + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM +
                       lib.H6_DISPLAY_NAME;
         await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
         await this.pause(300);
