@@ -71,18 +71,20 @@ describe('version.items.after.publishing.spec tests for version items', function
             await wizardDetailsPanel.openVersionHistory();
             // 3. Verify that 'Permissions updated' item appears in the widget
             await wizardVersionsWidget.waitForPermissionsUpdatedItemDisplayed();
+            // 4. Open Page Editor with Preview Widget, Verify that status gets  Modified
+            await contentWizard.clickOnPageEditorToggler();
             let actualStatus = await contentWizard.getContentStatus();
             assert.equal(actualStatus, appConst.CONTENT_STATUS.MODIFIED, "the folder gets 'Modified'");
-            // 4. Verify that the total number of items is 4
+            // 5. Verify that the total number of items is 4
             let allVersions = await wizardVersionsWidget.countVersionItems();
             assert.equal(allVersions, 4, '4 version items should be present in the widget');
-            // 5. Verify that one 'Published' item is present in the widget
+            // 6. Verify that one 'Published' item is present in the widget
             let publishedItems = await wizardVersionsWidget.countPublishedItems();
             assert.equal(publishedItems, 1, "One 'Published' item should be present in the widget");
-            // 6. Verify that one 'Marked as ready' item is present in the widget
+            // 7. Verify that one 'Marked as ready' item is present in the widget
             let markedAsReadyItems = await wizardVersionsWidget.countMarkedAsReadyItems();
             assert.equal(markedAsReadyItems, 1, "One 'Marked as Ready' item should be present in the widget");
-            // 7. Verify that one 'Permissions updated' item is present in the widget
+            // 8. Verify that one 'Permissions updated' item is present in the widget
             let permissionsUpdatedItems = await wizardVersionsWidget.countPermissionsUpdatedItems();
             assert.equal(permissionsUpdatedItems, 1, "One 'Permissions updated' item should be present in the widget");
         });

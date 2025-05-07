@@ -36,8 +36,8 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             // 3. Verify that the site should be saved automatically after selecting a controller
             await contentWizard.selectPageDescriptor(COUNTRY_LIST_CONTROLLER);
             await contentWizard.waitForSaveButtonDisabled();
-            // 4. Click on the tab in Inspect Panel
-            await contextWindow.clickOnTabBarItem('Page');
+            // 4. Click on the Inspect tab in Inspect Panel
+            await contextWindow.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             await pageInspectionPanel.waitForSaveAsTemplateButtonDisplayed();
             // 5. Click on dropdown handle and expand options:
             let actualController = await pageInspectionPanel.getSelectedPageController();
@@ -51,8 +51,8 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             let confirmationDialog = new ConfirmationDialog();
             // 1. Open existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Click on 'Page' tab in Inspection panel:
-            await contextWindow.clickOnTabBarItem('Page');
+            // 2. Click on 'Inspect' tab in Inspection panel:
+            await contextWindow.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             // 3. Select another controller(Automatic) and click on OK:
             await pageInspectionPanel.selectPageTemplateOrController('Automatic');
             // 4. Confirmation dialog should appear:
@@ -72,8 +72,8 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             let confirmationDialog = new ConfirmationDialog();
             // 1. Open existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Click on 'Page' tab in Inspection panel:
-            await contextWindow.clickOnTabBarItem('Page');
+            // 2. Click on 'Inspect' tab in Inspection panel:
+            await contextWindow.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             // 3. Select new controller(Automatic)
             await pageInspectionPanel.selectPageTemplateOrController('Automatic');
             // 4. Click on 'Yes' button
@@ -85,8 +85,9 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             // Verify - 'Save' button remains enabled after switching templates #6484
             await contentWizard.waitForSaveButtonDisabled();
             // 6. Details Panel should be loaded
-            await pageInspectionPanel.waitForNotDisplayed();
-            await wizardDetailsPanel.waitForDetailsPanelLoaded();
+            // TODO #8203 add test for new functionality:
+            //await pageInspectionPanel.waitForNotDisplayed();
+            //await wizardDetailsPanel.waitForDetailsPanelLoaded();
             // 7. Controller selector should be loaded in Live Edit:
             await contentWizard.waitForControllerOptionFilterInputVisible();
         });

@@ -30,17 +30,17 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             let contentWizard = new ContentWizard();
             let doubleForm = new DoubleForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_DEFAULT_2_4);
-            await contentWizard.typeDisplayName(appConst.generateRandomName("double"));
+            await contentWizard.typeDisplayName(appConst.generateRandomName('double'));
             // 1. Click on 'Add' button and add one more input:
             await doubleForm.clickOnAddButton();
             await doubleForm.pause(1000);
             let numberInputs = await doubleForm.getNumberOfInputs();
-            assert.equal(numberInputs.length, 3, "3 double input should be displayed");
+            assert.equal(numberInputs.length, 3, '3 double input should be displayed');
             // 2. Remove the top input:
             await doubleForm.clickOnRemoveIcon(0);
             // 3.Verify that number of inputs is 2:
             numberInputs = await doubleForm.getNumberOfInputs();
-            assert.equal(numberInputs.length, 2, "Single double input should be displayed");
+            assert.equal(numberInputs.length, 2, "Two double inputs should be displayed");
             // 4. Verify that the content is valid:
             let recording = await doubleForm.getOccurrenceValidationRecording(0);
             await studioUtils.saveScreenshot('double_default_value_1');
@@ -112,10 +112,10 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
                 "Min 1 valid occurrence(s) required - this message should appear");
         });
 
-    it(`GIVEN wizard for 'Double(min 0,max 3.14159)' is opened WHEN max value has been typed THEN validation record should not be visible`,
+    it(`GIVEN wizard for new content with 'Double(min 0,max 3.14159)' is opened WHEN max value has been typed THEN validation record should not be visible`,
         async () => {
             let doubleForm = new DoubleForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double_max');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_MIN_MAX);
             // 1. Max value has been typed:
             await doubleForm.typeDouble('3.14159');
             await doubleForm.pause(1000);
@@ -129,7 +129,7 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             assert.ok(isInputRed === false, "input should be with green border");
         });
 
-    it(`GIVEN wizard for new 'Double(min 0,max 3.14159)' is opened WHEN min value has been typed THEN validation record should not be visible`,
+    it(`GIVEN wizard for new content with 'Double(min 0,max 3.14159)' is opened WHEN min value has been typed THEN validation record should not be visible`,
         async () => {
             let doubleForm = new DoubleForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_MIN_MAX);

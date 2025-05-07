@@ -240,7 +240,6 @@ export class ContentWizardActions
         this.actionsMap.DUPLICATE.setVisible(!isPendingDelete);
         this.actionsMap.MOVE.setVisible(!isPendingDelete);
         this.actionsMap.UNPUBLISH.setVisible(!isPendingDelete);
-        this.actionsMap.PREVIEW.setVisible(this.isActionEnabled('PREVIEW') && !isPendingDelete);
 
         if (isPendingDelete) {
             this.enableActions({

@@ -17,7 +17,6 @@ import * as Q from 'q';
 import {ContentFormContext} from '../../ContentFormContext';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 import {GetApplicationRequest} from '../../resource/GetApplicationRequest';
-import {ApplicationAddedEvent} from '../../site/ApplicationAddedEvent';
 import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
 import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
 
@@ -213,9 +212,6 @@ export class SiteConfiguratorSelectedOptionView
     private saveOnFirstTimeRendered(): void {
         if (this.isConfigChanged()) {
             this.applyTemporaryConfig(this.tempSiteConfig);
-            new ApplicationAddedEvent(this.siteConfig).fire();
-        } else if (!this.configureDialog) {
-            new ApplicationAddedEvent(this.siteConfig).fire();
         }
     }
 
