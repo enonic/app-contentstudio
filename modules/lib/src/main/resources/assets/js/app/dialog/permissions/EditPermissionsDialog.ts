@@ -4,13 +4,10 @@ import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AccessControlList} from '../../access/AccessControlList';
-import {Content} from '../../content/Content';
 import {ContentId} from '../../content/ContentId';
-import {ContentPath} from '../../content/ContentPath';
 import {TaskProgressManager, WithTaskProgress} from '../TaskProgressManager';
 import {OpenEditPermissionsDialogEvent} from '../../event/OpenEditPermissionsDialogEvent';
 import {ApplyContentPermissionsRequest} from '../../resource/ApplyContentPermissionsRequest';
-import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
 import {MultiStepDialog, MultiStepDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/multistep/MultiStepDialog';
 import {NamesAndIconView} from '@enonic/lib-admin-ui/app/NamesAndIconView';
 import {MainAccessStep} from './steps/MainAccessStep';
@@ -22,22 +19,16 @@ import {StrategyStep} from './steps/StrategyStep';
 import {MenuButton, MenuButtonConfig} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import * as Q from 'q';
 import {PermissionsData} from './PermissionsData';
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {AccessControlEntry} from '../../access/AccessControlEntry';
-import {Permission} from '../../access/Permission';
-import {PermissionHelper} from '../../wizard/PermissionHelper';
+import {AccessControlHelper} from '../../wizard/AccessControlHelper';
 
 export class EditPermissionsDialog
     extends MultiStepDialog
     implements WithTaskProgress {
 
     private contentId: ContentId;
-
-    private contentPath: ContentPath;
-
-    private displayName: string;
 
     private subTitle: H6El;
 
@@ -56,6 +47,8 @@ export class EditPermissionsDialog
     private secondaryAction: Action;
 
     private backActionMirror: Action;
+
+    private originalValues: AccessControlEntry[];
 
     constructor() {
         super({
@@ -78,7 +71,7 @@ export class EditPermissionsDialog
         this.strategyStep = this.steps[2] as StrategyStep;
         this.summaryStep = this.steps[3] as SummaryStep;
 
-        this.backActionMirror = this.getBackAction();
+        this.backActionMirror = this.getBackAction(); // using the back action as a reset button on the first step
 
         this.progressManager = new TaskProgressManager({
             processingLabel: `${i18n('field.progress.applying')}...`,
@@ -132,7 +125,9 @@ export class EditPermissionsDialog
         const req = new ApplyContentPermissionsRequest().setId(this.contentId).setScope(data.applyTo);
 
         if (data.strategy === 'merge') {
-            req.setAddPermissions(permissions);
+            const {added, removed} = AccessControlHelper.calcMergePermissions(this.originalValues, data.permissions);
+            req.setAddPermissions(added);
+            req.setRemovePermissions(removed);
         } else {
             req.setPermissions(permissions);
         }
@@ -152,26 +147,25 @@ export class EditPermissionsDialog
 
     setDataAndOpen(event: OpenEditPermissionsDialogEvent): void {
         this.contentId = event.getContentId();
-        this.contentPath = event.getContentPath();
-        this.displayName = event.getDisplayName();
 
-        new GetDescendantsOfContentsRequest(this.contentPath).sendAndParse().then((ids) => {
+        new GetDescendantsOfContentsRequest(event.getContentPath()).sendAndParse().then((ids) => {
             this.applyToStep.setup(ids.length);
             this.strategyStep.setApplyTo(ids.length === 0 ? 'single' : 'tree');
             this.secondaryAction.setLabel(i18n('dialog.permissions.step.action.submitNow', ids.length + 1));
         }).catch(DefaultErrorHandler.handle);
 
-        PermissionHelper.getParentPermissions(this.contentPath.getParentPath()).then((parentPermissions: AccessControlList) => {
+        AccessControlHelper.getParentPermissions(event.getContentPath().getParentPath()).then((parentPermissions: AccessControlList) => {
             this.open();
 
-            const originalValuesWithoutRedundant = PermissionHelper.removeRedundantPermissions(event.getPermissions().getEntries());
-            const parentPermissionsWithoutRedundant = PermissionHelper.removeRedundantPermissions(parentPermissions.getEntries());
+            const originalValuesWithoutRedundant = AccessControlHelper.removeRedundantPermissions(event.getPermissions().getEntries());
+            const parentPermissionsWithoutRedundant = AccessControlHelper.removeRedundantPermissions(parentPermissions.getEntries());
 
+            this.originalValues = originalValuesWithoutRedundant;
             this.mainStep.setup(originalValuesWithoutRedundant, parentPermissionsWithoutRedundant);
             this.summaryStep.setup(originalValuesWithoutRedundant);
             this.strategyStep.setup(originalValuesWithoutRedundant);
         }).catch(() => {
-            showWarning(i18n('notify.permissions.inheritError', this.displayName));
+            showWarning(i18n('notify.permissions.inheritError', event.getDisplayName()));
         }).done();
     }
 
@@ -179,6 +173,7 @@ export class EditPermissionsDialog
         super.showStep(step);
 
         const isLastStep = this.isLastStep();
+
         if (isLastStep) {
             this.summaryStep.setCurrentData(this.collectData());
         }
