@@ -8,6 +8,7 @@ import {Permission} from '../../access/Permission';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AccessControlEntryView} from '../../view/AccessControlEntryView';
 import {Access} from '../../security/Access';
+import {PermissionsHelper} from '../../access/PermissionsHelper';
 
 export interface AccessControlChangedPermissions {
     persisted?: Permission[];
@@ -79,10 +80,6 @@ export class AccessControlChangedItemView
         return !this.item.getPermissions().updated || this.item.getPermissions().updated?.length === 0;
     }
 
-    private listAllPermissions(): Permission[] {
-        return [Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE, Permission.PUBLISH];
-    }
-
     private getPermissionState(permission: Permission): PermissionState {
         const isPermInPersisted = this.item.getPermissions().persisted && this.item.getPermissions().persisted?.indexOf(permission) !== -1;
         const isPermInUpdated = this.item.getPermissions().updated && this.item.getPermissions().updated?.indexOf(permission) !== -1;
@@ -116,7 +113,7 @@ export class AccessControlChangedItemView
             if (!this.isRemoved()) {
                 const permissionsEl = new DivEl('access-control-changed-item-permissions');
 
-                this.listAllPermissions().forEach(permission => {
+                PermissionsHelper.getAllPermissions().forEach(permission => {
                    permissionsEl.appendChild(new PermissionStateView(permission, this.getPermissionState(permission)));
                 });
 
