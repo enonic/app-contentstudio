@@ -572,7 +572,7 @@ export class ContentWizardPanel
                 if (!this.siteModel && existing.isSite()) {
                     this.initSiteModel(existing as Site);
                 }
-                this.initFormContext(existing);
+                this.initFormContext();
                 this.liveEditModel = this.initLiveEditModel(existing);
 
                 return this.loadAndSetPageState(existing.getPage()?.clone());
@@ -870,7 +870,7 @@ export class ContentWizardPanel
         this.setPersistedItem(newPersistedContent);
         const contentClone: Content = this.getCurrentItem();
 
-        this.initFormContext(contentClone);
+        this.initFormContext();
         this.updateLiveEditModel(contentClone);
         this.updateWizard(contentClone, true);
 
@@ -2077,19 +2077,22 @@ export class ContentWizardPanel
     }
 
     postUpdatePersistedItem(persistedItem: Content): Q.Promise<Content> {
-        this.contentWizardStepForm.validate();
-        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => form.isEnabled() ? null : form.resetData());
-        this.xDataWizardStepForms.validate();
-        this.displayValidationErrors(!this.isValid());
-
         // set the new property set to the form so that we receive change events
         // should happen before resetWizard which clears dirty state on inputs
         const currentContent = this.getCurrentItem();
         this.updateWizardStepForms(currentContent.getContentData());
+        this.updateXDataStepForms(currentContent);
+        // sets validation errors on form context
+        this.initFormContext();
 
         if (!this.isRename) {
             this.resetWizard();
         }
+
+        this.contentWizardStepForm.validate();
+        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => form.isEnabled() ? null : form.resetData());
+        this.xDataWizardStepForms.validate();
+        this.displayValidationErrors(!this.isValid());
 
         return Q.resolve(persistedItem);
     }
@@ -2334,7 +2337,7 @@ export class ContentWizardPanel
         });
     }
 
-    private initFormContext(persistedItem: Content) {
+    private initFormContext() {
         const content: Content = this.getCurrentItem();
 
         if (ContentWizardPanel.debug) {
