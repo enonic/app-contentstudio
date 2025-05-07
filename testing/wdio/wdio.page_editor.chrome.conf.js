@@ -31,7 +31,7 @@ exports.config = {
     // Enables colors for log output.
     coloredLogs: true,
 
-    baseUrl: 'http://localhost:8080/admin/tool',
+    baseUrl: 'http://localhost:8080/admin',
     //
     // Default timeout for all waitForXXX commands.
     waitforTimeout: 3000,
@@ -51,8 +51,11 @@ exports.config = {
     // Set directory to store all logs into
     outputDir: "./build/reports/logs/",
 
-    reporters: ['concise',
-        ['allure', {outputDir: './build/reports/allure', disableWebdriverStepsReporting: true, disableWebdriverScreenshotsReporting: true}],
+    reporters: [['spec', {
+        color: true
+    }],
+        ['allure',
+            {outputDir: './build/reports/allure', disableWebdriverStepsReporting: true, disableWebdriverScreenshotsReporting: true}]
     ],
 
     // Hook that gets executed before the suite starts

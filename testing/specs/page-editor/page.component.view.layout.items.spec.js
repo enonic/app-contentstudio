@@ -86,12 +86,12 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await pageComponentView.clickOnComponentByDisplayName('left');
             await studioUtils.saveScreenshot('context_win_region_tab');
             // 4. Verify that 'Region' tab bar item is loaded:
-            await liveContextWindow.waitForTabBarItemDisplayed('Region');
+            await liveContextWindow.waitForTabBarItemDisplayed('Inspect');
             // 5. Click on the 'layout-component' in PCV:
             await pageComponentView.clickOnComponentByDisplayName(LAYOUT_NAME);
             await studioUtils.saveScreenshot('context_win_layout_tab');
             // 6. Verify that 'Layout' tab bar item is loaded in the Context Window:
-            await liveContextWindow.waitForTabBarItemDisplayed('Layout');
+            await liveContextWindow.waitForTabBarItemDisplayed('Inspect');
             await layoutInspectionPanel.waitForOpened();
             let actualSelectedOption = await layoutInspectionPanel.getSelectedOption();
             assert.equal(actualSelectedOption, LAYOUT_NAME, "expected layout-display name should be present in the selected option view");
@@ -114,15 +114,15 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await pageComponentView.clickOnComponentByDisplayName('main region');
             await studioUtils.saveScreenshot('context_win_main_region_tab');
             await pageInspectionPanel.waitForOpened();
-            // 4. Verify that 'Page' tab bar item is loaded in the Context Window:
-            await liveContextWindow.waitForTabBarItemDisplayed('Page');
+            // 4. Verify that 'Inspect' tab bar item is loaded in the Context Window:
+            await liveContextWindow.waitForTabBarItemDisplayed('Inspect');
             let actualController = await pageInspectionPanel.getSelectedPageController();
             assert.equal(actualController, 'main region', "Expected controller should be present in the selected option view");
             // 5. Click on the 'layout-component' in PCV:
             await pageComponentView.clickOnComponentByDisplayName(LAYOUT_NAME);
             await studioUtils.saveScreenshot('context_win_layout_tab');
             // 6. Verify that 'Layout' tab bar item is loaded in the Context Window:
-            await liveContextWindow.waitForTabBarItemDisplayed('Layout');
+            await liveContextWindow.waitForTabBarItemDisplayed('Inspect');
             await layoutInspectionPanel.waitForOpened();
             let actualSelectedOption = await layoutInspectionPanel.getSelectedOption();
             assert.equal(actualSelectedOption, LAYOUT_NAME, "expected layout-display name should be present in the selected option view");
@@ -152,10 +152,11 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await studioUtils.saveScreenshot('components_view_site_reverted');
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             await pageComponentViewDialog.waitForNotDisplayed();
-            await contentWizard.clickOnPageEditorToggler();
             // 6. Verify the note in  Live Form panel
-            let message = await contentWizard.getMessageInLiveFormPanel();
-            assert.equal(message, 'No page controllers found', 'Expected message should be displayed in the live form panel');
+            let message = await contentWizard.getNoPreviewMessage();
+            // 'Please add an application to your site to enable rendering of this item'
+            assert.equal(message, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE_ADD_APP, 'expected message should be displayed');
+            await contentWizard.waitForSaveButtonDisabled();
         });
 
 

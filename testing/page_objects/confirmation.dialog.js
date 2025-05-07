@@ -33,7 +33,8 @@ class ConfirmationDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.yesButton, appConst.shortTimeout);
             await this.clickOnElement(this.yesButton);
-            return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout)
+            await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout)
+            await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_confirmation_dlg_yes');
             throw new Error(`Confirmation dialog Yes button! screenshot: ${screenshot}` + err);

@@ -233,32 +233,13 @@ export class ContentWizardActions
         return this.stateManager.isActionEnabled(name);
     }
 
-    refreshPendingDeleteDecorations(): Q.Promise<void> {
-        const isPendingDelete = this.isPendingDelete();
+    refreshActions(): Q.Promise<void> {
+        this.actionsMap.SAVE.setVisible(!this.wizardPanel.getPersistedItem().isDataInherited());
 
-        this.actionsMap.UNDO_PENDING_DELETE.setVisible(isPendingDelete);
-        this.actionsMap.SAVE.setVisible(!isPendingDelete && !this.wizardPanel.getPersistedItem().isDataInherited());
-        this.actionsMap.ARCHIVE.setVisible(!isPendingDelete);
-        this.actionsMap.DUPLICATE.setVisible(!isPendingDelete);
-        this.actionsMap.MOVE.setVisible(!isPendingDelete);
-        this.actionsMap.UNPUBLISH.setVisible(!isPendingDelete);
-        this.actionsMap.PREVIEW.setVisible(this.isActionEnabled('PREVIEW') && !isPendingDelete);
-
-        if (isPendingDelete) {
-            this.enableActions({
-                SAVE: false,
-                RESET: false,
-                LOCALIZE: false,
-                ARCHIVE: false,
-                DUPLICATE: false,
-                MOVE: false,
-            });
+        if (this.wizardPanel.isNew()) {
+            this.enableActionsForNew();
         } else {
-            if (this.wizardPanel.isNew()) {
-                this.enableActionsForNew();
-            } else {
-                return this.enableActionsForExisting(this.wizardPanel.getPersistedItem());
-            }
+            return this.enableActionsForExisting(this.wizardPanel.getPersistedItem());
         }
 
         return Q();

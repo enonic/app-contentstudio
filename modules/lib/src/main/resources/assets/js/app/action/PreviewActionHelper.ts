@@ -39,6 +39,14 @@ export class PreviewActionHelper {
         return isBlocked;
     }
 
+    setPreviewUrl(widget: Widget, url?: string) {
+        widget.getConfig().setProperty("previewUrl", url);
+    }
+
+    getPreviewUrl(widget: Widget): string {
+        return widget.getConfig().getProperty("previewUrl");
+    }
+
     getUrl(content: ContentSummary, widget?: Widget, mode: RenderingMode = RenderingMode.INLINE): string {
         if (!content) {
             throw new Error('Content parameter is required for preview');
