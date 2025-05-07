@@ -1,10 +1,12 @@
 .edit-permissions-dialog {
 
   &.is-processing {
-    .overwrite-child-check,
-    .inherit-perm-check,
-    .form-view {
-      display: none;
+    .modal-dialog-body {
+      .dialog-content {
+        .steps-container {
+          display: none;
+        }
+      }
     }
   }
 

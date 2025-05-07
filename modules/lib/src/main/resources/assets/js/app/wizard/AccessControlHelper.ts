@@ -10,8 +10,9 @@ import * as Q from 'q';
 import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
 import {Content} from '../content/Content';
 import {ContentPath} from '../content/ContentPath';
+import {PermissionsHelper} from '../access/PermissionsHelper';
 
-export class PermissionHelper {
+export class AccessControlHelper {
 
     static hasPermission(permission: Permission, accessControlList: AccessControlList): boolean {
         let result = false;
@@ -41,10 +42,6 @@ export class PermissionHelper {
         });
 
         return result;
-    }
-
-    static hasAdminPermissions(): boolean {
-        return AuthHelper.isAdmin() || AuthHelper.isContentAdmin();
     }
 
     static hasFullAccess(permissions: AccessControlList): boolean {
@@ -81,5 +78,59 @@ export class PermissionHelper {
         });
 
         return result;
+    }
+
+    static calcMergePermissions(oldPermissions: AccessControlEntry[], newPermissions: AccessControlEntry[]): {
+        added: AccessControlList,
+        removed: AccessControlList
+    } {
+        const toAdd: AccessControlList = new AccessControlList();
+        const toRemove: AccessControlList = new AccessControlList();
+
+        oldPermissions.forEach((originalVal) => {
+            const found = newPermissions.find((currentVal) => originalVal.getPrincipalKey().equals(currentVal.getPrincipalKey()));
+
+            if (found) { // was not removed
+                if (!originalVal.equals(found)) { // item was changed
+                    const addedPermissions = [];
+                    const removedPermissions = [];
+
+                    PermissionsHelper.getAllPermissions().forEach(p => {
+                        if (found.getAllowedPermissions().indexOf(p) > -1 && originalVal.getAllowedPermissions().indexOf(p) === -1) {
+                            addedPermissions.push(p);
+                        }
+
+                        if (originalVal.getAllowedPermissions().indexOf(p) > -1 && found.getAllowedPermissions().indexOf(p) === -1) {
+                            removedPermissions.push(p);
+                        }
+                    });
+
+                    if (addedPermissions.length > 0) {
+                        const entry = new AccessControlEntry(originalVal.getPrincipal());
+                        entry.setAllowedPermissions(addedPermissions);
+                        toAdd.add(entry);
+                    }
+
+                    if (removedPermissions.length > 0) {
+                        const entry = new AccessControlEntry(originalVal.getPrincipal());
+                        entry.setAllowedPermissions(removedPermissions);
+                        toRemove.add(entry);
+                    }
+                }
+            } else { // item was removed
+                toRemove.add(new AccessControlEntry(originalVal.getPrincipal()));
+            }
+        });
+
+        // check for newly added items
+        newPermissions.forEach((currentValue) => {
+            const found = oldPermissions.find((originalVal) => originalVal.getPrincipalKey().equals(currentValue.getPrincipalKey()));
+
+            if (!found) { // item was added
+                toAdd.add(currentValue);
+            }
+        });
+
+        return {added: toAdd, removed: toRemove};
     }
 }
