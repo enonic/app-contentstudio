@@ -9,6 +9,7 @@ import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterface
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AriaHasPopup, AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
+import {ViewWidgetEvent} from '../../event/ViewWidgetEvent';
 
 
 export class PreviewWidgetDropdown
@@ -95,6 +96,7 @@ export class PreviewWidgetDropdown
     protected doSelect(item: PreviewWidgetOption) {
         this.selectedOption.setObject(item);
         this.selectedOption.show();
+        new ViewWidgetEvent(item).fire();
         super.doSelect(item);
     }
 

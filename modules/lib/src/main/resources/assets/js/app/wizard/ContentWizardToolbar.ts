@@ -10,7 +10,6 @@ import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import * as Q from 'q';
 import {AI} from '../ai/AI';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ProjectContext} from '../project/ProjectContext';
 import {Project} from '../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
@@ -18,12 +17,12 @@ import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
 import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {UrlHelper} from '../util/UrlHelper';
-import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {CollaborationEl} from './CollaborationEl';
 import {ContentActionCycleButton} from './ContentActionCycleButton';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
+import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolbar';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 
 export interface ContentWizardToolbarConfig extends ToolbarConfig {
@@ -33,7 +32,7 @@ export interface ContentWizardToolbarConfig extends ToolbarConfig {
 }
 
 export class ContentWizardToolbar
-    extends ContentStatusToolbar<ContentWizardToolbarConfig> {
+    extends ItemPreviewToolbar<ContentSummaryAndCompareStatus, ContentWizardToolbarConfig> {
 
     ariaLabel: string = i18n('wcag.contenteditor.toolbar.label');
 
@@ -56,7 +55,6 @@ export class ContentWizardToolbar
     protected initElements(): void {
         this.addProjectButton();
         this.addActionButtons();
-        this.appendStatusWrapperEl();
 
         if (!this.isCollaborationEnabled()) {
             this.addStateIcon();
@@ -72,11 +70,6 @@ export class ContentWizardToolbar
     protected initListeners(): void {
         super.initListeners();
 
-        this.config.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
-            this.updateStateIcon(status);
-            this.toggleValid(!WorkflowStateManager.isInvalid(status));
-        });
-
         ProjectUpdatedEvent.on((event: ProjectUpdatedEvent) => {
             if (event.getProjectName() === ProjectContext.get().getProject().getName()) {
                 new ProjectGetRequest(event.getProjectName()).sendAndParse().then((project: Project) => {
@@ -87,7 +80,6 @@ export class ContentWizardToolbar
 
         this.whenRendered(() => {
             const onPublishControlsInitialised = () => {
-                this.status.show();
                 this.contentWizardToolbarPublishControls.getPublishButton().show();
                 // Call after the ContentPublishMenuButton.handleActionsUpdated debounced calls
                 setTimeout(() => this.foldOrExpand());
@@ -212,13 +204,11 @@ export class ContentWizardToolbar
             actions.getArchiveAction(),
             actions.getDuplicateAction(),
             actions.getMoveAction(),
-            actions.getPreviewAction(),
         ]);
         super.addGreedySpacer();
     }
 
     private addPublishMenuButton(): void {
-        this.status.hide();
 
         this.contentWizardToolbarPublishControls = new ContentWizardToolbarPublishControls(this.config.actions);
         const publishButton = this.contentWizardToolbarPublishControls.getPublishButton();
@@ -242,8 +232,15 @@ export class ContentWizardToolbar
         return CONFIG.isTrue('enableCollaboration');
     }
 
-    getCycleViewModeButton(): ContentActionCycleButton {
-        return this.cycleViewModeButton;
+    private openCollaborationWSConnection(): void {
+        const wsUrl: string =
+            UriHelper.joinPath(WebSocketConnection.getWebSocketUriPrefix(), CONFIG.getString('services.collaborationUrl'));
+
+        WebSocketConnection.create()
+            .setUrl(`${wsUrl}?contentId=${this.getItem().getId()}&project=${ProjectContext.get().getProject().getName()}`)
+            .setKeepAliveTimeSeconds(60)
+            .build()
+            .connect();
     }
 
     getContentWizardToolbarPublishControls(): ContentWizardToolbarPublishControls {
@@ -259,12 +256,5 @@ export class ContentWizardToolbar
             this.collaborationBlock.prependChild(this.aiContentOperatorButtonContainer);
             ResponsiveManager.fireResizeEvent();
         }
-    }
-
-    protected openShowPublishedVersionChangesDialog() {
-        const promise = this.config.compareVersionsPreHook || (() => Q.resolve());
-        promise().then(() => {
-            super.openShowPublishedVersionChangesDialog();
-        });
     }
 }
