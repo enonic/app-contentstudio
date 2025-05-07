@@ -52,7 +52,6 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             let pageComponentView = new PageComponentView();
             // 1. Open the site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            await contentWizard.switchToParentFrame();
             // 2. Unlock the LiveEdit- click on 'Customize' menu item:
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToMainFrame();

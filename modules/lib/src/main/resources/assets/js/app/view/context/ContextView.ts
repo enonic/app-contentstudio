@@ -32,7 +32,6 @@ import {WidgetItemView} from './WidgetItemView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {InternalWidgetType, WidgetView} from './WidgetView';
 import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
-import {EmulatorContext} from './widget/emulator/EmulatorContext';
 
 export class ContextView
     extends DivEl {
@@ -99,7 +98,7 @@ export class ContextView
         });
 
         const createPageEditorVisibilityChangedHandler = (visible: boolean) => () => {
-            this.updateWidgetsVisibility();
+            this.updateSelectedWidget();
         };
 
         ShowLiveEditEvent.on(createPageEditorVisibilityChangedHandler(true));
@@ -154,16 +153,6 @@ export class ContextView
         this.widgetsSelectionRow = new WidgetsSelectionRow();
         this.appendChild(this.widgetsSelectionRow);
         this.widgetsSelectionRow.updateState(this.activeWidget);
-    }
-
-    getWidgetsSelectionRow(): WidgetsSelectionRow {
-        return this.widgetsSelectionRow;
-    }
-
-    public resetWidgetsWidth() {
-        this.widgetViews.forEach((widgetView: WidgetView) => {
-            widgetView.resetContainerWidth();
-        });
     }
 
     private handleApplicationEvents(event: ApplicationEvent) {
@@ -352,19 +341,20 @@ export class ContextView
             .setWidgetItemViews(this.getDetailsWidgetItemViews()).build();
 
         this.versionsWidgetView = this.createVersionsWidgetView();
+        this.pageEditorWidgetView = this.createPageEditorWidgetView();
+
+        this.addWidgets(
+            [this.pageEditorWidgetView, this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()]);
 
         this.defaultWidgetView = this.propertiesWidgetView;
-
-        this.addWidgets(this.getInitialWidgets());
-
         this.setActiveWidget(this.defaultWidgetView);
     }
 
-    private initPageEditorWidgetView(): void {
+    private createPageEditorWidgetView(): WidgetView {
         this.pageEditorWidgetItemView = new PageEditorWidgetItemView();
         this.pageEditorWidgetItemView.appendContextWindow(this.contextWindow);
 
-        this.pageEditorWidgetView = WidgetView.create()
+        const pageEditorWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.pageEditor'))
             .setDescription(i18n('field.contextPanel.pageEditor.description'))
             .setWidgetClass('page-editor-widget')
@@ -380,10 +370,7 @@ export class ContextView
                 this.activateDefaultWidget();
             }
         });
-    }
-
-    protected getInitialWidgets(): WidgetView[] {
-        return [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
+        return pageEditorWidgetView;
     }
 
     protected createVersionsWidgetView(): WidgetView {
@@ -520,57 +507,34 @@ export class ContextView
         this.isPageRenderable = value;
     }
 
-    updateWidgetsVisibility() {
-        this.updatePageEditorWidgetView();
-    }
-
-    private updatePageEditorWidgetView(): void {
-        if ((this.isPageRenderable && !this.item?.getType()?.isShortcut()) || this.item?.getContentSummary()?.isPage()) {
+    updateSelectedWidget() {
+        const shouldActivatePageWidget = (this.isPageRenderable && !this.item?.getType()?.isShortcut()) ||
+                                         this.item?.getContentSummary()?.isPage();
+        if (shouldActivatePageWidget) {
             this.activatePageEditorWidget();
-        } else if (this.isPageEditorWidgetPresent()) {
+        } else {
             this.deactivatePageEditorWidget();
         }
     }
 
     private activatePageEditorWidget(): void {
-        const isPageEditorWidgetPresent: boolean = this.isPageEditorWidgetPresent();
         const isVersionsWidgetActive: boolean = this.isActiveWidgetByType(this.versionsWidgetView);
-
-        if (!isPageEditorWidgetPresent) {
-            if (!this.pageEditorWidgetView) {
-                this.initPageEditorWidgetView();
-            }
-
-            this.insertWidget(this.pageEditorWidgetView, 0);
-        }
 
         this.defaultWidgetView = this.pageEditorWidgetView;
 
-        if (!isPageEditorWidgetPresent && !isVersionsWidgetActive) {
+        if (!isVersionsWidgetActive) {
             this.activateDefaultWidget();
         }
-
-        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
     }
 
     private deactivatePageEditorWidget(): void {
         const isPageEditorWidgetActive: boolean = this.isActiveWidgetByType(this.pageEditorWidgetView);
+
         this.defaultWidgetView = this.propertiesWidgetView;
 
         if (isPageEditorWidgetActive) {
             this.activateDefaultWidget();
         }
-
-        this.removeWidget(this.pageEditorWidgetView);
-        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
-    }
-
-    private isPageEditorWidgetPresent(): boolean {
-        return this.isWidgetPresent(this.pageEditorWidgetView);
-    }
-
-    private isWidgetPresent(widget: WidgetView): boolean {
-        return widget && this.widgetViews.some((w: WidgetView) => widget.compareByType(w));
     }
 
     private layout(empty: boolean = true) {

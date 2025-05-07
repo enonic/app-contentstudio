@@ -27,7 +27,7 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             await studioUtils.doAddSite(SITE);
         });
 
-    // Page Editor shouldn't even be shown for a shortcut (unless there's a page template for the Shortcut content type).
+
     it(`GIVEN wizard for new child shortcut is opened WHEN the parent site with a controller has been selected in target THEN 'Preview' button should not be displayed in the wizard toolbar`,
         async () => {
             let shortcutForm = new ShortcutForm();
@@ -41,11 +41,27 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('shortcut_target_site_with_controller');
-            // 3. Verify that 'Preview' button should be enabled in the wizard toolbar:
-            await contentWizard.waitForPreviewButtonEnabled();
             // 4. Details option should be selected in the widget selector dropdown:
             let selectedOption = await wizardDetailsPanel.getSelectedOptionInWidgetSelectorDropdown();
             assert.equal(selectedOption, 'Details', "'Details' selected option should be in the widget selector");
+        });
+
+    it(`GIVEN existing shortcut has been opened WHEN Show Page Editor button has been clicked THEN 'Preview' button should be disabled in the Preview Item toolbar`,
+        async () => {
+            let shortcutForm = new ShortcutForm();
+            let contentWizard = new ContentWizard();
+            await studioUtils.selectAndOpenContentInWizard(SHORTCUT_NAME);
+            // 1. 'Show page editor' toggle should be displayed, click on it and open the Editor
+            await contentWizard.clickOnPageEditorToggler();
+            // 2. Verify the selected option in Preview Widget
+            let actualOption = await contentWizard.getSelectedOptionInPreviewWidget();
+            assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
+                'Automatic option should be selected in preview widget by default');
+            let actualSize = await contentWizard.getSelectedOptionInEmulatorDropdown()
+            assert.equal(actualSize, appConst.EMULATOR_RESOLUTION_VALUE.FULL_SIZE,
+                '100% should be selected in emulator dropdown by default');
+            // 3. Verify that 'Preview' button should be disabled in the wizard PreviewItem toolbar:
+            await contentWizard.waitForPreviewButtonDisabled();
         });
 
     // When preview request for a selected content returns 3xx code, show our standard "Preview not unavailable" message instead of showing the redirect target content as now.
@@ -77,21 +93,6 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             // 4. 'Preview not available' message should be displayed
             assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE), 'expected message should be displayed');
 
-        });
-
-    // Verifies - Page Editor should not display target content for a shortcut #6619
-    // https://github.com/enonic/app-contentstudio/issues/6619
-    // [Regression] Preview of a shortcut shows target content #4294
-    it(`WHEN existing shortcut with the site in target selector is opened THEN 'Show Page Editor' toggler should not be displayed`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            // 1. Open the shortcut with the site in target selector  an existing folder:
-            await studioUtils.selectAndOpenContentInWizard(SHORTCUT_NAME);
-            // 2. Verify that 'Show Page Editor' toggler(monitor-button) should not be displayed:
-            await contentWizard.waitForPageEditorTogglerNotDisplayed();
-            await studioUtils.saveScreenshot('shortcut_target_site_with_controller_preview_disabled');
-            // 3. Verify that 'Live Edit' frame is not displayed
-            await contentWizard.waitForLiveEditNotVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

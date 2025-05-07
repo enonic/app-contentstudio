@@ -91,7 +91,7 @@ export class PageInspectionPanel
         }
 
         const config: PropertyTree = PageState.getState()?.getConfig();
-        const context: ContentFormContext = this.liveEditModel.getFormContext();
+        const context: ContentFormContext = this.liveEditModel?.getFormContext();
         const root: PropertySet = config ? config.getRoot() : null;
 
         new GetComponentDescriptorRequest(PageState.getState().getController().toString()).sendAndParse().then((descriptor: Descriptor) => {
