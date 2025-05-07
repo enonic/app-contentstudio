@@ -68,7 +68,7 @@ class CityListPartInspectionPanel extends BaseComponentInspectionPanel {
 
     async waitForLoaded() {
         try {
-            return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout)
+            return await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_load_inspect_panel');
             throw new Error(`Live Edit, Part Inspection Panel is not loaded, screenshot: ${screenshot} ` + err);

@@ -101,13 +101,12 @@ describe('Move Fragment specification', function () {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select the fragment-content:
             await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
-            await contentItemPreviewPanel.getSelectedOptionInPreviewWidget();
             // 2. Select 'Media' in the dropdown
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
             // 3. Verify the message:  'Preview not available'
             let messages = await contentItemPreviewPanel.getNoPreviewMessage();
             assert.ok(messages.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE),
-                "Expected message should be displayed in Content Item Preview panel");
+                "'Preview not available' message should be displayed in Content Item Preview panel");
         });
 
     // Verify - Disable Move button when target is not selected #6763

@@ -50,6 +50,29 @@ describe('default.error.page.spec tests for Default error page', function () {
             assert.ok(pageSource.includes("D'oh!"), "Expected message should be loaded");
         });
 
+    it("WHEN part with errors has been removed THEN new inserted component should be displayed without the red icon",
+        async () => {
+            let liveFormPanel = new LiveFormPanel();
+            let contentWizard = new ContentWizardPanel();
+            let pageComponentView = new PageComponentView();
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 2. open the context menu for part with errors
+            await pageComponentView.openMenu(ERROR_PART_NAME);
+            // 3. click on the 'Remove' menu item in PCV and remove the part-component
+            await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.REMOVE]);
+            await pageComponentView.openMenu('main');
+            // 4. click on the 'Insert Part' menu item:
+            await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, appConst.PCV_MENU_ITEM.LAYOUT]);
+            await liveFormPanel.selectLayoutByDisplayName(appConst.LAYOUT_NAME.CENTERED);
+            await contentWizard.waitForNotificationMessage();
+            // 5. Verify that red icon is not displayed beside the layout-component in the PCV:
+            let isInvalid = await pageComponentView.isComponentItemInvalid(appConst.LAYOUT_NAME.CENTERED);
+            assert.ok(isInvalid === false, 'The layout-component should be displayed as valid in PCV');
+        });
+
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {

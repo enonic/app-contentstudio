@@ -213,9 +213,14 @@ class SingleSelectionOptionSet extends Page {
     }
 
     async getValidationRecording() {
-        let locator = xpath.singleOptionView + "//div[@class='selection-message']";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
+        try {
+            let locator = xpath.singleOptionView + "//div[@class='selection-message']";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_validation_recording');
+            throw new Error(`Validation recording, screenshot:${screenshot}` + err);
+        }
     }
 
     waitForValidationRecordingNotDisplayed() {

@@ -33,6 +33,7 @@ describe('Revert published content spec', function () {
             // 4. Publish the folder
             await contentWizard.clickOnMarkAsReadyButton();
             await studioUtils.doPublish();
+            await contentWizard.clickOnPageEditorToggler();
             // "Published status should be in Wizard"
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHED);
         });
@@ -51,7 +52,8 @@ describe('Revert published content spec', function () {
             let actualMessage = await contentWizard.waitForNotificationMessage();
             assert.ok(actualMessage.includes(appConst.NOTIFICATION_MESSAGES.CONTENT_REVERTED),
                 'Expected notification message should appear');
-            // 4. Verify that status gets Modified
+            // 4. Open Page Editor with Preview Widget, Verify that status gets Modified
+            await contentWizard.clickOnPageEditorToggler();
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, "'Modified' status should be in Wizard");
         });
