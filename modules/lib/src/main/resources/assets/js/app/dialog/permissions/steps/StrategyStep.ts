@@ -11,6 +11,7 @@ import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {AccessControlChangedItem, AccessControlChangedItemsList} from '../AccessControlChangedItemsList';
 import {AccessControlEntry} from '../../../access/AccessControlEntry';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
+import {HelpTextContainer} from '@enonic/lib-admin-ui/form/HelpTextContainer';
 
 export class StrategyStep extends DialogStep {
 
@@ -34,7 +35,7 @@ export class StrategyStep extends DialogStep {
         this.resetRadioButton = this.strategyRadioGroup.addOption('reset', i18n('dialog.permissions.step.strategy.reset'));
         this.toggleDetailsButton = new ShowHideDetailsButton();
         this.changedItemsList = new AccessControlChangedItemsList();
-        this.setupStrategyRadioGroup();
+        this.setupStrategyContainer();
     }
 
     getName(): string {
@@ -68,6 +69,7 @@ export class StrategyStep extends DialogStep {
         this.applyTo = val;
         this.strategyRadioGroup.setValue(val === 'single' ? 'reset' : 'merge', true);
         this.mergeRadioButton.setEnabled(val !== 'single');
+        this.mergeRadioButton.setTitle(val === 'single' ? i18n('dialog.permissions.step.strategy.tooltip.single') : '');
     }
 
     setCurrentlySelectedItems(items: AccessControlEntry[]): void {
@@ -76,19 +78,24 @@ export class StrategyStep extends DialogStep {
         this.toggleDetailsButton.setVisible(this.changedItemsList.getItemCount() > 0);
     }
 
-    private setupStrategyRadioGroup(): void {
-        this.setupApplyToRadioGroup();
+    private setupStrategyContainer(): void {
+        this.setupStrategyRadioGroup();
         this.setupDetailsContainer();
         this.reset();
     }
 
-    private setupApplyToRadioGroup(): void {
-        const applyToContainer = new DivEl('strategy-step-container');
-        this.container.appendChild(applyToContainer);
-        applyToContainer.appendChild(this.strategyRadioGroup);
+    private setupStrategyRadioGroup(): void {
+        const strategyContainer = new DivEl('strategy-step-container');
+        this.container.appendChild(strategyContainer);
 
+        const labelAndHelpTextWrapper = new DivEl('strategy-label-and-help-text');
         const applyToLabel = new LabelEl(i18n('dialog.permissions.step.strategy.label'), this.strategyRadioGroup);
-        applyToLabel.insertBeforeEl(this.strategyRadioGroup);
+        labelAndHelpTextWrapper.appendChild(applyToLabel);
+
+        const helpText = new HelpTextContainer(i18n('dialog.permissions.step.strategy.helptext'));
+        labelAndHelpTextWrapper.appendChild(helpText.getToggler());
+
+        strategyContainer.appendChildren(labelAndHelpTextWrapper, helpText.getHelpText(), this.strategyRadioGroup);
     }
 
     private setupDetailsContainer(): void {

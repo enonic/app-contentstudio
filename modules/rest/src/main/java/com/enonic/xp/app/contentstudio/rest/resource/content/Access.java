@@ -13,13 +13,11 @@ import com.enonic.xp.security.acl.Permission;
 
 public enum Access
 {
-    READ( Permission.READ ), WRITE( Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE ), PUBLISH( Permission.READ,
-                                                                                                                         Permission.CREATE,
-                                                                                                                         Permission.MODIFY,
-                                                                                                                         Permission.DELETE,
-                                                                                                                         Permission.PUBLISH ), FULL(
-    Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE, Permission.PUBLISH, Permission.READ_PERMISSIONS,
-    Permission.WRITE_PERMISSIONS ), CUSTOM();
+    READ( Permission.READ ), WRITE( Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE ), FULL( Permission.READ,
+                                                                                                                      Permission.CREATE,
+                                                                                                                      Permission.MODIFY,
+                                                                                                                      Permission.DELETE,
+                                                                                                                      Permission.PUBLISH ), CUSTOM();
 
     private final EnumSet<Permission> permissions;
 
@@ -31,7 +29,7 @@ public enum Access
     public static Access fromPermissions( final Iterable<Permission> permissions )
     {
         final ImmutableSet<Permission> perms = Sets.immutableEnumSet( permissions );
-        return Stream.of( READ, WRITE, PUBLISH, FULL ).
+        return Stream.of( READ, WRITE, FULL ).
             filter( a -> a.hasPermissions( perms ) ).
             findFirst().
             orElse( CUSTOM );
