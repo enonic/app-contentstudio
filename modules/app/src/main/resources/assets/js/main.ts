@@ -70,7 +70,7 @@ import * as Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
-declare const require: { context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void };
+declare const require: {context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void};
 const importAll = r => r.keys().forEach(r);
 importAll(require.context('lib-contentstudio/app/inputtype', true, /^(?!\.[\/\\](ui)).*(\.js)$/));
 
@@ -119,6 +119,8 @@ function startLostConnectionDetector(): ConnectionDetector {
     let wsConnectionErrorId: string;
     let timeoutId: number;
     $isDown.subscribe(isDown => {
+        clearTimeout(timeoutId);
+
         if (isDown && connectionDetector.isConnected()) {
             timeoutId = window.setTimeout(() => {
                 wsConnectionErrorId = showError(i18n('notify.websockets.error'), false);
@@ -130,9 +132,6 @@ function startLostConnectionDetector(): ConnectionDetector {
             NotifyManager.get().hide(wsConnectionErrorId);
             wsConnectionErrorId = null;
         }
-
-        clearTimeout(timeoutId);
-
     });
 
     connectionDetector.startPolling(true);
@@ -516,8 +515,8 @@ function getTheme(): string {
 }
 
 async function startContentBrowser() {
-    await import ('lib-contentstudio/app/ContentAppPanel');
-    const AppWrapper = (await import ('lib-contentstudio/app/AppWrapper')).AppWrapper;
+    await import('lib-contentstudio/app/ContentAppPanel');
+    const AppWrapper = (await import('lib-contentstudio/app/AppWrapper')).AppWrapper;
     const url: string = window.location.href;
     const commonWrapper = new AppWrapper(getTheme());
     const path: Path = Store.instance().get('application').getPath();
@@ -547,12 +546,12 @@ async function startContentBrowser() {
     LauncherHelper.appendLauncherPanel();
     Body.get().appendChild(commonWrapper);
 
-    const NewContentDialog = (await import ('lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;
+    const NewContentDialog = (await import('lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;
 
     const newContentDialog = new NewContentDialog();
     ShowNewContentDialogEvent.on((event) => {
         const parentContent: ContentSummary = event.getParentContent()
-                                            ? event.getParentContent().getContentSummary() : null;
+            ? event.getParentContent().getContentSummary() : null;
 
         if (parentContent != null) {
             new GetContentByIdRequest(parentContent.getContentId()).sendAndParse().then(
@@ -565,8 +564,8 @@ async function startContentBrowser() {
                                 newContentDialog.setParentContent(newParentContent);
                                 newContentDialog.open();
                             }).catch((reason) => {
-                            DefaultErrorHandler.handle(reason);
-                        }).done();
+                                DefaultErrorHandler.handle(reason);
+                            }).done();
                     } else {
                         newContentDialog.setParentContent(newParentContent);
                         newContentDialog.open();
