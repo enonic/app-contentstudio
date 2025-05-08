@@ -50,6 +50,8 @@ export class EditPermissionsDialog
 
     private originalValues: AccessControlEntry[];
 
+    private totalChildren: number;
+
     constructor() {
         super({
             steps: [new MainAccessStep(), new ApplyAccessToStep(), new StrategyStep(), new SummaryStep()],
@@ -102,7 +104,7 @@ export class EditPermissionsDialog
         });
 
         this.secondaryAction.onExecuted(() => {
-            this.submit();
+            this.showStep(this.summaryStep);
         });
 
         this.mainStep.onDataChanged(() => {
@@ -114,6 +116,7 @@ export class EditPermissionsDialog
 
         this.applyToStep.onDataChanged(() => {
             this.strategyStep.setApplyTo(this.applyToStep.getData().applyTo);
+            this.secondaryAction.setLabel(i18n('dialog.permissions.step.action.submitNow', this.getTotalItemsToApplyTo()));
         });
     }
 
@@ -134,7 +137,7 @@ export class EditPermissionsDialog
 
         req.sendAndParse().then((taskId) => {
             this.pollTask(taskId);
-        }).done();
+        }).catch(DefaultErrorHandler.handle).done();
     }
 
     private collectData(): PermissionsData {
@@ -149,9 +152,10 @@ export class EditPermissionsDialog
         this.contentId = event.getContentId();
 
         new GetDescendantsOfContentsRequest(event.getContentPath()).sendAndParse().then((ids) => {
-            this.applyToStep.setup(ids.length);
-            this.strategyStep.setApplyTo(ids.length === 0 ? 'single' : 'tree');
-            this.secondaryAction.setLabel(i18n('dialog.permissions.step.action.submitNow', ids.length + 1));
+            this.totalChildren = ids.length;
+            this.applyToStep.setup(this.totalChildren);
+            this.strategyStep.setApplyTo(this.totalChildren === 0 ? 'single' : 'tree');
+            this.secondaryAction.setLabel(i18n('dialog.permissions.step.action.submitNow', this.totalChildren + 1));
         }).catch(DefaultErrorHandler.handle);
 
         AccessControlHelper.getParentPermissions(event.getContentPath().getParentPath()).then((parentPermissions: AccessControlList) => {
@@ -172,22 +176,23 @@ export class EditPermissionsDialog
     protected showStep(step: DialogStep): void {
         super.showStep(step);
 
-        const isLastStep = this.isLastStep();
-
-        if (isLastStep) {
-            this.summaryStep.setCurrentData(this.collectData());
-        }
-
-        this.getButtonRow().toggleClass('last-step', isLastStep);
-
-        if (step === this.strategyStep) {
-            this.strategyStep.setCurrentlySelectedItems(this.collectData().permissions);
-        }
-
         if (this.isFirstStep()) {
             this.backActionMirror.setLabel(i18n('dialog.permissions.step.action.reset'));
             this.backActionMirror.setEnabled(this.mainStep.isAnyPermissionChanged());
+            this.getButtonRow().removeClass('last-step');
         } else {
+            const isLastStep = this.isLastStep();
+
+            if (isLastStep) {
+                this.summaryStep.setCurrentData(this.collectData());
+            }
+
+            this.getButtonRow().toggleClass('last-step', isLastStep);
+
+            if (step === this.strategyStep) {
+                this.strategyStep.setCurrentlySelectedItems(this.collectData().permissions);
+            }
+
             this.backActionMirror.setEnabled(true).setLabel(i18n('dialog.multistep.previous'));
         }
     }
@@ -200,8 +205,6 @@ export class EditPermissionsDialog
         super.handleHidden();
 
         this.reset();
-
-        this.secondaryAction.setLabel(i18n('dialog.permissions.step.action.submitNow', '?'));
     }
 
     protected reset(): void {
@@ -226,6 +229,24 @@ export class EditPermissionsDialog
 
     private getBackAction(): Action {
         return this.getButtonRow().getActions()[1];
+    }
+
+    private getTotalItemsToApplyTo(): number {
+        const applyTo = this.applyToStep.getData().applyTo;
+
+        if (applyTo === 'single') {
+            return 1;
+        }
+
+        if (applyTo === 'subtree') {
+            return this.totalChildren;
+        }
+
+        return this.totalChildren + 1;
+    }
+
+    protected getSubmitActionLabel(): string {
+        return i18n('dialog.permissions.step.action.submitNow', this.getTotalItemsToApplyTo());
     }
 
     isDirty(): boolean {

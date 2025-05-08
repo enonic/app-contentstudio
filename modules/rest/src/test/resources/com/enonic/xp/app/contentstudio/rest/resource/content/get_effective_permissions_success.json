@@ -24,7 +24,7 @@
     }
   },
   {
-    "access": "PUBLISH",
+    "access": "FULL",
     "permissionAccessJson": {
       "count": 200,
       "users": [
@@ -43,18 +43,6 @@
         {
           "displayName": "user4",
           "key": "user:system:user4"
-        }
-      ]
-    }
-  },
-  {
-    "access": "FULL",
-    "permissionAccessJson": {
-      "count": 1,
-      "users": [
-        {
-          "displayName": "user1",
-          "key": "user:system:user1"
         }
       ]
     }

@@ -7,16 +7,19 @@ import {DlEl} from '@enonic/lib-admin-ui/dom/DlEl';
 import {PermissionsData} from '../PermissionsData';
 import {AccessControlEntry} from '../../../access/AccessControlEntry';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
+import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 
 export class SummaryStep
     extends DialogStep {
 
     private readonly container: Element;
 
+    private readonly principalsLineLabel: Element;
     private readonly principalsLine: Element;
     private readonly accessModeLine: Element;
     private readonly applyToLine: Element;
     private readonly strategyLine: Element;
+    private readonly tooltip: Tooltip;
 
     private originalPermissions: AccessControlEntry[];
 
@@ -24,10 +27,13 @@ export class SummaryStep
         super();
 
         this.container = new SectionEl('summary-step');
+        this.principalsLineLabel = new DdDtEl('dt');
         this.principalsLine = new DdDtEl('dd');
         this.accessModeLine = new DdDtEl('dd');
         this.applyToLine = new DdDtEl('dd');
         this.strategyLine = new DdDtEl('dd');
+
+        this.tooltip = new Tooltip(this.principalsLine, '');
 
         this.setupPropsList();
     }
@@ -49,7 +55,10 @@ export class SummaryStep
     }
 
     setCurrentData(data: PermissionsData): void {
-        this.principalsLine.setHtml(this.makePrincipalsLine(data.permissions));
+        const changedEntries = this.getChangedEntries(data.permissions);
+        this.principalsLineLabel.setHtml(i18n('dialog.permissions.step.summary.permissions.label', changedEntries.length));
+        this.principalsLine.setHtml(this.makePrincipalsLine(changedEntries));
+        this.tooltip.setText(this.makePrincipalsTooltip(changedEntries));
         this.accessModeLine.setHtml(data.permissions.some(p => p.getPrincipalKey().equals(RoleKeys.EVERYONE)) ? i18n(
             'dialog.permissions.step.main.access.public') : i18n('dialog.permissions.step.main.access.restricted'));
         this.applyToLine.setHtml(this.getApplyToLine(data));
@@ -57,7 +66,7 @@ export class SummaryStep
             data.strategy === 'merge' ? i18n('dialog.permissions.step.strategy.merge') : i18n('dialog.permissions.step.strategy.reset'));
     }
 
-    private makePrincipalsLine(current: AccessControlEntry[]): string {
+    private getChangedEntries(current: AccessControlEntry[]): AccessControlEntry[] {
         const diff = new Map<string, AccessControlEntry>();
 
         this.originalPermissions.forEach(p => {
@@ -76,8 +85,15 @@ export class SummaryStep
             }
         });
 
-        return Array.from(diff.values()).filter(p => !p.getPrincipalKey().equals(RoleKeys.EVERYONE)).map(
-            p => p.getPrincipalDisplayName()).join(', ') || '<None>';
+        return Array.from(diff.values()).filter(p => !p.getPrincipalKey().equals(RoleKeys.EVERYONE));
+    }
+
+    private makePrincipalsLine(changedEntries: AccessControlEntry[]): string {
+        return changedEntries.map(p => p.getPrincipalDisplayName()).join(', ') || '<None>';
+    }
+
+    private makePrincipalsTooltip(changedEntries: AccessControlEntry[]): string {
+        return changedEntries.map(p => p.getPrincipalDisplayName()).join('\n');
     }
 
     private getApplyToLine(data: PermissionsData): string {
@@ -99,7 +115,7 @@ export class SummaryStep
         const strategyLineLabel = new DdDtEl('dt').setHtml(i18n('dialog.permissions.step.summary.strategy.label'));
 
         const dl = new DlEl('summary-data-list');
-        dl.appendChildren(principalsLineLabel, this.principalsLine, accessModeLineLabel, this.accessModeLine, applyToLineLabel,
+        dl.appendChildren(this.principalsLineLabel, this.principalsLine, accessModeLineLabel, this.accessModeLine, applyToLineLabel,
             this.applyToLine, strategyLineLabel, this.strategyLine);
 
         this.container.appendChild(dl);
