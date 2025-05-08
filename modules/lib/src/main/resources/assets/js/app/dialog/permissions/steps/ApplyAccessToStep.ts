@@ -7,6 +7,7 @@ import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
 import {RadioButton} from '@enonic/lib-admin-ui/ui/RadioButton';
 import {ApplyPermissionsScope} from '../PermissionsData';
+import {HelpTextContainer} from '@enonic/lib-admin-ui/form/HelpTextContainer';
 
 export class ApplyAccessToStep
     extends DialogStep {
@@ -41,11 +42,18 @@ export class ApplyAccessToStep
     }
 
     setup(totalChildren: number): void {
-        this.applyToRadioGroup.setValue(totalChildren > 0 ?  'tree' : 'single', true);
+        const hasChildren = totalChildren > 0;
+
+        this.applyToRadioGroup.setValue(hasChildren ?  'tree' : 'single', true);
         this.itemAndChildrenRadioButton.setLabel(`${i18n('dialog.permissions.step.apply.to.all')} (${totalChildren + 1})`);
-        this.childrenOnlyRadioButton.setLabel(`${i18n('dialog.permissions.step.apply.to.children')} (${totalChildren})`);
-        this.itemAndChildrenRadioButton.setEnabled(totalChildren > 0);
-        this.childrenOnlyRadioButton.setEnabled(totalChildren > 0);
+        this.childrenOnlyRadioButton.setLabel(
+            i18n('dialog.permissions.step.apply.to.children') + (hasChildren ? ` (${totalChildren})` : ''));
+        this.itemAndChildrenRadioButton.setEnabled(hasChildren);
+        this.childrenOnlyRadioButton.setEnabled(hasChildren);
+
+        const noChildrenTitle = i18n('dialog.permissions.step.apply.tooltip.nochildren');
+        this.itemAndChildrenRadioButton.setTitle(hasChildren ? '' : noChildrenTitle);
+        this.childrenOnlyRadioButton.setTitle(hasChildren ? '' : noChildrenTitle);
     }
 
     reset(): void {
@@ -61,10 +69,18 @@ export class ApplyAccessToStep
     private setupApplyToRadioGroup(): void {
         const applyToContainer = new DivEl('apply-to-container');
         this.container.appendChild(applyToContainer);
-        applyToContainer.appendChild(this.applyToRadioGroup);
+
+        const labelAndHelpTextWrapper = new DivEl('apply-to-label-and-help-text');
+        applyToContainer.appendChild(labelAndHelpTextWrapper);
 
         const applyToLabel = new LabelEl(i18n('dialog.permissions.step.apply.label'), this.applyToRadioGroup);
-        applyToLabel.insertBeforeEl(this.applyToRadioGroup);
+        labelAndHelpTextWrapper.appendChild(applyToLabel);
+
+        const helpText = new HelpTextContainer(i18n('dialog.permissions.step.apply.helptext'));
+        labelAndHelpTextWrapper.appendChild(helpText.getToggler());
+        applyToContainer.appendChild(helpText.getHelpText());
+
+        applyToContainer.appendChild(this.applyToRadioGroup);
 
         this.reset();
 
