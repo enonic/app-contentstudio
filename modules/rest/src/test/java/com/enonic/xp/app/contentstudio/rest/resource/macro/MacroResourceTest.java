@@ -170,7 +170,7 @@ public class MacroResourceTest
             build();
 
         final MacroProcessor macroProcessor = ( MacroContext macroContext ) -> {
-            final String textParams = macroContext.getBody() + "," + macroContext.getParam( "param1" );
+            final String textParams = macroContext.getBody() + "," + macroContext.getParameter( "param1" );
             return PortalResponse.create().
                 body( textParams.toUpperCase() ).
                 contribution( HtmlTag.BODY_END, "<script type='text/javascript' src='some.js'></script>" ).

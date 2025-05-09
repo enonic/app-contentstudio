@@ -1,5 +1,5 @@
 {
-  "html": "SOME TEXT IN BODY,PARAM1",
+  "html" : "SOME TEXT IN BODY,[PARAM1]",
   "macro": "[uppercase param1=\"Param1\"]some text in body[/uppercase]",
   "pageContributions": {
     "bodyBegin": [],
