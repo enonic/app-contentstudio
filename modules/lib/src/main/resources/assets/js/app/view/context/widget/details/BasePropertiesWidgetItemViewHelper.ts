@@ -4,13 +4,14 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DateTimeFormatter} from '@enonic/lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
 import * as Q from 'q';
-import {PermissionHelper} from '../../../../wizard/PermissionHelper';
+import {AccessControlHelper} from '../../../../wizard/AccessControlHelper';
 import {ProjectHelper} from '../../../../settings/data/project/ProjectHelper';
 import {ProjectContext} from '../../../../project/ProjectContext';
 import {GetContentPermissionsByIdRequest} from '../../../../resource/GetContentPermissionsByIdRequest';
 import {AccessControlList} from '../../../../access/AccessControlList';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
+import {PermissionsHelper} from '../../../../access/PermissionsHelper';
 
 export class BasePropertiesWidgetItemViewHelper
     extends PropertiesWidgetItemViewHelper  {
@@ -94,7 +95,7 @@ export class BasePropertiesWidgetItemViewHelper
     }
 
     private hasAdminAccessToSettings(): boolean {
-        return PermissionHelper.hasAdminPermissions() ||
+        return PermissionsHelper.hasAdminPermissions() ||
                AuthHelper.isContentExpert() ||
                ProjectHelper.isProjectOwner(ProjectContext.get().getProject());
     }
@@ -102,7 +103,7 @@ export class BasePropertiesWidgetItemViewHelper
     private hasFullAccess(): Q.Promise<boolean> {
         return new GetContentPermissionsByIdRequest(this.item.getContentId()).sendAndParse().then(
             (permissions: AccessControlList) => {
-                return PermissionHelper.hasFullAccess(permissions);
+                return AccessControlHelper.hasFullAccess(permissions);
             });
     }
 }

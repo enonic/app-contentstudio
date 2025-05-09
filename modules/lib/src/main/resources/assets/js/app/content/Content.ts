@@ -31,10 +31,6 @@ export class Content
 
     private readonly permissions: AccessControlList;
 
-    private readonly inheritPermissions: boolean;
-
-    private readonly overwritePermissions: boolean;
-
     private readonly validationErrors: ValidationError[] = [];
 
     constructor(builder: ContentBuilder) {
@@ -46,8 +42,6 @@ export class Content
         this.extraData = builder.extraData || [];
         this.pageObj = builder.pageObj;
         this.permissions = builder.permissions || new AccessControlList();
-        this.inheritPermissions = builder.inheritPermissions;
-        this.overwritePermissions = builder.overwritePermissions;
         this.validationErrors = builder.validationErrors || [];
     }
 
@@ -81,14 +75,6 @@ export class Content
 
     getPermissions(): AccessControlList {
         return this.permissions;
-    }
-
-    isInheritPermissionsEnabled(): boolean {
-        return this.inheritPermissions;
-    }
-
-    isOverwritePermissionsEnabled(): boolean {
-        return this.overwritePermissions;
     }
 
     equals(o: Equitable, ignoreEmptyValues: boolean = false): boolean {
@@ -126,10 +112,6 @@ export class ContentBuilder
 
     permissions: AccessControlList;
 
-    inheritPermissions: boolean = true;
-
-    overwritePermissions: boolean = false;
-
     validationErrors: ValidationError[];
 
     constructor(source?: Content, cloneProperties: boolean = true) {
@@ -143,8 +125,6 @@ export class ContentBuilder
             }
             this.attachments = source.getAttachments();
             this.permissions = source.getPermissions(); // TODO clone?
-            this.inheritPermissions = source.isInheritPermissionsEnabled();
-            this.overwritePermissions = source.isOverwritePermissionsEnabled();
             this.validationErrors = source.getValidationErrors();
         }
     }
@@ -169,15 +149,9 @@ export class ContentBuilder
             this.permissions = AccessControlList.fromJson(json);
         }
 
-        if (typeof json.inheritPermissions !== 'undefined') {
-            this.inheritPermissions = json.inheritPermissions;
-        }
-
         if (json.validationErrors) {
             this.validationErrors = json.validationErrors.map(ValidationError.fromJson);
         }
-
-        this.overwritePermissions = false;
 
         return this;
     }
@@ -205,16 +179,6 @@ export class ContentBuilder
 
     setPermissions(value: AccessControlList): ContentBuilder {
         this.permissions = value;
-        return this;
-    }
-
-    setInheritPermissionsEnabled(value: boolean): ContentBuilder {
-        this.inheritPermissions = value;
-        return this;
-    }
-
-    setOverwritePermissionsEnabled(value: boolean): ContentBuilder {
-        this.overwritePermissions = value;
         return this;
     }
 
