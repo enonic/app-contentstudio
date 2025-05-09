@@ -53,7 +53,7 @@ exports.webSocketEvent = function webSocketEvent(event) {
                 break;
         }
     } catch (e) {
-        log.error(e);
+        log.error('Error in webSocketEvent:', e);
     }
 }
 
@@ -62,7 +62,7 @@ function handleClose() {
 }
 
 function handleError(event) {
-    log.error(event.error);
+    log.error('events WS error message: ' + JSON.stringify(event.data));
 }
 
 function handleMessage(event) {
