@@ -4,6 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
@@ -17,6 +18,8 @@ import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
 import com.enonic.xp.site.Site;
+import com.enonic.xp.site.SiteConfig;
+import com.enonic.xp.site.SiteConfigs;
 import com.enonic.xp.style.StyleDescriptorService;
 import com.enonic.xp.style.StyleDescriptors;
 
@@ -62,13 +65,20 @@ public final class StyleHandler
 
         final Site nearestSite = this.contentService.getNearestSite( contentId );
 
-        final Set<ApplicationKey> contentApps = nearestSite != null
-            ? nearestSite.getSiteConfigs().getApplicationKeys()
-            : projectService.get( ProjectName.from( ContextAccessor.current().getRepositoryId() ) ).getSiteConfigs().getApplicationKeys();
+        final SiteConfigs siteConfigs = nearestSite != null
+        ? nearestSite.getSiteConfigs()
+        : projectService.get( ProjectName.from( ContextAccessor.current().getRepositoryId() ) ).getSiteConfigs();
+
+        final Set<ApplicationKey> contentApps = this.getSiteConfigsApplicationKeys( siteConfigs );
 
         contentApps.stream().filter( applicationKey -> !isSystemApp( applicationKey ) ).forEach( keys::add );
 
         return ApplicationKeys.from( keys );
+    }
+
+    private Set<ApplicationKey> getSiteConfigsApplicationKeys( final SiteConfigs siteConfigs )
+    {
+        return siteConfigs.stream().map( SiteConfig::getApplicationKey ).collect( Collectors.toSet() );
     }
 
     private boolean isSystemApp( final ApplicationKey key )

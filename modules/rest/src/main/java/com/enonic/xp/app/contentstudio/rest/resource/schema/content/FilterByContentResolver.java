@@ -178,9 +178,14 @@ public class FilterByContentResolver
     {
         return Optional.ofNullable( contentService.getNearestSite( contentId ) )
             .map( Site::getSiteConfigs )
-            .map( SiteConfigs::getApplicationKeys )
+            .map( this::getSiteConfigsApplicationKeys )
             .map( ApplicationKeys::from )
             .orElse( ApplicationKeys.empty() );
+    }
+
+    private Set<ApplicationKey> getSiteConfigsApplicationKeys( final SiteConfigs siteConfigs)
+    {
+        return siteConfigs.stream().map( SiteConfig::getApplicationKey ).collect( Collectors.toSet() );
     }
 
     private Stream<ContentType> mapToContentTypes( final List<ContentTypeName> contentTypeNames )

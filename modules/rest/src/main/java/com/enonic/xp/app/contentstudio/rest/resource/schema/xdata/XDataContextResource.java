@@ -49,6 +49,7 @@ import com.enonic.xp.schema.xdata.XDatas;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
+import com.enonic.xp.site.SiteConfigs;
 import com.enonic.xp.site.SiteService;
 import com.enonic.xp.site.XDataMappings;
 
@@ -145,8 +146,15 @@ public final class XDataContextResource
     {
         final RepositoryId repositoryId = ContextAccessor.current().getRepositoryId();
         return contentService.getNearestSite( content.getId() ) == null ? Optional.ofNullable(
-            repositoryId != null ? ProjectName.from( repositoryId ) : null ).map( projectService::get ).map(
-            project -> getXDataByApps( project.getSiteConfigs().getApplicationKeys(), content.getType() ) ).orElseGet( Map::of ) : Map.of();
+                repositoryId != null ? ProjectName.from( repositoryId ) : null )
+            .map( projectService::get )
+            .map( project -> getXDataByApps( this.getSiteConfigsApplicationKeys( project.getSiteConfigs() ), content.getType() ) )
+            .orElseGet( Map::of ) : Map.of();
+    }
+
+    private Collection<ApplicationKey> getSiteConfigsApplicationKeys( final SiteConfigs siteConfigs )
+    {
+        return siteConfigs.stream().map( SiteConfig::getApplicationKey ).collect( Collectors.toSet() );
     }
 
     private Map<XData, Boolean> getXDataByApps( final Collection<ApplicationKey> applicationKeys, final ContentTypeName contentType )
