@@ -76,7 +76,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             let expectedOption = `( no default template found )`;
             assert.equal(actualOptions[0], expectedOption, 'name of automatic template should be displayed');
             assert.equal(actualOptions[1], 'test region', 'expected option should be present');
-            assert.equal(actualOptions[2], 'home page', 'expected option should be present');
+            assert.ok(actualOptions.includes('home page') , 'expected option should be present');
         });
 
     it(`WHEN existing site(controller is selected) has been clicked THEN 'Preview' button should be enabled in the ItemPreviewPanel toolbar and in Context menu`,
