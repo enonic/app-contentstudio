@@ -33,7 +33,10 @@ describe('move.child.content.spec: Move a child content to another location then
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             // 3. Add one more folder in the root directory
             await studioUtils.doAddFolder(CHILD_FOLDER);
-            // Unselect the parent folder and add one more folder in the root directory:
+            // 4. First click - move the focus to grid again:
+            await contentBrowsePanel.clickOnRowByDisplayName(PARENT_FOLDER.displayName);
+            await contentBrowsePanel.pause(400);
+            // 5. Second click - Unselect the parent folder and add one more folder in the root directory:
             await contentBrowsePanel.clickOnRowByDisplayName(PARENT_FOLDER.displayName);
             await studioUtils.doAddFolder(FOLDER);
         });
