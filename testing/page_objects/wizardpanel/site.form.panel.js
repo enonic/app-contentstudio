@@ -129,10 +129,11 @@ class SiteForm extends Page {
         try {
             let locator = XPATH.selectedAppByDisplayName(displayName) + lib.REMOVE_ICON;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            return await this.clickOnElement(locator);
+            await this.clickOnElement(locator);
+            return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_app_remove_icon');
-            throw new Error('Site wizard, application remove icon, screenshot :' + screenshot + "  " + err);
+            throw new Error(`Site wizard, application remove icon, screenshot :${screenshot}` + err);
         }
     }
 

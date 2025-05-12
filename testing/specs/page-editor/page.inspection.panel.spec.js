@@ -18,7 +18,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const COUNTRY_LIST_CONTROLLER = 'Country List';
+    const CONTROLLER_NAME = 'main region';
     const EXPECTED_QUESTION = 'Switching to a page template will discard all the custom changes made to the page. Are you sure?';
 
     it("GIVEN new site with controller is created WHEN 'Inspect' link has been clicked THEN Inspection tab should be opened",
@@ -27,21 +27,21 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             let contextWindow = new ContextWindow();
             let pageInspectionPanel = new PageInspectionPanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'My first Site', [appConst.MY_FIRST_APP], COUNTRY_LIST_CONTROLLER);
+            SITE = contentBuilder.buildSite(displayName, 'test site', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
             // 1. Open site-wizard and save new site with a controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeData(SITE);
             // 2. Verify that the site should be automatically saved after selecting an application:
             await contentWizard.waitForNotificationMessage();
             // 3. Verify that the site should be saved automatically after selecting a controller
-            await contentWizard.selectPageDescriptor(COUNTRY_LIST_CONTROLLER);
+            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
             await contentWizard.waitForSaveButtonDisabled();
             // 4. Click on the Inspect tab in Inspect Panel
             await contextWindow.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             await pageInspectionPanel.waitForSaveAsTemplateButtonDisplayed();
             // 5. Click on dropdown handle and expand options:
             let actualController = await pageInspectionPanel.getSelectedPageController();
-            assert.equal(actualController, COUNTRY_LIST_CONTROLLER, "Expected page controller should be selected");
+            assert.equal(actualController, CONTROLLER_NAME, "Expected page controller should be selected");
         });
 
     it("GIVEN 'Page Inspection' tab is opened WHEN another ('Automatic') option has been selected THEN 'Confirmation Dialog' with the question should appear",

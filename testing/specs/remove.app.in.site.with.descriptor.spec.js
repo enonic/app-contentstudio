@@ -39,6 +39,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. remove the application in app-selector:
             await siteFormPanel.removeApplication(APP_1);
+            await studioUtils.saveScreenshot('app_1_removed');
             // 3. Select another application:
             await siteFormPanel.filterOptionsAndSelectApplication(APP_2);
             // 4. the site should be automatically saved after removing the selected options:
