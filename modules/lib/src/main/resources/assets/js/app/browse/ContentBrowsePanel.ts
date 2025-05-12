@@ -51,6 +51,8 @@ import {ContentActionMenuButton} from '../ContentActionMenuButton';
 import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
 import {TreeListBoxExpandedHolder} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
+import {ContentBrowsePanelKeyNavigator} from './ContentBrowsePanelKeyNavigator';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -186,7 +188,7 @@ export class ContentBrowsePanel
     }
 
     protected createKeyNavigator(): SelectableTreeListBoxKeyNavigator<ContentSummaryAndCompareStatus> {
-        return new SelectableTreeListBoxKeyNavigator(this.selectionWrapper);
+        return new ContentBrowsePanelKeyNavigator(this.selectionWrapper, this.treeActions);
     }
 
     protected getBrowseActions(): ContentTreeActions {
