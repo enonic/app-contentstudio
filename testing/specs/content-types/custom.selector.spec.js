@@ -102,7 +102,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             assert.equal(options[1], OPTION_1, 'Order of selected Options should be changed');
         });
 
-    it(`GIVEN wizard with 'custom-selector'(1:1) is opened WHEN display name has been typed THEN the content should be invalid`,
+    it(`GIVEN wizard for new content with 'custom-selector'(1:1) is opened WHEN the only display name has been filled in THEN the content should be invalid`,
         async () => {
             let customSelectorForm = new CustomSelectorForm();
             let contentWizard = new ContentWizard();
@@ -123,6 +123,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
     it("GIVEN existing content with 2 selected options(not required) is opened WHEN one selected option has been removed THEN option filter input gets visible",
         async () => {
             let customSelectorForm = new CustomSelectorForm();
+            let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             // 1. Select the second option:
             await customSelectorForm.removeSelectedOption(OPTION_2);
@@ -132,6 +133,22 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             let selectedOptions = await customSelectorForm.getSelectedOptions();
             await studioUtils.saveScreenshot('custom_selector_option_removed');
             assert.equal(selectedOptions[0], OPTION_1, 'expected option should be selected');
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+        });
+
+    // Verify the task enonic/lib-admin-ui#4020
+    //Keep item in grid selected after clicking it in non-focused grid #4019
+    it("GIVEN content with custom selector(0:2) AND 1 option is selected WHEN dropdown has been expanded AND the selected option has been clicked THEN the option gets unselected and 'Apply' button gets visible",
+        async () => {
+            let customSelectorForm = new CustomSelectorForm();
+            await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
+            // 1. Expand the dropdown:
+            await customSelectorForm.clickOnDropdownHandle();
+            // 2. Click on the checked option in the expanded list:
+            await customSelectorForm.clickOnOptionByDisplayName(OPTION_1);
+            // 3. Verify that 'Apply' button gets visible:
+            await customSelectorForm.waitForApplyButtonDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
