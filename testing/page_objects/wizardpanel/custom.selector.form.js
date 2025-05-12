@@ -29,6 +29,22 @@ class CustomSelectorForm extends BaseSelectorForm {
         return await customSelectorComboBox.selectFilteredOptionAndClickOnApply(optionDisplayName, XPATH.container);
     }
 
+    // Clicks on the option in expanded dropdown list
+    async clickOnOptionByDisplayName(optionDisplayName) {
+        let customSelectorComboBox = new CustomSelectorComboBox();
+        return await customSelectorComboBox.clickOnOptionByDisplayName(optionDisplayName, XPATH.container);
+    }
+
+    async waitForApplyButtonDisplayed() {
+        try {
+            let customSelectorComboBox = new CustomSelectorComboBox();
+            return await customSelectorComboBox.waitForApplySelectionButtonDisplayed(XPATH.container);
+        }catch (err){
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_button');
+            throw new Error(`Custom Selector - Apply button is not visible, screenshot: ${screenshot}`  + err);
+        }
+    }
+
     async typeTextInOptionsFilterInput(text) {
         let customSelectorComboBox = new CustomSelectorComboBox();
         await customSelectorComboBox.filterItem(text, XPATH.container);
@@ -59,6 +75,11 @@ class CustomSelectorForm extends BaseSelectorForm {
     isOptionsFilterInputDisplayed() {
         let customSelectorComboBox = new CustomSelectorComboBox();
         return customSelectorComboBox.isOptionsFilterInputDisplayed(XPATH.container);
+    }
+
+    async clickOnDropdownHandle() {
+        let customSelectorComboBox = new CustomSelectorComboBox();
+        return await customSelectorComboBox.clickOnDropdownHandle(XPATH.container);
     }
 }
 
