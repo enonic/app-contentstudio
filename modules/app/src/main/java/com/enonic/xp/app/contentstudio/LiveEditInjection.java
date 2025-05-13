@@ -15,6 +15,7 @@ import com.google.common.collect.Maps;
 
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.portal.PortalRequest;
+import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.portal.postprocess.HtmlTag;
@@ -61,14 +62,22 @@ public final class LiveEditInjection
             return null;
         }
 
-        if ( htmlTag == HtmlTag.HEAD_BEGIN )
+        PortalRequestAccessor.set( portalRequest );
+        try
         {
-            return Collections.singletonList( injectHeadBegin() );
-        }
+            if ( htmlTag == HtmlTag.HEAD_BEGIN )
+            {
+                return Collections.singletonList( injectHeadBegin() );
+            }
 
-        if ( htmlTag == HtmlTag.BODY_END )
+            if ( htmlTag == HtmlTag.BODY_END )
+            {
+                return Collections.singletonList( injectBodyEnd() );
+            }
+        }
+        finally
         {
-            return Collections.singletonList( injectBodyEnd() );
+            PortalRequestAccessor.remove();
         }
 
         return null;
