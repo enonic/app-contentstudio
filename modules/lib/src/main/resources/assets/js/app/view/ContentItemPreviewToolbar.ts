@@ -2,6 +2,7 @@ import * as Q from 'q';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
@@ -21,11 +22,14 @@ export class ContentItemPreviewToolbar
     private previewButton: ActionButton;
     private previewHelper: PreviewActionHelper;
     private mode: RenderingMode;
+    private intervalMonitor: number | null = null;
 
     constructor(previewHelper: PreviewActionHelper, mode: RenderingMode = RenderingMode.PREVIEW) {
         super({className: 'content-item-preview-toolbar'});
         this.previewHelper = previewHelper;
         this.mode = mode;
+
+        this.initListeners();
     }
 
     protected initElements(): void {
@@ -36,6 +40,23 @@ export class ContentItemPreviewToolbar
 
         this.previewButton = new ActionButton(new WidgetPreviewAction(this));
         this.previewButton.addClass('icon-newtab');
+    }
+
+    protected initListeners(): void {
+        super.initListeners();
+
+        this.widgetSelector.onSelectionChanged(() => {
+            this.stopListeningToIFrameClick();
+        });
+
+        this.widgetSelector.onDropdownVisibilityChanged((isVisible: boolean) => {
+            if (!isVisible) {
+                this.stopListeningToIFrameClick();
+                return;
+            }
+
+            this.startListeningToIFrameClick();
+        });
     }
 
     doRender(): Q.Promise<boolean> {
@@ -80,6 +101,23 @@ export class ContentItemPreviewToolbar
 
     protected foldOrExpand(): void {
         //
+    }
+
+    private startListeningToIFrameClick() {
+        this.intervalMonitor = setInterval(() => {
+            const elem = document.activeElement;
+            if (elem?.tagName == 'IFRAME') {
+                this.stopListeningToIFrameClick();
+                Body.get().getEl().dispatchEvent('mousedown');
+            }
+        }, 100);
+    }
+
+    private stopListeningToIFrameClick() {
+        if (this.intervalMonitor !== null) {
+            clearInterval(this.intervalMonitor);
+            this.intervalMonitor = null;
+        }
     }
 }
 

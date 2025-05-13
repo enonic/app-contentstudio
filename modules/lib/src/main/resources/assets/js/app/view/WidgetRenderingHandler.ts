@@ -148,9 +148,6 @@ export class WidgetRenderingHandler {
     }
 
     protected setPreviewType(previewType: PREVIEW_TYPE, messages?: string[]) {
-
-        console.log('setPreviewType', PREVIEW_TYPE[previewType], messages);
-
         this.renderer.removeClass('widget-preview empty-preview message-preview');
 
         switch (previewType) {
