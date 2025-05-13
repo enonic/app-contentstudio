@@ -88,6 +88,14 @@ export class ComponentDescriptorsDropdown
         }
     }
 
+    protected handleUserToggleAction(item: Descriptor): void {
+        const itemId = this.listBox.getIdOfItem(item);
+
+        if (!this.isSelected(itemId)) {
+            super.handleUserToggleAction(item); // can't deselect the only selected item
+        }
+    }
+
     setComponentType(componentType: ComponentType): this {
         this.loader.setComponentType(componentType);
         return this;
