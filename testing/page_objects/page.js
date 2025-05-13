@@ -338,7 +338,7 @@ class Page {
             return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_remove_notif_msg');
-            throw new Error('Error after removing the notification message, screenshot: ' + screenshot + '  ' + err);
+            throw new Error(`Error after removing the notification message, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -352,7 +352,7 @@ class Page {
             return await this.getText(notificationXpath);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_notification');
-            throw new Error('Error when wait for the notification message, screenshot:  ' + screenshot + '  ' + err);
+            throw new Error(`Error when wait for the notification message, screenshot:${screenshot}  `  + err);
         }
     }
 
