@@ -93,7 +93,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.typeTextInCkeEditor(TEXT_LEFT_REGION);
             await contentWizard.switchToMainFrame();
-            await contentWizard.hotKeySave();
+            await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
         });
 
