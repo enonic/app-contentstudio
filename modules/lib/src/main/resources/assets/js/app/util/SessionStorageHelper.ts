@@ -2,7 +2,7 @@ import {ComponentPath} from '../page/region/ComponentPath';
 import {HtmlEditorCursorPosition} from '../inputtype/ui/text/HtmlEditor';
 
 export class SessionStorageHelper {
-    public static debug: boolean = true;
+    public static debug: boolean = false;
 
     public static SELECTED_PATH_STORAGE_KEY: string = 'contentstudio:liveedit:selectedPath';
 

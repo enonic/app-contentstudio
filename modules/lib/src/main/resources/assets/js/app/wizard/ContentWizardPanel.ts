@@ -256,7 +256,7 @@ export class ContentWizardPanel
 
     private workflowStateManager: WorkflowStateManager;
 
-    public static debug: boolean = true;
+    public static debug: boolean = false;
 
     private formsContexts: Map<string, ContentFormContext> = new Map<string, ContentFormContext>();
 

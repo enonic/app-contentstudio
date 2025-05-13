@@ -121,7 +121,7 @@ export class LiveEditPage {
 
     private updateTextComponentViewListener: (event: UpdateTextComponentViewEvent) => void;
 
-    private static debug: boolean = true;
+    private static debug: boolean = false;
 
     constructor() {
         this.skipConfirmationListener = (event: SkipLiveEditReloadConfirmationEvent) => {
