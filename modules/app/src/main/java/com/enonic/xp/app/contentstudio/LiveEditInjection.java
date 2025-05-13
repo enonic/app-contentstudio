@@ -63,30 +63,31 @@ public final class LiveEditInjection
 
         if ( htmlTag == HtmlTag.HEAD_BEGIN )
         {
-            return Collections.singletonList( injectHeadBegin( portalRequest ) );
+            return Collections.singletonList( injectHeadBegin() );
         }
 
         if ( htmlTag == HtmlTag.BODY_END )
         {
-            return Collections.singletonList( injectBodyEnd( portalRequest ) );
+            return Collections.singletonList( injectBodyEnd() );
         }
 
         return null;
     }
 
-    private String injectHeadBegin( final PortalRequest portalRequest )
+    private String injectHeadBegin()
     {
         String finalTemplate = "";
-        if (this.config.contentSecurityPolicy_enabled()) {
+        if ( this.config.contentSecurityPolicy_enabled() )
+        {
             finalTemplate += this.cspMetaTemplate;
         }
-        finalTemplate += injectUsingTemplate( this.headBeginTemplate, makeModelForHeadBegin( portalRequest ) );
+        finalTemplate += injectUsingTemplate( this.headBeginTemplate, makeModelForHeadBegin() );
         return finalTemplate;
     }
 
-    private String injectBodyEnd( final PortalRequest portalRequest )
+    private String injectBodyEnd()
     {
-        return injectUsingTemplate( this.bodyEndTemplate, makeModelForBodyEnd( portalRequest ) );
+        return injectUsingTemplate( this.bodyEndTemplate, makeModelForBodyEnd() );
     }
 
     private String injectUsingTemplate(final String template, final Map<String, String> model)
@@ -94,19 +95,18 @@ public final class LiveEditInjection
         return new StringSubstitutor(model, PREFIX, SUFFIX, ESCAPE).replace(template);
     }
 
-    private Map<String, String> makeModelForHeadBegin( final PortalRequest portalRequest )
+    private Map<String, String> makeModelForHeadBegin()
     {
         final Map<String, String> map = Maps.newHashMap();
         final AssetUrlParams params = new AssetUrlParams();
-        params.portalRequest( portalRequest );
         params.application( "com.enonic.app.contentstudio" );
         map.put("assetsUrl", portalUrlService.assetUrl( params ));
         return map;
     }
 
-    private Map<String, String> makeModelForBodyEnd( final PortalRequest portalRequest )
+    private Map<String, String> makeModelForBodyEnd()
     {
-        return makeModelForHeadBegin(portalRequest);
+        return makeModelForHeadBegin();
     }
 
     public String loadTemplate(final String name) {
