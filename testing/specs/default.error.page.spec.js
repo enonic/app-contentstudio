@@ -70,7 +70,7 @@ describe('default.error.page.spec tests for Default error page', function () {
             await contentWizard.waitForNotificationMessage();
             // 5. Verify that red icon is not displayed beside the layout-component in the PCV:
             let isInvalid = await pageComponentView.isComponentItemInvalid(appConst.LAYOUT_NAME.CENTERED);
-            assert.ok(isInvalid=== false, 'The layout-component should be displayed as valid in PCV');
+            assert.ok(isInvalid === false, 'The layout-component should be displayed as valid in PCV');
         });
 
 

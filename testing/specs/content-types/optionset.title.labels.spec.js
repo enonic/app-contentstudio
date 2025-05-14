@@ -50,7 +50,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             await contentWizard.waitAndClickOnSave();
             // 3. Verify that red border is displayed in Option Set Form
             await optionSetForm2.waitForOptionSetRedBorderDisplayed();
-            // 4. Verify that content gets not valid
+            // 4. Verify that content gets invalid
             await contentWizard.waitUntilInvalidIconAppears();
             let validationRecording = await optionSetForm2.getOptionSetValidationRecording();
             assert.equal(validationRecording, 'At least one option must be selected', 'expected validation recording should appear');
