@@ -43,7 +43,6 @@ exports.config = {
     //
     // Default request retries count
     connectionRetryCount: 3,
-    //maxInstances: 2,
 
     framework: 'mocha',
     mochaOpts: {
