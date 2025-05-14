@@ -21,7 +21,7 @@ public class AccessTest
     {
         assertEquals( Access.READ, Access.fromPermissions( asList( READ ) ) );
         assertEquals( Access.WRITE, Access.fromPermissions( asList( READ, CREATE, MODIFY, DELETE ) ) );
-        assertEquals( Access.PUBLISH, Access.fromPermissions( asList( READ, MODIFY, DELETE, CREATE, PUBLISH ) ) );
+        assertEquals( Access.FULL, Access.fromPermissions( asList( READ, MODIFY, DELETE, CREATE, PUBLISH ) ) );
         assertEquals( Access.FULL,
                       Access.fromPermissions( asList( READ, MODIFY, DELETE, CREATE, PUBLISH, READ_PERMISSIONS, WRITE_PERMISSIONS ) ) );
         assertEquals( Access.CUSTOM, Access.fromPermissions( asList( READ, CREATE ) ) );
