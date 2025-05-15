@@ -111,7 +111,6 @@ module.exports = Object.freeze({
         SIMPLE_SITE_APP: 'Simple Site App',
         APP_WITH_CONFIG_OPTION_SET: 'Simple Test Selenium App',
         APP_WITH_METADATA_MIXIN: 'Third Selenium App',
-        FIRST_SELENIUM_APP: 'First Selenium App',
         MY_FIRST_APP: 'My First App',
     },
 

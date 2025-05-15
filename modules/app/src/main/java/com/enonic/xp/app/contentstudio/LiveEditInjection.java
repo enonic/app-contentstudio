@@ -15,6 +15,7 @@ import com.google.common.collect.Maps;
 
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.portal.PortalRequest;
+import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.portal.postprocess.HtmlTag;
@@ -39,16 +40,16 @@ public final class LiveEditInjection
 
     private final String cspMetaTemplate;
 
-    private AdminRestConfig config;
+    private final AdminRestConfig config;
 
     private final PortalUrlService portalUrlService;
 
     @Activate
     public LiveEditInjection( AdminRestConfig config, @Reference PortalUrlService portalUrlService )
     {
-        this.headBeginTemplate = loadTemplate("liveEditHeadBegin.html");
-        this.bodyEndTemplate = loadTemplate("liveEditBodyEnd.html");
-        this.cspMetaTemplate = loadTemplate("liveEditCSP.html");
+        this.headBeginTemplate = loadTemplate( "liveEditHeadBegin.html" );
+        this.bodyEndTemplate = loadTemplate( "liveEditBodyEnd.html" );
+        this.cspMetaTemplate = loadTemplate( "liveEditCSP.html" );
         this.config = config;
         this.portalUrlService = portalUrlService;
     }
@@ -61,65 +62,78 @@ public final class LiveEditInjection
             return null;
         }
 
-        if ( htmlTag == HtmlTag.HEAD_BEGIN )
+        PortalRequestAccessor.set( portalRequest );
+        try
         {
-            return Collections.singletonList( injectHeadBegin( portalRequest ) );
-        }
+            if ( htmlTag == HtmlTag.HEAD_BEGIN )
+            {
+                return Collections.singletonList( injectHeadBegin() );
+            }
 
-        if ( htmlTag == HtmlTag.BODY_END )
+            if ( htmlTag == HtmlTag.BODY_END )
+            {
+                return Collections.singletonList( injectBodyEnd() );
+            }
+        }
+        finally
         {
-            return Collections.singletonList( injectBodyEnd( portalRequest ) );
+            PortalRequestAccessor.remove();
         }
 
         return null;
     }
 
-    private String injectHeadBegin( final PortalRequest portalRequest )
+    private String injectHeadBegin()
     {
         String finalTemplate = "";
-        if (this.config.contentSecurityPolicy_enabled()) {
+        if ( this.config.contentSecurityPolicy_enabled() )
+        {
             finalTemplate += this.cspMetaTemplate;
         }
-        finalTemplate += injectUsingTemplate( this.headBeginTemplate, makeModelForHeadBegin( portalRequest ) );
+        finalTemplate += injectUsingTemplate( this.headBeginTemplate, makeModelForHeadBegin() );
         return finalTemplate;
     }
 
-    private String injectBodyEnd( final PortalRequest portalRequest )
+    private String injectBodyEnd()
     {
-        return injectUsingTemplate( this.bodyEndTemplate, makeModelForBodyEnd( portalRequest ) );
+        return injectUsingTemplate( this.bodyEndTemplate, makeModelForBodyEnd() );
     }
 
-    private String injectUsingTemplate(final String template, final Map<String, String> model)
+    private String injectUsingTemplate( final String template, final Map<String, String> model )
     {
-        return new StringSubstitutor(model, PREFIX, SUFFIX, ESCAPE).replace(template);
+        return new StringSubstitutor( model, PREFIX, SUFFIX, ESCAPE ).replace( template );
     }
 
-    private Map<String, String> makeModelForHeadBegin( final PortalRequest portalRequest )
+    private Map<String, String> makeModelForHeadBegin()
     {
         final Map<String, String> map = Maps.newHashMap();
         final AssetUrlParams params = new AssetUrlParams();
-        params.portalRequest( portalRequest );
         params.application( "com.enonic.app.contentstudio" );
-        map.put("assetsUrl", portalUrlService.assetUrl( params ));
+        map.put( "assetsUrl", portalUrlService.assetUrl( params ) );
         return map;
     }
 
-    private Map<String, String> makeModelForBodyEnd( final PortalRequest portalRequest )
+    private Map<String, String> makeModelForBodyEnd()
     {
-        return makeModelForHeadBegin(portalRequest);
+        return makeModelForHeadBegin();
     }
 
-    public String loadTemplate(final String name) {
-        final InputStream stream = getClass().getResourceAsStream(name);
+    public String loadTemplate( final String name )
+    {
+        final InputStream stream = getClass().getResourceAsStream( name );
 
-        if (stream == null) {
-            throw new IllegalArgumentException("Could not find resource [" + name + "]");
+        if ( stream == null )
+        {
+            throw new IllegalArgumentException( "Could not find resource [" + name + "]" );
         }
 
-        try (stream) {
-            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (final Exception e) {
-            throw Exceptions.unchecked(e);
+        try (stream)
+        {
+            return new String( stream.readAllBytes(), StandardCharsets.UTF_8 );
+        }
+        catch ( final Exception e )
+        {
+            throw Exceptions.unchecked( e );
         }
     }
 }
