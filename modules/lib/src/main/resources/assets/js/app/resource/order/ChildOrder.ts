@@ -31,10 +31,9 @@ export class ChildOrder
         return childOrder;
     }
 
-    static toSetChildOrderJson(contentId: ContentId, childOrder: ChildOrder, silent: boolean): SetChildOrderJson {
+    static toSetChildOrderJson(contentId: ContentId, childOrder: ChildOrder): SetChildOrderJson {
         if (contentId && childOrder) {
             return {
-                silent: silent,
                 childOrder: childOrder.toJson(),
                 contentId: contentId.toString()
             };

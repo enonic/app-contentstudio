@@ -3,23 +3,22 @@ package com.enonic.xp.app.contentstudio.rest.resource.content;
 import org.osgi.service.component.annotations.Reference;
 
 import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.region.Component;
-import com.enonic.xp.region.ComponentName;
+import com.enonic.xp.region.ComponentDescriptor;
 import com.enonic.xp.region.FragmentComponent;
 import com.enonic.xp.region.ImageComponent;
 import com.enonic.xp.region.LayoutComponent;
-import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.LayoutDescriptorService;
 import com.enonic.xp.region.PartComponent;
-import com.enonic.xp.region.PartDescriptor;
 import com.enonic.xp.region.PartDescriptorService;
 import com.enonic.xp.region.TextComponent;
 
 @org.osgi.service.component.annotations.Component
-public final class ComponentNameResolverImpl
-    implements ComponentNameResolver
+public final class ComponentDisplayNameResolverImpl
+    implements ComponentDisplayNameResolver
 {
     private PartDescriptorService partDescriptorService;
 
@@ -27,7 +26,7 @@ public final class ComponentNameResolverImpl
 
     private ContentService contentService;
 
-    public ComponentName resolve( final Component component )
+    public String resolve( final Component component )
     {
         if ( component instanceof PartComponent )
         {
@@ -47,66 +46,59 @@ public final class ComponentNameResolverImpl
         }
         else if ( component instanceof TextComponent )
         {
-            return resolve( (TextComponent) component );
+            return "Text";
         }
         return null;
     }
 
-
-    public ComponentName resolve( final PartComponent component )
+    public String resolve( final PartComponent component )
     {
-        final PartDescriptor partDescriptor =
-            component.getDescriptor() != null ? partDescriptorService.getByKey( component.getDescriptor() ) : null;
-        return partDescriptor != null ? ComponentName.from( partDescriptor.getDisplayName() ) : component.getName();
+        return doGenerateDisplayName(
+            component.hasDescriptor() ? this.partDescriptorService.getByKey( component.getDescriptor() ) : null, "Part" );
     }
 
-    public ComponentName resolve( final LayoutComponent component )
+    public String resolve( final LayoutComponent component )
     {
-        final LayoutDescriptor layoutDescriptor =
-            component.getDescriptor() != null ? layoutDescriptorService.getByKey( component.getDescriptor() ) : null;
-        return layoutDescriptor != null ? ComponentName.from( layoutDescriptor.getDisplayName() ) : component.getName();
+        return doGenerateDisplayName(
+            component.hasDescriptor() ? this.layoutDescriptorService.getByKey( component.getDescriptor() ) : null, "Layout" );
     }
 
-    public ComponentName resolve( final ImageComponent component )
+    public String resolve( final ImageComponent component )
     {
-        if ( component.hasImage() )
+        return resolveContentDisplayName( component.getImage(), "Image" );
+    }
+
+    public String resolve( final FragmentComponent component )
+    {
+        return resolveContentDisplayName( component.getFragment(), "Fragment" );
+    }
+
+    private String resolveContentDisplayName( final ContentId contentId, final String defaultName )
+    {
+        if ( contentId != null )
         {
             try
             {
-                final Content content = contentService.getById( component.getImage() );
-                return ComponentName.from( content.getDisplayName() );
+                final Content content = contentService.getById( contentId );
+                return content.getDisplayName();
             }
             catch ( final ContentNotFoundException e )
             {
-                return component.getName();
             }
-
         }
-        return component.getName();
+
+        return defaultName;
     }
 
-    public ComponentName resolve( final FragmentComponent component )
+    private String doGenerateDisplayName( final ComponentDescriptor componentDescriptor, final String defaultName )
     {
-        if ( component.getFragment() != null )
+        if ( componentDescriptor != null && componentDescriptor.getDisplayName() != null )
         {
-            try
-            {
-                final Content content = contentService.getById( component.getFragment() );
-                return ComponentName.from( content.getDisplayName() );
-            }
-            catch ( final ContentNotFoundException e )
-            {
-                return component.getName();
-            }
+            return componentDescriptor.getDisplayName();
         }
-        return component.getName();
-    }
 
-    public ComponentName resolve( final TextComponent component )
-    {
-        return component.getName();
+        return defaultName;
     }
-
 
     @Reference
     public void setPartDescriptorService( final PartDescriptorService partDescriptorService )

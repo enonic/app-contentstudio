@@ -3,24 +3,26 @@ package com.enonic.xp.app.contentstudio.rest.resource.content.json;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.enonic.xp.content.ContentId;
+
 public class RevertContentJson
 {
 
-    private final String contentKey;
+    private final ContentId contentId;
 
     private final String versionId;
 
     @JsonCreator
-    public RevertContentJson( final @JsonProperty(value = "contentKey", required = true) String contentKey,
+    public RevertContentJson( final @JsonProperty(value = "contentId", required = true) String contentId,
                               final @JsonProperty(value = "versionId", required = true) String versionId )
     {
-        this.contentKey = contentKey;
+        this.contentId = ContentId.from( contentId );
         this.versionId = versionId;
     }
 
-    public String getContentKey()
+    public ContentId getContentId()
     {
-        return contentKey;
+        return contentId;
     }
 
     public String getVersionId()

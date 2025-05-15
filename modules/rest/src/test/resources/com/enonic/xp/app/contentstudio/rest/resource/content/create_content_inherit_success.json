@@ -1,6 +1,5 @@
 {
     "attachments": [],
-    "contentState": "DEFAULT",
     "createdTime": "2013-08-23T12:55:09.162Z",
     "creator": "user:system:admin",
     "data": [],
@@ -16,7 +15,6 @@
         "NAME",
         "SORT"
     ],
-    "inheritPermissions": false,
     "isPage": false,
     "isRoot": true,
     "isValid": true,

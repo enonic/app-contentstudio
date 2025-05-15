@@ -6,7 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentNameResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentDisplayNameResolver;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.region.FragmentComponent;
@@ -28,9 +28,9 @@ public class FragmentComponentJson
         this.fragment = getComponent();
     }
 
-    public FragmentComponentJson( final FragmentComponent component, final ComponentNameResolver componentNameResolver )
+    public FragmentComponentJson( final FragmentComponent component, final ComponentDisplayNameResolver componentDisplayNameResolver )
     {
-        super( component, componentNameResolver );
+        super( component, componentDisplayNameResolver );
         this.fragment = component;
     }
 

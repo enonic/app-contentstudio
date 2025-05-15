@@ -18,7 +18,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.task.RestoreRunnabl
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.security.RoleKeys;
-import com.enonic.xp.task.TaskResultJson;
+import com.enonic.xp.app.contentstudio.json.task.TaskResultJson;
 import com.enonic.xp.task.TaskService;
 
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;

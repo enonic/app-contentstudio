@@ -119,7 +119,7 @@ public class IssueNotificationParamsFactory
             issue.getPublishRequest().getItems().stream().map( PublishRequestItem::getId ).collect( Collectors.toList() ) );
         final Contents contents = contentService.getByIds( new GetContentByIdsParams( contentIds ) );
         final CompareContentResults compareResults =
-            contentService.compare( new CompareContentsParams( contentIds, ContentConstants.BRANCH_MASTER ) );
+            contentService.compare( CompareContentsParams.create().contentIds( contentIds ).build() );
         final List<User> approvers = ( recipients != null ? recipients : issue.getApproverIds() ).
             stream().
             map( principalKey -> securityService.getUser( principalKey ).orElse( null ) ).

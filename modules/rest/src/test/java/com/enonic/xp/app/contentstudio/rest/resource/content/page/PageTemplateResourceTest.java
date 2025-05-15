@@ -127,7 +127,7 @@ public class PageTemplateResourceTest
     {
         Content content = createContent( "83ac6e65-791b-4398-9ab5-ff5cab999036", "content-name", "myapplication:content-type" );
         when( this.contentService.getById( isA( ContentId.class ) ) )
-            .thenThrow( new ContentNotFoundException( content.getId(), Branch.from( "draft" ) ) );
+            .thenThrow( ContentNotFoundException.create().contentId( content.getId() ).build() );
 
         String response = request().path( "content/page/template/isRenderable" ).
             queryParam( "contentId", content.getId().toString() ).

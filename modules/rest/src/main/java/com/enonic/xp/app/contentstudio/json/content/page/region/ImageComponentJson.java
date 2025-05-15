@@ -6,7 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentNameResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentDisplayNameResolver;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTreeJson;
@@ -33,9 +33,9 @@ public class ImageComponentJson
         this.config = null; // not needed when parsing JSON
     }
 
-    public ImageComponentJson( final ImageComponent component, final ComponentNameResolver componentNameResolver )
+    public ImageComponentJson( final ImageComponent component, final ComponentDisplayNameResolver componentDisplayNameResolver )
     {
-        super( component, componentNameResolver );
+        super( component, componentDisplayNameResolver );
         this.image = component;
         this.config = this.image.hasConfig() ? PropertyTreeJson.toJson( this.image.getConfig() ) : null;
     }

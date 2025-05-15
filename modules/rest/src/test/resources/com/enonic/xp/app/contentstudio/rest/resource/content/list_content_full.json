@@ -2,7 +2,6 @@
     "contents": [
         {
             "attachments": [],
-            "contentState": "DEFAULT",
             "createdTime": "2013-08-23T12:55:09.162Z",
             "creator": "user:system:admin",
             "data": [],
@@ -13,7 +12,6 @@
             "iconUrl": "/admin/rest-v2/cs/schema/content/icon/myapplication:my_type?hash=f95b70fdc3088560732a5ac135644506",
             "id": "aaa",
             "inherit": [],
-            "inheritPermissions": false,
             "isPage": false,
             "isRoot": true,
             "isValid": true,
@@ -55,7 +53,6 @@
         },
         {
             "attachments": [],
-            "contentState": "DEFAULT",
             "createdTime": "2013-08-23T12:55:09.162Z",
             "creator": "user:system:admin",
             "data": [],
@@ -66,7 +63,6 @@
             "iconUrl": "/admin/rest-v2/cs/schema/content/icon/myapplication:my_type?hash=f95b70fdc3088560732a5ac135644506",
             "id": "bbb",
             "inherit": [],
-            "inheritPermissions": false,
             "isPage": false,
             "isRoot": true,
             "isValid": true,

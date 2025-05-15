@@ -52,13 +52,12 @@ public class ContentQueryWithChildren
 
         for ( ContentPath contentPath : contentsPaths )
         {
-            ConstraintExpr likeExpr =
-                CompareExpr.like( fieldExpr, ValueExpr.string( ContentHelper.getContentRoot() + "/" + contentPath.asRelative() + "/*" ) );
+            ConstraintExpr likeExpr = CompareExpr.like( fieldExpr, ValueExpr.string( makePathExprString( contentPath, "/*" ) ) );
             expr = expr != null ? LogicalExpr.or( expr, likeExpr ) : likeExpr;
         }
 
         expr = LogicalExpr.and( expr, CompareExpr.notIn( fieldExpr, contentsPaths.stream()
-            .map( contentPath -> ValueExpr.string( ContentHelper.getContentRoot() + "/" + contentPath.asRelative() ) )
+            .map( contentPath -> ValueExpr.string( makePathExprString( contentPath, "" ) ) )
             .collect( Collectors.toList() ) ) );
 
         return QueryExpr.from( expr, new FieldOrderExpr( fieldExpr, OrderExpr.Direction.ASC ) );
@@ -69,10 +68,17 @@ public class ContentQueryWithChildren
         final FieldExpr fieldExpr = FieldExpr.from( "_path" );
 
         final CompareExpr compareExpr = CompareExpr.in( fieldExpr, contentsPaths.stream()
-            .map( contentPath -> ValueExpr.string( ContentHelper.getContentRoot() + "/" + contentPath.asRelative() ) )
+            .map( contentPath -> ValueExpr.string( makePathExprString( contentPath, "" ) ) )
             .collect( Collectors.toList() ) );
 
         return QueryExpr.from( compareExpr, this.order != null ? this.order.getOrderExpressions() : null );
+    }
+
+    private String makePathExprString( final ContentPath contentPath, final String postfix )
+    {
+        final ContentPath root = ContentPath.from( ContentHelper.getContentRoot().toString() );
+        final ContentPath newPath = ContentPath.from( root, contentPath );
+        return newPath + postfix;
     }
 
     public FindContentIdsByQueryResult find()

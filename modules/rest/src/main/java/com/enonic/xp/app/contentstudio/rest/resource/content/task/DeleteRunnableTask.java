@@ -17,7 +17,7 @@ import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
-import com.enonic.xp.task.AbstractRunnableTask;
+import com.enonic.xp.app.contentstudio.json.task.AbstractRunnableTask;
 import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
@@ -47,18 +47,13 @@ public class DeleteRunnableTask
 
         long result = parentsToDeleteNumber + childrenToDeleteNumber;
 
-        if ( params.isDeleteOnline() )
-        {
-            final Context masterContext = ContextBuilder.from( ContextAccessor.current() ).
-                branch( ContentConstants.BRANCH_MASTER ).
-                build();
+        final Context masterContext = ContextBuilder.from( ContextAccessor.current() ).branch( ContentConstants.BRANCH_MASTER ).build();
 
-            final long parentsToDeleteInMaster =
-                masterContext.callWith( () -> this.contentService.getByPaths( contentsToDeleteList ).getSize() );
-            final long childrenToDeleteInMaster = masterContext.callWith( () -> countChildrenToDelete( contentsToDeleteList ) );
+        final long parentsToDeleteInMaster =
+            masterContext.callWith( () -> this.contentService.getByPaths( contentsToDeleteList ).getSize() );
+        final long childrenToDeleteInMaster = masterContext.callWith( () -> countChildrenToDelete( contentsToDeleteList ) );
 
-            result += parentsToDeleteInMaster + childrenToDeleteInMaster;
-        }
+        result += parentsToDeleteInMaster + childrenToDeleteInMaster;
 
         return result;
     }
@@ -91,13 +86,12 @@ public class DeleteRunnableTask
         {
             final DeleteContentParams deleteContentParams = DeleteContentParams.create().
                 contentPath( contentToDelete ).
-                deleteOnline( params.isDeleteOnline() ).
                 deleteContentListener( listener ).
                 build();
 
             try
             {
-                DeleteContentsResult deleteResult = contentService.deleteWithoutFetch( deleteContentParams );
+                DeleteContentsResult deleteResult = contentService.delete( deleteContentParams );
 
                 final ContentIds deletedContents = deleteResult.getDeletedContents();
                 if ( deletedContents.getSize() == 1 )
@@ -107,15 +101,6 @@ public class DeleteRunnableTask
                 else
                 {
                     resultBuilder.succeeded( deletedContents );
-                }
-                final ContentIds pendingContents = deleteResult.getPendingContents();
-                if ( pendingContents.getSize() == 1 )
-                {
-                    resultBuilder.pending( contentToDelete );
-                }
-                else if ( pendingContents.getSize() > 1 )
-                {
-                    resultBuilder.pending( pendingContents );
                 }
             }
             catch ( final Exception e )

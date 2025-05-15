@@ -23,9 +23,11 @@ import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.content.UnpublishContentParams;
 import com.enonic.xp.content.UnpublishContentsResult;
 import com.enonic.xp.task.RunnableTask;
+import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 public class UnpublishRunnableTaskTest
     extends AbstractRunnableTaskTest
@@ -83,7 +85,7 @@ public class UnpublishRunnableTaskTest
         Mockito.verify( progressReporter, Mockito.times( 2 ) ).info( contentQueryArgumentCaptor.capture() );
         Mockito.verify( progressReporter, Mockito.times( 1 ) ).progress( Mockito.anyInt(), progressArgumentCaptor.capture() );
         Mockito.verify( taskService, Mockito.times( 1 ) )
-            .submitTask( Mockito.isA( RunnableTask.class ), Mockito.eq( "Unpublish content" ) );
+            .submitLocalTask( any( SubmitLocalTaskParams.class ) );
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 

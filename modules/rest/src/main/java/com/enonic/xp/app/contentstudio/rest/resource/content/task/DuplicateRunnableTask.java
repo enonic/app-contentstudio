@@ -17,7 +17,7 @@ import com.enonic.xp.content.DuplicateContentsResult;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.content.WorkflowInfo;
 import com.enonic.xp.security.auth.AuthenticationInfo;
-import com.enonic.xp.task.AbstractRunnableTask;
+import com.enonic.xp.app.contentstudio.json.task.AbstractRunnableTask;
 import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
@@ -72,7 +72,6 @@ public class DuplicateRunnableTask
 
             final DuplicateContentParams duplicateContentParams = DuplicateContentParams.create().
                 contentId( contentId ).
-                creator( authInfo.getUser().getKey() ).
                 duplicateContentListener( listener ).
                 includeChildren( content.getIncludeChildren() ).
                 workflowInfo( WorkflowInfo.inProgress() ).

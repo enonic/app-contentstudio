@@ -9,24 +9,22 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.region.ComponentName;
 import com.enonic.xp.region.FragmentComponent;
 import com.enonic.xp.region.ImageComponent;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ComponentNameResolverImplTest
+public class ComponentDisplayNameResolverImplTest
 {
-    private ComponentNameResolverImpl componentNameResolver;
+    private ComponentDisplayNameResolverImpl componentNameResolver;
 
     private ContentService contentService;
 
     @BeforeEach
     public void init()
     {
-        componentNameResolver = new ComponentNameResolverImpl();
+        componentNameResolver = new ComponentDisplayNameResolverImpl();
         contentService = Mockito.mock( ContentService.class );
-
         componentNameResolver.setContentService( contentService );
     }
 
@@ -36,9 +34,9 @@ public class ComponentNameResolverImplTest
     {
         final ImageComponent imageComponent = ImageComponent.create().build();
 
-        final ComponentName result = componentNameResolver.resolve( imageComponent );
+        final String result = componentNameResolver.resolve( imageComponent );
 
-        assertEquals( imageComponent.getName(), result );
+        assertEquals( "Image", result );
     }
 
     @Test
@@ -50,9 +48,9 @@ public class ComponentNameResolverImplTest
 
         Mockito.when( contentService.getById( imageComponent.getImage() ) ).thenReturn( imageContent );
 
-        final ComponentName result = componentNameResolver.resolve( imageComponent );
+        final String result = componentNameResolver.resolve( imageComponent );
 
-        assertEquals( imageContent.getDisplayName(), result.toString() );
+        assertEquals( imageContent.getDisplayName(), result );
     }
 
     @Test
@@ -63,11 +61,11 @@ public class ComponentNameResolverImplTest
         final ImageComponent imageComponent = ImageComponent.create().image( imageComponentId ).build();
 
         Mockito.when( contentService.getById( imageComponent.getImage() ) )
-            .thenThrow( new ContentNotFoundException( imageComponentId, null ) );
+            .thenThrow( ContentNotFoundException.create().contentId( imageComponentId ).build() );
 
-        final ComponentName result = componentNameResolver.resolve( imageComponent );
+        final String result = componentNameResolver.resolve( imageComponent );
 
-        assertEquals( imageComponent.getName(), result );
+        assertEquals( "Image", result );
     }
 
     @Test
@@ -76,9 +74,9 @@ public class ComponentNameResolverImplTest
     {
         final FragmentComponent fragmentComponent = FragmentComponent.create().build();
 
-        final ComponentName result = componentNameResolver.resolve( fragmentComponent );
+        final String result = componentNameResolver.resolve( fragmentComponent );
 
-        assertEquals( fragmentComponent.getName(), result );
+        assertEquals( "Fragment", result );
     }
 
     @Test
@@ -90,9 +88,9 @@ public class ComponentNameResolverImplTest
 
         Mockito.when( contentService.getById( fragmentComponent.getFragment() ) ).thenReturn( fragmentContent );
 
-        final ComponentName result = componentNameResolver.resolve( fragmentComponent );
+        final String result = componentNameResolver.resolve( fragmentComponent );
 
-        assertEquals( fragmentContent.getDisplayName(), result.toString() );
+        assertEquals( fragmentContent.getDisplayName(), result );
     }
 
     @Test
@@ -103,11 +101,11 @@ public class ComponentNameResolverImplTest
         final FragmentComponent fragmentComponent = FragmentComponent.create().fragment( fragmentComponentId ).build();
 
         Mockito.when( contentService.getById( fragmentComponent.getFragment() ) )
-            .thenThrow( new ContentNotFoundException( fragmentComponentId, null ) );
+            .thenThrow( ContentNotFoundException.create().contentId( fragmentComponentId ).build() );
 
-        final ComponentName result = componentNameResolver.resolve( fragmentComponent );
+        final String result = componentNameResolver.resolve( fragmentComponent );
 
-        assertEquals( fragmentComponent.getName(), result );
+        assertEquals( "Fragment", result );
     }
 
     private Content createContent()
