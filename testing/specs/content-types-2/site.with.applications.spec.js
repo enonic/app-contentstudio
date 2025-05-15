@@ -35,7 +35,7 @@ describe('site.with.applications.spec: swaps applications in the site-form', fun
         async () => {
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
-            let applications = [appConst.TEST_APPS_NAME.FIRST_SELENIUM_APP, appConst.MY_FIRST_APP];
+            let applications = [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES, appConst.MY_FIRST_APP];
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test site', applications);
             // 1. New site-wizard is opened:
@@ -47,9 +47,9 @@ describe('site.with.applications.spec: swaps applications in the site-form', fun
             await contentWizard.waitForSaveButtonDisabled();
             await contentWizard.pause(2000);
             let apps = await siteFormPanel.getSelectedAppDisplayNames();
-            assert.equal(apps[0], appConst.TEST_APPS_NAME.FIRST_SELENIUM_APP, 'Expected application be first from the top');
+            assert.equal(apps[0], appConst.TEST_APPS_NAME.APP_CONTENT_TYPES, 'Expected application be first from the top');
             // 4. two applications have been selected
-            await siteFormPanel.swapApplications(appConst.TEST_APPS_NAME.FIRST_SELENIUM_APP, appConst.MY_FIRST_APP);
+            await siteFormPanel.swapApplications(appConst.TEST_APPS_NAME.APP_CONTENT_TYPES, appConst.MY_FIRST_APP);
             // 5. Verify that the applications are swapped
             apps = await siteFormPanel.getSelectedAppDisplayNames();
             assert.equal(apps[0], appConst.MY_FIRST_APP, 'Applications should be swapped');
@@ -64,7 +64,7 @@ describe('site.with.applications.spec: swaps applications in the site-form', fun
             // 1. Existing site is opened:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. One application has been removed:
-            await siteFormPanel.removeApplication(appConst.TEST_APPS_NAME.FIRST_SELENIUM_APP);
+            await siteFormPanel.removeApplication(appConst.TEST_APPS_NAME.APP_CONTENT_TYPES);
             // 3. the site should be automatically saved after removing the selected options:
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSaveButtonDisabled();
