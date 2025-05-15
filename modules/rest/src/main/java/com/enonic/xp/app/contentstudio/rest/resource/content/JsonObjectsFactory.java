@@ -45,7 +45,7 @@ public class JsonObjectsFactory
 
     private ContentPrincipalsResolver principalsResolver;
 
-    private ComponentNameResolver componentNameResolver;
+    private ComponentDisplayNameResolver componentDisplayNameResolver;
 
     public JsonObjectsFactory()
     {
@@ -92,7 +92,8 @@ public class JsonObjectsFactory
             .collect( Collectors.toList() );
 
         return new ContentJson( content, new ContentIconUrlResolver( contentTypeService, request ), principalsResolver,
-                                componentNameResolver, new ContentListTitleResolver( contentTypeService ), localizedValidationErrors );
+                                componentDisplayNameResolver, new ContentListTitleResolver( contentTypeService ),
+                                localizedValidationErrors );
     }
 
     public ContentSummaryJson createContentSummaryJson( final Content content, final HttpServletRequest request )
@@ -126,8 +127,8 @@ public class JsonObjectsFactory
     }
 
     @Reference
-    public void setComponentNameResolver( final ComponentNameResolver componentNameResolver )
+    public void setComponentNameResolver( final ComponentDisplayNameResolver componentDisplayNameResolver )
     {
-        this.componentNameResolver = componentNameResolver;
+        this.componentDisplayNameResolver = componentDisplayNameResolver;
     }
 }

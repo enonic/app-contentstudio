@@ -5,7 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentNameResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentDisplayNameResolver;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTreeJson;
 import com.enonic.xp.page.DescriptorKey;
@@ -35,11 +35,11 @@ public class LayoutComponentJson
         this.regionsJson = new LayoutRegionsJson( layout.getRegions(), null );
     }
 
-    public LayoutComponentJson( final LayoutComponent component, final ComponentNameResolver componentNameResolver )
+    public LayoutComponentJson( final LayoutComponent component, final ComponentDisplayNameResolver componentDisplayNameResolver )
     {
-        super( component, componentNameResolver );
+        super( component, componentDisplayNameResolver );
         this.layout = component;
-        this.regionsJson = new LayoutRegionsJson( component.getRegions(), componentNameResolver );
+        this.regionsJson = new LayoutRegionsJson( component.getRegions(), componentDisplayNameResolver );
     }
 
     public List<RegionJson> getRegions()

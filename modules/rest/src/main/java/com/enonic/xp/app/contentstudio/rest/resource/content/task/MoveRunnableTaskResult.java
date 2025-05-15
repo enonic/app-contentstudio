@@ -3,6 +3,7 @@ package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 
 
@@ -13,7 +14,7 @@ public class MoveRunnableTaskResult
 
     private final List<ContentPath> existsFailed;
 
-    private final List<ContentPath> notExistsFailed;
+    private final List<ContentId> notExistsFailed;
 
     private final List<ContentPath> accessFailed;
 
@@ -39,7 +40,7 @@ public class MoveRunnableTaskResult
         return existsFailed;
     }
 
-    public List<ContentPath> getNotExistsFailed()
+    public List<ContentId> getNotExistsFailed()
     {
         return notExistsFailed;
     }
@@ -84,7 +85,7 @@ public class MoveRunnableTaskResult
 
         private final List<ContentPath> existsFailed = new ArrayList<>();
 
-        private final List<ContentPath> notExistsFailed = new ArrayList<>();
+        private final List<ContentId> notExistsFailed = new ArrayList<>();
 
         private final List<ContentPath> accessFailed = new ArrayList<>();
 
@@ -119,7 +120,7 @@ public class MoveRunnableTaskResult
             return this;
         }
 
-        public Builder notExistsFailed( ContentPath item )
+        public Builder notExistsFailed( ContentId item )
         {
             this.notExistsFailed.add( item );
             return this;

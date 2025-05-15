@@ -2,26 +2,27 @@ import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentVersionJson} from './json/ContentVersionJson';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {ContentId} from '../content/ContentId';
 
 export class RevertVersionRequest
     extends CmsContentResourceRequest<string> {
 
-    private versionId: string;
+    private readonly versionId: string;
 
-    private contentKey: string;
+    private readonly contentId: ContentId;
 
-    constructor(versionId: string, contentKey: string) {
+    constructor(versionId: string, contentId: ContentId) {
         super();
         this.setMethod(HttpMethod.POST);
         this.versionId = versionId;
-        this.contentKey = contentKey;
+        this.contentId = contentId;
         this.addRequestPathElements('revert');
     }
 
     getParams(): object {
         return {
             versionId: this.versionId,
-            contentKey: this.contentKey
+            contentId: this.contentId.toString(),
         };
     }
 

@@ -71,7 +71,6 @@ export class ContentSummaryAndCompareStatusViewer
         }
         const contentSummary: ContentSummary = object.getContentSummary();
         const invalid: boolean = !contentSummary.isValid() || !contentSummary.getDisplayName() || contentSummary.getName().isUnnamed();
-        const isPendingDelete: boolean = contentSummary.getContentState().isPendingDelete();
         this.toggleClass('invalid', invalid);
         this.toggleClass('has-origin-project', object.hasOriginProject());
         this.toggleClass('data-inherited', object.isDataInherited());
@@ -85,8 +84,8 @@ export class ContentSummaryAndCompareStatusViewer
         if (!invalid && !object.isOnline() && !object.isPendingDelete()) {
             const workflowState = this.resolveWorkflowState(object);
             this.getNamesAndIconView().setIconToolTip(workflowState);
-            this.toggleClass('ready', !isPendingDelete && contentSummary.isReady());
-            this.toggleClass('in-progress', !isPendingDelete && contentSummary.isInProgress());
+            this.toggleClass('ready', contentSummary.isReady());
+            this.toggleClass('in-progress', contentSummary.isInProgress());
         } else {
             this.getNamesAndIconView().setIconToolTip('');
             this.removeClass('ready');

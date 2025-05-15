@@ -2,6 +2,7 @@ package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 
 import java.util.List;
 
+import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 
 class MoveTaskMessageGenerator
@@ -17,7 +18,7 @@ class MoveTaskMessageGenerator
     void appendMessageForSingleFailure( final StringBuilder builder, final MoveRunnableTaskResult result )
     {
         final List<ContentPath> existsFailed = result.getExistsFailed();
-        final List<ContentPath> notExistsFailed = result.getNotExistsFailed();
+        final List<ContentId> notExistsFailed = result.getNotExistsFailed();
         final List<ContentPath> accessFailed = result.getAccessFailed();
         final List<ContentPath> failed = result.getFailed();
 
@@ -28,7 +29,7 @@ class MoveTaskMessageGenerator
         }
         else if ( notExistsFailed != null && notExistsFailed.size() == 1 )
         {
-            builder.append( String.format( "Item \"%s\" was not found.", notExistsFailed.get( 0 ).getName() ) );
+            builder.append( String.format( "Item \"%s\" was not found.", notExistsFailed.get( 0 ).toString() ) );
         }
         else if ( accessFailed != null && accessFailed.size() == 1 )
         {
@@ -59,7 +60,7 @@ class MoveTaskMessageGenerator
                 {
                     builder.append( ", " );
                 }
-                builder.append( "Not found: " ).append( getNameOrSize( result.getNotExistsFailed() ) );
+                builder.append( "Not found: " ).append( getNameOrSizeForIds( result.getNotExistsFailed() ) );
             }
 
             if ( result.getAccessFailed().size() > 0 )

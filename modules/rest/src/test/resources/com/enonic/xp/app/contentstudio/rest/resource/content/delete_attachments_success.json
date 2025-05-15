@@ -1,6 +1,5 @@
 {
     "attachments": [],
-    "contentState": "DEFAULT",
     "data": [],
     "deletable": true,
     "displayName": "one",
@@ -9,7 +8,6 @@
     "iconUrl": "/admin/rest-v2/cs/schema/content/icon/base:folder?hash=c6df1865d41af162e677f1bbbc0b4bec",
     "id": "123",
     "inherit": [],
-    "inheritPermissions": false,
     "isPage": false,
     "isRoot": true,
     "isValid": false,

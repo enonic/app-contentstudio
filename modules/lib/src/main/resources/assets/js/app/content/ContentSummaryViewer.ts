@@ -14,9 +14,7 @@ export class ContentSummaryViewer
     resolveDisplayName(object: ContentSummary): string {
         let contentName = object.getName();
         let invalid = !object.isValid() || !object.getDisplayName() || contentName.isUnnamed();
-        let pendingDelete = object.getContentState().isPendingDelete();
         this.toggleClass('invalid', invalid);
-        this.toggleClass('pending-delete', pendingDelete);
 
         return object.getDisplayName();
     }

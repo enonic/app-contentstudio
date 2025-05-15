@@ -22,9 +22,11 @@ import com.enonic.xp.content.DuplicateContentsResult;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.task.RunnableTask;
+import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 public class DuplicateRunnableTaskTest
     extends AbstractRunnableTaskTest
@@ -41,13 +43,13 @@ public class DuplicateRunnableTaskTest
     @Override
     protected DuplicateRunnableTask createAndRunTask()
     {
-        final DuplicateRunnableTask task = DuplicateRunnableTask.create().
-            params( params ).
-            description( "Duplicate content" ).
-            taskService( taskService ).
-            contentService( contentService ).
-            authInfo( authInfo ).
-            build();
+        final DuplicateRunnableTask task = DuplicateRunnableTask.create()
+            .params( params )
+            .description( "Duplicate content" )
+            .taskService( taskService )
+            .contentService( contentService )
+            .authInfo( authInfo )
+            .build();
 
         task.run( TaskId.from( "taskId" ), progressReporter );
 
@@ -80,21 +82,20 @@ public class DuplicateRunnableTaskTest
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( contents ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
             .thenReturn( FindContentIdsByQueryResult.create().totalHits( 3 ).build() );
-        Mockito.when( contentService.duplicate( Mockito.isA( DuplicateContentParams.class ) ) ).
-            thenReturn( DuplicateContentsResult.create()
-                            .addDuplicated( contents.get( 0 ).getId() )
-                            .addDuplicated( childrenIds )
-                            .setContentName( contents.get( 0 ).getDisplayName() )
-                            .build() ).
-            thenThrow( new ContentNotFoundException( contents.get( 1 ).getPath(), Branch.from( "master" ) ) ).
-            thenThrow( new ContentAlreadyMovedException( contents.get( 2 ).getDisplayName(), contents.get( 2 ).getPath() ) );
+        Mockito.when( contentService.duplicate( Mockito.isA( DuplicateContentParams.class ) ) )
+            .thenReturn( DuplicateContentsResult.create()
+                             .addDuplicated( contents.get( 0 ).getId() )
+                             .addDuplicated( childrenIds )
+                             .setContentName( contents.get( 0 ).getDisplayName() )
+                             .build() )
+            .thenThrow( ContentNotFoundException.create().contentPath( contents.get( 1 ).getPath() ).build() )
+            .thenThrow( new ContentAlreadyMovedException( contents.get( 2 ).getDisplayName(), contents.get( 2 ).getPath() ) );
 
         final DuplicateRunnableTask task = createAndRunTask();
         task.createTaskResult();
 
         Mockito.verify( progressReporter, Mockito.times( 2 ) ).info( contentQueryArgumentCaptor.capture() );
-        Mockito.verify( taskService, Mockito.times( 1 ) )
-            .submitTask( Mockito.isA( RunnableTask.class ), Mockito.eq( "Duplicate content" ) );
+        Mockito.verify( taskService, Mockito.times( 1 ) ).submitLocalTask( any( SubmitLocalTaskParams.class ) );
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 
@@ -116,12 +117,12 @@ public class DuplicateRunnableTaskTest
             .thenReturn( Contents.from( contents.subList( 0, 1 ) ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
             .thenReturn( FindContentIdsByQueryResult.create().totalHits( 1 ).build() );
-        Mockito.when( contentService.duplicate( Mockito.isA( DuplicateContentParams.class ) ) ).
-            thenReturn( DuplicateContentsResult.create()
-                            .addDuplicated( contents.get( 0 ).getId() )
-                            .setContentName( contents.get( 0 ).getDisplayName() )
-                            .setSourceContentPath( contents.get( 0 ).getPath() )
-                            .build() );
+        Mockito.when( contentService.duplicate( Mockito.isA( DuplicateContentParams.class ) ) )
+            .thenReturn( DuplicateContentsResult.create()
+                             .addDuplicated( contents.get( 0 ).getId() )
+                             .setContentName( contents.get( 0 ).getDisplayName() )
+                             .setSourceContentPath( contents.get( 0 ).getPath() )
+                             .build() );
 
         createAndRunTask();
 
@@ -145,9 +146,9 @@ public class DuplicateRunnableTaskTest
             .thenReturn( Contents.from( contents.subList( 0, 2 ) ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
             .thenReturn( FindContentIdsByQueryResult.create().totalHits( 1 ).build() );
-        Mockito.when( contentService.duplicate( Mockito.isA( DuplicateContentParams.class ) ) ).
-            thenThrow( new ContentNotFoundException( contents.get( 1 ).getPath(), Branch.from( "master" ) ) ).
-            thenThrow( new ContentNotFoundException( contents.get( 1 ).getPath(), Branch.from( "master" ) ) );
+        Mockito.when( contentService.duplicate( Mockito.isA( DuplicateContentParams.class ) ) )
+            .thenThrow( ContentNotFoundException.create().contentPath( contents.get( 1 ).getPath() ).build() )
+            .thenThrow( ContentNotFoundException.create().contentPath( contents.get( 1 ).getPath() ).build() );
 
         createAndRunTask();
 

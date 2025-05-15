@@ -7,8 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ReorderChildrenJson
 {
-    private final Boolean silent;
-
     private final Boolean manualOrder;
 
     private final String contentId;
@@ -18,22 +16,15 @@ public class ReorderChildrenJson
     private final List<ReorderChildJson> orderChildren;
 
     @JsonCreator
-    public ReorderChildrenJson( @JsonProperty("silent") final Boolean silent, @JsonProperty("manualOrder") final Boolean manualOrder,
+    public ReorderChildrenJson( @JsonProperty("manualOrder") final Boolean manualOrder,
                                 @JsonProperty("contentId") final String contentId,
                                 @JsonProperty("childOrder") final ChildOrderJson childOrder,
                                 @JsonProperty("reorderChildren") final List<ReorderChildJson> orderChildren )
     {
-        this.silent = silent;
         this.manualOrder = manualOrder;
         this.contentId = contentId;
         this.childOrder = childOrder;
         this.orderChildren = orderChildren;
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    public Boolean isSilent()
-    {
-        return silent;
     }
 
     @SuppressWarnings("UnusedDeclaration")

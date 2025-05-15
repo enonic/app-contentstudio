@@ -16,10 +16,12 @@ import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
 import com.enonic.xp.task.RunnableTask;
+import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
 
 import static com.enonic.xp.security.acl.Permission.READ;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 public class ApplyPermissionsRunnableTaskTest
     extends AbstractRunnableTaskTest
@@ -67,8 +69,7 @@ public class ApplyPermissionsRunnableTaskTest
         task.createTaskResult();
 
         Mockito.verify( progressReporter, Mockito.times( 1 ) ).info( contentQueryArgumentCaptor.capture() );
-        Mockito.verify( taskService, Mockito.times( 1 ) )
-            .submitTask( Mockito.isA( RunnableTask.class ), Mockito.eq( "Apply permissions" ) );
+        Mockito.verify( taskService, Mockito.times( 1 ) ).submitLocalTask( any( SubmitLocalTaskParams.class ) );
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
@@ -89,8 +90,7 @@ public class ApplyPermissionsRunnableTaskTest
         task.createTaskResult();
 
         Mockito.verify( progressReporter, Mockito.times( 1 ) ).info( contentQueryArgumentCaptor.capture() );
-        Mockito.verify( taskService, Mockito.times( 1 ) )
-            .submitTask( Mockito.isA( RunnableTask.class ), Mockito.eq( "Apply permissions" ) );
+        Mockito.verify( taskService, Mockito.times( 1 ) ).submitLocalTask( any( SubmitLocalTaskParams.class ) );
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
@@ -110,8 +110,7 @@ public class ApplyPermissionsRunnableTaskTest
         task.createTaskResult();
 
         Mockito.verify( progressReporter, Mockito.times( 1 ) ).info( contentQueryArgumentCaptor.capture() );
-        Mockito.verify( taskService, Mockito.times( 1 ) )
-            .submitTask( Mockito.isA( RunnableTask.class ), Mockito.eq( "Apply permissions" ) );
+        Mockito.verify( taskService, Mockito.times( 1 ) ).submitLocalTask( any( SubmitLocalTaskParams.class ) );
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
@@ -131,8 +130,7 @@ public class ApplyPermissionsRunnableTaskTest
         task.createTaskResult();
 
         Mockito.verify( progressReporter, Mockito.times( 1 ) ).info( contentQueryArgumentCaptor.capture() );
-        Mockito.verify( taskService, Mockito.times( 1 ) )
-            .submitTask( Mockito.isA( RunnableTask.class ), Mockito.eq( "Apply permissions" ) );
+        Mockito.verify( taskService, Mockito.times( 1 ) ).submitLocalTask( any( SubmitLocalTaskParams.class ) );
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
@@ -153,8 +151,7 @@ public class ApplyPermissionsRunnableTaskTest
         task.createTaskResult();
 
         Mockito.verify( progressReporter, Mockito.times( 1 ) ).info( contentQueryArgumentCaptor.capture() );
-        Mockito.verify( taskService, Mockito.times( 1 ) )
-            .submitTask( Mockito.isA( RunnableTask.class ), Mockito.eq( "Apply permissions" ) );
+        Mockito.verify( taskService, Mockito.times( 1 ) ).submitLocalTask( any( SubmitLocalTaskParams.class ) );
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
@@ -180,8 +177,7 @@ public class ApplyPermissionsRunnableTaskTest
         task.createTaskResult();
 
         Mockito.verify( progressReporter, Mockito.times( 1 ) ).info( contentQueryArgumentCaptor.capture() );
-        Mockito.verify( taskService, Mockito.times( 1 ) )
-            .submitTask( Mockito.isA( RunnableTask.class ), Mockito.eq( "Apply permissions" ) );
+        Mockito.verify( taskService, Mockito.times( 1 ) ).submitLocalTask( any( SubmitLocalTaskParams.class ) );
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 

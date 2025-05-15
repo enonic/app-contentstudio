@@ -11,14 +11,13 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.query.ContentQueryW
 import com.enonic.xp.content.CompareContentResults;
 import com.enonic.xp.content.CompareContentsParams;
 import com.enonic.xp.content.CompareStatus;
-import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.content.PushContentListener;
 import com.enonic.xp.content.UnpublishContentParams;
 import com.enonic.xp.content.UnpublishContentsResult;
-import com.enonic.xp.task.AbstractRunnableTask;
+import com.enonic.xp.app.contentstudio.json.task.AbstractRunnableTask;
 import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
@@ -36,9 +35,8 @@ public class UnpublishRunnableTask
 
     private ContentIds filterIdsByStatus( final ContentIds ids )
     {
-        final List<CompareStatus> statuses = Arrays.asList( CompareStatus.EQUAL, CompareStatus.PENDING_DELETE, CompareStatus.NEWER );
-        final CompareContentResults compareResults =
-            contentService.compare( new CompareContentsParams( ids, ContentConstants.BRANCH_MASTER ) );
+        final List<CompareStatus> statuses = Arrays.asList( CompareStatus.EQUAL, CompareStatus.NEWER );
+        final CompareContentResults compareResults = contentService.compare( CompareContentsParams.create().contentIds( ids ).build() );
 
         return ContentIds.from( compareResults.getCompareContentResultsMap().entrySet().
             stream().
@@ -72,9 +70,7 @@ public class UnpublishRunnableTask
         try
         {
             final UnpublishContentsResult result = this.contentService.unpublishContent( UnpublishContentParams.create().
-                unpublishBranch( ContentConstants.BRANCH_MASTER ).
                 contentIds( contentIds ).
-                includeChildren( params.isIncludeChildren() ).
                 pushListener( listener ).
                 build() );
 

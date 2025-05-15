@@ -29,13 +29,8 @@ class DeleteTaskMessageGenerator
     @Override
     void appendMessageForSingleSuccess( final StringBuilder builder, final DeleteRunnableTaskResult result )
     {
-        final List<ContentPath> pending = result.getPending();
         final List<ContentPath> deleted = result.getSucceeded();
-        if ( pending != null && pending.size() == 1 )
-        {
-            builder.append( String.format( "Item \"%s\" is marked for deletion.", pending.get( 0 ).getName() ) );
-        }
-        else if ( deleted != null && deleted.size() == 1 )
+        if ( deleted != null && deleted.size() == 1 )
         {
             ContentName name = ContentName.from( deleted.get( 0 ).getName() );
             if ( name.isUnnamed() )
@@ -52,13 +47,7 @@ class DeleteTaskMessageGenerator
     @Override
     void appendMessageForMultipleSuccess( final StringBuilder builder, final DeleteRunnableTaskResult result )
     {
-        final List<ContentPath> pending = result.getPending();
         builder.append( String.format( "%s items are deleted", result.getSuccessCount() ) );
-        if ( pending.size() > 0 )
-        {
-            final String isOrAre = pending.size() > 1 ? "are" : "is";
-            builder.append( String.format( " ( %s %s marked for deletion )", getNameOrSize( pending ), isOrAre ) );
-        }
         builder.append( "." );
     }
 

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentTreeSelectorJson;
-import com.enonic.xp.content.ContentListMetaData;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ContentListMetaData;
 
 @SuppressWarnings("UnusedDeclaration")
 public class ContentTreeSelectorListJson
