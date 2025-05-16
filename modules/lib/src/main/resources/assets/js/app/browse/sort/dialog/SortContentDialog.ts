@@ -254,7 +254,6 @@ export class SortContentDialog
 
     private saveContentChildOrder(): Q.Promise<Content> {
         return new OrderContentRequest()
-            .setSilent(false)
             .setContentId(this.selectedContent.getContentId())
             .setChildOrder(this.getSelectedOrder())
             .sendAndParse();
@@ -264,7 +263,6 @@ export class SortContentDialog
         const movements: OrderChildMovements = this.gridDragHandler.getContentMovements();
 
         return new OrderChildContentRequest()
-            .setSilent(false)
             .setManualOrder(true)
             .setContentId(this.selectedContent.getContentId())
             .setChildOrder(this.getSelectedOrder())

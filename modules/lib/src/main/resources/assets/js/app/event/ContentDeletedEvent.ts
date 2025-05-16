@@ -1,6 +1,5 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
 import {Branch} from '../versioning/Branch';
 import {ContentId} from '../content/ContentId';
@@ -10,7 +9,6 @@ export class ContentDeletedEvent
     extends Event {
 
     private contentDeletedItems: ContentDeletedItem[] = [];
-    private undeletedItems: ContentDeletedItem[] = [];
 
     constructor() {
         super();
@@ -21,26 +19,8 @@ export class ContentDeletedEvent
         return this;
     }
 
-    addPendingItem(contentSummary: ContentSummaryAndCompareStatus): ContentDeletedEvent {
-        this.contentDeletedItems.push(new ContentPendingDeleteItem(contentSummary, true));
-        return this;
-    }
-
-    addUndeletedItem(contentSummary: ContentSummaryAndCompareStatus): ContentDeletedEvent {
-        this.undeletedItems.push(new ContentPendingDeleteItem(contentSummary));
-        return this;
-    }
-
-    getDeletedItems(): ContentDeletedItem[] {
-        return this.contentDeletedItems;
-    }
-
-    getUndeletedItems(): ContentDeletedItem[] {
-        return this.undeletedItems;
-    }
-
     isEmpty(): boolean {
-        return this.contentDeletedItems.length === 0 && this.undeletedItems.length === 0;
+        return this.contentDeletedItems.length === 0;
     }
 
     fire(contextWindow: Window = window) {
@@ -60,11 +40,11 @@ export class ContentDeletedEvent
 
 export class ContentDeletedItem {
 
-    private contentPath: ContentPath;
+    private readonly contentPath: ContentPath;
 
-    private contentId: ContentId;
+    private readonly contentId: ContentId;
 
-    private branch: Branch;
+    private readonly branch: Branch;
 
     constructor(contentId: ContentId, contentPath: ContentPath, branch: Branch) {
         this.contentPath = contentPath;
@@ -84,34 +64,7 @@ export class ContentDeletedItem {
         return this.contentId;
     }
 
-    public isPending(): boolean {
-        return false;
-    }
-
     public getCompareStatus(): CompareStatus {
         throw new Error('Must be overridden by inheritors');
-    }
-}
-
-export class ContentPendingDeleteItem
-    extends ContentDeletedItem {
-
-    private pending: boolean;
-
-    private compareStatus: CompareStatus;
-
-    constructor(contentSummary: ContentSummaryAndCompareStatus, pending: boolean = false) {
-        super(contentSummary.getContentId(), contentSummary.getPath(), Branch.MASTER);
-
-        this.compareStatus = contentSummary.getCompareStatus();
-        this.pending = pending;
-    }
-
-    public isPending(): boolean {
-        return this.pending;
-    }
-
-    public getCompareStatus(): CompareStatus {
-        return this.compareStatus;
     }
 }

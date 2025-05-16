@@ -3,7 +3,7 @@ package com.enonic.xp.app.contentstudio.json.content.page.region;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentNameResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentDisplayNameResolver;
 import com.enonic.xp.region.TextComponent;
 
 @SuppressWarnings("UnusedDeclaration")
@@ -12,9 +12,9 @@ public class TextComponentJson
 {
     private final TextComponent text;
 
-    public TextComponentJson( final TextComponent component, final ComponentNameResolver componentNameResolver )
+    public TextComponentJson( final TextComponent component, final ComponentDisplayNameResolver componentDisplayNameResolver )
     {
-        super( component, componentNameResolver );
+        super( component, componentDisplayNameResolver );
         this.text = component;
     }
 

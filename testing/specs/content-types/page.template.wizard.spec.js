@@ -25,7 +25,7 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             let pageTemplateForm = new PageTemplateForm();
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
             // 1. Open wizard for new page template
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
@@ -65,7 +65,7 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             await contentBrowsePanel.waitForMarkAsReadyButtonVisible();
         });
 
-    it("GIVEN the page-template is opened WHEN support selected option has been removed THEN the content gets invalid",
+    it("GIVEN the page-template is opened WHEN support selected option has been removed THEN red icon should appear, the content gets invalid",
         async () => {
             let pageTemplateForm = new PageTemplateForm();
             let contentWizard = new ContentWizard();
@@ -86,7 +86,7 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             await studioUtils.doSwitchToContentBrowsePanel();
             // 7. Verify that the template is invalid in the grid:
             let isDisplayed = await contentBrowsePanel.isRedIconDisplayed(TEMPLATE_NAME);
-            await studioUtils.saveScreenshot('template_support_selected');
+            await studioUtils.saveScreenshot('template_support_is_not_selected');
             assert.ok(isDisplayed, 'red icon should be present near the content!');
         });
 

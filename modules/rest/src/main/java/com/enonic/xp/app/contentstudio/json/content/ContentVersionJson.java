@@ -34,8 +34,6 @@ public class ContentVersionJson
 
     private final ContentPath contentPath;
 
-    private final boolean inheritPermissions;
-
     public ContentVersionJson( final ContentVersion contentVersion, final ContentPrincipalsResolver principalsResolver )
     {
         this.modified = contentVersion.getModified();
@@ -56,7 +54,6 @@ public class ContentVersionJson
         this.workflow = contentVersion.getWorkflowInfo() != null ? new ContentWorkflowInfoJson( contentVersion.getWorkflowInfo() ) : null;
         this.permissions =
             contentVersion.getPermissions() != null ? new RootPermissionsJson( contentVersion.getPermissions(), principalsResolver ) : null;
-        this.inheritPermissions = contentVersion.isInheritPermissions();
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -127,10 +124,5 @@ public class ContentVersionJson
     public String getPath()
     {
         return contentPath.toString();
-    }
-
-    public boolean isInheritPermissions()
-    {
-        return inheritPermissions;
     }
 }

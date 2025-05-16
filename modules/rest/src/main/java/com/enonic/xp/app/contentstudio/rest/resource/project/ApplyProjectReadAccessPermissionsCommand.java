@@ -7,11 +7,12 @@ import com.enonic.xp.content.ApplyContentPermissionsParams;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.node.ApplyPermissionsScope;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
 import com.enonic.xp.security.acl.Permission;
-import com.enonic.xp.task.TaskResultJson;
+import com.enonic.xp.app.contentstudio.json.task.TaskResultJson;
 import com.enonic.xp.task.TaskService;
 
 public final class ApplyProjectReadAccessPermissionsCommand
@@ -51,7 +52,7 @@ public final class ApplyProjectReadAccessPermissionsCommand
                 params( ApplyContentPermissionsParams.create().
                     permissions( newList ).
                     contentId( contentRoot.getId() ).
-                    overwriteChildPermissions( true ).
+                    applyPermissionsScope( ApplyPermissionsScope.TREE ).
                     build() ).
                 description( "Apply project's content root permissions" ).
                 taskService( taskService ).

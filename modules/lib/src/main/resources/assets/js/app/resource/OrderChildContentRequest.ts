@@ -10,8 +10,6 @@ import {Content} from '../content/Content';
 export class OrderChildContentRequest
     extends CmsContentResourceRequest<Content> {
 
-    private silent: boolean = false;
-
     private manualOrder: boolean = false;
 
     private contentId: ContentId;
@@ -24,11 +22,6 @@ export class OrderChildContentRequest
         super();
         this.setMethod(HttpMethod.POST);
         this.addRequestPathElements('reorderChildren');
-    }
-
-    setSilent(silent: boolean): OrderChildContentRequest {
-        this.silent = silent;
-        return this;
     }
 
     setManualOrder(manualOrder: boolean): OrderChildContentRequest {
@@ -53,7 +46,6 @@ export class OrderChildContentRequest
 
     getParams(): ReorderChildContentsJson {
         return {
-            silent: this.silent,
             manualOrder: this.manualOrder,
             contentId: this.contentId.toString(),
             childOrder: this.childOrder ? this.childOrder.toJson() : undefined,

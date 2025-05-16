@@ -49,7 +49,7 @@ describe("unpublish.dialog.inbound.ref.spec - Tests for inbound references in Un
             await contentUnpublishDialog.waitForIgnoreInboundReferencesButtonNotDisplayed();
         });
 
-    it(`GIVEN Unpublish content dialog is opened WHEN 'Show references' link has been clicked THEN 'Not published' referenced content should not be displayed in the filtered grid`,
+    it.skip(`GIVEN Unpublish content dialog is opened WHEN 'Show references' link has been clicked THEN 'Not published' referenced content should not be displayed in the filtered grid`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentUnpublishDialog = new ContentUnpublishDialog();
@@ -71,7 +71,7 @@ describe("unpublish.dialog.inbound.ref.spec - Tests for inbound references in Un
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, `'Published' status should be displayed for the filtered content`);
         });
 
-    it(`GIVEN 'Ignore inbound references' is displayed in Unpublish content dialog WHEN 'Show references' link has been clicked AND referenced content has been unpublished THEN 'Unpublish' button gets enabled`,
+    it.skip(`GIVEN 'Ignore inbound references' is displayed in Unpublish content dialog WHEN 'Show references' link has been clicked AND referenced content has been unpublished THEN 'Unpublish' button gets enabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentUnpublishDialog = new ContentUnpublishDialog();

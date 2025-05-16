@@ -14,7 +14,7 @@ import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.content.MoveContentException;
 import com.enonic.xp.content.MoveContentParams;
 import com.enonic.xp.content.MoveContentsResult;
-import com.enonic.xp.task.AbstractRunnableTask;
+import com.enonic.xp.app.contentstudio.json.task.AbstractRunnableTask;
 import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
@@ -72,7 +72,7 @@ public class MoveRunnableTask
             }
             catch ( ContentNotFoundException e )
             {
-                result.notExistsFailed( e.getPath() );
+                result.notExistsFailed( contentId );
             }
             catch ( ContentAccessException e )
             {

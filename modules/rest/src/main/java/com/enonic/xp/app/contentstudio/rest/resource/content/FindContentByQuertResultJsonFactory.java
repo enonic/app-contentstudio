@@ -11,7 +11,6 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentIdQuery
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentQueryResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentSummaryQueryResultJson;
 import com.enonic.xp.content.Content;
-import com.enonic.xp.content.ContentListMetaData;
 import com.enonic.xp.content.Contents;
 
 public class FindContentByQuertResultJsonFactory

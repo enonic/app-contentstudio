@@ -19,9 +19,11 @@ import com.enonic.xp.content.DeleteContentsResult;
 import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.task.RunnableTask;
+import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 public class DeleteRunnableTaskTest
     extends AbstractRunnableTaskTest
@@ -59,18 +61,19 @@ public class DeleteRunnableTaskTest
     {
         Mockito.when( params.getContentPaths() )
             .thenReturn( contents.stream().map( content -> content.getPath().toString() ).collect( Collectors.toSet() ) );
-        Mockito.when( contentService.deleteWithoutFetch( Mockito.isA( DeleteContentParams.class ) ) ).
+        Mockito.when( contentService.delete( Mockito.isA( DeleteContentParams.class ) ) ).
             thenReturn(
             DeleteContentsResult.create().addDeleted( contents.get( 0 ).getId() ).addDeleted( ContentId.from( "id4" ) ).build() ).
-            thenReturn( DeleteContentsResult.create().addPending( contents.get( 1 ).getId() ).build() ).
-            thenThrow( new ContentNotFoundException( contents.get( 2 ).getPath(), Branch.from( "master" ) ) );
+            thenReturn( DeleteContentsResult.create().build() ).
+            thenThrow( ContentNotFoundException.create().contentPath( contents.get( 2 ).getPath() ).build() );
         Mockito.when( contentService.getByPath( Mockito.isA( ContentPath.class ) ) ).thenReturn( contents.get( 2 ) );
+        Mockito.when( contentService.getByPaths( Mockito.isA( ContentPaths.class ) ) ).thenReturn( Contents.empty());
 
         final DeleteRunnableTask task = createAndRunTask();
         task.createTaskResult();
 
         Mockito.verify( progressReporter, Mockito.times( 2 ) ).info( contentQueryArgumentCaptor.capture() );
-        Mockito.verify( taskService, Mockito.times( 1 ) ).submitTask( Mockito.isA( RunnableTask.class ), Mockito.eq( "Delete content" ) );
+        Mockito.verify( taskService, Mockito.times( 1 ) ).submitLocalTask( any( SubmitLocalTaskParams.class ) );
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 
@@ -85,8 +88,9 @@ public class DeleteRunnableTaskTest
     {
         Mockito.when( params.getContentPaths() )
             .thenReturn( contents.subList( 2, 3 ).stream().map( content -> content.getPath().toString() ).collect( Collectors.toSet() ) );
-        Mockito.when( contentService.deleteWithoutFetch( Mockito.isA( DeleteContentParams.class ) ) ).thenReturn(
+        Mockito.when( contentService.delete( Mockito.isA( DeleteContentParams.class ) ) ).thenReturn(
             DeleteContentsResult.create().addDeleted( contents.get( 2 ).getId() ).build() );
+        Mockito.when( contentService.getByPaths( Mockito.isA( ContentPaths.class ) ) ).thenReturn( Contents.empty());
 
         createAndRunTask();
 
@@ -106,9 +110,8 @@ public class DeleteRunnableTaskTest
 
         Mockito.when( params.getContentPaths() )
             .thenReturn( contentPaths.stream().map( ContentPath::toString ).collect( Collectors.toSet() ) );
-        Mockito.when( contentService.deleteWithoutFetch( Mockito.isA( DeleteContentParams.class ) ) ).thenReturn(
+        Mockito.when( contentService.delete( Mockito.isA( DeleteContentParams.class ) ) ).thenReturn(
             DeleteContentsResult.create().addDeleted( contents.get( 2 ).getId() ).build() );
-        Mockito.when( params.isDeleteOnline() ).thenReturn( true );
         Mockito.when( contentService.getByPaths( contentPaths ) ).thenReturn( Contents.from( contents.subList( 2, 3 ) ) );
 
         createAndRunTask();
@@ -126,9 +129,10 @@ public class DeleteRunnableTaskTest
     {
         Mockito.when( params.getContentPaths() )
             .thenReturn( contents.subList( 2, 3 ).stream().map( content -> content.getPath().toString() ).collect( Collectors.toSet() ) );
-        Mockito.when( contentService.deleteWithoutFetch( Mockito.isA( DeleteContentParams.class ) ) ).thenThrow(
-            new ContentNotFoundException( contents.get( 2 ).getPath(), Branch.from( "master" ) ) );
+        Mockito.when( contentService.delete( Mockito.isA( DeleteContentParams.class ) ) ).thenThrow(
+            ContentNotFoundException.create().contentPath( contents.get( 2 ).getPath() ).build() );
         Mockito.when( contentService.getByPath( Mockito.isA( ContentPath.class ) ) ).thenReturn( contents.get( 2 ) );
+        Mockito.when( contentService.getByPaths( Mockito.isA( ContentPaths.class ) ) ).thenReturn( Contents.empty());
 
         createAndRunTask();
 
@@ -144,6 +148,7 @@ public class DeleteRunnableTaskTest
         throws Exception
     {
         Mockito.when( params.getContentPaths() ).thenReturn( Collections.emptySet() );
+        Mockito.when( contentService.getByPaths( Mockito.isA( ContentPaths.class ) ) ).thenReturn( Contents.empty());
 
         createAndRunTask();
 

@@ -63,6 +63,7 @@ import com.enonic.xp.app.contentstudio.json.content.ReorderChildrenResultJson;
 import com.enonic.xp.app.contentstudio.json.content.RootPermissionsJson;
 import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentJson;
 import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentListJson;
+import com.enonic.xp.app.contentstudio.json.task.TaskResultJson;
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.LimitingInputStream;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.AbstractContentQueryResultJson;
@@ -103,8 +104,6 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolvePublish
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolvePublishDependenciesJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.RevertContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.SetChildOrderJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDeleteContentJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDeleteContentResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UnpublishContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UpdateContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.query.ContentQueryWithChildren;
@@ -135,7 +134,6 @@ import com.enonic.xp.content.ContentDependencies;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentIndexPath;
-import com.enonic.xp.content.ContentListMetaData;
 import com.enonic.xp.content.ContentName;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
@@ -168,7 +166,6 @@ import com.enonic.xp.content.ResolvePublishDependenciesParams;
 import com.enonic.xp.content.ResolveRequiredDependenciesParams;
 import com.enonic.xp.content.SetContentChildOrderParams;
 import com.enonic.xp.content.SyncContentService;
-import com.enonic.xp.content.UndoPendingDeleteContentParams;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.content.UpdateMediaParams;
 import com.enonic.xp.content.WorkflowInfo;
@@ -202,7 +199,6 @@ import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
 import com.enonic.xp.security.acl.Permission;
 import com.enonic.xp.security.auth.AuthenticationInfo;
-import com.enonic.xp.task.TaskResultJson;
 import com.enonic.xp.task.TaskService;
 import com.enonic.xp.util.BinaryReference;
 import com.enonic.xp.util.ByteSizeParser;
@@ -504,7 +500,7 @@ public final class ContentResource
 
         final UpdateContentParams updateParams = json.getUpdateContentParams();
 
-        final AccessControlList permissionsBeforeSave = contentService.getPermissionsById( updateParams.getContentId() );
+        final AccessControlList permissionsBeforeSave = contentService.getById( updateParams.getContentId() ).getPermissions();
 
         final Content updatedContent = ContextBuilder.copyOf(ContextAccessor.current()).branch(ContentConstants.BRANCH_DRAFT).build().callWith(() -> contentService.update( updateParams ));
 
@@ -543,18 +539,6 @@ public final class ContentResource
         }
 
         return renameParams;
-    }
-
-    @POST
-    @Path("undoPendingDelete")
-    public UndoPendingDeleteContentResultJson undoPendingDelete( final UndoPendingDeleteContentJson params )
-    {
-        UndoPendingDeleteContentResultJson result = new UndoPendingDeleteContentResultJson();
-        int numberOfContents = this.contentService.undoPendingDelete( UndoPendingDeleteContentParams.create()
-                                                                          .contentIds( ContentIds.from( params.getContentIds() ) )
-                                                                          .target( ContentConstants.BRANCH_MASTER )
-                                                                          .build() );
-        return result.setSuccess( numberOfContents );
     }
 
     @POST
@@ -642,9 +626,8 @@ public final class ContentResource
 
     private void markContentAsReady( final ContentId contentId )
     {
-        final UpdateContentParams updateParams = new UpdateContentParams().contentId( contentId )
-            .modifier( PrincipalKey.ofAnonymous() )
-            .editor( edit -> edit.workflowInfo = WorkflowInfo.ready() );
+        final UpdateContentParams updateParams =
+            new UpdateContentParams().contentId( contentId ).editor( edit -> edit.workflowInfo = WorkflowInfo.ready() );
 
         contentService.update( updateParams );
     }
@@ -657,7 +640,7 @@ public final class ContentResource
 
         ids.getContentIds().forEach( contentId -> {
             final Boolean hasChildren =
-                this.contentService.hasUnpublishedChildren( new HasUnpublishedChildrenParams( contentId, ContentConstants.BRANCH_MASTER ) );
+                this.contentService.hasUnpublishedChildren( HasUnpublishedChildrenParams.create().contentId( contentId ).build() );
 
             result.addHasChildren( contentId, hasChildren );
         } );
@@ -710,7 +693,7 @@ public final class ContentResource
 
         final AuthenticationInfo authInfo = ContextAccessor.current().getAuthInfo();
 
-        final Predicate<ContentId> publishNotAllowedCondition = id -> !this.contentService.getPermissionsById( id )
+        final Predicate<ContentId> publishNotAllowedCondition = id -> !this.contentService.getById( id ).getPermissions()
             .isAllowedFor( ContextAccessor.current().getAuthInfo().getPrincipals(), Permission.PUBLISH );
 
         //Get all outbound dependencies for current requested and required
@@ -835,7 +818,6 @@ public final class ContentResource
         final Content updatedContent = this.contentService.setChildOrder( SetContentChildOrderParams.create()
                                                                               .childOrder( params.getChildOrder().getChildOrder() )
                                                                               .contentId( ContentId.from( params.getContentId() ) )
-                                                                              .silent( params.isSilent() )
                                                                               .build() );
         return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
@@ -852,7 +834,6 @@ public final class ContentResource
             content = this.contentService.setChildOrder( SetContentChildOrderParams.create()
                                                              .childOrder( params.getChildOrder().getChildOrder() )
                                                              .contentId( ContentId.from( params.getContentId() ) )
-                                                             .silent( true )
                                                              .build() );
         }
 
@@ -865,7 +846,6 @@ public final class ContentResource
                 this.contentService.setChildOrder( SetContentChildOrderParams.create()
                                                        .childOrder( ChildOrder.manualOrder() )
                                                        .contentId( ContentId.from( params.getContentId() ) )
-                                                       .silent( true )
                                                        .build() );
             }
             else
@@ -878,7 +858,7 @@ public final class ContentResource
 
         //Applies the manual movements
         final ReorderChildContentsParams.Builder builder =
-            ReorderChildContentsParams.create().contentId( ContentId.from( params.getContentId() ) ).silent( params.isSilent() );
+            ReorderChildContentsParams.create().contentId( ContentId.from( params.getContentId() ) );
 
         for ( final ReorderChildJson reorderChildJson : params.getReorderChildren() )
         {
@@ -997,7 +977,7 @@ public final class ContentResource
     @Path("contentPermissions")
     public RootPermissionsJson getPermissionsById( @QueryParam("id") final String contentId )
     {
-        final AccessControlList permissions = contentService.getPermissionsById( ContentId.from( contentId ) );
+        final AccessControlList permissions = contentService.getById( ContentId.from( contentId ) ).getPermissions();
         return new RootPermissionsJson( permissions, principalsResolver );
     }
 
@@ -1008,7 +988,7 @@ public final class ContentResource
         final List<ContentPermissionsJson> result = new ArrayList<>();
         for ( final ContentId contentId : params.getContentIds() )
         {
-            final AccessControlList permissions = contentService.getPermissionsById( contentId );
+            final AccessControlList permissions = contentService.getById( contentId ).getPermissions();
             result.add( new ContentPermissionsJson( contentId.toString(), permissions, principalsResolver ) );
         }
 
@@ -1258,7 +1238,7 @@ public final class ContentResource
     private Stream<ContentId> filterIdsByStatus( final ContentIds ids, final Collection<CompareStatus> statuses )
     {
         final CompareContentResults compareResults =
-            contentService.compare( new CompareContentsParams( ids, ContentConstants.BRANCH_MASTER ) );
+            contentService.compare( CompareContentsParams.create().contentIds( ids ).build() );
         final Map<ContentId, CompareContentResult> compareResultMap = compareResults.getCompareContentResultsMap();
 
         return compareResultMap.entrySet()
@@ -1410,14 +1390,10 @@ public final class ContentResource
             .filter( content -> layerPaths.contains( content.getPath() ) )
             .collect( Collectors.toList() );
 
-        final List<ContentPath> relativeTargetContentPaths =
-            targetContentPaths.stream().map( ContentPath::asRelative ).collect( Collectors.toList() );
-
         final List<ContentTreeSelectorJson> resultItems = layersContents.stream()
             .map( content -> new ContentTreeSelectorJson( jsonObjectsFactory.createContentJson( content, request ),
-                                                          relativeTargetContentPaths.contains( content.getPath().asRelative() ),
-                                                          relativeTargetContentPaths.stream()
-                                                              .anyMatch( path -> path.isChildOf( content.getPath().asRelative() ) ) ) )
+                                                          targetContentPaths.contains( content.getPath() ), targetContentPaths.stream()
+                                                              .anyMatch( path -> path.isChildOf( content.getPath() ) ) ) )
             .collect( Collectors.toList() );
 
         final ContentListMetaData metaData = ContentListMetaData.create()
@@ -1456,9 +1432,9 @@ public final class ContentResource
     {
         final ContentIds contentIds = ContentIds.from( params.getIds() );
         final CompareContentResults compareResults =
-            contentService.compare( new CompareContentsParams( contentIds, ContentConstants.BRANCH_MASTER ) );
+            contentService.compare( CompareContentsParams.create().contentIds( contentIds ).build() );
         final GetPublishStatusesResult getPublishStatusesResult =
-            contentService.getPublishStatuses( new GetPublishStatusesParams( contentIds, ContentConstants.BRANCH_DRAFT ) );
+            contentService.getPublishStatuses( GetPublishStatusesParams.create().contentIds( contentIds ).build() );
         return new CompareContentResultsJson( compareResults, getPublishStatusesResult );
     }
 
@@ -1560,7 +1536,7 @@ public final class ContentResource
     public List<EffectivePermissionJson> getEffectivePermissions( @QueryParam("id") final String idParam )
     {
         final ContentId id = ContentId.from( idParam );
-        final AccessControlList acl = contentService.getPermissionsById( id );
+        final AccessControlList acl = contentService.getById( id ).getPermissions();
 
         final Multimap<Access, PrincipalKey> accessMembers = ArrayListMultimap.create();
         for ( AccessControlEntry ace : acl )
@@ -1644,21 +1620,16 @@ public final class ContentResource
     {
         final ContentVersionId contentVersionId = ContentVersionId.from( params.getVersionId() );
 
-        final Content versionedContent =
-            params.getContentKey().startsWith( "/" )
-                ? contentService.getByPathAndVersionId( ContentPath.from( params.getContentKey() ), contentVersionId )
-                : contentService.getByIdAndVersionId( ContentId.from( params.getContentKey() ), contentVersionId );
+        final Content versionedContent = contentService.getByIdAndVersionId( ContentId.from( params.getContentId() ), contentVersionId );
 
         if ( versionedContent == null )
         {
             throw new WebApplicationException(
-                String.format( "Content with contentKey [%s] and versionId [%s] not found", params.getContentKey(), params.getVersionId() ),
+                String.format( "Content with contentKey [%s] and versionId [%s] not found", params.getContentId(), params.getVersionId() ),
                 Response.Status.NOT_FOUND );
         }
 
-        final Content currentContent = params.getContentKey().startsWith( "/" )
-            ? contentService.getByPath( ContentPath.from( params.getContentKey() ) )
-            : contentService.getById( ContentId.from( params.getContentKey() ) );
+        final Content currentContent = contentService.getById( ContentId.from( params.getContentId() ) );
 
         if ( !currentContent.getChildOrder().equals( versionedContent.getChildOrder() ) )
         {

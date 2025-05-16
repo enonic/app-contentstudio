@@ -95,14 +95,14 @@ public class PageResourceTest
         Content content = createPage( "content-id", "content-name", "myapplication:content-type" );
 
         when( this.pageService.update( isA( UpdatePageParams.class ) ) ).thenThrow(
-            new ContentNotFoundException( content.getId(), Branch.from( "branch" ) ) );
+            ContentNotFoundException.create().contentId( content.getId() ).build() );
 
         final MockRestResponse post = request().path( "content/page/update" )
             .entity( readFromFile( "update_page_params.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post();
 
         assertEquals( 500, post.getStatus() );
-        assertEquals( "Content with id [content-id] in branch [branch] not found", post.getAsString() );
+        assertEquals( "Content with id [content-id] not found", post.getAsString() );
     }
 
     @Test

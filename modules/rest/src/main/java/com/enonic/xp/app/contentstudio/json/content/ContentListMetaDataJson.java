@@ -2,7 +2,7 @@ package com.enonic.xp.app.contentstudio.json.content;
 
 import java.util.Objects;
 
-import com.enonic.xp.content.ContentListMetaData;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ContentListMetaData;
 
 
 public class ContentListMetaDataJson

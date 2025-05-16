@@ -143,7 +143,7 @@ export class VersionHistoryListItem
     private revert(versionId: string, versionDate: Date) {
         const contentIdAsString: string = this.content.getContentId().toString();
 
-        new RevertVersionRequest(versionId, contentIdAsString)
+        new RevertVersionRequest(versionId, this.content.getContentId())
             .sendAndParse()
             .then((newVersionId: string) => {
                 if (newVersionId === VersionContext.getActiveVersion(contentIdAsString)) {

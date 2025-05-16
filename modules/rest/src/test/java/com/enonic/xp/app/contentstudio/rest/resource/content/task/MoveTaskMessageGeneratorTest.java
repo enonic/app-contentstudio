@@ -3,6 +3,7 @@ package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -85,7 +86,7 @@ public class MoveTaskMessageGeneratorTest
             destination( ContentPath.from( "dest/path" ) ).
             existsFailed( ContentPath.from( "exists-1" ) ).
             accessFailed( ContentPath.from( "access-2" ) ).
-            notExistsFailed( ContentPath.from( "not-exists-3" ) ).
+            notExistsFailed( ContentId.from(  "not-exists-3" ) ) .
             failed( ContentPath.from( "failed-4" ) ).
             build();
 
@@ -106,8 +107,8 @@ public class MoveTaskMessageGeneratorTest
             existsFailed( ContentPath.from( "exists-2" ) ).
             accessFailed( ContentPath.from( "access-3" ) ).
             accessFailed( ContentPath.from( "access-4" ) ).
-            notExistsFailed( ContentPath.from( "not-exists-5" ) ).
-            notExistsFailed( ContentPath.from( "not-exists-6" ) ).
+            notExistsFailed( ContentId.from( "not-exists-5" ) ).
+            notExistsFailed( ContentId.from( "not-exists-6" ) ).
             failed( ContentPath.from( "failed-7" ) ).
             failed( ContentPath.from( "failed-8" ) ).
             build();

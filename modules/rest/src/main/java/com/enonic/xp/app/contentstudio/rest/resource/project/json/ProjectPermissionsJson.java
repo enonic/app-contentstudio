@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.enonic.xp.app.contentstudio.rest.resource.project.ProjectPermissionsHelper;
 import com.enonic.xp.project.ProjectPermissions;
 import com.enonic.xp.security.PrincipalKey;
 
@@ -24,21 +25,12 @@ public class ProjectPermissionsJson
     {
         final ProjectPermissions.Builder builder = ProjectPermissions.create();
 
-        Optional.ofNullable( ownerList ).ifPresent( list -> list.stream().
-            map( PrincipalKey::from ).
-            forEach( builder::addOwner ) );
-        Optional.ofNullable( editorList ).ifPresent( list -> list.stream().
-            map( PrincipalKey::from ).
-            forEach( builder::addEditor ) );
-        Optional.ofNullable( authorList ).ifPresent( list -> list.stream().
-            map( PrincipalKey::from ).
-            forEach( builder::addAuthor ) );
-        Optional.ofNullable( contributorList ).ifPresent( list -> list.stream().
-            map( PrincipalKey::from ).
-            forEach( builder::addContributor ) );
-        Optional.ofNullable( viewerList ).ifPresent( list -> list.stream().
-            map( PrincipalKey::from ).
-            forEach( builder::addViewer ) );
+        Optional.ofNullable( ownerList ).ifPresent( list -> list.stream().map( PrincipalKey::from ).forEach( builder::addOwner ) );
+        Optional.ofNullable( editorList ).ifPresent( list -> list.stream().map( PrincipalKey::from ).forEach( builder::addEditor ) );
+        Optional.ofNullable( authorList ).ifPresent( list -> list.stream().map( PrincipalKey::from ).forEach( builder::addAuthor ) );
+        Optional.ofNullable( contributorList )
+            .ifPresent( list -> list.stream().map( PrincipalKey::from ).forEach( builder::addContributor ) );
+        Optional.ofNullable( viewerList ).ifPresent( list -> list.stream().map( PrincipalKey::from ).forEach( builder::addViewer ) );
 
         this.permissions = builder.build();
     }
@@ -50,22 +42,22 @@ public class ProjectPermissionsJson
 
     public Set<String> getOwner()
     {
-        return this.permissions.getOwner().asStrings();
+        return ProjectPermissionsHelper.principalKeysAsStrings( this.permissions.getOwner() );
     }
 
     public Set<String> getEditor()
     {
-        return this.permissions.getEditor().asStrings();
+        return ProjectPermissionsHelper.principalKeysAsStrings( this.permissions.getEditor() );
     }
 
     public Set<String> getAuthor()
     {
-        return this.permissions.getAuthor().asStrings();
+        return ProjectPermissionsHelper.principalKeysAsStrings( this.permissions.getAuthor() );
     }
 
     public Set<String> getContributor()
     {
-        return this.permissions.getContributor().asStrings();
+        return ProjectPermissionsHelper.principalKeysAsStrings( this.permissions.getContributor() );
     }
 
     @JsonIgnore

@@ -49,6 +49,7 @@ import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.macro.MacroDescriptorService;
 import com.enonic.xp.macro.MacroKey;
 import com.enonic.xp.portal.PortalRequest;
+import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.portal.macro.MacroContext;
@@ -181,12 +182,21 @@ public final class MacroResource
         setHeaders( req, portalRequest );
         setCookies( req, portalRequest );
 
-        final PageUrlParams pageFullUrlParams =
-            new PageUrlParams().portalRequest( portalRequest ).path( contentPath.toString() ).type( UrlTypeConstants.ABSOLUTE );
-        portalRequest.setUrl( portalUrlService.pageUrl( pageFullUrlParams ) );
+        final PortalRequest oldPortalRequest = PortalRequestAccessor.get();
+        try
+        {
+            PortalRequestAccessor.set( portalRequest );
 
-        final PageUrlParams pageUrlParams = new PageUrlParams().portalRequest( portalRequest ).path( contentPath.toString() );
-        portalRequest.setPath( portalUrlService.pageUrl( pageUrlParams ) );
+            final PageUrlParams pageFullUrlParams = new PageUrlParams().path( contentPath.toString() ).type( UrlTypeConstants.ABSOLUTE );
+            final PageUrlParams pageUrlParams = new PageUrlParams().path( contentPath.toString() );
+
+            portalRequest.setUrl( portalUrlService.pageUrl( pageFullUrlParams ) );
+            portalRequest.setPath( portalUrlService.pageUrl( pageUrlParams ) );
+        }
+        finally
+        {
+            PortalRequestAccessor.set( oldPortalRequest );
+        }
 
         portalRequest.setApplicationKey( appKey );
         final Content content = getContent( contentPath );

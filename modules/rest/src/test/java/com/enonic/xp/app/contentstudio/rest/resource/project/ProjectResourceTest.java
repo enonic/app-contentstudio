@@ -45,6 +45,7 @@ import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
 import com.enonic.xp.security.acl.Permission;
+import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
 import com.enonic.xp.web.HttpStatus;
@@ -489,7 +490,7 @@ public class ProjectResourceTest
             post();
 
         verify( taskService, times( 1 ) )
-            .submitTask( isA( ApplyPermissionsRunnableTask.class ), eq( "Apply project's content root permissions" ) );
+            .submitLocalTask( any( SubmitLocalTaskParams.class ) );
     }
 
     @Test
@@ -521,8 +522,7 @@ public class ProjectResourceTest
     public void sync()
         throws Exception
     {
-        when( taskService.submitTask( isA( ProjectsSyncTask.class ), eq( "Sync all projects" ) ) )
-            .thenReturn( TaskId.from( "task-id" ) );
+        when( taskService.submitLocalTask( any( SubmitLocalTaskParams.class ) ) ).thenReturn( TaskId.from( "task-id" ) );
 
         final MockRestResponse result = request().path( "project/syncAll" ).
             entity( "", MediaType.APPLICATION_JSON_TYPE ).

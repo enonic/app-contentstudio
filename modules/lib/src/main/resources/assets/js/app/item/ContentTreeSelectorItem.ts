@@ -70,10 +70,6 @@ export class ContentTreeSelectorItem
         return this.content ? this.content.getDisplayName() : null;
     }
 
-    getContentState(): ContentState {
-        return this.content ? this.content.getContentState() : null;
-    }
-
     hasChildren(): boolean {
         return this.content ? this.content.hasChildren() : null;
     }

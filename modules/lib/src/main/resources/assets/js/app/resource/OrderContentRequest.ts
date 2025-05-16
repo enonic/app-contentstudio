@@ -10,8 +10,6 @@ import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 export class OrderContentRequest
     extends CmsContentResourceRequest<Content> {
 
-    private silent: boolean = false;
-
     private contentId: ContentId;
 
     private childOrder: ChildOrder;
@@ -32,17 +30,12 @@ export class OrderContentRequest
         return this;
     }
 
-    setSilent(silent: boolean): OrderContentRequest {
-        this.silent = silent;
-        return this;
-    }
-
     getParams(): object {
         return this.contentToJson();
     }
 
     private contentToJson(): SetChildOrderJson {
-        return ChildOrder.toSetChildOrderJson(this.contentId, this.childOrder, this.silent);
+        return ChildOrder.toSetChildOrderJson(this.contentId, this.childOrder);
     }
 
     protected parseResponse(response: JsonResponse<ContentJson>): Content {

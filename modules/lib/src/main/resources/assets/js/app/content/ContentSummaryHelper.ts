@@ -136,10 +136,6 @@ export class ContentSummaryHelper {
             diff.language = true;
         }
 
-        if (!ObjectHelper.objectEquals(item.getContentState(), other.getContentState())) {
-            diff.contentState = true;
-        }
-
         if (!ObjectHelper.equals(item.getWorkflow(), other.getWorkflow())) {
             diff.workflow = true;
         }

@@ -2,6 +2,7 @@ package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 
 import java.util.List;
 
+import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 
 abstract class TaskMessageGenerator<R extends RunnableTaskResult>
@@ -59,5 +60,10 @@ abstract class TaskMessageGenerator<R extends RunnableTaskResult>
     String getNameOrSize( final List<ContentPath> items )
     {
         return items.size() != 1 ? String.valueOf( items.size() ) : String.format( "\"%s\"", items.get( 0 ).getName() );
+    }
+
+    String getNameOrSizeForIds( final List<ContentId> items )
+    {
+        return items.size() != 1 ? String.valueOf( items.size() ) : String.format( "\"%s\"", items.get( 0 ).toString() );
     }
 }

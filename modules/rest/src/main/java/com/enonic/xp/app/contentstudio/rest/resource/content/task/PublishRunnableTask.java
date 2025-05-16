@@ -3,13 +3,12 @@ package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 import com.enonic.xp.app.contentstudio.rest.resource.content.DeleteContentProgressListener;
 import com.enonic.xp.app.contentstudio.rest.resource.content.PublishContentProgressListener;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishContentJson;
-import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.PublishContentResult;
 import com.enonic.xp.content.PushContentParams;
-import com.enonic.xp.task.AbstractRunnableTask;
+import com.enonic.xp.app.contentstudio.json.task.AbstractRunnableTask;
 import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
@@ -49,7 +48,6 @@ public class PublishRunnableTask
         try
         {
             final PublishContentResult result = contentService.publish( PushContentParams.create().
-                target( ContentConstants.BRANCH_MASTER ).
                 contentIds( contentIds ).
                 excludedContentIds( excludeContentIds ).
                 excludeChildrenIds( excludeChildrenIds ).
@@ -61,7 +59,6 @@ public class PublishRunnableTask
                 build() );
 
             ContentIds pushed = result.getPushedContents();
-            ContentIds deleted = result.getDeletedContents();
             ContentIds failed = result.getFailedContents();
             if ( pushed.getSize() == 1 )
             {
@@ -78,14 +75,6 @@ public class PublishRunnableTask
             else
             {
                 resultBuilder.failed( failed );
-            }
-            if ( deleted.getSize() == 1 )
-            {
-                resultBuilder.deleted( result.getDeletedPath() );
-            }
-            else
-            {
-                resultBuilder.deleted( deleted );
             }
         }
         catch ( final Exception e )

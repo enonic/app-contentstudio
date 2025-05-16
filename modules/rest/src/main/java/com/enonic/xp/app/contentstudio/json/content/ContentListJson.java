@@ -5,7 +5,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.enonic.xp.content.Content;
-import com.enonic.xp.content.ContentListMetaData;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ContentListMetaData;
 import com.enonic.xp.content.Contents;
 
 public class ContentListJson<T extends ContentIdJson>

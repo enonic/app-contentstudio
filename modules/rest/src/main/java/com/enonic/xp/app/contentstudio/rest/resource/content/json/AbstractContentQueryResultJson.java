@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import com.enonic.xp.app.contentstudio.json.aggregation.AggregationJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentIdJson;
 import com.enonic.xp.content.Content;
-import com.enonic.xp.content.ContentListMetaData;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ContentListMetaData;
 
 public abstract class AbstractContentQueryResultJson<T extends ContentIdJson>
 {

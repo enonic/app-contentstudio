@@ -22,7 +22,7 @@ import com.enonic.xp.app.contentstudio.json.content.ContentListJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.JsonObjectsFactory;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
-import com.enonic.xp.content.ContentListMetaData;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ContentListMetaData;
 import com.enonic.xp.content.ContentName;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
@@ -42,7 +42,6 @@ import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteService;
 
-import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
 
@@ -147,7 +146,7 @@ public final class PageTemplateResource
 
                 for ( final PageTemplate pageTemplate : pageTemplates )
                 {
-                    if ( pageTemplate.canRender( content.getType() ) && pageTemplate.hasPage() )
+                    if ( pageTemplate.canRender( content.getType() ) && pageTemplate.getPage() != null )
                     {
                         return true;
                     }

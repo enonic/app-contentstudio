@@ -239,8 +239,6 @@ export class ContentDeleteDialog
             deleteRequest.addContentPath(item.getContentSummary().getPath());
         });
 
-        deleteRequest.setDeleteOnline(true);
-
         return deleteRequest;
     }
 

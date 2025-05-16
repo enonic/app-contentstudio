@@ -58,6 +58,7 @@ import com.enonic.xp.app.contentstudio.json.content.GetActiveContentVersionsResu
 import com.enonic.xp.app.contentstudio.json.content.GetContentVersionsForViewResultJson;
 import com.enonic.xp.app.contentstudio.json.content.GetContentVersionsResultJson;
 import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentJson;
+import com.enonic.xp.app.contentstudio.json.task.TaskResultJson;
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.AbstractContentQueryResultJson;
@@ -83,15 +84,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishContent
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ReorderChildrenJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResetContentInheritJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.RevertContentJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDeleteContentJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDeleteContentResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UnpublishContentJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.task.ApplyPermissionsRunnableTask;
-import com.enonic.xp.app.contentstudio.rest.resource.content.task.DeleteRunnableTask;
-import com.enonic.xp.app.contentstudio.rest.resource.content.task.DuplicateRunnableTask;
-import com.enonic.xp.app.contentstudio.rest.resource.content.task.MoveRunnableTask;
-import com.enonic.xp.app.contentstudio.rest.resource.content.task.PublishRunnableTask;
-import com.enonic.xp.app.contentstudio.rest.resource.content.task.UnpublishRunnableTask;
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.attachment.Attachments;
 import com.enonic.xp.attachment.CreateAttachment;
@@ -149,7 +142,6 @@ import com.enonic.xp.content.ResolvePublishDependenciesParams;
 import com.enonic.xp.content.ResolveRequiredDependenciesParams;
 import com.enonic.xp.content.SetContentChildOrderParams;
 import com.enonic.xp.content.SyncContentService;
-import com.enonic.xp.content.UndoPendingDeleteContentParams;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.content.UpdateMediaParams;
 import com.enonic.xp.context.ContextAccessor;
@@ -197,8 +189,8 @@ import com.enonic.xp.session.SessionMock;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
+import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
-import com.enonic.xp.task.TaskResultJson;
 import com.enonic.xp.task.TaskService;
 import com.enonic.xp.util.BinaryReference;
 import com.enonic.xp.util.BinaryReferences;
@@ -220,7 +212,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.lenient;
@@ -305,7 +296,7 @@ public class ContentResourceTest
         syncContentService = mock( SyncContentService.class );
         resource.setSyncContentService( syncContentService );
 
-        final ComponentNameResolverImpl componentNameResolver = new ComponentNameResolverImpl();
+        final ComponentDisplayNameResolverImpl componentNameResolver = new ComponentDisplayNameResolverImpl();
         componentNameResolver.setContentService( contentService );
         componentNameResolver.setLayoutDescriptorService( layoutDescriptorService );
         componentNameResolver.setPartDescriptorService( partDescriptorService );
@@ -381,8 +372,9 @@ public class ContentResourceTest
             .thenReturn( Optional.of( anon ) );
 
         final AccessControlList permissions = getTestPermissions();
+        final Content content = createContent( "aaa", "my_a_content", "myapplication:my_type", permissions );
 
-        when( contentService.getPermissionsById( isA( ContentId.class ) ) ).thenReturn( permissions );
+        when( contentService.getById( any( ContentId.class ) ) ).thenReturn( content );
 
         String jsonString = request().path( "content/contentPermissions" ).queryParam( "id", "my-a-content" ).get().getAsString();
 
@@ -400,21 +392,21 @@ public class ContentResourceTest
         Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) )
             .thenReturn( Optional.of( anon ) );
 
-        final Content content1 = createContent( "aaa", "my_a_content", "myapplication:my_type" );
+        final AccessControlList permissionsForContent1 = getTestPermissions();
+
+        final Content content1 = createContent( "aaa", "my_a_content", "myapplication:my_type", permissionsForContent1 );
         final Content content2 = createContent( "bbb", "my_b_content", "myapplication:my_type" );
 
-        final AccessControlList permissions = getTestPermissions();
+        when( contentService.getById( content1.getId() ) ).thenReturn( content1 );
 
-        when( contentService.getPermissionsById( content1.getId() ) ).thenReturn( permissions );
+        when( contentService.getById( content2.getId() ) ).thenReturn( content2 );
 
-        when( contentService.getPermissionsById( content2.getId() ) ).thenReturn( AccessControlList.create().build() );
-
-        when( partDescriptorService.getByKey( DescriptorKey.from( "mainapplication:partTemplateName" ) ) )
-            .thenReturn( PartDescriptor.create()
-                             .key( DescriptorKey.from( "mainapplication:partTemplateName" ) )
-                             .displayName( "my-component" )
-                             .config( Form.create().build() )
-                             .build() );
+        when( partDescriptorService.getByKey( DescriptorKey.from( "mainapplication:partTemplateName" ) ) ).thenReturn(
+            PartDescriptor.create()
+                .key( DescriptorKey.from( "mainapplication:partTemplateName" ) )
+                .displayName( "my-component" )
+                .config( Form.create().build() )
+                .build() );
 
         String jsonString = request().path( "content/contentPermissionsByIds" )
             .entity( readFromFile( "get_permissions_by_ids.json" ), MediaType.APPLICATION_JSON_TYPE )
@@ -536,12 +528,12 @@ public class ContentResourceTest
 
         when( contentService.getById( ContentId.from( "aaa" ) ) ).thenReturn( content );
 
-        when( partDescriptorService.getByKey( DescriptorKey.from( "mainapplication:partTemplateName" ) ) )
-            .thenReturn( PartDescriptor.create()
-                             .key( DescriptorKey.from( "mainapplication:partTemplateName" ) )
-                             .displayName( "my-component" )
-                             .config( Form.create().build() )
-                             .build() );
+        when( partDescriptorService.getByKey( DescriptorKey.from( "mainapplication:partTemplateName" ) ) ).thenReturn(
+            PartDescriptor.create()
+                .key( DescriptorKey.from( "mainapplication:partTemplateName" ) )
+                .displayName( "my-component" )
+                .config( Form.create().build() )
+                .build() );
 
         String jsonString = request().path( "content" ).queryParam( "id", "aaa" ).get().getAsString();
 
@@ -631,9 +623,8 @@ public class ContentResourceTest
 
         final Content aContent = createContent( "aaa", "my_a_content", "myapplication:my_type" );
         final Content bContent = createContent( "bbb", "my_b_content", "myapplication:my_type" );
-        when( contentService.findByParent( isA( FindContentByParentParams.class ) ) )
-            .thenReturn(
-                FindContentByParentResult.create().contents( Contents.from( aContent, bContent ) ).hits( 2 ).totalHits( 2 ).build() );
+        when( contentService.findByParent( isA( FindContentByParentParams.class ) ) ).thenReturn(
+            FindContentByParentResult.create().contents( Contents.from( aContent, bContent ) ).hits( 2 ).totalHits( 2 ).build() );
 
         String jsonString = request().path( "content/list" ).queryParam( "parentId", "ccc" ).get().getAsString();
 
@@ -649,9 +640,8 @@ public class ContentResourceTest
 
         final Content aContent = createContent( "aaa", "my_a_content", "myapplication:my_type" );
         final Content bContent = createContent( "bbb", "my_b_content", "myapplication:my_type" );
-        when( contentService.findByParent( isA( FindContentByParentParams.class ) ) )
-            .thenReturn(
-                FindContentByParentResult.create().contents( Contents.from( aContent, bContent ) ).hits( 2 ).totalHits( 2 ).build() );
+        when( contentService.findByParent( isA( FindContentByParentParams.class ) ) ).thenReturn(
+            FindContentByParentResult.create().contents( Contents.from( aContent, bContent ) ).hits( 2 ).totalHits( 2 ).build() );
 
         String jsonString =
             request().path( "content/list" ).queryParam( "parentId", "ccc" ).queryParam( "expand", "full" ).get().getAsString();
@@ -665,9 +655,8 @@ public class ContentResourceTest
     {
         final Content aContent = createContent( "aaa", "my_a_content", "myapplication:my_type" );
         final Content bContent = createContent( "bbb", "my_b_content", "myapplication:my_type" );
-        when( contentService.findByParent( isA( FindContentByParentParams.class ) ) )
-            .thenReturn(
-                FindContentByParentResult.create().contents( Contents.from( aContent, bContent ) ).hits( 2 ).totalHits( 2 ).build() );
+        when( contentService.findByParent( isA( FindContentByParentParams.class ) ) ).thenReturn(
+            FindContentByParentResult.create().contents( Contents.from( aContent, bContent ) ).hits( 2 ).totalHits( 2 ).build() );
 
         String jsonString = request().path( "content/list" ).queryParam( "expand", "none" ).get().getAsString();
 
@@ -760,19 +749,18 @@ public class ContentResourceTest
     public void update_content_failure()
         throws Exception
     {
-        Exception e = new ContentNotFoundException( ContentId.from( "content-id" ), ContentConstants.BRANCH_DRAFT );
+        Exception e = ContentNotFoundException.create().contentId( ContentId.from( "content-id" ) ).build();
 
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         when( contentService.getById( any() ) ).thenReturn( content );
-
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenThrow( e );
 
         final MockRestResponse post = request().path( "content/update" )
-                .entity( readFromFile( "update_content_params.json" ), MediaType.APPLICATION_JSON_TYPE )
-                .post();
+            .entity( readFromFile( "update_content_params.json" ), MediaType.APPLICATION_JSON_TYPE )
+            .post();
 
         assertEquals( 500, post.getStatus() );
-        assertEquals( "Content with id [content-id] in branch [draft] not found", post.getAsString() );
+        assertEquals( "Content with id [content-id] not found", post.getAsString() );
     }
 
     @Test
@@ -782,7 +770,7 @@ public class ContentResourceTest
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
         when( contentService.getById( any() ) ).thenReturn( content );
-        when( contentService.getPermissionsById( content.getId() ) ).thenReturn( AccessControlList.empty() );
+        when( contentService.getById( content.getId() ) ).thenReturn( content );
         String jsonString = request().path( "content/update" )
             .entity( readFromFile( "update_content_params.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post()
@@ -800,7 +788,6 @@ public class ContentResourceTest
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
         when( contentService.getById( any() ) ).thenReturn( content );
-        when( contentService.getPermissionsById( content.getId() ) ).thenReturn( AccessControlList.empty() );
         String jsonString = request().path( "content/update" )
             .entity( readFromFile( "update_content_params.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post()
@@ -818,7 +805,6 @@ public class ContentResourceTest
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
         when( contentService.getById( any() ) ).thenReturn( content );
-        when( contentService.getPermissionsById( content.getId() ) ).thenReturn( AccessControlList.empty() );
         String jsonString = request().path( "content/update" )
             .entity( readFromFile( "update_content_params.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post()
@@ -838,7 +824,7 @@ public class ContentResourceTest
         when( contentService.getById( any() ) ).thenReturn( content );
         when( contentService.rename( any() ) ).thenReturn( content );
         when( contentService.getByPath( any() ) ).thenThrow( ContentNotFoundException.class );
-        when( contentService.getPermissionsById( content.getId() ) ).thenReturn( AccessControlList.empty() );
+        when( contentService.getById( content.getId() ) ).thenReturn( content );
         String jsonString = request().path( "content/update" )
             .entity( readFromFile( "update_content_renamed_to_unnamed.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post()
@@ -858,8 +844,8 @@ public class ContentResourceTest
         when( contentService.getById( any() ) ).thenReturn( content );
         when( contentService.rename( any() ) ).thenReturn( content );
         when( contentService.getByPath( any() ) ).thenThrow( ContentNotFoundException.class );
-        when( contentService.getPermissionsById( content.getId() ) ).thenReturn( AccessControlList.empty() );
-        String jsonString = request().path( "content/update" )
+        when( contentService.getById( content.getId() ) ).thenReturn( content );
+        request().path( "content/update" )
             .entity( readFromFile( "update_content_renamed.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post()
             .getAsString();
@@ -877,7 +863,7 @@ public class ContentResourceTest
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
         when( contentService.getById( any() ) ).thenReturn( content );
-        when( contentService.getPermissionsById( content.getId() ) ).thenReturn( AccessControlList.empty() );
+        when( contentService.getById( content.getId() ) ).thenReturn( content );
         String jsonString = request().path( "content/update" )
             .entity( readFromFile( "update_content_params_with_publish_dates.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post()
@@ -940,18 +926,18 @@ public class ContentResourceTest
     public void publish_content_with_message()
         throws Exception
     {
-        ArgumentCaptor<PublishRunnableTask> captor = ArgumentCaptor.forClass( PublishRunnableTask.class );
-        when( taskService.submitTask( any(), anyString() ) ).thenReturn( TaskId.from( "1" ) );
+        ArgumentCaptor<SubmitLocalTaskParams> captor = ArgumentCaptor.forClass( SubmitLocalTaskParams.class );
+        when( taskService.submitLocalTask( any( SubmitLocalTaskParams.class ) ) ).thenReturn( TaskId.from( "1" ) );
 
         final MockRestResponse res = request().path( "content/publish" )
             .entity( readFromFile( "publish_content_with_message.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post();
 
-        verify( taskService ).submitTask( captor.capture(), anyString() );
-        PublishContentJson params = captor.getValue().getParams();
+        verify( taskService ).submitLocalTask( captor.capture() );
+        SubmitLocalTaskParams params = captor.getValue();
 
         assertEquals( 200, res.getStatus() );
-        assertEquals( params.getMessage(), "my message" );
+        assertEquals( "Publish content", params.getDescription() );
     }
 
     @Test
@@ -960,8 +946,7 @@ public class ContentResourceTest
     {
 
         ContentResource contentResource = getResourceInstance();
-        when( taskService.submitTask( isA( ApplyPermissionsRunnableTask.class ), eq( "Apply content permissions" ) ) )
-            .thenReturn( TaskId.from( "task-id" ) );
+        when( taskService.submitLocalTask( any( SubmitLocalTaskParams.class ) ) ).thenReturn( TaskId.from( "task-id" ) );
 
         final ApplyContentPermissionsJson json = mock( ApplyContentPermissionsJson.class );
 
@@ -999,8 +984,7 @@ public class ContentResourceTest
         Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.from( "user:system:admin" ) ) )
             .thenReturn( Optional.of( admin ) );
         final User anon = User.create().displayName( "Anonymous" ).key( PrincipalKey.ofAnonymous() ).login( "anonymous" ).build();
-        when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) )
-            .thenReturn( Optional.ofNullable( null ) );
+        when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) ).thenReturn( Optional.ofNullable( null ) );
 
         final AccessControlList permissions = getTestPermissions();
         when( contentService.getRootPermissions() ).thenReturn( permissions );
@@ -1037,12 +1021,11 @@ public class ContentResourceTest
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
         when( contentService.getById( any() ) ).thenReturn( content );
 
-        when( contentService.rename( any() ) )
-            .thenThrow( new ContentAlreadyExistsException( ContentPath.from( "/path" ), RepositoryId.from( "some.repo" ),
-                                                           Branch.from( "draft" ) ) );
+        when( contentService.rename( any() ) ).thenThrow(
+            new ContentAlreadyExistsException( ContentPath.from( "/path" ), RepositoryId.from( "some.repo" ), Branch.from( "draft" ) ) );
         when( contentService.getByPath( any() ) ).thenThrow( ContentNotFoundException.class );
 
-        when( contentService.getPermissionsById( content.getId() ) ).thenReturn( AccessControlList.empty() );
+        when( contentService.getById( content.getId() ) ).thenReturn( content );
         MockRestResponse response = request().path( "content/update" )
             .entity( readFromFile( "update_content_params.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post();
@@ -1061,8 +1044,7 @@ public class ContentResourceTest
         when( contentService.setChildOrder( isA( SetContentChildOrderParams.class ) ) ).thenReturn( content );
 
         final WebApplicationException ex = assertThrows( WebApplicationException.class, () -> {
-            contentResource.reorderChildContents(
-                new ReorderChildrenJson( false, false, content.getId().toString(), null, new ArrayList<>() ) );
+            contentResource.reorderChildContents( new ReorderChildrenJson( false, content.getId().toString(), null, new ArrayList<>() ) );
         } );
         assertEquals( "Not allowed to reorder children manually, current parentOrder = [_ts DESC].", ex.getMessage() );
 
@@ -1139,8 +1121,8 @@ public class ContentResourceTest
         json.setContentPaths( contentPaths );
 
         ContentResource contentResource = getResourceInstance();
-        when( this.contentService.find( isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 0L ).build() );
+        when( this.contentService.find( isA( ContentQuery.class ) ) ).thenReturn(
+            FindContentIdsByQueryResult.create().totalHits( 0L ).build() );
 
         assertEquals( 2L, contentResource.countContentsWithDescendants( json ) );
     }
@@ -1165,8 +1147,8 @@ public class ContentResourceTest
         json.setContentPaths( contentPaths );
 
         ContentResource contentResource = getResourceInstance();
-        when( this.contentService.find( isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 0L ).build() );
+        when( this.contentService.find( isA( ContentQuery.class ) ) ).thenReturn(
+            FindContentIdsByQueryResult.create().totalHits( 0L ).build() );
 
         assertEquals( 3L, contentResource.countContentsWithDescendants( json ) );
     }
@@ -1183,8 +1165,7 @@ public class ContentResourceTest
 
         ContentResource contentResource = getResourceInstance();
 
-        when( contentService.hasUnpublishedChildren( any( HasUnpublishedChildrenParams.class ) ) )
-            .thenReturn( true, false );
+        when( contentService.hasUnpublishedChildren( any( HasUnpublishedChildrenParams.class ) ) ).thenReturn( true, false );
 
         final HasUnpublishedChildrenResultJson result = contentResource.hasUnpublishedChildren(
             new ContentIdsJson( Arrays.asList( contentA.getId().toString(), contentB.getId().toString() ) ) );
@@ -1205,8 +1186,8 @@ public class ContentResourceTest
         final ContentId childId2 = ContentId.from( "childId2" );
         final ContentIds childrenIds = ContentIds.from( childId1, childId2 );
 
-        when( contentService.findIdsByParent( isA( FindContentByParentParams.class ) ) )
-            .thenReturn( FindContentIdsByParentResult.create().contentIds( childrenIds ).build() );
+        when( contentService.findIdsByParent( isA( FindContentByParentParams.class ) ) ).thenReturn(
+            FindContentIdsByParentResult.create().contentIds( childrenIds ).build() );
 
         String jsonString = request().path( "content/findIdsByParents" )
             .entity( readFromFile( "find_ids_by_parents_params.json" ), MediaType.APPLICATION_JSON_TYPE )
@@ -1228,27 +1209,27 @@ public class ContentResourceTest
         final ContentId nextId = ContentId.from( "next-contentId" );
         final Content nextContent = mock( Content.class );
         when( nextContent.getId() ).thenReturn( nextId );
+        when( nextContent.getPermissions() ).thenReturn( AccessControlList.empty() );
         final ContentIds outboundIds = ContentIds.from( nextId, nextMissingId );
 
         final CompareContentResult requested = new CompareContentResult( CompareStatus.NEW, requestedId );
         final CompareContentResult dependant = new CompareContentResult( CompareStatus.NEW, dependantId );
         final CompareContentResult next = new CompareContentResult( CompareStatus.NEW, nextId );
 
-        when( contentService.resolvePublishDependencies( isA( ResolvePublishDependenciesParams.class ) ) )
-            .thenReturn( CompareContentResults.create().add( requested ).add( dependant ).build() );
-        when( contentService.resolveRequiredDependencies( isA( ResolveRequiredDependenciesParams.class ) ) )
-            .thenReturn( ContentIds.from( requiredId ) );
-        when( contentService.compare( isA( CompareContentsParams.class ) ) )
-            .thenReturn( CompareContentResults.create().add( next ).build() );
-        when( contentService.getPermissionsById( isA( ContentId.class ) ) ).thenReturn( AccessControlList.empty() );
+        when( contentService.resolvePublishDependencies( isA( ResolvePublishDependenciesParams.class ) ) ).thenReturn(
+            CompareContentResults.create().add( requested ).add( dependant ).build() );
+        when( contentService.resolveRequiredDependencies( isA( ResolveRequiredDependenciesParams.class ) ) ).thenReturn(
+            ContentIds.from( requiredId ) );
+        when( contentService.compare( isA( CompareContentsParams.class ) ) ).thenReturn(
+            CompareContentResults.create().add( next ).build() );
+        when( contentService.getById( isA( ContentId.class ) ) ).thenReturn( nextContent );
         when( contentService.getOutboundDependencies( isA( ContentId.class ) ) ).thenReturn( outboundIds );
         when( contentService.getByIds( isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( nextContent ) );
-        when( contentService.find( isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.from( nextId ) ).totalHits( 1L ).build() )
+        when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn(
+                FindContentIdsByQueryResult.create().contents( ContentIds.from( nextId ) ).totalHits( 1L ).build() )
             .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.from( dependantId ) ).totalHits( 1L ).build() );
 
-        doReturn( ContentValidityResult.create().notValidContentIds( ContentIds.from( dependantId ) ).build() )
-            .when( this.contentService )
+        doReturn( ContentValidityResult.create().notValidContentIds( ContentIds.from( dependantId ) ).build() ).when( this.contentService )
             .getContentValidity( isA( ContentValidityParams.class ) );
 
         String jsonString = request().path( "content/resolvePublishContent" )
@@ -1294,7 +1275,8 @@ public class ContentResourceTest
             PrincipalQueryResult.create().totalSize( 200 ).addPrincipals( asList( user1, user2, user3, user4 ) ).build();
         when( this.securityService.query( any( PrincipalQuery.class ) ) ).thenReturn( totalUsers );
 
-        when( contentService.getPermissionsById( isA( ContentId.class ) ) ).thenReturn( permissions );
+        final Content content = createContent( "my-content", "my-content", "myapplication:content-type", permissions );
+        when( contentService.getById( isA( ContentId.class ) ) ).thenReturn( content );
 
         String jsonString = request().path( "content/effectivePermissions" ).queryParam( "id", "my-content" ).get().getAsString();
 
@@ -1443,8 +1425,7 @@ public class ContentResourceTest
         Content content1 = Content.create().id( ContentId.from( "id0" ) ).path( "/myroot/mysub" ).permissions( nodePermissions1 ).build();
         Content content2 = Content.create().id( ContentId.from( "id1" ) ).path( "/myroot/mysub2" ).permissions( nodePermissions2 ).build();
 
-        when( contentService.getByIds( isA( GetContentByIdsParams.class ) ) )
-            .thenReturn( Contents.from( content1, content2 ) );
+        when( contentService.getByIds( isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( content1, content2 ) );
 
         //requesting ["CREATE", "PUBLISH", "DELETE", "MODIFY"] on 2 contents, checking that nothing allowed because all contents must have required permissions
         String jsonString = request().path( "content/allowedActions" )
@@ -1460,8 +1441,7 @@ public class ContentResourceTest
     {
         ContentResource contentResource = getResourceInstance();
 
-        when( this.contentService.findPaths( isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentPathsByQueryResult.create().build() );
+        when( this.contentService.findPaths( isA( ContentQuery.class ) ) ).thenReturn( FindContentPathsByQueryResult.create().build() );
 
         ContentTreeSelectorQueryJson json = initContentTreeSelectorQueryJson( null );
         ContentTreeSelectorListJson result = contentResource.treeSelectorQuery( json, request );
@@ -1475,45 +1455,45 @@ public class ContentResourceTest
         ContentResource contentResource = getResourceInstance();
 
         Content content1 = createContent( "content-id1", "content-name1", "myapplication:content-type" );
-        Content content2 = createContent( "content-id2", content1.getPath(), "content-name2", "myapplication:content-type" );
-        Content content3 = createContent( "content-id3", content2.getPath(), "content-name3", "myapplication:content-type" );
-        Content content4 = createContent( "content-id4", content3.getPath(), "content-name4", "myapplication:content-type" );
+        Content content2 =
+            createContent( "content-id2", content1.getPath(), "content-name2", "myapplication:content-type", AccessControlList.empty() );
+        Content content3 =
+            createContent( "content-id3", content2.getPath(), "content-name3", "myapplication:content-type", AccessControlList.empty() );
+        Content content4 =
+            createContent( "content-id4", content3.getPath(), "content-name4", "myapplication:content-type", AccessControlList.empty() );
 
-        when( this.contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content1.getId() ) ) ) )
-            .thenReturn( Contents.from( content1 ) );
-        when( this.contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content2.getId() ) ) ) )
-            .thenReturn( Contents.from( content2 ) );
-        when( this.contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content3.getId() ) ) ) )
-            .thenReturn( Contents.from( content3 ) );
-        when( this.contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content4.getId() ) ) ) )
-            .thenReturn( Contents.from( content4 ) );
+        when( this.contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content1.getId() ) ) ) ).thenReturn(
+            Contents.from( content1 ) );
+        when( this.contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content2.getId() ) ) ) ).thenReturn(
+            Contents.from( content2 ) );
+        when( this.contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content3.getId() ) ) ) ).thenReturn(
+            Contents.from( content3 ) );
+        when( this.contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content4.getId() ) ) ) ).thenReturn(
+            Contents.from( content4 ) );
 
-        when( this.contentService.findPaths( isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentPathsByQueryResult.create()
-                             .contentPaths( ContentPaths.from( content4.getPath() ) )
-                             .hits( 1 )
-                             .totalHits( 1 )
-                             .build() );
+        when( this.contentService.findPaths( isA( ContentQuery.class ) ) ).thenReturn( FindContentPathsByQueryResult.create()
+                                                                                           .contentPaths(
+                                                                                               ContentPaths.from( content4.getPath() ) )
+                                                                                           .hits( 1 )
+                                                                                           .totalHits( 1 )
+                                                                                           .build() );
 
-        doReturn( FindContentByParentResult.create().totalHits( 1L ).contents( Contents.from( content1 ) ).build() )
-            .when( this.contentService )
-            .findByParent( isA( FindContentByParentParams.class ) );
+        doReturn( FindContentByParentResult.create().totalHits( 1L ).contents( Contents.from( content1 ) ).build() ).when(
+            this.contentService ).findByParent( isA( FindContentByParentParams.class ) );
 
         ContentTreeSelectorQueryJson json = initContentTreeSelectorQueryJson( null );
         ContentTreeSelectorListJson result = contentResource.treeSelectorQuery( json, request );
         assertEquals( result.getItems().get( 0 ).getContent().getId(), content1.getId().toString() );
 
-        doReturn( FindContentByParentResult.create().totalHits( 1L ).contents( Contents.from( content2 ) ).build() )
-            .when( this.contentService )
-            .findByParent( isA( FindContentByParentParams.class ) );
+        doReturn( FindContentByParentResult.create().totalHits( 1L ).contents( Contents.from( content2 ) ).build() ).when(
+            this.contentService ).findByParent( isA( FindContentByParentParams.class ) );
 
         json = initContentTreeSelectorQueryJson( content1.getPath() );
         result = contentResource.treeSelectorQuery( json, request );
         assertEquals( result.getItems().get( 0 ).getContent().getId(), content2.getId().toString() );
 
-        doReturn( FindContentByParentResult.create().totalHits( 1L ).contents( Contents.from( content3 ) ).build() )
-            .when( this.contentService )
-            .findByParent( isA( FindContentByParentParams.class ) );
+        doReturn( FindContentByParentResult.create().totalHits( 1L ).contents( Contents.from( content3 ) ).build() ).when(
+            this.contentService ).findByParent( isA( FindContentByParentParams.class ) );
 
         json = initContentTreeSelectorQueryJson( content2.getPath() );
         result = contentResource.treeSelectorQuery( json, request );
@@ -1588,8 +1568,8 @@ public class ContentResourceTest
 
         contentResource.updateMedia( multipartForm, request );
 
-        verify( this.contentService, times( 1 ) )
-            .update( argThat( (ArgumentMatcher<UpdateMediaParams>) argument -> params.getContent().equals( argument.getContent() ) ) );
+        verify( this.contentService, times( 1 ) ).update(
+            argThat( (ArgumentMatcher<UpdateMediaParams>) argument -> params.getContent().equals( argument.getContent() ) ) );
     }
 
     @Test
@@ -1618,25 +1598,6 @@ public class ContentResourceTest
     }
 
     @Test
-    public void undoPendingDelete()
-    {
-        ContentResource contentResource = getResourceInstance();
-        Content content = createContent( "content-id1", "content-name1", "myapplication:content-type" );
-
-        when( this.contentService.undoPendingDelete( UndoPendingDeleteContentParams.create()
-                                                                 .contentIds( ContentIds.from( content.getId() ) )
-                                                                 .target( ContentConstants.BRANCH_MASTER )
-                                                                 .build() ) ).thenReturn( 1 );
-
-        UndoPendingDeleteContentJson params = new UndoPendingDeleteContentJson();
-        params.setContentIds( List.copyOf( ContentIds.from( content.getId() ).asStrings() ) );
-
-        UndoPendingDeleteContentResultJson result = contentResource.undoPendingDelete( params );
-
-        assertEquals( 1, result.getSuccess() );
-    }
-
-    @Test
     public void getDependencies()
     {
         ContentResource contentResource = getResourceInstance();
@@ -1644,17 +1605,17 @@ public class ContentResourceTest
         Content content1 = createContent( "content-id1", "content-name1", "myapplication:content-type" );
         Content content2 = createContent( "content-id2", "content-name2", "myapplication:content-type" );
 
-        when( contentService.getDependencies( content1.getId() ) )
-            .thenReturn( ContentDependencies.create()
-                             .inboundDependencies(
-                                 Collections.singleton( new ContentDependenciesAggregation( ContentTypeName.folder(), 2L ) ) )
-                             .outboundDependencies(
-                                 Collections.singleton( new ContentDependenciesAggregation( ContentTypeName.media(), 1L ) ) )
-                             .build() );
+        when( contentService.getDependencies( content1.getId() ) ).thenReturn( ContentDependencies.create()
+                                                                                   .inboundDependencies( Collections.singleton(
+                                                                                       new ContentDependenciesAggregation(
+                                                                                           ContentTypeName.folder(), 2L ) ) )
+                                                                                   .outboundDependencies( Collections.singleton(
+                                                                                       new ContentDependenciesAggregation(
+                                                                                           ContentTypeName.media(), 1L ) ) )
+                                                                                   .build() );
 
-        when( contentService.getDependencies( content2.getId() ) )
-            .thenReturn(
-                ContentDependencies.create().inboundDependencies( new HashSet<>() ).outboundDependencies( new HashSet<>() ).build() );
+        when( contentService.getDependencies( content2.getId() ) ).thenReturn(
+            ContentDependencies.create().inboundDependencies( new HashSet<>() ).outboundDependencies( new HashSet<>() ).build() );
 
         GetDependenciesResultJson result = contentResource.getDependencies(
             new GetDependenciesJson( List.of( content1.getId().toString(), content2.getId().toString() ),
@@ -1675,8 +1636,7 @@ public class ContentResourceTest
     public void duplicate()
     {
         ContentResource contentResource = getResourceInstance();
-        when( taskService.submitTask( isA( DuplicateRunnableTask.class ), eq( "Duplicate content" ) ) )
-            .thenReturn( TaskId.from( "task-id" ) );
+        when( taskService.submitLocalTask( any( SubmitLocalTaskParams.class ) ) ).thenReturn( TaskId.from( "task-id" ) );
 
         TaskResultJson result = contentResource.duplicate( new DuplicateContentsJson( new ArrayList<>() ) );
 
@@ -1687,8 +1647,7 @@ public class ContentResourceTest
     public void move()
     {
         ContentResource contentResource = getResourceInstance();
-        when( taskService.submitTask( isA( MoveRunnableTask.class ), eq( "Move content" ) ) )
-            .thenReturn( TaskId.from( "task-id" ) );
+        when( taskService.submitLocalTask( any( SubmitLocalTaskParams.class ) ) ).thenReturn( TaskId.from( "task-id" ) );
 
         TaskResultJson result = contentResource.move( new MoveContentJson() );
 
@@ -1699,8 +1658,7 @@ public class ContentResourceTest
     public void delete()
     {
         ContentResource contentResource = getResourceInstance();
-        when( taskService.submitTask( isA( DeleteRunnableTask.class ), eq( "Delete content" ) ) )
-            .thenReturn( TaskId.from( "task-id" ) );
+        when( taskService.submitLocalTask( any( SubmitLocalTaskParams.class ) ) ).thenReturn( TaskId.from( "task-id" ) );
 
         TaskResultJson result = contentResource.delete( new DeleteContentJson() );
 
@@ -1712,8 +1670,7 @@ public class ContentResourceTest
     public void publish()
     {
         ContentResource contentResource = getResourceInstance();
-        when( taskService.submitTask( isA( PublishRunnableTask.class ), eq( "Publish content" ) ) )
-            .thenReturn( TaskId.from( "task-id" ) );
+        when( taskService.submitLocalTask( any( SubmitLocalTaskParams.class ) ) ).thenReturn( TaskId.from( "task-id" ) );
 
         TaskResultJson result = contentResource.publish( new PublishContentJson() );
 
@@ -1724,8 +1681,7 @@ public class ContentResourceTest
     public void unpublish()
     {
         ContentResource contentResource = getResourceInstance();
-        when( taskService.submitTask( isA( UnpublishRunnableTask.class ), eq( "Unpublish content" ) ) )
-            .thenReturn( TaskId.from( "task-id" ) );
+        when( taskService.submitLocalTask( any( SubmitLocalTaskParams.class ) ) ).thenReturn( TaskId.from( "task-id" ) );
 
         TaskResultJson result = contentResource.unpublish( new UnpublishContentJson() );
 
@@ -1741,8 +1697,8 @@ public class ContentResourceTest
 
         Content content2 = createContent( "content-id2", "content-name2", "myapplication:content-type" );
 
-        when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content1.getId(), content2.getId() ) ) ) )
-            .thenReturn( Contents.from( content1, content2 ) );
+        when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content1.getId(), content2.getId() ) ) ) ).thenReturn(
+            Contents.from( content1, content2 ) );
 
         ContentListJson result =
             contentResource.getByIds( new ContentIdsJson( List.of( content1.getId().toString(), content2.getId().toString() ) ), request );
@@ -1769,8 +1725,8 @@ public class ContentResourceTest
 
         Content content2 = createContent( "content-id2", "content-name2", "myapplication:content-type" );
 
-        when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content1.getId(), content2.getId() ) ) ) )
-            .thenReturn( Contents.from( content1, content2 ) );
+        when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content1.getId(), content2.getId() ) ) ) ).thenReturn(
+            Contents.from( content1, content2 ) );
 
         List<String> result = contentResource.checkContentsReadOnly(
             new ContentIdsJson( List.of( content1.getId().toString(), content2.getId().toString() ) ) );
@@ -1839,7 +1795,7 @@ public class ContentResourceTest
 
         ContentJson result = contentResource.getNearest( new GetNearestSiteJson( site.getId().toString() ), request );
 
-        final ComponentNameResolverImpl componentNameResolver = new ComponentNameResolverImpl();
+        final ComponentDisplayNameResolverImpl componentNameResolver = new ComponentDisplayNameResolverImpl();
         componentNameResolver.setContentService( contentService );
         componentNameResolver.setLayoutDescriptorService( layoutDescriptorService );
         componentNameResolver.setPartDescriptorService( partDescriptorService );
@@ -1908,8 +1864,8 @@ public class ContentResourceTest
 
         when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn( findResult );
 
-        when( contentService.compare( any( CompareContentsParams.class ) ) )
-            .thenReturn( CompareContentResults.create().add( new CompareContentResult( CompareStatus.NEW, content1.getId() ) ).build() );
+        when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn(
+            CompareContentResults.create().add( new CompareContentResult( CompareStatus.NEW, content1.getId() ) ).build() );
 
         List<ContentIdJson> result = contentResource.getDescendantsOfContents( params );
 
@@ -1940,15 +1896,15 @@ public class ContentResourceTest
             .contents( ContentIds.from( content1.getId(), content2.getId() ) )
             .build();
 
-        when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( "content-id1", "content-id2" ) ) ) )
-            .thenReturn( Contents.from( content1, content2 ) );
+        when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( "content-id1", "content-id2" ) ) ) ).thenReturn(
+            Contents.from( content1, content2 ) );
         when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn( findResult );
-        when( contentService.getOutboundDependencies( ContentId.from( "content-id1" ) ) )
-            .thenReturn( ContentIds.from( "content-id1", "content-id2" ) );
-        when( contentService.getOutboundDependencies( ContentId.from( "content-id2" ) ) )
-            .thenReturn( ContentIds.from( "content-id1" ) );
+        when( contentService.getOutboundDependencies( ContentId.from( "content-id1" ) ) ).thenReturn(
+            ContentIds.from( "content-id1", "content-id2" ) );
+        when( contentService.getOutboundDependencies( ContentId.from( "content-id2" ) ) ).thenReturn( ContentIds.from( "content-id1" ) );
 
-        ContentWithRefsResultJson result = contentResource.resolveForUnpublish( new ContentIdsJson( List.of( "content-id1", "content-id2" ) ) );
+        ContentWithRefsResultJson result =
+            contentResource.resolveForUnpublish( new ContentIdsJson( List.of( "content-id1", "content-id2" ) ) );
 
         verify( this.contentService, times( 2 ) ).find( argumentCaptor.capture() );
 
@@ -1962,10 +1918,11 @@ public class ContentResourceTest
         final ContentResource contentResource = getResourceInstance();
 
         final Content content1 = createContent( "content-id1", "content-name1", "myapplication:content-type" );
-        final Content content2 = createContent( "content-id2", content1.getPath(), "content-name2", "myapplication:content-type" );
+        final Content content2 =
+            createContent( "content-id2", content1.getPath(), "content-name2", "myapplication:content-type", AccessControlList.empty() );
 
-        when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( "content-id1", "content-id2" ) ) ) )
-            .thenReturn( Contents.from( content1, content2 ) );
+        when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( "content-id1", "content-id2" ) ) ) ).thenReturn(
+            Contents.from( content1, content2 ) );
 
         final FindContentIdsByQueryResult idsToRemove = FindContentIdsByQueryResult.create()
             .aggregations( Aggregations.empty() )
@@ -1982,10 +1939,9 @@ public class ContentResourceTest
             .build();
 
         when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn( idsToRemove ).thenReturn( inbound );
-        when( contentService.getOutboundDependencies( ContentId.from( "content-id3" ) ) )
-            .thenReturn( ContentIds.from( "content-id1", "content-id2" ) );
-        when( contentService.getOutboundDependencies( ContentId.from( "content-id4" ) ) )
-            .thenReturn( ContentIds.from( "content-id1" ) );
+        when( contentService.getOutboundDependencies( ContentId.from( "content-id3" ) ) ).thenReturn(
+            ContentIds.from( "content-id1", "content-id2" ) );
+        when( contentService.getOutboundDependencies( ContentId.from( "content-id4" ) ) ).thenReturn( ContentIds.from( "content-id1" ) );
 
         final ContentWithRefsResultJson result =
             contentResource.resolveForDelete( new ContentIdsJson( List.of( "content-id1", "content-id2" ) ) );
@@ -2033,8 +1989,7 @@ public class ContentResourceTest
 
         when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn( findResult );
 
-        when( contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) )
-            .thenReturn( Contents.from( content ) );
+        when( contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) ).thenReturn( Contents.from( content ) );
 
         AbstractContentQueryResultJson result = contentResource.query(
             new ContentQueryJson( "", 0, 10, new ArrayList<>(), null, null, null, null, null, null,
@@ -2072,8 +2027,7 @@ public class ContentResourceTest
 
         when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn( findResult );
 
-        when( contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) )
-            .thenReturn( Contents.from( content ) );
+        when( contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) ).thenReturn( Contents.from( content ) );
 
         AbstractContentQueryResultJson result = contentResource.selectorQuery(
             new ContentTreeSelectorQueryJson( "", 0, 10, null, null, null, new ArrayList<>(), new ArrayList<>(), null, null, null, null ),
@@ -2100,13 +2054,13 @@ public class ContentResourceTest
 
         CompareContentResult compareContentResult = new CompareContentResult( CompareStatus.NEW, content.getId() );
 
-        when( contentService.compare( any( CompareContentsParams.class ) ) )
-            .thenReturn( CompareContentResults.create().add( new CompareContentResult( CompareStatus.NEW, content.getId() ) ).build() );
+        when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn(
+            CompareContentResults.create().add( new CompareContentResult( CompareStatus.NEW, content.getId() ) ).build() );
 
         GetPublishStatusResult getPublishStatusResult = new GetPublishStatusResult( content.getId(), PublishStatus.ONLINE );
 
-        when( contentService.getPublishStatuses( any( GetPublishStatusesParams.class ) ) )
-            .thenReturn( GetPublishStatusesResult.create().add( getPublishStatusResult ).build() );
+        when( contentService.getPublishStatuses( any( GetPublishStatusesParams.class ) ) ).thenReturn(
+            GetPublishStatusesResult.create().add( getPublishStatusResult ).build() );
 
         CompareContentResultsJson result = contentResource.compare( params );
 
@@ -2282,10 +2236,10 @@ public class ContentResourceTest
         final ContentPrincipalsResolver contentPrincipalsResolver = new ContentPrincipalsResolver( securityService );
         when( securityService.getUser( PrincipalKey.ofAnonymous() ) ).thenReturn( Optional.of( User.ANONYMOUS ) );
 
-        when( contentService.getActiveVersions( any( GetActiveContentVersionsParams.class ) ) )
-            .thenReturn( GetActiveContentVersionsResult.create()
-                             .add( ActiveContentVersionEntry.from( ContentConstants.BRANCH_DRAFT, contentVersion ) )
-                             .build() );
+        when( contentService.getActiveVersions( any( GetActiveContentVersionsParams.class ) ) ).thenReturn(
+            GetActiveContentVersionsResult.create()
+                .add( ActiveContentVersionEntry.from( ContentConstants.BRANCH_DRAFT, contentVersion ) )
+                .build() );
 
         GetActiveContentVersionsResultJson result = contentResource.getActiveVersions( content.getId().toString() );
 
@@ -2323,10 +2277,10 @@ public class ContentResourceTest
 
         when( contentService.getVersions( params ) ).thenReturn( getVersionsResult );
 
-        when( contentService.getActiveVersions( any( GetActiveContentVersionsParams.class ) ) )
-            .thenReturn( GetActiveContentVersionsResult.create()
-                             .add( ActiveContentVersionEntry.from( ContentConstants.BRANCH_DRAFT, contentVersion ) )
-                             .build() );
+        when( contentService.getActiveVersions( any( GetActiveContentVersionsParams.class ) ) ).thenReturn(
+            GetActiveContentVersionsResult.create()
+                .add( ActiveContentVersionEntry.from( ContentConstants.BRANCH_DRAFT, contentVersion ) )
+                .build() );
 
         GetContentVersionsForViewResultJson result =
             contentResource.getContentVersionsForView( new GetContentVersionsJson( 0, 10, content.getId().toString() ) );
@@ -2432,17 +2386,21 @@ public class ContentResourceTest
         ContentResource contentResource = getResourceInstance();
 
         Content parentContent = createContent( "content-id1", "content-name1", "myapplication:content-type" );
-        Content content1 = createContent( "content-id2", parentContent.getPath(), "content-name2", "myapplication:content-type" );
-        Content content2 = createContent( "content-id3", parentContent.getPath(), "content-name3", "myapplication:content-type" );
-        Content content3 = createContent( "content-id4", parentContent.getPath(), "content-name4", "myapplication:content-type" );
+        Content content1 = createContent( "content-id2", parentContent.getPath(), "content-name2", "myapplication:content-type",
+                                          AccessControlList.empty() );
+        Content content2 = createContent( "content-id3", parentContent.getPath(), "content-name3", "myapplication:content-type",
+                                          AccessControlList.empty() );
+        Content content3 = createContent( "content-id4", parentContent.getPath(), "content-name4", "myapplication:content-type",
+                                          AccessControlList.empty() );
 
         FindContentByParentParams params =
             FindContentByParentParams.create().parentId( parentContent.getId() ).childOrder( ChildOrder.defaultOrder() ).build();
 
-        when( this.contentService.findIdsByParent( params ) )
-            .thenReturn( FindContentIdsByParentResult.create()
-                             .contentIds( ContentIds.from( content1.getId(), content2.getId(), content3.getId() ) )
-                             .build() );
+        when( this.contentService.findIdsByParent( params ) ).thenReturn( FindContentIdsByParentResult.create()
+                                                                              .contentIds(
+                                                                                  ContentIds.from( content1.getId(), content2.getId(),
+                                                                                                   content3.getId() ) )
+                                                                              .build() );
 
         List<ContentIdJson> result =
             contentResource.listChildrenIds( parentContent.getId().toString(), ChildOrder.defaultOrder().toString() );
@@ -2531,9 +2489,7 @@ public class ContentResourceTest
 
         when( contentService.create( any( CreateMediaParams.class ) ) ).thenReturn( content );
 
-        final MockRestResponse post = request().path( "content/createMediaFromUrl" )
-            .entity( json, MediaType.APPLICATION_JSON_TYPE )
-            .post();
+        final MockRestResponse post = request().path( "content/createMediaFromUrl" ).entity( json, MediaType.APPLICATION_JSON_TYPE ).post();
 
         assertEquals( 500, post.getStatus() );
         assertEquals( "Illegal protocol", post.getAsString() );
@@ -2544,8 +2500,8 @@ public class ContentResourceTest
         throws Exception
     {
         final MockRestResponse post = request().path( "content/createMediaFromUrl" )
-                .entity( readFromFile( "create_media_from_url.json" ), MediaType.APPLICATION_JSON_TYPE )
-                .post();
+            .entity( readFromFile( "create_media_from_url.json" ), MediaType.APPLICATION_JSON_TYPE )
+            .post();
 
         assertEquals( 500, post.getStatus() );
         assertEquals( "no protocol: some_url", post.getAsString() );
@@ -2572,19 +2528,18 @@ public class ContentResourceTest
 
         when( versionedContent.getId() ).thenReturn( ContentId.from( "nodeId" ) );
         when( versionedContent.getAttachments() ).thenReturn( attachments );
-        when( contentService.getByIdAndVersionId( any( ContentId.class ), any( ContentVersionId.class ) ) )
-            .thenReturn( versionedContent );
+        when( contentService.getByIdAndVersionId( any( ContentId.class ), any( ContentVersionId.class ) ) ).thenReturn( versionedContent );
         when( contentService.getById( any( ContentId.class ) ) ).thenReturn( currentContent );
         when( contentService.update( any( UpdateContentParams.class ) ) ).thenReturn( updatedContent );
         when( versionedContent.getChildOrder() ).thenReturn( ChildOrder.create().build() );
         when( currentContent.getId() ).thenReturn( ContentId.from( "nodeId" ) );
         when( currentContent.getChildOrder() ).thenReturn( ChildOrder.manualOrder() );
-        when( contentService.getBinary( any( ContentId.class ), any( ContentVersionId.class ), any( BinaryReference.class ) ) )
-            .thenReturn( byteSource );
-        when( contentService.getActiveVersions( any( GetActiveContentVersionsParams.class ) ) )
-            .thenReturn( GetActiveContentVersionsResult.create()
-                             .add( ActiveContentVersionEntry.from( ContextAccessor.current().getBranch(), contentVersion ) )
-                             .build() );
+        when( contentService.getBinary( any( ContentId.class ), any( ContentVersionId.class ), any( BinaryReference.class ) ) ).thenReturn(
+            byteSource );
+        when( contentService.getActiveVersions( any( GetActiveContentVersionsParams.class ) ) ).thenReturn(
+            GetActiveContentVersionsResult.create()
+                .add( ActiveContentVersionEntry.from( ContextAccessor.current().getBranch(), contentVersion ) )
+                .build() );
 
         // test
         final ContentVersionJson result = instance.revert( params );
@@ -2594,10 +2549,9 @@ public class ContentResourceTest
         assertEquals( "contentVersionId", result.getId() );
 
         // verify
-        verify( this.contentService, times( 1 ) )
-            .getByIdAndVersionId( any( ContentId.class ), any( ContentVersionId.class ) );
-        verify( this.contentService, times( 1 ) )
-            .getBinary( any( ContentId.class ), any( ContentVersionId.class ), any( BinaryReference.class ) );
+        verify( this.contentService, times( 1 ) ).getByIdAndVersionId( any( ContentId.class ), any( ContentVersionId.class ) );
+        verify( this.contentService, times( 1 ) ).getBinary( any( ContentId.class ), any( ContentVersionId.class ),
+                                                             any( BinaryReference.class ) );
         verify( this.contentService, times( 1 ) ).update( any( UpdateContentParams.class ) );
         verify( this.contentService, times( 1 ) ).setChildOrder( any( SetContentChildOrderParams.class ) );
         verify( this.contentService, times( 2 ) ).getById( any( ContentId.class ) );
@@ -2610,7 +2564,7 @@ public class ContentResourceTest
     {
         // prepare
         final ContentResource instance = getResourceInstance();
-        final RevertContentJson params = new RevertContentJson( "/content-name", "versionKey" );
+        final RevertContentJson params = new RevertContentJson( "content-id", "versionKey" );
         final Content updatedContent = createContent( "content-id", "content-name", "myapplication:content-type" );
         final PrincipalKey principalKey = RoleKeys.ADMIN;
 
@@ -2624,15 +2578,14 @@ public class ContentResourceTest
         when( versionedContent.getChildOrder() ).thenReturn( ChildOrder.create().build() );
         when( currentContent.getId() ).thenReturn( ContentId.from( "nodeId" ) );
         when( currentContent.getChildOrder() ).thenReturn( ChildOrder.create().build() );
-        when( contentService.getByPathAndVersionId( any( ContentPath.class ), any( ContentVersionId.class ) ) )
-            .thenReturn( versionedContent );
+        when( contentService.getByIdAndVersionId( any( ContentId.class ), any( ContentVersionId.class ) ) ).thenReturn( versionedContent );
         when( contentService.getByPath( any( ContentPath.class ) ) ).thenReturn( currentContent );
         when( contentService.update( any( UpdateContentParams.class ) ) ).thenReturn( updatedContent );
         when( contentService.getById( any( ContentId.class ) ) ).thenReturn( currentContent );
-        when( contentService.getActiveVersions( any( GetActiveContentVersionsParams.class ) ) )
-            .thenReturn( GetActiveContentVersionsResult.create()
-                             .add( ActiveContentVersionEntry.from( ContextAccessor.current().getBranch(), contentVersion ) )
-                             .build() );
+        when( contentService.getActiveVersions( any( GetActiveContentVersionsParams.class ) ) ).thenReturn(
+            GetActiveContentVersionsResult.create()
+                .add( ActiveContentVersionEntry.from( ContextAccessor.current().getBranch(), contentVersion ) )
+                .build() );
 
         // test
         final ContentVersionJson result = instance.revert( params );
@@ -2642,11 +2595,9 @@ public class ContentResourceTest
         assertEquals( "contentVersionId", result.getId() );
 
         // verify
-        verify( this.contentService, times( 1 ) )
-            .getByPathAndVersionId( any( ContentPath.class ), any( ContentVersionId.class ) );
-        verify( this.contentService, times( 1 ) ).getByPath( any( ContentPath.class ) );
+        verify( this.contentService, times( 1 ) ).getByIdAndVersionId( any( ContentId.class ), any( ContentVersionId.class ) );
         verify( this.contentService, times( 1 ) ).update( any( UpdateContentParams.class ) );
-        verify( this.contentService, times( 1 ) ).getById( any( ContentId.class ) );
+        verify( this.contentService, times( 2 ) ).getById( any( ContentId.class ) );
         verify( this.contentService, times( 1 ) ).getActiveVersions( any( GetActiveContentVersionsParams.class ) );
         verifyNoMoreInteractions( contentService );
     }
@@ -2656,19 +2607,18 @@ public class ContentResourceTest
     {
         // prepare
         final ContentResource instance = getResourceInstance();
-        final RevertContentJson params = new RevertContentJson( "/content-name", "versionKey" );
+        final RevertContentJson params = new RevertContentJson( "content-id1", "versionKey" );
 
         // mock
-        when( contentService.getByPathAndVersionId( any( ContentPath.class ), any( ContentVersionId.class ) ) ).thenReturn( null );
+        when( contentService.getByIdAndVersionId( any( ContentId.class ), any( ContentVersionId.class ) ) ).thenReturn( null );
 
         // test & assert
         final WebApplicationException exception = assertThrows( WebApplicationException.class, () -> instance.revert( params ) );
 
-        assertEquals( "Content with contentKey [/content-name] and versionId [versionKey] not found", exception.getMessage() );
+        assertEquals( "Content with contentKey [content-id1] and versionId [versionKey] not found", exception.getMessage() );
 
         // verify
-        verify( this.contentService, times( 1 ) )
-            .getByPathAndVersionId( any( ContentPath.class ), any( ContentVersionId.class ) );
+        verify( this.contentService, times( 1 ) ).getByIdAndVersionId( any( ContentId.class ), any( ContentVersionId.class ) );
         verifyNoMoreInteractions( contentService );
     }
 
@@ -2742,7 +2692,8 @@ public class ContentResourceTest
         return User.create().displayName( userId ).key( PrincipalKey.ofUser( SYSTEM, userId ) ).login( userId ).build();
     }
 
-    private Content createContent( final String id, final ContentPath parentPath, final String name, final String contentTypeName )
+    private Content createContent( final String id, final ContentPath parentPath, final String name, final String contentTypeName,
+                                   final AccessControlList permissions )
     {
         knownContentTypes.add( createContentType( contentTypeName ) );
 
@@ -2768,19 +2719,25 @@ public class ContentResourceTest
                               .to( Instant.parse( "2016-11-22T10:36:00Z" ) )
                               .first( Instant.parse( "2016-11-02T10:36:00Z" ) )
                               .build() )
+            .permissions( permissions )
             .build();
     }
 
     private Content createContent( final String id, final String name, final String contentTypeName )
     {
-        return createContent( id, ContentPath.ROOT, name, contentTypeName );
+        return createContent( id, ContentPath.ROOT, name, contentTypeName, AccessControlList.empty() );
+    }
+
+    private Content createContent( final String id, final String name, final String contentTypeName, final AccessControlList permissions )
+    {
+        return createContent( id, ContentPath.ROOT, name, contentTypeName, permissions );
     }
 
     private Content createContent( final String id, final String name, final String contentTypeName, final Set<ContentInheritType> inherit,
                                    final ProjectName originProjectName )
     {
         knownContentTypes.add( createContentType( contentTypeName ) );
-        return Content.create( this.createContent( id, ContentPath.ROOT, name, contentTypeName ) )
+        return Content.create( this.createContent( id, ContentPath.ROOT, name, contentTypeName, AccessControlList.empty() ) )
             .setInherit( inherit )
             .originProject( originProjectName )
             .build();

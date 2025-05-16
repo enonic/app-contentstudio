@@ -60,8 +60,9 @@ import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
 import com.enonic.xp.security.acl.Permission;
 import com.enonic.xp.site.SiteConfig;
+import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
-import com.enonic.xp.task.TaskResultJson;
+import com.enonic.xp.app.contentstudio.json.task.TaskResultJson;
 import com.enonic.xp.task.TaskService;
 import com.enonic.xp.util.ByteSizeParser;
 import com.enonic.xp.web.multipart.MultipartForm;
@@ -71,7 +72,7 @@ import com.enonic.xp.web.multipart.MultipartItem;
 @Path(ResourceConstants.REST_ROOT + "project")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_ID, RoleKeys.ADMIN_LOGIN_ID})
-@Component(immediate = true, property = "group=v2cs",  configurationPid = "com.enonic.xp.project")
+@Component(immediate = true, property = "group=v2cs", configurationPid = "com.enonic.xp.project")
 public final class ProjectResource
     implements JaxRsComponent
 {
@@ -213,10 +214,10 @@ public final class ProjectResource
     @Path("syncAll")
     public TaskResultJson syncAll()
     {
-        final TaskId taskId = taskService.submitTask(
-            ProjectsSyncTask.create().projectService( projectService ).syncContentService( syncContentService ).build(),
-            "Sync all projects" );
-
+        final ProjectsSyncTask task =
+            ProjectsSyncTask.create().projectService( projectService ).syncContentService( syncContentService ).build();
+        final SubmitLocalTaskParams params = SubmitLocalTaskParams.create().runnableTask( task ).description( "Sync all projects" ).build();
+        final TaskId taskId = taskService.submitLocalTask( params );
         return new TaskResultJson( taskId );
     }
 
@@ -233,11 +234,10 @@ public final class ProjectResource
 
         if ( json.getReadAccess() != null && ProjectReadAccessType.PUBLIC.equals( json.getReadAccess().getType() ) )
         {
-            paramsBuilder.permissions( AccessControlList.create().
-                add( AccessControlEntry.create().
-                    principal( RoleKeys.EVERYONE ).
-                    allow( Permission.READ ).
-                    build() ).build() );
+            paramsBuilder.permissions( AccessControlList.create()
+                                           .add(
+                                               AccessControlEntry.create().principal( RoleKeys.EVERYONE ).allow( Permission.READ ).build() )
+                                           .build() );
         }
 
         return paramsBuilder.build();
@@ -250,10 +250,8 @@ public final class ProjectResource
 
     private ModifyProjectParams createParams( final ModifyProjectParamsJson json )
     {
-        final ModifyProjectParams.Builder paramsBuilder = ModifyProjectParams.create()
-            .name( json.getName() )
-            .displayName( json.getDisplayName() )
-            .description( json.getDescription() );
+        final ModifyProjectParams.Builder paramsBuilder =
+            ModifyProjectParams.create().name( json.getName() ).displayName( json.getDisplayName() ).description( json.getDescription() );
 
         json.getApplicationConfigs().stream().forEach( paramsBuilder::addSiteConfig );
 

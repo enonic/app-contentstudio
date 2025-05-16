@@ -1,6 +1,6 @@
 package com.enonic.xp.app.contentstudio.json.content.page.region;
 
-import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentNameResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentDisplayNameResolver;
 import com.enonic.xp.region.Component;
 import com.enonic.xp.region.FragmentComponent;
 import com.enonic.xp.region.ImageComponent;
@@ -10,11 +10,11 @@ import com.enonic.xp.region.TextComponent;
 
 public final class ComponentJsonSerializer
 {
-    private final ComponentNameResolver componentNameResolver;
+    private final ComponentDisplayNameResolver componentDisplayNameResolver;
 
-    public ComponentJsonSerializer( final ComponentNameResolver componentNameResolver )
+    public ComponentJsonSerializer( final ComponentDisplayNameResolver componentDisplayNameResolver )
     {
-        this.componentNameResolver = componentNameResolver;
+        this.componentDisplayNameResolver = componentDisplayNameResolver;
     }
 
     public ComponentJson toJson( final Component component )
@@ -49,26 +49,26 @@ public final class ComponentJsonSerializer
 
     private LayoutComponentJson toJson( final LayoutComponent component )
     {
-        return new LayoutComponentJson( component, componentNameResolver );
+        return new LayoutComponentJson( component, componentDisplayNameResolver );
     }
 
     private TextComponentJson toJson( final TextComponent component )
     {
-        return new TextComponentJson( component, componentNameResolver );
+        return new TextComponentJson( component, componentDisplayNameResolver );
     }
 
     private PartComponentJson toJson( final PartComponent component )
     {
-        return new PartComponentJson( component, componentNameResolver );
+        return new PartComponentJson( component, componentDisplayNameResolver );
     }
 
     private ImageComponentJson toJson( final ImageComponent component )
     {
-        return new ImageComponentJson( component, componentNameResolver );
+        return new ImageComponentJson( component, componentDisplayNameResolver );
     }
 
     private FragmentComponentJson toJson( final FragmentComponent component )
     {
-        return new FragmentComponentJson( component, componentNameResolver );
+        return new FragmentComponentJson( component, componentDisplayNameResolver );
     }
 }

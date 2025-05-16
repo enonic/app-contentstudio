@@ -10,8 +10,6 @@ export class DeleteContentRequest
 
     private contentPaths: ContentPath[] = [];
 
-    private deleteOnline: boolean;
-
     constructor(contentPath?: ContentPath) {
         super();
         this.setHeavyOperation(true);
@@ -32,17 +30,12 @@ export class DeleteContentRequest
         return this;
     }
 
-    setDeleteOnline(deleteOnline: boolean) {
-        this.deleteOnline = deleteOnline;
-    }
-
     getParams(): object {
         let fn = (contentPath: ContentPath) => {
             return contentPath.toString();
         };
         return {
             contentPaths: this.contentPaths.map(fn),
-            deleteOnline: this.deleteOnline
         };
     }
 

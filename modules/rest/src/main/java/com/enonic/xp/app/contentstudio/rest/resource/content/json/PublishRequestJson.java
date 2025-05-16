@@ -37,7 +37,8 @@ public class PublishRequestJson
     public static PublishRequestJson from( final PublishRequest publishRequest )
     {
         final PublishRequestJson publishRequestJson = new PublishRequestJson();
-        publishRequestJson.setExcludeIds( publishRequest.getExcludeIds().asStrings() );
+        publishRequestJson.setExcludeIds(
+            publishRequest.getExcludeIds().stream().map( ContentId::toString ).collect( Collectors.toSet() ) );
         publishRequestJson.setItems(
             publishRequest.getItems().getSet().stream().map( PublishRequestItemJson::new ).collect( Collectors.toSet() ) );
 
@@ -49,10 +50,10 @@ public class PublishRequestJson
         return PublishRequest.create().
             addExcludeIds( this.excludeIds.stream().map( ContentId::from ).collect( Collectors.toList() ) ).
             addItems( this.items.stream().
-                map( item -> PublishRequestItem.create().
-                    id( ContentId.from( item.getId() ) ).
-                    includeChildren( item.getIncludeChildren() ).build() ).
-                collect( Collectors.toSet() ) ).
+            map( item -> PublishRequestItem.create().
+            id( ContentId.from( item.getId() ) ).
+            includeChildren( item.getIncludeChildren() ).build() ).
+            collect( Collectors.toSet() ) ).
             build();
     }
 }

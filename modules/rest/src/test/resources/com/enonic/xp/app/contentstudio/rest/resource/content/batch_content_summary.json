@@ -1,7 +1,6 @@
 {
     "contents": [
         {
-            "contentState": "DEFAULT",
             "createdTime": "2013-08-23T12:55:09.162Z",
             "creator": "user:system:admin",
             "deletable": true,
@@ -33,7 +32,6 @@
             }
         },
         {
-            "contentState": "DEFAULT",
             "createdTime": "2013-08-23T12:55:09.162Z",
             "creator": "user:system:admin",
             "deletable": true,

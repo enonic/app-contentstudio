@@ -7,7 +7,7 @@ import com.enonic.xp.app.contentstudio.json.content.page.region.ComponentJson;
 import com.enonic.xp.app.contentstudio.json.content.page.region.ComponentJsonSerializer;
 import com.enonic.xp.app.contentstudio.json.content.page.region.PageRegionsJson;
 import com.enonic.xp.app.contentstudio.json.content.page.region.RegionJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentNameResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentDisplayNameResolver;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTreeJson;
 import com.enonic.xp.page.Page;
@@ -23,12 +23,12 @@ public final class PageJson
 
     private final ComponentJsonSerializer componentJsonSerializer;
 
-    public PageJson( final Page page, final ComponentNameResolver componentNameResolver )
+    public PageJson( final Page page, final ComponentDisplayNameResolver componentDisplayNameResolver )
     {
         this.page = page;
-        this.regionsJson = page.hasRegions() ? new PageRegionsJson( page.getRegions(), componentNameResolver ) : null;
+        this.regionsJson = page.hasRegions() ? new PageRegionsJson( page.getRegions(), componentDisplayNameResolver ) : null;
         this.configJson = page.hasConfig() ? PropertyTreeJson.toJson( page.getConfig() ) : null;
-        this.componentJsonSerializer = new ComponentJsonSerializer( componentNameResolver );
+        this.componentJsonSerializer = new ComponentJsonSerializer( componentDisplayNameResolver );
     }
 
     public String getController()

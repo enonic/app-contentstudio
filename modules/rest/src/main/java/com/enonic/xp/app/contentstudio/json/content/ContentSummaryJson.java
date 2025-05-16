@@ -37,8 +37,6 @@ public class ContentSummaryJson
 
     private final ContentPublishInfoJson publish;
 
-    private final String contentState;
-
     private final ContentWorkflowInfoJson workflow;
 
     private final String originProject;
@@ -58,10 +56,9 @@ public class ContentSummaryJson
         this.listTitle = contentListTitleResolver.resolve( content );
         this.thumbnailJson = content.hasThumbnail() ? new ThumbnailJson( content.getThumbnail() ) : null;
         this.isSite = content.isSite();
-        this.isPage = content.hasPage();
+        this.isPage = content.getPage() != null;
         this.inherit = content.getInherit().stream().sorted().collect( Collectors.toList() );
         this.childOrderJson = content.getChildOrder() != null ? new ChildOrderJson( content.getChildOrder() ) : null;
-        this.contentState = content.getContentState().toString();
         this.publish = content.getPublishInfo() != null ? new ContentPublishInfoJson( content.getPublishInfo() ) : null;
         this.workflow = content.getWorkflowInfo() != null ? new ContentWorkflowInfoJson( content.getWorkflowInfo() ) : null;
         this.originProject = Objects.toString( content.getOriginProject(), null );
@@ -187,11 +184,6 @@ public class ContentSummaryJson
     public List<ContentInheritType> getInherit()
     {
         return inherit;
-    }
-
-    public String getContentState()
-    {
-        return this.contentState;
     }
 
     public String getOriginProject()
