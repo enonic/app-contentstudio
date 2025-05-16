@@ -24,7 +24,7 @@ describe('insert.part.in.layout.spec - test for parts in a layout', function () 
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.FIRST_SELENIUM_APP], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -46,16 +46,16 @@ describe('insert.part.in.layout.spec - test for parts in a layout', function () 
             // 3. Insert the first part(valid):
             await pageComponentsWizardStepForm.openMenu(appConst.LAYOUT_REGION.LEFT);
             await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Part']);
-            await liveFormPanel.selectPartByDisplayName(appConst.PART_NAME.CITY_CREATION);
+            await liveFormPanel.selectPartByDisplayName(appConst.PART_NAME.CITIES_LIST);
             // 4. Click on the part in LiveView:
-            await liveFormPanel.clickOnPartComponentByName(appConst.PART_NAME.CITY_CREATION);
+            await liveFormPanel.clickOnPartComponentByName(appConst.PART_NAME.CITIES_LIST);
             await liveFormPanel.pause(1000);
-            await liveFormPanel.clickOnPartComponentByName(appConst.PART_NAME.CITY_CREATION);
+            await liveFormPanel.clickOnPartComponentByName(appConst.PART_NAME.CITIES_LIST);
             await liveFormPanel.pause(1000);
             await studioUtils.saveScreenshot('part_clicked_valid');
             await liveFormPanel.switchToParentFrame();
             // 5. Verify that red icon is not displayed in the PCV:
-            let isInvalid = await pageComponentsWizardStepForm.isComponentItemInvalid(appConst.PART_NAME.CITY_CREATION);
+            let isInvalid = await pageComponentsWizardStepForm.isComponentItemInvalid(appConst.PART_NAME.CITIES_LIST);
             assert.ok(isInvalid === false, 'The part should be valid');
             // 6. Insert the second part(invalid):
             await pageComponentsWizardStepForm.openMenu(appConst.LAYOUT_REGION.CENTER);

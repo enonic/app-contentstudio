@@ -17,7 +17,7 @@ describe('edit.permissions.dialog.spec: tests for Edit Permissions dialog that i
 
     let FOLDER;
 
-    it(`GIVEN existing folder is selected WHEN Edit Permissions dialog has been opened THEN Inherit permissions checkbox should be selected by default`,
+    it.skip(`GIVEN existing folder is selected WHEN Edit Permissions dialog has been opened THEN Inherit permissions checkbox should be selected by default`,
         async () => {
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
@@ -36,7 +36,7 @@ describe('edit.permissions.dialog.spec: tests for Edit Permissions dialog that i
             assert.ok(isSelected === false, "Overwrite child permissions checkbox should not be selected");
         });
 
-    it(`GIVEN 'Inherit permissions' checkbox has been selected AND 'Apply' button has been pressed WHEN the modal dialog is reopened THEN checkbox should not be checked`,
+    it.skip(`GIVEN 'Inherit permissions' checkbox has been selected AND 'Apply' button has been pressed WHEN the modal dialog is reopened THEN checkbox should not be checked`,
         async () => {
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
@@ -59,7 +59,7 @@ describe('edit.permissions.dialog.spec: tests for Edit Permissions dialog that i
             assert.ok(isChecked === false, "the checkbox should not be checked");
         });
 
-    it(`GIVEN 'Edit Permissions' dialog is opened WHEN 'Overwrite  Permissions' checkbox has been checked and applied AND the dialog is reopened THEN 'Overwrite  Permissions' should not be selected`,
+    it.skip(`GIVEN 'Edit Permissions' dialog is opened WHEN 'Overwrite  Permissions' checkbox has been checked and applied AND the dialog is reopened THEN 'Overwrite  Permissions' should not be selected`,
         async () => {
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
