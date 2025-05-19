@@ -7,7 +7,6 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
 import {ContentName} from '../content/ContentName';
-import {ContentState} from '../content/ContentState';
 import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 
 export class ContentTreeSelectorItemJson {

@@ -90,9 +90,6 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
         const viewer = this.config.createViewer?.() ?? new ContentSummaryAndCompareStatusViewer();
         viewer.setObject(item);
         viewer.onClicked((event) => {
-            if (item.isPendingDelete()) {
-                return;
-            }
             const el = new ElementHelper(event.target as HTMLElement);
             if (!(el.hasClass('checkbox'))) {
                 this.notifyItemClicked(item);

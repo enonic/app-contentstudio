@@ -209,7 +209,6 @@ export class ContentWizardActions
         if (this.persistedContent) {
             isEnabled = isEnabled &&
                         this.persistedContent.isEditable() &&
-                        !this.isPendingDelete() &&
                         this.userCanModify &&
                         !this.persistedContent.isDataInherited();
         }
@@ -217,12 +216,6 @@ export class ContentWizardActions
 
         const canSave = this.wizardPanel.hasUnsavedChanges() || isEnabled || !this.getSaveAction().isSavedStateEnabled();
         this.getSaveAction().setLabel(i18n(canSave ? 'action.save' : 'action.saved'));
-    }
-
-    refreshSaveActionState() {
-        if (this.checkSaveActionStateHandler) {
-            this.checkSaveActionStateHandler();
-        }
     }
 
     private enableActions(state: ActionsState) {
@@ -233,40 +226,17 @@ export class ContentWizardActions
         return this.stateManager.isActionEnabled(name);
     }
 
-    refreshPendingDeleteDecorations(): Q.Promise<void> {
-        const isPendingDelete = this.isPendingDelete();
+    refreshActions(): Q.Promise<void> {
+        this.actionsMap.SAVE.setVisible(!this.wizardPanel.getPersistedItem().isDataInherited());
+        this.actionsMap.PREVIEW.setVisible(this.isActionEnabled('PREVIEW'));
 
-        this.actionsMap.UNDO_PENDING_DELETE.setVisible(isPendingDelete);
-        this.actionsMap.SAVE.setVisible(!isPendingDelete && !this.wizardPanel.getPersistedItem().isDataInherited());
-        this.actionsMap.ARCHIVE.setVisible(!isPendingDelete);
-        this.actionsMap.DUPLICATE.setVisible(!isPendingDelete);
-        this.actionsMap.MOVE.setVisible(!isPendingDelete);
-        this.actionsMap.UNPUBLISH.setVisible(!isPendingDelete);
-        this.actionsMap.PREVIEW.setVisible(this.isActionEnabled('PREVIEW') && !isPendingDelete);
-
-        if (isPendingDelete) {
-            this.enableActions({
-                SAVE: false,
-                RESET: false,
-                LOCALIZE: false,
-                ARCHIVE: false,
-                DUPLICATE: false,
-                MOVE: false,
-            });
+        if (this.wizardPanel.isNew()) {
+            this.enableActionsForNew();
         } else {
-            if (this.wizardPanel.isNew()) {
-                this.enableActionsForNew();
-            } else {
-                return this.enableActionsForExisting(this.wizardPanel.getPersistedItem());
-            }
+            return this.enableActionsForExisting(this.wizardPanel.getPersistedItem());
         }
 
         return Q();
-    }
-
-    isPendingDelete(): boolean {
-        const compareStatus = this.wizardPanel.getCompareStatus();
-        return CompareStatusChecker.isPendingDelete(compareStatus);
     }
 
     enableActionsForNew() {
@@ -289,11 +259,12 @@ export class ContentWizardActions
             ARCHIVE: existing.isDeletable()
         });
 
-        return this.enableActionsForExistingByPermissions(existing).then(() => {
-            this.enableActions({
-                SAVE: existing.isEditable() && this.wizardPanel.hasUnsavedChanges() && !this.isPendingDelete() && !existing.isDataInherited()
-            });
+        this.enableActionsForExistingByPermissions(existing);
+        this.enableActions({
+            SAVE: existing.isEditable() && this.wizardPanel.hasUnsavedChanges() && !existing.isDataInherited()
         });
+
+        return Q();
     }
 
     setDeleteOnlyMode(content: Content, valueOn: boolean = true) {
@@ -429,7 +400,7 @@ export class ContentWizardActions
         const canBePublished: boolean = this.canBePublished();
         const canBeUnpublished: boolean = this.content.isPublished() && this.userCanPublish;
         const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
-        const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline() && !this.content.isPendingDelete();
+        const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline();
         const isInheritedItem: boolean = this.wizardPanel.isContentExistsInParentProject() && this.content.hasOriginProject();
         const canBeReset: boolean = isInheritedItem && !this.content.isFullyInherited();
         const canBeLocalized: boolean = isInheritedItem && this.content.isDataInherited();
