@@ -119,11 +119,6 @@ export class PublishDialogDependantList
             return true;
         }
 
-        const isPendingDelete = CompareStatusChecker.isPendingDelete(item.getCompareStatus());
-        if (isPendingDelete) {
-            return false;
-        }
-
         return this.isIdExcludable(item.getContentId());
     }
 

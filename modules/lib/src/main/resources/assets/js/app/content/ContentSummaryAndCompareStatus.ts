@@ -274,10 +274,6 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
         return !!this.contentSummary ? this.contentSummary.isReadOnly() : false;
     }
 
-    isPendingDelete(): boolean {
-        return CompareStatusChecker.isPendingDelete(this.getCompareStatus());
-    }
-
     isPublished(): boolean {
         return !!this.getCompareStatus() && CompareStatusChecker.isPublished(this.getCompareStatus());
     }

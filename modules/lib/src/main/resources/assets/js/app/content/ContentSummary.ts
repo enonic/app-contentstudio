@@ -11,7 +11,6 @@ import {ContentUnnamed} from './ContentUnnamed';
 import {ContentInheritType} from './ContentInheritType';
 import {ContentId} from './ContentId';
 import {ChildOrder} from '../resource/order/ChildOrder';
-import {ContentState} from './ContentState';
 import {WorkflowState} from './WorkflowState';
 import {Workflow} from './Workflow';
 import {ContentSummaryHelper} from './ContentSummaryHelper';

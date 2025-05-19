@@ -67,9 +67,7 @@ export class ArchiveSelectableItem
     protected initListeners(): void {
         if (this.config.clickable ?? true) {
             this.onClicked(event => {
-                if (!this.getItem().isPendingDelete()) {
-                    new EditContentEvent([this.getItem()]).fire();
-                }
+                new EditContentEvent([this.getItem()]).fire();
             });
         }
     }

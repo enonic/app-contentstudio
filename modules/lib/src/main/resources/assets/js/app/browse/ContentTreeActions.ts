@@ -160,13 +160,6 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
         ];
     }
 
-    getAllActionsNoPendingDelete(): Action[] {
-        return [
-            ...this.getAllCommonActions(),
-            this.getAction(ActionName.UNPUBLISH)
-        ];
-    }
-
     getEditAction(): Action {
         return this.getAction(ActionName.EDIT);
     }
@@ -243,18 +236,9 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
     }
 
     private toggleVisibility(state: ContentTreeGridItemsState) {
-        if (state.hasAnyPendingDelete()) {
-            const invisibleActions: Action[] = state.hasAllPendingDelete()
-                                               ? this.getAllActionsNoPendingDelete()
-                                               : this.getAllActions();
-            invisibleActions.forEach(action => action.setVisible(false));
-        } else {
-            this.getAllCommonActions().forEach(action => action.setVisible(true));
-            this.getAction(ActionName.UNPUBLISH).setVisible(this.getAction(ActionName.UNPUBLISH).isEnabled());
-        }
-
-        this.getAction(ActionName.PUBLISH).setVisible(
-            state.hasAllPendingDelete() || this.getAction(ActionName.PUBLISH).isEnabled());
+        this.getAllCommonActions().forEach(action => action.setVisible(true));
+        this.getAction(ActionName.UNPUBLISH).setVisible(this.getAction(ActionName.UNPUBLISH).isEnabled());
+        this.getAction(ActionName.PUBLISH).setVisible(this.getAction(ActionName.PUBLISH).isEnabled());
         (this.getAction(ActionName.EDIT) as EditContentAction).updateLabel(state);
     }
 

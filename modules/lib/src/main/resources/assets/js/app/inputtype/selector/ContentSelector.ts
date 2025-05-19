@@ -51,7 +51,7 @@ export class ContentSelector
 
     protected hideToggleIcon: boolean;
 
-    protected contentDeletedListener: (paths: ContentServerChangeItem[], pending?: boolean) => void;
+    protected contentDeletedListener: (paths: ContentServerChangeItem[]) => void;
 
     public static debug: boolean = false;
 
@@ -125,7 +125,7 @@ export class ContentSelector
     }
 
     private handleContentDeletedEvent() {
-        this.contentDeletedListener = (paths: ContentServerChangeItem[], pending?: boolean) => {
+        this.contentDeletedListener = (paths: ContentServerChangeItem[]) => {
             if (this.getSelectedOptions().length === 0) {
                 return;
             }
@@ -137,7 +137,7 @@ export class ContentSelector
                 }
             });
 
-            paths.filter(deletedItem => !pending && selectedContentIdsMap.hasOwnProperty(deletedItem.getContentId().toString()))
+            paths.filter(deletedItem => selectedContentIdsMap.hasOwnProperty(deletedItem.getContentId().toString()))
                 .forEach((deletedItem) => {
                     let selectedOption = this.getSelectedOptionsView().getById(deletedItem.getContentId().toString());
                     if (selectedOption != null) {

@@ -81,7 +81,7 @@ export class ContentSummaryAndCompareStatusViewer
             this.setTitle(i18n('field.readOnly'));
         }
 
-        if (!invalid && !object.isOnline() && !object.isPendingDelete()) {
+        if (!invalid && !object.isOnline()) {
             const workflowState = this.resolveWorkflowState(object);
             this.getNamesAndIconView().setIconToolTip(workflowState);
             this.toggleClass('ready', contentSummary.isReady());
