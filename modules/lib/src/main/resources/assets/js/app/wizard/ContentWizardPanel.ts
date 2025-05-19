@@ -1163,11 +1163,6 @@ export class ContentWizardPanel
     }
 
     public checkContentCanBePublished(): boolean {
-        if (this.wizardActions.isPendingDelete()) {
-            // allow deleting published content without validity check
-            return true;
-        }
-
         if (!this.isContentFormValid) {
             return false;
         }
@@ -2555,7 +2550,7 @@ export class ContentWizardPanel
         return this.checkIfRenderable().then(() => {
             this.wizardActions.getPreviewAction().setEnabled(this.isRenderable());
 
-            return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
+            return this.wizardActions.refreshActions().then(() => {
                 this.contextView.updateWidgetsVisibility();
             });
         });

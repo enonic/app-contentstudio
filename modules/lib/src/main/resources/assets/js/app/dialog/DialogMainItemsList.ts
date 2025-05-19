@@ -47,9 +47,6 @@ export class DialogMainItemsList
         });
 
         itemViewer.onClicked((event) => {
-            if (item.isPendingDelete()) {
-                return;
-            }
             const el = new ElementHelper(event.target as HTMLElement);
             if (!(el.hasClass('remove') || el.hasClass('include-children-toggler'))) {
                 this.notifyItemClicked(item);
