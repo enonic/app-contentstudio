@@ -65,9 +65,7 @@ export class ArchiveCheckableItem
         }
 
         this.onClicked(() => {
-            if (!this.getItem().isPendingDelete()) {
-                new EditContentEvent([this.getItem()]).fire();
-            }
+            new EditContentEvent([this.getItem()]).fire();
         });
     }
 }

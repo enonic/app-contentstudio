@@ -76,12 +76,10 @@ export class WorkflowStateManager {
             return WorkflowStateStatus.INVALID;
         }
 
-        const isPendingDelete: boolean = content.isPendingDelete();
-        const isInWorkflow: boolean = isValid && !isPendingDelete;
         const hasUnsavedChanges: boolean = this.wizard.hasUnsavedChanges();
         const contentSummary: ContentSummary = content.getContentSummary();
 
-        const isReady: boolean = isInWorkflow && !hasUnsavedChanges && contentSummary.isReady();
+        const isReady: boolean = isValid && !hasUnsavedChanges && contentSummary.isReady();
 
         if (isReady) {
             return WorkflowStateStatus.READY;

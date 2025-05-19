@@ -3,7 +3,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentId} from '../content/ContentId';
 import {ContentName} from '../content/ContentName';
 import {ContentPath} from '../content/ContentPath';
-import {ContentState} from '../content/ContentState';
 import {ContentSummary, ContentSummaryBuilder} from '../content/ContentSummary';
 import {ContentSelectedOptionsView} from '../inputtype/ui/selector/ContentComboBox';
 import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
