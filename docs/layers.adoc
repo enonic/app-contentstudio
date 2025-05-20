@@ -69,7 +69,7 @@ This should open the Content Editor. You may now edit and publish the item as if
 [[ai_translation]]
 == AI translation
 
-NOTE: The https://market.enonic.com/vendors/enonic/ai-translator[Juke AI translator] application must be installed to access the features described in this section
+NOTE: The https://market.enonic.com/vendors/enonic/juke-ai-content-translator[Juke AI translator] application must be installed to access the features described in this section
 
 With the Juke AI translator enabled, clicking btn:[Localize] will instantly reveal the translation dialog. Here you may optionally provide detailed instructions or simply hit btn:[Translate]. This will automatically translate all text fields within your content - just watch it go.
 
