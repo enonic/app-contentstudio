@@ -20,6 +20,9 @@ import {ContentId} from '../content/ContentId';
 import {PrincipalServerEvent} from '../event/PrincipalServerEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
+import {Permission} from '../access/Permission';
+import {ContentHelper} from '../util/ContentHelper';
 
 export class UserAccessWidgetItemView
     extends WidgetItemView {
@@ -71,9 +74,12 @@ export class UserAccessWidgetItemView
     }
 
     private layoutBottom(content: Content) {
-
         if (this.hasChild(this.bottomEl)) {
             this.removeChild(this.bottomEl);
+        }
+
+        if (!ContentHelper.isAnyPrincipalAllowed(content.getPermissions(), AuthHelper.getPrincipalsKeys(), Permission.WRITE_PERMISSIONS)) {
+            return;
         }
 
         this.bottomEl = new AEl('edit-permissions-link');

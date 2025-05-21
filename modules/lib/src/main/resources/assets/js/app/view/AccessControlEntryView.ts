@@ -132,6 +132,10 @@ export class AccessControlEntryView
             return Access.FULL;
         }
 
+        if (this.canOnlyPublish(allowedPermissions)) {
+            return Access.PUBLISH;
+        }
+
         if (this.canOnlyWrite(allowedPermissions)) {
             return Access.WRITE;
         }
@@ -162,9 +166,17 @@ export class AccessControlEntryView
         return this.canWrite(allowed) && allowed.length === 4;
     }
 
+    private static canPublish(allowed: Permission[]): boolean {
+        return this.canWrite(allowed) && allowed.indexOf(Permission.PUBLISH) >= 0;
+    }
+
+    private static canOnlyPublish(allowed: Permission[]): boolean {
+        return this.canPublish(allowed) && allowed.length === 5;
+    }
+
     private static isFullAccess(allowed: Permission[]): boolean {
-        return this.canWrite(allowed) &&
-               allowed.indexOf(Permission.PUBLISH) >= 0;
+        return this.canPublish(allowed) &&
+               allowed.indexOf(Permission.WRITE_PERMISSIONS) >= 0;
     }
 
     private getPermissionsValueFromAccess(access: Access): { allow: Permission[]; deny: Permission[] } {
@@ -174,10 +186,13 @@ export class AccessControlEntryView
         };
     }
 
-
     private getPermissionsByAccess(access: Access): Permission[] {
         if (access === Access.FULL) {
             return this.getFullPermissions();
+        }
+
+        if (access === Access.PUBLISH) {
+            return this.getPublishPermissions();
         }
 
         if (access === Access.WRITE) {
@@ -192,6 +207,10 @@ export class AccessControlEntryView
     }
 
     private getFullPermissions(): Permission[] {
+        return [Permission.WRITE_PERMISSIONS, ...this.getPublishPermissions()];
+    }
+
+    private getPublishPermissions(): Permission[] {
         return [Permission.PUBLISH, ...this.getWritePermissions()];
     }
 
