@@ -11,7 +11,6 @@ import {ApplyContentPermissionsRequest} from '../../resource/ApplyContentPermiss
 import {MultiStepDialog, MultiStepDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/multistep/MultiStepDialog';
 import {NamesAndIconView} from '@enonic/lib-admin-ui/app/NamesAndIconView';
 import {MainAccessStep} from './steps/MainAccessStep';
-import {ApplyAccessToStep} from './steps/ApplyAccessToStep';
 import {GetDescendantsOfContentsRequest} from '../../resource/GetDescendantsOfContentsRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {SummaryStep} from './steps/SummaryStep';
@@ -36,8 +35,6 @@ export class EditPermissionsDialog
 
     private mainStep: MainAccessStep;
 
-    private applyToStep: ApplyAccessToStep;
-
     private strategyStep: StrategyStep;
 
     private summaryStep: SummaryStep;
@@ -54,7 +51,7 @@ export class EditPermissionsDialog
 
     constructor() {
         super({
-            steps: [new MainAccessStep(), new ApplyAccessToStep(), new StrategyStep(), new SummaryStep()],
+            steps: [new MainAccessStep(), new StrategyStep(), new SummaryStep()],
             confirmation: {
                 yesCallback: () => this.submit(),
                 noCallback: () => this.close(),
@@ -69,9 +66,8 @@ export class EditPermissionsDialog
         super.initElements();
 
         this.mainStep = this.steps[0] as MainAccessStep;
-        this.applyToStep = this.steps[1] as ApplyAccessToStep;
-        this.strategyStep = this.steps[2] as StrategyStep;
-        this.summaryStep = this.steps[3] as SummaryStep;
+        this.strategyStep = this.steps[1] as StrategyStep;
+        this.summaryStep = this.steps[2] as SummaryStep;
 
         this.backActionMirror = this.getBackAction(); // using the back action as a reset button on the first step
 
@@ -114,8 +110,7 @@ export class EditPermissionsDialog
             this.secondaryAction.setEnabled(isChanged);
         });
 
-        this.applyToStep.onDataChanged(() => {
-            this.strategyStep.setApplyTo(this.applyToStep.getData().applyTo);
+        this.strategyStep.onDataChanged(() => {
             this.secondaryAction.setLabel(i18n('dialog.permissions.step.action.submitNow', this.getTotalItemsToApplyTo()));
         });
     }
@@ -141,10 +136,12 @@ export class EditPermissionsDialog
     }
 
     private collectData(): PermissionsData {
+        const strategyData = this.strategyStep.getData();
+
         return {
             permissions: this.mainStep.getData(),
-            applyTo: this.applyToStep.getData().applyTo,
-            strategy: this.strategyStep.getData().strategy,
+            applyTo: strategyData.applyTo,
+            strategy: strategyData.strategy,
         }
     }
 
@@ -153,21 +150,21 @@ export class EditPermissionsDialog
 
         new GetDescendantsOfContentsRequest(event.getContentPath()).sendAndParse().then((ids) => {
             this.totalChildren = ids.length;
-            this.applyToStep.setup(this.totalChildren);
-            this.strategyStep.setApplyTo(this.totalChildren === 0 ? 'single' : 'tree');
+            this.strategyStep.setTotalChildren(ids.length);
             this.secondaryAction.setLabel(i18n('dialog.permissions.step.action.submitNow', this.totalChildren + 1));
         }).catch(DefaultErrorHandler.handle);
 
-        AccessControlHelper.getParentPermissions(event.getContentPath().getParentPath()).then((parentPermissions: AccessControlList) => {
+        const parentPath = event.getContentPath().getParentPath();
+
+        AccessControlHelper.getParentPermissions(parentPath).then((parentPermissions: AccessControlList) => {
             this.open();
 
             const originalValuesWithoutRedundant = AccessControlHelper.removeRedundantPermissions(event.getPermissions().getEntries());
             const parentPermissionsWithoutRedundant = AccessControlHelper.removeRedundantPermissions(parentPermissions.getEntries());
 
             this.originalValues = originalValuesWithoutRedundant;
-            this.mainStep.setup(originalValuesWithoutRedundant, parentPermissionsWithoutRedundant);
+            this.mainStep.setup(originalValuesWithoutRedundant, parentPermissionsWithoutRedundant, parentPath?.isRoot());
             this.summaryStep.setup(originalValuesWithoutRedundant);
-            this.strategyStep.setup(originalValuesWithoutRedundant);
         }).catch(() => {
             showWarning(i18n('notify.permissions.inheritError', event.getDisplayName()));
         }).done();
@@ -188,11 +185,6 @@ export class EditPermissionsDialog
             }
 
             this.getButtonRow().toggleClass('last-step', isLastStep);
-
-            if (step === this.strategyStep) {
-                this.strategyStep.setCurrentlySelectedItems(this.collectData().permissions);
-            }
-
             this.backActionMirror.setEnabled(true).setLabel(i18n('dialog.multistep.previous'));
         }
     }
@@ -210,14 +202,24 @@ export class EditPermissionsDialog
     protected reset(): void {
         this.showStep(this.mainStep);
         this.mainStep.reset();
-        this.applyToStep.reset();
         this.strategyStep.reset();
+        this.summaryStep.reset();
         this.backActionMirror.setEnabled(false);
+    }
+
+    protected showNextStep(): void {
+        if (this.isFirstStep() && this.totalChildren === 0) {
+            this.showStep(this.summaryStep);
+        } else {
+            super.showNextStep();
+        }
     }
 
     protected showPreviousStep(): void {
         if (this.isFirstStep()) { // we're using back button as reset button for the 1st step
             this.mainStep.reset();
+        } else if (this.isLastStep() && this.totalChildren === 0) {
+            this.showStep(this.mainStep);
         } else {
             super.showPreviousStep();
         }
@@ -232,7 +234,7 @@ export class EditPermissionsDialog
     }
 
     private getTotalItemsToApplyTo(): number {
-        const applyTo = this.applyToStep.getData().applyTo;
+        const applyTo = this.strategyStep.getData().applyTo;
 
         if (applyTo === 'single') {
             return 1;

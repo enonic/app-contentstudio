@@ -62,64 +62,48 @@
           }
         }
 
-        .apply-to-access-step {
-          .apply-to-container {
-            .apply-to-label-and-help-text {
-              .help-text-toggler {
-                display: inline-block;
-                float: none;
-                margin-left: 8px;
-              }
-
-              .radio-button.disabled {
-                opacity: 0.5;
-              }
-            }
-          }
-        }
-
         .summary-step {
           .summary-data-list {
             display: grid;
             grid-template-columns: 1fr 2fr;
             grid-auto-rows: 20px;
-            grid-column-gap: 10px;
+            column-gap: 10px;
+            row-gap: 4px;
 
             dt {
               white-space: pre;
               text-overflow: ellipsis;
               justify-self: end;
               color: @admin-font-gray2;
+              font-size: 14px;
             }
 
             dd {
               .ellipsis();
-            }
-          }
-        }
+              font-size: 14px;
 
-        .strategy-step {
-          .strategy-step-container {
-            .strategy-label-and-help-text {
-              .help-text-toggler {
-                display: inline-block;
-                float: none;
-                margin-left: 8px;
-              }
-
-              .radio-button.disabled {
-                opacity: 0.5;
+              > button {
+                .button(@admin-button-blue2, transparent, @admin-button-blue3);
+                padding: 0;
               }
             }
+
+            .access-mode-line {
+              span:first-child {
+                text-decoration: line-through;
+                margin-right: 4px;
+              }
+            }
+
+            &.no-principals-changed {
+              .summary-principals-line, .summary-principals-label {
+                display: none;
+              }
+            }
           }
 
-          .strategy-details-container {
+          .details-container {
             margin-top: 16px;
-
-            > button {
-              .button(@admin-button-blue2, transparent, @admin-button-blue3);
-              padding: 0 10px;
-            }
 
             .access-control-changed-items-list {
               padding: 0 10px;
@@ -183,6 +167,24 @@
                     text-decoration: line-through;
                   }
                 }
+              }
+            }
+          }
+        }
+
+        .strategy-step {
+          .strategy-step-container {
+            margin-top: 24px;
+
+            .strategy-label-and-help-text {
+              .help-text-toggler {
+                display: inline-block;
+                float: none;
+                margin-left: 8px;
+              }
+
+              .radio-button.disabled {
+                opacity: 0.5;
               }
             }
           }

@@ -7,35 +7,44 @@ import {DlEl} from '@enonic/lib-admin-ui/dom/DlEl';
 import {PermissionsData} from '../PermissionsData';
 import {AccessControlEntry} from '../../../access/AccessControlEntry';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
+import {AccessControlChangedItem, AccessControlChangedItemsList} from '../AccessControlChangedItemsList';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ShowHideDetailsButton} from '../ShowHideDetailsButton';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 
 export class SummaryStep
     extends DialogStep {
 
     private readonly container: Element;
 
-    private readonly principalsLineLabel: Element;
+    private summaryList: Element;
     private readonly principalsLine: Element;
-    private readonly accessModeLine: Element;
+    private readonly accessModeLine: AccessModeLine;
     private readonly applyToLine: Element;
     private readonly strategyLine: Element;
-    private readonly tooltip: Tooltip;
 
-    private originalPermissions: AccessControlEntry[];
+    private readonly toggleDetailsButton: ShowHideDetailsButton;
+    private readonly changedItemsList: AccessControlChangedItemsList;
+
+    private originalValues: AccessControlEntry[] = [];
+    private currentValues: AccessControlEntry[] = [];
 
     constructor() {
         super();
 
         this.container = new SectionEl('summary-step');
-        this.principalsLineLabel = new DdDtEl('dt');
-        this.principalsLine = new DdDtEl('dd');
-        this.accessModeLine = new DdDtEl('dd');
+        this.summaryList = new DlEl('summary-data-list');
+        this.accessModeLine = new AccessModeLine();
         this.applyToLine = new DdDtEl('dd');
         this.strategyLine = new DdDtEl('dd');
+        this.principalsLine = new DdDtEl('dd', 'summary-principals-line');
 
-        this.tooltip = new Tooltip(this.principalsLine, '');
+        this.toggleDetailsButton = new ShowHideDetailsButton();
+        this.changedItemsList = new AccessControlChangedItemsList();
 
         this.setupPropsList();
+        this.setupDetailsContainer();
+        this.reset();
     }
 
     getName(): string {
@@ -51,49 +60,56 @@ export class SummaryStep
     }
 
     setup(originalPermissions: AccessControlEntry[]): void {
-        this.originalPermissions = originalPermissions.sort();
+        this.originalValues = originalPermissions.sort();
     }
 
     setCurrentData(data: PermissionsData): void {
-        const changedEntries = this.getChangedEntries(data.permissions);
-        this.principalsLineLabel.setHtml(i18n('dialog.permissions.step.summary.permissions.label', changedEntries.length));
-        this.principalsLine.setHtml(this.makePrincipalsLine(changedEntries));
-        this.tooltip.setText(this.makePrincipalsTooltip(changedEntries));
-        this.accessModeLine.setHtml(data.permissions.some(p => p.getPrincipalKey().equals(RoleKeys.EVERYONE)) ? i18n(
-            'dialog.permissions.step.main.access.public') : i18n('dialog.permissions.step.main.access.restricted'));
+        const hadEveryoneRole = this.originalValues.some(p => p.getPrincipalKey().equals(RoleKeys.EVERYONE));
+        const hasEveryoneRole = data.permissions.some(p => p.getPrincipalKey().equals(RoleKeys.EVERYONE));
+        this.accessModeLine.setAccessDiff(hadEveryoneRole, hasEveryoneRole);
+
         this.applyToLine.setHtml(this.getApplyToLine(data));
         this.strategyLine.setHtml(
-            data.strategy === 'merge' ? i18n('dialog.permissions.step.strategy.merge') : i18n('dialog.permissions.step.strategy.reset'));
+            data.strategy === 'merge' ? i18n('dialog.permissions.step.strategy.merge') : i18n(
+                'dialog.permissions.step.strategy.overwrite'));
+
+        this.currentValues = data.permissions;
+        const changedItems = this.getChangedItems();
+        this.changedItemsList.setItems(changedItems);
+        this.toggleDetailsButton.setTotal(changedItems.length);
+        this.summaryList.toggleClass('no-principals-changed', changedItems.length === 0);
     }
 
-    private getChangedEntries(current: AccessControlEntry[]): AccessControlEntry[] {
-        const diff = new Map<string, AccessControlEntry>();
+    private getChangedItems(): AccessControlChangedItem[] {
+        const result: AccessControlChangedItem[] = [];
 
-        this.originalPermissions.forEach(p => {
-            const permInCurrent = current.find(perm => perm.getPrincipalKey().equals(p.getPrincipalKey()));
-
-            if (!p.equals(permInCurrent)) {
-                diff.set(p.getPrincipalKey().toString(), p);
+        this.originalValues.forEach((originalVal) => {
+            const found = this.currentValues.find((currentVal) => originalVal.getPrincipalKey().equals(currentVal.getPrincipalKey()));
+            if (found) {
+                if (!originalVal.equals(found)) { // item was changed
+                    result.push(new AccessControlChangedItem(originalVal.getPrincipal(),
+                        {persisted: originalVal.getAllowedPermissions(), updated: found.getAllowedPermissions()}));
+                }
+            } else { // item was removed
+                if (!RoleKeys.isEveryone(originalVal.getPrincipalKey())) {
+                    result.push(new AccessControlChangedItem(originalVal.getPrincipal(), {persisted: originalVal.getAllowedPermissions()}));
+                }
             }
         });
 
-        current.forEach(p => {
-            const permInPersisted = this.originalPermissions.find(perm => perm.getPrincipalKey().equals(p.getPrincipalKey()));
-
-            if (!p.equals(permInPersisted)) {
-                diff.set(p.getPrincipalKey().toString(), p);
+        // check for newly added items
+        this.currentValues.forEach((currentValue) => {
+            const found = this.originalValues.find((originalVal) => originalVal.getPrincipalKey().equals(currentValue.getPrincipalKey()));
+            if (!found && !RoleKeys.isEveryone(currentValue.getPrincipalKey())) { // item was added
+                result.push(new AccessControlChangedItem(currentValue.getPrincipal(), {updated: currentValue.getAllowedPermissions()}));
             }
         });
 
-        return Array.from(diff.values()).filter(p => !p.getPrincipalKey().equals(RoleKeys.EVERYONE));
+        return result;
     }
 
-    private makePrincipalsLine(changedEntries: AccessControlEntry[]): string {
-        return changedEntries.map(p => p.getPrincipalDisplayName()).join(', ') || '<None>';
-    }
-
-    private makePrincipalsTooltip(changedEntries: AccessControlEntry[]): string {
-        return changedEntries.map(p => p.getPrincipalDisplayName()).join('\n');
+    reset(): void {
+        this.toggleDetailsButton.setActive(false);
     }
 
     private getApplyToLine(data: PermissionsData): string {
@@ -109,17 +125,68 @@ export class SummaryStep
     }
 
     private setupPropsList(): void {
-        const principalsLineLabel = new DdDtEl('dt').setHtml(i18n('dialog.permissions.step.summary.permissions.label'));
+        const principalsLineLabel = new DdDtEl('dt', 'summary-principals-label').setHtml(
+            i18n('dialog.permissions.step.summary.permissions.label'));
         const accessModeLineLabel = new DdDtEl('dt').setHtml(i18n('dialog.permissions.step.summary.access.label'));
         const applyToLineLabel = new DdDtEl('dt').setHtml(i18n('dialog.permissions.step.summary.apply.label'));
         const strategyLineLabel = new DdDtEl('dt').setHtml(i18n('dialog.permissions.step.summary.strategy.label'));
 
-        const dl = new DlEl('summary-data-list');
-        dl.appendChildren(this.principalsLineLabel, this.principalsLine, accessModeLineLabel, this.accessModeLine, applyToLineLabel,
-            this.applyToLine, strategyLineLabel, this.strategyLine);
+        this.summaryList.appendChildren(accessModeLineLabel, this.accessModeLine, applyToLineLabel, this.applyToLine, strategyLineLabel,
+            this.strategyLine, principalsLineLabel, this.principalsLine);
+        this.container.appendChild(this.summaryList);
 
-        this.container.appendChild(dl);
+        this.principalsLine.appendChild(this.toggleDetailsButton);
+    }
+
+    private setupDetailsContainer(): void {
+        const detailsContainer = new DivEl('details-container');
+        this.container.appendChild(detailsContainer);
+
+        this.toggleDetailsButton.onClicked(() => {
+            this.toggleDetailsButton.toggle();
+        });
+
+        detailsContainer.appendChild(this.changedItemsList);
+
+        this.toggleDetailsButton.setActiveChangeListener((isActive: boolean) => {
+            this.changedItemsList.setVisible(isActive);
+        });
     }
 
 }
 
+class AccessModeLine
+    extends DdDtEl {
+
+    private hadEveryoneRole: boolean;
+
+    private hasEveryoneRole: boolean;
+
+    constructor() {
+        super('dd', 'access-mode-line');
+    }
+
+    setAccessDiff(hadEveryoneRole: boolean, hasEveryoneRole: boolean): void {
+        this.hadEveryoneRole = hadEveryoneRole;
+        this.hasEveryoneRole = hasEveryoneRole;
+
+        this.updateLine();
+    }
+
+    private updateLine(): void {
+        if (this.hadEveryoneRole === this.hasEveryoneRole) {
+            this.setHtml(this.getLabel(this.hasEveryoneRole));
+        } else {
+            this.removeChildren();
+            const oldValueSpan = new SpanEl().setHtml(this.getLabel(this.hadEveryoneRole));
+            const newValueSpan = new SpanEl().setHtml(this.getLabel(this.hasEveryoneRole));
+            this.appendChildren(oldValueSpan, newValueSpan);
+        }
+    }
+
+    private getLabel(hasEveryoneRole: boolean): string {
+        return hasEveryoneRole ? i18n('dialog.permissions.step.main.access.public') : i18n(
+            'dialog.permissions.step.main.access.restricted');
+    }
+
+}

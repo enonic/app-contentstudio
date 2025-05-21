@@ -24,6 +24,7 @@ export class MainAccessStep
 
     private readonly everyoneEntry: AccessControlEntry;
 
+    private isTopLevelItem: boolean;
     private parentPermissions: AccessControlEntry[] = [];
     private originalValues: AccessControlEntry[] = [];
 
@@ -35,8 +36,7 @@ export class MainAccessStep
         this.principalsCombobox.addClass('principal-combobox');
 
         this.accessModeRadioGroup = new RadioGroup('read-access-radio-group');
-        this.copyFromParentButton =
-            new Button(i18n('dialog.permissions.step.main.permissions.copy')).addClass('copy-from-parent-button') as Button;
+        this.copyFromParentButton = new Button().addClass('copy-from-parent-button') as Button;
 
         this.everyoneEntry = this.makeEveryoneCanReadAccessControlEntry();
 
@@ -77,8 +77,9 @@ export class MainAccessStep
         this.container.appendChild(accessModeContainer);
         accessModeContainer.appendChild(this.accessModeRadioGroup);
 
-        const publicButton = this.accessModeRadioGroup.addOption('public', i18n('dialog.permissions.step.main.access.public'));
-        const restrictedButton = this.accessModeRadioGroup.addOption('restricted', i18n('dialog.permissions.step.main.access.restricted'));
+        const publicButton = this.accessModeRadioGroup.addOption('public', i18n('dialog.permissions.step.main.access.mode.public'));
+        const restrictedButton = this.accessModeRadioGroup.addOption('restricted',
+            i18n('dialog.permissions.step.main.access.mode.restricted'));
 
         publicButton.getLastChild().addClass('icon-unlock');
         restrictedButton.getLastChild().addClass('icon-lock');
@@ -113,25 +114,26 @@ export class MainAccessStep
         });
     }
 
-    setup(originalValues: AccessControlEntry[], parentPermissions: AccessControlEntry[]): void {
+    setup(originalValues: AccessControlEntry[], parentPermissions: AccessControlEntry[], isTopLevelItem: boolean): void {
+        this.isTopLevelItem = isTopLevelItem;
         this.originalValues = originalValues;
         this.parentPermissions = parentPermissions;
 
         this.layoutPermissions(this.originalValues);
-        this.copyFromParentButton.setVisible(parentPermissions.length > 0);
         this.copyFromParentButton.setEnabled(this.isUnequalToParentPermissions());
 
         const hasEveryonePermission = this.originalValues.some((item) => item.getPrincipalKey().equals(RoleKeys.EVERYONE));
         this.accessModeRadioGroup.setValue(hasEveryonePermission ? 'public' : 'restricted', true);
+        this.updateCopyFromParentButtonLabel();
         this.notifyDataChanged();
     }
 
-    getData(): AccessControlEntry[]  {
+    getData(): AccessControlEntry[] {
         return this.getCurrentlySelectedPermissions();
     }
 
     reset(): void {
-        this.setup(this.originalValues, this.parentPermissions);
+        this.setup(this.originalValues, this.parentPermissions, this.isTopLevelItem);
     }
 
     isValid(): Q.Promise<boolean> {
@@ -160,6 +162,11 @@ export class MainAccessStep
 
     private isUnequalToParentPermissions(): boolean {
         return !ObjectHelper.arrayEquals(this.getCurrentlySelectedPermissions(), this.parentPermissions.slice().sort());
+    }
+
+    private updateCopyFromParentButtonLabel(): void {
+        this.copyFromParentButton.setLabel(this.isTopLevelItem ? i18n('dialog.permissions.step.main.copy.from.project') : i18n(
+            'dialog.permissions.step.main.copy.from.parent'));
     }
 
 }
