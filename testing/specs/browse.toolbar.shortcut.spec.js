@@ -14,6 +14,43 @@ describe('Browse toolbar shortcut spec`', function () {
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
+    const CONTENT_DISPLAY_NAME = 'All Content types images';
+
+    // Enter key doesn't open content for Edit #8756
+    // https://github.com/enonic/app-contentstudio/issues/8756
+    it(`GIVEN content is selected WHEN 'Enter' key has been pressed THEN the folder should be opened in new tab`, async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        let contentWizard = new ContentWizard();
+        // 1. Select a folder
+        await studioUtils.findAndSelectItem(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
+        // 2. Press 'Enter' key
+        await contentBrowsePanel.pressEnterKey();
+        // 3. Switch to the new browser tab:
+        await studioUtils.switchToContentTabWindow(CONTENT_DISPLAY_NAME);
+        await contentWizard.waitForOpened();
+    });
+
+    // Enter key doesn't open content for Edit #8756
+    // https://github.com/enonic/app-contentstudio/issues/8756
+    it(`GIVEN 2 item are checked in the grid WHEN 'Enter' key has been pressed THEN both folders should be opened in new tabs`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentWizard = new ContentWizard();
+            // 1. Find the folder and Click on its checkbox:
+            await studioUtils.typeNameInFilterPanel(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
+            // 2. Find the second folder and click on its checkbox:
+            await studioUtils.typeNameInFilterPanel(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_NAME);
+            // 3. Press 'Enter' key
+            await contentBrowsePanel.pressEnterKey();
+            // 4. Switch to the first new browser tab:
+            await studioUtils.switchToContentTabWindow(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            await contentWizard.waitForOpened();
+            // 5. Switch to the second new browser tab:
+            await studioUtils.switchToContentTabWindow(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
+            await contentWizard.waitForOpened();
+        });
 
     it(`GIVEN content is selected WHEN 'Ctrl+Delete' have been pressed THEN 'Delete Dialog' should appear`, async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
@@ -36,7 +73,6 @@ describe('Browse toolbar shortcut spec`', function () {
         // 2. 'Control'+ 'e'
         await contentBrowsePanel.hotKeyEdit();
         await studioUtils.switchToContentTabWindow('All Content types images');
-        //'Content Wizard' should be loaded(otherwise exception will be thrown):
         await contentWizard.waitForOpened();
     });
 

@@ -106,7 +106,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             // 5. Verify that the content is not valid:
             let isInvalid = await contentWizard.isContentInvalid();
             await studioUtils.saveScreenshot('textline_wizard_1_0');
-            assert.ok(isInvalid, "Textline content should be not valid because Min 1 valid occurrence(s) required");
+            assert.ok(isInvalid, 'Textline content should be invalid because Min 1 valid occurrence(s) required');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
         });
@@ -204,7 +204,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             // 5. Verify that the content is invalid:
             let isInvalid = await contentWizard.isContentInvalid();
             await studioUtils.saveScreenshot('textline_wizard_1_1');
-            assert.ok(isInvalid, "Textline content should be not valid because 'This field is required'");
+            assert.ok(isInvalid, "Textline content should be invalid because 'This field is required'");
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
         });
