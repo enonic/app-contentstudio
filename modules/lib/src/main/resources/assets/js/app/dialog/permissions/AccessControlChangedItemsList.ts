@@ -147,7 +147,7 @@ class PermissionStateView extends SpanEl {
     }
 
     private permissionToString(permission: Permission): string {
-        return Permission[permission]?.toLowerCase() ?? '';
+        return Permission[permission]?.toLowerCase().replace('_', '') ?? '';
     }
 
     doRender(): Q.Promise<boolean> {

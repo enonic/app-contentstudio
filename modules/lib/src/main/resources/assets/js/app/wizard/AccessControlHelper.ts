@@ -74,7 +74,7 @@ export class AccessControlHelper {
             const cloned = item.clone();
             cloned.setDeniedPermissions([]);
             cloned.setAllowedPermissions(
-                item.getAllowedPermissions().filter(p => p !== Permission.READ_PERMISSIONS && p !== Permission.WRITE_PERMISSIONS));
+                item.getAllowedPermissions().filter(p => p !== Permission.READ_PERMISSIONS));
 
             result.push(cloned);
         });

@@ -16,7 +16,9 @@ public enum Access
 
     WRITE( Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE ),
 
-    FULL( Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE, Permission.PUBLISH ),
+    PUBLISH( Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE, Permission.PUBLISH ),
+
+    FULL( Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE, Permission.PUBLISH, Permission.WRITE_PERMISSIONS ),
 
     CUSTOM();
 
@@ -30,10 +32,10 @@ public enum Access
     public static Access fromPermissions( final Iterable<Permission> permissions )
     {
         final Set<Permission> filtered = StreamSupport.stream( permissions.spliterator(), true )
-            .filter( p -> p != Permission.READ_PERMISSIONS && p != Permission.WRITE_PERMISSIONS )
+            .filter( p -> p != Permission.READ_PERMISSIONS )
             .collect( Collectors.toUnmodifiableSet() );
 
-        return Stream.of( READ, WRITE, FULL ).
+        return Stream.of( READ, WRITE, PUBLISH, FULL ).
             filter( a -> a.hasPermissions( filtered ) ).
             findFirst().
             orElse( CUSTOM );

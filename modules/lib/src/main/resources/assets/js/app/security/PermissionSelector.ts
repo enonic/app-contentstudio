@@ -40,6 +40,7 @@ export class PermissionSelector
             {name: i18n('security.permission.modify'), value: Permission.MODIFY},
             {name: i18n('security.permission.delete'), value: Permission.DELETE},
             {name: i18n('security.permission.publish'), value: Permission.PUBLISH},
+            {name: i18n('security.permission.writepermissions'), value: Permission.WRITE_PERMISSIONS}
         ];
     }
 
