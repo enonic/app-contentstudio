@@ -11,6 +11,7 @@ import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
 import {Content} from '../content/Content';
 import {ContentPath} from '../content/ContentPath';
 import {PermissionsHelper} from '../access/PermissionsHelper';
+import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
 
 export class AccessControlHelper {
 
@@ -54,13 +55,14 @@ export class AccessControlHelper {
     }
 
     static getParentPermissions(parentPath: ContentPath): Q.Promise<AccessControlList> {
-        if (parentPath?.isNotRoot()) {
-            return new GetContentByPathRequest(parentPath).sendAndParse().then((content: Content) => {
-                return content.getPermissions();
-            });
+        if (!parentPath || parentPath.isRoot()) {
+            return new GetContentRootPermissionsRequest().sendAndParse();
         }
 
-        return Q(new AccessControlList());
+        return new GetContentByPathRequest(parentPath).sendAndParse().then((content: Content) => {
+            return content.getPermissions();
+        });
+
     }
 
     static removeRedundantPermissions(permissions: AccessControlEntry[]): AccessControlEntry[] {

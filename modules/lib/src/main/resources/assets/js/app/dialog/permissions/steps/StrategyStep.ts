@@ -7,35 +7,53 @@ import {RadioButton} from '@enonic/lib-admin-ui/ui/RadioButton';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
 import {ApplyPermissionsScope, ApplyPermissionsStrategy} from '../PermissionsData';
-import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {AccessControlChangedItem, AccessControlChangedItemsList} from '../AccessControlChangedItemsList';
-import {AccessControlEntry} from '../../../access/AccessControlEntry';
-import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {HelpTextContainer} from '@enonic/lib-admin-ui/form/HelpTextContainer';
 
-export class StrategyStep extends DialogStep {
+export class StrategyStep
+    extends DialogStep {
 
     private readonly container: Element;
-    private readonly strategyRadioGroup: RadioGroup;
-    private readonly mergeRadioButton: RadioButton;
-    private readonly resetRadioButton: RadioButton;
-    private readonly toggleDetailsButton: ShowHideDetailsButton;
-    private readonly changedItemsList: AccessControlChangedItemsList;
 
-    private originalValues: AccessControlEntry[] = [];
-    private currentValues: AccessControlEntry[] = [];
-    private applyTo: ApplyPermissionsScope;
+    private readonly applyToRadioGroup: RadioGroup;
+    private readonly itemAndChildrenRadioButton: RadioButton;
+    private readonly childrenOnlyRadioButton: RadioButton;
+    private readonly itemOnlyRadioButton: RadioButton;
+
+    private readonly strategyRadioGroup: RadioGroup;
+    private readonly strategyContainer: Element;
 
     constructor() {
         super();
 
         this.container = new SectionEl('strategy-step');
+
+        this.applyToRadioGroup = new RadioGroup('apply-to-access-radio-group');
+        this.itemOnlyRadioButton = this.applyToRadioGroup.addOption('single', `${i18n('dialog.permissions.step.apply.to.item')} (1)`);
+        this.itemAndChildrenRadioButton = this.applyToRadioGroup.addOption('tree', i18n('dialog.permissions.step.apply.to.all'));
+        this.childrenOnlyRadioButton = this.applyToRadioGroup.addOption('subtree', i18n('dialog.permissions.step.apply.to.children'));
+        this.setupApplyToRadioGroup();
+
         this.strategyRadioGroup = new RadioGroup('strategy-radio-group');
-        this.mergeRadioButton = this.strategyRadioGroup.addOption('merge', i18n('dialog.permissions.step.strategy.merge'));
-        this.resetRadioButton = this.strategyRadioGroup.addOption('reset', i18n('dialog.permissions.step.strategy.reset'));
-        this.toggleDetailsButton = new ShowHideDetailsButton();
-        this.changedItemsList = new AccessControlChangedItemsList();
+        this.strategyContainer = new DivEl('strategy-step-container');
+        this.strategyRadioGroup.addOption('merge', i18n('dialog.permissions.step.strategy.merge'));
+        this.strategyRadioGroup.addOption('reset', i18n('dialog.permissions.step.strategy.overwrite'));
         this.setupStrategyContainer();
+
+        this.reset();
+    }
+
+    private setupApplyToRadioGroup(): void {
+        const applyToContainer = new DivEl('apply-to-step-container');
+        this.container.appendChild(applyToContainer);
+
+        const applyToLabel = new LabelEl(i18n('dialog.permissions.step.apply.label'), this.applyToRadioGroup);
+        applyToContainer.appendChild(applyToLabel);
+        applyToContainer.appendChild(this.applyToRadioGroup);
+
+        this.applyToRadioGroup.onValueChanged(() => {
+            this.updateStrategyRadioGroup();
+            this.notifyDataChanged();
+        });
     }
 
     getName(): string {
@@ -50,43 +68,41 @@ export class StrategyStep extends DialogStep {
         return this.container;
     }
 
-    getData(): { strategy: ApplyPermissionsStrategy } {
+    getData(): { applyTo: ApplyPermissionsScope, strategy: ApplyPermissionsStrategy } {
         return {
+            applyTo: this.applyToRadioGroup.getValue() as ApplyPermissionsScope,
             strategy: this.strategyRadioGroup.getValue() as ApplyPermissionsStrategy
         };
     }
 
     reset(): void {
+        this.applyToRadioGroup.setValue('single', true);
         this.strategyRadioGroup.setValue('merge', true);
-        this.toggleDetailsButton.setActive(false);
     }
 
-    setup(originalValues: AccessControlEntry[]): void {
-        this.originalValues = originalValues;
-    }
+    setTotalChildren(totalChildren: number): void {
+        const hasChildren = totalChildren > 0;
 
-    setApplyTo(val: ApplyPermissionsScope): void {
-        this.applyTo = val;
-        this.strategyRadioGroup.setValue(val === 'single' ? 'reset' : 'merge', true);
-        this.mergeRadioButton.setEnabled(val !== 'single');
-        this.mergeRadioButton.setTitle(val === 'single' ? i18n('dialog.permissions.step.strategy.tooltip.single') : '');
-    }
+        this.applyToRadioGroup.setValue('single', true);
+        this.itemAndChildrenRadioButton.setLabel(`${i18n('dialog.permissions.step.apply.to.all')} (${totalChildren + 1})`);
+        this.childrenOnlyRadioButton.setLabel(
+            i18n('dialog.permissions.step.apply.to.children') + (hasChildren ? ` (${totalChildren})` : ''));
+        this.itemAndChildrenRadioButton.setEnabled(hasChildren);
+        this.childrenOnlyRadioButton.setEnabled(hasChildren);
 
-    setCurrentlySelectedItems(items: AccessControlEntry[]): void {
-        this.currentValues = items;
-        this.changedItemsList.setItems(this.getChangedItems());
-        this.toggleDetailsButton.setVisible(this.changedItemsList.getItemCount() > 0);
+        this.updateStrategyRadioGroup();
     }
 
     private setupStrategyContainer(): void {
         this.setupStrategyRadioGroup();
-        this.setupDetailsContainer();
-        this.reset();
+
+        this.strategyRadioGroup.onValueChanged(() => {
+            this.notifyDataChanged();
+        });
     }
 
     private setupStrategyRadioGroup(): void {
-        const strategyContainer = new DivEl('strategy-step-container');
-        this.container.appendChild(strategyContainer);
+        this.container.appendChild(this.strategyContainer);
 
         const labelAndHelpTextWrapper = new DivEl('strategy-label-and-help-text');
         const applyToLabel = new LabelEl(i18n('dialog.permissions.step.strategy.label'), this.strategyRadioGroup);
@@ -95,87 +111,12 @@ export class StrategyStep extends DialogStep {
         const helpText = new HelpTextContainer(i18n('dialog.permissions.step.strategy.helptext'));
         labelAndHelpTextWrapper.appendChild(helpText.getToggler());
 
-        strategyContainer.appendChildren(labelAndHelpTextWrapper, helpText.getHelpText(), this.strategyRadioGroup);
+        this.strategyContainer.appendChildren(labelAndHelpTextWrapper, helpText.getHelpText(), this.strategyRadioGroup);
     }
 
-    private setupDetailsContainer(): void {
-        const detailsContainer = new DivEl('strategy-details-container');
-        this.container.appendChild(detailsContainer);
-
-        detailsContainer.appendChild(this.toggleDetailsButton);
-
-        this.toggleDetailsButton.onClicked(() => {
-            this.toggleDetailsButton.toggle();
-        });
-
-        detailsContainer.appendChild(this.changedItemsList);
-
-        this.toggleDetailsButton.setActiveChangeListener((isActive: boolean) => {
-            this.changedItemsList.setVisible(isActive);
-        });
+    private updateStrategyRadioGroup(): void {
+        const applyToValue = this.applyToRadioGroup.getValue() as ApplyPermissionsScope;
+        this.strategyRadioGroup.setValue(applyToValue === 'single' ? 'reset' : 'merge', true);
+        this.strategyContainer.setVisible(applyToValue !== 'single');
     }
-
-    private getChangedItems(): AccessControlChangedItem[] {
-        const result: AccessControlChangedItem[] = [];
-
-        this.originalValues.forEach((originalVal) => {
-            const found = this.currentValues.find((currentVal) => originalVal.getPrincipalKey().equals(currentVal.getPrincipalKey()));
-            if (found) {
-                if (!originalVal.equals(found)) { // item was changed
-                    result.push(new AccessControlChangedItem(originalVal.getPrincipal(),
-                        {persisted: originalVal.getAllowedPermissions(), updated: found.getAllowedPermissions()}));
-                }
-            } else { // item was removed
-                if (!RoleKeys.isEveryone(originalVal.getPrincipalKey())) {
-                    result.push(new AccessControlChangedItem(originalVal.getPrincipal(), {persisted: originalVal.getAllowedPermissions()}));
-                }
-            }
-        });
-
-        // check for newly added items
-        this.currentValues.forEach((currentValue) => {
-            const found = this.originalValues.find((originalVal) => originalVal.getPrincipalKey().equals(currentValue.getPrincipalKey()));
-            if (!found && !RoleKeys.isEveryone(currentValue.getPrincipalKey())) { // item was added
-                result.push(new AccessControlChangedItem(currentValue.getPrincipal(), {updated: currentValue.getAllowedPermissions()}));
-            }
-        });
-
-        return result;
-    }
-}
-
-class ShowHideDetailsButton extends Button {
-
-    private active: boolean;
-
-    private onActiveChange?: (isActive: boolean) => void;
-
-    constructor() {
-        super(i18n('dialog.permissions.details.hide'));
-
-        this.active = true;
-    }
-
-    setActive(active: boolean): void {
-        if (this.active === active) {
-            return;
-        }
-
-        this.active = active;
-        this.updateLabel();
-        this.onActiveChange(active);
-    }
-
-    setActiveChangeListener(onActiveChange: (isActive: boolean) => void): void {
-        this.onActiveChange = onActiveChange;
-    }
-
-    toggle(): void {
-        this.setActive(!this.active);
-    }
-
-    private updateLabel(): void {
-        this.setLabel(this.active ? i18n('dialog.permissions.details.hide') : i18n('dialog.permissions.details.show'));
-    }
-
 }
