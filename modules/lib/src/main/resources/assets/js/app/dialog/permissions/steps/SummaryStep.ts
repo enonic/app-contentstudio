@@ -7,7 +7,7 @@ import {DlEl} from '@enonic/lib-admin-ui/dom/DlEl';
 import {PermissionsData} from '../PermissionsData';
 import {AccessControlEntry} from '../../../access/AccessControlEntry';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {AccessControlChangedItem, AccessControlChangedItemsList} from '../AccessControlChangedItemsList';
+import {AccessControlChangedItemsList} from '../AccessControlChangedItemsList';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ShowHideDetailsButton} from '../ShowHideDetailsButton';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
@@ -27,7 +27,6 @@ export class SummaryStep
     private readonly changedItemsList: AccessControlChangedItemsList;
 
     private originalValues: AccessControlEntry[] = [];
-    private currentValues: AccessControlEntry[] = [];
 
     constructor() {
         super();
@@ -36,7 +35,7 @@ export class SummaryStep
         this.summaryList = new DlEl('summary-data-list');
         this.accessModeLine = new AccessModeLine();
         this.applyToLine = new DdDtEl('dd');
-        this.strategyLine = new DdDtEl('dd');
+        this.strategyLine = new DdDtEl('dd', 'strategy-principals-line');
         this.principalsLine = new DdDtEl('dd', 'summary-principals-line');
 
         this.toggleDetailsButton = new ShowHideDetailsButton();
@@ -61,6 +60,7 @@ export class SummaryStep
 
     setup(originalPermissions: AccessControlEntry[]): void {
         this.originalValues = originalPermissions.sort();
+        this.changedItemsList.setOriginalValues(this.originalValues);
     }
 
     setCurrentData(data: PermissionsData): void {
@@ -70,42 +70,16 @@ export class SummaryStep
 
         this.applyToLine.setHtml(this.getApplyToLine(data));
         this.strategyLine.setHtml(
-            data.strategy === 'merge' ? i18n('dialog.permissions.step.strategy.merge') : i18n(
-                'dialog.permissions.step.strategy.overwrite'));
+            data.reset ? i18n('dialog.permissions.step.strategy.overwrite') : i18n(
+                'dialog.permissions.step.strategy.merge'));
 
-        this.currentValues = data.permissions;
-        const changedItems = this.getChangedItems();
-        this.changedItemsList.setItems(changedItems);
-        this.toggleDetailsButton.setTotal(changedItems.length);
-        this.summaryList.toggleClass('no-principals-changed', changedItems.length === 0);
-    }
+        this.changedItemsList.setApplyTo(data.applyTo);
+        this.changedItemsList.setResetChildPermissions(data.reset);
+        this.changedItemsList.setCurrentValues(data.permissions);
 
-    private getChangedItems(): AccessControlChangedItem[] {
-        const result: AccessControlChangedItem[] = [];
-
-        this.originalValues.forEach((originalVal) => {
-            const found = this.currentValues.find((currentVal) => originalVal.getPrincipalKey().equals(currentVal.getPrincipalKey()));
-            if (found) {
-                if (!originalVal.equals(found)) { // item was changed
-                    result.push(new AccessControlChangedItem(originalVal.getPrincipal(),
-                        {persisted: originalVal.getAllowedPermissions(), updated: found.getAllowedPermissions()}));
-                }
-            } else { // item was removed
-                if (!RoleKeys.isEveryone(originalVal.getPrincipalKey())) {
-                    result.push(new AccessControlChangedItem(originalVal.getPrincipal(), {persisted: originalVal.getAllowedPermissions()}));
-                }
-            }
-        });
-
-        // check for newly added items
-        this.currentValues.forEach((currentValue) => {
-            const found = this.originalValues.find((originalVal) => originalVal.getPrincipalKey().equals(currentValue.getPrincipalKey()));
-            if (!found && !RoleKeys.isEveryone(currentValue.getPrincipalKey())) { // item was added
-                result.push(new AccessControlChangedItem(currentValue.getPrincipal(), {updated: currentValue.getAllowedPermissions()}));
-            }
-        });
-
-        return result;
+        this.toggleDetailsButton.setTotal(this.changedItemsList.getItemCount());
+        this.summaryList.toggleClass('no-principals-changed', this.changedItemsList.getItemCount() === 0);
+        this.summaryList.toggleClass('single', data.applyTo === 'single');
     }
 
     reset(): void {
@@ -129,7 +103,8 @@ export class SummaryStep
             i18n('dialog.permissions.step.summary.permissions.label'));
         const accessModeLineLabel = new DdDtEl('dt').setHtml(i18n('dialog.permissions.step.summary.access.label'));
         const applyToLineLabel = new DdDtEl('dt').setHtml(i18n('dialog.permissions.step.summary.apply.label'));
-        const strategyLineLabel = new DdDtEl('dt').setHtml(i18n('dialog.permissions.step.summary.strategy.label'));
+        const strategyLineLabel = new DdDtEl('dt', 'strategy-principals-label').setHtml(
+            i18n('dialog.permissions.step.summary.strategy.label'));
 
         this.summaryList.appendChildren(accessModeLineLabel, this.accessModeLine, applyToLineLabel, this.applyToLine, strategyLineLabel,
             this.strategyLine, principalsLineLabel, this.principalsLine);

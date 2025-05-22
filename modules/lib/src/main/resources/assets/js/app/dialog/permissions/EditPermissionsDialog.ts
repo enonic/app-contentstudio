@@ -122,12 +122,12 @@ export class EditPermissionsDialog
 
         const req = new ApplyContentPermissionsRequest().setId(this.contentId).setScope(data.applyTo);
 
-        if (data.strategy === 'merge') {
+        if (data.reset) {
+            req.setPermissions(permissions);
+        } else {
             const {added, removed} = AccessControlHelper.calcMergePermissions(this.originalValues, data.permissions);
             req.setAddPermissions(added);
             req.setRemovePermissions(removed);
-        } else {
-            req.setPermissions(permissions);
         }
 
         req.sendAndParse().then((taskId) => {
@@ -141,7 +141,7 @@ export class EditPermissionsDialog
         return {
             permissions: this.mainStep.getData(),
             applyTo: strategyData.applyTo,
-            strategy: strategyData.strategy,
+            reset: strategyData.reset,
         }
     }
 
