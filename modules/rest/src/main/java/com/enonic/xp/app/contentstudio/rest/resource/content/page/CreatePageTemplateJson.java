@@ -12,7 +12,7 @@ import com.enonic.xp.app.contentstudio.json.content.page.region.RegionJson;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTreeJson;
-import com.enonic.xp.page.DescriptorKey;
+import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.schema.content.ContentTypeNames;
 
 public class CreatePageTemplateJson

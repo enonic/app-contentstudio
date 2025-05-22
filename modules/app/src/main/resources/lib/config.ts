@@ -76,16 +76,13 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
         },
         theme,
         widgetApiUrl: portalLib.apiUrl({
-            application: 'admin',
-            api: 'widget'
+            api: 'admin:widget'
         }),
         statusApiUrl: portalLib.apiUrl({
-            application: 'admin',
-            api: 'status'
+            api: 'admin:status'
         }),
         eventApiUrl: portalLib.apiUrl({
-            application: 'admin',
-            api: 'event'
+            api: 'admin:event'
         }),
         phrasesAsJson: JSON.stringify(getPhrases(locales)),
         sharedSocketUrl: portalLib.assetUrl({

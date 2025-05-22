@@ -25,9 +25,9 @@ import com.enonic.xp.app.contentstudio.json.content.page.region.PartDescriptorJs
 import com.enonic.xp.app.contentstudio.json.content.page.region.PartDescriptorsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.content.JsonObjectsFactory;
+import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.jaxrs.JaxRsComponent;
-import com.enonic.xp.page.DescriptorKey;
 import com.enonic.xp.region.PartDescriptor;
 import com.enonic.xp.region.PartDescriptorService;
 import com.enonic.xp.security.RoleKeys;
