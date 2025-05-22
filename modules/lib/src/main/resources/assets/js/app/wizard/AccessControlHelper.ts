@@ -98,11 +98,9 @@ export class AccessControlHelper {
                     const removedPermissions = [];
 
                     PermissionsHelper.getAllPermissions().forEach(p => {
-                        if (found.getAllowedPermissions().indexOf(p) > -1 && originalVal.getAllowedPermissions().indexOf(p) === -1) {
+                        if (found.getAllowedPermissions().indexOf(p) > -1) {
                             addedPermissions.push(p);
-                        }
-
-                        if (originalVal.getAllowedPermissions().indexOf(p) > -1 && found.getAllowedPermissions().indexOf(p) === -1) {
+                        } else {
                             removedPermissions.push(p);
                         }
                     });

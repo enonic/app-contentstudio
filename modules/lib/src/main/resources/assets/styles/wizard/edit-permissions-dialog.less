@@ -96,7 +96,13 @@
             }
 
             &.no-principals-changed {
-              .summary-principals-line, .summary-principals-label {
+              .summary-principals-line, .summary-principals-label, .strategy-principals-label, .strategy-principals-line {
+                display: none;
+              }
+            }
+
+            &.single {
+              .strategy-principals-label, .strategy-principals-line {
                 display: none;
               }
             }
@@ -122,6 +128,7 @@
 
                 .access-control-changed-item-permissions {
                   display: flex;
+                  margin: 8px 0;
 
                   .permission-state-view {
                     margin: 5px;
@@ -143,21 +150,21 @@
                       background-color: @admin-green;
                       color: @admin-white;
 
-                      &::before {
-                        position: absolute;
-                        left: 8px;
-                        content: '+';
-                      }
+                      //&::before {
+                      //  position: absolute;
+                      //  left: 8px;
+                      //  content: '+';
+                      //}
                     }
 
                     &.removed {
                       background-color: #fecacf;
 
-                      &::before {
-                        position: absolute;
-                        left: 10px;
-                        content: '-';
-                      }
+                      //&::before {
+                      //  position: absolute;
+                      //  left: 10px;
+                      //  content: '-';
+                      //}
                     }
                   }
                 }
@@ -165,6 +172,33 @@
                 &.removed {
                   .xp-admin-common-main-name {
                     text-decoration: line-through;
+                  }
+                }
+
+                &.single {
+                  .access-control-changed-item-permissions {
+                    .permission-state-view:not(.added):not(.removed) {
+                      display: none;
+                    }
+                  }
+                }
+
+                &.tree, &.subtree {
+                  .access-control-changed-item-access {
+                    display: none;
+                  }
+
+                  .access-control-changed-item-permissions {
+                    .permission-state-view {
+                      &.unchanged, &.added {
+                        background-color: @admin-green;
+                        color: @admin-white;
+                      }
+
+                      &.unset, &.removed {
+                        background-color: #fecacf;
+                      }
+                    }
                   }
                 }
               }

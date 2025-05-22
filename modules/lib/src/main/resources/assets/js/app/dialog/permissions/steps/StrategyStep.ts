@@ -6,8 +6,8 @@ import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
 import {RadioButton} from '@enonic/lib-admin-ui/ui/RadioButton';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
-import {ApplyPermissionsScope, ApplyPermissionsStrategy} from '../PermissionsData';
-import {HelpTextContainer} from '@enonic/lib-admin-ui/form/HelpTextContainer';
+import {ApplyPermissionsScope} from '../PermissionsData';
+import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 
 export class StrategyStep
     extends DialogStep {
@@ -19,8 +19,9 @@ export class StrategyStep
     private readonly childrenOnlyRadioButton: RadioButton;
     private readonly itemOnlyRadioButton: RadioButton;
 
-    private readonly strategyRadioGroup: RadioGroup;
     private readonly strategyContainer: Element;
+
+    private readonly strategyCheckbox: Checkbox;
 
     constructor() {
         super();
@@ -33,10 +34,8 @@ export class StrategyStep
         this.childrenOnlyRadioButton = this.applyToRadioGroup.addOption('subtree', i18n('dialog.permissions.step.apply.to.children'));
         this.setupApplyToRadioGroup();
 
-        this.strategyRadioGroup = new RadioGroup('strategy-radio-group');
+        this.strategyCheckbox = Checkbox.create().setName('strategy').setLabelText(i18n('dialog.permissions.step.strategy.overwrite')).build();
         this.strategyContainer = new DivEl('strategy-step-container');
-        this.strategyRadioGroup.addOption('merge', i18n('dialog.permissions.step.strategy.merge'));
-        this.strategyRadioGroup.addOption('reset', i18n('dialog.permissions.step.strategy.overwrite'));
         this.setupStrategyContainer();
 
         this.reset();
@@ -68,16 +67,16 @@ export class StrategyStep
         return this.container;
     }
 
-    getData(): { applyTo: ApplyPermissionsScope, strategy: ApplyPermissionsStrategy } {
+    getData(): { applyTo: ApplyPermissionsScope, reset: boolean } {
         return {
             applyTo: this.applyToRadioGroup.getValue() as ApplyPermissionsScope,
-            strategy: this.strategyRadioGroup.getValue() as ApplyPermissionsStrategy
+            reset: this.strategyCheckbox.isChecked()
         };
     }
 
     reset(): void {
         this.applyToRadioGroup.setValue('single', true);
-        this.strategyRadioGroup.setValue('merge', true);
+        this.strategyCheckbox.setChecked(false, true);
     }
 
     setTotalChildren(totalChildren: number): void {
@@ -96,27 +95,19 @@ export class StrategyStep
     private setupStrategyContainer(): void {
         this.setupStrategyRadioGroup();
 
-        this.strategyRadioGroup.onValueChanged(() => {
+        this.strategyCheckbox.onValueChanged(() => {
             this.notifyDataChanged();
         });
     }
 
     private setupStrategyRadioGroup(): void {
         this.container.appendChild(this.strategyContainer);
-
-        const labelAndHelpTextWrapper = new DivEl('strategy-label-and-help-text');
-        const applyToLabel = new LabelEl(i18n('dialog.permissions.step.strategy.label'), this.strategyRadioGroup);
-        labelAndHelpTextWrapper.appendChild(applyToLabel);
-
-        const helpText = new HelpTextContainer(i18n('dialog.permissions.step.strategy.helptext'));
-        labelAndHelpTextWrapper.appendChild(helpText.getToggler());
-
-        this.strategyContainer.appendChildren(labelAndHelpTextWrapper, helpText.getHelpText(), this.strategyRadioGroup);
+        this.strategyContainer.appendChild(this.strategyCheckbox);
     }
 
     private updateStrategyRadioGroup(): void {
         const applyToValue = this.applyToRadioGroup.getValue() as ApplyPermissionsScope;
-        this.strategyRadioGroup.setValue(applyToValue === 'single' ? 'reset' : 'merge', true);
+        this.strategyCheckbox.setChecked(false, true);
         this.strategyContainer.setVisible(applyToValue !== 'single');
     }
 }
