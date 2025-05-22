@@ -70,7 +70,6 @@
 
   .no-preview-message,
   .no-selection-message {
-
     &.icon-blocked::before {
       position: absolute;
       top: 50%;
@@ -81,8 +80,6 @@
       color: #eee;
       z-index: 1;
     }
-
-    .watermark-text(21px, true);
 
     position: static;
     top: 0;
@@ -95,6 +92,9 @@
     flex-direction: column;
 
     span {
+      .watermark-text(21px, true);
+      // overrides for watermark-text
+      position: static;
       white-space: normal;
       display: block;
     }
