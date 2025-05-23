@@ -226,8 +226,11 @@ module.exports = Object.freeze({
         RIGHT: 'right',
     },
     PART_NAME: {
+        CITY_CREATION: 'City Creation',
         CITIES_LIST: 'Cities List',
+        CONTENT_TYPES_CITIES_DISTANCE_FACET: 'Cities Distance Facet',
         PART_WITH_ERROR: 'part-with-error',
+        MY_FIRST_APP_CITY_LIST: 'City list',
     },
     PCV_MENU_ITEM: {
         INSERT: 'Insert',

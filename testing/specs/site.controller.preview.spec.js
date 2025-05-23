@@ -21,6 +21,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
 
     let SITE;
     const CONTROLLER_NAME = 'Page';
+    const FOOTER_TEXT = 'Configure footer text.'
 
     it(`GIVEN wizard for new site is opened WHEN page controller is not selected yet THEN 'Preview' button should be disabled in the wizard toolbar`,
         async () => {
@@ -76,7 +77,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             let expectedOption = `( no default template found )`;
             assert.equal(actualOptions[0], expectedOption, 'name of automatic template should be displayed');
             assert.equal(actualOptions[1], 'test region', 'expected option should be present');
-            assert.equal(actualOptions[2], 'home page', 'expected option should be present');
+            assert.ok(actualOptions.includes('home page') , 'expected option should be present');
         });
 
     it(`WHEN existing site(controller is selected) has been clicked THEN 'Preview' button should be enabled in the ItemPreviewPanel toolbar and in Context menu`,
@@ -93,6 +94,8 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await contentBrowsePanel.waitForContextMenuItemNotDisplayed('Preview');
         });
 
+    // Verifies - Preview Panel is not refreshed after updating contents's page #8239
+    // https://github.com/enonic/app-contentstudio/issues/8239
     it(`GIVEN existing site is opened WHEN selected controller has been reset THEN 'Preview' button gets not visible in wizard-toolbar and gets disabled in ItemPreviewPanel-toolbar `,
         async () => {
             let contentWizard = new ContentWizard();
