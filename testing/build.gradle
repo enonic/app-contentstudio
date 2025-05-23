@@ -24,6 +24,7 @@ def contentStudioAppUrl = project.hasProperty('contentStudioAppUrl') ? contentSt
 dependencies {
     distro "com.enonic.xp:enonic-xp-generic:$xpVersion@zip"
     apps "com.enonic.uitest:test-application:1.0.0-SNAPSHOT"
+    apps "com.enonic.uitest:simple-page:1.0.0-SNAPSHOT"
 }
 
 tasks.register( 'unpackDistro', Copy ) {
