@@ -29,7 +29,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessag
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.jaxrs.JaxRsComponent;
-import com.enonic.xp.page.DescriptorKey;
+import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.page.PageDescriptorService;
 import com.enonic.xp.page.PageDescriptors;

@@ -2,6 +2,9 @@ package com.enonic.xp.app.contentstudio.rest.resource.content.page.layout;
 
 import java.util.stream.Collectors;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
@@ -13,16 +16,13 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.json.content.page.region.LayoutDescriptorJson;
 import com.enonic.xp.app.contentstudio.json.content.page.region.LayoutDescriptorsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.content.JsonObjectsFactory;
+import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.jaxrs.JaxRsComponent;
-import com.enonic.xp.page.DescriptorKey;
 import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.LayoutDescriptorService;
 import com.enonic.xp.region.LayoutDescriptors;
@@ -55,9 +55,9 @@ public final class LayoutDescriptorResource
     {
         final LayoutDescriptors descriptors = layoutDescriptorService.getByApplication( ApplicationKey.from( applicationKey ) );
 
-        return new LayoutDescriptorsJson( descriptors.stream()
-                                              .map( l -> jsonObjectsFactory.createLayoutDescriptorJson( l, request.getLocales() ) )
-                                              .collect( Collectors.toUnmodifiableList() ) );
+        return new LayoutDescriptorsJson(
+            descriptors.stream().map( l -> jsonObjectsFactory.createLayoutDescriptorJson( l, request.getLocales() ) ).collect(
+                Collectors.toUnmodifiableList() ) );
     }
 
     @POST
@@ -66,9 +66,9 @@ public final class LayoutDescriptorResource
     public LayoutDescriptorsJson getByApplications( final GetByApplicationsParams params, @Context HttpServletRequest request )
     {
         final LayoutDescriptors layoutDescriptors = layoutDescriptorService.getByApplications( params.getApplicationKeys() );
-        return new LayoutDescriptorsJson( layoutDescriptors.stream()
-                                              .map( l -> jsonObjectsFactory.createLayoutDescriptorJson( l, request.getLocales() ) )
-                                              .collect( Collectors.toUnmodifiableList() ) );
+        return new LayoutDescriptorsJson(
+            layoutDescriptors.stream().map( l -> jsonObjectsFactory.createLayoutDescriptorJson( l, request.getLocales() ) ).collect(
+                Collectors.toUnmodifiableList() ) );
     }
 
     @Reference
