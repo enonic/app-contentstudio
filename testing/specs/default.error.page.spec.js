@@ -12,16 +12,17 @@ const appConst = require('../libs/app_const');
 
 describe('default.error.page.spec tests for Default error page', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
     const CONTROLLER_NAME = 'main region';
+    const ERROR_PART_NAME = appConst.PART_NAME.PART_WITH_ERROR;
 
     it(`Preconditions: test site should be created`, async () => {
         let displayName = contentBuilder.generateRandomName('site');
-        SITE = contentBuilder.buildSite(displayName, 'description', ['First Selenium App'], CONTROLLER_NAME);
+        SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
         await studioUtils.doAddSite(SITE);
     });
 
@@ -34,20 +35,20 @@ describe('default.error.page.spec tests for Default error page', function () {
             // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. open the context menu
-            await pageComponentView.openMenu("main");
+            await pageComponentView.openMenu('main');
             // 3. click on the 'Insert Part' menu item:
-            await pageComponentView.selectMenuItem(["Insert", "Part"]);
+            await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, appConst.PCV_MENU_ITEM.PART]);
             // 4. Select the part with errors:
-            await liveFormPanel.selectPartByDisplayName("part-with-error");
+            await liveFormPanel.selectPartByDisplayName(ERROR_PART_NAME);
             await contentWizard.switchToMainFrame();
             // 5. Click on 'Preview' button:
             await contentWizard.clickOnPreviewButton();
             await studioUtils.doSwitchToNextTab();
-            await studioUtils.saveScreenshot("default-error-page");
+            await studioUtils.saveScreenshot('default-error-page');
             // 6. Verify that Default Error Page is loaded:
             let pageSource = await studioUtils.getPageSource();
-            assert.ok(pageSource.includes("500 - Internal Server Error"), "Expected title should be loaded");
-            assert.ok(pageSource.includes("D'oh!"), "Expected message should be loaded");
+            assert.ok(pageSource.includes("Error 500"), "Default error page should be loaded");
+            assert.ok(pageSource.includes("Oops, something went wrong!"), "Expected message should be loaded");
         });
 
     it("WHEN part with errors has been removed THEN new inserted component should be displayed without the red icon",

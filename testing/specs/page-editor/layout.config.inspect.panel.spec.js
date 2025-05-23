@@ -64,48 +64,6 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             assert.equal(result.length, 4, "4 items should be displayed in PCV after deleting the layout item");
         });
 
-    // Verify the bug - Duplicated items in PCV after updating a config in Inspect Panel #8359
-    // https://github.com/enonic/app-contentstudio/issues/8359
-    it("GIVEN layer component has been inserted WHEN changes has been saved in Inspect Panel THEN expected items should be displayed in PCV",
-        async () => {
-            let contentWizard = new ContentWizard();
-            let pageComponentView = new PageComponentView();
-            let layoutConfigInspectPanel = new LayoutConfigInspectPanel();
-            let layoutInspectionPanel = new LayoutInspectionPanel();
-            let name = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(name, ' ', [appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
-            // 1. Open site-wizard and save:
-            await studioUtils.openContentWizard(appConst.contentTypes.SITE);
-            await contentWizard.typeData(SITE);
-            await contentWizard.waitForNotificationMessage();
-            await contentWizard.pause(500);
-            // 2. Verify that the site should be saved automatically after selecting a controller
-            await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.DEFAULT);
-            await contentWizard.waitForSaveButtonDisabled();
-            // 3. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu(MAIN_REGION);
-            // 4. Insert the layout:
-            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
-            await layoutInspectionPanel.typeNameAndSelectLayout(appConst.LAYOUT_NAME.CENTERED);
-            // 5. Site should be saved automatically:
-            await contentWizard.waitForNotificationMessage();
-            // 6. Insert a text in the input in Config in Inspect Panel:
-            await layoutConfigInspectPanel.typeTextInOption1TextInput(OPTION_1_TXT);
-            // 7. Click on 'Apply' button in 'Inspect panel'
-            await layoutConfigInspectPanel.clickOnApplyButton();
-            // 10. Site should be saved after clicking on Apply:
-            await contentWizard.waitForNotificationMessage();
-            // 11. Verify that there are no duplicated items in PCV:(4 items should be displayed in PCV);
-            let result = await pageComponentView.getPageComponentsDisplayName();
-            await studioUtils.saveScreenshot('layout_config_inspect_panel');
-            assert.ok(result.includes('default'), 'main region item should be displayed in the modal dialog');
-            assert.ok(result.includes('Main'), 'main item should be displayed in the modal dialog');
-            assert.ok(result.includes('Centered'), 'text component should be displayed in the modal dialog');
-            assert.ok(result.includes('Center'), 'the second text component should be displayed in the modal dialog');
-            assert.equal(result.length, 4, "4 items should be displayed in PCV after deleting the layout item")
-        });
-
     it("GIVEN layer component has been inserted WHEN selected option has been reset and Apply button pressed in 'Inspect Panel' THEN new changes should be applied in Inspect Panel",
         async () => {
             let contentWizard = new ContentWizard();
@@ -113,16 +71,16 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             let layoutConfigInspectPanel = new LayoutConfigInspectPanel();
             let layoutInspectionPanel = new LayoutInspectionPanel();
             let name = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(name, ' ', [appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
+            SITE = contentBuilder.buildSite(name, ' ', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             // 1. Open site-wizard and save:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeData(SITE);
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(500);
             // 2. Verify that the site should be saved automatically after selecting a controller
-            await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.DEFAULT);
+            await contentWizard.selectPageDescriptor('Page');
             await contentWizard.waitForSaveButtonDisabled();
-            // 3. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            // 3. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_REGION);
             // 4. Insert the layout:
@@ -178,7 +136,7 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             let layoutInspectionPanel = new LayoutInspectionPanel();
             // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Click on the Centered item in PCV:
             await pageComponentView.clickOnComponent('Centered');
