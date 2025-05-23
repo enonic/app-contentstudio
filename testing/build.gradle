@@ -9,6 +9,7 @@ group = 'com.enonic.app.contentstudio.js_testing'
 
 configurations {
     distro
+    apps
 }
 
 def unpackDir = layout.buildDirectory.dir("install").get()
@@ -22,6 +23,8 @@ def contentStudioAppUrl = project.hasProperty('contentStudioAppUrl') ? contentSt
 
 dependencies {
     distro "com.enonic.xp:enonic-xp-generic:$xpVersion@zip"
+    // apps "com.enonic.uitest.test-application:1.0.0-SNAPSHOT"
+    apps "com.enonic.app.chucknorris:2.2.5"
 }
 
 tasks.register( 'unpackDistro', Copy ) {
@@ -62,6 +65,14 @@ tasks.register( 'copyApps', Copy ) {
     from file( appDir )
     include '*.jar'
     into file( deployDir )
+    mustRunAfter unpackDistro
+}
+
+tasks.register( 'downloadApps', Copy ) {
+    from {
+        configurations.apps
+    }
+    into deployDir
     mustRunAfter unpackDistro
 }
 
@@ -133,7 +144,7 @@ tasks.register( 'generateReportAndStopServer', NpmTask ) {
 
 ///////////////// CHROME WDIO , startServer, copyApps
 tasks.register( 'w_testInputTypes', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, copyConfig, startServer )
+    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_input_types:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -144,7 +155,7 @@ tasks.register( 'w_testInputTypesLocal', NpmTask ) {
 }
 
 tasks.register( 'w_testInputTypes_2', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, copyConfig, startServer )
+    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_input_types_2:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -155,7 +166,7 @@ tasks.register( 'w_testInputTypes_2_Local', NpmTask ) {
 }
 
 tasks.register( 'w_testModalDialog', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, copyConfig, startServer )
+    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_modal_dialog:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -166,7 +177,7 @@ tasks.register( 'w_testModalDialogLocal', NpmTask ) {
 }
 
 tasks.register( 'w_testWizardsGrid', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, copyConfig, startServer )
+    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_wizards_grid:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -177,7 +188,7 @@ tasks.register( 'w_testWizardsGridLocal', NpmTask ) {
 }
 
 tasks.register( 'w_testPublishIssues', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, copyConfig, startServer )
+    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_publish_issues:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -187,25 +198,25 @@ tasks.register( 'w_testPublishIssuesLocal', NpmTask ) {
 }
 
 tasks.register( 'w_testProjects', NpmTask ) {
-    dependsOn ( npmInstall, copyApps,copyConfig, copyConfig,  startServer )
+    dependsOn ( npmInstall, copyApps, downloadApps,copyConfig, copyConfig,  startServer )
     args = ['run-script', 'test_project:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 
 tasks.register( 'w_miscTests', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, copyConfig, startServer )
+    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_misc:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 
 tasks.register( 'w_testProjects_2', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, copyConfig, startServer )
+    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_project_2:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 
 tasks.register( 'testProjects_multi', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, copyConfig, startServer, copyProjectMultiConfig )
+    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer, copyProjectMultiConfig )
     args = ['run-script', 'test_project_multi:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -216,7 +227,7 @@ tasks.register( 'w_testProjectsLocal', NpmTask ) {
 }
 
 tasks.register( 'w_testPageEditor', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, copyConfig, startServer )
+    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_page_editor:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -227,7 +238,7 @@ tasks.register( 'w_testPageEditorLocal', NpmTask ) {
 }
 
 tasks.register( 'w_testExcludeDependencies', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, copyConfig, copyCustomConfig, startServer )
+    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, copyCustomConfig, startServer )
     args = ['run-script', 'test_exclude_dependencies:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
