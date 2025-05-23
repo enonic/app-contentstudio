@@ -8,10 +8,14 @@ import * as Q from 'q';
 export class PageDescriptorDropdown
     extends ComponentDescriptorsDropdown {
 
-    constructor(contentId: ContentId) {
+    constructor(contentId?: ContentId) {
         super();
 
-        this.setComponentType(PageComponentType.get()).setContentId(contentId);
+        this.setComponentType(PageComponentType.get());
+
+        if (contentId) {
+            this.setContentId(contentId);
+        }
     }
 
     onLoadedData(listener: (event: LoadedDataEvent<Descriptor>) => Q.Promise<void>) {

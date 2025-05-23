@@ -130,7 +130,7 @@ export class TextInspectionPanel
                 .setNodeChangeHandler(editorValueChangedHandler)
                 .setEditableSourceCode(isEditable)
                 .setContent(this.liveEditModel.getContent())
-                .setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys())
+                .setApplicationKeys(this.liveEditModel.getSiteModel()?.getApplicationKeys())
                 .setCustomStylesToBeUsed(true)
                 .build();
 

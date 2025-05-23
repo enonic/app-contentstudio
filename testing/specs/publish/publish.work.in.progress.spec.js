@@ -79,6 +79,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             //7 . Verify that the status is UNPUBLISHED  in the wizard
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.UNPUBLISHED, 'The content should be Unpublished');
+            // TODO
             // 8. Verify that PUBLISH button gets visible in 'Default Action'
             await contentWizard.waitForPublishButtonDisplayed();
             // 9. Verify that Save button is disabled:

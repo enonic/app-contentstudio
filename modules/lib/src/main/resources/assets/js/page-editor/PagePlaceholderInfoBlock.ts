@@ -1,5 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ContentType} from '../app/inputtype/schema/ContentType';
 
 export class PagePlaceholderInfoBlock
     extends DivEl {
@@ -8,13 +9,19 @@ export class PagePlaceholderInfoBlock
 
     private readonly line2: DivEl;
 
-    constructor() {
+    constructor(contentType?: ContentType) {
         super('page-placeholder-info');
 
         this.line1 = new DivEl('page-placeholder-info-line1');
         this.line2 = new DivEl('page-placeholder-info-line2');
 
         this.appendChildren(this.line1, this.line2);
+
+        if (contentType) {
+            this.setTextForContent(contentType.getDisplayName());
+        } else {
+            this.setEmptyText();
+        }
     }
 
     setTextForContent(contentTypeDisplayName: string): PagePlaceholderInfoBlock {
