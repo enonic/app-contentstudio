@@ -16,18 +16,12 @@ export class OpenEditPermissionsDialogEvent
 
     private readonly permissions: AccessControlList;
 
-    private readonly inheritPermissions: boolean;
-
-    private readonly overwritePermissions: boolean;
-
     constructor(builder: Builder) {
         super();
         this.contentId = builder.contentId;
         this.contentPath = builder.contentPath;
         this.displayName = builder.displayName;
         this.permissions = builder.permissions;
-        this.inheritPermissions = builder.inheritPermissions;
-        this.overwritePermissions = builder.overwritePermissions;
     }
 
     public getContentId(): ContentId {
@@ -44,14 +38,6 @@ export class OpenEditPermissionsDialogEvent
 
     public getPermissions(): AccessControlList {
         return this.permissions;
-    }
-
-    public isInheritPermissions(): boolean {
-        return this.inheritPermissions;
-    }
-
-    public isOverwritePermissions(): boolean {
-        return this.overwritePermissions;
     }
 
     public static create(): Builder {
@@ -77,10 +63,6 @@ export class Builder {
 
     permissions: AccessControlList = null;
 
-    inheritPermissions: boolean = true;
-
-    overwritePermissions: boolean = false;
-
     public setContentId(value: ContentId): Builder {
         this.contentId = value;
         return this;
@@ -101,22 +83,11 @@ export class Builder {
         return this;
     }
 
-    public setInheritPermissions(value: boolean): Builder {
-        this.inheritPermissions = value;
-        return this;
-    }
-
-    public setOverwritePermissions(value: boolean): Builder {
-        this.overwritePermissions = value;
-        return this;
-    }
-
     public applyContent(content: Content): Builder {
         this.contentId = content.getContentId();
         this.contentPath = content.getPath();
         this.displayName = content.getDisplayName();
         this.permissions = content.getPermissions();
-        this.inheritPermissions = content.isInheritPermissionsEnabled();
         return this;
     }
 

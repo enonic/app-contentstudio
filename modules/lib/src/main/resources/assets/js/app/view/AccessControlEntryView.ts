@@ -7,6 +7,7 @@ import {Permission} from '../access/Permission';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {PrincipalContainerSelectedEntryView} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
 import {AccessChangedEvent} from '../security/AccessChangedEvent';
+import {all} from 'q';
 
 export class AccessControlEntryView
     extends PrincipalContainerSelectedEntryView<AccessControlEntry> {
@@ -41,7 +42,7 @@ export class AccessControlEntryView
             this.initPermissionSelector();
         }
 
-        this.permissionSelector.setValue({allow: this.item.getAllowedPermissions(), deny: this.item.getDeniedPermissions()}, true);
+        this.permissionSelector.setValue({allow: this.item.getAllowedPermissions()}, true);
     }
 
     private initAccessSelector(): void {
@@ -118,29 +119,31 @@ export class AccessControlEntryView
         let permissions = this.permissionSelector.getValue();
         let ace = new AccessControlEntry(this.item.getPrincipal());
         ace.setAllowedPermissions(permissions.allow);
-        ace.setDeniedPermissions(permissions.deny);
         return ace;
     }
 
-
     public static getAccessValueFromEntry(ace: AccessControlEntry): Access {
-        if (ace.getDeniedPermissions().length > 0) {
-            return Access.CUSTOM;
-        }
-
         const allowedPermissions = ace.getAllowedPermissions();
-        if (this.onlyFullAccess(allowedPermissions)) {
+        return AccessControlEntryView.getAccessValueFromPermissions(allowedPermissions);
+    }
+
+    public static getAccessValueFromPermissions(allowedPermissions: Permission[]): Access {
+        if (this.isFullAccess(allowedPermissions)) {
             return Access.FULL;
         }
+
         if (this.canOnlyPublish(allowedPermissions)) {
             return Access.PUBLISH;
         }
+
         if (this.canOnlyWrite(allowedPermissions)) {
             return Access.WRITE;
         }
+
         if (this.canOnlyRead(allowedPermissions)) {
             return Access.READ;
         }
+
         return Access.CUSTOM;
     }
 
@@ -164,8 +167,7 @@ export class AccessControlEntryView
     }
 
     private static canPublish(allowed: Permission[]): boolean {
-        return this.canWrite(allowed) &&
-               allowed.indexOf(Permission.PUBLISH) >= 0;
+        return this.canWrite(allowed) && allowed.indexOf(Permission.PUBLISH) >= 0;
     }
 
     private static canOnlyPublish(allowed: Permission[]): boolean {
@@ -174,12 +176,7 @@ export class AccessControlEntryView
 
     private static isFullAccess(allowed: Permission[]): boolean {
         return this.canPublish(allowed) &&
-               allowed.indexOf(Permission.READ_PERMISSIONS) >= 0 &&
                allowed.indexOf(Permission.WRITE_PERMISSIONS) >= 0;
-    }
-
-    private static onlyFullAccess(allowed: Permission[]): boolean {
-        return this.isFullAccess(allowed) && allowed.length === 7;
     }
 
     private getPermissionsValueFromAccess(access: Access): { allow: Permission[]; deny: Permission[] } {
@@ -188,7 +185,6 @@ export class AccessControlEntryView
             deny: []
         };
     }
-
 
     private getPermissionsByAccess(access: Access): Permission[] {
         if (access === Access.FULL) {
@@ -211,7 +207,7 @@ export class AccessControlEntryView
     }
 
     private getFullPermissions(): Permission[] {
-        return [Permission.READ_PERMISSIONS, Permission.WRITE_PERMISSIONS, ...this.getPublishPermissions()];
+        return [Permission.WRITE_PERMISSIONS, ...this.getPublishPermissions()];
     }
 
     private getPublishPermissions(): Permission[] {

@@ -1,16 +1,288 @@
 .edit-permissions-dialog {
 
   &.is-processing {
-    .overwrite-child-check,
-    .inherit-perm-check,
-    .form-view {
-      display: none;
+    .modal-dialog-body {
+      .dialog-content {
+        .steps-container {
+          display: none;
+        }
+      }
     }
   }
 
-  .modal-dialog-header {
-    .sub-title {
-      margin-top: 15px;
+  .modal-dialog-body {
+    padding-top: 16px;
+
+    .dialog-content {
+      margin-top: 32px;
+      margin-bottom: 16px;
+
+      .steps-container {
+        .main-access-step {
+          .principals-access-container {
+            margin-bottom: 24px;
+
+            display: grid;
+            grid-template-columns: 1fr auto;
+            grid-template-areas:
+              "label copy"
+              "list list";
+
+            label {
+              grid-area: label;
+              display: flex;
+              align-items: center;
+            }
+
+            .copy-from-parent-button {
+              grid-area: copy;
+              background-color: @admin-white;
+              padding: 4px;
+
+              span {
+                font-size: 12px;
+                color: @admin-black;
+              }
+            }
+
+            .principal-combobox {
+              grid-area: list;
+            }
+
+          }
+
+          .radio-group {
+            padding: 0 4px;
+
+            .radio-button {
+              .label-text{
+                margin-left: 4px;
+              }
+            }
+          }
+        }
+
+        .summary-step {
+          .summary-data-list {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            grid-auto-rows: 20px;
+            column-gap: 10px;
+            row-gap: 4px;
+
+            dt {
+              white-space: pre;
+              text-overflow: ellipsis;
+              justify-self: end;
+              color: @admin-font-gray2;
+              font-size: 14px;
+            }
+
+            dd {
+              .ellipsis();
+              font-size: 14px;
+
+              > button {
+                .button(@admin-button-blue2, transparent, @admin-button-blue3);
+                padding: 0;
+              }
+            }
+
+            .access-mode-line {
+              span:first-child {
+                text-decoration: line-through;
+                margin-right: 4px;
+              }
+            }
+
+            &.no-principals-changed {
+              .summary-principals-line, .summary-principals-label, .strategy-principals-label, .strategy-principals-line {
+                display: none;
+              }
+            }
+
+            &.single {
+              .strategy-principals-label, .strategy-principals-line {
+                display: none;
+              }
+            }
+          }
+
+          .details-container {
+            margin-top: 16px;
+
+            .access-control-changed-items-list {
+              padding: 0 10px;
+
+              .access-control-changed-item-view {
+                margin-top: 8px;
+
+                .access-control-changed-item-principal-with-status {
+                  display: grid;
+                  grid-template-columns: 1fr 120px;
+
+                  .access-control-changed-item-access {
+                    place-self: center;
+                  }
+                }
+
+                .access-control-changed-item-permissions {
+                  display: flex;
+                  margin: 8px 0;
+
+                  .permission-state-view {
+                    margin: 5px;
+                    border-radius: 10px;
+                    padding: 1px 17px;
+                    border: 1px solid transparent;
+                    position: relative;
+
+                    &.unchanged {
+                      background-color: @admin-button-blue1;
+                      color: @admin-white;
+                    }
+
+                    &.unset {
+                      border-color: @admin-medium-gray-border;
+                    }
+
+                    &.added {
+                      background-color: @admin-green;
+                      color: @admin-white;
+
+                      //&::before {
+                      //  position: absolute;
+                      //  left: 8px;
+                      //  content: '+';
+                      //}
+                    }
+
+                    &.removed {
+                      background-color: #fecacf;
+
+                      //&::before {
+                      //  position: absolute;
+                      //  left: 10px;
+                      //  content: '-';
+                      //}
+                    }
+                  }
+                }
+
+                &.removed {
+                  .xp-admin-common-main-name {
+                    text-decoration: line-through;
+                  }
+                }
+
+                &.single {
+                  .access-control-changed-item-permissions {
+                    .permission-state-view:not(.added):not(.removed) {
+                      display: none;
+                    }
+                  }
+                }
+
+                &.tree, &.subtree {
+                  .access-control-changed-item-access {
+                    display: none;
+                  }
+
+                  .access-control-changed-item-permissions {
+                    .permission-state-view {
+                      &.unchanged, &.added {
+                        background-color: @admin-green;
+                        color: @admin-white;
+                      }
+
+                      &.unset, &.removed {
+                        background-color: #fecacf;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        .strategy-step {
+          .strategy-step-container {
+            margin-top: 24px;
+
+            .strategy-label-and-help-text {
+              .help-text-toggler {
+                display: inline-block;
+                float: none;
+                margin-left: 8px;
+              }
+
+              .radio-button.disabled {
+                opacity: 0.5;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &.@{_COMMON_PREFIX}modal-dialog {
+    .modal-dialog-wrapper {
+      .modal-dialog-header {
+        background-color: @admin-bg-light-gray;
+        padding-bottom: 12px;
+
+        .sub-title {
+          margin-top: 15px;
+        }
+
+        .@{_COMMON_PREFIX}wrapper {
+          width: 32px;
+          height: 32px;
+
+          .font-icon-default {
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+          }
+        }
+      }
+    }
+  }
+
+  .dialog-buttons {
+    .button-container {
+      > .forward-action {
+         display: none !important;
+      }
+
+      .dropdown-dialog-menu.edit-permissions-dialog-menu {
+        .@{_COMMON_PREFIX}dropdown-handle {
+          visibility: visible;
+          .button-background(@bg: @admin-button-blue2);
+        }
+      }
+    }
+
+    &.first-step {
+      .button-container {
+        .dialog-button.back-action {
+          visibility: visible;
+        }
+      }
+    }
+  }
+
+  .dialog-buttons.last-step {
+    .button-container {
+      > .forward-action {
+        display: flex !important;
+      }
+
+      .menu-button {
+        display: none;
+      }
     }
   }
 
@@ -27,7 +299,6 @@
   }
 
   .principal-combobox {
-
     .access-control-list {
       padding: 5px 0;
 
