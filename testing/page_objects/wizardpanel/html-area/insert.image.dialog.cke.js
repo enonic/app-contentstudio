@@ -292,7 +292,7 @@ class InsertImageDialog extends Page {
         let imageSelectorDropdown = new ImageSelectorDropdown();
         // parent locator = ImageModalDialog
         await imageSelectorDropdown.selectFilteredImageInFlatMode(imageDisplayName, XPATH.container);
-        await this.pause(400);
+        await this.pause(1000);
     }
 
     async filterAndSelectImageByPath(path) {
@@ -362,6 +362,18 @@ class InsertImageDialog extends Page {
     async selectImageStyle(style) {
         let imageStyleSelectorDropdown = new ImageStyleSelectorDropdown();
         await imageStyleSelectorDropdown.clickOnFilteredStyle(style);
+    }
+
+    async clickOnDropdownHandle() {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        await imageSelectorDropdown.clickOnDropdownHandle(XPATH.container);
+        await this.pause(1000);
+    }
+
+    async getImagesNameInFlatMode() {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        let images = await imageSelectorDropdown.getOptionsDisplayNameInFlatMode(XPATH.container);
+        return images;
     }
 }
 

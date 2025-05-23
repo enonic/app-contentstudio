@@ -105,6 +105,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             let compareWithPublishedVersionDialog = new CompareWithPublishedVersionDialog();
             // 1. Open the modified folder(permissions updated):
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
+            await contentWizard.clickOnPageEditorToggler();
             // 2. Open 'Compare With Published Version' modal dialog
             await contentWizard.clickOnShowChangesToolbarButton();
             await compareWithPublishedVersionDialog.waitForDialogOpened();

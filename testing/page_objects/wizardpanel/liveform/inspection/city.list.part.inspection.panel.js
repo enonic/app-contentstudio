@@ -38,8 +38,8 @@ class CityListPartInspectionPanel extends BaseComponentInspectionPanel {
             let contentSelectorDropdown = new ContentSelectorDropdown();
             return await contentSelectorDropdown.selectFilteredByDisplayNameContentMulti(displayName, xpath.container);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_part_inspection');
-            throw new Error(`Part Inspection Panel - Error during selecting an option, screenshot: ${screenshot} ` + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_city_list_inspection');
+            throw new Error(`City List Inspection Panel - screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -62,16 +62,17 @@ class CityListPartInspectionPanel extends BaseComponentInspectionPanel {
             return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName("err_inspect_panel_dropdown");
-            throw new Error(`Error during clicking on dropdown handle in content selector, screenshot: ${screenshot}` + err);
+            throw new Error(`City List Inspection, screenshot: ${screenshot}` + err);
         }
     }
 
     async waitForLoaded() {
         try {
-            return await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout)
+             await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
+             await this.pause(200);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_load_inspect_panel');
-            throw new Error(`Live Edit, Part Inspection Panel is not loaded, screenshot: ${screenshot} ` + err);
+            throw new Error(`Live Edit, City List Part Inspection Panel is not loaded, screenshot: ${screenshot} ` + err);
         }
     }
 
