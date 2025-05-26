@@ -48,7 +48,7 @@ export class ContentTreeSelectorDropdown
         this.treeSelectionWrapper = new ContentTreeSelectionWrapper(this.treeList, {
             maxSelected: this.options.maxSelected,
             checkboxPosition: this.options.checkboxPosition,
-            className: 'content-tree-selector',
+            className: 'content-tree-selector filterable-listbox',
         });
 
         this.treeSelectionWrapper.hide();
@@ -129,9 +129,19 @@ export class ContentTreeSelectorDropdown
     protected doShowDropdown(): void {
         // doing in specific order so key listeners first detached from hidden list and then attached to the shown one
         if (this.isInTreeMode()) {
+            this.listBox.remove();
+            if (!this.filterAndListContainer.hasChild(this.treeSelectionWrapper)) {
+                this.filterAndListContainer.appendChild(this.treeSelectionWrapper);
+            }
+
             this.setVisibleOnDemand(this.listBox, false);
             this.setVisibleOnDemand(this.treeSelectionWrapper, true);
         } else {
+            this.treeSelectionWrapper.remove();
+
+            if (!this.filterAndListContainer.hasChild(this.listBox)) {
+                this.filterAndListContainer.appendChild(this.listBox);
+            }
             this.setVisibleOnDemand(this.treeSelectionWrapper, false);
             this.setVisibleOnDemand(this.listBox, true);
 
@@ -142,9 +152,12 @@ export class ContentTreeSelectorDropdown
         }
     }
 
-    protected doHideDropdown() {
+    protected doHideDropdown(): void {
         this.treeSelectionWrapper.setVisible(false);
         this.listBox.setVisible(false);
+
+        this.listBox.remove();
+        this.treeSelectionWrapper.remove();
     }
 
     private setVisibleOnDemand(element: Element, value: boolean): void {
@@ -254,9 +267,6 @@ export class ContentTreeSelectorDropdown
             if (!this.options.hideToggleIcon) {
                 this.modeButton.insertBeforeEl(this.optionFilterInput);
             }
-
-            this.treeSelectionWrapper.addClass('filterable-listbox');
-            this.treeSelectionWrapper.insertBeforeEl(this.selectedOptionsView);
 
             this.preSelectItems();
 
