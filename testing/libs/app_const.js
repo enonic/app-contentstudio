@@ -208,6 +208,7 @@ module.exports = Object.freeze({
     CONTROLLER_NAME: {
         DEFAULT: 'default',
         MAIN_REGION: 'main region',
+        APP_CONTENT_TYPES_PAGE: 'Page',
     },
     LAYOUT_NAME: {
         COL_3: '3-col',
@@ -221,7 +222,7 @@ module.exports = Object.freeze({
     },
     PART_NAME: {
         CITY_CREATION: 'City Creation',
-        CITIES_LIST: 'Cities List',
+        CONTENT_TYPES_CITIES_DISTANCE_FACET: 'Cities Distance Facet',
         PART_WITH_ERROR: 'part-with-error',
     },
     PCV_MENU_ITEM: {
@@ -232,7 +233,7 @@ module.exports = Object.freeze({
         SELECT_PARENT: 'Select parent',
         RESET: 'Reset',
         INSPECT: 'Inspect',
-        FRAGMENT:'Fragment',
+        FRAGMENT: 'Fragment',
         DUPLICATE: 'Duplicate',
         LAYOUT: 'Layout',
     },
@@ -344,7 +345,7 @@ module.exports = Object.freeze({
         IMG_SELECTOR_0_0: 'imageselector0_0',
         IMG_SELECTOR_0_1: 'imageselector0_1',
         IMG_SELECTOR_1_1: 'imageselector1_1',
-        IMG_SEL_TOGGLE_HIDDEN:'image-sel-toggle-hidden',
+        IMG_SEL_TOGGLE_HIDDEN: 'image-sel-toggle-hidden',
         IMG_SELECTOR_2_4: 'imageselector2_4',
         DOUBLE_MIN_MAX: 'double_max',
         DOUBLE_DEFAULT_2_4: 'double2_4_def',
