@@ -22,6 +22,7 @@ import {PermissionsData} from './PermissionsData';
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {AccessControlEntry} from '../../access/AccessControlEntry';
 import {AccessControlHelper} from '../../wizard/AccessControlHelper';
+import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 
 export class EditPermissionsDialog
     extends MultiStepDialog
@@ -48,6 +49,8 @@ export class EditPermissionsDialog
     private originalValues: AccessControlEntry[];
 
     private totalChildren: number;
+
+    private confirmOverwriteDialog: ConfirmationDialog;
 
     constructor() {
         super({
@@ -78,7 +81,7 @@ export class EditPermissionsDialog
 
         this.subTitle = new H6El('sub-title').setHtml(`${i18n('dialog.permissions.applying')}...`);
 
-        this.secondaryAction = new Action().setEnabled(false);
+        this.secondaryAction = new Action(i18n('dialog.permissions.step.action.overwrite')).setEnabled(false);
 
         this.menuButton = this.getButtonRow().makeActionMenu({
             defaultAction: this.getButtonRow().getActions()[2],
@@ -100,7 +103,13 @@ export class EditPermissionsDialog
         });
 
         this.secondaryAction.onExecuted(() => {
-            this.showStep(this.summaryStep);
+            this.confirmOverwriteDialog = this.confirmOverwriteDialog ?? new ConfirmationDialog()
+                .setQuestion(i18n('dialog.permissions.confirm.overwrite.question'))
+                .setYesCallback(() => {
+                    this.doSubmit(true);
+                });
+
+            this.confirmOverwriteDialog.open();
         });
 
         this.mainStep.onDataChanged(() => {
@@ -109,20 +118,16 @@ export class EditPermissionsDialog
             this.backActionMirror.setEnabled(isChanged);
             this.secondaryAction.setEnabled(isChanged);
         });
-
-        this.strategyStep.onDataChanged(() => {
-            this.secondaryAction.setLabel(i18n('dialog.permissions.step.action.submitNow', this.getTotalItemsToApplyTo()));
-        });
     }
 
-    protected submit(): void {
+    protected doSubmit(overwrite: boolean): void {
         this.subTitle.show();
         const data = this.collectData();
         const permissions = new AccessControlList(data.permissions);
 
         const req = new ApplyContentPermissionsRequest().setId(this.contentId).setScope(data.applyTo);
 
-        if (data.reset) {
+        if (overwrite) {
             req.setPermissions(permissions);
         } else {
             const {added, removed} = AccessControlHelper.calcMergePermissions(this.originalValues, data.permissions);
@@ -135,13 +140,16 @@ export class EditPermissionsDialog
         }).catch(DefaultErrorHandler.handle).done();
     }
 
+    protected submit(): void {
+        this.doSubmit(false);
+    }
+
     private collectData(): PermissionsData {
         const strategyData = this.strategyStep.getData();
 
         return {
             permissions: this.mainStep.getData(),
             applyTo: strategyData.applyTo,
-            reset: strategyData.reset,
         }
     }
 
@@ -151,7 +159,6 @@ export class EditPermissionsDialog
         new GetDescendantsOfContentsRequest(event.getContentPath()).sendAndParse().then((ids) => {
             this.totalChildren = ids.length;
             this.strategyStep.setTotalChildren(ids.length);
-            this.secondaryAction.setLabel(i18n('dialog.permissions.step.action.submitNow', this.totalChildren + 1));
         }).catch(DefaultErrorHandler.handle);
 
         const parentPath = event.getContentPath().getParentPath();
@@ -179,12 +186,14 @@ export class EditPermissionsDialog
             this.getButtonRow().removeClass('last-step');
         } else {
             const isLastStep = this.isLastStep();
+            const data = this.collectData();
 
             if (isLastStep) {
-                this.summaryStep.setCurrentData(this.collectData());
+                this.summaryStep.setCurrentData(data);
             }
 
             this.getButtonRow().toggleClass('last-step', isLastStep);
+            this.getButtonRow().toggleClass('single', data.applyTo === 'single');
             this.backActionMirror.setEnabled(true).setLabel(i18n('dialog.multistep.previous'));
         }
     }
@@ -233,6 +242,10 @@ export class EditPermissionsDialog
         return this.getButtonRow().getActions()[1];
     }
 
+    protected getSubmitActionLabel(): string {
+        return i18n('dialog.permissions.step.action.submitNow', this.getTotalItemsToApplyTo());
+    }
+
     private getTotalItemsToApplyTo(): number {
         const applyTo = this.strategyStep.getData().applyTo;
 
@@ -245,10 +258,6 @@ export class EditPermissionsDialog
         }
 
         return this.totalChildren + 1;
-    }
-
-    protected getSubmitActionLabel(): string {
-        return i18n('dialog.permissions.step.action.submitNow', this.getTotalItemsToApplyTo());
     }
 
     isDirty(): boolean {

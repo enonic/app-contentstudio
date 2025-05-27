@@ -7,7 +7,6 @@ import {RadioButton} from '@enonic/lib-admin-ui/ui/RadioButton';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
 import {ApplyPermissionsScope} from '../PermissionsData';
-import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 
 export class StrategyStep
     extends DialogStep {
@@ -19,10 +18,6 @@ export class StrategyStep
     private readonly childrenOnlyRadioButton: RadioButton;
     private readonly itemOnlyRadioButton: RadioButton;
 
-    private readonly strategyContainer: Element;
-
-    private readonly strategyCheckbox: Checkbox;
-
     constructor() {
         super();
 
@@ -33,10 +28,6 @@ export class StrategyStep
         this.itemAndChildrenRadioButton = this.applyToRadioGroup.addOption('tree', i18n('dialog.permissions.step.apply.to.all'));
         this.childrenOnlyRadioButton = this.applyToRadioGroup.addOption('subtree', i18n('dialog.permissions.step.apply.to.children'));
         this.setupApplyToRadioGroup();
-
-        this.strategyCheckbox = Checkbox.create().setName('strategy').setLabelText(i18n('dialog.permissions.step.strategy.overwrite')).build();
-        this.strategyContainer = new DivEl('strategy-step-container');
-        this.setupStrategyContainer();
 
         this.reset();
     }
@@ -50,7 +41,6 @@ export class StrategyStep
         applyToContainer.appendChild(this.applyToRadioGroup);
 
         this.applyToRadioGroup.onValueChanged(() => {
-            this.updateStrategyRadioGroup();
             this.notifyDataChanged();
         });
     }
@@ -67,16 +57,14 @@ export class StrategyStep
         return this.container;
     }
 
-    getData(): { applyTo: ApplyPermissionsScope, reset: boolean } {
+    getData(): { applyTo: ApplyPermissionsScope } {
         return {
             applyTo: this.applyToRadioGroup.getValue() as ApplyPermissionsScope,
-            reset: this.strategyCheckbox.isChecked()
         };
     }
 
     reset(): void {
         this.applyToRadioGroup.setValue('single', true);
-        this.strategyCheckbox.setChecked(false, true);
     }
 
     setTotalChildren(totalChildren: number): void {
@@ -88,26 +76,5 @@ export class StrategyStep
             i18n('dialog.permissions.step.apply.to.children') + (hasChildren ? ` (${totalChildren})` : ''));
         this.itemAndChildrenRadioButton.setEnabled(hasChildren);
         this.childrenOnlyRadioButton.setEnabled(hasChildren);
-
-        this.updateStrategyRadioGroup();
-    }
-
-    private setupStrategyContainer(): void {
-        this.setupStrategyRadioGroup();
-
-        this.strategyCheckbox.onValueChanged(() => {
-            this.notifyDataChanged();
-        });
-    }
-
-    private setupStrategyRadioGroup(): void {
-        this.container.appendChild(this.strategyContainer);
-        this.strategyContainer.appendChild(this.strategyCheckbox);
-    }
-
-    private updateStrategyRadioGroup(): void {
-        const applyToValue = this.applyToRadioGroup.getValue() as ApplyPermissionsScope;
-        this.strategyCheckbox.setChecked(false, true);
-        this.strategyContainer.setVisible(applyToValue !== 'single');
     }
 }

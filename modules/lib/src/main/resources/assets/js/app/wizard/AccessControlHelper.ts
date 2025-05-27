@@ -12,6 +12,7 @@ import {Content} from '../content/Content';
 import {ContentPath} from '../content/ContentPath';
 import {PermissionsHelper} from '../access/PermissionsHelper';
 import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
+import {AccessHelper} from '../security/AccessHelper';
 
 export class AccessControlHelper {
 
@@ -89,36 +90,47 @@ export class AccessControlHelper {
         const toAdd: AccessControlList = new AccessControlList();
         const toRemove: AccessControlList = new AccessControlList();
 
-        oldPermissions.forEach((originalVal) => {
-            const found = newPermissions.find((currentVal) => originalVal.getPrincipalKey().equals(currentVal.getPrincipalKey()));
+        oldPermissions.forEach((oldPerm) => {
+            const newPerm = newPermissions.find((currentVal) => oldPerm.getPrincipalKey().equals(currentVal.getPrincipalKey()));
 
-            if (found) { // was not removed
-                if (!originalVal.equals(found)) { // item was changed
+            if (newPerm) { // was not removed
+                if (!oldPerm.equals(newPerm)) { // item was changed
                     const addedPermissions = [];
                     const removedPermissions = [];
 
-                    PermissionsHelper.getAllPermissions().forEach(p => {
-                        if (found.getAllowedPermissions().indexOf(p) > -1) {
-                            addedPermissions.push(p);
-                        } else {
-                            removedPermissions.push(p);
-                        }
-                    });
+                    // for custom permissions we are saving and propagating only permissions diff
+                    if (AccessHelper.getAccessValueFromPermissions(newPerm.getAllowedPermissions()) === Access.CUSTOM) {
+                        PermissionsHelper.getAllPermissions().forEach(p => {
+                            if (newPerm.getAllowedPermissions().indexOf(p) > -1 && oldPerm.getAllowedPermissions().indexOf(p) < 0) {
+                                addedPermissions.push(p);
+                            } else if (oldPerm.getAllowedPermissions().indexOf(p) > -1 && newPerm.getAllowedPermissions().indexOf(p) < 0) {
+                                removedPermissions.push(p);
+                            }
+                        });
+                    } else { // for non-custom permissions we are saving and propagating entire principal permissions line, not just diff
+                        PermissionsHelper.getAllPermissions().forEach(p => {
+                            if (newPerm.getAllowedPermissions().indexOf(p) > -1) { // adding all enabled permissions
+                                addedPermissions.push(p);
+                            } else {
+                                removedPermissions.push(p); // and removing all disabled permissions
+                            }
+                        });
+                    }
 
                     if (addedPermissions.length > 0) {
-                        const entry = new AccessControlEntry(originalVal.getPrincipal());
+                        const entry = new AccessControlEntry(oldPerm.getPrincipal());
                         entry.setAllowedPermissions(addedPermissions);
                         toAdd.add(entry);
                     }
 
                     if (removedPermissions.length > 0) {
-                        const entry = new AccessControlEntry(originalVal.getPrincipal());
+                        const entry = new AccessControlEntry(oldPerm.getPrincipal());
                         entry.setAllowedPermissions(removedPermissions);
                         toRemove.add(entry);
                     }
                 }
             } else { // item was removed
-                toRemove.add(new AccessControlEntry(originalVal.getPrincipal()));
+                toRemove.add(new AccessControlEntry(oldPerm.getPrincipal()));
             }
         });
 

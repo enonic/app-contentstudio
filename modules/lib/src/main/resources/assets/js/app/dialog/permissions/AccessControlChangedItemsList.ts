@@ -10,8 +10,6 @@ export class AccessControlChangedItemsList
 
     private applyTo: ApplyPermissionsScope;
 
-    private resetChildPermissions: boolean;
-
     private originalValues: AccessControlEntry[] = [];
 
     private currentValues: AccessControlEntry[] = [];
@@ -21,7 +19,7 @@ export class AccessControlChangedItemsList
     }
 
     protected createItemView(item: AccessControlChangedItem, readOnly: boolean): AccessControlChangedItemView {
-        return new AccessControlChangedItemView(item, this.applyTo, this.resetChildPermissions);
+        return new AccessControlChangedItemView(item, this.applyTo);
     }
 
     protected getItemId(item: AccessControlChangedItem): string {
@@ -32,26 +30,22 @@ export class AccessControlChangedItemsList
         this.applyTo = applyTo;
     }
 
-    setResetChildPermissions(resetChildPermissions: boolean): void {
-        this.resetChildPermissions = resetChildPermissions;
-    }
-
     setOriginalValues(originalValues: AccessControlEntry[]): void {
         this.originalValues = originalValues;
     }
 
     setCurrentValues(currentValues: AccessControlEntry[]): void {
         this.currentValues = currentValues;
-        this.setItems(this.getChangedItems());
+        this.setItems(this.calcChangedItems());
     }
 
-    private getChangedItems(): AccessControlChangedItem[] {
+    private calcChangedItems(): AccessControlChangedItem[] {
         const result: AccessControlChangedItem[] = [];
 
         this.originalValues.forEach((originalVal) => {
             const found = this.currentValues.find((currentVal) => originalVal.getPrincipalKey().equals(currentVal.getPrincipalKey()));
             if (found) { // item was present before and remains
-                if (!originalVal.equals(found) || this.isOverwriteForChildren()) { // item's permissions were changed or children to be reset
+                if (!originalVal.equals(found)) { // item's permissions were changed or || this.isOverwriteForChildren()
                     result.push(new AccessControlChangedItem(originalVal.getPrincipal(),
                         {persisted: originalVal.getAllowedPermissions(), updated: found.getAllowedPermissions()}));
                 }
@@ -71,9 +65,5 @@ export class AccessControlChangedItemsList
         });
 
         return result;
-    }
-
-    private isOverwriteForChildren(): boolean {
-        return this.applyTo !== 'single' && this.resetChildPermissions;
     }
 }

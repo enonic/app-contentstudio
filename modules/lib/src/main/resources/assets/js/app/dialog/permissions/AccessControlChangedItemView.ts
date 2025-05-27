@@ -6,9 +6,12 @@ import {Permission} from '../../access/Permission';
 import * as Q from 'q';
 import {PrincipalViewer} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {EditPermissionState} from './EditPermissionState';
+import {AccessHelper} from '../../security/AccessHelper';
+import {AccessDiffView} from './AccessDiffView';
+import {Access} from '../../security/Access';
 import {PermissionsHelper} from '../../access/PermissionsHelper';
 import {PermissionStateView} from './PermissionStateView';
-import {EditPermissionState} from './EditPermissionState';
 
 export class AccessControlChangedItemView
     extends DivEl {
@@ -17,14 +20,11 @@ export class AccessControlChangedItemView
 
     private readonly applyTo: ApplyPermissionsScope;
 
-    private readonly resetChildPermissions: boolean;
-
-    constructor(item: AccessControlChangedItem, applyTo: ApplyPermissionsScope, resetChildPermissions: boolean) {
+    constructor(item: AccessControlChangedItem, applyTo: ApplyPermissionsScope) {
         super('access-control-changed-item-view');
 
         this.item = item;
         this.applyTo = applyTo;
-        this.resetChildPermissions = resetChildPermissions;
     }
 
     private getAccessValue(): string {
@@ -67,19 +67,25 @@ export class AccessControlChangedItemView
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addClass(this.applyTo);
-            this.addClass(this.resetChildPermissions ? 'reset' : 'merge');
             this.toggleClass('removed', this.isEntryRemoved());
+
             const principalViewer = new PrincipalViewer();
             principalViewer.setObject(this.item.getPrincipal());
 
             const accessEl = new SpanEl('access-control-changed-item-access');
             accessEl.setHtml(this.getAccessValue());
 
+            const prevPermissions = this.item.getPermissions().persisted;
+            const fromAccess = prevPermissions ? AccessHelper.getAccessValueFromPermissions(this.item.getPermissions().persisted) : null;
+            const currentPermissions = this.item.getPermissions().updated;
+            const toAccess = currentPermissions ? AccessHelper.getAccessValueFromPermissions(this.item.getPermissions().updated) : null;
+
             const principalAndStatusEl = new DivEl('access-control-changed-item-principal-with-status');
-            principalAndStatusEl.appendChildren(principalViewer, accessEl);
+            principalAndStatusEl.appendChild(principalViewer);
+            principalAndStatusEl.appendChildren(new AccessDiffView(fromAccess, toAccess));
             this.appendChild(principalAndStatusEl);
 
-            if (!this.isEntryRemoved()) {
+            if (toAccess === Access.CUSTOM) {
                 const permissionsEl = new DivEl('access-control-changed-item-permissions');
 
                 PermissionsHelper.getAllPermissions().forEach(permission => {

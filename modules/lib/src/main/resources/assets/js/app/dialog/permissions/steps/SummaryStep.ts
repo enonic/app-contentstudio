@@ -10,18 +10,17 @@ import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {AccessControlChangedItemsList} from '../AccessControlChangedItemsList';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ShowHideDetailsButton} from '../ShowHideDetailsButton';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {AccessModeLine} from '../AccessModeLine';
 
 export class SummaryStep
     extends DialogStep {
 
     private readonly container: Element;
 
-    private summaryList: Element;
-    private readonly principalsLine: Element;
+    private readonly summaryList: Element;
     private readonly accessModeLine: AccessModeLine;
     private readonly applyToLine: Element;
-    private readonly strategyLine: Element;
+    private readonly principalsLine: Element;
 
     private readonly toggleDetailsButton: ShowHideDetailsButton;
     private readonly changedItemsList: AccessControlChangedItemsList;
@@ -32,10 +31,10 @@ export class SummaryStep
         super();
 
         this.container = new SectionEl('summary-step');
-        this.summaryList = new DlEl('summary-data-list');
+        this.summaryList = new DlEl('summary-data-container');
+
         this.accessModeLine = new AccessModeLine();
         this.applyToLine = new DdDtEl('dd');
-        this.strategyLine = new DdDtEl('dd', 'strategy-principals-line');
         this.principalsLine = new DdDtEl('dd', 'summary-principals-line');
 
         this.toggleDetailsButton = new ShowHideDetailsButton();
@@ -69,12 +68,8 @@ export class SummaryStep
         this.accessModeLine.setAccessDiff(hadEveryoneRole, hasEveryoneRole);
 
         this.applyToLine.setHtml(this.getApplyToLine(data));
-        this.strategyLine.setHtml(
-            data.reset ? i18n('dialog.permissions.step.strategy.overwrite') : i18n(
-                'dialog.permissions.step.strategy.merge'));
 
         this.changedItemsList.setApplyTo(data.applyTo);
-        this.changedItemsList.setResetChildPermissions(data.reset);
         this.changedItemsList.setCurrentValues(data.permissions);
 
         this.toggleDetailsButton.setTotal(this.changedItemsList.getItemCount());
@@ -103,18 +98,16 @@ export class SummaryStep
             i18n('dialog.permissions.step.summary.permissions.label'));
         const accessModeLineLabel = new DdDtEl('dt').setHtml(i18n('dialog.permissions.step.summary.access.label'));
         const applyToLineLabel = new DdDtEl('dt').setHtml(i18n('dialog.permissions.step.summary.apply.label'));
-        const strategyLineLabel = new DdDtEl('dt', 'strategy-principals-label').setHtml(
-            i18n('dialog.permissions.step.summary.strategy.label'));
 
-        this.summaryList.appendChildren(accessModeLineLabel, this.accessModeLine, applyToLineLabel, this.applyToLine, strategyLineLabel,
-            this.strategyLine, principalsLineLabel, this.principalsLine);
+        this.summaryList.appendChildren(accessModeLineLabel, this.accessModeLine, applyToLineLabel, this.applyToLine);
+        this.summaryList.appendChildren(principalsLineLabel, this.principalsLine);
         this.container.appendChild(this.summaryList);
 
         this.principalsLine.appendChild(this.toggleDetailsButton);
     }
 
     private setupDetailsContainer(): void {
-        const detailsContainer = new DivEl('details-container');
+        const detailsContainer = new DivEl('summary-principals-changes-container');
         this.container.appendChild(detailsContainer);
 
         this.toggleDetailsButton.onClicked(() => {
@@ -126,42 +119,6 @@ export class SummaryStep
         this.toggleDetailsButton.setActiveChangeListener((isActive: boolean) => {
             this.changedItemsList.setVisible(isActive);
         });
-    }
-
-}
-
-class AccessModeLine
-    extends DdDtEl {
-
-    private hadEveryoneRole: boolean;
-
-    private hasEveryoneRole: boolean;
-
-    constructor() {
-        super('dd', 'access-mode-line');
-    }
-
-    setAccessDiff(hadEveryoneRole: boolean, hasEveryoneRole: boolean): void {
-        this.hadEveryoneRole = hadEveryoneRole;
-        this.hasEveryoneRole = hasEveryoneRole;
-
-        this.updateLine();
-    }
-
-    private updateLine(): void {
-        if (this.hadEveryoneRole === this.hasEveryoneRole) {
-            this.setHtml(this.getLabel(this.hasEveryoneRole));
-        } else {
-            this.removeChildren();
-            const oldValueSpan = new SpanEl().setHtml(this.getLabel(this.hadEveryoneRole));
-            const newValueSpan = new SpanEl().setHtml(this.getLabel(this.hasEveryoneRole));
-            this.appendChildren(oldValueSpan, newValueSpan);
-        }
-    }
-
-    private getLabel(hasEveryoneRole: boolean): string {
-        return hasEveryoneRole ? i18n('dialog.permissions.step.main.access.public') : i18n(
-            'dialog.permissions.step.main.access.restricted');
     }
 
 }
