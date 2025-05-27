@@ -32,6 +32,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             // 3. Expand the project selector and verify that 2 new items appeared:
             let projectSelectionDialog = await contentBrowsePanel.clickOnProjectViewerButton();
             let result = await projectSelectionDialog.getProjectsDisplayName();
+            await studioUtils.saveScreenshot('project_selection_dialog_new_projects');
             assert.ok(result.includes(PROJECT_DISPLAY_NAME_1), "Display name of the first project should be present in options");
             assert.ok(result.includes(PROJECT_DISPLAY_NAME_2), "Display name of the second project should be present in options");
         });
