@@ -41,6 +41,8 @@ describe("compare.with.published.version.dialog.spec tests for 'Show changes' mo
             await editDetailsDialog.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSaveButtonDisabled();
+            // Open preview toolbar:
+            await contentWizard.clickOnPageEditorToggler();
             // 3. Open 'Compare With Published Version' modal dialog
             await contentWizard.clickOnShowChangesToolbarButton();
             await compareWithPublishedVersionDialog.waitForDialogOpened();
@@ -66,6 +68,8 @@ describe("compare.with.published.version.dialog.spec tests for 'Show changes' mo
             await editSettingsDialog.clickOnRemoveLanguage();
             await editSettingsDialog.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
+            // Open preview toolbar
+            await contentWizard.clickOnPageEditorToggler();
             // 3. Open 'Compare With Published Version' modal dialog
             await contentWizard.clickOnShowChangesToolbarButton();
             await compareWithPublishedVersionDialog.waitForDialogOpened();

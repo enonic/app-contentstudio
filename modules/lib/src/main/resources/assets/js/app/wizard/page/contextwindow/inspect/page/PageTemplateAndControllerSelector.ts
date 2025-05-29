@@ -92,7 +92,10 @@ export class PageTemplateAndControllerSelector
 
     setModel(model: LiveEditModel): void {
         this.liveEditModel = model;
-        PageTemplateAndSelectorViewer.setDefaultPageTemplate(this.liveEditModel.getDefaultModels().getDefaultPageTemplate());
+        const defaultModels = this.liveEditModel.getDefaultModels();
+        if (defaultModels) {
+            PageTemplateAndSelectorViewer.setDefaultPageTemplate(defaultModels.getDefaultPageTemplate());
+        }
 
         if (!this.liveEditModel.getContent().isPageTemplate() && !PageState.getState()?.isFragment()) {
             this.autoOption = new PageTemplateOption();
@@ -209,8 +212,13 @@ export class PageTemplateAndControllerSelector
     private loadPageTemplates(): Q.Promise<PageTemplateOption[]> {
         const deferred = Q.defer<PageTemplateOption[]>();
 
+        const siteModel = this.liveEditModel.getSiteModel();
+        if (!siteModel) {
+            return Q([]);
+        }
+
         const loader = new PageTemplateLoader(
-            new GetPageTemplatesByCanRenderRequest(this.liveEditModel.getSiteModel().getSiteId(), this.liveEditModel.getContent().getType())
+            new GetPageTemplatesByCanRenderRequest(siteModel.getSiteId(), this.liveEditModel.getContent().getType())
         );
 
         loader.onLoadedData((event: LoadedDataEvent<PageTemplate>) => {
