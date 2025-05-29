@@ -514,13 +514,17 @@ function getTheme(): string {
     return '';
 }
 
+function isDefaultAppUrl(url: string): boolean {
+    return url.endsWith('/main') || url.indexOf('/inbound/') > 0 || url.indexOf('/outbound/') > 0;
+}
+
 async function startContentBrowser() {
     await import('lib-contentstudio/app/ContentAppPanel');
     const AppWrapper = (await import('lib-contentstudio/app/AppWrapper')).AppWrapper;
     const url: string = window.location.href;
     const commonWrapper = new AppWrapper(getTheme());
 
-    if (url.endsWith('/main')) {
+    if (isDefaultAppUrl(url)) {
         commonWrapper.selectDefaultWidget();
     } else {
         commonWrapper.onItemAdded((item: Widget) => {
