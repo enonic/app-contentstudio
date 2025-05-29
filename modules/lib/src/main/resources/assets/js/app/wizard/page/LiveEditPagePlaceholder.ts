@@ -56,16 +56,12 @@ export class LiveEditPagePlaceholder
 
     setContentType(contentType: ContentType): void {
         this.contentType = contentType;
-        if (this.pagePlaceholderInfoBlock) {
-            this.pagePlaceholderInfoBlock.setTextForContent(contentType.getDisplayName());
-        }
+        this.pagePlaceholderInfoBlock?.setTextForContent(contentType.getDisplayName());
     }
 
     setContentId(contentId: ContentId): void {
         this.contentId = contentId;
-        if (this.controllerDropdown) {
-            this.controllerDropdown?.setContentId(contentId);
-        }
+        this.controllerDropdown?.setContentId(contentId);
     }
 
     deselectOptions(): void {

@@ -213,7 +213,7 @@ export class LiveEditPageProxy
         }
 
         // load the page
-        return widgetRenderingHelper.renderWithWidget(this.liveEditModel.getContent(), viewWidget).then((loaded) => {
+        return widgetRenderingHelper.render(this.liveEditModel.getContent(), viewWidget).then((loaded) => {
 
             if (this.liveEditWindow && scrollTop) {
                 this.livejq(this.liveEditWindow.document).ready(() => this.scrollIFrameToSavedPosition(scrollTop));
@@ -221,30 +221,10 @@ export class LiveEditPageProxy
 
             return loaded;
         });
-
-
-        /*if (this.liveEditModel) {
-            if (this.liveEditModel.isRenderableContent()) {
-                if (LiveEditPageProxy.debug) {
-                    console.log(`LiveEditPageProxy.load loading page from '${pageUrl}' at ${new Date().toISOString()}`);
-                }
-
-                this.liveEditIFrame.show();
-            } else {
-
-                if (LiveEditPageProxy.debug) {
-                    console.debug('LiveEditPageProxy.load: no reason to load page, showing blank placeholder');
-                }
-
-                this.liveEditIFrame.hide();
-            }
-        }*/
     }
 
     public unload(): void {
         this.liveEditIFrame?.getEl().removeAttribute('src');
-        // this.liveEditIFrame?.remove();
-        // this.dragMask?.remove();
         this.isPageLocked = false;
 
         if (this.liveEditWindow) {

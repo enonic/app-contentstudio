@@ -122,9 +122,10 @@ function fetchSite(repository, branch, key, archive) {
         try {
             if (key) {
                 return contentLib.getSite({key});
-            } else {
-                return portalLib.getSite();
             }
+
+            return portalLib.getSite();
+
         } catch (e) {
             log.error(`Failed to fetch site: ${e.message}`);
             return null;

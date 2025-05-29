@@ -36,10 +36,10 @@ export class WizardWidgetRenderingHandler
         return i18n('field.editing.notAvailable');
     }
 
-    async renderWithWidget(summary: ContentSummary, widget): Promise<boolean> {
+    async render(summary: ContentSummary, widget): Promise<boolean> {
         this.hasControllersDeferred = Q.defer<boolean>();
         this.hasPageDeferred = Q.defer<boolean>();
-        return super.renderWithWidget(summary, widget);
+        return super.render(summary, widget);
     }
 
     protected extractWidgetData(response: Response): Record<string, never> {

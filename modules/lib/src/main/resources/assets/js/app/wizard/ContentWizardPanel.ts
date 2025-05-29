@@ -501,7 +501,6 @@ export class ContentWizardPanel
 
     protected createWizardActions(): ContentWizardActions {
         const wizardActions: ContentWizardActions = new ContentWizardActions(this);
-        // wizardActions.getShowLiveEditAction().setEnabled(false);
 
         const publishActionHandler = () => {
             if (this.hasUnsavedChanges()) {
@@ -564,18 +563,18 @@ export class ContentWizardPanel
                 // persisted item is always present now
                 // for existing content it was loaded
                 // for new content it was saved in super.doLoadData()
-                const existing: Content = this.getCurrentItem();
+                const currentItem: Content = this.getCurrentItem();
 
-                this.wizardHeader.setDisplayName(existing.getDisplayName());
-                this.wizardHeader.setName(existing.getName().toString());
+                this.wizardHeader.setDisplayName(currentItem.getDisplayName());
+                this.wizardHeader.setName(currentItem.getName().toString());
 
-                if (!this.siteModel && existing.isSite()) {
-                    this.initSiteModel(existing as Site);
+                if (!this.siteModel && currentItem.isSite()) {
+                    this.initSiteModel(currentItem as Site);
                 }
                 this.initFormContext();
-                this.liveEditModel = this.initLiveEditModel(existing);
+                this.liveEditModel = this.initLiveEditModel(currentItem);
 
-                return this.loadAndSetPageState(existing.getPage()?.clone());
+                return this.loadAndSetPageState(currentItem.getPage()?.clone());
             });
     }
 
@@ -856,16 +855,16 @@ export class ContentWizardPanel
         }
 
         this.setPersistedItem(newPersistedContent);
-        const contentClone: Content = this.getCurrentItem();
+        const currentItem: Content = this.getCurrentItem();
 
         this.initFormContext();
-        this.updateLiveEditModel(contentClone);
-        this.updateWizard(contentClone, true);
+        this.updateLiveEditModel(currentItem);
+        this.updateWizard(currentItem, true);
 
         this.debouncedEditorReload(false);
 
-        if (!ObjectHelper.equals(PageState.getState(), contentClone.getPage())) {
-            this.loadAndSetPageState(contentClone.getPage()).then(() => {
+        if (!ObjectHelper.equals(PageState.getState(), currentItem.getPage())) {
+            this.loadAndSetPageState(currentItem.getPage()).then(() => {
 
                 this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
 
@@ -876,7 +875,7 @@ export class ContentWizardPanel
                 this.togglePageComponentsViewOnDemand();
                 this.updateToolbarActions();
                 this.updateButtonsState();
-                this.wizardActions.setDeleteOnlyMode(contentClone, false);
+                this.wizardActions.setDeleteOnlyMode(currentItem, false);
 
             }).catch(DefaultErrorHandler.handle);
         }
@@ -886,13 +885,13 @@ export class ContentWizardPanel
         }
     }
 
-    private refreshLivePanel(contentClone: Content): Q.Promise<void> {
+    private refreshLivePanel(content: Content): Q.Promise<void> {
 
         return this.isRenderable().then((renderable: boolean) => {
 
             if (renderable) {
                 if (this.getPersistedItem().getPage() || this.isWithinSite()) {
-                    this.updateLiveEditModel(contentClone);
+                    this.updateLiveEditModel(content);
 
                     this.getLivePanel().clearSelectionAndInspect(renderable, false);
 
@@ -902,7 +901,7 @@ export class ContentWizardPanel
             }
 
             if (this.getPersistedItem().getPage()) {
-                this.updateLiveEditModel(contentClone);
+                this.updateLiveEditModel(content);
 
                 this.getLivePanel().clearSelectionAndInspect(renderable, false);
 
@@ -911,7 +910,7 @@ export class ContentWizardPanel
             }
 
             this.livePanel.unloadPage();
-            this.removePCV();
+            this.removePageComponentsView();
 
             return Q();
         });
@@ -1188,7 +1187,7 @@ export class ContentWizardPanel
         });
 
         PageState.getEvents().onPageReset(() => {
-            this.removePCV();
+            this.removePageComponentsView();
             this.setMarkedAsReady(false);
             this.saveChanges().catch(DefaultErrorHandler.handle);
         });
@@ -2629,7 +2628,7 @@ export class ContentWizardPanel
         if (this.isPageComponentsViewRequired()) {
             this.addPCV();
         } else {
-            this.removePCV();
+            this.removePageComponentsView();
         }
     }
 
@@ -2658,7 +2657,7 @@ export class ContentWizardPanel
         }
     }
 
-    private removePCV(): void {
+    private removePageComponentsView(): void {
         if (this.pageComponentsWizardStepForm) {
             this.pageComponentsView.dock();
 

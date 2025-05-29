@@ -18,9 +18,9 @@ export interface FrameContainerConfig {
 export class FrameContainer
     extends Panel {
 
-    private toolbar: ContentItemPreviewToolbar;
-    private proxy: LiveEditPageProxy;
-    private wrapper: DivEl;
+    private readonly toolbar: ContentItemPreviewToolbar;
+    private readonly proxy: LiveEditPageProxy;
+    private readonly wrapper: DivEl;
 
     constructor(config: FrameContainerConfig) {
         super('frame-container');

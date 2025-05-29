@@ -5,7 +5,7 @@ import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 export class ViewWidgetEvent
     extends Event {
 
-    private widget: Widget;
+    private readonly widget: Widget;
 
     constructor(widget: Widget) {
         super();

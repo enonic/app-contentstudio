@@ -582,10 +582,8 @@ export class LiveFormPanel
 
     setModel(liveEditModel: LiveEditModel) {
 
-        if (this.liveEditModel) {
-            this.liveEditModel?.getSiteModel()?.unApplicationAdded(this.reloadNeededHandler);
-            this.liveEditModel?.getSiteModel()?.unApplicationRemoved(this.reloadNeededHandler);
-        }
+        this.liveEditModel?.getSiteModel()?.unApplicationAdded(this.reloadNeededHandler);
+        this.liveEditModel?.getSiteModel()?.unApplicationRemoved(this.reloadNeededHandler);
 
         this.liveEditModel = liveEditModel;
         this.content = liveEditModel.getContent();
@@ -876,7 +874,6 @@ export class LiveFormPanel
     }
 
     private doInspectComponent(component: Component, showPanel: boolean) {
-        console.log('LiveFormPanel.doInspectComponent', component.getType(), component.getPath().toString(), showPanel);
         const showInspectionPanel = (panel: BaseInspectionPanel) =>
             this.contextWindow.showInspectionPanel(
                 getInspectParameters({
@@ -948,7 +945,6 @@ export class LiveFormPanel
 
     setEnabled(enabled: boolean): void {
         this.modifyPermissions = enabled;
-        // this.placeholder?.setEnabled(enabled);
         this.widgetRenderingHandler.setEnabled(enabled);
 
         this.insertablesPanel?.setModifyPermissions(enabled);
@@ -973,12 +969,9 @@ export class LiveFormPanel
 
     unloadPage(): void {
         this.liveEditPageProxy?.unload();
-        // this.frameContainer?.hide();
         this.availableInspectPanels.forEach(
             (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.unbindSiteModelListeners());
         this.liveEditModel = null;
-
-        // this.liveEditPageProxy.load(this.widgetRenderingHandler, this.getWidgetSelector().getSelectedWidget());
 
         this.widgetRenderingHandler.reset();
 

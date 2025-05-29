@@ -93,7 +93,7 @@ export class ContentItemPreviewPanel
         const contentSummary = item.getContentSummary();
         const widget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
 
-        return this.widgetRenderingHandler.renderWithWidget(contentSummary, widget);
+        return this.widgetRenderingHandler.render(contentSummary, widget);
     }
 
     public isItemRenderable(): Q.Promise<boolean> {

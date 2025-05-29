@@ -37,10 +37,11 @@ exports.get = function (req) {
         if (params.mode === 'inline' || params.mode === 'edit') {
             // we handle that on the client in inline and edit modes
             return widgetLib.widgetResponse(200, data);
-        } else {
-            // in other modes we leave it to browser to handle the redirect
-            return widgetLib.redirectResponse(url, data);
         }
+
+        // in other modes we leave it to browser to handle the redirect
+        return widgetLib.redirectResponse(url, data);
+
     } catch (e) {
         log.error(`Site [${req.method}] error: ${e.message}`);
         return widgetLib.widgetResponse(500);
@@ -55,11 +56,7 @@ exports.canRender = function (req) {
         return false;
     }
 
-    if (params.type === SHORTCUT_TYPE || params.archive) {
-        return false;
-    }
-
-    return true;
+    return params.type !== SHORTCUT_TYPE && !params.archive;
 }
 
 function createUrl(req, params) {
@@ -76,8 +73,7 @@ function collectResponseData(req, params, url) {
     const messages = [];
     const i18n = widgetLib.i18nFn(req);
 
-    const appsMissing = hasMissingApps(appKeys);
-    if (appsMissing) {
+    if (hasMissingApps(appKeys)) {
         messages.push(i18n('field.preview.missing.description'));
     }
 
@@ -88,7 +84,7 @@ function collectResponseData(req, params, url) {
 
     return {
         messages: messages.length ? messages : undefined,
-        hasControllers: /*!params.auto &&*/ hasControllers,
+        hasControllers,
         hasPage: isPageOrFragment,
         redirect: url
     }
@@ -109,32 +105,6 @@ function hasAvailableControllers(params, appKeys) {
         log.error(`Failed to switch context: ${e.message}`);
         throw e;
     });
-}
-
-function hasSupportingTemplates(site, params) {
-    if (!site) {
-        return false;
-    }
-
-    return widgetLib.queryContent(params, {
-        contentTypes: [TEMPLATE_TYPE],
-        query: '_path LIKE "/content' + site._path + '*"',
-        count: 3,
-        filters: {
-            boolean: {
-                must: [
-                    {
-                        hasValue: {
-                            field: "data.supports",
-                            values: [
-                                params.type
-                            ]
-                        }
-                    }
-                ]
-            }
-        }
-    }).total > 0;
 }
 
 function hasPageOrFragment(params) {

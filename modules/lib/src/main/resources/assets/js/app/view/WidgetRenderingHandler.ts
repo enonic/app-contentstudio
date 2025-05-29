@@ -25,37 +25,17 @@ export enum PREVIEW_TYPE {
     MISSING,
 }
 
-export interface WidgetRenderer
-    extends Element {
-
-    getIFrameEl(): IFrameEl;
-
-    getChildrenContainer(): DivEl;
-
-    getPreviewAction(): Action;
-
-    getWidgetSelector(): PreviewWidgetDropdown;
-
-    getMask(): Mask;
-}
-
 export class WidgetRenderingHandler {
 
     private WIDGET_HEADER_NAME = 'enonic-widget-data';
 
-    private frame: IFrameEl;
-
     protected readonly renderer: WidgetRenderer;
-
-    private mask: Mask;
 
     private previewType: PREVIEW_TYPE;
 
     private itemRenderable: Q.Promise<boolean> = Q(false);
 
     private previewHelper: PreviewActionHelper;
-
-    private previewAction: Action;
 
     private emptyView: DivEl;
 
@@ -70,9 +50,6 @@ export class WidgetRenderingHandler {
 
     constructor(renderer: WidgetRenderer) {
         this.renderer = renderer;
-        this.frame = renderer.getIFrameEl();
-        this.previewAction = renderer.getPreviewAction();
-        this.mask = renderer.getMask();
         this.mode = RenderingMode.INLINE;
         this.previewHelper = new PreviewActionHelper();
         this.emptyView = this.createEmptyView();
@@ -80,7 +57,7 @@ export class WidgetRenderingHandler {
     }
 
 
-    public async renderWithWidget(summary: ContentSummary, widget: Widget): Promise<boolean> {
+    public async render(summary: ContentSummary, widget: Widget): Promise<boolean> {
 
         const deferred = Q.defer<boolean>();
 
@@ -96,25 +73,24 @@ export class WidgetRenderingHandler {
         this.summary = summary;
 
         this.showMask();
-        if (this.previewAction) {
-            this.previewAction.setEnabled(false);
-        }
+        this.renderer.getPreviewAction()?.setEnabled(false);
 
-        return this.doIsRenderableWithWidget(summary, widget).then(([renderable, actualWidget, response, data]) => {
-            deferred.resolve(renderable);
+        return this.doRender(summary, widget).then((result) => {
+            const isRenderable = result.isRenderable();
+            deferred.resolve(isRenderable);
 
-            if (renderable !== wasRenderable) {
-                this.notifyRenderableChanged(renderable, wasRenderable);
+            if (isRenderable !== wasRenderable) {
+                this.notifyRenderableChanged(isRenderable, wasRenderable);
             }
 
-            if (renderable) {
-                this.handlePreviewSuccess(response, data);
+            if (isRenderable) {
+                this.handlePreviewSuccess(result.getResponse(), result.getData());
             } else {
                 // handle last item failure meaning no one was successful
-                this.handlePreviewFailure(response, data);
+                this.handlePreviewFailure(result.getResponse(), result.getData());
             }
 
-            return renderable;
+            return isRenderable;
         });
     }
 
@@ -132,17 +108,17 @@ export class WidgetRenderingHandler {
     }
 
     protected createEmptyView(): DivEl {
-        const selectorText: SpanEl = new SpanEl();
-        selectorText.setHtml(i18n('panel.noselection'));
-        const noSelectionMessage = new DivEl('no-selection-message');
-        noSelectionMessage.appendChild(selectorText);
-        return noSelectionMessage;
+        return this.createMessageView(i18n('panel.noselection'), 'no-selection-message');
     }
 
     protected createErrorView(): DivEl {
+        return this.createMessageView(this.getDefaultMessage(), 'no-preview-message');
+    }
+
+    private createMessageView(message: string, className?: string): DivEl {
         const previewText: SpanEl = new SpanEl();
-        previewText.setHtml(this.getDefaultMessage());
-        const previewMessage = new DivEl('no-preview-message');
+        previewText.setHtml(message);
+        const previewMessage = new DivEl(className);
         previewMessage.appendChild(previewText);
         return previewMessage;
     }
@@ -184,9 +160,7 @@ export class WidgetRenderingHandler {
     }
 
     protected handlePreviewSuccess(response: Response, data: Record<string, never>) {
-        if (this.previewAction) {
-            this.previewAction.setEnabled(true);
-        }
+        this.renderer.getPreviewAction()?.setEnabled(true);
         this.setPreviewType(PREVIEW_TYPE.WIDGET);
 
         const contentType = response.headers.get('content-type');
@@ -195,8 +169,9 @@ export class WidgetRenderingHandler {
             mainType = contentType.split('/')[0];
         }
 
-        this.frame.setClass(mainType);
-        this.frame.setSrc(response.url);
+        this.renderer.getIFrameEl()
+            .setSrc(response.url)
+            .setClass(mainType);
     }
 
     protected handlePreviewFailure(response?: Response, data?: Record<string, never>) {
@@ -240,10 +215,9 @@ export class WidgetRenderingHandler {
         return {};
     }
 
-    private async doIsRenderableWithWidget(summary: ContentSummary,
-                                           selectedWidget: Widget): Promise<[boolean, Widget, Response, Record<string, never>]> {
+    private async doRender(summary: ContentSummary, selectedWidget: Widget): Promise<RenderResult> {
         if (!selectedWidget || !summary) {
-            return [false, undefined, undefined, undefined];
+            return new RenderResult();
         }
         const isAuto = selectedWidget.getWidgetDescriptorKey().getName() === PreviewWidgetDropdown.WIDGET_AUTO_DESCRIPTOR;
         const items = isAuto ? this.renderer.getWidgetSelector().getAutoModeWidgets() : [selectedWidget];
@@ -253,7 +227,7 @@ export class WidgetRenderingHandler {
         let data: Record<string, never>;
         if (isAuto) {
             // clear previous preview url for this mode
-            this.previewHelper.setPreviewUrl(selectedWidget, undefined);
+            this.previewHelper.setPreviewUrl(selectedWidget);
         }
         for (widget of items) {
             const url = this.previewHelper.getUrl(summary, widget, this.mode) + '&auto=' + isAuto;
@@ -275,7 +249,7 @@ export class WidgetRenderingHandler {
             this.previewHelper.setPreviewUrl(selectedWidget, widget.getFullUrl());
         }
 
-        return [isOk, widget, response, data];
+        return new RenderResult(isOk, widget, response, data);
     }
 
     private isResponseOk(response: Response, isAuto: boolean) {
@@ -308,7 +282,7 @@ export class WidgetRenderingHandler {
             return;
         }
 
-        this.renderWithWidget(this.summary, event.getWidget());
+        void this.render(this.summary, event.getWidget());
     }
 
     protected handleEmulatorEvent(event: EmulatedEvent) {
@@ -320,17 +294,16 @@ export class WidgetRenderingHandler {
         // Keep no selection message intact,
         // Since no toolbar shown when no content is selected
         const subjects = [
-            this.frame.getHTMLElement(),
+            this.renderer.getIFrameEl().getHTMLElement(),
             this.messageView.getHTMLElement()
         ];
-        const isFS = event.isFullscreen();
+        const isFullscreen = event.isFullscreen();
         subjects.forEach(s => {
-            s.style.width = !isFS ? event.getWidthWithUnits() : '';
-            s.style.height = !isFS ? event.getHeightWithUnits() : '';
+            s.style.width = !isFullscreen ? event.getWidthWithUnits() : '';
+            s.style.height = !isFullscreen ? event.getHeightWithUnits() : '';
         });
 
-        const fullscreen = event.isFullscreen();
-        this.renderer.getEl().toggleClass('emulated', !fullscreen);
+        this.renderer.getEl().toggleClass('emulated', !isFullscreen);
     }
 
     protected bindListeners() {
@@ -338,16 +311,17 @@ export class WidgetRenderingHandler {
 
         EmulatorContext.get().onDeviceChanged(this.handleEmulatorEvent.bind(this));
 
-        this.frame.onLoaded((event: UIEvent) => {
+        const iframe = this.renderer.getIFrameEl();
+        iframe.onLoaded((event: UIEvent) => {
             if (this.previewType === PREVIEW_TYPE.EMPTY) {
                 return;
             }
 
             this.hideMask();
 
-            const frameWindow = this.frame.getHTMLElement()['contentWindow'];
+            const frameWindow = iframe.getHTMLElement()['contentWindow'];
 
-            switch (this.frame.getClass()) {
+            switch (iframe.getClass()) {
             case 'image':
                 this.applyImageStyles(frameWindow);
                 break;
@@ -363,20 +337,21 @@ export class WidgetRenderingHandler {
     }
 
     private frameClickHandler(frameWindow: Window, event: MouseEvent) {
-        const linkClicked: string = this.getLinkClicked(event);
-        if (linkClicked) {
-            if (!!frameWindow && !UriHelper.isNavigatingOutsideOfXP(linkClicked, frameWindow)) {
+        const clickedLink: string = this.getClickedLink(event);
+        if (clickedLink) {
+            if (!!frameWindow && !UriHelper.isNavigatingOutsideOfXP(clickedLink, frameWindow)) {
                 const contentPreviewPath = UriHelper.trimUrlParams(
-                    UriHelper.trimAnchor(UriHelper.trimWindowProtocolAndPortFromHref(linkClicked,
+                    UriHelper.trimAnchor(UriHelper.trimWindowProtocolAndPortFromHref(clickedLink,
                         frameWindow)));
-                if (!this.isNavigatingWithinSamePage(contentPreviewPath, frameWindow) && !this.isDownloadLink(contentPreviewPath)) {
+                if (!UriHelper.isNavigatingWithinSamePage(contentPreviewPath, frameWindow) &&
+                    !UriHelper.isDownloadLink(contentPreviewPath)) {
                     new ContentPreviewPathChangedEvent(contentPreviewPath).fire();
                 }
             }
         }
     }
 
-    private getLinkClicked(event: UIEvent): string {
+    private getClickedLink(event: UIEvent): string {
         if (event.target && (event.target as HTMLElement).tagName.toLowerCase() === 'a') {
             return (event.target as HTMLLinkElement).href;
         }
@@ -393,28 +368,15 @@ export class WidgetRenderingHandler {
         return '';
     }
 
-    private isNavigatingWithinSamePage(contentPreviewPath: string, frameWindow: Window): boolean {
-        const href = frameWindow.location.href;
-        return contentPreviewPath === UriHelper.trimAnchor(UriHelper.trimWindowProtocolAndPortFromHref(href, frameWindow));
-    }
-
-    private isDownloadLink(contentPreviewPath: string): boolean {
-        return contentPreviewPath.indexOf('attachment/download') > 0;
-    }
-
     public showMask() {
         if (this.renderer.isVisible()) {
-            if (this.mask) {
-                this.mask.show();
-            }
+            this.renderer.getMask()?.show();
             this.renderer.addClass('loading');
         }
     }
 
     public hideMask() {
-        if (this.mask) {
-            this.mask.hide();
-        }
+        this.renderer.getMask()?.hide();
         this.renderer.removeClass('loading');
     }
 
@@ -428,5 +390,49 @@ export class WidgetRenderingHandler {
 
     protected notifyRenderableChanged(isRenderable: boolean, wasRenderable: boolean) {
         this.renderableChangedListeners.forEach(listener => listener(isRenderable, wasRenderable));
+    }
+}
+
+export interface WidgetRenderer
+    extends Element {
+
+    getIFrameEl(): IFrameEl;
+
+    getChildrenContainer(): DivEl;
+
+    getPreviewAction(): Action;
+
+    getWidgetSelector(): PreviewWidgetDropdown;
+
+    getMask(): Mask;
+}
+
+class RenderResult {
+    private readonly renderable: boolean;
+    private readonly widget: Widget;
+    private readonly response: Response;
+    private readonly data: Record<string, never>;
+
+    constructor(renderable: boolean = false, widget?: Widget, response?: Response, data?: Record<string, never>) {
+        this.renderable = renderable;
+        this.widget = widget;
+        this.response = response;
+        this.data = data;
+    }
+
+    public isRenderable(): boolean {
+        return this.renderable;
+    }
+
+    public getWidget(): Widget {
+        return this.widget;
+    }
+
+    public getResponse(): Response {
+        return this.response;
+    }
+
+    public getData(): Record<string, never> {
+        return this.data;
     }
 }

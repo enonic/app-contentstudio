@@ -320,7 +320,6 @@ export class TextComponentView
                 if (this.isEditorReady()) {
                     this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
                 }
-                //     this.setHtml(TextComponentView.DEFAULT_TEXT, false);
             }
         } else {
             if (this.isEditorReady()) {
