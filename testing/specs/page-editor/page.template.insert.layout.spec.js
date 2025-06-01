@@ -20,7 +20,7 @@ describe('page.template.insert.layout.spec: tests for inserting a layout in page
     const SUPPORT_SITE = 'Site';
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const LAYOUT_NAME = appConst.LAYOUT_NAME.COL_3;
-    const TEST_TEXT = "test text";
+    const TEST_TEXT = 'test text';
 
     it(`Preconditions: new site should be created`,
         async () => {

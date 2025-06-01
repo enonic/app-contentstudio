@@ -5,7 +5,7 @@ const XPATH = {
     trackingIdTextInput: `//input[contains(@name,'trackingId')]`,
 };
 
-class SecondAppSiteConfiguratorDialog extends BaseSiteConfiguratorDialog {
+class SiteConfiguratorReqInputDialog extends BaseSiteConfiguratorDialog {
 
     get trackingIdTextInput() {
         return XPATH.container + `${XPATH.trackingIdTextInput}`;
@@ -22,4 +22,4 @@ class SecondAppSiteConfiguratorDialog extends BaseSiteConfiguratorDialog {
     }
 }
 
-module.exports = SecondAppSiteConfiguratorDialog;
+module.exports = SiteConfiguratorReqInputDialog;

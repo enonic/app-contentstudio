@@ -63,7 +63,6 @@ module.exports = Object.freeze({
     TEST_FOLDER_NAME: 'all-content-types-images',
     APP_CONTENT_TYPES: 'All Content Types App',
     MY_FIRST_APP: 'My First App',
-    APP_WITH_CONFIGURATOR: 'Second Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
     TAB_TITLE_PART: "/ Content",
@@ -109,9 +108,10 @@ module.exports = Object.freeze({
     TEST_APPS_NAME: {
         APP_CONTENT_TYPES: 'All Content Types App',
         SIMPLE_SITE_APP: 'Simple Site App',
-        APP_WITH_CONFIG_OPTION_SET: 'Simple Test Selenium App',
-        APP_WITH_METADATA_MIXIN: 'Third Selenium App',
+        TEST_APP_WITH_METADATA_MIXIN: 'Test Selenium App',
         MY_FIRST_APP: 'My First App',
+        TEST_SELENIUM_APP: 'Test Selenium App',
+        TEST_ADFS_PROVIDER_APP: 'Test ADFS ID Provider',
     },
 
     VERSIONS_ITEM_HEADER: {
@@ -224,6 +224,7 @@ module.exports = Object.freeze({
         CITY_CREATION: 'City Creation',
         CONTENT_TYPES_CITIES_DISTANCE_FACET: 'Cities Distance Facet',
         PART_WITH_ERROR: 'part-with-error',
+        MY_FIRST_APP_CITY_LIST: 'City list',
     },
     PCV_MENU_ITEM: {
         INSERT: 'Insert',

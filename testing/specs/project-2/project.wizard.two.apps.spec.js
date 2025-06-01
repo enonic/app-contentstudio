@@ -26,7 +26,7 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
     const LAYER_DISPLAY_NAME_2 = studioUtils.generateRandomName('layer');
-    const PARENT_APPS = [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES, appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN];
+    const PARENT_APPS = [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES, appConst.TEST_APPS_NAME.TEST_APP_WITH_METADATA_MIXIN];
 
     it(`GIVEN project with two selected apps is opened THEN expected application should be present in the wizard page`,
         async () => {
