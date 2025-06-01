@@ -47,7 +47,7 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
             assert.ok(actualApplications.includes(PARENT_APPS[1]), 'Expected application should be present in the form');
         });
 
-    ///If parent project is changed or unselected (user goes from the Applications back to the first step), Applications step should be refreshed accordingly.
+    /// If parent project is changed or unselected (user goes from the Applications back to the first step), Applications step should be refreshed accordingly.
     it(`GIVEN select a parent with applications WHEN parent project has been changed THEN 'Applications' step should be refreshed accordingly`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
