@@ -31,14 +31,14 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             let layoutConfigInspectPanel = new LayoutConfigInspectPanel();
             let layoutInspectionPanel = new LayoutInspectionPanel();
             let name = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(name, ' ', [appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
+            SITE = contentBuilder.buildSite(name, ' ', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             // 1. Open site-wizard and save:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeData(SITE);
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(500);
             // 2. Verify that the site should be saved automatically after selecting a controller
-            await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.DEFAULT);
+            await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.MAIN_REGION);
             await contentWizard.waitForSaveButtonDisabled();
             // 3. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
@@ -57,7 +57,7 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             // 11. Verify that there are no duplicated items in PCV:(4 items should be displayed in PCV);
             let result = await pageComponentView.getPageComponentsDisplayName();
             await studioUtils.saveScreenshot('layout_config_inspect_panel');
-            assert.ok(result.includes('default'), 'main region item should be displayed in the modal dialog');
+            assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
             assert.ok(result.includes('Main'), 'main item should be displayed in the modal dialog');
             assert.ok(result.includes('Centered'), 'text component should be displayed in the modal dialog');
             assert.ok(result.includes('Center'), 'the second text component should be displayed in the modal dialog');
@@ -71,16 +71,16 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             let layoutConfigInspectPanel = new LayoutConfigInspectPanel();
             let layoutInspectionPanel = new LayoutInspectionPanel();
             let name = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(name, ' ', [appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
+            SITE = contentBuilder.buildSite(name, ' ', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             // 1. Open site-wizard and save:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeData(SITE);
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(500);
             // 2. Verify that the site should be saved automatically after selecting a controller
-            await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.DEFAULT);
+            await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.APP_CONTENT_TYPES_PAGE);
             await contentWizard.waitForSaveButtonDisabled();
-            // 3. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            // 3. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_REGION);
             // 4. Insert the layout:
@@ -136,7 +136,7 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             let layoutInspectionPanel = new LayoutInspectionPanel();
             // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Click on the Centered item in PCV:
             await pageComponentView.clickOnComponent('Centered');

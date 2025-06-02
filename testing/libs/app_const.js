@@ -63,7 +63,6 @@ module.exports = Object.freeze({
     TEST_FOLDER_NAME: 'all-content-types-images',
     APP_CONTENT_TYPES: 'All Content Types App',
     MY_FIRST_APP: 'My First App',
-    APP_WITH_CONFIGURATOR: 'Second Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
     TAB_TITLE_PART: "/ Content",
@@ -109,9 +108,9 @@ module.exports = Object.freeze({
     TEST_APPS_NAME: {
         APP_CONTENT_TYPES: 'All Content Types App',
         SIMPLE_SITE_APP: 'Simple Site App',
-        APP_WITH_CONFIG_OPTION_SET: 'Simple Test Selenium App',
-        APP_WITH_METADATA_MIXIN: 'Third Selenium App',
+        TEST_APP_WITH_METADATA_MIXIN: 'Test Selenium App',
         MY_FIRST_APP: 'My First App',
+        TEST_ADFS_PROVIDER_APP: 'Test ADFS ID Provider',
     },
 
     VERSIONS_ITEM_HEADER: {
@@ -208,6 +207,7 @@ module.exports = Object.freeze({
     CONTROLLER_NAME: {
         DEFAULT: 'default',
         MAIN_REGION: 'main region',
+        APP_CONTENT_TYPES_PAGE: 'Page',
     },
     LAYOUT_NAME: {
         COL_3: '3-col',
@@ -221,8 +221,9 @@ module.exports = Object.freeze({
     },
     PART_NAME: {
         CITY_CREATION: 'City Creation',
-        CITIES_LIST: 'Cities List',
+        CONTENT_TYPES_CITIES_DISTANCE_FACET: 'Cities Distance Facet',
         PART_WITH_ERROR: 'part-with-error',
+        MY_FIRST_APP_CITY_LIST: 'City list',
     },
     PCV_MENU_ITEM: {
         INSERT: 'Insert',
@@ -232,7 +233,7 @@ module.exports = Object.freeze({
         SELECT_PARENT: 'Select parent',
         RESET: 'Reset',
         INSPECT: 'Inspect',
-        FRAGMENT:'Fragment',
+        FRAGMENT: 'Fragment',
         DUPLICATE: 'Duplicate',
         LAYOUT: 'Layout',
     },
@@ -344,7 +345,7 @@ module.exports = Object.freeze({
         IMG_SELECTOR_0_0: 'imageselector0_0',
         IMG_SELECTOR_0_1: 'imageselector0_1',
         IMG_SELECTOR_1_1: 'imageselector1_1',
-        IMG_SEL_TOGGLE_HIDDEN:'image-sel-toggle-hidden',
+        IMG_SEL_TOGGLE_HIDDEN: 'image-sel-toggle-hidden',
         IMG_SELECTOR_2_4: 'imageselector2_4',
         DOUBLE_MIN_MAX: 'double_max',
         DOUBLE_DEFAULT_2_4: 'double2_4_def',

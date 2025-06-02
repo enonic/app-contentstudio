@@ -22,9 +22,9 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site-meta');
-            SITE = contentBuilder.buildSite(displayName, 'test for metadata', [appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
+            SITE = contentBuilder.buildSite(displayName, 'test for metadata', [appConst.TEST_APPS_NAME.TEST_APP_WITH_METADATA_MIXIN]);
             //1. New site is added:
-            await studioUtils.doAddSite(SITE);
+            await studioUtils.doAddSite(SITE, true);
             //2. Type the name in the filter-panel:
             await studioUtils.typeNameInFilterPanel(displayName);
             await contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
@@ -71,12 +71,12 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('site-meta');
-            let testSite = contentBuilder.buildSite(displayName, 'test for metadata', [appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
+            let testSite = contentBuilder.buildSite(displayName, 'test for metadata', [appConst.TEST_APPS_NAME.TEST_APP_WITH_METADATA_MIXIN]);
             // 1. New site-wizard is opened:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(testSite.displayName);
             // 2. Application with controllers has been selected:
-            await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
+            await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.TEST_APP_WITH_METADATA_MIXIN]);
             // the site automatically saved:
             // 3. Description has been typed:
             await metadataStepForm.typeDescription('test description');
