@@ -2,16 +2,15 @@ const Page = require('./page');
 const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
 const AccessControlComboBox = require('./components/selectors/access.control.combobox');
+
 const xpath = {
     container: `//div[contains(@id,'EditPermissionsDialog')]`,
     accessSelector: "//div[contains(@id,'AccessSelector')]",
     contentPath: "//p[@class='path']",
-    applyButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Apply')]]`,
-    cancelButton: `//button/span[text()='Cancel']`,
-    overwriteChildPermissionsCheckbox: `//div[contains(@class,'overwrite-child')]`,
-    inheritPermissionsCheckbox: `//div[contains(@class,'inherit-perm')]`,
+    accessModeDiv: `//div[contains(@class,'access-mode-container')]`,
     permissionSelector: `//[contains(@id,'PermissionSelector')]`,
-    aceSelectedOptions: "//div[contains(@id,'ACESelectedOptionsView')]",
+    aceSelectedOptionsView: "//div[contains(@id,'ACESelectedOptionsView')]",
+    dialogButtonRow: `//div[contains(@class,'button-container')]`,
     permissionToggleByOperationName: name => `//a[contains(@id,'PermissionToggle') and text()='${name}']`,
     aclEntryByName:
         name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`,
@@ -28,24 +27,68 @@ class EditPermissionsDialog extends Page {
     }
 
     get applyButton() {
-        return xpath.container + xpath.applyButton;
+        return xpath.container + xpath.dialogButtonRow + lib.dialogButton('Apply');
     }
 
-    get overwriteChildPermissionsCheckbox() {
-        return xpath.container + xpath.overwriteChildPermissionsCheckbox;
+    get nextButton() {
+        return xpath.container + xpath.dialogButtonRow + lib.dialogButton('Next');
     }
 
-    get inheritPermissionsCheckbox() {
-        return xpath.container + xpath.inheritPermissionsCheckbox;
+    get resetButton() {
+        return xpath.container + xpath.accessModeDiv + lib.dialogButton('Reset');
+    }
+
+    get backButton() {
+        return xpath.container + xpath.dialogButtonRow + lib.dialogButton('Back');
+    }
+
+    get publicRadioButton() {
+        return xpath.container + lib.radioButtonByLabel('Public');
+    }
+
+    get restrictedRadioButton() {
+        return xpath.container + lib.radioButtonByLabel('Restricted');
     }
 
     get contentPath() {
         return xpath.container + xpath.contentPath;
     }
 
+    async waitForNextButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.nextButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_next_button');
+            throw new Error(`Next button should be disabled ${screenshot}` + err);
+        }
+    }
+
+    async waitForResetButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.resetButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_reset_button');
+            throw new Error(`Reset button should be disabled ${screenshot}` + err);
+        }
+    }
+
+    async waitForResetButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.resetButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_reset_button');
+            throw new Error(`Reset button should be enabled ${screenshot}` + err);
+        }
+    }
+
     async waitForDialogLoaded() {
-        await this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
-        return await this.pause(300);
+        try {
+            await this.waitForElementDisplayed(xpath.dialogButtonRow, appConst.mediumTimeout);
+            return await this.pause(300);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_edit_perm_dlg_not_loaded');
+            throw new Error("Edit permissions dialog was not loaded!  " + err);
+        }
     }
 
     waitForDialogClosed() {
@@ -58,21 +101,23 @@ class EditPermissionsDialog extends Page {
     }
 
     getDisplayNameOfSelectedPrincipals() {
-        let selector = xpath.container + lib.H6_DISPLAY_NAME;
+        let selector = xpath.container + xpath.aceSelectedOptionsView + lib.H6_DISPLAY_NAME;
         return this.getTextInElements(selector);
     }
 
     getNameOfAccessControlEntries() {
-        let selector = xpath.container + xpath.aceSelectedOptions + lib.P_SUB_NAME;
+        let selector = xpath.container + xpath.aceSelectedOptionsView + lib.P_SUB_NAME;
         return this.getTextInElements(selector);
     }
 
-    removeAclEntry(principalName) {
-        let selector = xpath.container + xpath.aclEntryByName(principalName) + lib.REMOVE_ICON;
-        return this.clickOnElement(selector).catch(err => {
-            this.saveScreenshot("err_remove_acl_entry");
-            throw new Error("Error when remove acl entry " + err);
-        });
+    async removeAclEntry(principalName) {
+        try {
+            let selector = xpath.container + xpath.aclEntryByName(principalName) + lib.REMOVE_ICON;
+            return await this.clickOnElement(selector)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_remove_acl_entry');
+            throw new Error(`Error when remove acl entry, screenshot: ${screenshot} ` + err);
+        }
     }
 
     // filters and select a principal
@@ -83,7 +128,7 @@ class EditPermissionsDialog extends Page {
             console.log("Edit Permissions Dialog, principal is selected: " + principalDisplayName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_perm_dlg');
-            throw new Error("Error during updating permissions, screenshot:" + screenshot + "  " + err);
+            throw new Error(`Error during updating permissions, screenshot:${screenshot}` + err);
         }
     }
 
@@ -98,8 +143,8 @@ class EditPermissionsDialog extends Page {
             //Select a menu item: Custom, Can Write, Can Read....
             return await this.clickOnElement(menuItemXpath);
         } catch (err) {
-            this.saveScreenshot('err_click_on_ace_menu_button');
-            throw new Error('Error when selecting an operation in Principal SelectedOptionView ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_ace_menu_button');
+            throw new Error(`Error when selecting an operation in Principal SelectedOptionView , ${screenshot}` + err);
         }
     }
 
@@ -112,8 +157,8 @@ class EditPermissionsDialog extends Page {
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             return await this.clickOnElement(selector);
         } catch (err) {
-            this.saveScreenshot('err_click_on_permission_toggle');
-            throw new Error('Error when clicking on Permission Toggle ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_permission_toggle');
+            throw new Error(`Error when clicking on Permission Toggle , ${screenshot}` + err);
         }
     }
 
@@ -123,17 +168,31 @@ class EditPermissionsDialog extends Page {
             await this.clickOnElement(this.applyButton);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot('err_click_on_apply_button_permis_dialog');
-            throw new Error('Error when clicking Apply dialog must be closed ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_apply_button_permis_dialog');
+            throw new Error(`Error when clicking Apply dialog must be closed screenshot:${screenshot}` + err);
         }
     }
 
     waitForApplyButtonEnabled() {
-        return this.waitForElementEnabled(this.cancelButton, appConst.mediumTimeout);
+        return this.waitForElementEnabled(this.applyButton, appConst.mediumTimeout);
     }
 
-    waitForApplyButtonDisabled() {
-        return this.waitForElementDisabled(this.applyButton, appConst.mediumTimeout);
+    async waitForApplyButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.applyButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_button');
+            throw new Error(`Apply button should be enabled, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async waitForNextButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.nextButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_next_button_disabled');
+            throw new Error(`Edit Permissions dialog, Next button should be disabled screenshot:${screenshot}` + err);
+        }
     }
 
     async isOperationAllowed(principalName, operation) {
@@ -161,25 +220,6 @@ class EditPermissionsDialog extends Page {
             await this.saveScreenshot('err_click_on_inherit_permis_dialog');
             throw new Error('Error when clicking on Inherit permissions ' + err);
         }
-    }
-
-    clickOnOverwriteChildPermissionsCheckBox() {
-        return this.clickOnElement(this.overwriteChildPermissionsCheckbox + '/label').catch(err => {
-            this.saveScreenshot('err_click_on_inherit_permis_dialog');
-            throw new Error('Error when clicking on Inherit permissions ' + err);
-        })
-    }
-
-    isInheritPermissionsCheckBoxSelected() {
-        return this.isSelected(this.inheritPermissionsCheckbox + '//input').catch(err => {
-            throw new Error('Error when checking Inherit permissions link ' + err);
-        })
-    }
-
-    isOverwriteChildPermissionsCheckBoxSelected() {
-        return this.isSelected(this.overwriteChildPermissionsCheckbox + '//input').catch(err => {
-            throw new Error('Error when checking Overwrite child permissions link ' + err);
-        })
     }
 
     async waitForAccessSelectorDisabled(principalName) {
