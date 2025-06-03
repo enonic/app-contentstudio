@@ -33,7 +33,7 @@ CKEDITOR.plugins.add('macro', {
         });
 
         editor.ui.addButton('Macro', {
-            icon: CKEDITOR.plugins.getPath('macro') + '/icons/macro.png',
+            icon: CKEDITOR.plugins.getPath('macro') + 'icons/macro.png',
             label: 'Insert macro',
             toolbar: 'tools,10',
             command: 'openMacroDialogNative'
