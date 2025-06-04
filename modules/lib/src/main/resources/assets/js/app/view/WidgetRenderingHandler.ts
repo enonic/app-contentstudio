@@ -246,7 +246,7 @@ export class WidgetRenderingHandler {
         }
         if (isAuto && isOk) {
             // don't save the final url, because they are different for different modes
-            this.previewHelper.setPreviewUrl(selectedWidget, widget.getFullUrl());
+            this.previewHelper.setPreviewUrl(selectedWidget, widget.getUrl());
         }
 
         return new RenderResult(isOk, widget, response, data);

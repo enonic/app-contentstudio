@@ -34,7 +34,6 @@ export interface ContentSummaryDiff extends Diff {
     editable?: boolean;
     childOrder?: boolean;
     language?: boolean;
-    contentState?: boolean;
     workflow?: boolean;
     originalParentPath?: boolean;
     originalName?: boolean;

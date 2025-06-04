@@ -67,7 +67,6 @@ export class ContentMoveComboBox
             .setDisplayName(i18n('field.root'))
             .setPath(ContentPath.getRoot())
             .setType(ContentTypeName.FOLDER)
-            .setContentState(new ContentState())
             .build();
     }
 

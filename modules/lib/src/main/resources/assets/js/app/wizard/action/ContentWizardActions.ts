@@ -36,7 +36,6 @@ import {ResetContentAction} from './ResetContentAction';
 import {SaveAndCloseAction} from './SaveAndCloseAction';
 import {ShowFormAction} from './ShowFormAction';
 import {ShowLiveEditAction} from './ShowLiveEditAction';
-import {UndoPendingDeleteAction} from './UndoPendingDeleteAction';
 import {UnpublishAction} from './UnpublishAction';
 
 type ActionNames =
@@ -56,8 +55,7 @@ type ActionNames =
     'CLOSE' |
     'SHOW_LIVE_EDIT' |
     'SHOW_FORM' |
-    'SAVE_AND_CLOSE' |
-    'UNDO_PENDING_DELETE';
+    'SAVE_AND_CLOSE';
 
 export class ContentWizardActions
     extends WizardActions<Content> {
@@ -93,53 +91,67 @@ export class ContentWizardActions
     private actionsUnstashedListeners: (() => void)[] = [];
 
     constructor(wizardPanel: ContentWizardPanel) {
+        const contentSaveAction = new ContentSaveAction(wizardPanel);
+        const resetContentAction = new ResetContentAction(wizardPanel);
+        const archiveContentAction = new ArchiveContentAction(wizardPanel);
+        const duplicateContentAction = new DuplicateContentAction(wizardPanel);
+        const moveContentAction = new MoveContentAction(wizardPanel);
+        const previewAction = new PreviewAction(wizardPanel);
+        const publishAction = new PublishAction(wizardPanel);
+        const publishTreeAction = new PublishTreeAction(wizardPanel);
+        const createIssueAction = new CreateIssueAction(wizardPanel);
+        const unpublishAction = new UnpublishAction(wizardPanel).setIconClass('unpublish-action');
+        const markAsReadyAction = new MarkAsReadyAction(wizardPanel);
+        const requestPublishAction = new RequestPublishAction(wizardPanel);
+        const openRequestAction = new OpenRequestAction();
+        const closeAction = new CloseAction(wizardPanel);
+        const showLiveEditAction = new ShowLiveEditAction(wizardPanel);
+        const showFormAction = new ShowFormAction(wizardPanel);
+        const saveAndCloseAction = new SaveAndCloseAction(wizardPanel);
+        const localizeContentAction = new LocalizeContentAction(wizardPanel);
+
         super(
-            new ContentSaveAction(wizardPanel),
-            new ResetContentAction(wizardPanel),
-            new ArchiveContentAction(wizardPanel),
-            new DuplicateContentAction(wizardPanel),
-            new MoveContentAction(wizardPanel),
-            new PreviewAction(wizardPanel),
-            new PublishAction(wizardPanel),
-            new PublishTreeAction(wizardPanel),
-            new CreateIssueAction(wizardPanel),
-            new UnpublishAction(wizardPanel)
-                .setIconClass('unpublish-action'),
-            new MarkAsReadyAction(wizardPanel),
-            new RequestPublishAction(wizardPanel),
-            new OpenRequestAction(),
-            new CloseAction(wizardPanel),
-            new ShowLiveEditAction(wizardPanel),
-            new ShowFormAction(wizardPanel),
-            new SaveAndCloseAction(wizardPanel),
-            new UndoPendingDeleteAction(wizardPanel),
-            new LocalizeContentAction(wizardPanel)
+            contentSaveAction,
+            resetContentAction,
+            archiveContentAction,
+            duplicateContentAction,
+            moveContentAction,
+            previewAction,
+            publishAction,
+            publishTreeAction,
+            createIssueAction,
+            unpublishAction,
+            markAsReadyAction,
+            requestPublishAction,
+            openRequestAction,
+            closeAction,
+            showLiveEditAction,
+            showFormAction,
+            saveAndCloseAction,
+            localizeContentAction
         );
 
         this.wizardPanel = wizardPanel;
 
-        const actions = this.getActions();
-
         this.actionsMap = {
-            SAVE: actions[0],
-            RESET: actions[1],
-            ARCHIVE: actions[2],
-            DUPLICATE: actions[3],
-            MOVE: actions[4],
-            PREVIEW: actions[5],
-            PUBLISH: actions[6],
-            PUBLISH_TREE: actions[7],
-            CREATE_ISSUE: actions[8],
-            UNPUBLISH: actions[9],
-            MARK_AS_READY: actions[10],
-            REQUEST_PUBLISH: actions[11],
-            OPEN_REQUEST: actions[12],
-            CLOSE: actions[13],
-            SHOW_LIVE_EDIT: actions[14],
-            SHOW_FORM: actions[15],
-            SAVE_AND_CLOSE: actions[16],
-            UNDO_PENDING_DELETE: actions[17],
-            LOCALIZE: actions[18],
+            SAVE: contentSaveAction,
+            RESET: resetContentAction,
+            ARCHIVE: archiveContentAction,
+            DUPLICATE: duplicateContentAction,
+            MOVE: moveContentAction,
+            PREVIEW: previewAction,
+            PUBLISH: publishAction,
+            PUBLISH_TREE: publishTreeAction,
+            CREATE_ISSUE: createIssueAction,
+            UNPUBLISH: unpublishAction,
+            MARK_AS_READY: markAsReadyAction,
+            REQUEST_PUBLISH: requestPublishAction,
+            OPEN_REQUEST: openRequestAction,
+            CLOSE: closeAction,
+            SHOW_LIVE_EDIT: showLiveEditAction,
+            SHOW_FORM: showFormAction,
+            SAVE_AND_CLOSE: saveAndCloseAction,
+            LOCALIZE: localizeContentAction,
         };
 
         const stashableActionsMap: ActionsMap = {
@@ -530,9 +542,5 @@ export class ContentWizardActions
 
     getShowFormAction(): Action {
         return this.actionsMap.SHOW_FORM;
-    }
-
-    getUndoPendingDeleteAction(): Action {
-        return this.actionsMap.UNDO_PENDING_DELETE;
     }
 }
