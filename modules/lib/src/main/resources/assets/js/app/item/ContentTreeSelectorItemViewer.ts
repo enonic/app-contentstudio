@@ -21,9 +21,7 @@ export class ContentTreeSelectorItemViewer
         const contentName = object.getName();
         const displayName = object.getDisplayName();
         const invalid = object.getPath().isRoot() ? false : !object.isValid() || !displayName || contentName.isUnnamed();
-        const pendingDelete = object.getContentState().isPendingDelete();
         this.toggleClass('invalid', invalid);
-        this.toggleClass('pending-delete', pendingDelete);
 
         return displayName;
     }

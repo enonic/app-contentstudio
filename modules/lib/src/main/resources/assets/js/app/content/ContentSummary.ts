@@ -66,8 +66,6 @@ export class ContentSummary {
 
     private readonly language: string;
 
-    private readonly contentState: ContentState;
-
     private readonly workflow: Workflow;
 
     private readonly inherit: ContentInheritType[];
@@ -113,7 +111,6 @@ export class ContentSummary {
         this.editable = builder.editable;
         this.childOrder = builder.childOrder;
         this.language = builder.language;
-        this.contentState = builder.contentState;
         this.workflow = builder.workflow;
         this.inherit = builder.inherit;
         this.originProject = builder.originProject;
@@ -252,10 +249,6 @@ export class ContentSummary {
         return this.language;
     }
 
-    getContentState(): ContentState {
-        return this.contentState;
-    }
-
     getWorkflow(): Workflow {
         return this.workflow;
     }
@@ -388,8 +381,6 @@ export class ContentSummaryBuilder {
 
     language: string;
 
-    contentState: ContentState;
-
     workflow: Workflow;
 
     inherit: ContentInheritType[];
@@ -435,7 +426,6 @@ export class ContentSummaryBuilder {
             this.editable = source.isEditable();
             this.childOrder = source.getChildOrder();
             this.language = source.getLanguage();
-            this.contentState = source.getContentState();
             this.workflow = source.getWorkflow();
             this.inherit = source.getInherit();
             this.originProject = source.getOriginProject();
@@ -477,7 +467,6 @@ export class ContentSummaryBuilder {
 
         this.childOrder = ChildOrder.fromJson(json.childOrder);
 
-        this.contentState = ContentState.fromString(json.contentState);
         this.workflow = Workflow.fromJson(json.workflow);
         this.inherit = json.inherit && json.inherit.length > 0 ? json.inherit.map((type: string) => ContentInheritType[type])  : [];
         this.originProject = json.originProject;
@@ -511,11 +500,6 @@ export class ContentSummaryBuilder {
 
     setIconUrl(value: string): ContentSummaryBuilder {
         this.iconUrl = value;
-        return this;
-    }
-
-    setContentState(value: ContentState): ContentSummaryBuilder {
-        this.contentState = value;
         return this;
     }
 
