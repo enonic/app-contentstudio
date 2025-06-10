@@ -33,8 +33,7 @@ class BaseBrowsePanel extends Page {
             await this.waitForElementDisplayed(this.browseToolbar, timeout);
             await this.waitForSpinnerNotVisible(timeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_switch');
-            throw new Error(`Error occurred in grid,  screenshot: ${screenshot} ` + err);
+            await this.handleError('Browse Panel, grid loading. ', 'err_grid', err);
         }
     }
 
@@ -43,12 +42,9 @@ class BaseBrowsePanel extends Page {
     }
 
     async hotKeyDelete() {
-        let status = await this.getBrowserStatus();
-        if (status.os.name.includes('Mac')) {
-            return await this.getBrowser().keys([Key.Command, Key.Delete]);
-        } else {
-            return await this.getBrowser().keys([Key.Ctrl, Key.Delete]);
-        }
+        const isMacOS = (await this.getBrowserStatus()).os.name.includes('Mac');
+        const keyCombination = isMacOS ? [Key.Command, Key.Delete] : [Key.Ctrl, Key.Delete];
+        return await this.getBrowser().keys(keyCombination);
     }
 
     async hotKeyEdit() {
@@ -77,7 +73,7 @@ class BaseBrowsePanel extends Page {
             let attr = await this.getAttribute(this.selectionPanelToggler, 'class');
             return attr.includes('any-selected');
         } catch (err) {
-            return false
+            return false;
         }
     }
 
@@ -85,21 +81,16 @@ class BaseBrowsePanel extends Page {
         try {
             await this.waitForElementNotDisplayed(this.selectionPanelToggler, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName("err_selection_toggler_should_not_visible");
-            throw new Error(`Selection toggler should not be visible, screenshot: ${screenshot} ` + err);
+            await this.handleError('Selection toggle should not be visible. ', 'err_selection_toggler_should_not_visible', err);
         }
     }
 
     //Clicks on 'circle' (Show Selection tooltip)with a number and filters items in the grid:
     async clickOnSelectionToggler() {
-        try {
-            await this.waitForSelectionTogglerVisible();
-            await this.clickOnElement(this.selectionPanelToggler);
-            return await this.pause(400);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName("err_clicking_on_selection_toggler");
-            throw new Error("Selection Toggler, screenshot: " + screenshot + '' + err);
-        }
+        await this.waitForSelectionTogglerVisible();
+        await this.clickOnElement(this.selectionPanelToggler)
+            .catch(err => this.handleError('Try to click on Selection Toggle...', 'err_clicking_selection_toggle', err));
+        return await this.pause(400);
     }
 
     //Wait for Selection Controller checkBox gets 'partial', then returns true, otherwise exception will be thrown

@@ -30,8 +30,8 @@ class WizardDetailsPanel extends BaseDetailsPanel {
         try {
             await this.getBrowser().waitUntil(async () => {
                 let el = await this.findElement(xpath.container);
-                let width = await this.getBrowser().getElementCSSValue(el.elementId, "width");
-                return getPanelWidth(width) > 150;
+                let widthValue = await this.getBrowser().getElementCSSValue(el.elementId, 'width');
+                return await this.getPanelWidth(widthValue) > 150;
             }, {timeout: appConst.mediumTimeout, timeoutMsg: "Details Panel was not loaded in " + appConst.mediumTimeout});
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_load_details');
@@ -45,7 +45,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
                 return this.getBrowser().getElementCSSValue(el.elementId, 'width');
             }).then(width => {
                 console.log("width: " + width);
-                return getPanelWidth(width) > 0;
+                return this.getPanelWidth(width) > 0;
             });
         }, {timeout: appConst.shortTimeout}).catch(err => {
             console.log("Wizard details panel is not loaded" + err);
@@ -77,10 +77,6 @@ class WizardDetailsPanel extends BaseDetailsPanel {
             await super.openDependencies();
         }
     }
-}
-
-function getPanelWidth(width) {
-    return width.substring(0, width.indexOf('px'));
 }
 
 module.exports = WizardDetailsPanel;
