@@ -1,21 +1,24 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 
+import java.util.concurrent.Callable;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.enonic.xp.content.ApplyContentPermissionsParams;
 import com.enonic.xp.content.ApplyContentPermissionsResult;
+import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
-import com.enonic.xp.task.RunnableTask;
 import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
 
@@ -82,11 +85,11 @@ public class ApplyPermissionsRunnableTaskTest
     {
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( this.contents.get( 0 ).getId(), ContextAccessor.current().getBranch(), this.contents.get( 0 ) )
-                             .addResult( this.contents.get( 1 ).getId(), ContextAccessor.current().getBranch(), this.contents.get( 1 ) )
+                             .addResult( this.contents.get( 0 ).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get( 0 ) )
+                             .addResult( this.contents.get( 1 ).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get( 1 ) )
                              .build() );
 
-        final ApplyPermissionsRunnableTask task = createAndRunTask();
+        final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
         task.createTaskResult();
 
         Mockito.verify( progressReporter, Mockito.times( 1 ) ).info( contentQueryArgumentCaptor.capture() );
@@ -103,10 +106,10 @@ public class ApplyPermissionsRunnableTaskTest
     {
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( this.contents.get( 0 ).getId(), ContextAccessor.current().getBranch(), this.contents.get( 0 ) )
+                             .addResult( this.contents.get( 0 ).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get( 0 ) )
                              .build() );
 
-        final ApplyPermissionsRunnableTask task = createAndRunTask();
+        final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
         task.createTaskResult();
 
         Mockito.verify( progressReporter, Mockito.times( 1 ) ).info( contentQueryArgumentCaptor.capture() );
@@ -123,10 +126,10 @@ public class ApplyPermissionsRunnableTaskTest
     {
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( this.contents.get( 0 ).getId(), ContextAccessor.current().getBranch(), null )
+                             .addResult( this.contents.get( 0 ).getId(), ContentConstants.BRANCH_DRAFT, null )
                              .build() );
 
-        final ApplyPermissionsRunnableTask task = createAndRunTask();
+        final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
         task.createTaskResult();
 
         Mockito.verify( progressReporter, Mockito.times( 1 ) ).info( contentQueryArgumentCaptor.capture() );
@@ -144,10 +147,10 @@ public class ApplyPermissionsRunnableTaskTest
 
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( ContentId.from( "root-content-id" ), ContextAccessor.current().getBranch(), null )
+                             .addResult( ContentId.from( "root-content-id" ), ContentConstants.BRANCH_DRAFT, null )
                              .build() );
 
-        final ApplyPermissionsRunnableTask task = createAndRunTask();
+        final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
         task.createTaskResult();
 
         Mockito.verify( progressReporter, Mockito.times( 1 ) ).info( contentQueryArgumentCaptor.capture() );
@@ -167,13 +170,13 @@ public class ApplyPermissionsRunnableTaskTest
 
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) ).
             thenReturn( ApplyContentPermissionsResult.
-                create().addResult( this.contents.get( 0 ).getId(), ContextAccessor.current().getBranch(), this.contents.get( 0 ) )
-                            .addResult( this.contents.get( 1 ).getId(), ContextAccessor.current().getBranch(), null )
-                            .addResult( this.contents.get( 2 ).getId(), ContextAccessor.current().getBranch(), null )
+                create().addResult( this.contents.get( 0 ).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get( 0 ) )
+                            .addResult( this.contents.get( 1 ).getId(), ContentConstants.BRANCH_DRAFT, null )
+                            .addResult( this.contents.get( 2 ).getId(), ContentConstants.BRANCH_DRAFT, null )
                             .
                 build() );
 
-        final ApplyPermissionsRunnableTask task = createAndRunTask();
+        final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
         task.createTaskResult();
 
         Mockito.verify( progressReporter, Mockito.times( 1 ) ).info( contentQueryArgumentCaptor.capture() );
@@ -190,5 +193,10 @@ public class ApplyPermissionsRunnableTaskTest
     {
         return AccessControlList.of( AccessControlEntry.create().principal( PrincipalKey.from( "user:system:admin" ) ).allowAll().build(),
                                      AccessControlEntry.create().principal( PrincipalKey.ofAnonymous() ).allow( READ ).build() );
+    }
+
+    private <T> T executeInContext( final Callable<T> callable )
+    {
+        return ContextBuilder.from( ContextAccessor.current() ).branch( ContentConstants.BRANCH_DRAFT ).build().callWith( callable );
     }
 }
