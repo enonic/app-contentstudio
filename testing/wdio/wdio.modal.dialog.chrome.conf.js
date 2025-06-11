@@ -7,7 +7,8 @@ const browser_version = properties.get('browser.version');
 exports.config = {
 
     specs: [
-        path.join(__dirname, '../specs/modal-dialog/*.spec.js')
+        path.join(__dirname, '../specs/modal-dialog/*.spec.js'),
+        path.join(__dirname, '../specs/permissions/*.spec.js')
     ],
     exclude: [
         path.join(__dirname, '../specs/modal-dialog/mobile.mode.preview.panel.spec.js'),
