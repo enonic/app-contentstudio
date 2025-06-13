@@ -1,3 +1,8 @@
+import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
+import {InputBuilder} from '@enonic/lib-admin-ui/form/Input';
+import {TextLine} from '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
+import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectApplicationsLoader} from '../../../../resource/applications/ProjectApplicationsLoader';
 import {ProjectApplicationsSelectedOptionsView} from './ProjectApplicationsSelectedOptionsView';
 import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
@@ -30,8 +35,6 @@ export class ProjectApplicationsComboBox
     private parentSiteConfigs: ApplicationConfig[] = [];
 
     private inheritedParentSiteConfigs: ApplicationConfig[] = [];
-
-    private isLayoutInProgress: boolean = false;
 
     protected selectedOptionsView: ProjectApplicationsSelectedOptionsView;
 
@@ -98,12 +101,28 @@ export class ProjectApplicationsComboBox
     }
 
     layoutApplicationConfigs(applicationConfigs: ApplicationConfig[]): Q.Promise<void> {
-        this.isLayoutInProgress = true;
         this.resetSelection();
 
-        return this.layoutSelectedApps(applicationConfigs).then(() => {
-            this.isLayoutInProgress = false;
+        return this.layoutSelectedApps(applicationConfigs);
+    }
+
+    addAndUpdatePortalApp(baseUrl: string): void {
+        if (!this.isSelected(ApplicationKey.PORTAL.getName())) {
+            this.select(this.createPortalApp());
+        }
+
+        this.whenPortalFormLayoutFinished(() => {
+            this.getPortalConfig()?.getConfig().setString('baseUrl', 0, baseUrl);
+            this.notifyDataChanged();
         });
+    }
+
+    removePortalApp(): void {
+        const selectedPortalApp = this.getSelectedItems().find(app => app.getName() === ApplicationKey.PORTAL.getName());
+
+        if (selectedPortalApp) {
+            this.deselect(selectedPortalApp);
+        }
     }
 
     private handleItemSelected(item: Application): void {
@@ -152,6 +171,10 @@ export class ProjectApplicationsComboBox
         return this.fetchSelectedApps(configs).then((selectedApps: Application[]) => {
             const layoutPromises: Q.Promise<void>[] = [];
 
+            if (configs.some(c => c.getApplicationKey().equals(ApplicationKey.PORTAL))) {
+                selectedApps.splice(0, 0, this.createPortalApp());
+            }
+
             configs.forEach((config: ApplicationConfig) => {
                 const appToSelect: Application = this.getOrGenerateAppByKey(selectedApps, config.getApplicationKey());
                 this.deselect(appToSelect, true);
@@ -161,6 +184,37 @@ export class ProjectApplicationsComboBox
 
             return Q.all(layoutPromises).thenResolve(null);
         });
+    }
+
+    private createPortalApp(): Application {
+        const key = ApplicationKey.fromString(ApplicationKey.PORTAL.getName());
+        const appBuilder = new ApplicationBuilder();
+        appBuilder.applicationKey = key;
+        appBuilder.id = key.toString();
+        appBuilder.displayName = key.toString();
+        appBuilder.config = this.createPortalAppForm();
+        return new Application(appBuilder);
+    }
+
+    private createPortalAppForm(): Form {
+        const formBuilder = new FormBuilder();
+        formBuilder.addFormItem(
+            new InputBuilder().setName('baseUrl').setInputType(TextLine.getName()).setLabel(i18n('field.baseUrl')).setOccurrences(
+                new OccurrencesBuilder().setMinimum(0).setMaximum(1).build()).build())
+        return new Form(formBuilder);
+    }
+
+    private getPortalConfig(): ApplicationConfig {
+        const portalProjectApp = this.getSelectedApplications().find(
+            app => app.getApplication().getName() === ApplicationKey.PORTAL.getName());
+        return portalProjectApp?.getConfig();
+    }
+
+    private whenPortalFormLayoutFinished(callback: () => void): void {
+        const view = this.getSelectedOptions().find(
+            option => option.getOption().getId() ===
+                      ApplicationKey.PORTAL.getName())?.getOptionView() as ProjectApplicationSelectedOptionView;
+        view?.whenFormLayoutFinished(callback);
     }
 
     private layoutSelectedApp(appConfig: ApplicationConfig): Q.Promise<void> {
@@ -195,7 +249,19 @@ export class ProjectApplicationsComboBox
     getSelectedApplications(): ProjectApplication[] {
         return this.getSelectedOptions().slice()
             .map((o: SelectedOption<Application>) => o.getOptionView() as ProjectApplicationSelectedOptionView)
-            .map((selected: ProjectApplicationSelectedOptionView) => selected.getCurrentConfig());
+            .map((selected: ProjectApplicationSelectedOptionView) => selected.getCurrentConfig()).sort(this.sortProjectApplications);
+    }
+
+    private sortProjectApplications(app1: ProjectApplication, app2: ProjectApplication): number {
+        if (app1.getApplication().getApplicationKey().equals(ApplicationKey.PORTAL)) {
+            return -1; // Portal app should always be first
+        }
+
+        if (app2.getApplication().getApplicationKey().equals(ApplicationKey.PORTAL)) {
+            return 1; // Portal app should always be first
+        }
+
+        return 0;
     }
 
     getSelectedApplicationConfigs(): ApplicationConfig[] {
