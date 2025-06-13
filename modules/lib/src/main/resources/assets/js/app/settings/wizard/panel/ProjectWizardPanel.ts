@@ -1,3 +1,4 @@
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {SettingsDataItemWizardPanel} from './SettingsDataItemWizardPanel';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
@@ -97,6 +98,13 @@ export class ProjectWizardPanel
             this.hasChildrenLayers = value;
             this.updateToolbarActions();
         }
+    }
+
+    doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
+        return super.doLayout(persistedItem).then(() => {
+            const baseUrlHandler = () => this.applicationsWizardStepForm.updateBaseUrlInSiteConfig(this.projectWizardStepForm.getBaseUrl());
+            this.projectWizardStepForm.onBaseUrlChanged(AppHelper.debounce(baseUrlHandler, 300));
+        });
     }
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {

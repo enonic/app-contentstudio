@@ -62,6 +62,10 @@ export class SiteConfiguratorSelectedOptionsView
             this.notifySiteConfigFormDisplayed(applicationKey, optionView.getFormView());
         });
 
+        if (key.isSystemReserved()) {
+            optionView.addClass('system-app');
+        }
+
         this.items.push(optionView);
 
         return new SelectedOption<Application>(optionView, this.count());
