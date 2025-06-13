@@ -117,6 +117,15 @@ class BaseDetailsPanel extends Page {
         let widgetSelectorDropdown = new WidgetSelectorDropdown();
         return await widgetSelectorDropdown.getSelectedOptionsDisplayName();
     }
+
+    getPanelWidth(width) {
+        let value = width.substring(0, width.indexOf('px'));
+        const parsed = Number(value);
+        if (isNaN(parsed)) {
+            return false;
+        }
+        return parsed;
+    }
 }
 
 module.exports = BaseDetailsPanel;

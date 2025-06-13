@@ -3,7 +3,7 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
-const EditPermissionsDialog = require('../../../page_objects/edit.permissions.dialog');
+const EditPermissionsGeneralStep = require('../../permissions/edit.permissions.general.step');
 
 const xpath = {
     container: "//div[contains(@id,'WidgetView')]//div[contains(@id,'UserAccessWidgetItemView')]",
@@ -26,9 +26,9 @@ class UserAccessWidgetItemView extends Page {
         return await this.getText(locator);
     }
 
-    getPrincipalAccess(userCompactName) {
+    async getPrincipalAccess(userCompactName) {
         let locator = xpath.container + xpath.getOperation(userCompactName);
-        return this.getText(locator);
+        return await this.getText(locator);
     }
 
     async getPrincipalsCompactName() {
@@ -39,30 +39,22 @@ class UserAccessWidgetItemView extends Page {
 
     async clickOnEditPermissionsLink() {
         try {
-            await this.waitForSpinnerNotVisible(appConst.TIMEOUT_4);
             await this.waitForElementDisplayed(this.editPermissionsLink, appConst.shortTimeout);
             return await this.clickOnElement(this.editPermissionsLink);
         } catch (err) {
-            throw new Error('Error when clicking on `Edit Permissions link`! ' + err);
+            await this.handleError(`Access Widget, Edit Permissions link`, 'err_widget_edit_permissions_link', err);
         }
     }
 
     async clickOnEditPermissionsLinkAndWaitForDialog() {
-        try {
-            let editPermissionsDialog = new EditPermissionsDialog();
-            await this.clickOnEditPermissionsLink();
-            await editPermissionsDialog.waitForDialogLoaded();
-            return await this.pause(500);
-        } catch (err) {
-            await this.saveScreenshot("edit_perm_dlg_not_loaded");
-            throw new Error("Edit permissions dialog was not loaded!  " + err);
-        }
+        let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
+        await this.clickOnEditPermissionsLink();
+        await editPermissionsGeneralStep.waitForLoaded();
+        return await this.pause(500);
     }
 
-    waitForLoaded() {
-        return this.waitForElementDisplayed(this.editPermissionsLink, appConst.shortTimeout).catch(err => {
-            throw new Error('Access widget was not loaded! ' + err);
-        });
+    async waitForLoaded() {
+        return await this.waitForElementDisplayed(this.editPermissionsLink, appConst.shortTimeout);
     }
 }
 

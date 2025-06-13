@@ -165,6 +165,7 @@ module.exports = Object.freeze({
     actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
     actionButtonStrict: (label) => `//button[contains(@id,'ActionButton') and child::span[text()='${label}']]`,
     dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[contains(.,'${label}')]]`,
+    buttonWithSpan: label => `//button[contains(@id,'Button') and child::span[contains(.,'${label}')]]`,
     dialogButtonStrict: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
     togglerButton: (label) => `//button[contains(@id,'TogglerButton') and child::span[text()='${label}']]`,
     itemByDisplayName: displayName => {
@@ -191,6 +192,9 @@ module.exports = Object.freeze({
     EMPTY_OPTIONS_H5: "//h5[contains(@class,'empty-list-item') and text()='No matching items']",
     radioButtonByLabel: label => {
         return `//span[contains(@class,'radio-button') and descendant::span[text()='${label}']]//input`
+    },
+    radioButtonContainsLabel: label => {
+        return `//span[contains(@class,'radio-button') and descendant::span[contains(.,'${label}')]]//input`
     },
     tabMenuItem: menuName => `//li[contains(@id,'TabMenuItem') and child::a[text()='${menuName}']]`,
     TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",

@@ -513,6 +513,9 @@ module.exports = Object.freeze({
         PUBLISH_REQUESTS: 'Publish requests',
         ISSUES: 'Issues',
     },
+    SYSTEM_ROLES_NAME: {
+        ADMINISTRATOR:  'roles/system.admin',
+    },
     SYSTEM_ROLES: {
         CM_ADMIN: 'Content Manager Administrator',
         ADMIN_CONSOLE: 'Administration Console Login',

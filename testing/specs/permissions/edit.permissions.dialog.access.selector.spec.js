@@ -6,7 +6,7 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
-const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
+const EditPermissionsDialog = require('../../page_objects/permissions/edit.permissions.general.step');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../../libs/app_const');
 
@@ -24,6 +24,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
             FOLDER = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddFolder(FOLDER);
         });
+
 
     it.skip(`GIVEN 'Edit Permissions' dialog is opened(click on Details Panel) WHEN 'Custom' permissions has been selected AND 'Create' operation has been clicked  AND 'Apply' button pressed THEN correct notification should appear `,
         async () => {

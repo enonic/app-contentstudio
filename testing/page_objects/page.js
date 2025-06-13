@@ -678,6 +678,11 @@ class Page {
             },
         ]);
     }
+    // Utility method for error handling
+    async handleError(errorMessage, screenshotName, error) {
+        let screenshot = await this.saveScreenshotUniqueName(screenshotName);
+        throw new Error(`${errorMessage}, screenshot: ${screenshot} ` + error);
+    }
 }
 
 module.exports = Page;

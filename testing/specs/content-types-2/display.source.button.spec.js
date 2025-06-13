@@ -9,7 +9,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const contentBuilder = require('../../libs/content.builder');
 const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
-const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
+const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
+const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
+const EditPermissionsChooseApplyChangesStep = require('../../page_objects/permissions/edit.permissions.choose.apply.changes.step');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 
@@ -21,7 +23,7 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
     let USER;
     let SITE;
 
-    it.skip(`Precondition 1: new user with 'Content Manager Expert' and Author roles should be created`,
+    it(`Precondition 1: new user with 'Content Manager Expert' and Author roles should be created`,
         async () => {
             // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
@@ -32,10 +34,12 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
             await studioUtils.addSystemUser(USER);
         });
 
-    it.skip('Precondition 2: new site should be created by SU',
+    it('Precondition 2: new site should be created by SU',
         async () => {
             let contentWizard = new ContentWizard();
-            let editPermissionsDialog = new EditPermissionsDialog();
+            let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
+            let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
+            let editPermissionsChooseApplyChangesStep = new EditPermissionsChooseApplyChangesStep();
             let userAccessWidget = new UserAccessWidget();
             // 1. Do Log in with 'SU':
             await studioUtils.navigateToContentStudioApp();
@@ -49,16 +53,23 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
             await contentWizard.pause(1000);
             // 4. Add 'Full access' permissions for the just created user and click on Apply button:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            //await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
-            await editPermissionsDialog.filterAndSelectPrincipal(USER.displayName);
-            await editPermissionsDialog.showAceMenuAndSelectItem(USER.displayName, appConst.permissions.FULL_ACCESS);
-            await editPermissionsDialog.pause(500);
-            await editPermissionsDialog.clickOnApplyButton();
+            await editPermissionsGeneralStep.filterAndSelectPrincipal(USER.displayName);
+            await editPermissionsGeneralStep.showAceMenuAndSelectItem(USER.displayName, appConst.permissions.FULL_ACCESS);
+            await editPermissionsGeneralStep.pause(500);
+            // 5. Click on 'Next' button: go to 'Choose how to apply changes' step:
+            await editPermissionsGeneralStep.clickOnNextButton();
+            //6. click on 'Next' button to go to 'Summary' step:
+            await editPermissionsChooseApplyChangesStep.waitForLoaded();
+            await editPermissionsChooseApplyChangesStep.clickOnNextButton();
+            await editPermissionsSummaryStep.waitForLoaded();
+            // 7. click on 'Apply Changes' button:
+            await editPermissionsSummaryStep.clickOnApplyChangesButton();
+            await editPermissionsSummaryStep.waitForDialogClosed();
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
 
-    it.skip("GIVEN user with roles 'Author ' and 'Content Manager Expert' is logged in WHEN content with html area has been opened THEN 'Source' button should be displayed in the htmlArea toolbar",
+    it("GIVEN user with roles 'Author ' and 'Content Manager Expert' is logged in WHEN content with html area has been opened THEN 'Source' button should be displayed in the htmlArea toolbar",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let sourceCodeDialog = new SourceCodeDialog();
@@ -73,7 +84,7 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
 
     // Verifies issue Edit/Delete icons in the Site configurator should be hidden for non-admin users #3496
     // https://github.com/enonic/app-contentstudio/issues/3496
-    it.skip("GIVEN user with roles 'Author' and 'Content Manager Expert' is signing in WHEN existing site has been opened THEN 'Edit configurator' and 'remove application' icons should be hidden",
+    it("GIVEN user with roles 'Author' and 'Content Manager Expert' is signing in WHEN existing site has been opened THEN 'Edit configurator' and 'remove application' icons should be hidden",
         async () => {
             let siteFormPanel = new SiteFormPanel();
             await studioUtils.navigateToContentStudioApp(USER.displayName, appConst.PASSWORD.MEDIUM);

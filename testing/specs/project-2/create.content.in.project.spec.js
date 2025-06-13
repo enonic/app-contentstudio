@@ -10,7 +10,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
 const ContentWidgetView = require('../../page_objects/browsepanel/detailspanel/content.widget.item.view');
-const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
+const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 const appConst = require('../../libs/app_const');
 
@@ -69,7 +69,7 @@ describe('create.content.in.project.spec - create new content in the selected co
 
     it(`WHEN new folder wizard has been saved THEN expected project-ACL entries should be present in Access form`,
         async () => {
-            let editPermissionsDialog = new EditPermissionsDialog();
+            let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let contentWizardPanel = new ContentWizardPanel();
             let userAccessWidget = new UserAccessWidget();
             // 1. Select the project's context in 'Select Context' dialog
@@ -81,9 +81,9 @@ describe('create.content.in.project.spec - create new content in the selected co
             await contentWizardPanel.pause(1000);
             // 3. Open Edit Permissions Dialog:
             await userAccessWidget.clickOnEditPermissionsLink();
-            await editPermissionsDialog.waitForDialogLoaded();
+            await editPermissionsGeneralStep.waitForLoaded();
             // 4. Open Edit Permissions Dialog
-            let result = await editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
+            let result = await editPermissionsGeneralStep.getDisplayNameOfSelectedPrincipals();
             assert.ok(result.includes(PROJECT_DISPLAY_NAME + ' - Owner'), 'Expected Acl should be present');
             assert.ok(result.includes(PROJECT_DISPLAY_NAME + ' - Editor'), 'Expected Acl should be present');
             assert.ok(result.includes(PROJECT_DISPLAY_NAME + ' - Author'), 'Expected Acl should be present');

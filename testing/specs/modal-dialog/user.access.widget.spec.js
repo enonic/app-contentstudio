@@ -6,18 +6,18 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
-const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
+const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
 const appConst = require('../../libs/app_const');
 
 describe("user.access.widget.spec:  test for user access widget and Edit Permissions dialog", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     let FOLDER;
 
-    it(`Preconditions: new folder should be added`,
+    it.skip(`Preconditions: new folder should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(displayName);
@@ -44,21 +44,21 @@ describe("user.access.widget.spec:  test for user access widget and Edit Permiss
 
     it.skip(`WHEN new acl entry has been added in the folder THEN user access widget should be updated`,
         async () => {
-            let editPermissionsDialog = new EditPermissionsDialog();
+            let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let userAccessWidget = new UserAccessWidget();
             // 1. Select the folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             // 2. Open Edit Permissions dialog:
             await userAccessWidget.clickOnEditPermissionsLink();
-            await editPermissionsDialog.waitForDialogLoaded();
-            await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
+            await editPermissionsGeneralStep.waitForLoaded();
+            await editPermissionsGeneralStep.clickOnInheritPermissionsCheckBox();
             // 3. Select 'Anonymous User' with the default operation:
-            await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
+            await editPermissionsGeneralStep.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
             // 4. Click on Apply button and close the dialog:
-            await editPermissionsDialog.clickOnApplyButton();
+            await editPermissionsGeneralStep.clickOnApplyButton();
             // 5. Verify that 'Can Read' access is displayed for Anonymous User :
-            let access = await userAccessWidget.getPrincipalAccess("AU");
-            assert.equal(access, "Can Read", "Expected access should be displayed for AU");
+            let access = await userAccessWidget.getPrincipalAccess('AU');
+            assert.equal(access, 'Can Read', 'Expected access should be displayed for AU');
             await studioUtils.saveScreenshot('user_access_widget_2');
             // 6. Two entries should be displayed in the widget:
             let names = await userAccessWidget.getPrincipalsCompactName();

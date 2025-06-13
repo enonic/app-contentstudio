@@ -8,7 +8,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
-const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
+const EditPermissionsDialog = require('../../page_objects/permissions/edit.permissions.general.step');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('overwrite.permissions.spec: tests for permissions in parent and child content', function () {

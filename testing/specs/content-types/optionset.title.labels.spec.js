@@ -14,7 +14,7 @@ const LongForm = require('../../page_objects/wizardpanel/long.form.panel');
 const NotificationDialog = require('../../page_objects/notification.dialog');
 const OptionSetForm2View = require('../../page_objects/wizardpanel/optionset/optionset.form2.view');
 const appConst = require('../../libs/app_const');
-const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
+const EditPermissionsDialog = require('../../page_objects/permissions/edit.permissions.general.step');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 
 describe("optionset.title.labels.spec: checks option set's title and labels", function () {
@@ -262,7 +262,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             // 1. Open existing 'Option Set' content:
             await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME);
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
+
             // 2.  Add default permissions for 'Anonymous user' and click on Apply button:
             await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
             await editPermissionsDialog.clickOnApplyButton();
