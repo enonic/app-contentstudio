@@ -1,4 +1,4 @@
-import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
@@ -19,8 +19,14 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {InputBuilder} from '@enonic/lib-admin-ui/form/Input';
+import {TextLine} from '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
+import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
 
-interface SiteConfiguratorComboBoxOptions extends ListBoxInputOptions<Application> {
+interface SiteConfiguratorComboBoxOptions
+    extends ListBoxInputOptions<Application> {
     loader: SiteApplicationLoader;
 }
 
@@ -35,7 +41,7 @@ export class SiteConfiguratorComboBox
                 formContext: ContentFormContext, value?: string) {
 
         super(new SiteConfiguratorListBox(), {
-            maxSelected:  maxOccurrences,
+            maxSelected: maxOccurrences,
             selectedOptionsView: new SiteConfiguratorSelectedOptionsView(siteConfigProvider, formContext),
             className: 'site-configurator-combobox',
             loader: new SiteApplicationLoader({
@@ -128,7 +134,10 @@ export class SiteConfiguratorComboBox
     }
 
     selectByKey(key: string, silent?: boolean): void {
-        const app = this.getLoader().getResults().find((app: Application) => app.getApplicationKey().toString() === key) ||
+        const appKey = ApplicationKey.fromString(key);
+        const app = appKey.equals(ApplicationKey.PORTAL) ?
+                    this.createPortalApp() :
+                    this.getLoader().getResults()?.find((app: Application) => app.getApplicationKey().toString() === key) ||
                     this.listBox.getItem(key);
 
         if (app) {
@@ -136,7 +145,21 @@ export class SiteConfiguratorComboBox
         }
     }
 
-    protected doShowDropdown(): void {
-        super.doShowDropdown();
+    private createPortalApp(): Application {
+        const key = ApplicationKey.fromString(ApplicationKey.PORTAL.getName());
+        const appBuilder = new ApplicationBuilder();
+        appBuilder.applicationKey = key;
+        appBuilder.id = key.toString();
+        appBuilder.displayName = key.toString();
+        appBuilder.config = this.createPortalAppForm();
+        return new Application(appBuilder);
+    }
+
+    private createPortalAppForm(): Form {
+        const formBuilder = new FormBuilder();
+        formBuilder.addFormItem(
+            new InputBuilder().setName('baseUrl').setInputType(TextLine.getName()).setLabel(i18n('field.baseUrl')).setOccurrences(
+                new OccurrencesBuilder().setMinimum(0).setMaximum(1).build()).build())
+        return new Form(formBuilder);
     }
 }

@@ -29,6 +29,8 @@ export class ProjectApplicationSelectedOptionView
 
     private dataChangedHandler?: () => void;
 
+    private formViewCreatedListeners: (() => void)[] = [];
+
     constructor(builder: ProjectApplicationSelectedOptionViewBuilder) {
         super(builder);
 
@@ -48,10 +50,20 @@ export class ProjectApplicationSelectedOptionView
     layoutForm(): Q.Promise<void> {
         if (!this.formView) {
             this.formView = this.createFormView();
+            this.formViewCreatedListeners.forEach(callBack => callBack());
+            this.formViewCreatedListeners = [];
             return this.formView.layout();
         }
 
         return this.revertFormView();
+    }
+
+    whenFormLayoutFinished(callback: () => void): void {
+        if (this.formView) {
+            this.formView.whenLayoutFinished(callback);
+        } else {
+            this.formViewCreatedListeners.push(() => this.formView.whenLayoutFinished(callback));
+        }
     }
 
     setConfig(config: PropertySet): ProjectApplicationSelectedOptionView {

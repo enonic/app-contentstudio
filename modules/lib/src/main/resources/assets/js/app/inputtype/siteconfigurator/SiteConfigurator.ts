@@ -15,6 +15,7 @@ import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationCon
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {ApplicationConfigProvider} from '@enonic/lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
+import {SiteConfigProviderRegistry} from './SiteConfigProviderRegistry';
 import {SiteConfiguratorComboBox} from './SiteConfiguratorComboBox';
 import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
@@ -62,8 +63,8 @@ export class SiteConfigurator
     layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
         return super.layout(input, propertyArray).then(() => {
             let deferred = Q.defer<void>();
-
             this.siteConfigProvider = new ApplicationConfigProvider(propertyArray);
+            SiteConfigProviderRegistry.setConfigProvider(this.siteConfigProvider);
             // ignore changes made to property by siteConfigProvider
             this.siteConfigProvider.onBeforePropertyChanged(() => this.ignorePropertyChange(true));
             this.siteConfigProvider.onAfterPropertyChanged(() => this.ignorePropertyChange(false));

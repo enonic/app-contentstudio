@@ -39,6 +39,7 @@ export class ProjectApplicationsSelectedOptionsView
         const selectedOption = new SelectedOption<Application>(new ProjectApplicationSelectedOptionView(builder), this.count());
         selectedOption.getOptionView().toggleClass('non-editable', !isEditable);
         selectedOption.getOptionView().toggleClass('non-removable', !isRemovable);
+        selectedOption.getOptionView().toggleClass('system-app', option.getDisplayValue().getApplicationKey().isSystemReserved());
 
         return selectedOption;
     }

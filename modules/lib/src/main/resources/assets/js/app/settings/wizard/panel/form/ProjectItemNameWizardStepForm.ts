@@ -1,3 +1,4 @@
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -19,7 +20,11 @@ export class ProjectItemNameWizardStepForm
 
     private descriptionInput: TextInput;
 
+    private baseUrlInput: TextInput;
+
     private parentProjectsFormItem: ParentProjectFormItem;
+
+    private baseUrlChangedListeners: ((value: string) => void)[] = [];
 
     getProjectName(): string {
         return this.nameFormItem.getValue();
@@ -39,6 +44,14 @@ export class ProjectItemNameWizardStepForm
 
     getDescription(): string {
         return this.descriptionInput.getValue().trim();
+    }
+
+    setBaseUrl(value: string, silent?: boolean): void {
+        this.baseUrlInput.setValue(value, silent);
+    }
+
+    getBaseUrl(): string {
+        return this.baseUrlInput.getValue().trim();
     }
 
     disableProjectNameHelpText() {
@@ -80,6 +93,16 @@ export class ProjectItemNameWizardStepForm
         });
     }
 
+    onBaseUrlChanged(listener: (value: string) => void) {
+        this.baseUrlChangedListeners.push(listener);
+    }
+
+    unBaseUrlChanged(listener: (value: string) => void) {
+        this.baseUrlChangedListeners.filter((currentListener: () => void) => {
+            return listener === currentListener;
+        });
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.addClass('project-item-wizard-step-form');
@@ -102,6 +125,7 @@ export class ProjectItemNameWizardStepForm
         if (item) {
             this.descriptionInput.setValue(item.getDescription(), true);
             this.nameFormItem.setValue(item.getName(), true);
+            this.baseUrlInput.setValue(this.getBaseUrlValue(item), true);
             this.disableProjectNameHelpText();
             this.disableProjectNameInput();
         }
@@ -127,6 +151,10 @@ export class ProjectItemNameWizardStepForm
             this.nameFormItem.validate(new ValidationResult(), true);
             this.notifyDataChanged();
         });
+
+        this.baseUrlInput.onValueChanged(event => {
+           this.notifyBaseUrlChanged(event.getNewValue());
+        });
     }
 
     private appendParentProjectDropdown() {
@@ -144,9 +172,11 @@ export class ProjectItemNameWizardStepForm
         this.nameFormItem = new ProjectNameFormItem();
 
         this.descriptionInput = new TextInput();
+        this.baseUrlInput = new TextInput();
+        const baseUrlFormItem: FormItem = new FormItemBuilder(this.baseUrlInput).setLabel(i18n('field.baseUrl')).build();
         const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
 
-        return [this.nameFormItem, descriptionFormItem];
+        return [this.nameFormItem, baseUrlFormItem, descriptionFormItem];
     }
 
     private isParentProjectsSet(): boolean {
@@ -159,5 +189,17 @@ export class ProjectItemNameWizardStepForm
 
     private getProjectNameInput(): TextInput {
         return this.nameFormItem.getProjectNameInput();
+    }
+
+    private getBaseUrlValue(item: ProjectViewItem): string {
+        const portalConfig = item.getSiteConfigs().find(config => config.getApplicationKey().equals(ApplicationKey.PORTAL));
+
+        return portalConfig?.getConfig().getProperty('baseUrl')?.getString() || '';
+    }
+
+    protected notifyBaseUrlChanged(value: string): void {
+        this.baseUrlChangedListeners.forEach((listener: (val: string) => void) => {
+            listener(value);
+        });
     }
 }
