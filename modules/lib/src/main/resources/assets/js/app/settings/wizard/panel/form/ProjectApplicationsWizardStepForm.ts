@@ -1,3 +1,4 @@
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {ProjectViewItem} from '../../../view/ProjectViewItem';
@@ -46,6 +47,15 @@ export class ProjectApplicationsWizardStepForm
     getNonInheritedApplicationConfigs(): ApplicationConfig[] {
         return this.applicationsFormItem?.getNonInheritedApplicationConfigs() || [];
     }
+
+    updateBaseUrlInSiteConfig(baseUrl: string): void {
+        if (StringHelper.isBlank(baseUrl)) {
+            this.applicationsFormItem.getComboBox().removePortalApp();
+        } else {
+            this.applicationsFormItem.getComboBox().addAndUpdatePortalApp(baseUrl);
+        }
+    }
+
 
     setParentProjects(projects: Project[]) {
         super.setParentProjects(projects);

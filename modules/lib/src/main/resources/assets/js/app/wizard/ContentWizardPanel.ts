@@ -134,6 +134,7 @@ import {PageEventsManager} from './PageEventsManager';
 import {PageNavigationEventSource} from './PageNavigationEventData';
 import {AccessControlHelper} from './AccessControlHelper';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
+import {SiteContentWizardStepForm} from './SiteContentWizardStepForm';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
@@ -213,8 +214,6 @@ export class ContentWizardPanel
     private persistedCompareStatus: CompareStatus;
 
     private persistedPublishStatus: PublishStatus;
-
-    private peristedLanguage: string;
 
     private contentAfterLayout: Content;
 
@@ -338,8 +337,12 @@ export class ContentWizardPanel
         const debouncedSaveOnAppChange = AppHelper.debounce(saveOnAppChange, 300);
 
         this.applicationAddedListener = (applicationConfig: ApplicationConfig) => {
-
             const applicationKey = applicationConfig.getApplicationKey();
+
+            if (applicationKey.isSystemReserved()) {
+                return;
+            }
+
             if (!applicationKeys.some((key: ApplicationKey) => key.equals(applicationKey))) {
                 this.addXDataStepForms(applicationKey);
                 applicationKeys.push(applicationKey);
@@ -349,6 +352,10 @@ export class ContentWizardPanel
         };
 
         this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {
+            if (event.getApplicationKey().isSystemReserved()) {
+                return;
+            }
+
             this.removeXDataStepForms(event.getApplicationKey()).then((removedXDataCount: number) => {
                 applicationKeys.push(event.getApplicationKey());
 
@@ -549,7 +556,6 @@ export class ContentWizardPanel
                 this.persistedPublishStatus = loader.publishStatus;
                 this.currentCompareStatus = loader.compareStatus;
                 this.currentPublishStatus = loader.publishStatus;
-                this.peristedLanguage = loader.content?.getLanguage();
 
                 this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNameLabel());
                 this.wizardHeader.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
@@ -1876,7 +1882,7 @@ export class ContentWizardPanel
     }
 
     private createWizardStepForms(): Q.Promise<void> {
-        this.contentWizardStepForm = new ContentWizardStepForm();
+        this.contentWizardStepForm = this.contentType.isSite() ? new SiteContentWizardStepForm() : new ContentWizardStepForm();
 
         if (this.isPageComponentsViewRequired() || this.contentType.isPageTemplate()) {
             this.pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
@@ -2527,7 +2533,6 @@ export class ContentWizardPanel
         ContentContext.get().setContent(content);
         this.persistedPublishStatus = content.getPublishStatus();
         this.persistedCompareStatus = content.getCompareStatus();
-        this.peristedLanguage = content.getLanguage();
 
         AI.get().setCompareStatus(this.persistedCompareStatus);
 
