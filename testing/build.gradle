@@ -81,6 +81,14 @@ tasks.register( 'downloadApps', Copy ) {
     }
     into deployDir
     mustRunAfter unpackDistro
+
+    doLast {
+        println 'Task downloadApps completed successfully.'
+        println 'Downloaded artifacts:'
+        configurations.apps.files.each { file ->
+            println "- ${file.name}"
+        }
+    }
 }
 
 tasks.register( 'deployContentStudio', DefaultTask ) {
