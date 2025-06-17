@@ -2,6 +2,7 @@ import * as Q from 'q';
 import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
+import {ContentRequiresSaveEvent} from '../../../../../event/ContentRequiresSaveEvent';
 import {TextComponent} from '../../../../../page/region/TextComponent';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
@@ -124,6 +125,9 @@ export class TextInspectionPanel
                 .setEditorContainerId(editorId)
                 .setAssetsUri(CONFIG.getString('assetsUri'))
                 .setCreateDialogHandler(HTMLAreaProxy.createAndOpenDialog)
+                .setSaveHandler(() => {
+                    new ContentRequiresSaveEvent(this.liveEditModel.getContent().getContentId()).fire();
+                })
                 .setInline(false)
                 .setFocusHandler(focusHandler)
                 .setBlurHandler(blurHandler)
