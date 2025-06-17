@@ -96,6 +96,9 @@ module.exports = Object.freeze({
         applicationsCopiedFromParent: (name) => {
             return `Applications successfully copied from \"${name}\"`
         },
+        permissionsAppliedNotificationMessage: (name) => {
+            return `Permissions for \"${name}\" are applied.`
+        },
     },
     TEST_DATA: {
         TEST_FOLDER_IMAGES_1_DISPLAY_NAME: 'All Content types images',
@@ -225,7 +228,7 @@ module.exports = Object.freeze({
         RIGHT: 'right',
     },
     PART_NAME: {
-        CITY_CREATION: 'City Creation',
+        MY_FIRST_APP_CITY_CREATION: 'City Creation',
         CONTENT_TYPES_CITIES_DISTANCE_FACET: 'Cities Distance Facet',
         PART_WITH_ERROR: 'part-with-error',
         MY_FIRST_APP_CITY_LIST: 'City list',

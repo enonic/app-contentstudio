@@ -21,6 +21,10 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
         return this.container + xpath.dialogButtonRow + lib.dialogButton('Apply Changes');
     }
 
+    get replaceAllPermissionsButton() {
+        return this.container + xpath.dialogButtonRow + lib.dialogButton('Replace All Permissions');
+    }
+
     get noChangesToApply() {
         return this.container + xpath.dialogButtonRow + lib.dialogButton('No changes to apply');
     }
@@ -34,6 +38,15 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
         }
     }
 
+    async clickOnReplaceAllPermissionsButton() {
+        try {
+            await this.waitForElementEnabled(this.replaceAllPermissionsButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.replaceAllPermissionsButton);
+            return await this.pause(500);
+        } catch (err) {
+            await this.handleError(`Edit Permissions - Click on 'Replace All Permissions' button`, 'err_replace_all_permissions', err);
+        }
+    }
     async clickOnApplyChangesButton() {
         try {
             await this.waitForApplyChangesButtonEnabled();

@@ -19,7 +19,7 @@ describe('changing.part.inside.fragment.spec - Tests for changing a part inside 
     }
     let SITE;
     const TEST_TEXT = 'test text';
-    const PART_DISPLAY_NAME = 'City list'
+    const PART_DISPLAY_NAME = 'City list';
 
     it(`Precondition: new site with 'main region' controller should be added`,
         async () => {

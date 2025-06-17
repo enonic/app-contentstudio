@@ -42,6 +42,10 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
         return this.container + lib.buttonWithSpan('Copy from project');
     }
 
+    get copyFromParentButton() {
+        return this.container + lib.buttonWithSpan('Copy from parent');
+    }
+
     get restrictedRadioButton() {
         return this.container + lib.radioButtonContainsLabel('Restricted');
     }
@@ -59,12 +63,36 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
         }
     }
 
+    async waitForCopyFromParentButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.copyFromParentButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Copy from parent button should be enabled', 'err_copy_from_parent_button', err);
+        }
+    }
+
+    async clickOnCopyFromParentButton() {
+        try {
+            await this.waitForElementDisplayed(this.copyFromParentButton, appConst.mediumTimeout);
+            return await this.clickOnElement(this.copyFromParentButton);
+        } catch (err) {
+            await this.handleError('Click on Copy from parent button ', 'err_click_copy_from_parent_button', err);
+        }
+    }
+
+    async waitForCopyFromParentButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.copyFromParentButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Copy from parent button should be disabled', 'err_copy_from_parent_button', err);
+        }
+    }
+
     async waitForCopyFromProjectButtonDisabled() {
         try {
             return await this.waitForElementDisabled(this.copyFromProjectButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_copy_from_project_button');
-            throw new Error(`Copy from project button should be disabled, screenshot: ${screenshot} ` + err);
+            await this.handleError('Copy from project button should be disabled', 'err_copy_from_project_button', err);
         }
     }
 
@@ -72,8 +100,7 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
         try {
             return await this.waitForElementEnabled(this.copyFromProjectButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_copy_from_project');
-            throw new Error(`Copy from project button should be enabled, screenshot: ${screenshot} ` + err);
+            await this.handleError('Copy from project button should be enabled', 'err_copy_from_project_button', err);
         }
     }
 
@@ -82,8 +109,7 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
             await this.waitForElementDisplayed(this.copyFromProjectButton, appConst.mediumTimeout);
             return await this.clickOnElement(this.copyFromProjectButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_copy_from_project_button');
-            throw new Error(`Edit Permissions - Copy from project button, screenshot: ${screenshot} ` + err);
+            await this.handleError('Click on Copy from project button', 'err_click_copy_from_project_button', err);
         }
     }
 
@@ -105,8 +131,7 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
         try {
             return await this.waitForElementDisabled(this.resetButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_reset_button');
-            throw new Error(`Reset button should be disabled ${screenshot}` + err);
+            await this.handleError('Reset button should be disabled', 'err_reset_button', err);
         }
     }
 
@@ -114,18 +139,17 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
         try {
             return await this.waitForElementEnabled(this.resetButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_reset_button');
-            throw new Error(`Reset button should be enabled ${screenshot}` + err);
+            await this.handleError('Reset button should be enabled', 'err_reset_button', err);
         }
     }
 
     async clickOnResetButton() {
         try {
             await this.waitForElementDisplayed(this.resetButton, appConst.mediumTimeout);
-            return await this.clickOnElement(this.resetButton);
+            await this.clickOnElement(this.resetButton);
+            await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_reset_button');
-            throw new Error(`Edit Permissions -  Reset button, screenshot: ${screenshot} ` + err);
+            await this.handleError('Click on Reset button', 'err_click_reset_button', err);
         }
     }
 
@@ -134,13 +158,12 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
             await this.waitForElementDisplayed(this.stepDescription, appConst.mediumTimeout);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_edit_perm_dlg_not_loaded');
-            throw new Error(`PermissionsDialog - General Access Step  was not loaded!  screenshot:${screenshot}` + err);
+            await this.handleError('PermissionsDialog - General Access Step  was not loaded', 'err_edit_perm_dlg_not_loaded', err);
         }
     }
 
     waitForDialogClosed() {
-        let message = "Edit Permissions Dialog is not closed! timeout is " + 3000;
+        let message = 'Edit Permissions Dialog is not closed! timeout is ' + 3000;
         return this.getBrowser().waitUntil(() => {
             return this.isElementNotDisplayed(this.container);
         }, {timeout: appConst.mediumTimeout, timeoutMsg: message}).then(() => {
@@ -163,8 +186,7 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
             let selector = this.container + xpath.aclEntryByName(principalName) + lib.REMOVE_ICON;
             return await this.clickOnElement(selector)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_remove_acl_entry');
-            throw new Error(`Error when remove acl entry, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Remove ACL entry for principal: ${principalName}`, 'err_remove_acl_entry', err);
         }
     }
 
@@ -173,8 +195,7 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
             let accessControlComboBox = new AccessControlComboBox();
             await accessControlComboBox.filterItem(text, this.container);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_filter_options_in_selector');
-            throw new Error(`Error during filtering options in selector, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Filter options in selector with text: ${text}`, 'err_filter_options_in_selector', err);
         }
     }
 
@@ -182,24 +203,22 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
         try {
             return await this.waitForElementDisplayed(this.container + lib.EMPTY_OPTIONS_H5, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_empty_opt');
-            throw new Error(`Edit Permission Selector - Empty options text should appear visible, screenshot:${screenshot} ` + err);
+            await this.handleError('Edit Permission Selector - Empty options text should appear', 'err_empty_opt', err);
         }
     }
 
-// filters and select a principal
+    // filters and selects a principal
     async filterAndSelectPrincipal(principalDisplayName) {
         try {
             let accessControlComboBox = new AccessControlComboBox();
             await accessControlComboBox.selectFilteredPrincipalAndClickOnApply(principalDisplayName, this.container);
-            console.log("Edit Permissions Dialog, principal is selected: " + principalDisplayName);
+            console.log('Edit Permissions Dialog, principal is selected: ' + principalDisplayName);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_perm_dlg');
-            throw new Error(`Error during updating permissions, screenshot:${screenshot}` + err);
+            await this.handleError(`Filter and select principal: ${principalDisplayName}`, 'err_filter_and_select_principal', err);
         }
     }
 
-//finds an entry, clicks on 'tab-menu-button' (Can Write or Can Read or Custom...)  and selects new required 'operation'
+    //finds an entry, clicks on 'tab-menu-button' (Can Write or Can Read or Custom...)  and selects new required 'operation'
     async showAceMenuAndSelectItem(principalName, menuItem) {
         try {
             let tabMenuButton = xpath.aclEntryByName(principalName) + `//div[contains(@class,'tab-menu-button')]`;
@@ -210,8 +229,7 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
             //Select a menu item: Custom, Can Write, Can Read....
             return await this.clickOnElement(menuItemXpath);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_ace_menu_button');
-            throw new Error(`Error when selecting an operation in Principal SelectedOptionView , ${screenshot}` + err);
+            await this.handleError(`Principal operations, tab menu button`, 'err_click_on_ace_menu_button', err);
         }
     }
 
@@ -224,8 +242,8 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             return await this.clickOnElement(selector);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_permission_toggle');
-            throw new Error(`Error when clicking on Permission Toggle , ${screenshot}` + err);
+            await this.handleError(`Click on Permission Toggle for principal: ${principalName}, operation: ${operationName}`,
+                'err_click_on_permission_toggle', err);
         }
     }
 
@@ -249,17 +267,17 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
     async waitForAccessSelectorDisabled(principalName) {
         let locator = xpath.aclEntryByDisplayName(principalName) + xpath.accessSelector;
         await this.getBrowser().waitUntil(async () => {
-            let result = await this.getAttribute(locator, "class");
+            let result = await this.getAttribute(locator, 'class');
             return result.includes("disabled");
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Access selector should be disabled "});
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Access selector should be disabled '});
     }
 
     async waitForAccessSelectorEnabled(principalDisplayName) {
         let locator = xpath.aclEntryByDisplayName(principalDisplayName) + xpath.accessSelector;
         await this.getBrowser().waitUntil(async () => {
-            let result = await this.getAttribute(locator, "class");
-            return !result.includes("disabled");
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Access selector should be enabled "});
+            let result = await this.getAttribute(locator, 'class');
+            return !result.includes('disabled');
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Access selector should be enabled '});
     }
 
 }
