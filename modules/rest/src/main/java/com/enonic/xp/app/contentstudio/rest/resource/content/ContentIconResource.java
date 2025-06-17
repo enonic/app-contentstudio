@@ -2,6 +2,7 @@ package com.enonic.xp.app.contentstudio.rest.resource.content;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -51,6 +52,8 @@ public final class ContentIconResource
     private MediaInfoService mediaInfoService;
 
     private ImageService imageService;
+
+    private static final Set<String> SKIP_IMAGE_MIME_TYPES = Set.of( "image/webp", "image/avif", "image/gif", "image/svg+xml" );
 
     @GET
     @Path("{contentId}")
@@ -241,21 +244,24 @@ public final class ContentIconResource
 
     private ImageOrientation getSourceAttachmentOrientation( final Media media )
     {
-        final ByteSource sourceBinary = contentService.getBinary( media.getId(), media.getMediaAttachment().getBinaryReference() );
-        return mediaInfoService.getImageOrientation( sourceBinary, media );
+        return getImageBinaryOrientation( media.getId(), media.getMediaAttachment().getBinaryReference(),
+                                          media.getMediaAttachment().getMimeType() );
     }
 
     private ImageOrientation getThumbnailOrientation( final Thumbnail thumbnail, final Content content )
     {
-        final ByteSource sourceBinary = contentService.getBinary( content.getId(), thumbnail.getBinaryReference() );
-        if ( content instanceof Media )
+        return getImageBinaryOrientation( content.getId(), thumbnail.getBinaryReference(), thumbnail.getMimeType() );
+    }
+
+    private ImageOrientation getImageBinaryOrientation( final ContentId contentId, final BinaryReference binaryReference,
+                                                        final String mimeType )
+    {
+        if ( SKIP_IMAGE_MIME_TYPES.contains( mimeType ) )
         {
-            final Media media = (Media) content;
-            if ( media.isImage() )
-            {
-                return mediaInfoService.getImageOrientation( sourceBinary, media );
-            }
+            return ImageOrientation.DEFAULT;
         }
+
+        final ByteSource sourceBinary = contentService.getBinary( contentId, binaryReference );
         return mediaInfoService.getImageOrientation( sourceBinary );
     }
 

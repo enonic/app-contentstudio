@@ -87,7 +87,7 @@ public class MediaRenderingBean
 
         ).filter( t -> !t.equals( "video/avi" ) ).collect( Collectors.toSet() );
 
-    private static final Set<String> SKIP_IMAGE_MIME_TYPES = Set.of( "image/webp", "image/avif", "image/gif" );
+    private static final Set<String> SKIP_IMAGE_MIME_TYPES = Set.of( "image/webp", "image/avif", "image/gif", "image/svg+xml" );
 
     private static final ContentTypeNames IMAGE_CONTENT_TYPES =
         ContentTypeNames.from( ContentTypeName.imageMedia(), ContentTypeName.vectorMedia() );
@@ -321,7 +321,7 @@ public class MediaRenderingBean
 
             final Cropping cropping = ( !source && crop ) ? media.getCropping() : null;
             final ImageOrientation imageOrientation =
-                source ? null : this.mediaInfoServiceSupplier.get().getImageOrientation( binary, media );
+                source ? null : this.mediaInfoServiceSupplier.get().getImageOrientation( binary );
             final FocalPoint focalPoint = source ? null : media.getFocalPoint();
             final int sizeParam = ( size > 0 ) ? size : ( source ? 0 : getOriginalWidth( media ) );
             final ScaleParams scaleParam = parseScaleParam( media, scale, sizeParam );
