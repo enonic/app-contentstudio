@@ -7,7 +7,6 @@
   </allow>
   <apis>
     <api>chartdata</api>
-    <api>collaboration</api>
     <api>content</api>
     <api>events</api>
     <api>export</api>
@@ -17,4 +16,9 @@
     <api>admin:event</api>
     <api>com.enonic.app.contentstudio.plus:license</api>
   </apis>
+  <interfaces>
+    <interface>contentstudio.menuitem</interface>
+    <interface>contentstudio.contextpanel</interface>
+    <interface>contentstudio.liveview</interface>
+  </interfaces>
 </tool>
