@@ -10,4 +10,5 @@ export interface ResolvePublishContentResultJson {
     invalidContents: ContentIdBaseItemJson[];
     notReadyContents: ContentIdBaseItemJson[];
     nextDependentContents: ContentIdBaseItemJson[];
+    notFoundOutboundContents: ContentIdBaseItemJson[];
 }

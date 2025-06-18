@@ -12,6 +12,7 @@ export class ResolvePublishDependenciesResult {
     invalidContents: ContentId[];
     notReadyContents: ContentId[];
     nextDependentContents: ContentId[];
+    notFoundOutboundContents: ContentId[];
 
     constructor(builder: Builder) {
         this.dependentContents = builder.dependentContents;
@@ -23,6 +24,7 @@ export class ResolvePublishDependenciesResult {
         this.invalidContents = builder.invalidContents;
         this.notReadyContents = builder.notReadyContents;
         this.nextDependentContents = builder.nextDependentContents;
+        this.notFoundOutboundContents = builder.notFoundOutboundContents;
     }
 
     getDependants(): ContentId[] {
@@ -61,6 +63,10 @@ export class ResolvePublishDependenciesResult {
         return this.nextDependentContents;
     }
 
+    getNotFoundOutboundContents(): ContentId[] {
+        return this.notFoundOutboundContents;
+    }
+
     static fromJson(json: ResolvePublishContentResultJson): ResolvePublishDependenciesResult {
 
         const dependants: ContentId[] = json.dependentContents
@@ -74,6 +80,7 @@ export class ResolvePublishDependenciesResult {
         const invalidIds: ContentId[] = json.invalidContents?.map(dependant => new ContentId(dependant.id)) ?? [];
         const notReadyIds: ContentId[] = json.notReadyContents?.map(dependant => new ContentId(dependant.id)) ?? [];
         const nextDependentContents: ContentId[] = json.nextDependentContents?.map(dependant => new ContentId(dependant.id)) ?? [];
+        const notFoundOutboundContents: ContentId[] = json.notFoundOutboundContents?.map(dependant => new ContentId(dependant.id)) ?? [];
 
         return ResolvePublishDependenciesResult.create().setDependentContents(dependants).setRequestedContents(
             requested)
@@ -84,6 +91,7 @@ export class ResolvePublishDependenciesResult {
             .setInvalidContents(invalidIds)
             .setNotReadyContents(notReadyIds)
             .setNextDependentContents(nextDependentContents)
+            .setNotFoundOutboundContents(notFoundOutboundContents)
             .build();
     }
 
@@ -102,6 +110,7 @@ export class Builder {
     invalidContents: ContentId[];
     notReadyContents: ContentId[];
     nextDependentContents: ContentId[];
+    notFoundOutboundContents: ContentId[];
 
     setDependentContents(value: ContentId[]): Builder {
         this.dependentContents = value;
@@ -145,6 +154,11 @@ export class Builder {
 
     setNextDependentContents(value: ContentId[]): Builder {
         this.nextDependentContents = value;
+        return this;
+    }
+
+    setNotFoundOutboundContents(value: ContentId[]): Builder {
+        this.notFoundOutboundContents = value;
         return this;
     }
 

@@ -712,7 +712,7 @@ public final class ContentResource
             .isAllowedFor( ContextAccessor.current().getAuthInfo().getPrincipals(), Permission.PUBLISH );
 
         //Get all outbound dependencies for current requested and required
-        final ContentIds nextDependencies = this.getOutboundDependenciesIds( fullPublishList );
+        final OutboundDependenciesIds outboundDependenciesIds = this.getOutboundDependenciesIds( fullPublishList );
 
         //check if user has access to publish every content
         final ContentIds notPublishableContentIds = authInfo.hasRole( RoleKeys.ADMIN )
@@ -752,11 +752,12 @@ public final class ContentResource
             .setInvalidContents( notValidContentIds )
             .setContainsNotReady( !notReadyContentIds.isEmpty() )
             .setNotReadyContents( notReadyContentIds )
-            .setNextDependentContents( nextDependencies )
+            .setNextDependentContents( outboundDependenciesIds.getExistingOutboundIds() )
+            .setNotFoundOutboundContents( outboundDependenciesIds.getNonExistingOutboundIds() )
             .build();
     }
 
-    private ContentIds getOutboundDependenciesIds( final ContentIds contentIds )
+    private OutboundDependenciesIds getOutboundDependenciesIds( final ContentIds contentIds )
     {
         final ContentIds allOutboundIds = ContentIds.from( contentIds.stream().map( id -> {
             try
@@ -767,17 +768,22 @@ public final class ContentResource
             {
                 return ContentIds.empty();
             }
-        } ).flatMap( ContentIds::stream ).filter( id -> !contentIds.contains( ContentId.from( id ) ) ).collect( Collectors.toList() ) );
+        } ).flatMap( ContentIds::stream ).filter( id -> !contentIds.contains( id ) ).collect( Collectors.toList() ) );
 
         final ContentIds existingOutboundIds = sortContentIds( allOutboundIds, "_path" );
+        final ContentIds nonExistingOutboundIds =
+            ContentIds.from( allOutboundIds.stream().filter( id -> !existingOutboundIds.contains( id ) )
+            .collect( Collectors.toList() ) );
 
         final CompareContentResults compareResults =
             contentService.compare( CompareContentsParams.create().contentIds( existingOutboundIds ).build() );
 
-        return ContentIds.from( compareResults.stream()
+        final ContentIds existingWithoutMoved = ContentIds.from( compareResults.stream()
                                     .filter( result -> result.getCompareStatus() != CompareStatus.EQUAL )
                                     .map( CompareContentResult::getContentId )
                                     .collect( Collectors.toList() ) );
+
+        return new OutboundDependenciesIds( existingWithoutMoved, nonExistingOutboundIds );
     }
 
     private ContentIds sortContentIds( final ContentIds contentIds, final String field )
