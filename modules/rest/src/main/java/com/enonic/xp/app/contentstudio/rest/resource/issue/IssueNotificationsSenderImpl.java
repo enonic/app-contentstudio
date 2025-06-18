@@ -3,6 +3,8 @@ package com.enonic.xp.app.contentstudio.rest.resource.issue;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.enonic.xp.mail.MailService;
 import com.enonic.xp.mail.SendMailParams;
@@ -11,6 +13,8 @@ import com.enonic.xp.mail.SendMailParams;
 public class IssueNotificationsSenderImpl
     implements IssueNotificationsSender
 {
+    private static final Logger LOG = LoggerFactory.getLogger( IssueNotificationsSenderImpl.class );
+
     private final MailService mailService;
 
     @Activate
@@ -26,10 +30,8 @@ public class IssueNotificationsSenderImpl
         {
             final SendMailParams mailMessage =
                 new IssueCreatedMailMessageGenerator( params ).generateMessage( mailService.getDefaultFromEmail() );
-            if ( mailMessage != null )
-            {
-                mailService.send( mailMessage );
-            }
+
+            sendMailMessage( mailMessage );
         }
     }
 
@@ -40,10 +42,8 @@ public class IssueNotificationsSenderImpl
         {
             final SendMailParams mailMessage =
                 new IssuePublishedMailMessageGenerator( params ).generateMessage( mailService.getDefaultFromEmail() );
-            if ( mailMessage != null )
-            {
-                mailService.send( mailMessage );
-            }
+
+            sendMailMessage( mailMessage );
         }
     }
 
@@ -54,10 +54,8 @@ public class IssueNotificationsSenderImpl
         {
             final SendMailParams mailMessage =
                 new IssueUpdatedMailMessageGenerator( params ).generateMessage( mailService.getDefaultFromEmail() );
-            if ( mailMessage != null )
-            {
-                mailService.send( mailMessage );
-            }
+
+            sendMailMessage( mailMessage );
         }
     }
 
@@ -68,10 +66,8 @@ public class IssueNotificationsSenderImpl
         {
             final SendMailParams mailMessage =
                 new IssueCommentedMailMessageGenerator( params ).generateMessage( mailService.getDefaultFromEmail() );
-            if ( mailMessage != null )
-            {
-                mailService.send( mailMessage );
-            }
+
+            sendMailMessage( mailMessage );
         }
     }
 
@@ -88,5 +84,22 @@ public class IssueNotificationsSenderImpl
         }
 
         return params.getApprovers().stream().anyMatch( user -> user.getEmail() != null );
+    }
+
+    private void sendMailMessage( final SendMailParams mailMessage )
+    {
+        if ( mailMessage == null )
+        {
+            return;
+        }
+
+        try
+        {
+            mailService.send( mailMessage );
+        }
+        catch ( final Exception e )
+        {
+            LOG.error( "Failed to send issue notification email", e );
+        }
     }
 }
