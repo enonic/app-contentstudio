@@ -78,6 +78,8 @@ export class PublishProcessor {
 
     private keepDependencies: boolean;
 
+    private notificationMsgId: string;
+
     readonly reloadDependenciesDebounced: (params: ReloadDependenciesParams) => void;
 
     private static debug: boolean = false;
@@ -181,6 +183,11 @@ export class PublishProcessor {
     }
 
     reloadPublishDependencies(params: ReloadDependenciesParams): void {
+        if (this.notificationMsgId && !params.silent) { // Hide previous notification about missing outbound ids
+            NotifyManager.get().hide(this.notificationMsgId);
+            this.notificationMsgId = null;
+        }
+
         const {resetDependantItems, resetExclusions, silent} = params;
         const excludeNonRequired = CONFIG.isTrue('excludeDependencies') && !this.keepDependencies;
 
@@ -267,6 +274,7 @@ export class PublishProcessor {
                        !this.itemsIncludeId(this.itemList.getItemsIds(), id);
             });
 
+            this.notifyIfOutboundContentsNotFound(maxResult);
             this.processResolveDependenciesResult(minResult);
             this.setExcludedIds(excludedIds);
             this.handleExclusionResult();
@@ -323,6 +331,7 @@ export class PublishProcessor {
                 this.addExcludedIds(excludedIds);
             }
 
+            this.notifyIfOutboundContentsNotFound(result);
             this.handleExclusionResult();
             this.handleExcessiveExcludedIds(resetExclusions ? [] : undefined);
 
@@ -352,6 +361,13 @@ export class PublishProcessor {
                 this.notifyLoadingFailed();
                 DefaultErrorHandler.handle(reason);
             }
+        }
+    }
+
+    private notifyIfOutboundContentsNotFound(resolveResult: ResolvePublishDependenciesResult): void {
+        if (resolveResult.getNotFoundOutboundContents().length > 0) {
+            const ids = resolveResult.getNotFoundOutboundContents().map(id => id.toString()).join(', ');
+            this.notificationMsgId = NotifyManager.get().showWarning(i18n('dialog.publish.outbound.missing', ids), false);
         }
     }
 
