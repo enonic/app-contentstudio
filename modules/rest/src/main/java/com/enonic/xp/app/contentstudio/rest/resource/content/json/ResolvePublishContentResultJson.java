@@ -28,6 +28,8 @@ public class ResolvePublishContentResultJson
 
     private final List<ContentIdJson> notReadyContents;
 
+    private final List<ContentIdJson> notFoundOutboundContents;
+
     private ResolvePublishContentResultJson( Builder builder )
     {
         requestedContents = builder.requestedContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
@@ -40,6 +42,7 @@ public class ResolvePublishContentResultJson
         invalidContents = builder.invalidContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
         notReadyContents = builder.notReadyContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
         nextDependentContents = builder.nextDependentContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
+        notFoundOutboundContents = builder.notFoundOutboundContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
     }
 
     public static Builder create()
@@ -100,6 +103,11 @@ public class ResolvePublishContentResultJson
         return nextDependentContents;
     }
 
+    public List<ContentIdJson> getNotFoundOutboundContents()
+    {
+        return notFoundOutboundContents;
+    }
+
     public static final class Builder
     {
 
@@ -122,6 +130,8 @@ public class ResolvePublishContentResultJson
         private ContentIds notReadyContents;
 
         private ContentIds nextDependentContents;
+
+        private ContentIds notFoundOutboundContents;
 
         private Builder()
         {
@@ -184,6 +194,12 @@ public class ResolvePublishContentResultJson
         public Builder setNextDependentContents( final ContentIds items )
         {
             this.nextDependentContents = items;
+            return this;
+        }
+
+        public Builder setNotFoundOutboundContents( final ContentIds items )
+        {
+            this.notFoundOutboundContents = items;
             return this;
         }
 
