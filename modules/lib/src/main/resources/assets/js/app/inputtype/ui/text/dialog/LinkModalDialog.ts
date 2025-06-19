@@ -966,6 +966,7 @@ export class LinkModalDialog
         }
 
         this.showAllContentCheckboxFormItem.hide();
+        const hasFocusInContentSelector: boolean = !!this.getContentIdFormItemEl()?.getHTMLElement().contains(document.activeElement);
 
         if (selectedContent.getType().isDescendantOfMedia()) {
             this.mediaOptionRadioFormItem.show();
@@ -974,11 +975,19 @@ export class LinkModalDialog
             if (this.isMediaRadioValueOpenOrLink(this.getMediaRadioGroup().doGetValue())) {
                 this.contentTargetCheckBoxFormItem.show();
             }
+
+            if (hasFocusInContentSelector) {
+                this.mediaOptionRadioFormItem.getInput().giveFocus();
+            }
         } else {
             this.mediaOptionRadioFormItem.hide();
             this.contentTargetCheckBoxFormItem.show();
             this.anchorFormItem.show();
             this.paramsFormItem.show();
+
+            if (hasFocusInContentSelector) {
+                this.contentTargetCheckBoxFormItem.getInput().giveFocus();
+            }
         }
     }
 
