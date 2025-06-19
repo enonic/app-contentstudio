@@ -23,8 +23,6 @@ function getPhrases(locales: string[]): Record<string, string> {
 }
 
 export function getConfig(locales: string[], aiEnabled: boolean): Record<string, unknown> {
-    const context = contextLib.get();
-    const branch = context.branch;
     const allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
     const excludeDependencies = app.config['publishingWizard.excludeDependencies'] === 'true' || false;
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
@@ -52,7 +50,7 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
         toolUri: toolUri,
         appId: app.name,
         appVersion: app.version,
-        branch,
+        branch: 'draft',
         enableCollaboration,
         defaultPublishFromTime,
         locale: locales[0],
