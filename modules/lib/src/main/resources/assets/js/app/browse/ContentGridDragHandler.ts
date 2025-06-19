@@ -10,11 +10,18 @@ export class ContentGridDragHandler extends DragHandler {
 
     private listBox: ListBox<ContentSummaryAndCompareStatus>;
 
+    private initiallyOrderedItems: ContentSummaryAndCompareStatus[];
+
     constructor(listBox: ListBox<ContentSummaryAndCompareStatus>) {
         super(listBox);
 
         this.listBox = listBox;
+        this.initiallyOrderedItems = listBox.getItems();
         this.movements = new OrderChildMovements();
+
+        this.listBox.onItemsAdded(() => {
+            this.initiallyOrderedItems = listBox.getItems();
+        });
     }
 
     getContentMovements(): OrderChildMovements {
@@ -26,8 +33,10 @@ export class ContentGridDragHandler extends DragHandler {
     }
 
     handleMovements(from: number, to: number) {
-        const movedItem = this.listBox.getItems()[from];
-        const moveBeforeItem = this.listBox.getItems()[to > from ? to + 1 : to];
+        const movedItem = this.initiallyOrderedItems[from];
+        const moveBeforeItem = this.initiallyOrderedItems[to > from ?  to + 1 : to];
+        this.initiallyOrderedItems.splice(from, 1);
+        this.initiallyOrderedItems.splice(to, 0, movedItem);
 
         this.movements.addChildMovement(new OrderChildMovement(movedItem.getContentId(), moveBeforeItem?.getContentId()));
     }
