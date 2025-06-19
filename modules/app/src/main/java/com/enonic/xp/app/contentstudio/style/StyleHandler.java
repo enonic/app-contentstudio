@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
+import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
@@ -46,6 +47,7 @@ public final class StyleHandler
     {
         return ContextBuilder.from( ContextAccessor.current() )
             .repositoryId( ProjectName.from( project ).getRepoId() )
+            .branch( ContentConstants.BRANCH_DRAFT )
             .build()
             .callWith( () -> {
                 final ContentId contentId = ContentId.from( this.contentId );
