@@ -49,6 +49,7 @@ module.exports = Object.freeze({
         TEXT_INPUT: "//input[@type='text']",
         CHECKBOX_INPUT: "//input[@type='checkbox']",
         DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
+        checkBoxLabel: label => `//div[contains(@id,'Checkbox') and child::label[contains(.,'${label}')]]/label`,
     },
     DIV: {
         FRAGMENT_DROPDOWN_DIV: `//div[contains(@id,'FragmentDropdown')]`,

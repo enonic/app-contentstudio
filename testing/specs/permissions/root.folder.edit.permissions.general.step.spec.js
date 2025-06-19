@@ -104,7 +104,7 @@ describe('Folder in root directory, General step, edit.permissions.dialog.spec '
             await editPermissionsGeneralStep.waitForCopyFromProjectButtonDisabled();
             items = await editPermissionsGeneralStep.getDisplayNameOfSelectedPrincipals();
             assert.strictEqual(items.length, INITIAL_NUMBER_OF_SELECTED_ITEMS,
-                'Initial entries should be restored after clicking on Reset button');
+                `Initial entries should be restored after clicking on 'Reset' button`);
         });
 
     // Principal selector doesn't include the "Everyone" principal

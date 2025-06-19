@@ -8,10 +8,28 @@ const lib = require('../../libs/elements');
 const xpath = {
     stepDescriptionP: "//p[contains(@class,'sub-name') and contains(.,'Summary')]",
     dialogButtonRow: `//div[contains(@class,'button-container')]`,
+    sectionSummary: "//section[@clas='summary-step']",
+    showHideDetailsButtonDiv: (text) => `//button[contains(@id,'ShowHideDetailsButton') and child::span[contains(.,'${text}')]]`
 };
 
 //2 of 3 - Choose how to apply changes
 class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
+
+    get showChangesButton() {
+        return this.container + xpath.showHideDetailsButtonDiv('Show changes');
+    }
+
+    get hideChangesButton() {
+        return this.container + xpath.showHideDetailsButtonDiv('Hide changes');
+    }
+
+    get hideNewPermissionsButton() {
+        return this.container + xpath.showHideDetailsButtonDiv('Hide new permissions');
+    }
+
+    get showNewPermissionsButton() {
+        return this.container + xpath.showHideDetailsButtonDiv('Show new permissions');
+    }
 
     get stepDescription() {
         return this.container + xpath.stepDescriptionP;
@@ -47,6 +65,7 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
             await this.handleError(`Edit Permissions - Click on 'Replace All Permissions' button`, 'err_replace_all_permissions', err);
         }
     }
+
     async clickOnApplyChangesButton() {
         try {
             await this.waitForApplyChangesButtonEnabled();
@@ -73,6 +92,78 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
         } catch (err) {
             let msg = 'No changes to apply button should be disabled';
             await this.handleError(msg, 'err_no_changes_to_apply', err);
+        }
+    }
+
+    async waitForShowChangesButtonDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.showChangesButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Permissions Summary step - Show changes button should be displayed', 'err_show_changes_button', err);
+        }
+    }
+
+    async clickOnShowChangesButton() {
+        try {
+            await this.waitForElementDisplayed(this.showChangesButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.showChangesButton);
+        } catch (err) {
+            await this.handleError('Permissions Summary step - Click on Show changes button', 'err_click_show_changes_button', err);
+        }
+    }
+
+    async waitForHideNewPermissionsButtonDisplayed() {
+        try {
+            let res = await this.findElements(this.hideNewPermissionsButton);
+            await this.waitForElementDisplayed(this.hideNewPermissionsButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Permissions Summary step - Hide new permissions button should be displayed', 'err_hide_new_permissions_button', err);
+        }
+    }
+
+    async clickOnHideNewPermissionsButton() {
+        try {
+            await this.waitForElementDisplayed(this.hideNewPermissionsButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.hideNewPermissionsButton);
+        } catch (err) {
+            await this.handleError('Permissions Summary step - Click on Hide new permissions button',
+                'err_click_hide_new_permissions_button', err);
+        }
+    }
+
+    async waitForShowNewPermissionsButtonDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.showNewPermissionsButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Permissions Summary step - Show new permissions button should be displayed',
+                'err_show_new_permissions_button', err);
+        }
+    }
+
+    async clickOnShowNewPermissionsButton() {
+        try {
+            await this.waitForElementDisplayed(this.showNewPermissionsButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.showNewPermissionsButton);
+        } catch (err) {
+            await this.handleError('Permissions Summary step - Click on Show new permissions button',
+                'err_click_show_new_permissions_button', err);
+        }
+    }
+
+    async waitForHideChangesButtonDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.hideChangesButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Permissions Summary step - Hide changes button should be displayed', 'err_hide_changes_button', err);
+        }
+    }
+
+    async clickOnHideChangesButton() {
+        try {
+            await this.waitForElementDisplayed(this.hideChangesButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.hideChangesButton);
+        } catch (err) {
+            await this.handleError('Permissions Summary step - Click on Hide changes button', 'err_click_hide_changes_button', err);
         }
     }
 }

@@ -69,7 +69,7 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
     it(`WHEN existing shortcut to the site with controller is selected THEN 'Preview not available' is displayed in Preview panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            // 1. Select an existing folder:
+            // 1. Select an existing shortcut:
             await studioUtils.findAndSelectItem(SHORTCUT_NAME);
             await studioUtils.saveScreenshot('preview_not_available_shortcut');
             // 2. Verify that 'Preview not available' is displayed in Preview panel
@@ -81,17 +81,16 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
     it(`WHEN existing shortcut content has been selected AND 'Enonic rendering' option has been selected THEN 'Preview' button should be disabled in Item Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            // 1. Select an existing pptx content:
+            // 1. Select an existing shortcut content:
             await studioUtils.findAndSelectItem(SHORTCUT_NAME);
             // 2. Select 'Enonic rendering' in the Preview widget dropdown:
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
-            // 3. Verify that 'Preview' button is disabled
+            // 3. Verify that 'Preview' button is disabled on the Preview Panel(Browse panel):
             await studioUtils.saveScreenshot('engine_preview_button_disabled_for_shortcut');
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
-
+            // 4. Verify that 'Preview not available' message is displayed in the Preview Item panel:
             let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
-            // 4. 'Preview not available' message should be displayed
-            assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE), 'expected message should be displayed');
+            assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE), 'Preview not available - should be displayed');
 
         });
 

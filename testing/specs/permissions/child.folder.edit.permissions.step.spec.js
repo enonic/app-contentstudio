@@ -8,9 +8,13 @@ const contentBuilder = require("../../libs/content.builder");
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
 const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
+const EditPermissionsChooseApplyChangesStep = require('../../page_objects/permissions/edit.permissions.choose.apply.changes.step');
 const appConst = require('../../libs/app_const');
+const PublishContentDialog = require('../../page_objects/content.publish.dialog');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
-describe('Child content , edit.permissions.dialog.spec: ', function () {
+describe('Child and parent content, replace existing permissions in child content, child.folder.edit.permissions.spec: ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -189,9 +193,104 @@ describe('Child content , edit.permissions.dialog.spec: ', function () {
             // 3. Verify that 'Copy from parent' button is enabled:
             await editPermissionsGeneralStep.waitForCopyFromParentButtonEnabled();
             // 4. Verify that 'Restricted' radio is selected:
+            await studioUtils.saveScreenshot('edit_permissions_restricted_radio_selected');
             let isSelected = await editPermissionsGeneralStep.isRestrictedRadioSelected();
             assert.ok(isSelected, `'Restricted' radio should be selected.`);
+        });
 
+    it(`Precondition: child folder and its parent - should published`,
+        async () => {
+            let publishContentDialog = new PublishContentDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
+            // 1. Select the folder and open Details Panel:
+            await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
+            await publishContentDialog.waitForDialogOpened();
+            await publishContentDialog.clickOnMarkAsReadyButton();
+            await publishContentDialog.clickOnPublishNowButton();
+            await publishContentDialog.waitForDialogClosed();
+        });
+
+    it(`GIVEN clicks 'Children Only Radio' Button  and 'Replace Existing Child Permissions' have been clicked WHEN No button in Confirmation dialog has been pressed THEN 'Replace' checkbox gets unchecked`,
+        async () => {
+            let userAccessWidget = new UserAccessWidget();
+            let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. Select the parent-folder and open Details Panel:
+            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
+            await studioUtils.openBrowseDetailsPanel();
+            // 2. Click on 'Edit Permissions' link and open the modal dialog:
+            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
+            // 3. Go to the second step:
+            await editPermissionsGeneralStep.clickOnNextButton();
+            // 4. Verify that 'Replace existing child permissions' checkbox is not displayed:
+            let editPermissionsChooseApplyChangesStep = new EditPermissionsChooseApplyChangesStep();
+            await editPermissionsChooseApplyChangesStep.waitForReplaceExistingChildPermissionsCheckboxNotDisplayed();
+            // 5. Click on 'Children only' radio button:
+            await editPermissionsChooseApplyChangesStep.clickOnChildrenOnlyRadioButton();
+            // 6. 'Replace existing child permissions' checkbox gets visible, Check the  checkbox:
+            await editPermissionsChooseApplyChangesStep.clickOnReplaceExistingChildPermissionsCheckbox();
+            let confirmationDialog = new ConfirmationDialog();
+            await confirmationDialog.waitForDialogOpened();
+            // 7. Click on 'No' button in Confirmation dialog:
+            await confirmationDialog.clickOnNoButton();
+            await confirmationDialog.waitForDialogClosed();
+            // 8. Verify that Replace existing child permissions checkbox is unchecked:
+            await studioUtils.saveScreenshot('edit_permissions_replace_existing_child_permissions_unchecked');
+            let isChecked = await editPermissionsChooseApplyChangesStep.isReplaceExistingChildPermissionsCheckboxChecked();
+            assert.ok(isChecked == false, 'Replace existing child permissions checkbox should be unchecked after clicking on No button');
+            // 9. Click on 'Next' button:
+            await editPermissionsChooseApplyChangesStep.clickOnNextButton();
+            let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
+            await editPermissionsSummaryStep.waitForLoaded();
+            await studioUtils.saveScreenshot('edit_permissions_no_changes_to_apply_disabled');
+            // 10. Verify that 'Apply Changes' button is disabled:
+            await editPermissionsSummaryStep.waitForNoChangesToApplyDisabled();
+        });
+
+    it(`GIVEN clicks 'Children Only Radio' Button  and 'Replace Existing Child Permissions' have been clicked WHEN Yes button in Confirmation dialog has been pressed THEN the button should be accordingly updated`,
+        async () => {
+            let userAccessWidget = new UserAccessWidget();
+            let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. Select the parent-folder and open Details Panel:
+            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
+            await studioUtils.openBrowseDetailsPanel();
+            // 2. Click on 'Edit Permissions' link and open the modal dialog:
+            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
+            // 3. Go to the Manage Access step:
+            await editPermissionsGeneralStep.clickOnNextButton();
+            let editPermissionsChooseApplyChangesStep = new EditPermissionsChooseApplyChangesStep();
+            // 4. Click on 'Children only' radio button:
+            await editPermissionsChooseApplyChangesStep.clickOnChildrenOnlyRadioButton();
+            // 5. Check the 'Replace existing child permissions' checkbox:
+            await editPermissionsChooseApplyChangesStep.clickOnReplaceExistingChildPermissionsCheckbox();
+            let confirmationDialog = new ConfirmationDialog();
+            await confirmationDialog.waitForDialogOpened();
+            // 6. Click on 'Yes' button in Confirmation dialog:
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
+            // 7. Go to Summary Step:
+            await editPermissionsChooseApplyChangesStep.clickOnNextButton();
+            let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
+            await editPermissionsSummaryStep.waitForLoaded();
+            // 8. The block with the changes made must be shown by default
+            await editPermissionsSummaryStep.waitForHideNewPermissionsButtonDisplayed();
+            await editPermissionsSummaryStep.clickOnHideNewPermissionsButton();
+            // 9. Click on 'Apply Changes' button:
+            await editPermissionsSummaryStep.clickOnReplaceAllPermissionsButton();
+            // 10. Verify that 'Permissions applied' message appears:
+            let msg = await userAccessWidget.waitForNotificationMessage();
+            assert.strictEqual(msg, appConst.NOTIFICATION_MESSAGES.permissionsAppliedNotificationMessage(CHILD_FOLDER.displayName),
+                `'Permissions applied' - message should appears`);
+            // 11. Verify that the parent folder remains with 'Published' status:
+            let status = await contentBrowsePanel.getContentStatus(PARENT_FOLDER.displayName);
+            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "'Published' status should be in the top version item");
+            // 12. Expand the parent folder and verify that the child folder has 'Published' status:
+            await contentBrowsePanel.clickOnExpanderIcon(PARENT_FOLDER.displayName);
+            status = await contentBrowsePanel.getContentStatus(CHILD_FOLDER.displayName);
+            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "'Published' status should be in the top version item");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

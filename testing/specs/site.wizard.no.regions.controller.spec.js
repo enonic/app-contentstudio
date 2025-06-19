@@ -14,6 +14,7 @@ describe('site.wizard.no.regions.controller.spec: checks Save button after selec
         webDriverHelper.setupBrowser();
     }
     let SITE;
+    const CONTROLLER_NO_REGIONS = 'no regions';
 
     // verifies https://github.com/enonic/app-contentstudio/issues/210
     // "Save" button doesn't get disabled after save when assigning a template with no regions to a site
@@ -27,7 +28,7 @@ describe('site.wizard.no.regions.controller.spec: checks Save button after selec
             await contentWizard.typeDisplayName(SITE.displayName);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             //site should be automatically saved after selecting the controller
-            await contentWizard.selectPageDescriptor("no regions");
+            await contentWizard.selectPageDescriptor(CONTROLLER_NO_REGIONS);
             // Save button gets disabled after selecting 'no regions':
             await contentWizard.waitForSaveButtonDisabled();
         });
