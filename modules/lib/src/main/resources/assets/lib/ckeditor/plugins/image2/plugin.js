@@ -13,10 +13,6 @@
             template +
             '<figcaption>{captionPlaceholder}</figcaption>' +
             '</figure>'),
-        templateBlockNoCaption = new CKEDITOR.template(
-            '<figure class="{captionedClass}">' +
-            template +
-            '</figure>'),
         alignmentsObj = {left: 0, center: 1, right: 2},
         regexPercent = /^\s*(\d+\%)\s*$/i;
 
@@ -381,7 +377,7 @@
                 var helpers = CKEDITOR.plugins.image2,
                     image = this.parts.image,
                     data = {
-                        hasCaption: this.parts.caption,
+                        hasCaption: !!this.parts.caption,
                         src: image.getAttribute('src'),
                         alt: image.getAttribute('alt') || '',
                         width: image.getAttribute('width') || '',
@@ -597,25 +593,33 @@
                     // Switching hasCaption always destroys the widget.
                     shift.deflate();
 
-                    var figure = newValue ? CKEDITOR.dom.element.createFromHtml(templateBlock.output({
-                        captionedClass: captionedClass,
-                        captionPlaceholder: editor.lang.image2.captionPlaceholder
-                    }), doc) : CKEDITOR.dom.element.createFromHtml(templateBlockNoCaption.output({
-                        captionedClass: captionedClass,
-                    }), doc);
-
                     // There was no caption, but the caption is to be added.
+                    if (newValue) {
+                        // Create new <figure> from widget template.
+                        var figure = CKEDITOR.dom.element.createFromHtml(templateBlock.output({
+                            captionedClass: captionedClass,
+                            captionPlaceholder: editor.lang.image2.captionPlaceholder
+                        }), doc);
 
-                    // Create new <figure> from widget template.
-                    // Replace element with <figure>.
-                    replaceSafely(figure, shift.element);
+                        // Replace element with <figure>.
+                        replaceSafely(figure, shift.element);
 
-                    // Use old <img/> or <a><img/></a> instead of the one from the template,
-                    // so we won't lose additional attributes.
-                    imageOrLink.replace(figure.findOne('img'));
+                        // Use old <img/> or <a><img/></a> instead of the one from the template,
+                        // so we won't lose additional attributes.
+                        imageOrLink.replace(figure.findOne('img'));
 
-                    // Update widget's element.
-                    shift.element = figure;
+                        // Update widget's element.
+                        shift.element = figure;
+                    }
+
+                    // The caption was present, but now it's to be removed.
+                    else {
+                        // Unwrap <img/> or <a><img/></a> from figure.
+                        imageOrLink.replace(shift.element);
+
+                        // Update widget's element.
+                        shift.element = imageOrLink;
+                    }
                 },
 
                 link: function (shift, oldValue, newValue) {
