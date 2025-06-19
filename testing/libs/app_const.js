@@ -518,6 +518,7 @@ module.exports = Object.freeze({
     },
     SYSTEM_ROLES_NAME: {
         ADMINISTRATOR:  'roles/system.admin',
+        AUDIT_LOG:  'roles/system.auditlog',
     },
     SYSTEM_ROLES: {
         CM_ADMIN: 'Content Manager Administrator',
@@ -528,7 +529,8 @@ module.exports = Object.freeze({
         USERS_APP: 'Users App',
         AUTHENTICATED: 'Authenticated',
         USERS_ADMINISTRATOR: 'Users Administrator',
-        EVERYONE: 'Everyone'
+        EVERYONE: 'Everyone',
+        AUDIT_LOG: 'Audit Log',
     },
     PREVIEW_WIDGET: {
         AUTOMATIC: 'Automatic',

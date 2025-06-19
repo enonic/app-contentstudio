@@ -318,8 +318,7 @@ class ContentItemPreviewPanel extends Page {
             await this.waitForPreviewButtonDisplayed();
             await this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_disabled');
-            throw new Error(`Preview button should be displayed and disabled, screenshot  : ${screenshot} ` + err);
+            await this.handleError(`Preview button should be displayed and disabled ` + 'err_preview_btn',err);
         }
     }
 
