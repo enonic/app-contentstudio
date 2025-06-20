@@ -584,6 +584,12 @@ export class PublishProcessor {
         return this.itemList.getItemsIds();
     }
 
+    containsOnlyModifiedItems(): boolean {
+        return this.itemList.getItems()
+            .concat(this.dependantList.getItems())
+            .every((item: ContentSummaryAndCompareStatus) => item.isModified());
+    }
+
     countParent(): number {
         return this.countToPublish(this.itemList.getItems());
     }
