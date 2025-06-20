@@ -509,7 +509,9 @@ export class IssueDetailsDialog
         const isPublishRequestViewed = this.isPublishRequest();
 
         if (isPublishRequestViewed) {
-            return IssueDetailsDialog.makeLabelWithCounter(i18n('action.publishNow'), itemsCount);
+            const containsOnlyScheduled = this.publishProcessor.containsOnlyScheduledItems();
+
+            return IssueDetailsDialog.makeLabelWithCounter(containsOnlyScheduled ? i18n('action.updateScheduled') : i18n('action.publishNow'), itemsCount);
         } else {
             return i18n('action.publishMore');
         }
