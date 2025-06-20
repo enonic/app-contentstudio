@@ -6,24 +6,21 @@
           display: grid;
           grid-template-columns: 1fr 25px 90px 135px;
 
-          .content-tree-grid-sort {
+          .content-tree-grid-sort,
+          .content-tree-grid-status,
+          .content-tree-grid-modified {
             display: flex;
             justify-content: center;
             align-items: center;
           }
 
           .content-tree-grid-status {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
             .content-status-mixin();
-          }
 
-          .content-tree-grid-modified {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            span {
+              white-space: break-spaces;
+              text-align: center;
+            }
           }
         }
       }

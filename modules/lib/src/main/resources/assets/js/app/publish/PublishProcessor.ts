@@ -584,6 +584,12 @@ export class PublishProcessor {
         return this.itemList.getItemsIds();
     }
 
+    containsOnlyScheduledItems(): boolean {
+        return this.itemList.getItems()
+            .concat(this.dependantList.getItems())
+            .every((item: ContentSummaryAndCompareStatus) => item.isScheduledPublishing());
+    }
+
     countParent(): number {
         return this.countToPublish(this.itemList.getItems());
     }

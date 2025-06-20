@@ -40,11 +40,11 @@
     opacity: 0.5;
   }
 
-  @toggler-width: 35px;
+  @toggler-width: 30px;
 
   .include-children-toggler {
     font-size: 20px;
-    line-height: 36px;
+    line-height: @toggler-width;
     text-align: center;
 
     .button(@admin-font-gray2, transparent, @admin-font-gray3, transparent, 0);
@@ -56,6 +56,10 @@
 
     width: @toggler-width;
     justify-content: center;
+
+    + .viewer {
+      margin-left: -10px;
+    }
   }
 
   .sub-title:not(:empty) {
@@ -70,22 +74,26 @@
 
   .browse-selection-item,
   .checkable-item {
-    padding: 0 5px;
+    padding: 0;
     margin: 0;
+    gap: 15px;
 
     .viewer {
-      flex: 5;
-      max-width: 75%;
+      flex: 1;
       display: flex;
     }
 
     .status {
-      flex: 1;
+      flex-basis: auto;
       text-align: right;
       padding-right: 0;
     }
 
     .content-status-mixin();
+  }
+
+  .checkable-item {
+    padding: 0 5px;
   }
 
   .dialog-togglable-item-list,
