@@ -229,8 +229,9 @@ export class ContentPublishDialog
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {
         const labelWithNumber: (num: number, label: string) => string = (num, label) => `${label}${num > 1 ? ` (${num})` : ''}`;
+        const containsOnlyModified = this.publishProcessor.containsOnlyModifiedItems();
 
-        this.publishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.publishNow')));
+        this.publishAction.setLabel(labelWithNumber(itemsToPublish, containsOnlyModified ? i18n('action.updateScheduled') : i18n('action.publishNow')));
         this.scheduleAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.schedule')));
     }
 
