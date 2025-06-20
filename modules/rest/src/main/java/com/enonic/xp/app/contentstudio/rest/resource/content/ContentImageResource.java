@@ -2,6 +2,11 @@ package com.enonic.xp.app.contentstudio.rest.resource.content;
 
 import java.io.IOException;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import com.google.common.io.ByteSource;
+
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -13,9 +18,17 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
 
+import com.enonic.xp.attachment.Attachment;
+import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentConstants;
+import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentService;
+import com.enonic.xp.content.ExtraData;
+import com.enonic.xp.content.Media;
 import com.enonic.xp.content.*;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
+import com.enonic.xp.data.Property;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -148,13 +161,14 @@ public final class ContentImageResource
                 {
                     final String mimeType = attachment.getMimeType();
 
-                    if ( mimeType.equals( "image/gif" ) || mimeType.equals( "image/avif" ) || mimeType.equals( "image/webp" ) )
+                    if ( mimeType.equals( "image/gif" ) || mimeType.equals( "image/avif" ) || mimeType.equals( "image/webp" ) ||
+                        mimeType.equals( "image/svg+xml" ) )
                     {
                         return new ResolvedImage( binary, mimeType );
                     }
 
                     final Cropping cropping = ( !source && crop ) ? media.getCropping() : null;
-                    final ImageOrientation imageOrientation = source ? null : mediaInfoService.getImageOrientation( binary, media );
+                    final ImageOrientation imageOrientation = source ? null : mediaInfoService.getImageOrientation( binary );
                     final FocalPoint focalPoint = source ? null : media.getFocalPoint();
                     final int sizeParam = ( size > 0 ) ? size : ( source ? 0 : getOriginalWidth( media ) );
                     final ScaleParams scaleParam = parseScaleParam( media, scale, sizeParam );
@@ -244,7 +258,11 @@ public final class ContentImageResource
         ExtraData imageData = media.getAllExtraData().getMetadata( XDataName.from( "media:imageInfo" ) );
         if ( imageData != null )
         {
-            return imageData.getData().getProperty( "imageWidth" ).getValue().asLong().intValue();
+            final Property imageWidthProp = imageData.getData().getProperty( "imageWidth" );
+
+            if (imageWidthProp != null) {
+                return imageWidthProp.getValue().asLong().intValue();
+            }
         }
 
         return 0;
