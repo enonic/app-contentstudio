@@ -92,7 +92,7 @@ class ContentWizardPanel extends Page {
     }
 
     get minimizeLiveEditToggler() {
-        return XPATH.wizardStepNavigatorAndToolbar + "//div[contains(@class,'minimize-edit')]";
+        return XPATH.wizardStepNavigatorAndToolbar + `//div[contains(@class,'minimize-edit')]`;
     }
 
     get pageEditorTogglerButton() {
@@ -140,7 +140,7 @@ class ContentWizardPanel extends Page {
     }
 
     get workflowIconAndValidation() {
-        return this.thumbnailUploader + "//div[contains(@class, 'workflow-status')]";
+        return this.thumbnailUploader + `//div[contains(@class, 'workflow-status')]`;
     }
 
     get archiveButton() {
@@ -157,7 +157,7 @@ class ContentWizardPanel extends Page {
 
     // Preview button on the previewItemToolbar
     get previewButton() {
-        return this.previewItemToolbar + lib.actionButtonStrict('Preview');
+        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Open in new tab');
     }
 
     get controllerOptionFilterInput() {

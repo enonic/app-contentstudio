@@ -19,7 +19,7 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
     }
 
     let TEST_FOLDER;
-    const ARIA_LABEL_TOOLBAR = 'Main menu bar';
+    const ARIA_LABEL_TOOLBAR = 'Preview menu bar';
     const TOOLBAR_ROLE = 'toolbar';
 
     it(`GIVEN folder has been created WHEN the folder is selected THEN 'New' status should be displayed in the preview-toolbar`,

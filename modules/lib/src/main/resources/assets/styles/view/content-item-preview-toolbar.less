@@ -28,7 +28,7 @@
         color: @admin-dark-gray;
       }
 
-      &:hover {
+      &:not(.disabled):hover {
         span,
         &:before {
           color: @admin-black;
@@ -48,6 +48,10 @@
         .ellipsis();
 
         padding-right: 5px;
+      }
+
+      .show-changes {
+        margin-left: 0;
       }
     }
 
