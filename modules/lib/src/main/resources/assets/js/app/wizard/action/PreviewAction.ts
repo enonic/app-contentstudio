@@ -15,7 +15,7 @@ export class PreviewAction
     private helper: PreviewActionHelper;
 
     constructor(wizard: ContentWizardPanel) {
-        super(i18n('action.preview'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
+        super(i18n('action.preview.open'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
         this.wizard = wizard;
         this.helper = new PreviewActionHelper();
 

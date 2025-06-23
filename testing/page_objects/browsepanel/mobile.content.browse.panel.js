@@ -37,7 +37,7 @@ const XPATH = {
     editButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Edit']]`,
     newButton: `//button[contains(@id, 'ActionButton') and child::span[text()='New...']]`,
     sortButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Sort...']]`,
-    previewButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Preview']]`,
+    previewButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Open in new tab']]`,
     publishButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Publish...']]`,
 
     contentSummaryListViewerByName(name) {
