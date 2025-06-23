@@ -157,7 +157,7 @@ class ContentWizardPanel extends Page {
 
     // Preview button on the previewItemToolbar
     get previewButton() {
-        return this.previewItemToolbar + lib.actionButtonStrict('Preview');
+        return this.previewItemToolbar + lib.actionButtonStrict('Open in new tab');
     }
 
     get controllerOptionFilterInput() {

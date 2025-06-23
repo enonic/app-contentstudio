@@ -17,11 +17,13 @@ import {RenderingMode} from '../rendering/RenderingMode';
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {
 
+    ariaLabel: string = i18n('wcag.preview.toolbar.label');
+
     private widgetSelector: PreviewWidgetDropdown;
     private emulatorSelector: EmulatorDropdown;
     private previewButton: ActionButton;
-    private previewHelper: PreviewActionHelper;
-    private mode: RenderingMode;
+    private readonly previewHelper: PreviewActionHelper;
+    private readonly mode: RenderingMode;
     private intervalMonitor: number | null = null;
 
     constructor(previewHelper: PreviewActionHelper, mode: RenderingMode = RenderingMode.PREVIEW) {
@@ -126,14 +128,14 @@ export class WidgetPreviewAction
     private toolbar: ContentItemPreviewToolbar;
 
     constructor(toolbar: ContentItemPreviewToolbar) {
-        super(i18n('action.preview'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
+        super(i18n('action.preview.open'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
         this.toolbar = toolbar;
         this.onExecuted(this.handleExecuted.bind(this));
 
         this.setWcagAttributes({
             role: AriaRole.BUTTON,
             tabbable: true,
-            ariaLabel: i18n('action.preview')
+            ariaLabel: i18n('action.preview.open')
         });
     }
 
