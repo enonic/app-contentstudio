@@ -37,7 +37,7 @@ export class ContentSummary {
 
     private readonly thumbnail: Thumbnail;
 
-    private readonly modifier: string;
+    private readonly modifier: PrincipalKey;
 
     private readonly owner: PrincipalKey;
 
@@ -48,6 +48,8 @@ export class ContentSummary {
     private readonly requireValid: boolean;
 
     private readonly createdTime: Date;
+
+    private readonly creator: PrincipalKey;
 
     private readonly modifiedTime: Date;
 
@@ -96,6 +98,7 @@ export class ContentSummary {
         this.iconUrl = builder.iconUrl;
         this.thumbnail = builder.thumbnail;
         this.modifier = builder.modifier;
+        this.creator = builder.creator;
         this.owner = builder.owner;
         this.page = builder.page;
         this.valid = builder.valid;
@@ -173,7 +176,7 @@ export class ContentSummary {
         return this.owner;
     }
 
-    getModifier(): string {
+    getModifier(): PrincipalKey {
         return this.modifier;
     }
 
@@ -325,6 +328,10 @@ export class ContentSummary {
         return !!this.readOnly;
     }
 
+    getCreator(): PrincipalKey {
+        return this.creator;
+    }
+
     private isInheritedByType(type: ContentInheritType): boolean {
         return this.isInherited() && this.inherit.some((inheritType: ContentInheritType) => inheritType === type);
     }
@@ -359,7 +366,7 @@ export class ContentSummaryBuilder {
 
     thumbnail: Thumbnail;
 
-    modifier: string;
+    modifier: PrincipalKey;
 
     owner: PrincipalKey;
 
@@ -370,6 +377,8 @@ export class ContentSummaryBuilder {
     requireValid: boolean;
 
     createdTime: Date;
+
+    creator: PrincipalKey;
 
     modifiedTime: Date;
 
@@ -445,6 +454,7 @@ export class ContentSummaryBuilder {
             this.originalName = source.getOriginalName();
             this.variantOf = source.getVariantOf();
             this.readOnly = source.isReadOnly();
+            this.creator = source.getCreator();
         }
     }
 
@@ -456,7 +466,7 @@ export class ContentSummaryBuilder {
         this.type = new ContentTypeName(json.type);
         this.iconUrl = json.iconUrl;
         this.thumbnail = json.thumbnail ? Thumbnail.create().fromJson(json.thumbnail).build() : null;
-        this.modifier = json.modifier;
+        this.modifier = json.modifier ? PrincipalKey.fromString(json.modifier) : null;
         this.owner = json.owner ? PrincipalKey.fromString(json.owner) : null;
         this.page = json.isPage;
         this.valid = json.isValid;
@@ -465,6 +475,7 @@ export class ContentSummaryBuilder {
         this.id = json.id;
 
         this.contentId = new ContentId(json.id);
+        this.creator = json.creator ? PrincipalKey.fromString(json.creator) : null;
         this.createdTime = json.createdTime ? new Date(Date.parse(json.createdTime)) : null;
         this.modifiedTime = json.modifiedTime ? new Date(Date.parse(json.modifiedTime)) : null;
         this.archivedTime = json.archivedTime ? new Date(Date.parse(json.archivedTime)) : null;
@@ -597,6 +608,16 @@ export class ContentSummaryBuilder {
 
     setOriginalName(value: string): ContentSummaryBuilder {
         this.originalName = value;
+        return this;
+    }
+
+    setModifier(value: PrincipalKey): ContentSummaryBuilder {
+        this.modifier = value;
+        return this;
+    }
+
+    setCreator(value: PrincipalKey): ContentSummaryBuilder {
+        this.creator = value;
         return this;
     }
 

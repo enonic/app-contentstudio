@@ -12,7 +12,7 @@ const XPATH = {
     containerBottom: `//div[@class='container bottom']`,
     revertMenuButton: "//button[contains(@id,'Button') and descendant::li[contains(@id,'MenuItem') and text()='Revert']]",
     revertMenuItem: "//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and text()='Revert']",
-    showEntireContentCheckboxDiv: "//div[contains(@id,'Checkbox') and descendant::span[text()='Show entire content']]",
+    showEntireContentCheckboxDiv: "//div[contains(@id,'Checkbox') and descendant::span[text()='Show the entire content']]",
     listItemNameAndIconView: "//div[contains(@id,'NamesAndIconView') and not(descendant::h6[contains(.,'version')])]",
     contentPanel: "//div[contains(@id,'ModalDialogContentPanel')]",
 };
