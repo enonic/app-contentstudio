@@ -29,7 +29,7 @@ export class ContentVersionViewer
                              version.getPublishInfo().getPublisherDisplayName() : version.getModifierDisplayName();
         const isAlias: boolean = item.isAlias();
         const dateTime: string = `${DateHelper.formatDate(displayDate)} ${DateHelper.getFormattedTimeFromDate(displayDate)}`;
-        const subName: string = i18n('dialog.compareVersions.versionSubName', isAlias ? dateTime : '', displayName);
+        const subName: string = i18n('text.by', isAlias ? dateTime : '', displayName);
 
         this.toggleClass('divider', this.isVersionActive(item) && !item.isAlias());
 
