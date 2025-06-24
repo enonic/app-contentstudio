@@ -27,6 +27,8 @@ export interface ContentSummaryJson
 
     createdTime: string;
 
+    creator: string;
+
     archivedTime: string;
 
     archivedBy: string;

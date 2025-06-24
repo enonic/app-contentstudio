@@ -1,6 +1,6 @@
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {PropertiesWidgetItemViewValue} from './PropertiesWidgetItemViewValue';
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
 import {PropertiesWizardStepFormFactory, PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
 
@@ -13,7 +13,7 @@ export abstract class PropertiesWidgetItemViewHelper {
         return this;
     }
 
-    abstract generateProps(): Map<string, string>;
+    abstract generateProps(): Q.Promise<Map<string, PropertiesWidgetItemViewValue>>;
 
     getAllowedForms(formTypes: PropertiesWizardStepFormType[]): Q.Promise<PropertiesWizardStepForm[]> {
         const result: PropertiesWizardStepForm[] = [];
