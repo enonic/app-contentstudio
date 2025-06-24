@@ -9,6 +9,7 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {PropertiesWidgetItemViewHelper} from './PropertiesWidgetItemViewHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {EditPropertiesDialog, EditPropertiesDialogParams} from './EditPropertiesDialog';
+import {PropertiesWidgetItemViewValue} from './PropertiesWidgetItemViewValue';
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
 import {PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
 
@@ -69,8 +70,9 @@ export abstract class PropertiesWidgetItemView
         return super.layout().then(() => {
             if (this.item != null) {
                 return this.fetchExtraData().then(() => {
-                    this.layoutProperties();
-                    this.layoutEditLink();
+                    return this.layoutProperties().then(() => {
+                        this.layoutEditLink();
+                    })
                 });
             }
         });
@@ -80,27 +82,29 @@ export abstract class PropertiesWidgetItemView
         return Q();
     }
 
-    protected layoutProperties(): void {
+    protected layoutProperties(): Q.Promise<void> {
         this.list.removeChildren();
 
-        this.helper.generateProps().forEach((value: string, key: string) => {
+        return this.helper.generateProps().then(props => props.forEach((value: PropertiesWidgetItemViewValue, key: string) => {
             this.appendKeyValue(key, value);
-        });
+        }));
     }
 
-    protected appendKeyValue(key: string, value: string) {
-        this.list.appendChildren(this.createKeyEl(key), this.createValueEl(value));
+    protected appendKeyValue(key: string, value: PropertiesWidgetItemViewValue) {
+        const keyValueRow = new DivEl('key-value-row');
+        keyValueRow.appendChildren(this.createKeyEl(key), this.createValueEl(value));
+        this.list.appendChild(keyValueRow);
     }
 
     protected createKeyEl(key: string): Element {
         return new DdDtEl('dd').setHtml(key);
     }
 
-    protected createValueEl(value: string): Element {
-        return new DdDtEl('dt').setHtml(value);
+    protected createValueEl(value: PropertiesWidgetItemViewValue): Element {
+        return new DdDtEl('dt').setHtml(value.getDisplayName()).setTitle(value.getTitle() ? value.getTitle() : '');
     }
 
-    protected insertKeyValue(key: string, value: string, index: number) {
+    protected insertKeyValue(key: string, value: PropertiesWidgetItemViewValue, index: number) {
         const keyEl: Element = this.createKeyEl(key);
         const valueEl: Element = this.createValueEl(value);
 
