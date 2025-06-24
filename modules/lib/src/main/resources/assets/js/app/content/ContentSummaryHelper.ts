@@ -72,8 +72,12 @@ export class ContentSummaryHelper {
             diff.thumbnail = true;
         }
 
-        if (!ObjectHelper.stringEquals(item.getModifier(), other.getModifier())) {
+        if (!ObjectHelper.objectEquals(item.getModifier(), other.getModifier())) {
             diff.modifier = true;
+        }
+
+        if (!ObjectHelper.objectEquals(item.getCreator(), other.getCreator())) {
+            diff.creator = true;
         }
 
         if (!ObjectHelper.objectEquals(item.getOwner(), other.getOwner())) {
