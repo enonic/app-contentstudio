@@ -24,7 +24,7 @@ describe('wizard.owner.spec - update and revert owner in wizard`', function () {
             await studioUtils.doAddFolder(TEST_FOLDER);
         });
     // Verifies https://github.com/enonic/app-contentstudio/issues/1201 owner is not refreshed after reverting a version.
-    it(`GIVEN existing folder is opened ADN owner is updated WHEN the previous version has been reverted THEN initial owner should be restored`,
+    it(`GIVEN existing folder is opened ADN the owner is updated WHEN the previous version has been reverted THEN initial owner should be restored`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
@@ -45,9 +45,10 @@ describe('wizard.owner.spec - update and revert owner in wizard`', function () {
             await wizardVersionsWidget.clickOnRevertButton();
             // 4. Select 'Details' in the dropdown selector:
             await contentWizard.openDetailsWidget();
-            // 5. 'su' should be properties widget after reverting the previous version:
+            await studioUtils.saveScreenshot('owner_after_reverting_version');
+            // 5. 'Super User' should be properties widget after reverting the previous version:
             let actualOwner = await propertiesWidget.getOwnerName();
-            assert.equal(actualOwner, 'su', "'su' should appears after the reverting of the previous version");
+            assert.equal(actualOwner, appConst.systemUsersDisplayName.SUPER_USER, "'Super User' should appears after the reverting of the previous version");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

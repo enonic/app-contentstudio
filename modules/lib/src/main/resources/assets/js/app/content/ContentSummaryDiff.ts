@@ -18,6 +18,7 @@ export interface ContentSummaryDiff extends Diff {
     type?: boolean;
     iconUrl?: boolean;
     thumbnail?: boolean;
+    creator?: boolean;
     modifier?: boolean;
     owner?: boolean;
     page?: boolean;
