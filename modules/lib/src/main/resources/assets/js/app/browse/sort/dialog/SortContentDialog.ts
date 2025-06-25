@@ -1,6 +1,8 @@
 import * as Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Permission} from '../../../access/Permission';
+import {GetPermittedActionsRequest} from '../../../resource/GetPermittedActionsRequest';
 import {SaveSortedContentAction} from '../../action/SaveSortedContentAction';
 import {SortContentTreeGrid} from '../SortContentTreeGrid';
 import {SortContentTabMenu} from '../menu/SortContentTabMenu';
@@ -154,6 +156,12 @@ export class SortContentDialog
         this.toggleInheritedSortingOption();
         this.updateSubHeaderText();
         this.toggleGridVisibility();
+        this.checkSortPermissions();
+
+        if (document.activeElement instanceof HTMLElement) { // making sure other keyboard handlers are removed before opening this dialog
+            document.activeElement.blur();
+        }
+
         this.open();
     }
 
@@ -216,6 +224,20 @@ export class SortContentDialog
             this.contentGrid.removeClass('no-content');
             this.contentGrid.getEl().removeAttribute('data-content');
         }
+    }
+
+    private checkSortPermissions(): void {
+        this.sortContentMenu.setEnabled(false);
+        this.gridDragHandler.setEnabled(false);
+
+        new GetPermittedActionsRequest()
+            .addContentIds(this.selectedContent.getContentId())
+            .addPermissionsToBeChecked(Permission.CREATE)
+            .sendAndParse().then((result) => {
+            const hasModifyPermission: boolean = result.some(p => p === Permission.CREATE);
+            this.sortContentMenu.setEnabled(hasModifyPermission);
+            this.gridDragHandler.setEnabled(hasModifyPermission);
+        }).catch(DefaultErrorHandler.handle);
     }
 
     private handleSortOrderChanged() {
