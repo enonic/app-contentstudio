@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      publish: ${{ steps.publish_vars.outputs.release != 'true' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/5.')) }}
+      publish: ${{ steps.publish_vars.outputs.release != 'true' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/epic-enonic-ui') }}
       repo: ${{ steps.publish_vars.outputs.repo }}
 
     steps:

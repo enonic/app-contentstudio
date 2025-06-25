@@ -9,19 +9,19 @@ import {CompareStatus} from '../content/CompareStatus';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
-import {ConfirmValueDialog} from '../remove/ConfirmValueDialog';
 import {ResolveUnpublishRequest} from '../resource/ResolveUnpublishRequest';
 import {UnpublishContentRequest} from '../resource/UnpublishContentRequest';
 import {DependantItemsWithReferencesDialog} from '../dialog/DependantItemsWithReferencesDialog';
 import {DialogWithRefsItemListConfig} from '../remove/DialogWithRefsItemList';
 import {Branch} from '../versioning/Branch';
+import {DialogPresetConfirmDeletePreset} from '../../v6/features/shared/dialogs/DialogPreset';
 
 export class ContentUnpublishDialog
     extends DependantItemsWithReferencesDialog {
 
-    private unPublishConfirmationDialog?: ConfirmValueDialog;
-
     private unpublishAction: Action;
+
+    private unPublishConfirmationDialog?: DialogPresetConfirmDeletePreset;
 
     constructor() {
         super({
@@ -61,7 +61,7 @@ export class ContentUnpublishDialog
         if (this.isSiteOrMultipleItemsToUnPublish()) {
             this.showUnPublishConfirmationDialog();
         } else {
-            this.doUnPublish();
+            this.doUnPublish(this.getContentToUnpublishIds());
         }
     }
 
@@ -70,19 +70,20 @@ export class ContentUnpublishDialog
     }
 
     private showUnPublishConfirmationDialog(): void {
-        if (!this.unPublishConfirmationDialog) {
-            this.initUnPublishConfirmationDialog();
-        }
+        const totalToUnpublish = this.countTotal();
+        const contentIds = this.getContentToUnpublishIds();
 
-        this.unPublishConfirmationDialog.setValueToCheck('' + this.countTotal()).open();
-    }
+        this.unPublishConfirmationDialog = new DialogPresetConfirmDeletePreset({
+            open: true,
+            title: i18n('dialog.unpublish.confirm.title'),
+            description: i18n('dialog.unpublish.confirm.subtitle'),
+            expected: totalToUnpublish,
+            onConfirm: () => this.doUnPublish(contentIds, totalToUnpublish),
+            onCancel: () => this.unPublishConfirmationDialog.close(),
+        });
+        this.unPublishConfirmationDialog.open();
 
-    private initUnPublishConfirmationDialog(): void {
-        this.unPublishConfirmationDialog = new ConfirmValueDialog();
-        this.unPublishConfirmationDialog.setHeaderText(i18n('dialog.unpublish.confirm.title'));
-        this.unPublishConfirmationDialog.setSubheaderText(i18n('dialog.unpublish.confirm.subtitle'));
-        this.unPublishConfirmationDialog.setYesCallback(this.doUnPublish.bind(this));
-        this.unPublishConfirmationDialog.setNoCallback(this.close.bind(this));
+        this.close();
     }
 
     private useDefaultSubTitle(): void {
@@ -126,10 +127,13 @@ export class ContentUnpublishDialog
         });
     }
 
-    private doUnPublish(): void {
+    private doUnPublish(selectedIds: ContentId[], total?: number): void {
+        if (selectedIds.length === 0) {
+            return;
+        }
+
         this.lockControls();
-        this.setSubTitle(i18n('dialog.unpublish.beingUnpublished', this.countTotal()));
-        const selectedIds: ContentId[] = this.getContentToUnpublishIds();
+        this.setSubTitle(i18n('dialog.unpublish.beingUnpublished', total ?? selectedIds.length));
 
         new UnpublishContentRequest()
             .setIncludeChildren(true)

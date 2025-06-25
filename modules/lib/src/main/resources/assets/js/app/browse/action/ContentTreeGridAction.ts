@@ -1,17 +1,14 @@
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
 export class ContentTreeGridAction extends Action {
 
-    protected grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>;
-
+    protected grid: ContentTreeListElement;
     protected stashedState: boolean;
-
     protected stashed: boolean;
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>, label?: string, shortcut?: string, global?: boolean) {
+    constructor(grid: ContentTreeListElement, label?: string, shortcut?: string, global?: boolean) {
         super(label, shortcut, global);
 
         this.grid = grid;
