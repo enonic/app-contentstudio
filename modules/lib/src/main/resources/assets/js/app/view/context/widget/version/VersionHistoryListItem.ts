@@ -1,18 +1,18 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
-import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
+import {VersionHistoryItemViewer} from './VersionHistoryItemViewer';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
+import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {ContentVersionHelper} from '../../../../ContentVersionHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
+import {VersionHistoryItem} from './VersionHistoryItem';
 import {VersionContext} from './VersionContext';
 import Q from 'q';
 import {VersionHistoryHelper} from './VersionHistoryHelper';
-import {VersionHistoryItem} from './VersionHistoryItem';
-import {VersionHistoryItemViewer} from './VersionHistoryItemViewer';
+import {ContentVersionHelper} from '../../../../ContentVersionHelper';
 
 export class VersionHistoryListItem
     extends LiEl {
@@ -165,7 +165,9 @@ export class VersionHistoryListItem
             });
         }
 
-        return new ActionButton(revertAction);
+        return new ActionButton({
+            action: revertAction,
+        });
     }
 
     private toggleTooltip(active: boolean) {

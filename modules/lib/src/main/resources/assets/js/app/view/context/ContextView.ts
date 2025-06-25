@@ -7,32 +7,27 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {History, Link, List} from 'lucide-react';
 import Q from 'q';
+import WidgetsDropdownElement from '../../../v6/features/views/context/widget/WidgetsDropdown';
+import {DetailsWidgetElement} from '../../../v6/features/views/context/widget/details';
+import {DependenciesWidgetElement} from '../../../v6/features/views/context/widget/dependencies';
 import {CompareStatus} from '../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {InspectEvent} from '../../event/InspectEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
-import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
 import {ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
-import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
-import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
-import {AttachmentsWidgetItemView} from './widget/details/AttachmentsWidgetItemView';
-import {BasePropertiesWidgetItemView} from './widget/details/BasePropertiesWidgetItemView';
-import {ContentWidgetItemView} from './widget/details/ContentWidgetItemView';
-import {OnlinePropertiesWidgetItemView} from './widget/details/OnlinePropertiesWidgetItemView';
-import {PageTemplateWidgetItemView} from './widget/details/PageTemplateWidgetItemView';
-import {StatusWidgetItemView} from './widget/details/StatusWidgetItemView';
-import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
-import {VersionHistoryView} from './widget/version/VersionHistoryView';
-import {WidgetItemView} from './WidgetItemView';
-import {WidgetsSelectionRow} from './WidgetsSelectionRow';
-import {InternalWidgetType, WidgetView} from './WidgetView';
 import {PageEventsManager} from '../../wizard/PageEventsManager';
-import {PageNavigationMediator} from '../../wizard/PageNavigationMediator';
 import {PageNavigationEvent} from '../../wizard/PageNavigationEvent';
 import {PageNavigationEventType} from '../../wizard/PageNavigationEventType';
 import {PageNavigationHandler} from '../../wizard/PageNavigationHandler';
+import {PageNavigationMediator} from '../../wizard/PageNavigationMediator';
+import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
+import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
+import {VersionHistoryView} from './widget/version/VersionHistoryView';
+import {InternalWidgetType, WidgetView} from './WidgetView';
+import {cn} from '@enonic/ui';
 
 export class ContextView
     extends DivEl
@@ -40,7 +35,7 @@ export class ContextView
 
     protected widgetViews: WidgetView[] = [];
     protected contextContainer: DivEl;
-    protected widgetsSelectionRow: WidgetsSelectionRow;
+    protected widgetsSelectionRow: WidgetsDropdownElement;
 
     protected loadMask: LoadMask;
     protected divForNoSelection: DivEl;
@@ -69,11 +64,11 @@ export class ContextView
     public static debug: boolean = false;
 
     constructor(editorMode: boolean = false) {
-        super('context-panel-view');
+        super('context-panel-view bg-surface-neutral');
 
         this.editorMode = editorMode;
 
-        this.contextContainer = new DivEl('context-container');
+        this.contextContainer = new DivEl(cn('context-container p-5 pb-12'));
 
         this.loadMask = new LoadMask(this);
         this.loadMask.addClass('context-panel-mask');
@@ -174,19 +169,19 @@ export class ContextView
     }
 
     private initWidgetsSelectionRow() {
-        this.widgetsSelectionRow = new WidgetsSelectionRow();
+        this.widgetsSelectionRow = new WidgetsDropdownElement({}); 
         this.appendChild(this.widgetsSelectionRow);
         this.widgetsSelectionRow.updateState(this.activeWidget);
     }
 
     private handleApplicationEvents(event: ApplicationEvent) {
         const isWidgetUpdated = [
-                                    ApplicationEventType.INSTALLED,
-                                    ApplicationEventType.UNINSTALLED,
-                                    ApplicationEventType.STARTED,
-                                    ApplicationEventType.STOPPED,
-                                    ApplicationEventType.UPDATED
-                                ].indexOf(event.getEventType()) > -1;
+                ApplicationEventType.INSTALLED,
+                ApplicationEventType.UNINSTALLED,
+                ApplicationEventType.STARTED,
+                ApplicationEventType.STOPPED,
+                ApplicationEventType.UPDATED
+            ].indexOf(event.getEventType()) > -1;
 
         if (isWidgetUpdated) {
             const key = event.getApplicationKey().getName();
@@ -292,6 +287,12 @@ export class ContextView
         }
     }
 
+    setActiveWidgetByType(widgetType: InternalWidgetType) {
+        const widgetView = this.widgetViews.find((widget) => widget.getType() === widgetType);
+        if (!widgetView) return;
+        this.setActiveWidget(widgetView);
+    }
+
     getActiveWidget(): WidgetView {
         return this.activeWidget;
     }
@@ -342,7 +343,7 @@ export class ContextView
         }
 
         return this.activeWidget.updateWidgetItemViews().then(() => {
-            this.activeWidget.slideIn();
+                this.activeWidget.slideIn();
         }).catch(DefaultErrorHandler.handle);
     }
 
@@ -360,9 +361,10 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.details.description'))
             .setWidgetClass('properties-widget')
             .setIconClass('icon-list')
+            .setIcon(List)
             .setType(InternalWidgetType.INFO)
             .setContextView(this)
-            .setWidgetItemViews(this.getDetailsWidgetItemViews()).build();
+            .addWidgetItemView(new DetailsWidgetElement()).build();
 
         this.versionsWidgetView = this.createVersionsWidgetView();
         if (this.editorMode) {
@@ -412,6 +414,7 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.versionHistory.description'))
             .setWidgetClass('versions-widget')
             .setIconClass('icon-history')
+            .setIcon(History)
             .setType(InternalWidgetType.HISTORY)
             .setContextView(this)
             .addWidgetItemView(new VersionHistoryView()).build();
@@ -423,21 +426,10 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.dependencies.description'))
             .setWidgetClass('dependency-widget')
             .setIconClass('icon-link')
+            .setIcon(Link)
             .setType(InternalWidgetType.DEPENDENCIES)
             .setContextView(this)
-            .addWidgetItemView(new DependenciesWidgetItemView()).build();
-    }
-
-    protected getDetailsWidgetItemViews(): WidgetItemView[] {
-        return [
-            new ContentWidgetItemView(),
-            new StatusWidgetItemView(),
-            new UserAccessWidgetItemView(),
-            new BasePropertiesWidgetItemView(),
-            new OnlinePropertiesWidgetItemView(),
-            new PageTemplateWidgetItemView(),
-            new AttachmentsWidgetItemView()
-        ];
+            .addWidgetItemView(new DependenciesWidgetElement()).build();
     }
 
     protected fetchCustomWidgetViews(): Q.Promise<Widget[]> {
@@ -448,29 +440,29 @@ export class ContextView
 
     private fetchAndInitCustomWidgetViews(): Q.Promise<void> {
         return this.fetchCustomWidgetViews().then((widgets: Widget[]) => {
-            widgets.forEach((widget) => {
+                widgets.forEach((widget) => {
                 const widgetView = WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
-                this.addWidget(widgetView);
-            });
+                    this.addWidget(widgetView);
+                });
         }).catch((reason) => {
-            const msg = reason ? reason.message : i18n('notify.widget.error');
-            showError(msg);
-        });
+                const msg = reason ? reason.message : i18n('notify.widget.error');
+                showError(msg);
+            });
     }
 
     private fetchWidgetByKey(key: string): Q.Promise<Widget> {
         return this.fetchCustomWidgetViews().then((widgets: Widget[]) => {
-            for (const widget of widgets) {
-                if (widget.getWidgetDescriptorKey().getApplicationKey().getName() === key) {
-                    return widget;
+                for (const widget of widgets) {
+                    if (widget.getWidgetDescriptorKey().getApplicationKey().getName() === key) {
+                        return widget;
+                    }
                 }
-            }
-            return null;
+                return null;
         }).catch((reason) => {
-            const msg = reason ? reason.message : i18n('notify.widget.error');
-            showError(msg);
-            return null;
-        });
+                const msg = reason ? reason.message : i18n('notify.widget.error');
+                showError(msg);
+                return null;
+            });
     }
 
     getContextContainer(): DivEl {

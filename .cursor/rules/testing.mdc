@@ -1,0 +1,182 @@
+---
+description: Testing standards and best practices
+globs: *.test.ts,*.test.tsx,*.spec.ts,*.spec.tsx
+alwaysApply: false
+---
+
+# Testing Standards
+
+## Test Framework
+
+- **Test Runner**: Vitest
+- **Environment**: Happy DOM (for DOM manipulation and browser APIs)
+- **Mocking**: `vi` from Vitest (not Jest)
+- **Configuration**: See `vitest.config.mjs` in the module root
+
+## Test Structure
+
+```typescript
+// ✅ Arrange-Act-Assert pattern with Vitest
+import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
+
+describe('parseNumber', () => {
+    describe('number inputs', () => {
+        it('should return the number for valid integer', () => {
+            // Arrange
+            const input = 42;
+
+            // Act
+            const result = parseNumber(input);
+
+            // Assert
+            expect(result).toBe(42);
+        });
+
+        it('should return undefined for NaN', () => {
+            expect(parseNumber(NaN)).toBeUndefined();
+        });
+    });
+
+    describe('string inputs', () => {
+        it('should parse valid numeric string', () => {
+            expect(parseNumber('123')).toBe(123);
+        });
+
+        it('should return undefined for non-numeric string', () => {
+            expect(parseNumber('hello')).toBeUndefined();
+        });
+    });
+
+    describe('edge cases', () => {
+        it('should parse scientific notation', () => {
+            expect(parseNumber('1e3')).toBe(1000);
+        });
+
+        it('should return number for Infinity', () => {
+            expect(parseNumber(Infinity)).toBe(Infinity);
+        });
+    });
+});
+```
+
+## Mocking with Vitest
+
+```typescript
+// ✅ Mock global APIs (like fetch)
+import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
+
+describe('createLatestFetcher', () => {
+    beforeEach(() => {
+        globalThis.fetch = vi.fn();
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    it('should return response for a single request', async () => {
+        // Arrange
+        const mockResponse = new Response('{"data": "test"}', {
+            status: 200,
+            headers: {'Content-Type': 'application/json'},
+        });
+        vi.mocked(fetch).mockResolvedValueOnce(mockResponse);
+
+        // Act
+        const latestFetch = createLatestFetcher();
+        const response = await latestFetch('/api/data');
+
+        // Assert
+        expect(response).toBe(mockResponse);
+        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(fetch).toHaveBeenCalledWith('/api/data', {
+            signal: expect.any(AbortSignal),
+        });
+    });
+});
+```
+
+## Testing with Fake Timers
+
+```typescript
+// ✅ Use Vitest fake timers for debounce/throttle testing
+import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
+
+describe('debounce with leading-trailing strategy', () => {
+    beforeEach(() => {
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    it('should execute first request immediately and last request after debounce', async () => {
+        // Arrange
+        const latestFetch = createLatestFetcher({debounce: 200, strategy: 'leading-trailing'});
+        vi.mocked(fetch).mockResolvedValue(new Response('success'));
+
+        // Act
+        const requests = [
+            latestFetch('/api/search?q=h'),
+            latestFetch('/api/search?q=he'),
+            latestFetch('/api/search?q=hello'),
+        ];
+        await vi.runAllTimersAsync();
+        const results = await Promise.all(requests);
+
+        // Assert
+        expect(results[0]).not.toBeNull(); // Leading edge
+        expect(results[1]).toBeNull(); // Debounced
+        expect(results[2]).not.toBeNull(); // Trailing edge
+        expect(fetch).toHaveBeenCalledTimes(2);
+    });
+});
+```
+
+## Test Organization
+
+```typescript
+// ✅ Organize tests with nested describe blocks
+describe('ComponentName', () => {
+    describe('feature group', () => {
+        it('should handle specific case', () => {
+            // Test implementation
+        });
+    });
+
+    describe('edge cases', () => {
+        it('should handle edge case', () => {
+            // Test implementation
+        });
+    });
+
+    describe('error handling', () => {
+        it('should throw error for invalid input', () => {
+            expect(() => functionCall()).toThrow('Error message');
+        });
+    });
+});
+```
+
+## Best Practices
+
+- **Arrange-Act-Assert**: Structure all tests with clear AAA pattern
+- **Descriptive names**: Use `should` in test names to describe expected behavior
+- **Nested describes**: Group related tests with nested `describe` blocks
+- **Mock cleanup**: Always use `afterEach(() => vi.restoreAllMocks())`
+- **Async handling**: Use `async/await` for asynchronous operations
+- **Fake timers**: Use `vi.useFakeTimers()` for time-based functionality
+- **Test isolation**: Each test should be independent and not rely on others
+
+## Coverage
+
+Run tests with coverage:
+
+```bash
+pnpm test:coverage
+```
+
+Target coverage:
+- **Utility functions**: 100%+ coverage
+- **Complex logic**: High coverage for critical paths
