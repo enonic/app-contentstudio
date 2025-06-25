@@ -10,7 +10,7 @@ export class GetContentVersionsRequest
 
     private contentId: ContentId;
     private size: number;
-    private cursor: string;
+    private cursor?: string;
 
     constructor(contentId: ContentId) {
         super();
@@ -19,7 +19,7 @@ export class GetContentVersionsRequest
         this.addRequestPathElements('getVersions');
     }
 
-    setCursor(cursor: string): GetContentVersionsRequest {
+    setCursor(cursor?: string): GetContentVersionsRequest {
         this.cursor = cursor;
         return this;
     }
@@ -30,11 +30,20 @@ export class GetContentVersionsRequest
     }
 
     getParams(): object {
-        return {
+        const params: {
+            contentId: string;
+            size: number;
+            cursor?: string;
+        } = {
             contentId: this.contentId.toString(),
-            cursor: this.cursor,
             size: this.size || -1
         };
+
+        if (this.cursor) {
+            params.cursor = this.cursor;
+        }
+
+        return params;
     }
 
     protected parseResponse(response: JsonResponse<GetContentVersionsForViewResultsJson>): GetContentVersionsResult {

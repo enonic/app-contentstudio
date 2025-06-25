@@ -257,10 +257,10 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentBrowsePanel.pause(1000);
             await studioUtils.saveScreenshot('status_in_browse_panel');
             let parentFolderStatus = await contentBrowsePanel.getContentStatus(PARENT_FOLDER.displayName);
-            assert.equal(parentFolderStatus, appConst.CONTENT_STATUS.PUBLISHED, `Parent folder should be 'PUBLISHED'`);
+            assert.equal(parentFolderStatus, appConst.CONTENT_STATUS.ONLINE, `Parent folder should be 'Online'`);
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
             let childStatus = await contentBrowsePanel.getContentStatus(CHILD_FOLDER.displayName);
-            assert.equal(childStatus, appConst.CONTENT_STATUS.NEW, `child folder should be 'New'`);
+            assert.equal(childStatus, appConst.CONTENT_STATUS.OFFLINE, `child folder should be 'Offline'`);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

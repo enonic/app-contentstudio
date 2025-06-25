@@ -1,31 +1,31 @@
-import type Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Permission} from '../../../access/Permission';
-import {GetPermittedActionsRequest} from '../../../resource/GetPermittedActionsRequest';
-import {SaveSortedContentAction} from '../../action/SaveSortedContentAction';
-import {SortContentTreeGrid} from '../SortContentTreeGrid';
-import {SortContentTabMenu} from '../menu/SortContentTabMenu';
-import {ContentGridDragHandler} from '../../ContentGridDragHandler';
-import {OpenSortDialogEvent} from '../../OpenSortDialogEvent';
-import {OrderChildContentRequest} from '../../../resource/OrderChildContentRequest';
-import {type OrderChildMovements} from '../../../resource/order/OrderChildMovements';
-import {OrderContentRequest} from '../../../resource/OrderContentRequest';
-import {type Content} from '../../../content/Content';
-import {type ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
-import {type TabMenuItem, TabMenuItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
-import {type DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
-import {TabMenu} from '@enonic/lib-admin-ui/ui/tab/TabMenu';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {ModalDialog, type ModalDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {type SortContentTabMenuItem} from '../menu/SortContentTabMenuItem';
+import {TabMenu} from '@enonic/lib-admin-ui/ui/tab/TabMenu';
+import {type TabMenuItem, TabMenuItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
+import {type ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import type Q from 'q';
+import {Permission} from '../../../access/Permission';
+import {type Content} from '../../../content/Content';
+import {ContentInheritType} from '../../../content/ContentInheritType';
+import {type ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {ProjectContext} from '../../../project/ProjectContext';
 import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
 import {type ContentsExistResult} from '../../../resource/ContentsExistResult';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../resource/ContentSummaryAndCompareStatusFetcher';
-import {RestoreInheritRequest} from '../../../resource/RestoreInheritRequest';
-import {ContentInheritType} from '../../../content/ContentInheritType';
+import {GetPermittedActionsRequest} from '../../../resource/GetPermittedActionsRequest';
 import {type ChildOrder} from '../../../resource/order/ChildOrder';
+import {type OrderChildMovements} from '../../../resource/order/OrderChildMovements';
+import {OrderChildContentRequest} from '../../../resource/OrderChildContentRequest';
+import {OrderContentRequest} from '../../../resource/OrderContentRequest';
+import {RestoreInheritRequest} from '../../../resource/RestoreInheritRequest';
+import {SaveSortedContentAction} from '../../action/SaveSortedContentAction';
+import {ContentGridDragHandler} from '../../ContentGridDragHandler';
+import {OpenSortDialogEvent} from '../../OpenSortDialogEvent';
+import {SortContentTabMenu} from '../menu/SortContentTabMenu';
+import {type SortContentTabMenuItem} from '../menu/SortContentTabMenuItem';
+import {SortContentTreeGrid} from '../SortContentTreeGrid';
 
 export class SortContentDialog
     extends ModalDialog {
@@ -40,7 +40,7 @@ export class SortContentDialog
 
     private gridDragHandler: ContentGridDragHandler;
 
-    private saveButton: DialogButton;
+    private saveButton: ActionButton;
 
     private subHeader: H6El;
 

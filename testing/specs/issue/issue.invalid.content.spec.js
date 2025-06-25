@@ -43,13 +43,13 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await createIssueDialog.clickOnCreateIssueButton();
             // 5. Go to 'Items' tab
             await issueDetailsDialog.waitForDialogLoaded();
-            await issueDetailsDialog.clickOnItemsTabBarItem()
+            await issueDetailsDialog.clickOnItemsTabItem()
             await studioUtils.saveScreenshot('issue_details_items_2_parent_selected');
             await issueDetailsDialog.pause(1000);
             // 6. Verify that 'All' checkbox is displayed in the dialog:
             await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
             // 7. Verify that expected number of items is displayed in the Items tab-link:
-            let result = await issueDetailsDialog.getNumberOfItems();
+            let result = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '25', "25 items should be displayed in the 'Items' link");
             // 8. Publish button should be enabled, because all items are valid
             await issueDetailsDialogItemsTab.waitForPublishButtonEnabled();
@@ -77,7 +77,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialog.waitForDialogLoaded();
             await issueDetailsDialog.pause(1000);
             // 4. 12 items should be in the issue-details dialog:
-            let result = await issueDetailsDialog.getNumberOfItems();
+            let result = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '12', "12 items should be displayed in the 'Items' link");
         });
 
@@ -92,7 +92,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 3. Go to 'Items' tab:
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             await studioUtils.saveScreenshot('publish_close_issue_should_be_disabled');
             // 4.'Publish...' button should be disabled, because invalid child is present'
             let isEnabled = await issueDetailsDialogItemsTab.isPublishButtonEnabled();
@@ -110,7 +110,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 3. Go to 'Items' tab:
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             // 4. Exclude the invalid content:
             await issueDetailsDialogItemsTab.clickOnCheckboxInDependentItem('shortcut-imported');
             await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
@@ -134,7 +134,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 2. Go to 'Items' tab(IssueDetails dialog):
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             // 3. Exclude a dependant item: click on the checkbox:
             await issueDetailsDialogItemsTab.clickOnCheckboxInDependentItem(TEST_CONTENT_NAME);
             await issueDetailsDialogItemsTab.clickOnApplySelectionButton();

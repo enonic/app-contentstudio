@@ -2,7 +2,7 @@
  * Created on 14.12.2017.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const SiteConfiguratorComboBox = require('../components/selectors/site.configurator.combobox');
 const SiteConfigDialog = require('./site.configurator.dialog');
@@ -47,7 +47,7 @@ class SiteForm extends Page {
                 // await this.waitForNotificationMessage();
             }
         } catch (err) {
-            throw new Error("Error during creating site(Site form panel)  " + err);
+            throw new Error("Error in Site form panel!" + err);
         }
     }
 

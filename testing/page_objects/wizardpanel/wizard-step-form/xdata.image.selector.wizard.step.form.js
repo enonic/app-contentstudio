@@ -2,7 +2,7 @@
  * Created on 20.11.2018.
  */
 const Page = require('../../page');
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 const ImageSelectorDropdown = require('../../components/selectors/image.selector.dropdown');
 

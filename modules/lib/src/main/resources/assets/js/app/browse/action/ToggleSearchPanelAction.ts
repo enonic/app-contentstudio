@@ -6,8 +6,8 @@ import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryA
 
 export class ToggleSearchPanelAction extends ContentTreeGridAction {
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, '', 'shift+f', true);
+    constructor() {
+        super('', 'shift+f', true);
 
         this.setIconClass('icon-search3').setClass('search');
     }

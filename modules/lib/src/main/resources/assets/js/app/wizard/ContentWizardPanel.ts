@@ -25,7 +25,6 @@ import {type PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEve
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {type ActivatedEvent} from '@enonic/lib-admin-ui/ui/ActivatedEvent';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
@@ -45,6 +44,10 @@ import {ValidationErrorHelper} from '@enonic/lib-admin-ui/ValidationErrorHelper'
 import {type ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
+import {DialogPresetConfirmElement} from '../../v6/features/shared/dialogs/DialogPreset';
+import {setContentType, setPersistedContent} from '../../v6/features/store/wizardContent.store';
+import type {PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
+import {ContentWizardTabsElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsElement';
 import {Permission} from '../access/Permission';
 import {AI} from '../ai/AI';
 import {AiContentDataHelper} from '../ai/AiContentDataHelper';
@@ -60,11 +63,11 @@ import {ContentPathPrettifier} from '../content/ContentPathPrettifier';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 import {Mixin} from '../content/Mixin';
+import {type MixinDescriptor} from '../content/MixinDescriptor';
+import {MixinName} from '../content/MixinName';
 import {type PageTemplate} from '../content/PageTemplate';
 import {type Site} from '../content/Site';
 import {WorkflowState} from '../content/WorkflowState';
-import {type MixinDescriptor} from '../content/MixinDescriptor';
-import {MixinName} from '../content/MixinName';
 import {ContentFormContext} from '../ContentFormContext';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
 import {ContentLanguageUpdatedEvent} from '../event/ContentLanguageUpdatedEvent';
@@ -73,6 +76,7 @@ import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {InspectEvent} from '../event/InspectEvent';
+import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {type ContentType} from '../inputtype/schema/ContentType';
 import {ImageErrorEvent} from '../inputtype/ui/selector/image/ImageErrorEvent';
 import {type Descriptor} from '../page/Descriptor';
@@ -87,8 +91,8 @@ import {ContentsExistRequest} from '../resource/ContentsExistRequest';
 import {type ContentsExistResult} from '../resource/ContentsExistResult';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {type CreateContentRequest} from '../resource/CreateContentRequest';
-import {GetApplicationRequest} from '../resource/GetApplicationRequest';
 import {GetApplicationMixinsRequest} from '../resource/GetApplicationMixinsRequest';
+import {GetApplicationRequest} from '../resource/GetApplicationRequest';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentMixinsRequest} from '../resource/GetContentMixinsRequest';
 import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
@@ -106,7 +110,7 @@ import {ContextPanelState} from '../view/context/ContextPanelState';
 import {type ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
-import {VersionContext} from '../view/context/widget/version/VersionContext';
+import {AccessControlHelper} from './AccessControlHelper';
 import {type ContentSaveAction} from './action/ContentSaveAction';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentContext} from './ContentContext';
@@ -133,7 +137,6 @@ import {PageComponentsWizardStep} from './PageComponentsWizardStep';
 import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
 import {PageEventsManager} from './PageEventsManager';
 import {PageNavigationEventSource} from './PageNavigationEventData';
-import {AccessControlHelper} from './AccessControlHelper';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {SiteContentWizardStepForm} from './SiteContentWizardStepForm';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
@@ -142,8 +145,6 @@ import {WorkflowStateManager, type WorkflowStateStatus} from './WorkflowStateMan
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
-import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {type ContentItemPreviewToolbar} from '../view/ContentItemPreviewToolbar';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -151,6 +152,8 @@ export class ContentWizardPanel
     private contextSplitPanel: ContentWizardContextSplitPanel;
 
     private contextView: ContextView;
+
+    private loadDifferenceDialog?: DialogPresetConfirmElement;
 
     private livePanel?: LiveFormPanel;
 
@@ -633,7 +636,7 @@ export class ContentWizardPanel
         return super.getMainToolbar() as ContentWizardToolbar;
     }
 
-    private getWidgetToolbar(): ContentItemPreviewToolbar {
+    private getWidgetToolbar(): PreviewToolbarElement {
         return this.getLivePanel().getFrameContainer().getToolbar();
     }
 
@@ -840,6 +843,19 @@ export class ContentWizardPanel
     }
 
     protected prepareMainPanel(): Panel {
+        this.formPanel.addClass('content-wizard-form-panel');
+
+        if (this.contentType) {
+            setContentType(this.contentType);
+        }
+        if (this.getPersistedItem()) {
+            setPersistedContent(this.getPersistedItem());
+        }
+        const contentWizardTabsElement = new ContentWizardTabsElement();
+        this.formPanel.prependChild(contentWizardTabsElement);
+
+        this.onPageStateChanged(() => this.updateTabsElement());
+
         const leftPanel: Panel = this.createSplitFormAndLivePanel(this.formPanel, this.livePanel);
         return this.createWizardAndDetailsSplitPanel(leftPanel);
     }
@@ -1104,12 +1120,15 @@ export class ContentWizardPanel
                     if (persistedContent.getType().isDescendantOfMedia()) {
                         this.updateXDataStepForms(currentContent);
                     } else {
-                        new ConfirmationDialog()
-                            .setQuestion(i18n('dialog.confirm.contentDiffers'))
-                            .setYesCallback(() => void this.doLayoutPersistedItem(currentContent))
-                            .setNoCallback(() => { /* empty */
-                            })
-                            .show();
+                        this.loadDifferenceDialog = new DialogPresetConfirmElement({
+                            open: true,
+                            title: i18n('dialog.confirm.title'),
+                            description: i18n('dialog.confirm.contentDiffers'),
+                            onConfirm: () => void this.doLayoutPersistedItem(currentContent),
+                            onCancel: () => this.loadDifferenceDialog.close()
+                        });
+
+                        this.loadDifferenceDialog.open();
                     }
                 }
 
@@ -1301,6 +1320,7 @@ export class ContentWizardPanel
                 this.formsContexts.delete(xDataName);
             }
         });
+        this.updateTabsElement();
     }
 
     private resetWizard() {
@@ -1551,8 +1571,6 @@ export class ContentWizardPanel
             }
         };
 
-        VersionContext.onActiveVersionChanged(versionChangeHandler);
-
         serverEvents.onContentCreated(createdHandler);
         serverEvents.onContentMoved(movedHandler);
         serverEvents.onContentSorted(sortedHandler);
@@ -1566,8 +1584,6 @@ export class ContentWizardPanel
         serverEvents.onContentDeleted(deleteHandler);
 
         this.onClosed(() => {
-            VersionContext.unActiveVersionChanged(versionChangeHandler);
-
             serverEvents.unContentCreated(createdHandler);
             serverEvents.unContentMoved(movedHandler);
             serverEvents.unContentSorted(sortedHandler);
@@ -1901,7 +1917,9 @@ export class ContentWizardPanel
                 return Q(null);
             }
 
-            return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this));
+            return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this)).then(() => {
+                this.updateTabsElement();
+            });
         });
     }
 
@@ -2031,7 +2049,9 @@ export class ContentWizardPanel
             formViewLayoutPromises.push(promise);
         });
 
-        return Q.all(formViewLayoutPromises).thenResolve(null);
+        return Q.all(formViewLayoutPromises).then(() => {
+            this.updateTabsElement();
+        }).thenResolve(null);
     }
 
     private layoutXDataWizardStepForm(content: Content, xDataStepForm: XDataWizardStepForm): Q.Promise<void> {
@@ -2203,6 +2223,7 @@ export class ContentWizardPanel
 
                 return Q.all(layoutPromises).then(() => {
                     this.xDataWizardStepForms.resetState();
+                    this.updateTabsElement();
                 });
 
             }).catch((reason) => {
@@ -2498,6 +2519,12 @@ export class ContentWizardPanel
 
     getLiveMask(): LoadMask {
         return this.liveMask;
+    }
+
+    private updateTabsElement(): void {
+        if (this.getPersistedItem()) {
+            setPersistedContent(this.getPersistedItem());
+        }
     }
 
     onPageStateChanged(listener: () => void) {
