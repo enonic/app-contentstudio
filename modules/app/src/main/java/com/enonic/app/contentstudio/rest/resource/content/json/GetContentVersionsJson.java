@@ -5,26 +5,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GetContentVersionsJson
 {
-    private final Integer from;
+    private final String cursor;
 
     private final Integer size;
 
     private final String contentId;
 
     @JsonCreator
-    public GetContentVersionsJson( @JsonProperty("from") final Integer from, //
-                                   @JsonProperty("size") final Integer size, //
+    public GetContentVersionsJson( @JsonProperty("size") final Integer size,
+                                   @JsonProperty("cursor") final String cursor,
                                    @JsonProperty("contentId") final String contentId )
     {
-        this.from = from;
+        this.cursor = cursor;
         this.size = size;
         this.contentId = contentId;
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public Integer getFrom()
+    public String  getCursor()
     {
-        return from;
+        return cursor;
     }
 
     @SuppressWarnings("UnusedDeclaration")

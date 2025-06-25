@@ -13,10 +13,11 @@ import {PublishProcessor} from '../../publish/PublishProcessor';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {PublishRequestItem} from '../PublishRequestItem';
 import {IssueDialogForm} from './IssueDialogForm';
+import {StatusCheckableItem} from '../../dialog/StatusCheckableItem';
 
 export type IssueDialogConfig = Pick<DependantItemsDialogConfig, 'title' | 'controls'>;
 export abstract class IssueDialog
-    extends DependantItemsDialog {
+    extends DependantItemsDialog<StatusCheckableItem> {
 
     protected form: IssueDialogForm;
 

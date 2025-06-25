@@ -1,21 +1,19 @@
-import {ShowNewContentDialogEvent} from '../ShowNewContentDialogEvent';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
+import {openNewContentDialog} from '../../../v6/features/store/dialogs/newContentDialog.store';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class ShowNewContentDialogAction extends ContentTreeGridAction {
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.newMore'), 'alt+n');
+    constructor() {
+        super(i18n('action.new'), 'alt+n');
 
         this.setEnabled(true).setClass('new');
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedItems();
-        new ShowNewContentDialogEvent(contents.length > 0 ? contents[0] : null).fire();
+        openNewContentDialog(getCurrentItems()[0]);
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

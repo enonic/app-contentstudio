@@ -1,9 +1,10 @@
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
-const lib = require('../libs/elements');
+const lib = require('../libs/elements-old');
 const path = require('path');
 const fs = require('fs');
 const {Key} = require('webdriverio');
+const {COMMON} = require('../libs/elements');
 
 class Page {
 
@@ -344,11 +345,11 @@ class Page {
 
     async waitForNotificationMessage() {
         try {
-            let notificationXpath = lib.NOTIFICATION_TEXT;
+            let notificationXpath = COMMON.NOTIFICATION_TEXT;
             await this.getBrowser().waitUntil(async () => {
                 return await this.isElementDisplayed(notificationXpath);
-            }, {timeout: appConst.longTimeout, timeoutMsg: 'Error when wait for the notification message'});
-            await this.pause(400);
+            }, {timeout: appConst.longTimeout, timeoutMsg: 'The notification message was not shown'});
+            await this.pause(100);
             return await this.getText(notificationXpath);
         } catch (err) {
             await this.handleError('Waited for the notification message', 'err_notif_msg', err);
@@ -371,17 +372,16 @@ class Page {
             await this.pause(300);
             return await this.getTextInDisplayedElements(lib.NOTIFICATION_TEXT);
         } catch (err) {
-            await this.handleError('Wait for notification messages - ', 'err_notification_messages', err);
+            await this.handleError('Wait for notification messages ', 'err_notification_messages', err);
         }
     }
 
     async waitForExpectedNotificationMessage(expectedMessage) {
         try {
-            let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-text') and contains(.,'${expectedMessage}')]`;
+            let selector = `//div[contains(@id,'NotificationMessage')]//p[contains(.,'${expectedMessage}')]`;
             await this.waitForElementDisplayed(selector, appConst.shortTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_notification');
-            throw new Error('expected notification message was not shown, screenshot: ' + screenshot + "  " + err);
+            await this.handleError(`Wait for expected notification message: ${expectedMessage} - `, 'err_exp_notification_message', err);
         }
     }
 
@@ -480,7 +480,7 @@ class Page {
             type: 'key',
             id: 'keyboard',
             actions: [
-                { type: 'keyDown', value: Key.Shift }
+                {type: 'keyDown', value: Key.Shift}
             ]
         }]);
 
@@ -490,8 +490,8 @@ class Page {
                 type: 'key',
                 id: 'keyboard',
                 actions: [
-                    { type: 'keyDown', value: Key.ArrowDown },
-                    { type: 'keyUp', value: Key.ArrowDown  }
+                    {type: 'keyDown', value: Key.ArrowDown},
+                    {type: 'keyUp', value: Key.ArrowDown}
                 ]
             }]);
             await this.getBrowser().pause(400);
@@ -501,7 +501,7 @@ class Page {
             type: 'key',
             id: 'keyboard',
             actions: [
-                { type: 'keyUp', value: Key.Shift } // Shift
+                {type: 'keyUp', value: Key.Shift} // Shift
             ]
         }]);
     }

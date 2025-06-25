@@ -55,7 +55,6 @@ import com.enonic.app.contentstudio.json.content.ContentsExistByPathJson;
 import com.enonic.app.contentstudio.json.content.ContentsExistJson;
 import com.enonic.app.contentstudio.json.content.DependenciesAggregationJson;
 import com.enonic.app.contentstudio.json.content.DependenciesJson;
-import com.enonic.app.contentstudio.json.content.GetActiveContentVersionsResultJson;
 import com.enonic.app.contentstudio.json.content.GetContentVersionsResultJson;
 import com.enonic.app.contentstudio.json.content.ReorderChildrenResultJson;
 import com.enonic.app.contentstudio.json.content.RootPermissionsJson;
@@ -123,6 +122,7 @@ import com.enonic.xp.attachment.Attachments;
 import com.enonic.xp.attachment.CreateAttachment;
 import com.enonic.xp.attachment.CreateAttachments;
 import com.enonic.xp.branch.Branch;
+import com.enonic.xp.branch.Branches;
 import com.enonic.xp.content.CompareContentResult;
 import com.enonic.xp.content.CompareContentResults;
 import com.enonic.xp.content.CompareContentsParams;
@@ -150,8 +150,10 @@ import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentByParentResult;
 import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
-import com.enonic.xp.content.FindContentVersionsParams;
-import com.enonic.xp.content.FindContentVersionsResult;
+import com.enonic.xp.content.GetActiveContentVersionsParams;
+import com.enonic.xp.content.GetActiveContentVersionsResult;
+import com.enonic.xp.content.GetContentVersionsParams;
+import com.enonic.xp.content.GetContentVersionsResult;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.content.GetPublishStatusesParams;
 import com.enonic.xp.content.GetPublishStatusesResult;
@@ -1442,32 +1444,24 @@ public final class ContentResource
     public GetContentVersionsResultJson getContentVersions( final GetContentVersionsJson params )
     {
         final ContentId contentId = ContentId.from( params.getContentId() );
-        final int from = params.getFrom() != null ? params.getFrom() : 0;
         final int size = params.getSize() != null ? params.getSize() : 50;
 
-        final FindContentVersionsResult result =
-            contentService.getVersions( FindContentVersionsParams.create().contentId( contentId ).from( from ).size( size ).build() );
+        final GetContentVersionsResult result = contentService.getVersions(
+            GetContentVersionsParams.create().cursor( params.getCursor() ).contentId( contentId ).size( size ).build() );
+        // for the first request return active version id
+        final ContentVersionId onlineVersionId = params.getCursor() == null ? getOnlineVersionId( contentId ) : null;
 
-        return new GetContentVersionsResultJson( result, from, this.principalsResolver, this.contentPublishInfoResolver );
+        return new GetContentVersionsResultJson( result, onlineVersionId, this.principalsResolver, this.contentPublishInfoResolver );
     }
 
-    @GET
-    @Path("getActiveVersions")
-    public GetActiveContentVersionsResultJson getActiveVersions( @QueryParam("id") final String id )
+    private ContentVersionId getOnlineVersionId( final ContentId contentId )
     {
-        final FindContentVersionsParams findParam = FindContentVersionsParams.create().contentId( ContentId.from( id ) ).size( 1 ).build();
+        final Branch master = Branch.from( "master" );
+        final GetActiveContentVersionsResult result = contentService.getActiveVersions(
+            GetActiveContentVersionsParams.create().contentId( contentId ).branches( Branches.from( master ) ).build() );
 
-        final ContentVersion draft = getActiveVersion( findParam );
-
-        return new GetActiveContentVersionsResultJson();
-    }
-
-    private ContentVersion getActiveVersion( final FindContentVersionsParams findParam )
-    {
-        return ContextBuilder.copyOf( ContextAccessor.current() )
-            .branch( ContentConstants.BRANCH_DRAFT )
-            .build()
-            .callWith( () -> contentService.getVersions( findParam ).getContentVersions().first() );
+        final ContentVersion onlineVersion = result.getContentVersions().get( master );
+        return onlineVersion != null ? onlineVersion.versionId() : null;
     }
 
     @GET

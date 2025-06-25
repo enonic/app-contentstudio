@@ -4,6 +4,7 @@ import {ContentWizardPanel} from '../ContentWizardPanel';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {PreviewActionHelper} from '../../action/PreviewActionHelper';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
+import {$activeWidget} from '../../../v6/features/store/liveViewWidgets.store';
 
 export class PreviewAction
     extends Action {
@@ -23,7 +24,7 @@ export class PreviewAction
     }
 
     protected handleExecuted() {
-        const widget = this.wizard.getLivePanel().getFrameContainer().getWidgetSelector().getSelectedWidget();
+        const widget = $activeWidget.get();
         if (this.writePermissions && this.wizard.hasUnsavedChanges()) {
             this.wizard.setRequireValid(true);
             this.wizard.saveChanges().then(content => this.helper.openWindow(content, widget)).catch(

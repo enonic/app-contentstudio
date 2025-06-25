@@ -23,7 +23,7 @@ class FieldSetForm extends Page {
     }
 
     async typeTextInHtmlArea(text, index) {
-        let htmlAreaForm = new HtmlAreaForm();
+        let htmlAreaForm = new HtmlAreaForm(XPATH.container);
         return await htmlAreaForm.insertTextInHtmlArea(index, text)
     }
 

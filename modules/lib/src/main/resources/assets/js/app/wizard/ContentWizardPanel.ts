@@ -25,7 +25,6 @@ import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ActivatedEvent} from '@enonic/lib-admin-ui/ui/ActivatedEvent';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
@@ -45,6 +44,7 @@ import {ValidationErrorHelper} from '@enonic/lib-admin-ui/ValidationErrorHelper'
 import {ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
+import {DialogPresetConfirmElement} from '../../v6/features/shared/dialogs/DialogPreset';
 import {Permission} from '../access/Permission';
 import {AI} from '../ai/AI';
 import {AiContentDataHelper} from '../ai/AiContentDataHelper';
@@ -106,7 +106,6 @@ import {ContextPanelState} from '../view/context/ContextPanelState';
 import {ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
-import {VersionContext} from '../view/context/widget/version/VersionContext';
 import {ContentSaveAction} from './action/ContentSaveAction';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentContext} from './ContentContext';
@@ -143,7 +142,9 @@ import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {ContentItemPreviewToolbar} from '../view/ContentItemPreviewToolbar';
+import {PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
+import {ContentWizardTabsElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsElement';
+import {setPersistedContent, setContentType, setXDataSchemas} from '../../v6/features/store/wizardContent.store';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -151,6 +152,8 @@ export class ContentWizardPanel
     private contextSplitPanel: ContentWizardContextSplitPanel;
 
     private contextView: ContextView;
+
+    private loadDifferenceDialog?: DialogPresetConfirmElement;
 
     private livePanel?: LiveFormPanel;
 
@@ -263,6 +266,8 @@ export class ContentWizardPanel
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     private isRename: boolean;
+
+    private contentWizardTabsElement: ContentWizardTabsElement;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
@@ -529,7 +534,10 @@ export class ContentWizardPanel
     }
 
     fetchContentXData(): Q.Promise<XData[]> {
-        return new GetContentXDataRequest(this.getPersistedItem().getContentId()).sendAndParse();
+        return new GetContentXDataRequest(this.getPersistedItem().getContentId()).sendAndParse().then((xDatas: XData[]) => {
+            setXDataSchemas(xDatas);
+            return xDatas;
+        });
     }
 
     protected doLoadData(): Q.Promise<Content> {
@@ -633,7 +641,7 @@ export class ContentWizardPanel
         return super.getMainToolbar() as ContentWizardToolbar;
     }
 
-    private getWidgetToolbar(): ContentItemPreviewToolbar {
+    private getWidgetToolbar(): PreviewToolbarElement {
         return this.getLivePanel().getFrameContainer().getToolbar();
     }
 
@@ -840,6 +848,19 @@ export class ContentWizardPanel
     }
 
     protected prepareMainPanel(): Panel {
+        this.formPanel.addClass('content-wizard-form-panel');
+
+        if (this.contentType) {
+            setContentType(this.contentType);
+        }
+        if (this.getPersistedItem()) {
+            setPersistedContent(this.getPersistedItem());
+        }
+        this.contentWizardTabsElement = new ContentWizardTabsElement();
+        this.formPanel.prependChild(this.contentWizardTabsElement);
+
+        this.onPageStateChanged(() => this.updateTabsElement());
+
         const leftPanel: Panel = this.createSplitFormAndLivePanel(this.formPanel, this.livePanel);
         return this.createWizardAndDetailsSplitPanel(leftPanel);
     }
@@ -1104,12 +1125,15 @@ export class ContentWizardPanel
                     if (persistedContent.getType().isDescendantOfMedia()) {
                         this.updateXDataStepForms(currentContent);
                     } else {
-                        new ConfirmationDialog()
-                            .setQuestion(i18n('dialog.confirm.contentDiffers'))
-                            .setYesCallback(() => void this.doLayoutPersistedItem(currentContent))
-                            .setNoCallback(() => { /* empty */
-                            })
-                            .show();
+                        this.loadDifferenceDialog = new DialogPresetConfirmElement({
+                            open: true,
+                            title: i18n('dialog.confirm.title'),
+                            description: i18n('dialog.confirm.contentDiffers'),
+                            onConfirm: () => void this.doLayoutPersistedItem(currentContent),
+                            onCancel: () => this.loadDifferenceDialog.close()
+                        });
+
+                        this.loadDifferenceDialog.open();
                     }
                 }
 
@@ -1297,6 +1321,7 @@ export class ContentWizardPanel
                 this.formsContexts.delete(xDataName);
             }
         });
+        this.updateTabsElement();
     }
 
     private resetWizard() {
@@ -1540,8 +1565,6 @@ export class ContentWizardPanel
             }
         };
 
-        VersionContext.onActiveVersionChanged(versionChangeHandler);
-
         serverEvents.onContentCreated(createdHandler);
         serverEvents.onContentMoved(movedHandler);
         serverEvents.onContentSorted(sortedHandler);
@@ -1555,8 +1578,6 @@ export class ContentWizardPanel
         serverEvents.onContentDeleted(deleteHandler);
 
         this.onClosed(() => {
-            VersionContext.unActiveVersionChanged(versionChangeHandler);
-
             serverEvents.unContentCreated(createdHandler);
             serverEvents.unContentMoved(movedHandler);
             serverEvents.unContentSorted(sortedHandler);
@@ -1892,7 +1913,9 @@ export class ContentWizardPanel
                 return Q(null);
             }
 
-            return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this));
+            return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this)).then(() => {
+                this.updateTabsElement();
+            });
         });
     }
 
@@ -2022,7 +2045,9 @@ export class ContentWizardPanel
             formViewLayoutPromises.push(promise);
         });
 
-        return Q.all(formViewLayoutPromises).thenResolve(null);
+        return Q.all(formViewLayoutPromises).then(() => {
+            this.updateTabsElement();
+        }).thenResolve(null);
     }
 
     private layoutXDataWizardStepForm(content: Content, xDataStepForm: XDataWizardStepForm): Q.Promise<void> {
@@ -2194,6 +2219,7 @@ export class ContentWizardPanel
 
                 return Q.all(layoutPromises).then(() => {
                     this.xDataWizardStepForms.resetState();
+                    this.updateTabsElement();
                 });
 
             }).catch((reason) => {
@@ -2489,6 +2515,12 @@ export class ContentWizardPanel
 
     getLiveMask(): LoadMask {
         return this.liveMask;
+    }
+
+    private updateTabsElement(): void {
+        if (this.getPersistedItem()) {
+            setPersistedContent(this.getPersistedItem());
+        }
     }
 
     onPageStateChanged(listener: () => void) {

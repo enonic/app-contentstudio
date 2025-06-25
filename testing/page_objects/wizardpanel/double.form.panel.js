@@ -2,7 +2,7 @@
  * Created on 25.12.2017.
  */
 const OccurrencesFormView = require('./occurrences.form.view');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {

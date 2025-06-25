@@ -1,22 +1,20 @@
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {RequestContentPublishPromptEvent} from '../RequestContentPublishPromptEvent';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
+import {RequestContentPublishPromptEvent} from '../RequestContentPublishPromptEvent';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class RequestPublishContentAction
     extends ContentTreeGridAction {
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.requestPublishMore'));
+    constructor() {
+        super(i18n('action.requestPublish'));
 
         this.setEnabled(false).setClass('request-publish');
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedItems();
-        new RequestContentPublishPromptEvent(contents).fire();
+        new RequestContentPublishPromptEvent([...getCurrentItems()]).fire();
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

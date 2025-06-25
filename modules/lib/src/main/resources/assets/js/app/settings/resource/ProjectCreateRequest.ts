@@ -5,7 +5,7 @@ import {Project} from '../data/project/Project';
 export class ProjectCreateRequest
     extends ProjectCreateUpdateRequest {
 
-    private parents: Project[];
+    private parents: Readonly<Project>[];
 
     private readAccess: ProjectReadAccess;
 
@@ -14,7 +14,7 @@ export class ProjectCreateRequest
         this.addRequestPathElements('create');
     }
 
-    setParents(value: Project[]): ProjectCreateRequest {
+    setParents(value: Readonly<Project>[]): ProjectCreateRequest {
         this.parents = value;
         return this;
     }

@@ -2074,7 +2074,7 @@ public class ContentResourceTest
         when( securityService.getUser( PrincipalKey.ofAnonymous() ) ).thenReturn( Optional.of( User.anonymous() ) );
 
         GetContentVersionsResultJson result =
-            contentResource.getContentVersions( new GetContentVersionsJson( 0, 10, content.getId().toString() ) );
+            contentResource.getContentVersions( new GetContentVersionsJson( 0, "cursor", content.getId().toString() ) );
 
         final ContentVersionJson[] resultArray = result.getContentVersions().toArray(ContentVersionJson[]::new);
         assertTrue( resultArray.length == 2 );

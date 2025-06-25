@@ -6,7 +6,8 @@ import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRo
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import Q from 'q';
-import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
+import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
+import {openPublishDialog} from '../../v6/features/store/dialogs/publishDialog.store';
 import {ContentId} from '../content/ContentId';
 import {BasePublishDialog} from '../dialog/BasePublishDialog';
 import {ContentDialogSubTitle} from '../dialog/ContentDialogSubTitle';
@@ -39,7 +40,7 @@ export class ContentPublishDialog
             class: 'publish-dialog',
             buttonRow: new DropdownButtonRow(),
             processingLabel: `${i18n('field.progress.publishing')}...`,
-            processHandler: () => new ContentPublishPromptEvent({model: []}).fire(),
+            processHandler: () => openPublishDialog([]),
         } satisfies DependantItemsWithProgressDialogConfig);
 
         this.onProgressComplete((taskState) => {
@@ -104,6 +105,14 @@ export class ContentPublishDialog
         this.setElementToFocusOnShow(this.publishSubTitle.getLinkEl());
     }
 
+    protected createItemList(): PublishItemsListElement {
+        return new PublishItemsListElement({items: []});
+    }
+
+    protected getItemList(): PublishItemsListElement {
+        return super.getItemList() as PublishItemsListElement;
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.setSubTitleEl(this.publishSubTitle);
@@ -113,7 +122,7 @@ export class ContentPublishDialog
 
             this.prependChildToContentPanel(this.publishScheduleForm);
 
-            this.prependChildToContentPanel(this.stateBar);
+            this.prependChildToContentPanel(this.statusBar);
 
             return rendered;
         });
@@ -127,25 +136,12 @@ export class ContentPublishDialog
     }
 
     setIncludeChildItems(include: boolean, exceptedIds?: ContentId[]): ContentPublishDialog {
-        const hasExceptedIds = exceptedIds != null && exceptedIds.length > 0;
-        const idExcepted = (id: ContentId) => exceptedIds.some(exceptedId => exceptedId.equals(id));
-        let noIdsIncluded = true;
-
-        this.getItemList().getItemViews().forEach(itemView => {
-            if (itemView.hasChildrenItems()) {
-                const isIdIncluded: boolean = (hasExceptedIds && idExcepted(itemView.getContentId())) ? !include : include;
-                itemView.toggleIncludeChildren(isIdIncluded);
-
-                if (isIdIncluded && noIdsIncluded) {
-                    noIdsIncluded = false;
-                }
-            }
-        });
-
-        if (noIdsIncluded) {
-            // do reload dependencies manually if no children included to update buttons
-            this.publishProcessor.reloadPublishDependencies({resetDependantItems: true});
+        this.getItemList().setIncludeChildren(include);
+        if (exceptedIds) {
+            this.getItemList().setExcludedChildrenIds(exceptedIds);
         }
+
+        this.publishProcessor.reloadDependenciesDebounced({resetDependantItems: true});
 
         return this;
     }
@@ -209,7 +205,7 @@ export class ContentPublishDialog
             this.message = null;
         }
 
-        super.updateSubTitle(itemsToPublish);
+        super.updateSubTitle();
     }
 
 

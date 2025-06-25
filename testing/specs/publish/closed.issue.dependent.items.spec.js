@@ -37,12 +37,12 @@ describe('closed.issue.dependent.items.spec - tests for dependent items in close
             await createIssueDialog.clickOnCreateIssueButton();
             // 5. Go to 'Items' tab
             await issueDetailsDialog.waitForDialogLoaded();
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             // 6. Verify that 'All' checkbox is displayed
             await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
             // 7. Expand the status selector  then click on "Closed" menu item:
             await issueDetailsDialog.clickOnStatusSelectorMenu();
-            await issueDetailsDialog.clickOncloseTabMenuItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             // 8. Verify that 'All' checkbox gets not visible in closed issue:
             await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxNotDisplayed();
             let items = await issueDetailsDialogItemsTab.getDisplayNameInDependentItems();

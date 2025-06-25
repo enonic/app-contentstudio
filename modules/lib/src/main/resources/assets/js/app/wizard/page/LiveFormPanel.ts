@@ -55,7 +55,6 @@ import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSumma
 import {PageHelper} from '../../util/PageHelper';
 import {ContextPanelState} from '../../view/context/ContextPanelState';
 import {ContextPanelMode} from '../../view/context/ContextSplitPanel';
-import {PreviewWidgetDropdown} from '../../view/toolbar/PreviewWidgetDropdown';
 import {WidgetRenderer} from '../../view/WidgetRenderingHandler';
 import {SaveAsTemplateAction} from '../action/SaveAsTemplateAction';
 import {ContentWizardPanel} from '../ContentWizardPanel';
@@ -83,6 +82,7 @@ import {TextInspectionPanel} from './contextwindow/inspect/region/TextInspection
 import {FrameContainer} from './FrameContainer';
 import {LiveEditPageProxy} from './LiveEditPageProxy';
 import {PageState} from './PageState';
+import {$activeWidget} from '../../../v6/features/store/liveViewWidgets.store';
 
 export interface LiveFormPanelConfig {
 
@@ -184,10 +184,6 @@ export class LiveFormPanel
 
     getMask(): Mask {
         return this.contentWizardPanel.getLiveMask();
-    }
-
-    getWidgetSelector(): PreviewWidgetDropdown {
-        return this.frameContainer.getWidgetSelector()
     }
 
     protected initElements(): void {
@@ -581,8 +577,7 @@ export class LiveFormPanel
         }
 
         this.pageLoading = true;
-
-        return this.liveEditPageProxy.load(this.widgetRenderingHandler, this.getWidgetSelector().getSelectedWidget())
+        return this.liveEditPageProxy.load(this.widgetRenderingHandler, $activeWidget.get())
             .then((loaded) => {
                 if (!loaded) {
                     // no widget was able to render it so there will be no page loaded eventt

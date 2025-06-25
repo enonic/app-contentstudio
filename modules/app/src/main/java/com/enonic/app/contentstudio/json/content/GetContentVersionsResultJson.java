@@ -6,22 +6,24 @@ import java.util.List;
 import com.enonic.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
 import com.enonic.app.contentstudio.rest.resource.content.ContentPublishInfoResolver;
 import com.enonic.xp.content.ContentVersion;
-import com.enonic.xp.content.FindContentVersionsResult;
+import com.enonic.xp.content.ContentVersionId;
+import com.enonic.xp.content.GetContentVersionsResult;
 
 public class GetContentVersionsResultJson
 {
     private final List<ContentVersionJson> contentVersions = new ArrayList<>();
 
-    private final long totalHits;
+    private final String cursor;
 
-    private final int from;
+    private final String onlineVersionId;
 
-    public GetContentVersionsResultJson( final FindContentVersionsResult result, int from,
+    public GetContentVersionsResultJson( final GetContentVersionsResult result, final ContentVersionId onlineVersionId,
                                          final ContentPrincipalsResolver principalsResolver,
                                          final ContentPublishInfoResolver contentPublishInfoResolver )
     {
-        this.totalHits = result.getTotalHits();
-        this.from = from;
+        this.cursor = result.getCursor();
+        this.onlineVersionId = onlineVersionId != null ? onlineVersionId.toString() : null;
+
         for ( final ContentVersion contentVersion : result.getContentVersions() )
         {
             this.contentVersions.add( new ContentVersionJson( contentVersion, principalsResolver, contentPublishInfoResolver ) );
@@ -34,19 +36,13 @@ public class GetContentVersionsResultJson
         return contentVersions;
     }
 
-    public long getTotalHits()
+    public String getCursor()
     {
-        return totalHits;
+        return cursor;
     }
 
-
-    public long getHits()
+    public String getOnlineVersionId()
     {
-        return contentVersions.size();
-    }
-
-    public int getFrom()
-    {
-        return from;
+        return onlineVersionId;
     }
 }

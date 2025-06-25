@@ -1,47 +1,55 @@
-import Q from 'q';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ContentItemPreviewToolbar, WidgetPreviewAction} from './ContentItemPreviewToolbar';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ItemPreviewPanel} from '@enonic/lib-admin-ui/app/view/ItemPreviewPanel';
-import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
-import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {WidgetRenderingHandler, WidgetRenderer} from './WidgetRenderingHandler';
-import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
-import {PreviewActionHelper} from '../action/PreviewActionHelper';
-import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {cn} from '@enonic/ui';
+import Q from 'q';
+import {$activeWidget} from '../../v6/features/store/liveViewWidgets.store';
+import {PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
+import {ContentResourceRequest} from '../resource/ContentResourceRequest';
+import {WidgetRenderer, WidgetRenderingHandler} from './WidgetRenderingHandler';
 
+export class ContentItemPreviewPanel extends Panel implements WidgetRenderer {
 
-export class ContentItemPreviewPanel
-    extends ItemPreviewPanel<ViewItem>
-    implements WidgetRenderer {
-
+    protected frame: IFrameEl;
+    protected wrapper: DivEl;
+    protected toolbar: PreviewToolbarElement;
+    protected mask: LoadMask;
     protected item: ViewItem;
     protected skipNextSetItemCall: boolean = false;
-
     protected debouncedSetItem: (item: ViewItem) => void;
     protected readonly contentRootPath: string;
-
     private widgetRenderingHandler: WidgetRenderingHandler;
 
     constructor(contentRootPath?: string) {
-        super('content-item-preview-panel widget-preview-panel');
+        super('item-preview-panel content-item-preview-panel widget-preview-panel');
+
+        this.toolbar = this.createToolbar();
+        this.mask = new LoadMask(this);
+        this.frame = new IFrameEl();
+        this.wrapper = new DivEl('wrapper');
+        this.wrapper.appendChild(this.frame);
+        this.appendChildren(this.toolbar, this.wrapper, this.mask);
 
         this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
 
-        this.widgetRenderingHandler = new WidgetRenderingHandler(this, this.getToolbar()?.getPreviewActionHelper());
+        this.widgetRenderingHandler = new WidgetRenderingHandler(this);
 
         this.setupListeners();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
+            this.addClass('bg-surface-neutral');
             this.widgetRenderingHandler.layout();
-            this.mask.addClass('content-item-preview-panel-load-mask');
+            this.mask.addClass(cn('transition-opacity duration-300 opacity-0'));
             return rendered;
         });
     }
@@ -53,7 +61,7 @@ export class ContentItemPreviewPanel
     protected async doSetItem(item: ViewItem, force: boolean = false) {
         const content = this.viewItemToContent(item);
 
-        this.toolbar.setItem(item);
+        this.toolbar.setItem(item as ContentSummaryAndCompareStatus);
 
         return this.isPreviewUpdateNeeded(content, force).then((updateNeeded) => {
             // only update this.item after the isPreviewUpdateNeeded check because it uses it
@@ -91,7 +99,7 @@ export class ContentItemPreviewPanel
 
     protected async update(item: ContentSummaryAndCompareStatus) {
         const contentSummary = item.getContentSummary();
-        const widget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
+        const widget = $activeWidget.get();
 
         return this.widgetRenderingHandler.render(contentSummary, widget);
     }
@@ -101,7 +109,7 @@ export class ContentItemPreviewPanel
     }
 
     public clearItem() {
-        (this.toolbar as ContentItemPreviewToolbar).clearItem();
+        this.toolbar.clearItem();
         this.widgetRenderingHandler.empty();
         this.item = undefined;
     }
@@ -119,12 +127,12 @@ export class ContentItemPreviewPanel
         });
     }
 
-    protected getToolbar(): ContentItemPreviewToolbar {
-        return this.toolbar as ContentItemPreviewToolbar;
+    protected getToolbar(): PreviewToolbarElement {
+        return this.toolbar;
     }
 
-    createToolbar(): ContentItemPreviewToolbar {
-        return new ContentItemPreviewToolbar(new PreviewActionHelper());
+    createToolbar(): PreviewToolbarElement {
+        return new PreviewToolbarElement({});
     }
 
     getActions(): Action[] {
@@ -146,11 +154,21 @@ export class ContentItemPreviewPanel
         return this.mask;
     }
 
-    public getPreviewAction(): WidgetPreviewAction {
+    public getPreviewAction(): Action {
         return this.getToolbar().getPreviewAction();
     }
 
-    public getWidgetSelector(): PreviewWidgetDropdown {
-        return this.getToolbar().getWidgetSelector();
+    public showMask() {
+        if (this.isVisible()) {
+            this.mask.show();
+            const className = 'opacity-0';
+            this.mask.addClass(className);
+        }
+    }
+
+    public hideMask() {
+        this.mask.hide();
+        const className = 'opacity-0';
+        this.mask.removeClass(className);
     }
 }

@@ -16,13 +16,12 @@ import {SettingsDataViewItem} from './view/SettingsDataViewItem';
 import {ProjectViewItem} from './view/ProjectViewItem';
 import {ProjectUpdatedEvent} from './event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from './event/ProjectDeletedEvent';
-import {ProjectSelectionDialog} from '../dialog/ProjectSelectionDialog';
 import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
 import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {ContentAppBar} from '../bar/ContentAppBar';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ProjectsUtil} from './resource/ProjectsUtil';
-import {Projects} from './resource/Projects';
+import {removeProject, upsertProject} from '../../v6/features/store/projects.store';
 
 export class SettingsAppPanel
     extends NavigatedAppPanel {
@@ -32,6 +31,8 @@ export class SettingsAppPanel
     private deletedIds: string[] = [];
 
     constructor() {
+        // TODO: Enonic UI
+        // When possible, remove ContentAppBar dependency or migrate to AppBarElement
         super(ContentAppBar.getInstance());
     }
 
@@ -47,7 +48,6 @@ export class SettingsAppPanel
         });
 
         ProjectCreatedEvent.on((event: ProjectCreatedEvent) => {
-            ProjectSelectionDialog.get().setUpdateOnOpen(true);
             this.deletedIds = this.deletedIds.filter((deletedId: string) => deletedId !== event.getProjectName());
         });
 
@@ -56,7 +56,6 @@ export class SettingsAppPanel
                 return;
             }
 
-            ProjectSelectionDialog.get().setUpdateOnOpen(true);
             this.handleItemDeleted(event.getProjectName());
         });
 
@@ -144,7 +143,7 @@ export class SettingsAppPanel
     }
 
     private addNewProject(project: Project) {
-        Projects.get().setProjects([...Projects.get().getProjects().filter(p => p.getName() !== project.getName()), project]);
+        upsertProject(project);
 
         const item: ProjectViewItem = ProjectViewItem.create()
             .setData(project)
@@ -159,7 +158,7 @@ export class SettingsAppPanel
     }
 
     private updateExistingProject(project: Project) {
-        Projects.get().setProjects([...Projects.get().getProjects().filter(p => p.getName() !== project.getName()), project]);
+        upsertProject(project);
 
         const item: ProjectViewItem = ProjectViewItem.create()
             .setData(project)
@@ -207,7 +206,7 @@ export class SettingsAppPanel
     }
 
     private handleItemDeleted(itemId: string): void {
-        Projects.get().setProjects(Projects.get().getProjects().filter((project: Project) => project.getName() !== itemId));
+        removeProject(itemId);
         this.deletedIds.push(itemId);
         this.browsePanel.deleteSettingsItem(itemId);
 

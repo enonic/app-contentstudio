@@ -1,17 +1,18 @@
 import {Project} from '../data/project/Project';
-import {Projects} from './Projects';
+import {$projects} from '../../../v6/features/store/projects.store';
 
 export class ProjectsUtil {
 
     public static getProjectsPyParent(parentName: string | null): Project[] {
+        const projects = $projects.get().projects;
         if (parentName == null) {
-            return Projects.get().getProjects().filter((project: Project) => (project.getParents() ?? []).length === 0);
+            return projects.filter((project: Project) => (project.getParents() ?? []).length === 0) as Project[];
         } else {
-            return Projects.get().getProjects().filter((project: Project) => project.hasMainParentByName(parentName));
+            return projects.filter((project: Project) => project.hasMainParentByName(parentName)) as Project[];
         }
     }
 
     public static hasChildren(id: string): boolean {
-        return Projects.get().getProjects().some((project: Project) => project.hasMainParentByName(id));
+        return $projects.get().projects.some((project: Project) => project.hasMainParentByName(id));
     }
 }

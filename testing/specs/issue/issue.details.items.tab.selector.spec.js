@@ -49,7 +49,7 @@ describe('issue.details.items.tab.selector.spec: tests for items combobox', func
             await createIssueDialog.clickOnCreateIssueButton();
             await createIssueDialog.waitForNotificationMessage();
             // 3. Go to Items Tab:
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             // 4. Expand the dropdown:
             await issueDetailsDialogItemsTab.clickOnDropdownHandle();
             // 5. Unselect one option:

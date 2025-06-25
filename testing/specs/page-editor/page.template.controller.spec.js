@@ -134,7 +134,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             // 3. Click on Customize Page button in Inspect panel:
             await pageInspectionPanel.clickOnCustomizePageButton();
             let confirmationDialog = new ConfirmationDialog();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('page_template_image_rendered');
             // 3. Verify that the image that was inserted in the template is displayed in the site
@@ -199,7 +199,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             // 4. Click on Customize Page button in Inspect panel:
             await pageInspectionPanel.clickOnCustomizePageButton();
             let confirmationDialog = new ConfirmationDialog();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('site_customised');
             // 5. Open the Page Components modal dialog and insert a text component:
