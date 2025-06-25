@@ -38,11 +38,11 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
             await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
             // 2. Click on Delete... button in the toolbar:
-            await contentBrowsePanel.clickOnArchiveButton();
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot('2_folders_to_delete');
             // 3. Verify the number in Archive button
-            let result = await deleteContentDialog.getNumberInArchiveButton();
+            let result = await deleteContentDialog.getNumberInDeleteButton();
             assert.equal(result, '2', "Expected number of content (2) should be present in the Delete button");
         });
 
@@ -64,91 +64,51 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             assert.equal(result, '2', "Expected number of content (2) should be present in the 'Publish now' button");
         });
 
-    it(`"WHEN existing folder is selected and 'Delete Content Dialog' has been opened THEN expected elements should be present`,
+    it(`"WHEN one content was selected AND 'Delete Content Dialog' has been opened THEN expected buttons and content status should be displayed`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
-            await contentBrowsePanel.clickOnArchiveButton();
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             let status = await deleteContentDialog.getContentStatus(FOLDER1.displayName);
-            assert.equal(status, "New", 'New status should be displayed');
+            assert.equal(status, appConst.CONTENT_STATUS.OFFLINE, 'Offline status should be displayed');
+            await deleteContentDialog.waitForCloseButtonDisplayed();
+            await deleteContentDialog.waitForDeleteButtonEnabled();
 
-            let isCancelButtonDisplayed = await deleteContentDialog.isCancelButtonDisplayed();
-            assert.ok(isCancelButtonDisplayed, 'Cancel button should be displayed');
-
-            let isArchiveButtonDisplayed = await deleteContentDialog.isArchiveButtonDisplayed();
-            assert.ok(isArchiveButtonDisplayed, "'Archive...' button should be displayed");
-
-            let isCancelTopButtonDisplayed = await deleteContentDialog.isCancelTopButtonDisplayed();
-            assert.ok(isCancelTopButtonDisplayed, 'Cancel top button should be displayed');
-            //'Delete Menu should be displayed
-            await deleteContentDialog.waitForArchiveMenuDropDownHandleDisplayed();
-
-            let itemsToArchiveOrDelete = await deleteContentDialog.getDisplayNamesToArchiveOrDelete();
+            let itemsToArchiveOrDelete = await deleteContentDialog.getMainItemsToDeleteDisplayName();
             assert.equal(itemsToArchiveOrDelete[0], FOLDER1.displayName, "Expected display names should be present");
         });
 
-    it(`GIVEN 'Delete Content' dialog is opened WHEN 'Cancel' button has been pressed THEN dialog closes`,
+    it(`GIVEN 'Delete Content' dialog is opened WHEN 'Close' button has been pressed THEN dialog closes`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
-            // 1. Open Delete Dialog
+            // 1. Open Delete content Dialog
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
-            await contentBrowsePanel.clickOnArchiveButton();
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
-            // 2. Click on Cancel button
-            await deleteContentDialog.clickOnCancelButton();
+            // 2. Click on Close button
+            await deleteContentDialog.clickOnCloseButton();
             await deleteContentDialog.waitForDialogClosed();
         });
 
-    it(`GIVEN 'Delete Content' dialog is opened WHEN 'Cancel top' button has been pressed THEN dialog closes`,
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let deleteContentDialog = new DeleteContentDialog();
-            // 1. Open Delete Dialog
-            await studioUtils.findAndSelectItem(FOLDER1.displayName);
-            await contentBrowsePanel.clickOnArchiveButton();
-            await deleteContentDialog.waitForDialogOpened();
-            // 2. Click on Cancel Top button
-            await deleteContentDialog.clickOnCancelTopButton();
-            await deleteContentDialog.waitForDialogClosed();
-        });
-
-    it(`GIVEN existing published content is selected WHEN Delete Dialog has been opened THEN Delete menu should be present in the dialog`,
+    it(`GIVEN existing published content is selected WHEN Delete Dialog has been opened THEN 'Online' status should be displayed in the dialog`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
             // 1.Select and publish the folder:
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
             await studioUtils.openDialogAndPublishSelectedContent();
-            // 2. Open Delete Dialog:
-            await contentBrowsePanel.clickOnArchiveButton();
+            // 2. Open Delete content Dialog:
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
 
-            let isDisplayed = await deleteContentDialog.isArchiveButtonDisplayed();
-            assert.ok(isDisplayed, "'Archive' button should be present");
-            // 3. Delete menu should be displayed in the dialog:
-            let isDropdownHandleDisplayed = await deleteContentDialog.isArchiveMenuDropDownHandleDisplayed();
-            assert.ok(isDropdownHandleDisplayed, "Delete menu should appear in the dialog");
+            let isDisplayed = await deleteContentDialog.isDeleteButtonDisplayed();
+            assert.ok(isDisplayed, "'Delete' button should be displayed in the modal dialog");
 
             let status = await deleteContentDialog.getContentStatus(FOLDER1.displayName);
-            assert.equal(status, 'Published', 'Published status should be displayed');
-        });
-
-    it(`GIVEN 'published' folder is selected AND 'Delete dialog' is opened WHEN 'Delete' menu item has been pressed THEN the folder should be deleted`,
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let deleteContentDialog = new DeleteContentDialog();
-            // 1. Click on the checkbox and select the folder:
-            await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
-            // 2. Open Delete Dialog:
-            await contentBrowsePanel.clickOnArchiveButton();
-            await deleteContentDialog.waitForDialogOpened();
-            // 3. Click on 'Delete' menu item
-            await deleteContentDialog.clickOnDeleteMenuItem();
-            await deleteContentDialog.waitForDialogClosed();
-            await contentBrowsePanel.waitForContentNotDisplayed(FOLDER1.displayName);
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, 'Online status should be displayed');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

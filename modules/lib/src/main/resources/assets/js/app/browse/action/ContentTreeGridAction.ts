@@ -5,16 +5,11 @@ import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryA
 
 export class ContentTreeGridAction extends Action {
 
-    protected grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>;
-
     protected stashedState: boolean;
-
     protected stashed: boolean;
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>, label?: string, shortcut?: string, global?: boolean) {
+    constructor(label?: string, shortcut?: string, global?: boolean) {
         super(label, shortcut, global);
-
-        this.grid = grid;
 
         this.onExecuted(() => {
             this.handleExecuted();

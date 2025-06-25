@@ -1,26 +1,26 @@
-import {AppContainer} from './AppContainer';
-import {ContentAppBar} from './bar/ContentAppBar';
-import {ContentAppPanel} from './ContentAppPanel';
-import {ToggleSearchPanelWithDependenciesGlobalEvent} from './browse/ToggleSearchPanelWithDependenciesGlobalEvent';
-import {ToggleSearchPanelWithDependenciesEvent} from './browse/ToggleSearchPanelWithDependenciesEvent';
-import {ProjectContext} from './project/ProjectContext';
-import {UrlAction} from './UrlAction';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
+import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {type Path} from '@enonic/lib-admin-ui/rest/Path';
+import {Store} from '@enonic/lib-admin-ui/store/Store';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {$rootLoadingState} from '../v6/features/store/tree-list.store';
+import {BrowseAppBarElement} from '../v6/features/views/browse/layout/BrowseAppBar';
+import {AppContainer} from './AppContainer';
+import {ToggleSearchPanelWithDependenciesEvent} from './browse/ToggleSearchPanelWithDependenciesEvent';
+import {ToggleSearchPanelWithDependenciesGlobalEvent} from './browse/ToggleSearchPanelWithDependenciesGlobalEvent';
 import {ContentId} from './content/ContentId';
 import {type ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
+import {ContentAppPanel} from './ContentAppPanel';
 import {EditContentEvent} from './event/EditContentEvent';
-import {GetIssueRequest} from './issue/resource/GetIssueRequest';
 import {type Issue} from './issue/Issue';
 import {IssueDialogsManager} from './issue/IssueDialogsManager';
-import {type Path} from '@enonic/lib-admin-ui/rest/Path';
-import {ContentTreeGridLoadedEvent} from './browse/ContentTreeGridLoadedEvent';
+import {GetIssueRequest} from './issue/resource/GetIssueRequest';
+import {ProjectContext} from './project/ProjectContext';
+import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
 import {type ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
 import {type ResolveDependencyResult} from './resource/ResolveDependencyResult';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Store} from '@enonic/lib-admin-ui/store/Store';
+import {UrlAction} from './UrlAction';
 import {Branch} from './versioning/Branch';
 
 export class ContentAppContainer
@@ -52,7 +52,7 @@ export class ContentAppContainer
     }
 
     private handleNoProjectsAvailable() {
-        ContentAppBar.getInstance().disable();
+        BrowseAppBarElement.getInstance().disable();
     }
 
     private initSearchPanelListener(panel: ContentAppPanel) {
@@ -123,13 +123,11 @@ export class ContentAppContainer
         const id = path.getElement(3);
         const type = path.getElement(4);
 
-        const treeGridLoadedListener = () => {
+        const unsubscribe = $rootLoadingState.listen((state) => {
+            if (state !== 'ok') return;
+            unsubscribe();
             this.doHandleDependencies(id, inbound, branch, type);
-
-            ContentTreeGridLoadedEvent.un(treeGridLoadedListener);
-        };
-
-        ContentTreeGridLoadedEvent.on(treeGridLoadedListener);
+        });
     }
 
     private doHandleDependencies(id: string, inbound: boolean, target: Branch, type?: string) {

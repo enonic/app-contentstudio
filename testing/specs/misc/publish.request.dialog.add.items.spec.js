@@ -17,8 +17,6 @@ describe('publish.request.dialog.add.items.spec - request publish dialog - check
     }
     let TEST_FOLDER1;
 
-    // verifies https://github.com/enonic/app-contentstudio/issues/723  Publish Request dialog - Publish button should be disabled when 'work in progress' content has been added
-    // https://github.com/enonic/app-contentstudio/issues/816 - Request tab is not loaded after creating new request
     it(`GIVEN new publish request is created AND Issue Details Dialog is opened  WHEN one 'Work in progress' has been added  THEN 'Publish Now' button gets disabled in the modal dialog`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -39,10 +37,8 @@ describe('publish.request.dialog.add.items.spec - request publish dialog - check
             await contentPublishDialog.waitForDialogClosed();
             // 3. Open publish menu in the wizard and create new publish request:
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
-            await studioUtils.saveScreenshot('pub_req_step1');
-            await createRequestPublishDialog.clickOnNextButton();
             await studioUtils.saveScreenshot('pub_req_step2');
-            await createRequestPublishDialog.typeInChangesInput('my changes');
+            await createRequestPublishDialog.typeInTitleInput('req title');
             await studioUtils.saveScreenshot('pub_req_step3');
             await createRequestPublishDialog.clickOnCreateRequestButton();
             await studioUtils.saveScreenshot('pub_req_step4');
@@ -50,7 +46,6 @@ describe('publish.request.dialog.add.items.spec - request publish dialog - check
             await publishRequestDetailsDialog.waitForClosed();
             // 5. Reopen Issue Details dialog and verify control elements:
             await contentWizard.clickOnOpenRequestButton();
-            // (app-contentstudio/issues/816) Wait for the requests-tab is loaded then do add a work-in-progress-folder:
             await publishRequestDetailsDialog.waitForTabLoaded();
             await publishRequestDetailsDialog.pause(500);
             // 6. Add 'Work in Progress' folder:

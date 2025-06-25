@@ -1,29 +1,29 @@
-import {DependantItemsWithProgressDialog} from './DependantItemsWithProgressDialog';
-import {DialogStateBar} from './DialogStateBar';
-import {type DialogStateEntry} from './DialogStateEntry';
-import {type ContentWithRefsResult} from '../resource/ContentWithRefsResult';
-import {type ContentId} from '../content/ContentId';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {type ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {type ArchiveCheckableItem} from './ArchiveCheckableItem';
-import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
-import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import type Q from 'q';
-import {type ArchiveSelectableItem} from './ArchiveSelectableItem';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import type Q from 'q';
+import type {ContentListItemElement} from '../../v6/features/shared/items/ContentListItem';
+import type {ContentId} from '../content/ContentId';
+import type {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import type {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {DialogWithRefsDependantList} from '../remove/DialogWithRefsDependantList';
 import {DialogWithRefsItemList, type DialogWithRefsItemListConfig} from '../remove/DialogWithRefsItemList';
+import type {CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
+import type {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
+import type {ArchiveSelectableItem} from './ArchiveSelectableItem';
+import {DependantItemsWithProgressDialog} from './DependantItemsWithProgressDialog';
+import {DialogStateBar} from './DialogStateBar';
+import type {DialogStateEntry} from './DialogStateEntry';
 
-export abstract class DependantItemsWithReferencesDialog extends DependantItemsWithProgressDialog {
-
+/**
+ * @deprecated Use React components instead (DeleteDialog, UnpublishDialog)
+ */
+export abstract class DependantItemsWithReferencesDialog
+    extends DependantItemsWithProgressDialog<ContentListItemElement> {
     protected stateBar: DialogStateBar;
-
     protected inboundErrorsEntry: DialogStateEntry;
 
     protected resolveDependenciesResult: ContentWithRefsResult;
-
     protected referenceIds: ContentId[];
 
     protected initElements(): void {
@@ -31,51 +31,65 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
 
         this.stateBar = new DialogStateBar({hideIfResolved: true});
         this.inboundErrorsEntry = this.stateBar.addErrorEntry({
-            text: i18n('dialog.archive.warning.text'),
-            actionButtons: [{
-                label: i18n('dialog.archive.warning.ignore'),
-                markIgnored: true,
-            }],
+            text: i18n('dialog.statusBar.error.inbound.text'),
+            actionButtons: [
+                {
+                    label: i18n('dialog.statusBar.error.inbound.action'),
+                    markIgnored: true,
+                },
+            ],
         });
     }
 
     protected initListeners(): void {
         super.initListeners();
 
-        const itemsAddedHandler = (items: ContentSummaryAndCompareStatus[], itemList: ListBox<ContentSummaryAndCompareStatus>) => {
-            if (this.resolveDependenciesResult) {
-                this.updateItemViewsWithInboundDependencies(items.map(item => itemList.getItemView(item) as ArchiveCheckableItem));
+        const mainList = this.getItemList();
+        const depList = this.getDependantList();
+
+        const onItemsAdded = (
+            items: ContentSummaryAndCompareStatus[],
+            list: DialogWithRefsItemList | DialogWithRefsDependantList
+        ) => {
+            if (!this.resolveDependenciesResult) {
+                return;
             }
+
+            const views = items.map((item) => list.getItemView(item));
+            this.updateItemViewsWithInboundDependencies(views);
         };
 
-        this.getItemList().onItemsAdded(items => itemsAddedHandler(items, this.getItemList()));
-        this.getDependantList().onItemsAdded(items => itemsAddedHandler(items, this.getDependantList()));
-        this.getItemList().onItemsRemoved(() => this.onListItemsRemoved());
+        mainList.onItemsAdded((items) => onItemsAdded(items, mainList));
+        depList.onItemsAdded((items) => onItemsAdded(items, depList));
 
-        this.stateBar.onResolvedStateChange(resolved => this.toggleControls(resolved));
+        mainList.onItemsRemoved(() => this.onListItemsRemoved());
+
+        this.stateBar.onResolvedStateChange((resolved) => this.toggleControls(resolved));
 
         const handleRefsChange = this.handleRefsChange.bind(this);
         ContentServerEventsHandler.getInstance().onContentUpdated(handleRefsChange);
         ContentServerEventsHandler.getInstance().onContentDeleted(handleRefsChange);
     }
 
-    private updateItemViewsWithInboundDependencies(itemViews: (ArchiveCheckableItem | ArchiveSelectableItem)[]) {
-        itemViews.forEach((itemView) => {
-            const hasInbound = this.hasInboundRef(itemView.getItem().getId());
-            itemView.setHasInbound(hasInbound);
-        });
+    private updateItemViewsWithInboundDependencies(views: readonly (ContentListItemElement | ArchiveSelectableItem)[]): void {
+        for (const v of views) {
+            // v.setHasInbound(this.hasInboundRef(v.getItem().getId()));
+        }
     }
 
     private hasInboundRef(id: string): boolean {
-        return this.resolveDependenciesResult?.hasInboundDependency(id);
+        return !!this.resolveDependenciesResult?.hasInboundDependency(id);
     }
 
     private handleRefsChange(items: ContentSummaryAndCompareStatus[] | ContentServerChangeItem[]): void {
         if (!this.isOpen()) {
             return;
         }
-        const contentIds = items.map(item => item.getContentId());
-        const referringWasUpdated = this.referenceIds.find(id => contentIds.some(contentId => contentId.equals(id)));
+
+        const contentIds = items.map((item) => item.getContentId());
+        const referringWasUpdated = this.referenceIds.find((id) =>
+            contentIds.some((contentId) => contentId.equals(id))
+        );
         if (referringWasUpdated) {
             this.refreshInboundRefs();
         }
@@ -88,16 +102,19 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
                 if (!this.resolveDependenciesResult.hasInboundDependencies()) {
                     this.unlockMenu();
                 }
-            }).catch(DefaultErrorHandler.handle);
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     protected resolveDescendants(): Q.Promise<ContentId[]> {
-        const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
-        return this.createResolveRequest(ids).sendAndParse().then((result: ContentWithRefsResult) => {
-            this.resolveDependenciesResult = result;
-            this.resolveReferanceIds();
-            return result.getContentIds();
-        });
+        const ids: ContentId[] = this.getItemList().getItems().map((c) => c.getContentId());
+        return this.createResolveRequest(ids)
+            .sendAndParse()
+            .then((result: ContentWithRefsResult) => {
+                this.resolveDependenciesResult = result;
+                this.resolveReferanceIds();
+                return result.getContentIds();
+            });
     }
 
     protected abstract createResolveRequest(ids: ContentId[]): CmsContentResourceRequest<ContentWithRefsResult>;
@@ -106,8 +123,8 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         this.getDependantList().setResolveDependenciesResult(this.resolveDependenciesResult);
 
         const itemsWithInboundRefs: ContentId[] =
-            this.dependantIds.filter((id: ContentId) => this.hasInboundRef(id.toString()));
-        this.dependantIds = this.dependantIds.filter((contentId: ContentId) => !this.hasInboundRef(contentId.toString()));
+            this.dependantIds.filter((id) => this.hasInboundRef(id.toString()));
+        this.dependantIds = this.dependantIds.filter((id) => !this.hasInboundRef(id.toString()));
         this.dependantIds.unshift(...itemsWithInboundRefs);
 
         const inboundCount = this.resolveDependenciesResult.getInboundDependencies().length;
@@ -116,15 +133,18 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
 
         if (hasInboundDeps || forceUpdate) {
-            const views = [...this.getItemList().getItemViews(), ...this.getDependantList().getItemViews()];
-            this.updateItemViewsWithInboundDependencies(views);
+            const allViews: ContentListItemElement[] = [
+                ...(this.getItemList().getItemViews() as unknown as ContentListItemElement[]),
+                ...(this.getDependantList().getItemViews() as unknown as ContentListItemElement[]),
+            ];
+            this.updateItemViewsWithInboundDependencies(allViews);
         }
     }
 
     private resolveReferanceIds(): void {
-        this.referenceIds = this.resolveDependenciesResult.getInboundDependencies().reduce((prev, curr) => {
-            return prev.concat(curr.getInboundDependencies());
-        }, [] as ContentId[]);
+        this.referenceIds = this.resolveDependenciesResult
+            .getInboundDependencies()
+            .reduce((prev, curr) => prev.concat(curr.getInboundDependencies()), [] as ContentId[]);
     }
 
     private updateWarningLine(inboundCount: number): void {
@@ -137,9 +157,7 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         this.inboundErrorsEntry.updateCount(inboundCount);
 
         if (dependenciesExist) {
-            setTimeout(() => {
-                this.stateBar.markChecking(false);
-            }, 1000);
+            setTimeout(() => this.stateBar.markChecking(false), 1000);
         }
     }
 
@@ -155,9 +173,8 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         this.stateBar.setEnabled(true);
     }
 
-    close() {
+    close(): void {
         super.close();
-
         this.stateBar.reset();
         this.resolveDependenciesResult = null;
     }
@@ -191,27 +208,31 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         this.showLoadMask();
         this.lockControls();
 
-        this.loadDescendantIds().then(() => {
-            this.resolveItemsWithInboundRefs();
+        this.loadDescendantIds()
+            .then(() => {
+                this.resolveItemsWithInboundRefs();
 
-            return this.cleanLoadDescendants().then((descendants: ContentSummaryAndCompareStatus[]) => {
-                this.setDependantItems(descendants);
-            }).finally(() => {
-                this.notifyResize();
-                this.hideLoadMask();
-                this.unlockControls();
-                this.handleDescendantsLoaded();
-                this.updateTabbable();
-                this.actionButton.giveFocus();
+                return this.cleanLoadDescendants()
+                    .then((descendants: ContentSummaryAndCompareStatus[]) => {
+                        this.setDependantItems(descendants);
+                    })
+                    .finally(() => {
+                        this.notifyResize();
+                        this.hideLoadMask();
+                        this.unlockControls();
+                        this.handleDescendantsLoaded();
+                        this.updateTabbable();
+                        this.actionButton.giveFocus();
 
-                const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
-                if (hasInboundDeps) {
-                    this.lockMenu();
-                }
+                        const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
+                        if (hasInboundDeps) {
+                            this.lockMenu();
+                        }
+                    });
+            })
+            .catch((reason: unknown) => {
+                DefaultErrorHandler.handle(reason);
             });
-        }).catch((reason: unknown) => {
-            DefaultErrorHandler.handle(reason);
-        });
     }
 
     protected onListItemsRemoved(): void {
@@ -221,14 +242,13 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
     }
 
     protected handleDescendantsLoaded(): void {
-        //
+        // hook
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addCancelButtonToBottom();
             this.prependChildToContentPanel(this.stateBar);
-
             return rendered;
         });
     }

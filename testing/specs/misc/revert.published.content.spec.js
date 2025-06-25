@@ -35,9 +35,9 @@ describe('Revert published content spec', function () {
             // 4. Publish the folder
             await contentWizard.clickOnMarkAsReadyButton();
             await studioUtils.doPublish();
-            //'Page Editor' with Preview Widget shoule be opened by default
-            // "Published status should be in Wizard"
-            await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHED);
+            //'Page Editor' with Preview Widget should be opened by default
+            // "Online status should be in Wizard"
+            await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.ONLINE);
         });
 
     it(`GIVEN published folder is selected WHEN the previous 'Edited' version has been restored THEN 'Modified' status should be displayed`,

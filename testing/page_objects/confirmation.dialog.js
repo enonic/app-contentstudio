@@ -3,11 +3,9 @@
  */
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const lib = require('../libs/elements');
+const {BUTTONS} = require('../libs/elements');
 const XPATH = {
-    container: `//div[contains(@id,'ConfirmationDialog')]`,
-    yesButton: `//button[contains(@id,'DialogButton') and descendant::u[text()='Y'] and child::span[text()='es']]`,
-    noButton: `//button[contains(@id,'DialogButton') and descendant::u[text()='N'] and child::span[text()='o']]`,
+    container: `//div[@role='dialog' and @data-component='DialogPresetConfirm']`,
     question: "//h6[@class='question']",
 };
 
@@ -17,42 +15,31 @@ class ConfirmationDialog extends Page {
         return XPATH.container + "//h6[@class='question']";
     }
 
-    get yesButton() {
-        return XPATH.container + XPATH.yesButton;
+    get confirmButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Confirm');
     }
 
-    get noButton() {
-        return XPATH.container + XPATH.noButton;
+    get cancelButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Cancel');
     }
 
-    get cancelTopButton() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
-    }
-
-    async clickOnYesButton() {
+    async clickOnConfirmButton() {
         try {
-            await this.waitForElementDisplayed(this.yesButton, appConst.shortTimeout);
-            await this.clickOnElement(this.yesButton);
+            await this.waitForElementDisplayed(this.confirmButton, appConst.shortTimeout);
+            await this.clickOnElement(this.confirmButton);
             await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout)
-            await this.pause(300);
+            await this.pause(100);
         } catch (err) {
-            await this.handleError('Confirmation dialog Yes button', 'err_confirmation_dlg_yes', err);
+            await this.handleError('Confirmation dialog, Confirm button has been clicked', 'err_confirmation_dlg_confirm', err);
         }
-    }
-
-    async clickOnCancelTopButton() {
-        await this.waitForElementDisplayed(this.cancelTopButton, appConst.shortTimeout);
-        await this.clickOnElement(this.cancelTopButton);
-        await this.waitForDialogClosed();
-        return await this.pause(appConst.TIMEOUT_1);
     }
 
     async waitForDialogOpened() {
         try {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-            await this.pause(700);
+            await this.pause(200);
         } catch (err) {
-            await this.handleError('Confirmation dialog', 'err_confirmation_dlg_opened', err);
+            await this.handleError('Confirmation dialog should be loaded', 'err_confirmation_dlg_opened', err);
         }
     }
 
@@ -63,7 +50,7 @@ class ConfirmationDialog extends Page {
     async waitForDialogClosed() {
         try {
             await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
-            return await this.pause(400);
+            return await this.pause(200);
         } catch (err) {
             await this.handleError('Confirmation dialog should be closed', 'err_confirmation_dlg_closed', err);
         }
@@ -77,8 +64,8 @@ class ConfirmationDialog extends Page {
         return this.getText(this.warningMessage);
     }
 
-    clickOnNoButton() {
-        return this.clickOnElement(this.noButton);
+    async clickOnCancelButton() {
+        return await this.clickOnElement(this.cancelButton);
     }
 
     async getQuestion() {

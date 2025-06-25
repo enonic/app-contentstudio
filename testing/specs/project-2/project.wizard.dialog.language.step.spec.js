@@ -37,7 +37,7 @@ describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizar
             let message = await languageStep.waitForNotificationMessage();
             assert.equal(message, appConst.languageCopiedNotification(PARENT_DEFAULT), "Expected notification message");
             // 7. Verify that 'Skip' button gets visible again:
-            await languageStep.waitForSkipButtonDisplayed();
+            await languageStep.waitForNextButtonDisplayed();
             // 8. Verify that Language options filter input gets visible:
             await languageStep.waitForLanguageFilterInputDisplayed();
         });

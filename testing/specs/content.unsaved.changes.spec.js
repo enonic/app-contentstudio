@@ -44,7 +44,7 @@ describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + te
             // 3. Delete folders:
             await studioUtils.doDeleteNowAndConfirm(2);
             // 4. Delete button should be disabled now:
-            await contentBrowsePanel.waitForArchiveButtonDisabled();
+            await contentBrowsePanel.waitForDeleteButtonDisabled();
         });
 
     it(`GIVEN there are not saved changes in the wizard WHEN 'Delete' menu item has been clicked THEN the wizard should be closed and the content is deleted`,
@@ -54,13 +54,13 @@ describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + te
             let deleteContentDialog = new DeleteContentDialog();
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             // 1. Fill in the name input
-            await contentWizard.typeDisplayName(appConst.generateRandomName("folder"));
+            await contentWizard.typeDisplayName(appConst.generateRandomName('folder'));
             // 2. Open Delete/Archive content dialog
-            await contentWizard.clickOnArchiveButton();
+            await contentWizard.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.waitForSpinnerNotVisible();
-            // 3. Click on 'Delete' menu item:
-            await deleteContentDialog.clickOnDeleteMenuItem();
+            // 3. Click on 'Delete' button:
+            await deleteContentDialog.clickOnDeleteButton();
             // 4. Verify that Alert does not appear in the wizard:
             let result = await contentWizard.isAlertOpen();
             if (result) {

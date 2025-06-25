@@ -63,7 +63,7 @@ describe('publish.tree.check.child.spec - Publish Tree action - publish a conten
             // 2. open 'Publish dialog' and click on 'Publish Now' button:(Children items are not included by default in Publish dialog)
             await studioUtils.openDialogAndPublishSelectedContent();
             // 3. Verify - PUBLISH TREE... should be default action now:
-            await contentBrowsePanel.waitForDefaultAction(appConst.PUBLISH_MENU.PUBLISH_TREE);
+            await contentBrowsePanel.waitForPublishTreeButtonVisible();
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
             let status = await contentBrowsePanel.getContentStatus(CHILD_FOLDER.displayName);
             assert.equal(status, appConst.CONTENT_STATUS.NEW, "Content's status should be 'New'");
@@ -87,11 +87,11 @@ describe('publish.tree.check.child.spec - Publish Tree action - publish a conten
             // 6. Notification message should appear:
             await contentBrowsePanel.waitForNotificationMessage();
             // 7. Verify - UNPUBLISH... should be default action for the parent folder
-            await contentBrowsePanel.waitForDefaultAction(appConst.PUBLISH_MENU.UNPUBLISH);
+            await contentBrowsePanel.waitForUnPublishButtonVisible();
             // 8. Select the folder, verify the status
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
             let status = await contentBrowsePanel.getContentStatus(CHILD_FOLDER.displayName);
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "Content's status should be 'published'");
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, "Content's status should be 'Online'");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

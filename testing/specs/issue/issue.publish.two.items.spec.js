@@ -59,7 +59,7 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             await createIssueDialog.typeTitle(ISSUE_TITLE);
             await createIssueDialog.clickOnCreateIssueButton();
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             // 3. Verify the items to publish:
             let result = await issueDetailsDialogItemsTab.getItemDisplayNames();
             assert.ok(result.includes(folder1.displayName));
@@ -80,7 +80,7 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 2. Go to Items tab:
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             // Click on Publish... button and open Publishing Wizard
             await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
             let contentPublishDialog = new ContentPublishDialog();

@@ -167,7 +167,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             // 2. Create issue dialog should be loaded:
             await createIssueDialog.waitForDialogLoaded();
-            await createIssueDialog.selectItemsInContentCombobox(TEST_FOLDER.displayName);
+            await createIssueDialog.selectItemInContentCombobox(TEST_FOLDER.displayName);
             await studioUtils.saveScreenshot('create_issue_dlg_item_added');
             // 3. Verify - 'show excluded' button should be hidden:
             await createIssueDialog.waitForShowExcludedItemsButtonNotDisplayed();
@@ -238,7 +238,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             // 4. Issue Details dialog should be loaded:
             await issueDetailsDialog.waitForDialogLoaded();
             // 5. Go to 'Items' tab:
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             await studioUtils.saveScreenshot('issue_show_excluded');
             // 6. Verify that 'Hide excluded' button is displayed in the 'Items' tab:
             await issueDetailsDialogItemsTab.waitForHideExcludedItemsButtonDisplayed();
@@ -269,7 +269,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             // 4. Issue Details dialog should be loaded:
             await issueDetailsDialog.waitForDialogLoaded();
             // 5. Go to 'Items' tab:
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             // 6. Click on the checkbox for the dependant item:
             await issueDetailsDialogItemsTab.clickOnCheckboxInDependentItem(TEST_FOLDER.displayName);
             await issueDetailsDialogItemsTab.clickOnApplySelectionButton();

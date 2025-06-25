@@ -1,7 +1,7 @@
 /**
  * Created on 09.07.2020.
  */
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const BaseSelectorForm = require('./base.selector.form');
 const appConst = require('../../libs/app_const');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');

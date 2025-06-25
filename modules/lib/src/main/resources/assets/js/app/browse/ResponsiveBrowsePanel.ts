@@ -11,6 +11,8 @@ import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {SelectionMode} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
+import {$isContextOpen, setContextOpen} from '../../v6/features/store/contextWidgets.store';
+import {ContextPanelState} from '../view/context/ContextPanelState';
 
 export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
@@ -65,6 +67,25 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             .setContextView(this.contextView)
             .setToggleButton(this.contextSplitPanelToggler)
             .build();
+
+
+        // TODO: Enonic UI - Backward compatibility with old panel
+        setContextOpen(this.contextSplitPanel.getState() === ContextPanelState.EXPANDED);
+
+        this.contextSplitPanel.onStateChanged((state: ContextPanelState) => {
+            setContextOpen(state === ContextPanelState.EXPANDED);
+        });
+
+        $isContextOpen.subscribe((isOpen: boolean, wasOpen: boolean) => {
+            if (isOpen === wasOpen) return;
+
+            if (isOpen) {
+                this.contextSplitPanel.showContextPanel();
+            } else {
+                this.contextSplitPanel.hideContextPanel();
+            }
+
+        });
 
         return this.contextSplitPanel;
     }

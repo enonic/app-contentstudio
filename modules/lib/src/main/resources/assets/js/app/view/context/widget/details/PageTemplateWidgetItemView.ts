@@ -38,6 +38,9 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {type ContentServerChangeItem} from '../../../../event/ContentServerChangeItem';
 import {ContentUrlHelper} from '../../../../util/ContentUrlHelper';
 
+/**
+ * @deprecated Use DetailsWidgetElement instead
+ */
 export class PageTemplateWidgetItemView
     extends WidgetItemView {
 
