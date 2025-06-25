@@ -16,6 +16,7 @@ import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDepen
 import {ResolvePublishDependenciesResult} from '../resource/ResolvePublishDependenciesResult';
 import {PublishDialogDependantList} from './PublishDialogDependantList';
 import {PublishDialogItemList} from './PublishDialogItemList';
+import {PublishItemsListElement} from '../ui2/list/PublishItemsList';
 
 interface ReloadDependenciesParams {
     resetDependantItems?: boolean;
@@ -32,7 +33,7 @@ export type LoadingStartedListener = (checking: boolean) => void;
 
 export class PublishProcessor {
 
-    private itemList: PublishDialogItemList;
+    private itemList: PublishDialogItemList | PublishItemsListElement;
 
     private dependantList: PublishDialogDependantList;
 
@@ -84,7 +85,7 @@ export class PublishProcessor {
 
     private static debug: boolean = false;
 
-    constructor(itemList: PublishDialogItemList, dependantList: PublishDialogDependantList, keepDependencies = false) {
+    constructor(itemList: PublishDialogItemList | PublishItemsListElement, dependantList: PublishDialogDependantList, keepDependencies = false) {
         this.instanceId = 0;
         this.itemList = itemList;
         this.dependantList = dependantList;
@@ -124,10 +125,9 @@ export class PublishProcessor {
             });
         });
 
-        const itemClickedFn = (item: ContentSummaryAndCompareStatus) => new EditContentEvent([item]).fire();
-
-        this.itemList.onItemClicked(itemClickedFn);
-        this.dependantList.onItemClicked(itemClickedFn);
+        this.dependantList.onItemClicked((item: ContentSummaryAndCompareStatus) => {
+            new EditContentEvent([item]).fire();
+        });
 
         this.dependantList.onExclusionUpdated((event) => {
             if (!event.manual) {
@@ -568,9 +568,13 @@ export class PublishProcessor {
         this.instanceId += 1;
         this.cleanLoad = true;
 
-        this.itemList.setExcludeChildrenIds([]);
-        this.itemList.setItems([]);
-        this.itemList.setReadOnly(false);
+        if (this.itemList instanceof PublishDialogItemList) {
+            this.itemList.setExcludeChildrenIds([]);
+            this.itemList.setItems([]);
+            this.itemList.setReadOnly(false);
+        } else {
+            this.itemList.reset();
+        }
 
         this.dependantList.setRequiredIds([]);
         this.dependantList.updateVisibleIds([]);
@@ -783,12 +787,6 @@ export class PublishProcessor {
         this.loadingStartedListeners.push(listener);
     }
 
-    unLoadingStarted(listener: LoadingStartedListener) {
-        this.loadingStartedListeners = this.loadingStartedListeners.filter((curr) => {
-            return listener !== curr;
-        });
-    }
-
     private notifyLoadingStarted(checking: boolean) {
         this.loadingStartedListeners.forEach((listener) => {
             listener(checking);
@@ -799,12 +797,6 @@ export class PublishProcessor {
         this.loadingFinishedListeners.push(listener);
     }
 
-    unLoadingFinished(listener: () => void) {
-        this.loadingFinishedListeners = this.loadingFinishedListeners.filter((curr) => {
-            return listener !== curr;
-        });
-    }
-
     private notifyLoadingFinished() {
         this.loadingFinishedListeners.forEach((listener) => {
             listener();
@@ -813,12 +805,6 @@ export class PublishProcessor {
 
     onLoadingFailed(listener: () => void) {
         this.loadingFailedListeners.push(listener);
-    }
-
-    unLoadingFailed(listener: () => void) {
-        this.loadingFailedListeners = this.loadingFailedListeners.filter((curr) => {
-            return listener !== curr;
-        });
     }
 
     private notifyLoadingFailed() {

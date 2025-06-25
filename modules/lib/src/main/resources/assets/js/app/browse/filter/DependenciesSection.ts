@@ -11,8 +11,8 @@ export class DependenciesSection
 
     private inbound: boolean = true;
 
-    constructor(closeCallback: () => void) {
-        super('', closeCallback);
+    constructor() {
+        super('');
 
         this.addClass('dependency');
         this.viewer.addClass('dependency-item');
