@@ -1,0 +1,152 @@
+---
+description: Preact component standards and compatibility notes
+globs: *.tsx
+alwaysApply: false
+---
+
+# Preact Component Standards
+
+## Component Structure
+
+```typescript
+// ✅ Preact uses the same patterns as React
+// ✅ Import from 'react' (aliased to preact/compat in config)
+// ✅ ALWAYS import types and hooks from 'react', NOT from 'preact'
+import { forwardRef, useState, useEffect, type ReactElement, type ReactNode } from 'react';
+
+export type MyComponentProps = {
+  title: string;
+  active?: boolean;
+  className?: string;
+  children?: ReactNode;
+};
+
+export const MyComponent = ({ title, active, className, children }: MyComponentProps): ReactElement => {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div className={className}>
+      <h1>{title}</h1>
+      {children}
+    </div>
+  );
+};
+MyComponent.displayName = 'MyComponent';
+```
+
+## Import Guidelines
+
+**IMPORTANT:** Always import from `react`, not `preact`:
+
+```typescript
+// ✅ Correct - Component code and stories
+import { forwardRef, useState, type ReactElement, type ReactNode } from 'react';
+
+// ❌ Wrong - Do NOT import from 'preact'
+import { forwardRef, useState, type ReactElement } from 'preact';
+import type { ComponentChildren } from 'preact';
+```
+
+**Children types:**
+
+```typescript
+// ✅ Use ReactNode for children (from 'react')
+type Props = {
+  children?: ReactNode;
+};
+
+// ❌ Do NOT use ComponentChildren (from 'preact')
+type Props = {
+  children?: ComponentChildren;
+};
+```
+
+This applies to:
+- Component implementation files (`.tsx`)
+- Storybook story files (`.stories.tsx`)
+- Test files (`.test.tsx`)
+
+The `react` imports are aliased to `preact/compat` in the build configuration, ensuring compatibility while maintaining consistent import patterns across the codebase.
+
+## forwardRef with ComponentPropsWithoutRef
+
+```typescript
+import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+
+// ✅ Use ComponentPropsWithoutRef<'element'> for proper ref handling
+export type ButtonProps = {
+  variant?: 'solid' | 'outline';
+} & ComponentPropsWithoutRef<'button'>;
+
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ variant = 'solid', children, ...props }, ref) => {
+    return (
+      <button ref={ref} {...props}>
+        {children}
+      </button>
+    );
+  }
+);
+Button.displayName = 'Button';
+```
+
+## React/Preact Compatibility Issues
+
+### Known Type Incompatibilities
+
+#### Radix UI Slot with forwardRef
+
+When using `@radix-ui/react-slot` with Preact's `forwardRef`, there's a known type incompatibility:
+
+```typescript
+import { Slot } from '@radix-ui/react-slot';
+import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+
+export type ComponentProps = {
+  asChild?: boolean;
+} & ComponentPropsWithoutRef<'button'>;
+
+export const Component = forwardRef<HTMLButtonElement, ComponentProps>(
+  ({ asChild, children, ...props }, ref) => {
+    const Comp = asChild ? Slot : 'button';
+
+    return (
+      // ⚠️ Type error: Preact's ForwardedRef is incompatible with Slot's expected ref type
+      // Solution: Use @ts-expect-error with explanation
+      <Comp
+        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </Comp>
+    );
+  }
+);
+```
+
+**Why this happens:**
+
+- Radix UI Slot expects React's complex intersection ref type
+- Preact's `ForwardedRef` type doesn't match this intersection
+- The ref works correctly at runtime, only types don't align
+
+**Solution:**
+
+- Use `@ts-expect-error` with clear comment explaining the incompatibility
+- Do NOT use type casting (`as any`, `as React.Ref<HTMLElement>`) - it's less clear
+- This is a known limitation when mixing Preact with React-ecosystem libraries
+
+### Other Radix UI Patterns
+
+Most Radix UI primitives work seamlessly with Preact through `preact/compat`. The Slot ref issue is the primary known type incompatibility.
+
+## Best Practices
+
+Follow the same best practices as React (see `react.mdc`):
+
+- Use functional components
+- Arrow functions need `displayName`
+- Minimize `useEffect`, prefer derived state
+- Use `useCallback`/`useMemo` only when needed
+- Keep components small and focused

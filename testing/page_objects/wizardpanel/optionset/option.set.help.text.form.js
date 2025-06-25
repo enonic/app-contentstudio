@@ -2,7 +2,7 @@
  * Created on 17.03.2022
  */
 const OptionSetFormView = require('./optionset.form.view');
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {

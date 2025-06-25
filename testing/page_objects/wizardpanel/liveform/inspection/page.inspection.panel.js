@@ -1,7 +1,7 @@
 /**
  * Created on 15.02.2018.
  */
-const lib = require('../../../../libs/elements');
+const lib = require('../../../../libs/elements-old');
 const appConst = require('../../../../libs/app_const');
 const InspectPanelControllerSelector = require('../../../../page_objects/components/selectors/inspect.panel.controller.selector');
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');

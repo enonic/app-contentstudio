@@ -3,7 +3,7 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 const ContentWizard = require('../content.wizard.panel');
 const FragmentDropdown = require('../../../page_objects/components/selectors/fragment.dropdown');
 const ComponentDescriptorsDropdown = require('../../components/selectors/component.descriptors.dropdown');

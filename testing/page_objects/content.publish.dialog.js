@@ -1,12 +1,13 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const lib = require('../libs/elements');
+const lib = require('../libs/elements-old');
+const {BUTTONS, COMMON, DROPDOWN, LIVE_VIEW, WIZARD} = require('../libs/elements');
 const DateTimeRange = require('../page_objects/components/datetime.range');
 const DependantsControls = require('./issue/dependant.controls');
 const DateTimePickerPopup = require('../page_objects/wizardpanel/time/date.time.picker.popup');
 
 const XPATH = {
-    container: "//div[contains(@id,'ContentPublishDialog')]",
+    container: "//div[contains(@role,'dialog') and descendant::h2[contains(.,'Publishing Wizard')]]",
     dialogTitle: "//h2[text()='Publishing Wizard']",
     dialogStateBarDiv: "//div[contains(@id,'DialogStateBar')]",
     logMessageLink: "//div[contains(@class,'content-dialog-sub-title')]/a",
@@ -21,7 +22,7 @@ const XPATH = {
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     readyForPublishingText: "//span[contains(@class,'entry-text') and text()='Content is ready for publishing']",
     mainItemDivByName: name => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`,
-    inProgressStateEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-in-progress')]]",
+    inProgressStateEntryDiv: "//div[contains(@data-component,'SelectionStatusBar') and descendant::span[contains(.,'In progress')]]",
     invalidStateEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-invalid')]]",
     inProgressSpan: "//span[contains(@class,'entry-text') and text()='In progress']",
     contentSummaryByDisplayName: displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
@@ -73,11 +74,11 @@ class ContentPublishDialog extends Page {
     }
 
     get publishNowButton() {
-        return XPATH.container + lib.actionButton('Publish Now');
+        return XPATH.container + BUTTONS.buttonAriaLabel('Publish now');
     }
 
     get updateScheduledButton() {
-        return XPATH.container + lib.actionButton('Update Scheduled');
+        return XPATH.container + BUTTONS.buttonAriaLabel('Update Scheduled');
     }
 
     get addScheduleIcon() {
@@ -93,7 +94,7 @@ class ContentPublishDialog extends Page {
     }
 
     get markAsReadyButton() {
-        return XPATH.container + XPATH.inProgressStateEntryDiv + lib.actionButton('Mark as ready');
+        return XPATH.container + XPATH.inProgressStateEntryDiv + BUTTONS.button('Mark as ready');
     }
 
     // Invalid item(s) Exclude button:
@@ -265,8 +266,7 @@ class ContentPublishDialog extends Page {
 
     async waitForDialogClosed() {
         try {
-            await this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout);
-            await this.pause(500);
+            await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError(`Publish Dialog, wait for dialog to be closed `, 'err_close_publish_dialog', err);
         }

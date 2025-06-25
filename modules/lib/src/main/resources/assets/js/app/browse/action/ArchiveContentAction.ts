@@ -1,20 +1,19 @@
-import {ContentDeletePromptEvent} from '../ContentDeletePromptEvent';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
+import {openDeleteDialog} from '../../../v6/features/store/dialogs/deleteDialog.store';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class ArchiveContentAction extends ContentTreeGridAction {
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.archiveMore'), 'mod+del');
+    constructor() {
+        super(i18n('action.archive'), 'mod+del');
 
         this.setEnabled(false).setClass('archive');
     }
 
     protected handleExecuted() {
-        new ContentDeletePromptEvent(this.grid.getSelectedItems()).fire();
+        openDeleteDialog([...getCurrentItems()]);
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

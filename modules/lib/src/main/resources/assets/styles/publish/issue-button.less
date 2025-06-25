@@ -1,64 +1,6 @@
 .show-issues-button-wrapper {
-
-  .show-issues-dialog-button {
-    flex-wrap: nowrap;
-    position: relative;
-    background-color: transparent;
-    z-index: 1;
-    color: @admin-white;
-    padding: 10px;
-
-    span:first-child {
-      margin-left: 10px;
-      font-size: 14px;
-      line-height: 25px;
-      .ellipsis();
-    }
-
-    &:before {
-      font-size: 20px;
-      line-height: 24px;
-    }
-
-    &:hover {
-
-      &:not(:disabled) {
-        background-color: transparent;
-      }
-      span, &:before {
-        color: darken(@admin-white, 10%);
-      }
-    }
-
-    .issue-count {
-      display: none;
-      position: absolute;
-      text-align: center;
-      color: @admin-white;
-      top: 4px;
-      left: 24px;
-      width: 12px;
-      height: 12px;
-      padding: 2px;
-      line-height: 12px;
-      border-radius: 14px;
-      font-size: 11px;
-      z-index: 1;
-    }
-
-    &.has-assigned-issues, &.has-issues {
-      .issue-count {
-        display: inline-block;
-      }
-    }
-
-    &.has-assigned-issues .issue-count {
-      background: @admin-red;
-    }
-
-    &.has-issues .issue-count {
-      background: @admin-blue;
-    }
+  button {
+    text-wrap: nowrap;
   }
 }
 

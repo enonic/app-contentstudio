@@ -2,7 +2,7 @@
  * Created on 02.03.2022
  */
 const ContentDuplicateDialog = require('../content.duplicate.dialog');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
 const CreateRequestPublishDialog = require('../issue/create.request.publish.dialog');
