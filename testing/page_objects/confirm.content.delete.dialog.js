@@ -2,37 +2,35 @@
  * Created  on 20/01/2018
  */
 const Page = require('./page');
-const lib = require('../libs/elements');
+const {BUTTONS} = require('../libs/elements');
 const appConst = require('../libs/app_const');
 const XPATH = {
-    container: `//div[contains(@id,'ConfirmValueDialog')]`,
-    confirmButton: `//button[contains(@id,'DialogButton') and child::span[text()='Confirm']]`,
-    cancelButton: `//div[@class='dialog-buttons']//button/span[text()='Cancel']`,
-    suggestedNumberToDelete: "//span[contains(@class,'confirm-value-data')]",
-    title: "//h2[@class='title']",
+    container: `//div[@role='dialog' and descendant::h2[contains(.,'Confirm delete')]]`,
+    suggestedNumberToDelete: "//p/strong",
+
 };
 
 class ConfirmValueDialog extends Page {
 
     get warningMessage() {
-        return XPATH.container +
-               `//div[contains(@id,'ModalDialogHeader')]//h6[text()='You are about to delete a site or multiple content items. This action cannot be undone.']`;
+        return XPATH.container + `//div[text()='You are about to delete a site or multiple content items. This action cannot be undone.']`;
     }
 
-    get cancelButton() {
-        return XPATH.container + XPATH.cancelButton;
+    get closeButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
 
     get confirmButton() {
-        return XPATH.container + XPATH.confirmButton;
+        return XPATH.container + BUTTONS.buttonAriaLabel('Confirm');
     }
 
     get numberInput() {
-        return XPATH.container + lib.TEXT_INPUT;
+        return XPATH.container + "//input[@inputmode='numeric']";
     }
 
+    // Title: Confirm delete
     async getDialogTitle() {
-        let locator = XPATH.container + XPATH.title;
+        let locator = XPATH.container + "//h2";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
@@ -40,9 +38,8 @@ class ConfirmValueDialog extends Page {
     async waitForDialogOpened() {
         try {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-            await this.pause(300);
         } catch (err) {
-            await this.handleError('Confirm Value Dialog', 'err_confirm_value_dlg_opened', err);
+            await this.handleError('Confirm Value Dialog should be loaded', 'err_confirm_value_dlg_opened', err);
         }
     }
 
@@ -50,7 +47,7 @@ class ConfirmValueDialog extends Page {
         try {
             return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout)
         } catch (err) {
-            await this.handleError('Confirm Value Dialog', 'err_confirm_value_dlg_closed', err);
+            await this.handleError('Confirm Value Dialog should be closed', 'err_confirm_value_dlg_closed', err);
         }
     }
 
@@ -70,22 +67,12 @@ class ConfirmValueDialog extends Page {
         }
     }
 
-    waitForCancelButtonEnabled() {
-        return this.waitForElementEnabled(this.cancelButton, appConst.mediumTimeout).catch(err => {
-            throw new Error("Confirm Value Dialog - Cancel button is not enabled in " + err);
-        })
-    }
-
-    isWarningMessageVisible() {
-        return this.isElementDisplayed(this.warningMessage);
-    }
-
     getWarningMessage() {
         return this.getText(this.warningMessage);
     }
 
-    clickOnCancelButton() {
-        return this.clickOnElement(this.cancelButton);
+    clickOnCloseButton() {
+        return this.clickOnElement(this.closeButton);
     }
 
     async clickOnConfirmButton() {
@@ -100,8 +87,8 @@ class ConfirmValueDialog extends Page {
         }
     }
 
-    typeNumberOrName(number) {
-        return this.typeTextInInput(this.numberInput, number);
+    async typeNumberOrName(number) {
+        return await this.typeTextInInput(this.numberInput, number);
     }
 
     getSuggestedNumberToDelete() {

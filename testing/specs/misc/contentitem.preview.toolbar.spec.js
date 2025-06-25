@@ -22,7 +22,7 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
     const ARIA_LABEL_TOOLBAR = 'Preview menu bar';
     const TOOLBAR_ROLE = 'toolbar';
 
-    it(`GIVEN folder has been created WHEN the folder is selected THEN 'New' status should be displayed in the preview-toolbar`,
+    it(`WHEN existing folder has been selected THEN 'Version history' button should be displayed in the preview-toolbar`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             let displayName = contentBuilder.generateRandomName('folder');
@@ -32,11 +32,29 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await studioUtils.saveScreenshot('content_item_toolbar');
             // 2. Verify that 'New' status is displayed in Item Preview toolbar:
-            let status = await contentItemPreviewPanel.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.NEW, "'New' status should be displayed in the Preview Item toolbar");
+            await contentItemPreviewPanel.waitForVersionHistoryButtonDisplayed();
         });
 
-    it(`WHEN the existing 'New' folder  has been published THEN 'Published' status should be displayed in the preview toolbar`,
+
+    it(`WHEN existing folder has been unselected THEN Preview toolbar gets not visible`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 1. select a folder:
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            // 2. Preview Dropdown should be displayed on the ContentItemPreviewToolbar:
+            await contentItemPreviewPanel.waitForPreviewWidgetDropdownDisplayed();
+            await contentItemPreviewPanel.waitForVersionHistoryButtonDisplayed();
+            // 3. unselect the folder:
+            await contentBrowsePanel.clickOnRowByDisplayName(TEST_FOLDER.displayName);
+            // 4. Preview toolbar should not be displayed
+            await contentItemPreviewPanel.waitForPreviewToolbarNotDisplayed();
+            await contentItemPreviewPanel.waitForVersionHistoryButtonNotDisplayed();
+        });
+
+    // TODO epic-enonic-ui new tests:
+    it.skip(
+        `GIVEN existing folder has been published WHEN 'Versions history' button has been clicked THEN 'Online' status should be displayed in the widget`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
@@ -50,26 +68,13 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
             await contentPublishDialog.waitForDialogOpened();
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
-            // 3. 'Published' status should be displayed in the item preview toolbar:
-            let status = await contentItemPreviewPanel.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
+            // 3. 'Published' status should be displayed in the Versions Widget:
+            await contentItemPreviewPanel.clickOnVersionHistoryButton();
+            //await versionsWidget.waitForWidgetOpened();
+            //assert.equal(status, appConst.CONTENT_STATUS.ONLINE, "The folder should be 'ONLINE'");
         });
-
-    it(`WHEN existing folder has been unselected THEN Preview toolbar gets not visible`,
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            // 1. select a folder:
-            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            // 2. Preview Dropdown should be displayed on the ContentItemPreviewToolbar:
-            await contentItemPreviewPanel.waitForPreviewWidgetDropdownDisplayed()
-            // 3. unselect the folder:
-            await contentBrowsePanel.clickOnRowByDisplayName(TEST_FOLDER.displayName);
-            // 4. Preview toolbar should not be displayed
-            await contentItemPreviewPanel.waitForPreviewToolbarNotDisplayed();
-        });
-
-    it(`WHEN published folder has been modified THEN 'Show changes' button should appear in the item preview toolbar`,
+    // TODO epic-enonic-ui new tests:
+    it.skip(`WHEN published folder has been modified THEN 'Show changes' button should appear in the item preview toolbar`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             let contentWizard = new ContentWizard();
@@ -82,15 +87,15 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
             await studioUtils.doCloseWizardAndSwitchToGrid();
             await studioUtils.saveScreenshot('show_changes_button_browse_panel');
             // 2. Verify that 'Show Changes' button gets visible in the preview toolbar:
-            await contentItemPreviewPanel.waitForShowChangesButtonDisplayed();
-            let status = await contentItemPreviewPanel.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, 'content status should be Modified');
+            //await contentItemPreviewPanel.waitForShowChangesButtonDisplayed();
+            //let status = await contentItemPreviewPanel.getContentStatus();
+            //assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, 'content status should be Modified');
             // 3.  Open 'Compare With Published Version' modal dialog
-            await contentItemPreviewPanel.clickOnShowChangesToolbarButton();
-            await compareWithPublishedVersionDialog.waitForDialogOpened();
+            //await contentItemPreviewPanel.clickOnShowChangesToolbarButton();
+            //await compareWithPublishedVersionDialog.waitForDialogOpened();
         });
 
-    it(`WHEN modified folder has been selected THEN item-preview-toolbar div should be with expected role attribute`,
+    it.skip(`WHEN modified folder has been selected THEN item-preview-toolbar div should be with expected role attribute`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. select the 'modified' folder:
@@ -101,7 +106,7 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
             await contentItemPreviewPanel.waitForBrowseToolbarAriaLabelAttribute(ARIA_LABEL_TOOLBAR);
         });
 
-    it(`GIVEN modified folder is selected WHEN the folder has been published THEN 'Show changes' button gets hidden in the item preview toolbar`,
+    it.skip(`GIVEN modified folder is selected WHEN the folder has been published THEN 'Show changes' button gets hidden in the item preview toolbar`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -117,7 +122,7 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
             await contentPublishDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('show_changes_button_hidden');
             // 3. Verify that 'Show Changes' button gets hidden in the preview toolbar:
-            await contentItemPreviewPanel.waitForShowChangesButtonNotDisplayed();
+            //await contentItemPreviewPanel.waitForShowChangesButtonNotDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

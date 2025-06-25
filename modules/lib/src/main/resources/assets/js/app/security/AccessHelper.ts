@@ -2,6 +2,27 @@ import {Permission} from '../access/Permission';
 import {Access} from './Access';
 
 export class AccessHelper {
+    public static getPermissionsFromAccess(access: Access): Permission[] {
+        switch (access) {
+            case Access.FULL:
+                return [
+                    Permission.READ,
+                    Permission.CREATE,
+                    Permission.MODIFY,
+                    Permission.DELETE,
+                    Permission.PUBLISH,
+                    Permission.WRITE_PERMISSIONS,
+                ];
+            case Access.PUBLISH:
+                return [Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE, Permission.PUBLISH];
+            case Access.WRITE:
+                return [Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE];
+            case Access.READ:
+                return [Permission.READ];
+            default:
+                return [];
+        }
+    }
 
     public static getAccessValueFromPermissions(allowedPermissions: Permission[]): Access {
         if (this.isFullAccess(allowedPermissions)) {
@@ -32,10 +53,12 @@ export class AccessHelper {
     }
 
     private static canWrite(allowed: Permission[]): boolean {
-        return this.canRead(allowed) &&
-               allowed.indexOf(Permission.CREATE) >= 0 &&
-               allowed.indexOf(Permission.MODIFY) >= 0 &&
-               allowed.indexOf(Permission.DELETE) >= 0;
+        return (
+            this.canRead(allowed) &&
+            allowed.indexOf(Permission.CREATE) >= 0 &&
+            allowed.indexOf(Permission.MODIFY) >= 0 &&
+            allowed.indexOf(Permission.DELETE) >= 0
+        );
     }
 
     private static canOnlyWrite(allowed: Permission[]): boolean {
@@ -51,7 +74,6 @@ export class AccessHelper {
     }
 
     private static isFullAccess(allowed: Permission[]): boolean {
-        return this.canPublish(allowed) &&
-               allowed.indexOf(Permission.WRITE_PERMISSIONS) >= 0;
+        return this.canPublish(allowed) && allowed.indexOf(Permission.WRITE_PERMISSIONS) >= 0;
     }
 }

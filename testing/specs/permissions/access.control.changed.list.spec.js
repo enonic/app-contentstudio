@@ -44,7 +44,7 @@ describe(`Summary step - tests for changed list, access.control.changed.list.spe
                 // 7. Click on 'Yes' in the confirmation dialog:
                 let confirmationDialog = new ConfirmationDialog();
                 await confirmationDialog.waitForDialogOpened();
-                await confirmationDialog.clickOnYesButton();
+                await confirmationDialog.clickOnConfirmButton();
                 // 8. Click on 'Next' button:
                 await editPermissionsChooseApplyChangesStep.clickOnNextButton();
                 // 9. Verify the data in Summary step:

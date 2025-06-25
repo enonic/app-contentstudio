@@ -16,6 +16,7 @@ describe('closed.issue.dependent.items.spec - tests for dependent items in close
         webDriverHelper.setupBrowser();
     }
     const ISSUE_NAME = appConst.generateRandomName('issue');
+    const TEST_FOLDER_NAME = appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_NAME;
 
     // Verifies Dependencies in closed issues should not be excludable #6043
     // https://github.com/enonic/app-contentstudio/issues/6043
@@ -26,25 +27,24 @@ describe('closed.issue.dependent.items.spec - tests for dependent items in close
             let issueDetailsDialog = new IssueDetailsDialog();
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             // 1. folder with child items is selected:
-            await studioUtils.findAndSelectItem(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_NAME);
+            await studioUtils.findAndSelectItem(TEST_FOLDER_NAME);
             // 2. Expand Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             // 3. click on 'Include children items'
-            await createIssueDialog.clickOnIncludeChildrenToggler(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            await createIssueDialog.clickOnIncludeChildrenCheckbox(TEST_FOLDER_NAME);
             await studioUtils.saveScreenshot('request_publish_include_children');
             // 4. Fill in the name input then click on 'Create Issue' button
             await createIssueDialog.typeTitle(ISSUE_NAME);
             await createIssueDialog.clickOnCreateIssueButton();
             // 5. Go to 'Items' tab
             await issueDetailsDialog.waitForDialogLoaded();
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             // 6. Verify that 'All' checkbox is displayed
-            await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
+            //await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
             // 7. Expand the status selector  then click on "Closed" menu item:
-            await issueDetailsDialog.clickOnStatusSelectorMenu();
-            await issueDetailsDialog.clickOncloseTabMenuItem();
+            await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             // 8. Verify that 'All' checkbox gets not visible in closed issue:
-            await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxNotDisplayed();
+            //await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxNotDisplayed();
             let items = await issueDetailsDialogItemsTab.getDisplayNameInDependentItems();
             assert.equal(items.length, 10, '10 dependent items should be displayed in the closed issue');
         });

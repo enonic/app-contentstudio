@@ -1,9 +1,10 @@
-import {ChildOrder} from './resource/order/ChildOrder';
+import type {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {Workflow} from './content/Workflow';
 import {WorkflowState} from './content/WorkflowState';
-import {type ContentVersionJson} from './resource/json/ContentVersionJson';
+import {ContentVersionAction} from './ContentVersionAction';
 import {ContentVersionPublishInfo} from './ContentVersionPublishInfo';
-import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import type {ContentVersionJson} from './resource/json/ContentVersionJson';
+import {ChildOrder} from './resource/order/ChildOrder';
 
 export class ContentVersion
     implements Cloneable {
@@ -34,6 +35,8 @@ export class ContentVersion
 
     private readonly path: string;
 
+    private readonly actions: ContentVersionAction[];
+
     constructor(builder: ContentVersionBuilder) {
         this.modifier = builder.modifier;
         this.displayName = builder.displayName;
@@ -48,6 +51,7 @@ export class ContentVersion
         this.workflowInfo = builder.workflowInfo;
         this.permissionsChanged = !!builder.permissionsChanged;
         this.path = builder.path;
+        this.actions = builder.actions || [];
 
         if (this.publishInfo && this.publishInfo.getPublishedFrom()) {
             if (ContentVersion.equalDates(this.publishInfo.getPublishedFrom(), this.publishInfo.getTimestamp(), 500)) {
@@ -152,6 +156,10 @@ export class ContentVersion
         return this.path;
     }
 
+    getActions(): ContentVersionAction[] {
+        return this.actions.slice();
+    }
+
     newBuilder(): ContentVersionBuilder {
         return new ContentVersionBuilder(this);
     }
@@ -188,6 +196,8 @@ export class ContentVersionBuilder {
 
     permissionsChanged: boolean;
 
+    actions: ContentVersionAction[];
+
     constructor(source?: ContentVersion) {
         if (source) {
             this.modifier = source.getModifier();
@@ -220,6 +230,7 @@ export class ContentVersionBuilder {
         this.workflowInfo = Workflow.fromJson(contentVersionJson.workflow);
         this.permissionsChanged = contentVersionJson.permissionsChanged || false;
         this.path = contentVersionJson.path;
+        this.actions = contentVersionJson.actions?.map(ContentVersionAction.fromJson) ?? [];
 
         return this;
     }

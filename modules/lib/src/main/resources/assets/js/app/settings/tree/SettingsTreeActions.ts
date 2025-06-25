@@ -20,10 +20,10 @@ export class SettingsTreeActions
 
     private actions: Action[] = [];
 
-    constructor(tree: SelectableListBoxWrapper<SettingsViewItem>) {
-        this.NEW = new NewSettingsItemTreeAction(tree);
-        this.EDIT = new EditSettingsItemTreeAction(tree);
-        this.DELETE = new DeleteSettingsItemTreeAction(tree);
+    constructor() {
+        this.NEW = new NewSettingsItemTreeAction();
+        this.EDIT = new EditSettingsItemTreeAction();
+        this.DELETE = new DeleteSettingsItemTreeAction();
         this.SYNC = new SyncTreeAction();
 
         this.actions.push(this.NEW, this.EDIT, this.DELETE, this.SYNC);

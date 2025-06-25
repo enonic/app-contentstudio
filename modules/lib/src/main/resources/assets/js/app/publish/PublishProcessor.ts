@@ -1,9 +1,10 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
+import {type PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
+import {$config} from '../../v6/features/store/config.store';
 import {CompareStatus} from '../content/CompareStatus';
 import {type ContentId} from '../content/ContentId';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
@@ -15,7 +16,7 @@ import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfConte
 import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDependenciesRequest';
 import {type ResolvePublishDependenciesResult} from '../resource/ResolvePublishDependenciesResult';
 import {type PublishDialogDependantList} from './PublishDialogDependantList';
-import {type PublishDialogItemList} from './PublishDialogItemList';
+import {PublishDialogItemList} from './PublishDialogItemList';
 
 interface ReloadDependenciesParams {
     resetDependantItems?: boolean;
@@ -32,7 +33,7 @@ export type LoadingStartedListener = (checking: boolean) => void;
 
 export class PublishProcessor {
 
-    private itemList: PublishDialogItemList;
+    private itemList: PublishDialogItemList | PublishItemsListElement;
 
     private dependantList: PublishDialogDependantList;
 
@@ -84,7 +85,7 @@ export class PublishProcessor {
 
     private static debug: boolean = false;
 
-    constructor(itemList: PublishDialogItemList, dependantList: PublishDialogDependantList, keepDependencies = false) {
+    constructor(itemList: PublishDialogItemList | PublishItemsListElement, dependantList: PublishDialogDependantList, keepDependencies = false) {
         this.instanceId = 0;
         this.itemList = itemList;
         this.dependantList = dependantList;
@@ -124,10 +125,9 @@ export class PublishProcessor {
             });
         });
 
-        const itemClickedFn = (item: ContentSummaryAndCompareStatus) => new EditContentEvent([item]).fire();
-
-        this.itemList.onItemClicked(itemClickedFn);
-        this.dependantList.onItemClicked(itemClickedFn);
+        this.dependantList.onItemClicked((item: ContentSummaryAndCompareStatus) => {
+            new EditContentEvent([item]).fire();
+        });
 
         this.dependantList.onExclusionUpdated((event) => {
             if (!event.manual) {
@@ -189,7 +189,7 @@ export class PublishProcessor {
         }
 
         const {resetDependantItems, resetExclusions, silent} = params;
-        const excludeNonRequired = CONFIG.isTrue('excludeDependencies') && !this.keepDependencies;
+        const excludeNonRequired = $config.get().excludeDependencies && !this.keepDependencies;
 
         if (!silent) {
             this.notifyLoadingStarted(true);
@@ -568,9 +568,13 @@ export class PublishProcessor {
         this.instanceId += 1;
         this.cleanLoad = true;
 
-        this.itemList.setExcludeChildrenIds([]);
-        this.itemList.setItems([]);
-        this.itemList.setReadOnly(false);
+        if (this.itemList instanceof PublishDialogItemList) {
+            this.itemList.setExcludeChildrenIds([]);
+            this.itemList.setItems([]);
+            this.itemList.setReadOnly(false);
+        } else {
+            this.itemList.reset();
+        }
 
         this.dependantList.setRequiredIds([]);
         this.dependantList.updateVisibleIds([]);
@@ -783,12 +787,6 @@ export class PublishProcessor {
         this.loadingStartedListeners.push(listener);
     }
 
-    unLoadingStarted(listener: LoadingStartedListener) {
-        this.loadingStartedListeners = this.loadingStartedListeners.filter((curr) => {
-            return listener !== curr;
-        });
-    }
-
     private notifyLoadingStarted(checking: boolean) {
         this.loadingStartedListeners.forEach((listener) => {
             listener(checking);
@@ -799,12 +797,6 @@ export class PublishProcessor {
         this.loadingFinishedListeners.push(listener);
     }
 
-    unLoadingFinished(listener: () => void) {
-        this.loadingFinishedListeners = this.loadingFinishedListeners.filter((curr) => {
-            return listener !== curr;
-        });
-    }
-
     private notifyLoadingFinished() {
         this.loadingFinishedListeners.forEach((listener) => {
             listener();
@@ -813,12 +805,6 @@ export class PublishProcessor {
 
     onLoadingFailed(listener: () => void) {
         this.loadingFailedListeners.push(listener);
-    }
-
-    unLoadingFailed(listener: () => void) {
-        this.loadingFailedListeners = this.loadingFailedListeners.filter((curr) => {
-            return listener !== curr;
-        });
     }
 
     private notifyLoadingFailed() {

@@ -1,4 +1,5 @@
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentAggregation} from './ContentAggregation';
@@ -20,7 +21,6 @@ enum EXPORT_TYPE {
 export class ContentExportElement extends SpanEl {
 
     protected exportServicePath: string;
-    protected exportConfirmationDialog: ConfirmationDialog;
 
     protected total: number;
     protected searchInputValues: SearchInputValues;
@@ -64,16 +64,20 @@ export class ContentExportElement extends SpanEl {
         });
     }
 
-    protected handleExportClicked(): void {
-        if (!this.exportConfirmationDialog) {
-            this.exportConfirmationDialog = new ConfirmationDialog()
-                .setYesCallback(() => {
-                    this.exportSearch(this.getSelectedType());
-                });
-        }
-
+    handleExportClicked(): void {
         const typeString = i18n(`dialog.export.type.${this.getSelectedType()}`);
-        this.exportConfirmationDialog.setQuestion(i18n('dialog.confirm.export', this.total, typeString)).open();
+        const dialog = new DialogPresetConfirmElement({
+            open: true,
+            title: i18n('dialog.confirm.title'),
+            description: i18n('dialog.confirm.export', this.total, typeString),
+            onConfirm: () => {
+                dialog.close();
+                this.exportSearch(this.getSelectedType());
+            },
+            onCancel: () => dialog.close()
+        });
+
+        dialog.open();
     }
 
     protected getSelectedType(): EXPORT_TYPE {
@@ -102,7 +106,7 @@ export class ContentExportElement extends SpanEl {
         }
 
         this.searchInputValues.aggregationSelections.filter((value) => value.getSelectedBuckets().length).forEach((selected) => {
-            params[selected.name] = this.aggregationSelectionValueToString(selected);
+            params[selected.getName()] = this.aggregationSelectionValueToString(selected);
         });
 
         return UriHelper.appendUrlParams(this.getReportServicePath(), params);
@@ -114,7 +118,7 @@ export class ContentExportElement extends SpanEl {
                 (bucket: DateRangeBucket) => ValueExpr.dateTime(bucket.getFrom()).getValue().getString()).join();
         }
 
-        return selected.selectedBuckets.map((bucket) => bucket.getKey()).join();
+        return selected.getSelectedBuckets().map((bucket) => bucket.getKey()).join();
     }
 
 

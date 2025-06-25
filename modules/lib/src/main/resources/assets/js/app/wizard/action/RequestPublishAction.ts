@@ -12,7 +12,7 @@ export class RequestPublishAction
     constructor(wizard: ContentWizardPanel) {
         super({
             wizard,
-            label: i18n('action.requestPublishMore')
+            label: i18n('action.requestPublish')
         });
 
         this.wizard = wizard;

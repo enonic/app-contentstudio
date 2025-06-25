@@ -1,13 +1,15 @@
 const BaseStepPermissionsDialog = require('./base.step.edit.permissions.dialog');
 const appConst = require('../../libs/app_const');
-const lib = require('../../libs/elements');
+const {BUTTONS} = require('../../libs/elements');
 const AccessControlComboBox = require('../components/selectors/access.control.combobox');
 
 const xpath = {
-    stepDescriptionP: "//p[contains(@class,'sub-name') and text()='1 of 3 - General access']",
+    stepManageAccess: "//div[@role='dialog' and descendant::h2[contains(.,'Manage access')]]",
     accessSelector: "//div[contains(@id,'AccessSelector')]",
     contentPath: "//p[@class='path']",
-    accessModeDiv: `//div[contains(@class,'access-mode-container')]`,
+    accessModeDiv: `//div[@role='radiogroup')]`,
+    publicRadio: "//button[@role='radio' and descendant::span[contains(.,'Public - Everyone can read')]",
+    restrictedRadio: "//button[@role='radio' and descendant::span[contains(.,'Restricted - Only listed permissions can read')]",
     permissionSelector: `//[contains(@id,'PermissionSelector')]`,
     aceSelectedOptionsView: "//div[contains(@id,'ACESelectedOptionsView')]",
     dialogButtonRow: `//div[contains(@class,'button-container')]`,
@@ -22,20 +24,20 @@ const xpath = {
 
 class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
 
-    get stepDescription() {
-        return this.container + xpath.stepDescriptionP;
+    get container() {
+        return xpath.stepManageAccess;
     }
 
-    get cancelButton() {
-        return this.container + xpath.cancelButton;
-    }
-
-    get resetButton() {
-        return this.container + xpath.dialogButtonRow + lib.dialogButton('Reset');
+    get nothingToApplyButton() {
+        return this.container + BUTTONS.buttonByLabel('Nothing to apply');
     }
 
     get publicRadioButton() {
-        return this.container + lib.radioButtonContainsLabel('Public - Everyone can read');
+        return this.container + xpath.accessModeDiv + xpath.publicRadio;
+    }
+
+    get restrictedRadioButton() {
+        return this.container + xpath.accessModeDiv + xpath.restrictedRadio;
     }
 
     get copyFromProjectButton() {
@@ -46,17 +48,13 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
         return this.container + lib.buttonWithSpan('Copy from parent');
     }
 
-    get restrictedRadioButton() {
-        return this.container + lib.radioButtonContainsLabel('Restricted');
-    }
-
     async waitForRestrictedRadioDisplayed() {
-        return await this.waitForElementDisplayed(this.restrictedRadioButton, appConst.shortTimeout);
+        return await this.waitForElementDisplayed(this.restrictedRadioButton);
     }
 
     async clickOnRestrictedRadioButton() {
         try {
-            await this.waitForElementDisplayed(this.restrictedRadioButton, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.restrictedRadioButton);
             return await this.clickOnElement(this.restrictedRadioButton);
         } catch (err) {
             await this.handleError('Restricted radio button', 'err_restricted_radio_button', err,);
@@ -73,7 +71,7 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
 
     async clickOnCopyFromParentButton() {
         try {
-            await this.waitForElementDisplayed(this.copyFromParentButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.copyFromParentButton);
             return await this.clickOnElement(this.copyFromParentButton);
         } catch (err) {
             await this.handleError('Click on Copy from parent button ', 'err_click_copy_from_parent_button', err);
@@ -82,7 +80,7 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
 
     async waitForCopyFromParentButtonDisabled() {
         try {
-            return await this.waitForElementDisabled(this.copyFromParentButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.copyFromParentButton);
         } catch (err) {
             await this.handleError('Copy from parent button should be disabled', 'err_copy_from_parent_button', err);
         }
@@ -90,7 +88,7 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
 
     async waitForCopyFromProjectButtonDisabled() {
         try {
-            return await this.waitForElementDisabled(this.copyFromProjectButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.copyFromProjectButton);
         } catch (err) {
             await this.handleError('Copy from project button should be disabled', 'err_copy_from_project_button', err);
         }
@@ -98,7 +96,7 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
 
     async waitForCopyFromProjectButtonEnabled() {
         try {
-            return await this.waitForElementEnabled(this.copyFromProjectButton, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(this.copyFromProjectButton);
         } catch (err) {
             await this.handleError('Copy from project button should be enabled', 'err_copy_from_project_button', err);
         }
@@ -106,7 +104,7 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
 
     async clickOnCopyFromProjectButton() {
         try {
-            await this.waitForElementDisplayed(this.copyFromProjectButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.copyFromProjectButton);
             return await this.clickOnElement(this.copyFromProjectButton);
         } catch (err) {
             await this.handleError('Click on Copy from project button', 'err_click_copy_from_project_button', err);
@@ -127,38 +125,12 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
         return await this.isSelected(this.restrictedRadioButton);
     }
 
-    async waitForResetButtonDisabled() {
-        try {
-            return await this.waitForElementDisabled(this.resetButton, appConst.mediumTimeout);
-        } catch (err) {
-            await this.handleError('Reset button should be disabled', 'err_reset_button', err);
-        }
-    }
-
-    async waitForResetButtonEnabled() {
-        try {
-            return await this.waitForElementEnabled(this.resetButton, appConst.mediumTimeout);
-        } catch (err) {
-            await this.handleError('Reset button should be enabled', 'err_reset_button', err);
-        }
-    }
-
-    async clickOnResetButton() {
-        try {
-            await this.waitForElementDisplayed(this.resetButton, appConst.mediumTimeout);
-            await this.clickOnElement(this.resetButton);
-            await this.pause(400);
-        } catch (err) {
-            await this.handleError('Click on Reset button', 'err_click_reset_button', err);
-        }
-    }
-
     async waitForLoaded() {
         try {
-            await this.waitForElementDisplayed(this.stepDescription, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.container);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('PermissionsDialog - General Access Step  was not loaded', 'err_edit_perm_dlg_not_loaded', err);
+            await this.handleError('PermissionsDialog - Manage access  step should be loaded', 'err_edit_perm_dlg', err);
         }
     }
 
@@ -210,9 +182,9 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
     // filters and selects a principal
     async filterAndSelectPrincipal(principalDisplayName) {
         try {
-            let accessControlComboBox = new AccessControlComboBox();
-            await accessControlComboBox.selectFilteredPrincipalAndClickOnApply(principalDisplayName, this.container);
-            console.log('Edit Permissions Dialog, principal is selected: ' + principalDisplayName);
+            let accessControlComboBox = new AccessControlComboBox(this.container);
+            await accessControlComboBox.clickOnFilteredPrincipalAndApply(principalDisplayName);
+            console.log('Edit Permissions Dialog, principal has been selected: ' + principalDisplayName);
         } catch (err) {
             await this.handleError(`Filter and select principal: ${principalDisplayName}`, 'err_filter_and_select_principal', err);
         }

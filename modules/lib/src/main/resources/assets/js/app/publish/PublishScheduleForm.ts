@@ -7,12 +7,12 @@ import {FormBuilder} from '@enonic/lib-admin-ui/form/Form';
 import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
 import {type FormItem} from '@enonic/lib-admin-ui/form/FormItem';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {InputBuilder} from '@enonic/lib-admin-ui/form/Input';
+import {InputBuilder, type RawInputConfig} from '@enonic/lib-admin-ui/form/Input';
 import {DateTimeRange} from '@enonic/lib-admin-ui/form/inputtype/time/DateTimeRange';
 import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class PublishScheduleForm
     extends DivEl {
@@ -65,13 +65,14 @@ export class PublishScheduleForm
             .setHelpText(i18n('field.scheduledPublishing.helptext'))
             .setInputType(DateTimeRange.getName())
             .setOccurrences(new OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
+            // !Type casting is incorrect, but kept as is, because code will be removed
             .setInputTypeConfig({
                 fromLabel: i18n('field.onlineFrom'),
                 toLabel: i18n('field.onlineTo'),
                 defaultFromTime: fromTime,
                 fromPlaceholder: i18n('text.now'),
                 optionalFrom: !CONFIG.isTrue('requiredPublishFrom')
-            })
+            } as unknown as RawInputConfig)
             .build();
     }
 
