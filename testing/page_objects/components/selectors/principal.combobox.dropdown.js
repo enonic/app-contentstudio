@@ -1,29 +1,44 @@
 /**
- * Created on 12.02.2024
+ * Created on 12.02.2024  updated on 12.02.2026
  */
 const BasDropdown = require('./base.dropdown');
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 const XPATH = {
-    container: "//div[contains(@id,'CSPrincipalCombobox')]",
     listBoxUL: "//ul[contains(@id,'PrincipalsListBox')]",
     principalViewerDiv: "//div[contains(@id,'PrincipalViewer')]",
 };
 
-class PrincipalComboBox extends BasDropdown {
+class PrincipalSelector extends BasDropdown {
 
-    get container() {
-        return XPATH.container;
+    constructor(parentElementXpath) {
+        super();
+        this._container = parentElementXpath;
     }
 
-    async selectFilteredUser(userDisplayName, parentElement) {
+    optionsFilterInput(ariaLabel = 'Assignees') {
+        return super.optionsFilterInput(ariaLabel);
+    }
+
+    get container() {
+        return this._container;
+    }
+
+    get dataComponentDiv() {
+        return "//div[contains(@data-component,'AssigneeSelector')]";
+    }
+
+    async selectFilteredUser(userDisplayName) {
         try {
-            await this.clickOnFilteredByDisplayNameItem(userDisplayName, parentElement);
+            await this.doFilterItem(userDisplayName);
+            await this.clickOnFilteredByDisplayNameOption(userDisplayName);
         } catch (err) {
-            await this.handleError('Principal Comboboox selector','err_principal_dropdown',err );
+            await this.handleError(`Principal Selector, tried to click on the filtered option, ${userDisplayName} `, 'err_principal_sel',
+                err);
         }
     }
 
+    // TODO: Refactor this method for epic-enonic-ui
     async getPrincipalsDisplayNameInOptions(parentXpath) {
         if (parentXpath === undefined) {
             parentXpath = '';
@@ -35,4 +50,4 @@ class PrincipalComboBox extends BasDropdown {
     }
 }
 
-module.exports = PrincipalComboBox;
+module.exports = PrincipalSelector;

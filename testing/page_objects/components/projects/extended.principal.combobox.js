@@ -3,7 +3,7 @@
  */
 const BasDropdown = require('../selectors/base.dropdown');
 const appConst = require('../../../libs/app_const');
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 const XPATH = {
     container: "//div[contains(@id,'ExtendedPrincipalComboBox')]",
     principalByName:

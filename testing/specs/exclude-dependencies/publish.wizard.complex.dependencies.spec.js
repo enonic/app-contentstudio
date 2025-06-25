@@ -137,10 +137,10 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
             // 10. Verify that the parent site is published:
             await studioUtils.findAndSelectItem(SITE.displayName);
             let status = await contentBrowsePanel.getContentStatus(SITE.displayName);
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "the parent site should be with 'Published' status");
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, "the parent site should be with 'Published' status");
             // 11. Verify that the child folder is published as well:
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "the child folder should be with 'Published' status");
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, "the child folder should be with 'Published' status");
         });
 
     // Verify https://github.com/enonic/app-contentstudio/issues/6997

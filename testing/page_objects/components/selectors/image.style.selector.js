@@ -1,7 +1,7 @@
 /**
  * Created on 16.10.2024
  */
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 const BaseDropdown = require('./base.dropdown');
 const XPATH = {

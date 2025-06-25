@@ -69,6 +69,12 @@ module.exports = [
         }
     },
     {
+        files: ["**/*.tsx"],
+        rules: {
+            '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+        }
+    },
+    {
         ignores: [
             "**/node_modules/",
             "**/build/",

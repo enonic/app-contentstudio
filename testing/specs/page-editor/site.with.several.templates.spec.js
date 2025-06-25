@@ -83,7 +83,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await pageInspectionTab.clickOnCustomizePageButton();
             let confirmationDialog = new ConfirmationDialog();
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             // 5. Verify that LiveEdit is unlocked:
             isLocked = await contentWizard.isLiveEditLocked();
             assert.ok(isLocked === false, 'Page editor should not be locked');
@@ -106,13 +106,13 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await pageInspectionPanel.clickOnCustomizePageButton();
             // 3. Confirm the action
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 4. Select the controller:
             await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE1.displayName);
             // 5. Confirmation dialog appears:
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             // 6. Verify the notification message(the content is saved automatically)
             let notificationMessage = await contentWizard.waitForNotificationMessage();
             let expectedMessage = appConst.itemSavedNotificationMessage(SITE.displayName);
@@ -137,7 +137,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // Click on 'Customize' Page button:
             await pageInspectionPanel.clickOnCustomizePageButton();
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 3. Check the items in PCV:
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
@@ -148,7 +148,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 5. Confirmation dialog appears:
             await confirmationDialog.waitForDialogOpened();
             // 6. Confirm it:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             // 7. Verify that notification message appears:
             await contentWizard.waitForNotificationMessage();
             // 8. Live Edit gets locked again, click on 'Customize' menu item:
@@ -158,7 +158,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await pageInspectionPanel.clickOnCustomizePageButton();
             await confirmationDialog.waitForDialogOpened();
             // 6. Confirm it:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 9. Verify that items in PCV are updated after switching to another template:
             result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
@@ -184,7 +184,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await pageComponentsWizardStepForm.openMenu('default');
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             // 4. Click on 'Yes' button in the confirmation dialog:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await contentWizard.waitForSaveButtonDisabled();
             let actualWidget = await wizardContextWindow.getSelectedOptionInWidgetSelectorDropdown();

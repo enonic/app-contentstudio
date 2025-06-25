@@ -9,6 +9,8 @@ const contentBuilder = require("../libs/content.builder");
 const appConst = require('../libs/app_const');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
+const BrowseContextWindow = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
+const ContentFilterPanel = require('../page_objects/browsepanel/content.filter.panel');
 
 describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar after closing a wizard page', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -22,14 +24,14 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
     let SITE;
     // verifies https://github.com/enonic/app-contentstudio/issues/645
     // Buttons on toolbar are not correctly updated after closing a content-wizard
-    it(`GIVEN existing site is selected  AND new folder has been saved and the wizard closed THEN toolbar-buttons should be in expected state`,
+    it(`GIVEN existing site is selected AND new child folder has been saved and the wizard closed THEN toolbar-buttons should be in expected state`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            let displayName = contentBuilder.generateRandomName('site-test');
+            let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddReadySite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
-            FOLDER_NAME = contentBuilder.generateRandomName('folder');
+            FOLDER_NAME = appConst.generateRandomName('folder');
             let folder = contentBuilder.buildFolder(FOLDER_NAME);
             // opens folder-wizard, types a name and saves it then closes the wizard.
             await studioUtils.doAddFolder(folder);
@@ -38,9 +40,44 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             //'Edit' button should be enabled
             await contentBrowsePanel.waitForEditButtonEnabled();
             //'Archive' button should be enabled
-            await contentBrowsePanel.waitForArchiveButtonEnabled();
+            await contentBrowsePanel.waitForDeleteButtonEnabled();
             //'Move' button should be enabled
             await contentBrowsePanel.waitForMoveButtonEnabled();
+        });
+
+    it("GIVEN one row is checked WHEN hold down 'Shift' key AND press Arrow down key 3 times THEN 3 content items get checked",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentFilterPanel = new ContentFilterPanel();
+            // 1. Open Filter Panel and filter by 'Images' content type:
+            await studioUtils.openFilterPanel();
+            await contentFilterPanel.clickOnCheckboxInContentTypesBlock(appConst.FILTER_PANEL_AGGREGATION_BLOCK.IMAGE);
+            // 2. Click on the first row - highlight the first item
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.BOOK);
+            // 3. hold down Shift key and press Arrow down key 3 times:
+            await contentBrowsePanel.holdDownShiftAndPressArrowDown(3);
+            await studioUtils.saveScreenshot('hold_down_shift_and_click');
+            // 4. Verify that 5 content items get checked:
+            let numberCheckedRows = await contentBrowsePanel.getNumberOfCheckedRows();
+            assert.equal(numberCheckedRows, 3, '3 rows should be checked in Browse Panel');
+        });
+
+    // TODO remove the test
+    it.skip(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,
+        async () => {
+            let browseContextWindow = new BrowseContextWindow();
+            await studioUtils.findAndSelectItem(FOLDER_NAME);
+            await browseContextWindow.waitForWidgetSelected(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
+            let selectedOption = await browseContextWindow.getSelectedOptionsDisplayName();
+            assert.equal(items.length, 1, 'The only one item should be selected in the ListBox');
+            assert.equal(selectedOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, "'Details' option item should be selected in the ListBox");
+
+            // 1. Click on the dropdown handler:
+            await browseContextWindow.clickOnWidgetSelectorDropdownHandle();
+            let actualOptions = await browseContextWindow.getWidgetSelectorDropdownOptions();
+            await studioUtils.saveScreenshot('details_panel_widget_options');
+            await browseContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
+            assert.ok(true);
         });
 
     // Verify "Move" action is disabled in the search view #4035
@@ -54,7 +91,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             //'Edit' button should be enabled
             await contentBrowsePanel.waitForEditButtonEnabled();
             //'Archive' button should be enabled
-            await contentBrowsePanel.waitForArchiveButtonEnabled();
+            await contentBrowsePanel.waitForDeleteButtonEnabled();
             //'Move' button should be enabled
             await contentBrowsePanel.waitForMoveButtonEnabled();
             await contentBrowsePanel.waitForDuplicateButtonEnabled();
@@ -102,12 +139,12 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await contentBrowsePanel.waitForNewButtonEnabled();
             await contentBrowsePanel.waitForEditButtonDisabled();
-            await contentBrowsePanel.waitForArchiveButtonDisabled();
+            await contentBrowsePanel.waitForDeleteButtonDisabled();
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
             await contentBrowsePanel.waitForMoveButtonDisabled();
             await contentBrowsePanel.waitForSortButtonDisabled();
             await contentBrowsePanel.waitForCreateIssueButtonDisplayed();
-            await contentBrowsePanel.waitForDetailsPanelToggleButtonDisplayed();
+            await contentBrowsePanel.waitForHideContextWindowButtonDisplayed();
             // 'Preview' button and Preview Panel Toolbar should not be displayed, because no content is selected
             await contentItemPreviewPanel.waitForToolbarNotDisplayed();
         });
@@ -164,11 +201,11 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             // 1. Click on the child folder:
             await contentBrowsePanel.clickOnExpanderIcon(FOLDER.displayName);
-            await contentBrowsePanel.clickOnRowByName(CHILD_FOLDER.displayName)
+            await contentBrowsePanel.clickOnRowByName(CHILD_FOLDER.displayName);
             // 2. delete the child folder:
-            await contentBrowsePanel.clickOnArchiveButton();
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
-            await deleteContentDialog.clickOnDeleteMenuItem();
+            await deleteContentDialog.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogClosed();
             await contentBrowsePanel.waitForNotificationMessage();
             // 3. select the parent folder:

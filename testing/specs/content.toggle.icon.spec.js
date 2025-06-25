@@ -74,9 +74,9 @@ describe('content.toggle.icon.spec: tests for expand/collapse icon', function ()
             // 2. Both child folders have been deleted:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(CHILD_FOLDER_1.displayName);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(CHILD_FOLDER_2.displayName);
-            await contentBrowsePanel.clickOnArchiveButton();
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
-            await deleteContentDialog.clickOnDeleteMenuItem();
+            await deleteContentDialog.clickOnDeleteButton();
             await confirmValueDialog.waitForDialogOpened();
             await confirmValueDialog.typeNumberOrName(2);
             await confirmValueDialog.clickOnConfirmButton();

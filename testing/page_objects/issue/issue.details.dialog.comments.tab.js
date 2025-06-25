@@ -1,17 +1,17 @@
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const {BUTTONS, COMMON} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
-    container: `//div[contains(@id,'IssueDetailsDialog')]`,
+    container: `//div[@data-component='IssueDialogDetailsContent']`,
     commentAndCloseRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment & Close Request']]`,
     commentAndCloseIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment & Close Issue']]`,
-    issueCommentTextArea: `//div[contains(@id,'IssueCommentTextArea')]`,
+    commentsPanelDiv: `//div[@role='tabpanel' and contains(@id,'comments')]`,
     noCommentsMessage: "//h5[@class='empty-list-item']",
     reopenRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Request']]`,
-    commentsList: "//ul[contains(@id,'IssueCommentsList')]",
+    commentsListDiv: "//div[@data-component='IssueCommentsList']",
     issueCommentsListItemByText:
-        text => `//div[contains(@id,'IssueCommentsListItem') and descendant::p[@class='inplace-text' and text()='${text}']]`,
+        text => XPATH.commentsListDiv + `//div[@data-component='IssueCommentItem') and descendant::div[text()='${text}']]`,
 };
 
 class IssueDetailsDialogCommentsTab extends Page {
@@ -19,12 +19,13 @@ class IssueDetailsDialogCommentsTab extends Page {
     get reopenRequestButton() {
         return XPATH.container + XPATH.reopenRequestButton;
     }
+
     get issueCommentTextArea() {
-        return XPATH.container + XPATH.issueCommentTextArea + lib.TEXT_AREA;
+        return XPATH.container + XPATH.commentsPanelDiv + COMMON.INPUTS.textAreaByName('comment');
     }
 
     get commentButton() {
-        return XPATH.container + lib.dialogButtonStrict('Comment');
+        return XPATH.container + COMMON.FOOTER_ELEMENT + BUTTONS.buttonByLabel('Comment');
     }
 
     get commentAndCloseRequestButton() {
@@ -75,32 +76,33 @@ class IssueDetailsDialogCommentsTab extends Page {
     }
 
     async clickOnSaveCommentButton(text) {
-        let saveButton = XPATH.issueCommentsListItemByText(text) + `//button[contains(@id,'Button') and child::span[text()='Save']]`;
+        let saveButton = XPATH.issueCommentsListItemByText(text) + BUTTONS.buttonByLabel('Save');
         await this.clickOnElement(saveButton);
-        return await this.pause(500);
+        return await this.pause(300);
     }
 
     async clickOnEditCommentMenuItem(text) {
-        let selector = XPATH.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        //clicks on menu and opens menu items
-        await this.clickOnElement(selector);
-        await this.pause(700);
-        let editMenuItem = `//li[contains(@id,'MenuItem') and text()='Edit']`;
+        let menuButton = XPATH.issueCommentsListItemByText(text) + BUTTONS.BUTTON_MENU_POPUP;
+        await this.waitForElementDisplayed(menuButton, appConst.shortTimeout);
+        //click on menu button then click on menu item
+        await this.clickOnElement(menuButton);
+        await this.pause(300);
+        let editMenuItem = COMMON.menuItemByText('Edit');
         let elems = await this.getDisplayedElements(editMenuItem);
         await elems[0].click();
-        await this.pause(500);
+        await this.pause(300);
     }
 
     async clickOnDeleteCommentMenuItem(text) {
-        let selector = XPATH.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        await this.clickOnElement(selector);
-        await this.pause(500);
-        let deleteMenuItem = `//li[contains(@id,'MenuItem') and text()='Delete']`;
+        let menuButton = XPATH.issueCommentsListItemByText(text) +  BUTTONS.BUTTON_MENU_POPUP;
+        await this.waitForElementDisplayed(menuButton, appConst.shortTimeout);
+        // click on menu button then click on menu item
+        await this.clickOnElement(menuButton);
+        await this.pause(300);
+        let deleteMenuItem = COMMON.menuItemByText('Delete');
         let elems = await this.getDisplayedElements(deleteMenuItem);
         await elems[0].click();
-        await this.pause(500);
+        await this.pause(300);
     }
 
     waitForCommentAndCloseRequestButtonDisplayed() {

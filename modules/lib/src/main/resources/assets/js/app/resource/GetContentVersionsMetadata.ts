@@ -1,4 +1,4 @@
 
 export interface GetContentVersionsMetadata {
-    cursor: string;
+    cursor?: string;
 }

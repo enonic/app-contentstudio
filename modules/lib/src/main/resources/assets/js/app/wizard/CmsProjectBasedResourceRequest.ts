@@ -15,7 +15,7 @@ export abstract class CmsProjectBasedResourceRequest<PARSED_TYPE>
             UrlHelper.getCMSPathWithProject(this.projectName, this.contentRootPath)).build();
     }
 
-    setRequestProject(value: Project): this {
+    setRequestProject(value: Readonly<Project> | undefined): this {
         this.projectName = value?.getName();
         return this;
     }
