@@ -14,6 +14,9 @@ import {EditPropertiesDialogParams} from './EditPropertiesDialog';
 import {Content} from '../../../../content/Content';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 
+/**
+ * @deprecated Use DetailsWidgetElement instead
+ */
 export class BasePropertiesWidgetItemView
     extends PropertiesWidgetItemView {
 

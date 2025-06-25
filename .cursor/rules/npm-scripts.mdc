@@ -1,0 +1,77 @@
+---
+description: pnpm scripts reference
+globs:
+alwaysApply: true
+---
+
+# pnpm Scripts
+
+Use `pnpm`, never `npm`. Run from repo root with `-C ./modules/lib` or `-C ./modules/app`.
+
+## Verify Changes (lib module)
+
+```bash
+pnpm check           # typecheck + lint
+pnpm check:types     # TypeScript only
+pnpm check:lint:fix  # ESLint with auto-fix
+```
+
+## Verify Changes (app module)
+
+```bash
+pnpm check           # typecheck + lint (client + worker)
+pnpm check:types     # TypeScript only
+pnpm check:lint:fix  # ESLint with auto-fix
+```
+
+## Build (lib module)
+
+```bash
+pnpm build:dev   # Complete dev build (source maps)
+pnpm build:prod  # Complete prod build (minified)
+```
+
+Individual builds:
+```bash
+pnpm build:dev:client  # TypeScript with source maps
+pnpm build:dev:lib     # Webpack dev mode
+pnpm build:dev:css     # Vite CSS dev mode
+```
+
+## Build (app module)
+
+```bash
+pnpm build  # Complete build (worker + client + server)
+```
+
+## Testing (lib module only)
+
+```bash
+pnpm test:run      # Single run (CI)
+pnpm test          # Watch mode
+pnpm test:ui       # UI dashboard
+pnpm test:coverage # With coverage report
+```
+
+## Gradle Deploy
+
+```bash
+./gradlew deploy -x test -Penv=dev  # Build all + deploy
+./gradlew build                      # Production build
+```
+
+## Dependencies
+
+```bash
+pnpm install       # Install all deps
+pnpm add <pkg>     # Add runtime dep
+pnpm add -D <pkg>  # Add dev dep
+pnpm outdated      # Check for updates
+pnpm dlx <cli>     # Run one-off command
+```
+
+## Linting
+
+ESLint with TypeScript rules. Cache enabled for faster reruns.
+- `check:lint` - Read-only validation
+- `check:lint:fix` - Auto-fix issues

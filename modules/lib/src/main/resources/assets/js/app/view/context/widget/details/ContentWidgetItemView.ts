@@ -3,6 +3,9 @@ import {WidgetItemView} from '../../WidgetItemView';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../../../../content/ContentSummaryAndCompareStatusViewer';
 
+/**
+ * @deprecated Use DetailsWidgetElement instead
+ */
 export class ContentWidgetItemView
     extends WidgetItemView {
 

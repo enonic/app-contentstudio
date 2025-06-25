@@ -8,9 +8,15 @@ import {WidgetHelper} from '@enonic/lib-admin-ui/widget/WidgetHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 
-export class WidgetItemView
-    extends DivEl {
+export interface WidgetItemViewInterface {
+    layout(): Q.Promise<void>;
+    setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<null | void>;
+    fetchWidgetContents(url: string, contentId: string): Q.Promise<void>;
+    hide(): void;
+    show(): void;
+}
 
+export class WidgetItemView extends DivEl implements WidgetItemViewInterface {
     public static debug: boolean = false;
 
     private loadMask?: LoadMask;

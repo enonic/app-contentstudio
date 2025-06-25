@@ -1,3 +1,4 @@
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
@@ -12,7 +13,6 @@ import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
 import {ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
@@ -20,17 +20,23 @@ import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalCombo
 import {TabBar} from '@enonic/lib-admin-ui/ui/tab/TabBar';
 import {TabBarItem, TabBarItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {LocalDateTime} from '@enonic/lib-admin-ui/util/LocalDateTime';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import Q from 'q';
-import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
+import {openPublishDialog} from '../../../v6/features/store/dialogs/publishDialog.store';
 import {ContentId} from '../../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
 import {DialogStateBar} from '../../dialog/DialogStateBar';
+import {ContentListBox} from '../../inputtype/selector/ContentListBox';
+import {ContentSelectorDropdownOptions} from '../../inputtype/selector/ContentSelectorDropdown';
+import {ContentTreeSelectorDropdown} from '../../inputtype/selector/ContentTreeSelectorDropdown';
 import {ContentSelectedOptionsView} from '../../inputtype/ui/selector/ContentComboBox';
+import {ContentSummaryOptionDataLoader} from '../../inputtype/ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentPublishDialog} from '../../publish/ContentPublishDialog';
 import {ContentPublishDialogAction} from '../../publish/ContentPublishDialogAction';
@@ -41,6 +47,7 @@ import {PublishScheduleForm} from '../../publish/PublishScheduleForm';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {PublishContentRequest} from '../../resource/PublishContentRequest';
 import {Router} from '../../Router';
+import {CSPrincipalCombobox} from '../../security/CSPrincipalCombobox';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {Issue} from '../Issue';
 import {IssueComment} from '../IssueComment';
@@ -55,13 +62,6 @@ import {IssueCommentTextArea} from './IssueCommentTextArea';
 import {IssueDetailsDialogButtonRow} from './IssueDetailsDialogDropdownButtonRow';
 import {IssueDetailsDialogHeader} from './IssueDetailsDialogHeader';
 import {IssueDetailsDialogSubTitle} from './IssueDetailsDialogSubTitle';
-import {ContentTreeSelectorDropdown} from '../../inputtype/selector/ContentTreeSelectorDropdown';
-import {ContentSummaryOptionDataLoader} from '../../inputtype/ui/selector/ContentSummaryOptionDataLoader';
-import {ContentListBox} from '../../inputtype/selector/ContentListBox';
-import {ContentSelectorDropdownOptions} from '../../inputtype/selector/ContentSelectorDropdown';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {CSPrincipalCombobox} from '../../security/CSPrincipalCombobox';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -145,7 +145,7 @@ export class IssueDetailsDialog
             dialogSubName: i18n('dialog.issue.resolving'),
             processingLabel: `${i18n('field.progress.publishing')}...`,
             buttonRow: new IssueDetailsDialogButtonRow(),
-            processHandler: () => new ContentPublishPromptEvent({model: []}).fire(),
+            processHandler: () => openPublishDialog([]),
             confirmation: {},
             controls: true,
         } satisfies DependantItemsWithProgressDialogConfig);
@@ -252,8 +252,8 @@ export class IssueDetailsDialog
 
     protected initStateBar(): void {
         this.stateBar = new DialogStateBar({
-            failText: i18n('dialog.publish.error.loadFailed'),
-            resolvedText: i18n('dialog.publish.error.resolved'),
+            failText: i18n('dialog.statusBar.error.failed.text'),
+            resolvedText: i18n('dialog.statusBar.error.ready.text'),
             hideIfResolved: true,
             edit: {
                 applyHandler: () => {
@@ -509,7 +509,7 @@ export class IssueDetailsDialog
 
             return IssueDetailsDialog.makeLabelWithCounter(containsOnlyScheduled ? i18n('action.updateScheduled') : i18n('action.publishNow'), itemsCount);
         } else {
-            return i18n('action.publishMore');
+            return i18n('action.publish');
         }
     }
 
@@ -518,7 +518,7 @@ export class IssueDetailsDialog
 
         this.updateItemsCount();
         this.updateControls(count);
-        this.actionButton.setLabel(this.getPublishButtonLabel(count));
+        this.publishAction.setLabel(this.getPublishButtonLabel(count));
         this.scheduleAction.setLabel(IssueDetailsDialog.makeLabelWithCounter(i18n('action.schedule'), count));
     }
 
@@ -882,28 +882,28 @@ export class IssueDetailsDialog
     }
 
     private createCloseButton() {
-        const closeButton: DialogButton = this.getButtonRow().addAction(this.closeAction);
+        const closeButton = this.getButtonRow().addAction(this.closeAction);
         closeButton.addClass('close-issue force-enabled');
     }
 
     private createReopenButton() {
-        const reopenButton: DialogButton = this.getButtonRow().addAction(this.reopenAction);
+        const reopenButton = this.getButtonRow().addAction(this.reopenAction);
         reopenButton.addClass('reopen-issue green force-enabled');
     }
 
     private createAddCommentButton() {
-        const commentButton: DialogButton = this.getButtonRow().addAction(this.commentAction);
+        const commentButton = this.getButtonRow().addAction(this.commentAction);
         commentButton.addClass('comment-issue force-enabled');
     }
 
-    private createPublishButton(): DialogButton {
-        const publishButton: DialogButton = this.getButtonRow().addAction(this.publishAction, true);
+    private createPublishButton(): ActionButton {
+        const publishButton = this.getButtonRow().addAction(this.publishAction, true);
         publishButton.addClass('publish-issue');
         return publishButton;
     }
 
-    private createScheduleButton(): DialogButton {
-        const scheduleButton: DialogButton = this.getButtonRow().addAction(this.scheduleAction);
+    private createScheduleButton(): ActionButton {
+        const scheduleButton = this.getButtonRow().addAction(this.scheduleAction);
         scheduleButton.addClass('schedule-issue');
         return scheduleButton;
     }
@@ -930,14 +930,16 @@ export class IssueDetailsDialog
         const excludedIds = this.publishProcessor.getExcludedIds();
         const message = this.issue.getTitle();
 
-        new ContentPublishPromptEvent({
-            model: contents,
-            includeChildItems: false,
-            exceptedContentIds,
-            excludedIds,
-            keepDependencies: true,
-            message,
-        }).fire();
+        openPublishDialog(contents, false, excludedIds);
+        // TODO: Enonic UI - Use other props
+        // new ContentPublishPromptEvent({
+        //     model: contents,
+        //     includeChildItems: false,
+        //     exceptedContentIds,
+        //     excludedIds,
+        //     keepDependencies: true,
+        //     message,
+        // }).fire();
 
         const publishDialog = ContentPublishDialog.get();
         const closedListener = () => {
