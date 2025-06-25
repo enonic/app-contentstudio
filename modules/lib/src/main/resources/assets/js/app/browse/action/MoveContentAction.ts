@@ -1,21 +1,20 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
 import {ContentMovePromptEvent} from '../../move/ContentMovePromptEvent';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class MoveContentAction
     extends ContentTreeGridAction {
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.moveMore'), 'alt+m');
+    constructor() {
+        super(i18n('action.move'), 'alt+m');
 
         this.setEnabled(false).setClass('move');
     }
 
     protected handleExecuted() {
-        const contents = this.grid.getSelectedItems().map(content => content.getContentSummary());
+        const contents = getCurrentItems().map(content => content.getContentSummary());
         new ContentMovePromptEvent(contents).fire();
     }
 
@@ -24,6 +23,6 @@ export class MoveContentAction
     }
 
     private isAnyRootItemNotSelected(): boolean {
-        return this.grid.getSelectedItems().length > 0;
+        return getCurrentItems().length > 0;
     }
 }

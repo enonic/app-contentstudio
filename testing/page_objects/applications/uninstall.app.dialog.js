@@ -1,5 +1,5 @@
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const XPATH = {
     container: `//div[contains(@id,'UninstallApplicationDialog')]`,

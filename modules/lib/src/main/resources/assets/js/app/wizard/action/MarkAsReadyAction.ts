@@ -3,6 +3,7 @@ import {ContentWizardPanel} from '../ContentWizardPanel';
 import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {openPublishDialog} from '../../../v6/features/store/dialogs/publishDialog.store';
 
 export class MarkAsReadyAction extends BasePublishAction {
 
@@ -17,6 +18,6 @@ export class MarkAsReadyAction extends BasePublishAction {
     }
 
     protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {
-        new ContentPublishPromptEvent({model: summary}).fire();
+        openPublishDialog(summary);
     }
 }

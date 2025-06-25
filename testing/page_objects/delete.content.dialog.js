@@ -1,8 +1,8 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const lib = require('../libs/elements');
+const {BUTTONS} = require('../libs/elements');
 const XPATH = {
-    container: `//div[contains(@id,'ContentDeleteDialog')]`,
+    container: `//div[contains(@role,'dialog') and descendant::h2[contains(.,'Archive item')]]`,
     inboundErrorStateEntry: "//div[contains(@id,'DialogStateEntry')]/span[text()='Inbound references']",
     archiveOrDeleteMenu: `//div[contains(@id,'MenuButton')]`,
     deleteMenuItem: `//li[contains(@id,'MenuItem') and contains(.,'Delete')]`,
@@ -30,8 +30,8 @@ class DeleteContentDialog extends Page {
         return XPATH.container + XPATH.dependantsHeader;
     }
 
-    get cancelButton() {
-        return XPATH.container + lib.dialogButton('Cancel');
+    get deleteButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Delete');
     }
 
     get cancelTopButton() {
@@ -39,11 +39,7 @@ class DeleteContentDialog extends Page {
     }
 
     get archiveButton() {
-        return XPATH.container + XPATH.archiveOrDeleteMenu + lib.actionButton('Archive');
-    }
-
-    get archiveMenuDropDownHandle() {
-        return XPATH.container + XPATH.archiveOrDeleteMenu + lib.DROP_DOWN_HANDLE;
+        return XPATH.container + BUTTONS.buttonAriaLabel('Archive');
     }
 
     get hideDependantItemsLink() {
@@ -55,7 +51,7 @@ class DeleteContentDialog extends Page {
     }
 
     get ignoreInboundReferencesButton() {
-        return XPATH.container + lib.actionButton('Ignore inbound references');
+        return XPATH.container + BUTTONS.actionButton('Ignore inbound references');
     }
 
     async waitForDialogOpened() {
@@ -67,11 +63,12 @@ class DeleteContentDialog extends Page {
         }
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_close_delete_content_dialog');
-            throw new Error('Delete content dialog must be closed ' + err);
-        })
+    async waitForDialogClosed() {
+        try {
+            return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout)
+        } catch (err) {
+            await this.handleError('Delete content dialog must be closed ', 'err_close_delete_content_dialog', err);
+        }
     }
 
     async clickOnCancelButton() {
@@ -88,49 +85,24 @@ class DeleteContentDialog extends Page {
             await this.waitForElementDisplayed(this.archiveButton, appConst.mediumTimeout);
             await this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
             await this.clickOnElement(this.archiveButton);
-            return await this.pause(500);
         } catch (err) {
             await this.handleError('Delete Content Dialog', 'err_click_on_archive_button', err);
         }
     }
 
     async clickOnDeleteMenuItem() {
-        await this.clickOnArchiveMenuDropDownHandle();
-        let menuItem = XPATH.container + XPATH.archiveOrDeleteMenu + XPATH.deleteMenuItem;
-        await this.waitForElementDisplayed(menuItem, appConst.mediumTimeout);
-        await this.clickOnElement(menuItem);
-        return await this.pause(500);
-    }
-
-    // Call the method for deleting single content, Delete Content should be closed after clicking on the menu item
-    async clickOnDeleteMenuItemAndWaitForClosed() {
-        try {
-            await this.clickOnDeleteMenuItem();
-            return await this.waitForDialogClosed();
-        } catch (err) {
-            await this.handleError('Delete Content Dialog', 'err_click_on_delete_menu_item', err);
-        }
+        await this.waitForElementDisplayed(this.deleteButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.deleteButton);
     }
 
     //Expands the menu in 'Archive' button
-    async clickOnArchiveMenuDropDownHandle() {
-        await this.waitForArchiveMenuDropDownHandleDisplayed();
-        await this.waitForArchiveMenuDropDownHandleEnabled();
-        await this.clickOnElement(this.archiveMenuDropDownHandle);
-        return await this.pause(300);
-    }
+    // async clickOnArchiveMenuDropDownHandle() {
+    //     await this.waitForArchiveMenuDropDownHandleDisplayed();
+    //     await this.waitForArchiveMenuDropDownHandleEnabled();
+    //     await this.clickOnElement(this.archiveMenuDropDownHandle);
+    //     return await this.pause(300);
+    // }
 
-    waitForArchiveMenuDropDownHandleDisplayed() {
-        return this.waitForElementDisplayed(this.archiveMenuDropDownHandle, appConst.mediumTimeout);
-    }
-
-    waitForArchiveMenuDropDownHandleEnabled() {
-        return this.waitForElementEnabled(this.archiveMenuDropDownHandle, appConst.mediumTimeout);
-    }
-
-    waitForArchiveMenuDropDownHandleDisabled() {
-        return this.waitForElementDisabled(this.archiveMenuDropDownHandle, appConst.mediumTimeout);
-    }
 
     async clickOnShowReferencesButton(itemDisplayName) {
         let buttonLocator = XPATH.showReferencesButton(itemDisplayName);
@@ -152,7 +124,7 @@ class DeleteContentDialog extends Page {
             let endIndex = result.indexOf(')');
             return result.substring(startIndex + 1, endIndex);
         } catch (err) {
-            throw new Error("Error when getting number in Archive button " + err);
+            await this.handleError('Tried to get the number id items in Archive button', 'err_get_number_in_archive_button', err);
         }
     }
 
@@ -179,10 +151,6 @@ class DeleteContentDialog extends Page {
 
     async waitForArchiveButtonEnabled() {
         return this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
-    }
-
-    async isArchiveMenuDropDownHandleDisplayed() {
-        return await this.isElementDisplayed(this.archiveMenuDropDownHandle);
     }
 
     async getDisplayNamesToArchiveOrDelete() {
@@ -214,7 +182,7 @@ class DeleteContentDialog extends Page {
         try {
             await this.waitForIgnoreInboundReferencesButtonDisplayed();
             await this.clickOnElement(this.ignoreInboundReferencesButton);
-            return await this.pause(700);
+            return await this.waitForIgnoreInboundReferencesButtonNotDisplayed();
         } catch (err) {
             await this.handleError('Delete Content Dialog', 'err_ignore_inbound_ref', err);
         }

@@ -2,11 +2,11 @@
  * Created on 04/07/2018.
  */
 const BaseContextWindowPanel = require('../../details_panel/base.context.window.panel');
-const lib = require('../../../libs/elements');
+const {DROPDOWN} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    container: `//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'DockedContextPanel')]`,
+    container: `//div[contains(@id,'ContentBrowsePanel')]`,
 };
 
 class BrowseContextWindowPanel extends BaseContextWindowPanel {
@@ -16,11 +16,11 @@ class BrowseContextWindowPanel extends BaseContextWindowPanel {
     }
 
     get widgetSelectorDropdownHandle() {
-        return xpath.container + lib.DROPDOWN_SELECTOR.WIDGET_FILTER_DROPDOWN + lib.DROP_DOWN_HANDLE;
+        return xpath.container + DROPDOWN.WIDGET_COMBOBOX;
     }
 
     get widgetSelectorDropdown() {
-        return xpath.container + lib.DROPDOWN_SELECTOR.WIDGET_FILTER_DROPDOWN;
+        return xpath.container + DROPDOWN.WIDGET_COMBOBOX;
     }
 
     isPanelVisible() {

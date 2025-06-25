@@ -1,0 +1,66 @@
+.dependant-items-dialog {
+  h1 {
+    font-size: 16px;
+  }
+
+  .dependants-controls {
+    padding: 14px 10px 0 10px;
+
+    span {
+      font-size: 16px;
+      font-weight: 600;
+    }
+  }
+
+  .contents {
+    font-size: 14px;
+  }
+
+  .excluded-items-toggler span {
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+}
+
+html.dark {
+  .jsondiffpatch-deleted {
+    .jsondiffpatch-property-name,
+    & > pre {
+      background: #590000;
+    }
+  }
+
+  .jsondiffpatch-added {
+    .jsondiffpatch-property-name,
+    .jsondiffpatch-value pre {
+      background: #00601e;
+    }
+  }
+
+  .jsondiffpatch-modified {
+    .jsondiffpatch-right-value pre {
+      background: #00601e;
+    }
+
+    .jsondiffpatch-left-value pre {
+      background: #590000;
+    }
+  }
+
+  .jsondiffpatch-textdiff-added {
+    background: #00601e;
+  }
+
+  .jsondiffpatch-textdiff-deleted {
+    background: #590000;
+  }
+
+  .jsondiffpatch-moved .jsondiffpatch-moved-destination {
+    background: #373900;
+  }
+
+  .jsondiffpatch-annotated-delta tr:hover {
+    background: rgba(255, 255, 155, 0.5);
+  }
+}

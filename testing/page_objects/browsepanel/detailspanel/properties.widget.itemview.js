@@ -3,31 +3,36 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
+const {BUTTONS} = require('../../../libs/elements');
 
 const xpath = {
-    container: `//div[contains(@id,'WidgetView')]//div[contains(@id,'PropertiesWidgetItemView')]`,
-    languageProperty: "//dd[contains(.,'Language')]/following-sibling::dt[1]",
-    ownerProperty: "//dd[contains(.,'Owner')]/following-sibling::dt[1]",
-    publishFromProperty: "//dd[contains(.,'Publish From')]/following-sibling::dt[1]",
-    applicationProperty: "//dd[contains(.,'Application')]/following-sibling::dt[1]",
-    type: "//dd[contains(.,'Type')]/following-sibling::dt[1]",
-    firstPublished: "//dd[contains(.,'First Published')]/following-sibling::dt[1]",
-    modified: "//dd[contains(.,'Modified')]/following-sibling::dt[1]",
-    editSettingsButton: "//a[contains(@class,'edit-settings-link') and text()='Edit Settings']",
+    container: `//section[@data-component='DetailsWidgetInfoSection']`,
+    languageProperty: "//dt[contains(.,'Language')]/following-sibling::dd[1]/span",
+    ownerProperty: "//dt[contains(.,'Owner')]/following-sibling::dd[1]/span",
+    publishFromProperty: "//dt[contains(.,'Publish From')]/following-sibling::dd[1]/span",
+    applicationProperty: "//dt[contains(.,'Application')]/following-sibling::dd[1]/span",
+    type: "//dt[contains(.,'Type')]/following-sibling::dd[1]/span",
+    firstPublished: "//dt[contains(.,'First Published')]/following-sibling::dd[1]/span",
+    modified: "//dt[contains(.,'Modified')]/following-sibling::dd[1]/span",
+    createdDate: "//dt[contains(.,'Created')]/following-sibling::dd[1]/span",
 };
 
-class PropertiesItemView extends Page {
+class DetailsWidgetInfoSection extends Page {
 
     get applicationProperty() {
         return xpath.container + xpath.applicationProperty;
     }
 
     get editSettingsButton() {
-        return xpath.container + xpath.editSettingsButton;
+        return xpath.container + BUTTONS.buttonAriaLabel('Edit settings');
     }
 
     get typeProperty() {
         return xpath.container + xpath.type;
+    }
+
+    get createdDateProperty() {
+        return xpath.container + xpath.createdDate;
     }
 
     get modifiedProperty() {
@@ -62,9 +67,8 @@ class PropertiesItemView extends Page {
         try {
             await this.waitForEditSettingsButtonDisplayed();
             await this.clickOnElement(this.editSettingsButton);
-            await this.pause(300);
         } catch (err) {
-            await this.handleError('Properties Widget, Edit button is not displayed','err_click_edit_settings', err, );
+            await this.handleError('Details Widget Info Section, Edit Settings button was not displayed', 'err_click_edit_settings', err,);
         }
     }
 
@@ -72,25 +76,35 @@ class PropertiesItemView extends Page {
         try {
             await this.waitForElementDisplayed(this.languageProperty, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Properties Widget, language is not displayed','err_edit_settings_lang', err );
+            await this.handleError('Widget Info Section, language was not displayed', 'err_edit_settings_lang', err);
         }
     }
 
     waitForLanguageNotVisible() {
-        return this.waitForElementNotDisplayed(this.languageProperty, appConst.shortTimeout).catch(err => {
-            throw new Error("Language should not be present in the properties widget! " + err);
-        });
+        try {
+            return this.waitForElementNotDisplayed(this.languageProperty, appConst.shortTimeout)
+        } catch (err) {
+            throw new Error('Language should not be displayed in the Widget Info Section! ' + err);
+        }
     }
 
-    waitForOwnerNotVisible() {
-        return this.waitForElementNotDisplayed(this.ownerProperty, appConst.shortTimeout).catch(err => {
-            throw new Error('Owner should not be present in the properties widget! ' + err);
-        });
+    async waitForOwnerNotVisible() {
+        try {
+            return await this.waitForElementNotDisplayed(this.ownerProperty, appConst.shortTimeout)
+        } catch (err) {
+            throw new Error('Owner should not be displayed in the Widget Info Section! ' + err);
+        }
     }
+
 
     async getLanguage() {
         await this.waitForLanguageVisible();
         return await this.getText(this.languageProperty);
+    }
+
+    async getCreatedDate() {
+        await this.waitForElementDisplayed(this.createdDateProperty, appConst.shortTimeout);
+        return await this.getText(this.createdDateProperty);
     }
 
     async getApplication() {
@@ -112,7 +126,7 @@ class PropertiesItemView extends Page {
         try {
             await this.waitForElementDisplayed(this.ownerProperty, appConst.shortTimeout);
         } catch (err) {
-            await this.handleError('Properties Widget, owner is not displayed','err_owner_displayed', err,);
+            await this.handleError('Properties Widget, owner is not displayed', 'err_owner_displayed', err,);
         }
     }
 
@@ -130,4 +144,4 @@ class PropertiesItemView extends Page {
     }
 }
 
-module.exports = PropertiesItemView;
+module.exports = DetailsWidgetInfoSection;

@@ -1,8 +1,10 @@
 import {Project} from '../settings/data/project/Project';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 
+/**
+ * @deprecated The class due to be replaced by the projects.store
+ */
 export class ProjectContext {
-
     public static LOCAL_STORAGE_KEY: string = 'contentstudio:defaultProject';
 
     private currentProject: Project;
@@ -14,7 +16,7 @@ export class ProjectContext {
     private noProjectsAvailableListeners: (() => void)[] = [];
 
     private constructor() {
-    //
+        //
     }
 
     static get(): ProjectContext {
@@ -97,5 +99,7 @@ export class ProjectContext {
 }
 
 enum State {
-    INITIALIZED, NOT_INITIALIZED, NOT_AVAILABLE
+    INITIALIZED,
+    NOT_INITIALIZED,
+    NOT_AVAILABLE,
 }

@@ -28,7 +28,9 @@ public class ContentVersionHelper
 
     public static final String UNPUBLISH_KEY = "content.unpublish";
 
+    public static final String METADATA_KEY = "content.updateMetadata";
+
     public static final Set<String> CHANGE_OPERATIONS =
         Set.of( CREATE_KEY, DUPLICATE_KEY, IMPORT_KEY, UPDATE_KEY, PERMISSIONS_KEY, MOVE_KEY, SORT_KEY, PATCH_KEY, ARCHIVE_KEY,
-                RESTORE_KEY );
+                RESTORE_KEY, METADATA_KEY );
 }

@@ -2,7 +2,7 @@
  * Created on 09.07.2020.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 
@@ -18,7 +18,8 @@ class BaseSelectorForm extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
-            await this.handleError(`Selector form - tried to get the validation message`, 'err_validation_message', err);
+            let screenshot = await this.saveScreenshotUniqueName('err_validation_message');
+            throw new Error("Validation message should be displayed in the form, screenshot:" + screenshot + ' ' + err);
         }
     }
 
@@ -29,7 +30,7 @@ class BaseSelectorForm extends Page {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Selector Validation recording should not be displayed"});
     }
 
-    async clearOptionsFilterInput() {
+    async clearOptionsFilterInput(){
         await this.clearTextInput(this.optionsFilterInput);
         await this.pause(1000);
     }
@@ -56,9 +57,10 @@ class BaseSelectorForm extends Page {
 
     async waitForEmptyOptionsMessage() {
         try {
-            return await this.waitForElementDisplayed(lib.EMPTY_OPTIONS_H5, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(lib.EMPTY_OPTIONS_H5, appConst.longTimeout);
         } catch (err) {
-            await this.handleError(`Dropdown Selector - 'No matching items' text should be shown`, 'err_no_match_items', err);
+            let screenshot = await this.saveScreenshotUniqueName('err_empty_opt');
+            throw new Error("Empty options text is not visible, screenshot: " + screenshot + ' ' + err);
         }
     }
 
@@ -77,28 +79,32 @@ class BaseSelectorForm extends Page {
             let contentSelectorDropdown = new ContentSelectorDropdown();
             return await contentSelectorDropdown.getOptionsDisplayNameInTreeMode()
         } catch (err) {
-            await this.handleError(`Error occurred in the dropdown selector`, 'err_dropdown', err);
+            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
+            throw new Error("Error occurred in the dropdown selector, screenshot: " + screenshot + ' ' + err);
         }
     }
 
-    async clickOnEditSelectedOption(displayName) {
+    // Click on OK button:
+    async clickOnOkButton() {
         try {
-            let locator = `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]` +
-                          lib.EDIT_ICON;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            await this.clickOnElement(locator);
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            await contentSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
-            await this.handleError(`Error during clicking on Edit icon for selected option: ${displayName}`, 'err_click_edit_icon', err);
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
+            throw new Error("Content Selector, Apply selection (OK) button, screenshot: " + screenshot + ' ' + err);
         }
+    }
+
+    async clickOnEditSelectedOption(optionDisplayName) {
+        let locator = `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${optionDisplayName}']]` +
+                      lib.EDIT_ICON;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
     }
 
     async clickOnExpanderIconInOptionsList(optionName) {
-        try {
-            let contentSelector = new ContentSelectorDropdown();
-            return await contentSelector.clickOnExpanderIconInOptionsList(optionName);
-        } catch (err) {
-            await this.handleError(`Error during clicking on Expander icon for option: ${optionName}`, 'err_click_expander_icon', err);
-        }
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.clickOnExpanderIconInOptionsList(optionName);
     }
 }
 

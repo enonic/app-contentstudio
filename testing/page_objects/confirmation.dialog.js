@@ -3,7 +3,7 @@
  */
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const lib = require('../libs/elements');
+const lib = require('../libs/elements-old');
 const XPATH = {
     container: `//div[contains(@id,'ConfirmationDialog')]`,
     yesButton: `//button[contains(@id,'DialogButton') and descendant::u[text()='Y'] and child::span[text()='es']]`,

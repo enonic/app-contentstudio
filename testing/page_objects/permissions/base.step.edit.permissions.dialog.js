@@ -4,7 +4,7 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const lib = require('../../libs/elements');
+const  {BUTTONS}= require('../../libs/elements');
 
 const xpath = {
     container: `//div[contains(@id,'EditPermissionsDialog')]`,
@@ -19,7 +19,7 @@ class BaseStepEditPermissionsDialog extends Page {
 
 
     get nextButton() {
-        return xpath.container + xpath.dialogButtonRow + lib.dialogButton('Next');
+        return xpath.container + xpath.dialogButtonRow + BUTTONS.buttonAriaLabel('Next');
     }
 
     get cancelButtonTop() {
@@ -35,12 +35,9 @@ class BaseStepEditPermissionsDialog extends Page {
         throw new Error('stepDescription method should be implemented');
     }
 
-    get nextButton() {
-        return xpath.container + xpath.dialogButtonRow + lib.dialogButton('Next');
-    }
 
     get backButton() {
-        return xpath.container + xpath.dialogButtonRow + lib.dialogButton('Back');
+        return xpath.container + xpath.dialogButtonRow + BUTTONS.buttonAriaLabel('Back');
     }
 
     async waitForNextButtonEnabled() {

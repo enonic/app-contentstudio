@@ -2,7 +2,7 @@
  * Created on 19.02.2020.
  */
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
-const lib = require('../../../../libs/elements');
+const lib = require('../../../../libs/elements-old');
 const appConst = require('../../../../libs/app_const');
 const FragmentDropdown = require('../../../components/selectors/fragment.dropdown');
 

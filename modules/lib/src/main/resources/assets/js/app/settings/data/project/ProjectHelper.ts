@@ -14,7 +14,7 @@ export class ProjectHelper {
         });
     }
 
-    public static isUserProjectOwner(project?: Project): Q.Promise<boolean> {
+    public static isUserProjectOwner(project?: Project | Readonly<Project>): Q.Promise<boolean> {
         return new ProjectGetRequest(project?.getName() || ProjectContext.get().getProject().getName())
             .sendAndParse()
             .then((project: Project) => {

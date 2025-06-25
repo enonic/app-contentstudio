@@ -2,14 +2,14 @@
  * Created  on 20/01/2018
  */
 const Page = require('./page');
-const lib = require('../libs/elements');
+const {BUTTONS} = require('../libs/elements');
 const appConst = require('../libs/app_const');
 const XPATH = {
-    container: `//div[contains(@id,'ConfirmValueDialog')]`,
+    container: `//div[@role='dialog' and descendant::h2[contains(.,'Confirm delete')]]`,
     confirmButton: `//button[contains(@id,'DialogButton') and child::span[text()='Confirm']]`,
     cancelButton: `//div[@class='dialog-buttons']//button/span[text()='Cancel']`,
     suggestedNumberToDelete: "//span[contains(@class,'confirm-value-data')]",
-    title: "//h2[@class='title']",
+
 };
 
 class ConfirmValueDialog extends Page {
@@ -20,19 +20,19 @@ class ConfirmValueDialog extends Page {
     }
 
     get cancelButton() {
-        return XPATH.container + XPATH.cancelButton;
+        return XPATH.container + BUTTONS.buttonAriaLabel('Cancel');
     }
 
     get confirmButton() {
-        return XPATH.container + XPATH.confirmButton;
+        return XPATH.container + BUTTONS.buttonAriaLabel('Confirm');
     }
 
     get numberInput() {
-        return XPATH.container + lib.TEXT_INPUT;
+        return XPATH.container + "//input[@inputmode='numeric']";
     }
 
     async getDialogTitle() {
-        let locator = XPATH.container + XPATH.title;
+        let locator = XPATH.container + "//h2";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
@@ -40,9 +40,8 @@ class ConfirmValueDialog extends Page {
     async waitForDialogOpened() {
         try {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-            await this.pause(300);
         } catch (err) {
-            await this.handleError('Confirm Value Dialog', 'err_confirm_value_dlg_opened', err);
+            await this.handleError('Confirm Value Dialog should be loaded', 'err_confirm_value_dlg_opened', err);
         }
     }
 
@@ -50,7 +49,7 @@ class ConfirmValueDialog extends Page {
         try {
             return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout)
         } catch (err) {
-            await this.handleError('Confirm Value Dialog', 'err_confirm_value_dlg_closed', err);
+            await this.handleError('Confirm Value Dialog should be closed', 'err_confirm_value_dlg_closed', err);
         }
     }
 

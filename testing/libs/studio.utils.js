@@ -7,7 +7,7 @@ const LoginPage = require('../page_objects/login.page');
 const BrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const FilterPanel = require("../page_objects/browsepanel/content.filter.panel");
 const appConst = require("./app_const");
-const lib = require("./elements");
+const lib = require("./elements-old");
 const NewContentDialog = require('../page_objects/browsepanel/new.content.dialog');
 const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
 const webDriverHelper = require("./WebDriverHelper");
@@ -60,7 +60,7 @@ module.exports = {
         return await this.getBrowser().execute(script2);
     },
 
-    insertTextInCKE (id, text) {
+    insertTextInCKE(id, text) {
         let script = `CKEDITOR.instances['${id}'].insertText('${text}')`;
         return this.getBrowser().execute(script).then(() => {
             let script2 = `CKEDITOR.instances['${id}'].fire('change')`;
@@ -360,7 +360,7 @@ module.exports = {
         await contentWizardPanel.typeData(site);
         // 2. Type the data and save:
         if (site.data.controller) {
-            let wizardContextWindow =  await contentWizardPanel.openContextWindow();
+            let wizardContextWindow = await contentWizardPanel.openContextWindow();
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(site.data.controller);
         }
@@ -412,7 +412,7 @@ module.exports = {
         await contentWizardPanel.typeData(template);
         // auto-saving of template should be after selecting a controller:
         let pageInspectionPanel = new PageInspectionPanel();
-        let wizardContextWindow =  await contentWizardPanel.openContextWindow();
+        let wizardContextWindow = await contentWizardPanel.openContextWindow();
         await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
         await pageInspectionPanel.selectPageTemplateOrController(template.data.controllerDisplayName);
         await contentWizardPanel.waitForNotificationMessage();
@@ -492,7 +492,6 @@ module.exports = {
             let browsePanel = new BrowsePanel();
             await this.typeNameInFilterPanel(name);
             await browsePanel.waitForRowByNameVisible(name);
-            await browsePanel.pause(200);
             await browsePanel.clickOnRowByName(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
             return await browsePanel.pause(200);
@@ -638,7 +637,7 @@ module.exports = {
             return await browsePanel.selectContext(context);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_context');
-            throw new Error(`Error during selecting a context, screenshot: ${screenshot}` + err);
+            throw new Error(`Error occurred while selecting the context, screenshot: ${screenshot}` + err);
         }
     },
 
@@ -674,7 +673,7 @@ module.exports = {
             return await browsePanel.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
-            throw new Error(`error when navigate to Content Studio, screenshot: ${screenshot} ` + err);
+            throw new Error(`Error when navigating to Content Studio, screenshot: ${screenshot} ` + err);
         }
     },
     async clickOnContentStudioLink(userName, password) {
@@ -695,7 +694,7 @@ module.exports = {
             await this.closeProjectSelectionDialog();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
-            throw new Error(`Error when navigate to Content Studio app. Screenshot: ${screenshot}` + err);
+            throw new Error(`Error when navigating to Content Studio. Screenshot: ${screenshot}` + err);
         }
     },
     // Clicks on Cancel button and switches to Default project
@@ -704,7 +703,7 @@ module.exports = {
         let isLoaded = await projectSelectionDialog.isDialogLoaded();
         if (isLoaded) {
             await projectSelectionDialog.pause(200);
-            await projectSelectionDialog.clickOnCancelButtonTop();
+            await projectSelectionDialog.clickOnCloseButton();
             await projectSelectionDialog.waitForDialogClosed();
             return await this.getBrowser().pause(200);
         }
@@ -758,13 +757,14 @@ module.exports = {
             let isLoaded = await projectSelectionDialog.isDialogLoaded();
             if (isLoaded) {
                 await projectSelectionDialog.selectContext('Default');
+
                 await projectSelectionDialog.waitForDialogClosed();
                 return await this.getBrowser().pause(200);
             }
             await browsePanel.waitForGridLoaded(appConst.longTimeout);
             return browsePanel;
         } catch (err) {
-            throw new Error('Error when switching to Content Studio App ' + err);
+            throw new Error('Error when navigating to Content Studio(selecting Default context)' + err);
         }
     },
     async doSwitchToHome() {
@@ -814,7 +814,7 @@ module.exports = {
             await this.doSwitchToNewTab();
             return await contentWizardPanel.waitForOpened();
         } catch (err) {
-            throw new Error('Error occurred during switching to the new wizard tab ' + err);
+            throw new Error('Error when switching to the new wizard tab ' + err);
         }
     },
     async doSwitchToNewTab() {
@@ -823,7 +823,7 @@ module.exports = {
             let tabs = await this.getBrowser().getWindowHandles();
             await this.getBrowser().switchToWindow(tabs[tabs.length - 1]);
         } catch (err) {
-            throw new Error('Error occurred during switching to the new browser tab ' + err);
+            throw new Error('Error when switching to the new browser tab ' + err);
         }
     },
 
@@ -844,7 +844,7 @@ module.exports = {
             let tabs = await this.getBrowser().getWindowHandles();
             return await this.getBrowser().switchToWindow(tabs[tabs.length - 2]);
         } catch (err) {
-            throw new Error('Error occurred during switching to the new browser tab ' + err);
+            throw new Error('Error occurred while switching to the new browser tab' + err);
         }
     },
     async doCloseWindowTabByTitle(title) {

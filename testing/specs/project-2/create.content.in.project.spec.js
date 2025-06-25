@@ -84,7 +84,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             // 3. Open Edit Permissions Dialog:
             await contentWizardPanel.openContextWindow();
             await contentWizardPanel.openDetailsWidget();
-            await userAccessWidget.clickOnEditPermissionsLink();
+            await userAccessWidget.clickOnEditPermissionsButton();
             await editPermissionsGeneralStep.waitForLoaded();
             // 4. Verify the list of principals:
             let result = await editPermissionsGeneralStep.getDisplayNameOfSelectedPrincipals();

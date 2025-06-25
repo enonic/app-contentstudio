@@ -2,7 +2,7 @@
  * Created on 02.05.2024
  */
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
-const lib = require('../../../../libs/elements');
+const lib = require('../../../../libs/elements-old');
 const appConst = require('../../../../libs/app_const');
 
 const xpath = {

@@ -1,7 +1,7 @@
 /**
  * Created on 31.10.2022
  */
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const ContentWizardPanel = require('./content.wizard.panel');
 

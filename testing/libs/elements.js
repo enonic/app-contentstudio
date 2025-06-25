@@ -1,295 +1,128 @@
-/**
- * Created on 02.12.2017.
- */
-module.exports = Object.freeze({
-    NOTIFICATION_TEXT: "//div[@class='notification-text']",
-    BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",
+const COMMON = {
+    DISPLAY_NAME_INPUT: "//input[@name='displayName']",
+    NOTIFICATION_TEXT: "//div[@class='notification-wrapper']//p",
     FORM_VIEW: `//div[contains(@id,'FormView')]`,
     FORM_ITEM: "//div[contains(@id,'FormItem')]",
-    DATE_TIME_PICKER_INPUT: "//div[contains(@id,'DateTimePicker')]//input[contains(@id,'TextInput')]",
-    TIME_PICKER_INPUT: "//div[contains(@id,'TimePicker')]//input[contains(@id,'TextInput')]",
-    DATE_PICKER_INPUT: "//div[contains(@id,'DatePicker') and contains(@class,'date-time-picker')]//input[contains(@id,'TextInput')]",
-    CONTENT_COMBOBOX: "//div[contains(@id,'ContentComboBox')]",
-    SELECTED_LOCALE: `//div[contains(@id,'LocaleSelectedOptionView')]`,
-    H6_DISPLAY_NAME: "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
-    P_SUB_NAME: "//p[contains(@class,'sub-name')]",
-    RICH_TEXT_EDITOR: `//*[contains(@id,'TextComponentView') and contains(@class,'editor-focused')]`,
-    TEXT_AREA: "//textarea[contains(@id,'TextArea')]",
-    WIDGET_SELECTOR_DROPDOWN: `//div[contains(@id,'WidgetSelectorDropdown')]`,
+    TEXT_INPUT: "//input[@type='text']",
+    CONTEXT_WINDOW_WIDGET_SELECTOR_ITEM: "//div[@data-component='WidgetsSelectorItem']//span",
+    CONTEXT_WINDOW_TOGGLE_BUTTON: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
+
+
+    INPUTS: {
+        CHECKBOX_INPUT: "//input[@type='checkbox']",
+        CHECKBOX_INPUT_CHECKED: "//input[@type='checkbox' and @aria-checked='true']",
+        TEXT: "//input[@type='text']",
+    }
+
+
+};
+const WIZARD = {
+    DISPLAY_NAME_INPUT: "//input[@name='displayName']",
+    RENAME_CONTENT_SPAN: "//span[contains(@title,'Click to rename the content')]",
+    PATH_INPUT: "//input[@name='name']",
+
+};
+const BUTTONS = {
+    BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",
+    NEW_CONTENT_BUTTON: "//button[contains(@class,'new-content-button')]",
+    REFRESH_BUTTON: "//button[contains(@class,'icon-loop')]",
     DROP_DOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
     SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,
-    TEXT_INPUT: "//input[@type='text']",
-    DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
-    OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
-    VALIDATION_RECORDING_VIEWER: "//div[contains(@id,'ValidationRecordingViewer')]//li",
-    CONTENT_SUMMARY_AND_STATUS_VIEWER: "//div[contains(@id,'ContentSummaryAndCompareStatusViewer')]",
-    validationRecording: "//div[contains(@id,'ValidationRecordingViewer')]//li",
-    INPUT_VALIDATION_VIEW: "//div[contains(@id,'InputViewValidationViewer')]",
-    OCCURRENCE_ERROR_BLOCK: "//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]",
-    OCCURRENCE_VIEW: "//div[contains(@id,'InputOccurrenceView')]",
-    ADD_NEW_CONTENT_BUTTON: "//button[contains(@id,'NewContentButton')]",
-    EDIT_ICON: "//a[@class='edit']",
-    CONTENT_SELECTOR: {
-        DIV: "//div[contains(@id,'ContentSelector')]",
-        selectedOptionByName: option => {
-            return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
-        }
+    SELECTOR_MODE_TOGGLER: "//button[contains(@id,'ModeTogglerButton')]",
+    UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
+    button: (label) => `//button[contains(@type,'button') and contains(.,'${label}')]`,
+    buttonAriaLabel: (ariaLabel) => `//button[contains(@type,'button') and contains(@aria-label,'${ariaLabel}')]`,
+    actionButton: (label) => `//div[contains(@id,'ActionButton')]/button[contains(.,'${label}')]`,
+    actionButtonStrict: (label) => `//div[contains(@id,'ActionButton')]/button[text()='${label}']`,
+    dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[contains(.,'${label}')]]`,
+    dialogButtonStrict: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
+    togglerButton: (label) => `//button[contains(@id,'TogglerButton') and child::span[text()='${label}']]`,
+    COLLAPSE_BUTTON_BOTTOM: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  (text()='Collapse' or text()='Collapse all')]",
+    COLLAPSE_ALL_BUTTON_BOTTOM: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  (text()='Collapse' or text()='Collapse all')]",
+    EXPAND_BUTTON_BOTTOM: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  text()='Expand']",
+    EXPAND_ALL_BUTTON_BOTTOM: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  text()='Expand all')]",
+    COLLAPSE_BUTTON_TOP: "//div[contains(@class,'top-button-row')]//a[contains(@class,'collapse-button') and (text()='Collapse' or text()='Collapse all')]",
+    MORE_BUTTON: "//button[contains(@id,'MoreButton')]",
+    ADD_BUTTON: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add']]",
+    BUTTON: label => `//button[contains(@type,'button') and contains(.,'${label}')]`,
+};
+const LIVE_VIEW = {
+    EMULATOR_DROPDOWN: "//div[contains(@id,'EmulatorDropdown')]",
+    DIV_DROPDOWN: "//div[contains(@id,'PreviewWidgetDropdown')]",
+    PREVIEW_NOT_AVAILABLE_SPAN: "//div[@class='no-preview-message']//span[text()='Preview not available']",
+    NO_PREVIEW_MSG_SPAN: "//div[@class='no-preview-message']//span",
+    NO_CONTROLLER_NO_PREVIEW_MSG_SPAN: "//div[@class='no-selection-message']//span",
+    EMPTY_LIVE_FRAME_DIV: "//div[contains(@class,'frame-container')]//iframe[@class='live-edit-frame']",
+    LIVE_EDIT_FRAME: "//div[contains(@id,'FrameContainer')]//iframe[contains(@class,'text') or contains(@class,'application')]",
+    MINIMIZE_BUTTON: `//div[contains(@class,'minimize-edit')]`,
+    PAGE_EDITOR_TOGGLE_BUTTON: "//button[contains(@id, 'CycleButton')]",
+    HIDE_PAGE_EDITOR_BUTTON: "//button[contains(@id,'ContentActionCycleButton') and @title='Hide Page Editor']",
+};
+const TREE_GRID = {
+    TREE_LIST_DIV: "//div[contains(@id,'tree-list')]",
+    TREE_LIST_ITEM_DIV: "//div[contains(@role,'listitem')]",
+    CONTENT_ITEM_CONTEXT_MENU: "//div[@role='menu' and contains(@id,'content')]",
+    TREE_ITEM_DIV: "//div[contains(@role,'treeitem') and descendant::small[contains(@class,'t-subtle')]]",
+    TREE_LIST_ITEM_CHECKBOX_LABEL: "//label[descendant::input[@type='checkbox']]",
+    CONTENT_STATUS: "//div[contains(@id,'StatusBlock')]/span",
+    SORT_DIALOG_TOGGLE: "//div[contains(@class,'sort-dialog-trigger')]",
+    EXPANDER_ICON_DIV: "//div[contains(@class,'toggle icon-arrow_drop_up')]",
+    P_CONTENT_NAME: "//p[contains(@class,'sub-name')]",
+    // Block that contains: name, displayName, icon...
+    CONTENT_LABEL_BLOCK: "//div[@data-component='ContentLabel']",
+    itemContextMenuItemByName: (name) => {
+        return `//div[@role='menu' and contains(@id,'content')]//div[contains(@id,'menu-item') and contains(.,'${name}')]`;
     },
-    FORM_VIEW_PANEL: {
-        INPUT_VIEW: "//div[contains(@id,'InputView')]",
-        HTML_AREA_INPUT: "//div[contains(@id,'InputView') and descendant::div[contains(@id,'HtmlArea')]]",
-        TEXT_LINE_INPUT: "//div[contains(@id,'InputView') and descendant::div[contains(@id,'TextLine')]]",
-        COMBOBOX_INPUT: "//div[contains(@id,'InputView') and descendant::div[contains(@id,'ComboBox')]]",
+    itemByName: name => {
+        return `//div[contains(@role,'treeitem') and descendant::small[contains(@class,'t-subtle') and contains(.,'${name}')]]`
     },
-    COMBOBOX: {
-        MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
-        APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
+    itemByDisplayName: displayName => {
+        return `//div[contains(@role,'treeitem') and descendant::span[contains(.,'${displayName}')]]`
     },
-    INPUTS: {
-        TEXT_INPUT: "//input[@type='text']",
-        CHECKBOX_INPUT: "//input[@type='checkbox']",
-        DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
-        checkBoxLabel: label => `//div[contains(@id,'Checkbox') and child::label[contains(.,'${label}')]]/label`,
-    },
-    DIV: {
-        FRAGMENT_DROPDOWN_DIV: `//div[contains(@id,'FragmentDropdown')]`,
-        CHECKBOX_DIV: "//div[contains(@id,'Checkbox')]",
-        DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
-        NOTIFICATION_ACTIONS_DIV: "//div[@class='notification-actions']",
-        CONTENT_APP_BAR_DIV: "//div[contains(@id,'ContentAppBar')]",
-        PROJECT_VIEWER_DIV: "//div[contains(@id,'ProjectViewer')]",
-    },
-    BUTTONS: {
-        BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",
-        NEW_CONTENT_BUTTON: "//button[contains(@class,'new-content-button')]",
-        REFRESH_BUTTON: "//button[contains(@class,'icon-loop')]",
-        DROP_DOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
-        SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,
-        SELECTOR_MODE_TOGGLER: "//button[contains(@id,'ModeTogglerButton')]",
-        UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
-        actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
-        button: (label, cssValue) => `//button[contains(@class,'${cssValue}') and child::span[contains(.,'${label}')]]`,
-        dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[contains(.,'${label}')]]`,
-        dialogButtonStrict: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
-        togglerButton: (label) => `//button[contains(@id,'TogglerButton') and child::span[text()='${label}']]`,
-        COLLAPSE_BUTTON_BOTTOM: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  (text()='Collapse' or text()='Collapse all')]",
-        COLLAPSE_ALL_BUTTON_BOTTOM: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  (text()='Collapse' or text()='Collapse all')]",
-        EXPAND_BUTTON_BOTTOM: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  text()='Expand']",
-        EXPAND_ALL_BUTTON_BOTTOM: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  text()='Expand all')]",
-        COLLAPSE_BUTTON_TOP: "//div[contains(@class,'top-button-row')]//a[contains(@class,'collapse-button') and (text()='Collapse' or text()='Collapse all')]",
-        MORE_BUTTON: "//button[contains(@id,'MoreButton')]",
-        ADD_BUTTON: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add']]",
+    contentSummaryByDisplayName: (parent, displayName) => {
 
     },
-    HELP_TEXT: {
-        TOGGLE: "//div[contains(@class,'help-text-toggle')]",
-        BUTTON: "//div[contains(@class,'help-text-button')]",
-        TEXT: "//div[contains(@class,'help-text visible')]/p",
+    contentSummaryByName: name => {
+
     },
-    DROPDOWN_SELECTOR: {
-        contentListElementByDisplayName: (container, displayName) => {
-            return container +
-                   `//li[contains(@id,'ContentListElement') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
+    itemTreeGridListElementByDisplayName: displayName => {//ContentTreeGridListViewer
+
+    },
+    itemTreeGridListElementByName: name => {
+        return `//div[contains(@role,'treeitem') and descendant::small[contains(@class,'t-subtle') and contains(.,'${name}')]]`
+    },
+}
+const DROPDOWN = {
+        HANDLE: "//button[contains(@id,'DropdownHandle')]",
+        DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
+        OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
+        DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
+        DROPDOWN_LIST_ITEM: "//*[contains(@class,'item-view-wrapper')]",
+        DROPDOWN_DIV_ITEM: "//div[contains(@class,'item-view-wrapper')]",
+        WIDGET_COMBOBOX: "//button[contains(@id,'WidgetsSelector') and @role='combobox']",
+        SELECTOR_LISTBOX: "//div[contains(@role,'listbox')]",
+        dropdownSelectedOptionByName: (dataComponentValue, optionName) => {
+            return `//div[@data-component='${dataComponentValue}']//span[contains(.,'${optionName}')]`;
         },
-        // non-clickable li element in options dropdown list, it is for checking read-only status
-        contentListElementByName: (container, name) => {
-            return container +
-                   `//li[contains(@id,'ContentListElement') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`;
+        selectorListOptionByName: (optionName) => {
+            return `//div[@role='option']//span[contains(.,'${optionName}')]`;
         },
-        listItemByDisplayName: (itemName) => {
-            return `//li[contains(@class,'item-view-wrapper') and descendant::h6[contains(.,'${itemName}')]]`
-        },
-        // clickable option in dropdown options list
-        dropdownListItemByDisplayName: (container, displayName) => {
-            return container +
-                   `//*[contains(@class,'item-view-wrapper')]//h6[contains(@class,'main-name') and contains(.,'${displayName}')]`;
-        },
-        dropdownListItemByName: (container, name) => {
-            return container +
-                   `//*[contains(@class,'item-view-wrapper')]//p[contains(@class,'sub-name') and contains(.,'${name}')]`;
-        },
+        FILTERABLE_LISTBOX: "//div[contains(@id,'FilterableListBoxWrapper')]",
+        IMAGE_CONTENT_COMBOBOX_DIV: "//div[contains(@id,'ImageContentComboBox')]",
+        MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
+        APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
         flatModeDropdownImgItemByDisplayName: (container, displayName) => {
             return container +
                    `//*[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]//img`;
         },
         IMG_DROPDOWN_OPT_DISPLAY_NAME_FLAT_MODE: "//li[contains(@class,'item-view-wrapper')]" +
                                                  "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
-        OPTIONS_LI_ELEMENT: "//li[contains(@id,'ContentListElement')]",
-        DROPDOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
-        OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
-        MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
-        APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
-        CONTENT_TREE_SELECTOR: "//div[contains(@id,'ContentTreeSelectorDropdown')]",
-        CONTENTS_TREE_LIST_UL: "//ul[contains(@id,'ContentsTreeList')]",
-        DROPDOWN_LIST_ITEM: "//*[contains(@class,'item-view-wrapper')]",
-        DROPDOWN_DIV_ITEM: "//div[contains(@class,'item-view-wrapper')]",
-        WIDGET_FILTER_DROPDOWN: `//div[contains(@id,'WidgetFilterDropdown')]`,
-        FILTERABLE_LISTBOX: "//div[contains(@id,'FilterableListBoxWrapper')]",
-        IMAGE_CONTENT_COMBOBOX_DIV: "//div[contains(@id,'ImageContentComboBox')]",
-    },
-
-    DEPENDANTS: {
-        EDIT_ENTRY: "//div[contains(@id,'DialogStateEntry') and contains(@class,'edit-entry')]",
-        DEPENDANTS_BLOCK: "//div[contains(@class, 'dependants') and descendant::span[contains(@class,'dependants-title') and text()='Dependencies']]",
-        DEPENDENT_ITEM_LIST_UL: "//ul[contains(@id,'DialogDependantItemsList')]",
-        DEPENDENT_ITEM_LIST_UL_2: "//ul[contains(@id,'PublishDialogDependantList')]",
-        DEPENDANT_ITEM_VIEWER: "//div[contains(@id,'DependantItemViewer')]",
-        DEPENDANT_ITEM_LIST_UNPUBLISH_DIALOG: "//ul[contains(@id,'DialogWithRefsDependantList')]",
-    },
-    tabBarItemByName: name => {
-        return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
-    },
-
-    TREE_GRID: {
-        CONTENT_STATUS: "//div[contains(@id,'StatusBlock')]/span",
-        SORT_DIALOG_TOGGLE: "//div[contains(@class,'sort-dialog-trigger')]",
-        EXPANDER_ICON_DIV: "//div[contains(@class,'toggle icon-arrow_drop_up')]",
-        P_CONTENT_NAME: "//p[contains(@class,'sub-name')]",
-        H6_CONTENT_DISPLAY_NAME: "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
-        itemByName: name => {
-            return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
-        },
-        contentSummaryByDisplayName: (parent, displayName) => {
-            return `//div[contains(@id,'ContentSummaryListViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
-        },
-        contentSummaryByName: name => {
-            return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
-        },
-        itemTreeGridListElementByDisplayName: displayName => {//ContentTreeGridListViewer
-            return `(//li[contains(@id,'ContentsTreeGridListElement') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]])[last()]`
-        },
-        itemTreeGridListElementByName: name => {
-            return `//li[contains(@id,'ContentsTreeGridListElement') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
-        },
-    },
-    checkBoxDiv: label => `//div[contains(@id,'Checkbox') and child::label[contains(.,'${label}')]]`,
-    actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
-    actionButtonStrict: (label) => `//button[contains(@id,'ActionButton') and child::span[text()='${label}']]`,
-    dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[contains(.,'${label}')]]`,
-    buttonWithSpan: label => `//button[contains(@id,'Button') and child::span[contains(.,'${label}')]]`,
-    dialogButtonStrict: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
-    togglerButton: (label) => `//button[contains(@id,'TogglerButton') and child::span[text()='${label}']]`,
-    itemByDisplayName: displayName => {
-        return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
-    },
-    projectItemByDisplayName: displayName => {
-        return `//a[contains(@id,'ProjectListItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
-    },
-
-    itemStrictByDisplayName: displayName => {
-        return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and text()='${displayName}']]`
-    },
-    itemByName: name => {
-        return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
-    },
-    itemStrictByName: name => {
-        return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and text()='${name}']]`
-    },
-
-    formItemByLabel: (label) => {
-        return `//div[contains(@id,'FormItem') and descendant::label[contains(.,'${label}')]]`
-    },
-
-    EMPTY_OPTIONS_H5: "//h5[contains(@class,'empty-list-item') and text()='No matching items']",
-    radioButtonByLabel: label => {
-        return `//span[contains(@class,'radio-button') and descendant::span[text()='${label}']]//input`
-    },
-    radioButtonContainsLabel: label => {
-        return `//span[contains(@class,'radio-button') and descendant::span[contains(.,'${label}')]]//input`
-    },
-    tabMenuItem: menuName => `//li[contains(@id,'TabMenuItem') and child::a[text()='${menuName}']]`,
-    TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",
-    SELECTOR_MODE_TOGGLER: "//button[contains(@id,'ModeTogglerButton')]",
-    CANCEL_BUTTON_TOP: "//div[@class='cancel-button-top']",
-    UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
-    MORE_FOLD_BUTTON: "//div[contains(@id,'FoldButton') and descendant::span[text()='More']]",
-    COMBO_BOX_OPTION_FILTER_INPUT: "//input[contains(@id,'ComboBoxOptionFilterInput')]",
-    CONTENT_WIZARD_STEP_FORM: "//div[contains(@id,'ContentWizardStepForm')]",
-    BASE_SELECTED_OPTION: "//div[contains(@id,'BaseSelectedOptionView')]",
-    PRINCIPAL_SELECTED_OPTIONS: `//div[contains(@id,'PrincipalSelectedOptionsView')]`,
-    PRINCIPAL_SELECTED_OPTION: `//div[contains(@id,'PrincipalSelectedOptionView')]`,
-    PRINCIPAL_COMBOBOX: "//div[contains(@id,'PrincipalComboBox')]",
-    REMOVE_ICON: "//a[@class='remove']",
-    REMOVE_BUTTON: "//a[@class='remove-button']",
-    REMOVE_BUTTON_2: "//button[contains(@class,'remove-button')]",
-    INCLUDE_CHILDREN_TOGGLER: "//div[contains(@id,'IncludeChildrenToggler')]",
-    VERSION_HISTORY_MENU_OPTION: `//div[text()='Version history']`,
-    DEPENDENCIES_MENU_OPTION: `//div[text()='Dependencies']`,
-    DETAILS_MENU_OPTION: `//div[text()='Details']`,
-    CHECKBOX_INPUT: "//input[@type='checkbox']",
-    CONTENT_SELECTED_OPTION_VIEW: "//div[contains(@id,'ContentSelectedOptionView')]",
-    DETAILS_PANEL_TOGGLE_BUTTON: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
-    SHOW_CONTEXT_PANEL_BUTTON: "//button[contains(@id,'NonMobileContextPanelToggleButton') and @title='Show Context Panel']",
-    SHOW_DEPENDENT_ITEM_LINK: `//h6[@class='dependants-header' and contains(.,'Show dependent items')]`,
-    VERSIONS_SHOW_CHANGES_BUTTON: `//button[contains(@id,'ActionButton') and @title='Show changes']`,
-    LIVE_EDIT_FRAME: "//div[contains(@id,'FrameContainer')]//iframe[contains(@class,'text') or contains(@class,'application')]",
-    APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
-
-    WIDGET_SIDEBAR: {
-        SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and child::span[text()='Settings']]",
-        MODE_CONTENT_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Content']",
-    },
-    PUBLISH_DIALOG: {
-        EXCLUDE_BTN: "//button[child::span[contains(.,'Exclude')]]",
-    },
-    CKE: {
-        TEXTAREA_DIV: "//div[contains(@id,'cke_TextArea')]",
-        insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
-        pasteModeButton: `//a[contains(@class,'cke_button') and contains(@title,'Paste mode')]`,
-        insertLinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Link')]`,
-        unlinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Unlink')]`,
-        insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,
-        findAndReplaceButton: "//a[contains(@class,'cke_button') and @title='Find and replace']",
-        insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
-        insertMacroButton: `//a[contains(@class,'cke_button') and @title='Insert macro']`,
-        insertSpecialCharacter: "//a[contains(@class,'cke_button') and @title='Insert Special Character']",
-        italicButton: `//a[contains(@class,'cke_button') and contains(@title,'Italic')]`,
-        boldButton: `//a[contains(@class,'cke_button') and contains(@title,'Bold')]`,
-        underlineButton: `//a[contains(@class,'cke_button') and contains(@title,'Underline')]`,
-        subscriptButton: `//a[contains(@class,'cke_button') and contains(@title,'Subscript')]`,
-        superScriptButton: `//a[contains(@class,'cke_button') and contains(@title,'Superscript')]`,
-        wrapCodeButton: `//a[contains(@class,'cke_button') and contains(@title,'Wrap code')]`,
-        blockQuoteButton: `//a[contains(@class,'cke_button') and contains(@title,'Block Quote')]`,
-        alignLeftButton: `//a[contains(@class,'cke_button') and contains(@title,'Align Left')]`,
-        alignRightButton: `//a[contains(@class,'cke_button') and contains(@title,'Align Right')]`,
-        centerButton: `//a[contains(@class,'cke_button') and contains(@title,'Center')]`,
-        justifyButton: `//a[contains(@class,'cke_button') and contains(@title,'Justify')]`,
-        bulletedButton: `//a[contains(@class,'cke_button') and contains(@title,'Bulleted List')]`,
-        numberedButton: `//a[contains(@class,'cke_button') and contains(@title,'Numbered List')]`,
-        sourceButton: `//a[contains(@class,'cke_button__sourcedialog') and @title='Source']`,
-        fullScreen: `//a[contains(@class,'cke_button__fullscreen')  and @title='Fullscreen']`,
-        tableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
-        finAndReplaceButton: `//a[contains(@class,'cke_button') and contains(@title,'Find and replace')]`,
-        strikethroughButton: `//a[contains(@class,'cke_button') and contains(@title,'Strikethrough')]`,
-        increaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Increase Indent')]`,
-        decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
-        formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
-    },
-    PROJECTS: {
-        projectNameAndIconViewDiv: displayName => `//div[contains(@id,'NamesAndIconView') and descendant::span[contains(@class,'display-name') and contains(.,'${displayName}')]]`,
-        projectByName: name => {
-            return `//div[contains(@id,'ProjectItemViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`
-        },
-        projectByIdentifier: id => {
-            return `//div[contains(@id,'NamesView') and descendant::p[contains(@class,'sub-name') and contains(.,'${id}')]]`
-        },
-        selectedProjectView: displayName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[text()='${displayName}']]`,
-    },
-    INSPECT_PANEL: {
-        DESCRIPTOR_VIEWER_DIV: "//div[contains(@id,'DescriptorViewer')]",
-    },
-    MARKET_MODAL_DIALOG: {
-        rowByDisplayName(displayName) {
-            return `//li[contains(@id,'MarketListViewer') and (descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')])]`;
-        },
-    },
-    LIVE_VIEW: {
-        EMULATOR_DROPDOWN: "//div[contains(@id,'EmulatorDropdown')]",
-        DIV_DROPDOWN: "//div[contains(@id,'PreviewWidgetDropdown')]",
-        PREVIEW_NOT_AVAILABLE_SPAN: "//div[@class='no-preview-message']//span[text()='Preview not available']",
-        NO_PREVIEW_MSG_SPAN: "//div[@class='no-preview-message']//span",
-        NO_CONTROLLER_NO_PREVIEW_MSG_SPAN: "//div[@class='no-selection-message']//span",
-        EMPTY_LIVE_FRAME_DIV: "//div[contains(@class,'frame-container')]//iframe[@class='live-edit-frame']",
-        LIVE_EDIT_FRAME: "//div[contains(@id,'FrameContainer')]//iframe[contains(@class,'text') or contains(@class,'application')]",
-    }
+    };
+module.exports = Object.freeze({
+    COMMON,
+    DROPDOWN,
+    BUTTONS,
+    LIVE_VIEW,
+    WIZARD,
+    TREE_GRID,
 });

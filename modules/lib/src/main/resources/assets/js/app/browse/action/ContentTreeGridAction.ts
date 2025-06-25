@@ -1,20 +1,13 @@
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
 export class ContentTreeGridAction extends Action {
 
-    protected grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>;
-
     protected stashedState: boolean;
-
     protected stashed: boolean;
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>, label?: string, shortcut?: string, global?: boolean) {
+    constructor(label?: string, shortcut?: string, global?: boolean) {
         super(label, shortcut, global);
-
-        this.grid = grid;
 
         this.onExecuted(() => {
             this.handleExecuted();

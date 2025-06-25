@@ -2,7 +2,7 @@
  * Created on 31.10.2022
  */
 const Page = require('../../page');
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 const SingleSelectionOptionSet = require('./single.selection.option.set.view');
 const xpath = {

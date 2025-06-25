@@ -2,7 +2,7 @@
  * Created on 21.03.2019.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const xpath = {
     captionTextArea: "//textarea[contains(@name,'caption')]",
