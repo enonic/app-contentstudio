@@ -2,7 +2,7 @@
  * Created on 19.08.2022
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const ComboBoxListInput = require('../components/selectors/combobox.list.input');
 const XPATH = {

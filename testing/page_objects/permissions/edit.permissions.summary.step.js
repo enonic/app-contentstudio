@@ -3,10 +3,10 @@
  */
 const BaseStepPermissionsDialog = require('./base.step.edit.permissions.dialog');
 const appConst = require('../../libs/app_const');
-const lib = require('../../libs/elements');
+const {BUTTONS, COMMON} = require('../../libs/elements');
 
 const xpath = {
-    stepDescriptionP: "//p[contains(@class,'sub-name') and contains(.,'Summary')]",
+    stepSummary: "//div[@role='dialog' and descendant::h2[contains(.,'Summary')]]",
     dialogButtonRow: `//div[contains(@class,'button-container')]`,
     sectionSummary: "//section[@clas='summary-step']",
     applyToText: "//dt[contains(.,'Apply to')]/following-sibling::dd[1]",
@@ -21,6 +21,10 @@ const xpath = {
 
 //2 of 3 - Choose how to apply changes
 class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
+
+    get container() {
+        return xpath.stepSummary;
+    }
 
     get showChangesButton() {
         return this.container + xpath.showHideDetailsButtonDiv('Show changes');
@@ -39,19 +43,19 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
     }
 
     get stepDescription() {
-        return this.container + xpath.stepDescriptionP;
+        return this.container + xpath.stepSummary;
     }
 
     get applyChangesButton() {
-        return this.container + xpath.dialogButtonRow + lib.dialogButton('Apply Changes');
+        return this.container + COMMON.FOOTER_ELEMENT + BUTTONS.buttonByLabel('Apply changes');
     }
 
     get replaceAllPermissionsButton() {
-        return this.container + xpath.dialogButtonRow + lib.dialogButton('Replace All Permissions');
+        return this.container + COMMON.FOOTER_ELEMENT + BUTTONS.buttonByLabel('Replace all permissions');
     }
 
     get noChangesToApply() {
-        return this.container + xpath.dialogButtonRow + lib.dialogButton('No changes to apply');
+        return this.container + COMMON.FOOTER_ELEMENT + BUTTONS.buttonByLabel('No changes to apply');
     }
 
     // summary-data-container: 'Apply to' 'Children only' or 'This item' or 'This item and all children'
@@ -126,7 +130,7 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
 
     async waitForLoaded() {
         try {
-            await this.waitForElementDisplayed(this.stepDescription, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.container);
             return await this.pause(300);
         } catch (err) {
             await this.handleError('Edit permissions Summary - step was not loaded!', 'err_edit_perm_summary', err);
@@ -233,11 +237,12 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
             return null;
         }
     }
+
     async getChangedItemsList() {
         try {
             let locator = this.container + xpath.accessControlChangedItemsListUL + lib.H6_DISPLAY_NAME;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            return await this.getTextInElements(locator );
+            return await this.getTextInElements(locator);
         } catch (err) {
             await this.handleError(`Access Control Changed Items List should be displayed`, 'err_access_control_changed_items_list', err);
         }

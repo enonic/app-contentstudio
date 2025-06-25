@@ -51,7 +51,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             // 2. Click on 'Public' radio and confirm the changes:
             await projectWizard.clickOnAccessModeRadio('Public');
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 3. Save the changes:
             await projectWizard.waitAndClickOnSave();

@@ -1,54 +1,42 @@
-
 /**
  * Created on 04.06.2025
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const lib = require('../../libs/elements');
+const {BUTTONS} = require('../../libs/elements');
 
 const xpath = {
-    container: `//div[contains(@id,'EditPermissionsDialog')]`,
-    dialogButtonRow: `//div[contains(@class,'button-container')]`,
+    header: "//div[@role='dialog' and descendant::p[contains(.,'Permissions:')]]",
 };
 
 class BaseStepEditPermissionsDialog extends Page {
 
-    get container() {
-        return xpath.container;
-    }
-
-
     get nextButton() {
-        return xpath.container + xpath.dialogButtonRow + lib.dialogButton('Next');
+        return this.container + BUTTONS.buttonByLabel('Next');
     }
 
-    get cancelButtonTop() {
-        return xpath.container + lib.CANCEL_BUTTON_TOP;
+    get closeButton() {
+        return this.container + BUTTONS.buttonAriaLabel('Close');
     }
 
-    async clickOnCancelButtonTop() {
-        await this.waitForElementDisplayed(this.cancelButton, appConst.mediumTimeout);
-        return await this.clickOnElement(this.cancelButton);
+    async clickOnCloseButton() {
+        await this.waitForElementDisplayed(this.closeButton);
+        return await this.clickOnElement(this.closeButton);
     }
 
     async stepDescription() {
         throw new Error('stepDescription method should be implemented');
     }
 
-    get nextButton() {
-        return xpath.container + xpath.dialogButtonRow + lib.dialogButton('Next');
-    }
-
-    get backButton() {
-        return xpath.container + xpath.dialogButtonRow + lib.dialogButton('Back');
+    get previousButton() {
+        return this.container + BUTTONS.buttonByLabel('Previous');
     }
 
     async waitForNextButtonEnabled() {
         try {
-            return await this.waitForElementEnabled(this.nextButton, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(this.nextButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_next_button');
-            throw new Error(`Edit Permission - Next button should be enabled, ${screenshot}` + err);
+            await this.handleError('Edit Permissions dialog - Next button should be enabled', 'err_next_button', err);
         }
     }
 
@@ -61,30 +49,24 @@ class BaseStepEditPermissionsDialog extends Page {
         }
     }
 
-    waitForDialogClosed() {
-        let message = "Edit Permissions Dialog is not closed! timeout is " + 3000;
-        return this.getBrowser().waitUntil(() => {
-            return this.isElementNotDisplayed(xpath.container);
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: message}).then(() => {
-            return this.pause(400);
-        })
+    async waitForDialogClosed() {
+        let message = "Edit Permissions Dialog was not closed! timeout is " + 3000;
+        await this.getBrowser().waitUntil(async () => {
+            return await this.isElementNotDisplayed(xpath.header);
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
+        await this.pause(400);
     }
 
     async clickOnNextButton() {
-        await this.waitForElementDisplayed(this.nextButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.nextButton);
         await this.clickOnElement(this.nextButton);
         await this.pause(300);
     }
 
-    async clickOnBackButton() {
-        await this.waitForElementDisplayed(this.backButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.backButton);
+    async clickOnPreviousButton() {
+        await this.waitForElementDisplayed(this.previousButton);
+        await this.clickOnElement(this.previousButton);
         await this.pause(300);
-    }
-
-    async clickOnCancelButtonTop() {
-        await this.waitForElementDisplayed(this.cancelButtonTop, appConst.mediumTimeout);
-        return await this.clickOnElement(this.cancelButtonTop);
     }
 }
 

@@ -29,7 +29,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             // Close 'Publish Wizard':
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             // Add invalid child folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);

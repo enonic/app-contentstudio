@@ -24,26 +24,26 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
 
     // Verify - Publish Wizard - Incorrect state for remove icons #8548
     // https://github.com/enonic/app-contentstudio/issues/8548
-    it(`GIVEN 2 items has been checked AND 'Publish dialog' has been opened WHEN the first item has been removed THEN remove-icon gets disabled for the second item`,
+    it(`GIVEN 2 items has been checked AND 'Publish dialog' has been opened WHEN the first item has been removed THEN remove-icon for the second item gets disabled `,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
             // 1. Check 2 items and open Publish Content dialog:
             await studioUtils.findContentAndClickCheckBox(appConst.TEST_IMAGES.SHIP);
             await studioUtils.findContentAndClickCheckBox(appConst.TEST_IMAGES.KOTEY);
-            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             // 2. Verify that the both remove-icons are enabled:
-            let isEnabled = await contentPublishDialog.isRemoveItemIconEnabled(appConst.TEST_IMAGES.SHIP);
-            assert.ok(isEnabled, 'Remove icon should be enabled for the first item');
-            isEnabled = await contentPublishDialog.isRemoveItemIconEnabled(appConst.TEST_IMAGES.KOTEY);
-            assert.ok(isEnabled, 'Remove icon should be enabled for the second item');
+            let isDisabled = await contentPublishDialog.isRemoveItemIconDisabled(appConst.TEST_IMAGES.SHIP);
+            assert.ok(isDisabled, 'Remove icon should be enabled for the first item');
+            isDisabled = await contentPublishDialog.isRemoveItemIconDisabled(appConst.TEST_IMAGES.KOTEY);
+            assert.ok(isDisabled, 'Remove icon should be enabled for the second item');
             await studioUtils.saveScreenshot('publish_wizard_2_items_selected');
             // 3. Click on remove-icon and exclude the first item:
             await contentPublishDialog.clickOnRemoveItemIcon(appConst.TEST_IMAGES.KOTEY);
             // 4. Verify that the second remove-icon gets disabled:
-            isEnabled = await contentPublishDialog.isRemoveItemIconEnabled(appConst.TEST_IMAGES.SHIP);
-            assert.equal(isEnabled === false, true, 'Remove icon should be disabled for the single item');
+            isDisabled = await contentPublishDialog.isRemoveItemIconDisabled(appConst.TEST_IMAGES.SHIP);
+            assert.ok(isDisabled,  'Remove icon should be disabled for the single item');
         });
 
     // Set the property before the test - publishingWizard.excludeDependencies=false (com.enonic.app.contentstudio.cfg)
@@ -90,8 +90,8 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             // 3. 'Add Schedule' button should be displayed as well:
             await contentPublishDialog.waitForAddScheduleIconDisplayed();
             // 4. This item should not be removable, remove-icon should be disabled:
-            let isEnabled = await contentPublishDialog.isRemoveItemIconEnabled(FOLDER1_NAME);
-            assert.ok(isEnabled === false, "This item should not be removable, remove-icon should be disabled");
+            let isDisabled = await contentPublishDialog.isRemoveItemIconDisabled(FOLDER1_NAME);
+            assert.ok(isDisabled, "This item should not be removable, remove-icon should be disabled");
             // 5. 'Include Children' toggle should not be displayed, the folder has no children!
             let isDisplayed = await contentPublishDialog.isIncludeChildToggleDisplayed();
             assert.ok(isDisplayed === false, "'Include child' icon should not be visible");
@@ -112,8 +112,8 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             // 4. Verify  that "Add schedule" button should be displayed:
             await contentPublishDialog.waitForAddScheduleIconDisplayed();
             // 5. Remove-icon should be disabled for the Parent item
-            let isEnabled = await contentPublishDialog.isRemoveItemIconEnabled(appConst.TEST_FOLDER_WITH_IMAGES);
-            assert.ok(isEnabled === false, 'Remove icon should be disabled for the Parent item');
+            let isDisabled = await contentPublishDialog.isRemoveItemIconDisabled(appConst.TEST_FOLDER_WITH_IMAGES);
+            assert.ok(isDisabled, 'Remove icon should be disabled for the Parent item');
             let isDisplayed = await contentPublishDialog.isIncludeChildToggleDisplayed();
             assert.ok(isDisplayed, 'Include child icon should be visible');
             // 6. 'Publish Now' button should be enabled!
@@ -149,7 +149,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             // 2. Button 'Cancel' in the top of dialog has been pressed:
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             // 3. "dialog is closing. Otherwise, exception will be thrown after the timeout."
             await contentPublishDialog.waitForDialogClosed();
         });
@@ -257,10 +257,10 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentBrowsePanel.pause(1000);
             await studioUtils.saveScreenshot('status_in_browse_panel');
             let parentFolderStatus = await contentBrowsePanel.getContentStatus(PARENT_FOLDER.displayName);
-            assert.equal(parentFolderStatus, appConst.CONTENT_STATUS.PUBLISHED, `Parent folder should be 'PUBLISHED'`);
+            assert.equal(parentFolderStatus, appConst.CONTENT_STATUS.ONLINE, `Parent folder should be 'Online'`);
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
             let childStatus = await contentBrowsePanel.getContentStatus(CHILD_FOLDER.displayName);
-            assert.equal(childStatus, appConst.CONTENT_STATUS.NEW, `child folder should be 'New'`);
+            assert.equal(childStatus, appConst.CONTENT_STATUS.OFFLINE, `child folder should be 'Offline'`);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

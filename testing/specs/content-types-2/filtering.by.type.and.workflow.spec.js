@@ -154,7 +154,7 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             await contentBrowsePanel.waitForNotificationMessage();
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             await contentBrowsePanel.pause(1000);
             await studioUtils.saveScreenshot('shortcut_workflow_aggregation_4');

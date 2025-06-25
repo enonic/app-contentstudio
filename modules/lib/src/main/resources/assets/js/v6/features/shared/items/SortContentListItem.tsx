@@ -1,0 +1,46 @@
+import {ListItem, type ListItemProps, cn} from '@enonic/ui';
+import {GripVertical} from 'lucide-react';
+import {type ReactElement} from 'react';
+import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import {ContentLabel, type ContentLabelVariant} from '../content/ContentLabel';
+
+export type SortContentListItemProps = {
+    content: ContentSummaryAndCompareStatus;
+    variant?: ContentLabelVariant;
+    dragEnabled?: boolean;
+    isFocused?: boolean;
+    isMovable?: boolean;
+    'data-component'?: string;
+} & Omit<ListItemProps, 'children'>;
+
+const SORT_CONTENT_LIST_ITEM_NAME = 'SortContentListItem';
+
+export const SortContentListItem = ({
+    content,
+    variant,
+    dragEnabled = false,
+    selected = false,
+    isFocused = false,
+    isMovable = false,
+    className,
+    'data-component': componentName = SORT_CONTENT_LIST_ITEM_NAME,
+    ...props
+}: SortContentListItemProps): ReactElement => {
+    return (
+        <ListItem selected={selected} data-component={componentName} className={cn('pl-0 py-0', isMovable && 'bg-surface-selected', isFocused && 'bg-surface-neutral-hover', className)} {...props}>
+            <ListItem.Content className='flex'>
+                <div
+                    className={cn(
+                        'box-content flex items-center justify-start flex-1 px-2.5 py-1 gap-2.5',
+                        dragEnabled && 'cursor-move',
+                    )}
+                >
+                    {dragEnabled && <GripVertical className='size-4 shrink-0 text-subtle group-data-[tone=inverse]:text-alt' />}
+                    <ContentLabel content={content} variant={variant} />
+                </div>
+            </ListItem.Content>
+        </ListItem>
+    );
+};
+
+SortContentListItem.displayName = SORT_CONTENT_LIST_ITEM_NAME;

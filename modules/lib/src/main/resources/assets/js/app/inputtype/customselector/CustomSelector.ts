@@ -102,6 +102,7 @@ export class CustomSelector
         const serviceParams = cfg['param'] || [];
 
         const params = serviceParams.reduce((prev, curr) => {
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
             prev[curr['@value'] as string] = curr['value'];
             return prev;
         }, {});

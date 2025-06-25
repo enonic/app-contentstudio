@@ -1,11 +1,11 @@
 /**
  * Created on 08.01.2024
  */
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 const BaseDropdown = require('./base.dropdown');
 const XPATH = {
-    container: "//div[contains(@id,'ImageSelectorDropdown')]",
+    dataComponentDiv: "//div[@data-component='ImageSelectorDropdown']",
     imageContentListBoxUL: "//ul[contains(@id,'ImageContentListBox')]",
     contentListElement: "//li[contains(@id,'ContentListElement')]",
     expanderIconByName: name => {
@@ -20,8 +20,13 @@ const XPATH = {
 
 class ImageSelectorDropdown extends BaseDropdown {
 
+    constructor(parentElementXpath) {
+        super();
+        this._container = parentElementXpath;
+    }
+
     get container() {
-        return XPATH.container;
+        return this._container;
     }
 
     async insertTextInOptionsFilterInput(text, parentLocator) {

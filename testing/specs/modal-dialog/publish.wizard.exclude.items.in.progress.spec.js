@@ -93,7 +93,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             await contentBrowsePanel.waitForNotificationMessage();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             // 2. Click on the 'Publish Tree' menu item
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);

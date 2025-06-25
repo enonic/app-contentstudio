@@ -45,7 +45,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             let result = await browseVersionsWidget.countPublishedItems();
             assert.equal(result, 1, `'Published' version item should appear in the widget`)
             let status = await browseVersionsWidget.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, `'Published' status should be in the top version item`);
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, `'Online' status should be in the top version item`);
         });
 
     it(`GIVEN existing folder(Published) has been modified WHEN Version Panel has been opened THEN 'Modified' status should be in Versions Widget`,
@@ -117,7 +117,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();
             let status = await browseVersionsWidget.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, `'Published' status should be in the top version item`);
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, `'Online' status should be in the top version item`);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -362,6 +362,7 @@ export class HtmlArea
     }
 
     private getAllowedHeadingsConfig(): string {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         return this.getContext().inputConfig['allowHeadings']?.[0]?.value as string ?? null;
     }
 

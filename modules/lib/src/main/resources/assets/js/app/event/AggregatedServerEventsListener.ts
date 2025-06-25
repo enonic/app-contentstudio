@@ -10,6 +10,7 @@ import {type ContentServerChangeItem} from './ContentServerChangeItem';
 import {ContentServerEvent} from './ContentServerEvent';
 import {ContentServerEventsTranslator} from './ContentServerEventsTranslator';
 import {IssueServerEvent} from './IssueServerEvent';
+import {PermissionsServerEvent} from './PermissionsServerEvent';
 import {ServerEventAggregator} from './ServerEventAggregator';
 import {WorkerServerEventsListener} from './WorkerServerEventsListener';
 
@@ -30,6 +31,11 @@ export class AggregatedServerEventsListener
     }
 
     protected onServerEvent(event: Event): void {
+        if (this.isPermissionsEvent(event)) {
+            this.handlePermissionsEvent(event as PermissionsServerEvent);
+            return;
+        }
+
         if (this.isArchiveEvent(event)) {
             this.handleArchiveEvent(event as ArchiveServerEvent);
             return;
@@ -74,6 +80,18 @@ export class AggregatedServerEventsListener
         const currentRepo: string = RepositoryId.fromCurrentProject().toString();
 
         return event.getNodeChange().getChangeItems().some((change: ContentServerChangeItem) => change.getRepo() === currentRepo);
+    }
+
+    private isPermissionsEvent(event: Event): boolean {
+        return ObjectHelper.iFrameSafeInstanceOf(event, PermissionsServerEvent);
+    }
+
+    private handlePermissionsEvent(permissionsEvent: PermissionsServerEvent) {
+        const currentRepo = RepositoryId.fromCurrentProject().toString();
+
+        if (permissionsEvent.getChangeItem().getRepo() === currentRepo) {
+            this.fireEvent(permissionsEvent);
+        }
     }
 
     private isIssueEvent(event: Event): boolean {

@@ -100,7 +100,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             await pageInspectionPanel.clickOnCustomizePageButton();
             let confirmationDialog = new ConfirmationDialog();
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 3. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
@@ -119,7 +119,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             await pageComponentView.pause(1000);
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 8. Click on 'Page Settings' menu item in Live Edit frame:
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
@@ -127,7 +127,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             // 9. Click on 'Customize' button in Inspect tab
             await pageInspectionPanel.clickOnCustomizePageButton();
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('site_reset_to_template');
             // 10. Verify that the site is reset to default template:

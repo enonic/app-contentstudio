@@ -1,21 +1,18 @@
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {ContentItemPreviewToolbar} from '../../view/ContentItemPreviewToolbar';
-import {type LiveEditPageProxy} from './LiveEditPageProxy';
-import {RenderingMode} from '../../rendering/RenderingMode';
-import {type PreviewWidgetDropdown} from '../../view/toolbar/PreviewWidgetDropdown';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {PreviewToolbarElement} from '../../../v6/features/views/browse/layout/preview/PreviewToolbar';
+import {RenderingMode} from '../../rendering/RenderingMode';
+import {type ContentWizardActions} from '../action/ContentWizardActions';
+import {type LiveEditPageProxy} from './LiveEditPageProxy';
 
 export interface FrameContainerConfig {
     proxy: LiveEditPageProxy;
+    wizardActions: ContentWizardActions;
 }
 
-
-export class FrameContainer
-    extends Panel {
-
-    private readonly toolbar: ContentItemPreviewToolbar;
+export class FrameContainer extends Panel {
+    private readonly toolbar: PreviewToolbarElement;
     private readonly proxy: LiveEditPageProxy;
     private readonly wrapper: DivEl;
 
@@ -24,23 +21,24 @@ export class FrameContainer
         this.setDoOffset(false);
 
         this.proxy = config.proxy;
-        this.toolbar = new ContentItemPreviewToolbar(RenderingMode.EDIT);
+
+        this.toolbar = new PreviewToolbarElement({
+            mode: RenderingMode.EDIT,
+            previewAction: config.wizardActions.getPreviewAction(),
+        });
 
         this.wrapper = new DivEl('wrapper');
+
         this.wrapper.appendChild(this.proxy.getIFrame());
 
         this.appendChildren<Element>(this.toolbar, this.wrapper, this.proxy.getDragMask());
     }
 
-    public getToolbar(): ContentItemPreviewToolbar {
+    public getToolbar(): PreviewToolbarElement {
         return this.toolbar;
     }
 
     public getWrapper(): DivEl {
         return this.wrapper;
-    }
-
-    public getWidgetSelector(): PreviewWidgetDropdown {
-        return this.toolbar.getWidgetSelector();
     }
 }

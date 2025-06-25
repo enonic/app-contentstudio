@@ -127,7 +127,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.clickOnAccessModeRadio('Public');
             // 3. Confirm, click on 'Yes' button:
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 4. Verify that combobox in 'Custom mode access' gets disabled:
             await projectWizard.waitForCustomAccessModeComboboxDisabled();
@@ -178,7 +178,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await studioUtils.openProjectSelectionDialogAndSelectContext(emptyProject);
             // 3. Verify that browse toolbar is reset
             await contentBrowsePanel.waitForEditButtonDisabled();
-            await contentBrowsePanel.waitForArchiveButtonDisabled();
+            await contentBrowsePanel.waitForDeleteButtonDisabled();
             // 4. Preview panel should be reset as well
             await contentItemPreviewPanel.waitForToolbarNotDisplayed();
         });

@@ -1,22 +1,25 @@
 import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
-import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
-import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {type ContentSummary} from '../content/ContentSummary';
-import {RenderingMode} from '../rendering/RenderingMode';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {PreviewActionHelper} from '../action/PreviewActionHelper';
-import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
+import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {type Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
+import {listenKeys} from 'nanostores';
+import Q from 'q';
+import {PreviewLabelElement} from '../../v6/features/shared/PreviewLabel';
+import {$app, getResolvedTheme} from '../../v6/features/store/app.store';
+import {$isWidgetRenderable} from '../../v6/features/store/contextWidgets.store';
+import {$autoModeWidgets, WIDGET_AUTO_DESCRIPTOR} from '../../v6/features/store/liveViewWidgets.store';
+import {EmulatedDeviceEvent} from '../../v6/features/utils/dom/events/registry';
+import {PreviewActionHelper} from '../action/PreviewActionHelper';
+import {type ContentSummary} from '../content/ContentSummary';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {type EmulatedEvent} from '../event/EmulatedEvent';
-import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
-import {EmulatorContext} from './context/widget/emulator/EmulatorContext';
+import {RenderingMode} from '../rendering/RenderingMode';
+import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
+import {EmulatorDevice} from './context/widget/emulator/EmulatorDevice';
 
 export enum PREVIEW_TYPE {
     WIDGET,
@@ -40,6 +43,8 @@ export class WidgetRenderingHandler {
     private emptyView: DivEl;
 
     protected messageView: DivEl;
+
+    private messageLabel: PreviewLabelElement;
 
     private summary: ContentSummary;
 
@@ -76,9 +81,12 @@ export class WidgetRenderingHandler {
         this.renderer.getPreviewAction()?.setEnabled(false);
         let isRenderable: boolean;
 
+        $isWidgetRenderable.set(false);
+
         return this.doRender(summary, widget)
             .then((result) => {
                 isRenderable = result.isRenderable();
+                $isWidgetRenderable.set(isRenderable);
 
                 if (isRenderable) {
                     this.handlePreviewSuccess(result.getResponse(), result.getData());
@@ -118,55 +126,53 @@ export class WidgetRenderingHandler {
     }
 
     protected createEmptyView(): DivEl {
-        return this.createMessageView(i18n('panel.noselection'), 'no-selection-message');
+        return this.createMessageView(i18n('panel.noselection'), 'no-selection-message bg-surface-primary');
     }
 
     protected createErrorView(): DivEl {
-        return this.createMessageView(this.getDefaultMessage(), 'no-preview-message');
+        this.messageLabel = new PreviewLabelElement({messages: [this.getDefaultMessage()], showIcon: true, className: 'text-xl'});
+        const wrapper = new DivEl('no-preview-message bg-surface-primary');
+        wrapper.appendChild(this.messageLabel);
+        return wrapper;
     }
 
-    protected createMessageView(message: string, className?: string): DivEl {
-        const previewText: SpanEl = new SpanEl();
-        previewText.setHtml(message);
-        const previewMessage = new DivEl(className);
-        previewMessage.appendChild(previewText);
-        return previewMessage;
+    protected createMessageView(message: string, className?: string, showIcon?: boolean): DivEl {
+        const wrapper = new DivEl(className);
+        const label = new PreviewLabelElement({messages: [message], showIcon, className: 'text-xl'});
+        wrapper.appendChild(label);
+        return wrapper;
     }
 
     protected setPreviewType(previewType: PREVIEW_TYPE, messages?: string[]) {
         this.renderer.removeClass('widget-preview empty-preview message-preview');
 
         switch (previewType) {
-        case PREVIEW_TYPE.WIDGET: {
-            this.renderer.addClass('widget-preview');
-            break;
-        }
-        case PREVIEW_TYPE.FAILED: {
-            this.renderer.addClass('message-preview');
+            case PREVIEW_TYPE.WIDGET: {
+                this.renderer.addClass('widget-preview');
+                break;
+            }
+            case PREVIEW_TYPE.FAILED: {
+                this.renderer.addClass('message-preview');
             this.showPreviewMessages(messages || [i18n('field.preview.failed'), i18n('field.preview.failed.description')]);
-            break;
-        }
-        case PREVIEW_TYPE.MISSING: {
-            this.renderer.addClass('message-preview');
+                break;
+            }
+            case PREVIEW_TYPE.MISSING: {
+                this.renderer.addClass('message-preview');
             this.showPreviewMessages(messages || [i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
-            break;
-        }
-        case PREVIEW_TYPE.EMPTY:
-        default: {
-            this.renderer.addClass('empty-preview');
-            break;
-        }
+                break;
+            }
+            case PREVIEW_TYPE.EMPTY:
+            default: {
+                this.renderer.addClass('empty-preview');
+                break;
+            }
         }
 
         this.previewType = previewType;
     }
 
     protected showPreviewMessages(messages: string[]) {
-        this.messageView.removeChildren();
-
-        messages.forEach((message: string) => {
-            this.messageView.appendChild(SpanEl.fromText(message));
-        });
+        this.messageLabel.setProps({messages, showIcon: true});
     }
 
     protected handlePreviewSuccess(response: Response, data: Record<string, never>) {
@@ -193,13 +199,13 @@ export class WidgetRenderingHandler {
             const messages: string[] = (data?.messages as string[])?.length ? data.messages : undefined;
 
             switch (statusCode) {
-            case StatusCode.NOT_FOUND:
-            case StatusCode.I_AM_A_TEAPOT:
-                this.setPreviewType(PREVIEW_TYPE.MISSING, messages || [this.getDefaultMessage()]);
-                break;
-            default:
-                this.setPreviewType(PREVIEW_TYPE.FAILED, messages);
-                break;
+                case StatusCode.NOT_FOUND:
+                case StatusCode.I_AM_A_TEAPOT:
+                    this.setPreviewType(PREVIEW_TYPE.MISSING, messages || [this.getDefaultMessage()]);
+                    break;
+                default:
+                    this.setPreviewType(PREVIEW_TYPE.FAILED, messages);
+                    break;
             }
             this.hideMask();
             return;
@@ -229,8 +235,8 @@ export class WidgetRenderingHandler {
         if (!selectedWidget || !summary) {
             return new RenderResult();
         }
-        const isAuto = selectedWidget.getWidgetDescriptorKey().getName() === PreviewWidgetDropdown.WIDGET_AUTO_DESCRIPTOR;
-        const items = isAuto ? this.renderer.getWidgetSelector().getAutoModeWidgets() : [selectedWidget];
+        const isAuto = selectedWidget.getWidgetDescriptorKey().getName() === WIDGET_AUTO_DESCRIPTOR;
+        const items = isAuto ? $autoModeWidgets.get() : [selectedWidget];
         let response: Response;
         let widget: Widget;
         let isOk: boolean;
@@ -286,6 +292,9 @@ export class WidgetRenderingHandler {
             body.style.display = 'flex';
             body.style.justifyContent = 'center';
             body.style.alignItems = 'center';
+            // Apply theme-aware background color
+            const isDark = getResolvedTheme() === 'dark';
+            body.style.backgroundColor = isDark ? '#242829' : '#ffffff';
         }
 
         let img: HTMLImageElement | SVGElement = frameWindow.document.querySelector('svg');
@@ -309,10 +318,10 @@ export class WidgetRenderingHandler {
         void this.render(this.summary, event.getWidget());
     }
 
-    protected handleEmulatorEvent(event: EmulatedEvent) {
+    protected handleEmulatorEvent(device: EmulatorDevice) {
         if (this.messageView) {
-            this.messageView.getEl().setWidth(event.getWidthWithUnits());
-            this.messageView.getEl().setHeight(event.getHeightWithUnits());
+            this.messageView.getEl().setWidth(device.getWidthWithUnits());
+            this.messageView.getEl().setHeight(device.getHeightWithUnits());
         }
 
         // Keep no selection message intact,
@@ -321,10 +330,12 @@ export class WidgetRenderingHandler {
             this.renderer.getIFrameEl().getHTMLElement(),
             this.messageView.getHTMLElement()
         ];
-        const isFullscreen = event.isFullscreen();
+
+        const isFullscreen = device.equals(EmulatorDevice.getFullscreen())|| !device.isValid();
+
         subjects.forEach(s => {
-            s.style.width = !isFullscreen ? event.getWidthWithUnits() : '';
-            s.style.height = !isFullscreen ? event.getHeightWithUnits() : '';
+            s.style.width = !isFullscreen ? device.getWidthWithUnits() : '';
+            s.style.height = !isFullscreen ? device.getHeightWithUnits() : '';
         });
 
         this.renderer.getEl().toggleClass('emulated', !isFullscreen);
@@ -332,32 +343,42 @@ export class WidgetRenderingHandler {
 
     protected bindListeners() {
         ViewWidgetEvent.on(this.handleWidgetEvent.bind(this));
-
-        EmulatorContext.get().onDeviceChanged(this.handleEmulatorEvent.bind(this));
+        EmulatedDeviceEvent.listen(this.handleEmulatorEvent.bind(this));
 
         const iframe = this.renderer.getIFrameEl();
+        let unsubscribeTheme: () => void;
         iframe.onLoaded((event: UIEvent) => {
             if (this.previewType === PREVIEW_TYPE.EMPTY) {
                 return;
             }
+            // Subscribe to theme changes to update image background
+            unsubscribeTheme = listenKeys($app, ['theme'], () => {
+                if (iframe.getClass() === 'image') {
+                    const frameWindow = iframe.getHTMLElement()['contentWindow'];
+                    if (frameWindow) {
+                        this.applyImageStyles(frameWindow);
+                    }
+                }
+            });
 
             this.hideMask();
 
             const frameWindow = iframe.getHTMLElement()['contentWindow'];
 
             switch (iframe.getClass()) {
-            case 'image':
-                this.applyImageStyles(frameWindow);
-                break;
-            case 'text':
-                try {
-                    frameWindow.addEventListener('click', (event) => this.frameClickHandler(frameWindow, event));
+                case 'image':
+                    this.applyImageStyles(frameWindow);
+                    break;
+                case 'text':
+                    try {
+                        frameWindow.addEventListener('click', (event) => this.frameClickHandler(frameWindow, event));
                 } catch (error) { /* error */ }
-                break;
-            default:
-                break;
+                    break;
+                default:
+                    break;
             }
         });
+        iframe.unLoaded(() => unsubscribeTheme?.());
     }
 
     private frameClickHandler(frameWindow: Window, event: MouseEvent) {
@@ -425,8 +446,6 @@ export interface WidgetRenderer
     getChildrenContainer(): DivEl;
 
     getPreviewAction(): Action;
-
-    getWidgetSelector(): PreviewWidgetDropdown;
 
     getMask(): Mask;
 }

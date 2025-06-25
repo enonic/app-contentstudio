@@ -2,7 +2,7 @@
  * Created on 26.04.2018.
  */
 const OccurrencesFormView = require('./occurrences.form.view');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const InsertLinkDialog = require('./html-area/insert.link.modal.dialog.cke');
 

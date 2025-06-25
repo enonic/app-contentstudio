@@ -42,7 +42,7 @@ describe('folder.wizard.toolbar.spec: tests for toolbar in folder wizard', funct
         let contentWizard = new ContentWizard();
         // 1. Open new folder-wizard
         await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-        await contentWizard.waitForArchiveButtonEnabled();
+        await contentWizard.waitForDeleteButtonEnabled();
         // 2. 'Save' button should be disabled (name input is empty)
         await contentWizard.waitForSaveButtonDisabled();
         // 3 'Create Issue' is Default action

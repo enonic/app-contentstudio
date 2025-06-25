@@ -1,13 +1,13 @@
-import {UriHelper} from '../rendering/UriHelper';
-import {RenderingMode} from '../rendering/RenderingMode';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type ContentSummary} from '../content/ContentSummary';
-import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
-import {RepositoryId} from '../repository/RepositoryId';
 import {ProjectContext} from '../project/ProjectContext';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {RenderingMode} from '../rendering/RenderingMode';
+import {UriHelper} from '../rendering/UriHelper';
+import {RepositoryId} from '../repository/RepositoryId';
 
 interface OpenedWindow {
     openedWindow: Window;
@@ -39,15 +39,15 @@ export class PreviewActionHelper {
         return isBlocked;
     }
 
-    setPreviewUrl(widget: Widget, url?: string) {
+    setPreviewUrl(widget: Readonly<Widget>, url?: string) {
         widget.getConfig().setProperty("previewUrl", url);
     }
 
-    getPreviewUrl(widget: Widget): string {
+    getPreviewUrl(widget: Readonly<Widget>): string {
         return widget.getConfig().getProperty("previewUrl");
     }
 
-    getUrl(content: ContentSummary, widget?: Widget, mode: RenderingMode = RenderingMode.INLINE): string {
+    getUrl(content: ContentSummary, widget?: Readonly<Widget>, mode: RenderingMode = RenderingMode.INLINE): string {
         if (!content) {
             throw new Error('Content parameter is required for preview');
         }
@@ -80,7 +80,7 @@ export class PreviewActionHelper {
     }
 
     // should be called only in async block
-    openWindow(content: ContentSummary, widget?: Widget, mode: RenderingMode = RenderingMode.PREVIEW) {
+    openWindow(content: ContentSummary, widget?: Readonly<Widget>, mode: RenderingMode = RenderingMode.PREVIEW) {
         const targetWindow = this.openBlankWindow(content);
         if (!targetWindow.isBlocked) {
             this.updateLocation(targetWindow.openedWindow, content, widget, mode, false);
@@ -88,7 +88,7 @@ export class PreviewActionHelper {
     }
 
     // should be called only in async block
-    openWindows(contents: ContentSummary[], widget?: Widget, mode: RenderingMode = RenderingMode.PREVIEW) {
+    openWindows(contents: ContentSummary[], widget?: Readonly<Widget>, mode: RenderingMode = RenderingMode.PREVIEW) {
         contents.forEach((content) => this.openWindow(content, widget, mode));
     }
 
@@ -99,7 +99,7 @@ export class PreviewActionHelper {
         return {openedWindow, isBlocked};
     }
 
-    private updateLocation(targetWindow: Window, content: ContentSummary, widget?: Widget, mode?: RenderingMode, focus: boolean = true) {
+    private updateLocation(targetWindow: Window, content: ContentSummary, widget?: Readonly<Widget>, mode?: RenderingMode, focus: boolean = true) {
         targetWindow.location.href = this.getUrl(content, widget, mode);
         if (focus) {
             targetWindow.focus(); // behavior depends on user settings for firefox

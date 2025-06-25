@@ -182,7 +182,8 @@ module.exports = Object.freeze({
         PROJECT_IS_OCCUPIED: 'This project identifier is occupied',
     },
     ISSUES: {
-        TASK_CLOSED: 'Task is closed',
+        STATUS_CLOSED: 'Closed',
+        STATUS_OPEN: 'Open',
         COMMENT_ADDED: 'Your comment is added to the task.',
     },
     PROJECT_ACCESS_MODE: {
@@ -372,7 +373,7 @@ module.exports = Object.freeze({
         DOUBLE_DEFAULT_2_4: 'double2_4_def',
         DOUBLE_0_1: 'double0_1',
         DOUBLE_0_0: 'double0_0',
-        DOUBLE_1_1_X_DATA: 'double1_1',
+        DOUBLE_1_1_X_DATA: "double1_1",
         DOUBLE_2_4: 'double2_4',
         LONG_MIN_MAX: 'long_max',
         TEXTAREA_MAX_LENGTH: 'textarea_conf',
@@ -408,9 +409,6 @@ module.exports = Object.freeze({
         CUSTOM_SELECTOR_0_2: 'custom-selector0_2',
         CUSTOM_SELECTOR_1_1: 'custom-selector1_1',
         CONTENT_SELECTOR_2_8: 'content-selector2_8',
-        CONTENT_SELECTOR_ALLOW_CHILD_FROM_SITE: 'content-sel-conf1',
-        CONTENT_SELECTOR_ALLOW_CHILD_FROM_SITE_NOT_EX: 'content-sel-conf2',
-        CONTENT_SELECTOR_ALLOW_CHILD_FROM_SITE_NOT_EX2: 'content-sel-conf3',
         CONTENT_SELECTOR_1_2: 'content-selector1_2',
         EXPANDED_SINGLE_SELECTION_OPTION_SET: 'optionset-single-selection',
         OPTION_SET: 'optionset',
@@ -436,6 +434,7 @@ module.exports = Object.freeze({
         CUSTOM: 'Custom...',
         CAN_PUBLISH: 'Can Publish',
         CAN_READ: 'Can Read',
+        CAN_WRITE: 'Can Write'
     },
     permissionOperation: {
         READ: 'Read',
@@ -482,13 +481,15 @@ module.exports = Object.freeze({
     STATUS_WIDGET: {
         NEW: 'NEW',
         PUBLISHED: 'PUBLISHED',
+        ONLINE: 'ONLINE',
+        OFFLINE:'OFFLINE',
         MODIFIED: 'MODIFIED',
         MOVED: 'MOVED',
         MOVED_MODIFIED: 'MOVED, MODIFIED',
     },
     CONTENT_STATUS: {
-        NEW: 'New',
-        PUBLISHED: 'Published',
+        OFFLINE: 'Offline',
+        ONLINE:'Online',
         UNPUBLISHED: 'Unpublished',
         MODIFIED: 'Modified',
         MOVED: 'Moved',
@@ -497,24 +498,24 @@ module.exports = Object.freeze({
         SCHEDULED_MODIFIED: 'Scheduled, Modified',
     },
     PUBLISH_MENU: {
-        REQUEST_PUBLISH: 'Request Publishing...',
-        PUBLISH: 'Publish...',
-        PUBLISH_TREE: 'Publish Tree...',
+        REQUEST_PUBLISH: 'Request publishing',
+        PUBLISH: 'Publish',
+        PUBLISH_TREE: 'Publish Tree',
         MARK_AS_READY: 'Mark as ready',
-        UNPUBLISH: 'Unpublish...',
-        CREATE_ISSUE: 'Create Issue...'
+        UNPUBLISH: 'Unpublish',
+        CREATE_ISSUE: 'Create issue'
     },
     GRID_CONTEXT_MENU: {
         NEW: 'New',
         EDIT: 'Edit',
-        ARCHIVE: 'Archive...',
-        DUPLICATE: 'Duplicate...',
-        MOVE: 'Move...',
-        SORT: 'Sort...',
-        RESTORE: 'Restore...',
+        DELETE: 'Delete',
+        DUPLICATE: 'Duplicate',
+        MOVE: 'Move',
+        SORT: 'Sort',
+        RESTORE: 'Restore',
         PREVIEW: 'Preview',
-        PUBLISH: 'Publish...',
-        UNPUBLISH: 'Unpublish...'
+        PUBLISH: 'Publish',
+        UNPUBLISH: 'Unpublish'
     },
     WORKFLOW_STATE: {
         WORK_IN_PROGRESS: 'Work in progress',

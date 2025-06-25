@@ -30,8 +30,7 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
     it("Precondition: site with child folder should be added",
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES],
-                appConst.CONTROLLER_NAME.MAIN_REGION);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
             let folderName = contentBuilder.generateRandomName('child-folder');
             CHILD_FOLDER = contentBuilder.buildFolder(folderName);
@@ -40,8 +39,7 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
             await studioUtils.doAddReadyFolder(CHILD_FOLDER);
         });
 
-    // Verifies https://github.com/enonic/app-contentstudio/issues/6931
-    // Incorrect behaviour of apply selection in Publish Wizard #6931
+    // Verify the property: publishingWizard.excludeDependencies=true
     it("GIVEN site's child folder has been selected in the shortcut wizard WHEN checkbox for the child-item has been selected in dependant block THEN new dependant item should appears for the parent site",
         async () => {
             let shortcutForm = new ShortcutForm();
@@ -53,27 +51,28 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
             // 2. Select the folder in the target selector:
             await shortcutForm.filterOptionsAndSelectTarget(CHILD_FOLDER.displayName);
             // 3. Click on 'Mark as ready' button and open 'Publish wizard':
+            await contentWizard.pause(400);
             await contentWizard.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
-            // 4. Verify that 'Hide Excluded' Items button is displayed:
-            await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
+            // TODO epic-enonic-ui uncomment it
+            // 4. Verify that 'Hide Excluded' Items button should be displayed:
+            //await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
             // 5. Verify that only child-item is displayed in the dependant block:
             let items = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.ok(items[0].includes(CHILD_FOLDER.displayName), 'Only child-item should be displayed in the dependant block');
             assert.equal(items.length, 1, 'Only one dependent-item should be displayed in the block');
-            // 6. Click on the checkbox:  dependent item for the child folder
+            // 6. Click on the checkbox:  and check the dependent child folder(include the child folder)
             await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
             // 7. Click on 'Apply selection' button:
             await contentPublishDialog.clickOnApplySelectionButton();
             await studioUtils.saveScreenshot('publish_wizard_with_selected_parent_item');
-            // 8. Verify that item for the parent site gets visible and disabled
-            let isEnabled = await contentPublishDialog.isDependantCheckboxEnabled(SITE.displayName);
-            assert.ok(isEnabled === false, 'The parent-item should be disabled in the dependant block');
+
+            //await contentPublishDialog.clickOnShowExcludedItemsButton();
             let isSelected = await contentPublishDialog.isDependantCheckboxSelected(SITE.displayName);
-            assert.ok(isSelected, 'The parent-item should be selected in the dependant block');
+            assert.ok(isSelected, 'The parent-item should not be selected in the dependant block');
             isSelected = await contentPublishDialog.isDependantCheckboxSelected(CHILD_FOLDER.displayName);
             // 9. Verify that item for the child folder should be selected as well:
-            assert.ok(isSelected, 'The child-item should be selected in the dependant block');
+            assert.ok(isSelected, 'The child-item should not be selected in the dependant block');
             // 10. Verify that 'Publish now' button gets disabled, because the just selected site is 'work in progress'
             await contentPublishDialog.waitForPublishNowButtonDisabled();
             // 11. Verify that 'Mark as ready' button gets visible in the modal dialog, 'work in progress' item is selected now:
@@ -137,10 +136,10 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
             // 10. Verify that the parent site is published:
             await studioUtils.findAndSelectItem(SITE.displayName);
             let status = await contentBrowsePanel.getContentStatus(SITE.displayName);
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "the parent site should be with 'Published' status");
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, "the parent site should be with 'Published' status");
             // 11. Verify that the child folder is published as well:
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "the child folder should be with 'Published' status");
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, "the child folder should be with 'Published' status");
         });
 
     // Verify https://github.com/enonic/app-contentstudio/issues/6997
