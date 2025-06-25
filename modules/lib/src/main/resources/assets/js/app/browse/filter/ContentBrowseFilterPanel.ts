@@ -1,32 +1,42 @@
-import Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Router} from '../../Router';
-import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ContentQuery} from '../../content/ContentQuery';
 import {AggregationGroupView} from '@enonic/lib-admin-ui/aggregation/AggregationGroupView';
-import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
-import {BrowseFilterPanel} from '@enonic/lib-admin-ui/app/browse/filter/BrowseFilterPanel';
-import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
 import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
-import {BucketAggregationView} from '@enonic/lib-admin-ui/aggregation/BucketAggregationView';
-import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
-import {ProjectContext} from '../../project/ProjectContext';
-import {ContentSummary} from '../../content/ContentSummary';
-import {ContentId} from '../../content/ContentId';
-import {DependenciesSection} from './DependenciesSection';
-import {ContentAggregation} from './ContentAggregation';
-import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
-import {ContentAggregationsFetcher} from './ContentAggregationsFetcher';
-import {FilterableAggregationGroupView} from './FilterableAggregationGroupView';
-import {AggregationsQueryResult} from './AggregationsQueryResult';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ContentExportElement} from './ContentExportElement';
-import {ContentDependency} from './ContentDependency';
+import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {BrowseFilterPanel} from '@enonic/lib-admin-ui/app/browse/filter/BrowseFilterPanel';
 import {TextSearchField} from '@enonic/lib-admin-ui/app/browse/filter/TextSearchField';
-import {Branch} from '../../versioning/Branch';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {cn} from '@enonic/ui';
+import Q from 'q';
+import {
+    $contentFilterState,
+    deselectAllFilterBuckets,
+    getFilterSelection,
+    getFilterValue,
+    hasFilterSet,
+    hasFilterValueSet,
+    resetContentFilter, setContentFilterSelection
+} from '../../../v6/features/store/contentFilter.store';
+import {ContentId} from '../../content/ContentId';
+import {ContentQuery} from '../../content/ContentQuery';
+import {ContentSummary} from '../../content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
+import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
+import {ProjectContext} from '../../project/ProjectContext';
+import {Router} from '../../Router';
+import {BrowseFilterElement} from '../../../v6/features/views/browse/layout/BrowseFilter';
+import {Branch} from '../../versioning/Branch';
+import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
+import {AggregationsQueryResult} from './AggregationsQueryResult';
+import {ContentAggregation} from './ContentAggregation';
+import {ContentAggregationsFetcher} from './ContentAggregationsFetcher';
+import {ContentDependency} from './ContentDependency';
+import {ContentExportElement} from './ContentExportElement';
+import {DependenciesSection} from './DependenciesSection'
 
 export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus>
     extends BrowseFilterPanel<T> {
@@ -40,15 +50,26 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
     private elementsContainer: Element;
     private exportElement?: ContentExportElement;
     private targetBranch: Branch = Branch.DRAFT;
+    private filterComponent: BrowseFilterElement;
 
     constructor() {
         super();
 
-        this.addClass('content-browse-filter-panel');
+        this.addClass(cn('content-browse-filter-panel bg-surface-neutral text-main'));
         this.aggregationsFetcher = this.createAggregationFetcher();
+        this.displayNamesResolver = new AggregationsDisplayNamesResolver();
+        this.dependenciesSection = new DependenciesSection();
 
+        this.filterComponent = new BrowseFilterElement({
+            bucketAggregations: [],
+            filterableAggregations: this.getFilterableAggregations(),
+            exportOptions: this.getExportOptions(),
+        });
+
+        this.appendChild(this.filterComponent);
+
+        this.handleEvents();
         this.getAndUpdateAggregations();
-        this.initElementsAndListeners();
     }
 
     protected createAggregationFetcher(): ContentAggregationsFetcher {
@@ -71,17 +92,17 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         });
     }
 
-    protected initElementsAndListeners() {
-        if (this.isExportAllowed()) {
-            this.exportElement = new ContentExportElement().setEnabled(false).setTitle(i18n('action.export')) as ContentExportElement;
-        }
-
-        this.handleEvents();
-    }
-
     protected handleEvents() {
         this.onRendered(() => {
             super.appendChild(this.elementsContainer);
+        });
+
+        const unsubscribe = $contentFilterState.listen(() => {
+            this.search();
+        });
+
+        this.onRemoved(() => {
+            unsubscribe();
         });
 
         this.handleEventsForDependenciesSection();
@@ -126,65 +147,39 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         });
     }
 
-    protected createHitsCountContainer(): DivEl {
-        const hitsCounterAndClearButtonWrapper = super.createHitsCountContainer();
-        if (this.exportElement) {
-            hitsCounterAndClearButtonWrapper.appendChild(this.exportElement);
-        }
+    protected getFilterableAggregations(): { name: string; idsToKeepOnTop?: string[] }[] {
+        const currentUserKey = AuthContext.get().getUser().getKey().toString();
 
-        return hitsCounterAndClearButtonWrapper;
+        return [
+            {
+                name: ContentAggregation.OWNER.toString(),
+                idsToKeepOnTop: [currentUserKey]
+            },
+            {
+                name: ContentAggregation.MODIFIED_BY.toString(),
+                idsToKeepOnTop: [currentUserKey]
+            },
+        ];
     }
 
-    protected getAggregationEnum(): Record<string, string> {
-        return ContentAggregation;
-    }
+    getExportOptions(): { label?: string; action: () => void } {
+        this.exportElement = new ContentExportElement().setEnabled(false).setTitle(i18n('action.export')) as ContentExportElement;
 
-    protected getGroupViews(): AggregationGroupView[] {
-        this.aggregations = new Map<string, AggregationGroupView>();
-
-        const aggregationEnum = this.getAggregationEnum();
-        for (let aggrEnum in aggregationEnum) {
-            const name: string = aggregationEnum[aggrEnum];
-            this.aggregations.set(name, this.createGroupView(name));
-        }
-
-        return Array.from(this.aggregations.values());
-    }
-
-    protected isPrincipalAggregation(name: string): boolean {
-        return name === ContentAggregation.OWNER.toString() || name === ContentAggregation.MODIFIED_BY.toString();
-    }
-
-    protected createGroupView(name: string): AggregationGroupView {
-        if (this.isPrincipalAggregation(name)) {
-            const currentUserKey = this.getCurrentUserKeyAsString();
-            if (!this.displayNamesResolver) {
-                this.displayNamesResolver = new AggregationsDisplayNamesResolver(currentUserKey);
+        return {
+            label: i18n('action.export'),
+            action: () => {
+                this.exportElement.handleExportClicked();
             }
-            const aggregationGroupView = new FilterableAggregationGroupView(name, i18n(`field.${name}`));
-            aggregationGroupView.setIdsToKeepOnToTop([currentUserKey]);
-            aggregationGroupView.setResolver(this.displayNamesResolver);
-
-            return aggregationGroupView;
-        }
-
-        return new AggregationGroupView(name, i18n(`field.${name}`));
+        };
     }
 
-    protected appendExtraSections() {
-        super.appendExtraSections();
-        this.dependenciesSection = new DependenciesSection(this.removeDependencyItem.bind(this));
-        this.appendChild(this.dependenciesSection);
-    }
-
-    protected isExportAllowed(): boolean {
-        // add more checks here if needed
-        return true;
+    protected isFilterableAggregation(aggregation: BucketAggregation): boolean {
+        return aggregation.getName() === ContentAggregation.OWNER.toString() || aggregation.getName() ===
+               ContentAggregation.MODIFIED_BY.toString();
     }
 
     private removeDependencyItem() {
         this.dependenciesSection.reset();
-        this.resetConstraints();
         this.search();
         Router.get().back();
     }
@@ -196,7 +191,6 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
             this.selectBucketByTypeOnLoad(type);
         }
 
-        this.setConstraintItems(this.dependenciesSection, [item.getId()]);
         this.dependenciesSection.setDependencyItem(item);
     }
 
@@ -219,7 +213,9 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
     }
 
     private selectContentTypeBucket(key: string): void {
-        (this.aggregations.get(ContentAggregation.CONTENT_TYPE).getAggregationViews()[0] as BucketAggregationView)?.selectBucketViewByKey(key);
+        const aggregationSelection = new AggregationSelection(ContentAggregation.CONTENT_TYPE);
+        aggregationSelection.setValues([new Bucket(key, 0)]);
+        setContentFilterSelection([aggregationSelection]);
     }
 
     searchItemById(id: ContentId): void {
@@ -249,6 +245,39 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         });
     }
 
+    updateAggregations(aggregations: BucketAggregation[]): void {
+        this.filterComponent.updateAggregations(aggregations);
+    }
+
+    getSearchInputValues(): SearchInputValues {
+        const searchInputValues: SearchInputValues = new SearchInputValues();
+
+        searchInputValues.setAggregationSelections(getFilterSelection());
+        searchInputValues.setTextSearchFieldValue(getFilterValue());
+
+        return searchInputValues;
+    }
+
+    hasFilterSet(): boolean {
+        return hasFilterSet();
+    }
+
+    hasSearchStringSet(): boolean {
+        return hasFilterValueSet();
+    }
+
+    resetControls() {
+        resetContentFilter();
+    }
+
+    deselectAll() {
+        deselectAllFilterBuckets();
+    }
+
+    updateHitsCounter(hits: number) {
+        this.filterComponent.updateHitsCounter(hits);
+    }
+
     protected doSearch(): Q.Promise<void> {
         if (!this.isFilteredOrConstrained()) {
             return this.resetFacets();
@@ -275,7 +304,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
             this.updateHitsCounter(aggregationsQueryResult.getMetadata().getTotalHits());
             this.updateExportState(aggregationsQueryResult);
 
-            return this.processAggregations(aggregationsQueryResult.getAggregations()).then(() => {
+            return this.processAggregations(aggregationsQueryResult.getAggregations() as BucketAggregation[]).then(() => {
                 return aggregationsQueryResult;
             });
         });
@@ -292,16 +321,20 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         this.exportElement.setEnabled(aggregationsQueryResult.getMetadata().getTotalHits() > 0);
     }
 
-    private processAggregations(aggregations: Aggregation[]): Q.Promise<void> {
-        this.toggleAggregationsVisibility(aggregations);
+    private processAggregations(aggregations: BucketAggregation[]): Q.Promise<void> {
+        this.sortAggregations(aggregations);
 
-        return this.displayNamesResolver.updateAggregationsDisplayNames(aggregations, this.getCurrentUserKeyAsString()).then(() => {
+        return this.displayNamesResolver.updateAggregationsDisplayNames(aggregations).then(() => {
             this.updateAggregations(aggregations);
         });
     }
 
-    private getCurrentUserKeyAsString(): string {
-        return AuthContext.get().getUser().getKey().toString();
+    private sortAggregations(aggregations: BucketAggregation[]): void {
+        const order = Object.values(ContentAggregation).filter(value => typeof value === 'string') as string[];
+
+        aggregations.sort(
+            (a, b) => order.indexOf(a.getName()) - order.indexOf(b.getName())
+        );
     }
 
     private getAggregations(): Q.Promise<AggregationsQueryResult> {
@@ -333,14 +366,6 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
 
         return null;
     }
-
-    private toggleAggregationsVisibility(aggregations: Aggregation[]) {
-        aggregations.forEach((aggregation: BucketAggregation) => {
-            const isAggregationNotEmpty: boolean = aggregation.getBuckets().some((bucket: Bucket) => bucket.docCount > 0);
-            this.aggregations.get(aggregation.getName()).setVisible(isAggregationNotEmpty);
-        });
-    }
-
 
     // doing a trick to avoid changing lib-admin-ui, adding all children except export button to a wrapper
     appendChild(child: Element, lazyRender?: boolean): Element {

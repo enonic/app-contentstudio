@@ -20,13 +20,17 @@
   },
   "dependencies": {
     "@enonic/lib-admin-ui": "workspace:*",
+    "@radix-ui/react-slot": "^1.2.3",
     "chart.js": "^4.5.1",
     "enonic-admin-artifacts": "^2.4.0",
+    "focus-trap-react": "^11.0.4",
     "jquery": "^3.7.1",
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.14.1",
     "lib-contentstudio": "workspace:*",
+    "lucide-react": "^0.545.0",
     "nanostores": "^0.11.4",
+    "preact": "^10.27.2",
     "q": "^1.5.1"
   },
   "devDependencies": {

@@ -12,7 +12,6 @@ import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
 import {ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
@@ -62,6 +61,7 @@ import {ContentSelectorDropdownOptions} from '../../inputtype/selector/ContentSe
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {CSPrincipalCombobox} from '../../security/CSPrincipalCombobox';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -509,7 +509,7 @@ export class IssueDetailsDialog
 
             return IssueDetailsDialog.makeLabelWithCounter(containsOnlyScheduled ? i18n('action.updateScheduled') : i18n('action.publishNow'), itemsCount);
         } else {
-            return i18n('action.publishMore');
+            return i18n('action.publish');
         }
     }
 
@@ -518,7 +518,7 @@ export class IssueDetailsDialog
 
         this.updateItemsCount();
         this.updateControls(count);
-        this.actionButton.setLabel(this.getPublishButtonLabel(count));
+        this.publishAction.setLabel(this.getPublishButtonLabel(count));
         this.scheduleAction.setLabel(IssueDetailsDialog.makeLabelWithCounter(i18n('action.schedule'), count));
     }
 
@@ -882,28 +882,28 @@ export class IssueDetailsDialog
     }
 
     private createCloseButton() {
-        const closeButton: DialogButton = this.getButtonRow().addAction(this.closeAction);
+        const closeButton = this.getButtonRow().addAction(this.closeAction);
         closeButton.addClass('close-issue force-enabled');
     }
 
     private createReopenButton() {
-        const reopenButton: DialogButton = this.getButtonRow().addAction(this.reopenAction);
+        const reopenButton = this.getButtonRow().addAction(this.reopenAction);
         reopenButton.addClass('reopen-issue green force-enabled');
     }
 
     private createAddCommentButton() {
-        const commentButton: DialogButton = this.getButtonRow().addAction(this.commentAction);
+        const commentButton = this.getButtonRow().addAction(this.commentAction);
         commentButton.addClass('comment-issue force-enabled');
     }
 
-    private createPublishButton(): DialogButton {
-        const publishButton: DialogButton = this.getButtonRow().addAction(this.publishAction, true);
+    private createPublishButton(): ActionButton {
+        const publishButton = this.getButtonRow().addAction(this.publishAction, true);
         publishButton.addClass('publish-issue');
         return publishButton;
     }
 
-    private createScheduleButton(): DialogButton {
-        const scheduleButton: DialogButton = this.getButtonRow().addAction(this.scheduleAction);
+    private createScheduleButton(): ActionButton {
+        const scheduleButton = this.getButtonRow().addAction(this.scheduleAction);
         scheduleButton.addClass('schedule-issue');
         return scheduleButton;
     }

@@ -9,7 +9,7 @@ export class DuplicateContentAction
     extends Action {
 
     constructor(wizardPanel: WizardPanel<Content>) {
-        super(i18n('action.duplicateMore'));
+        super(i18n('action.duplicate'));
         this.onExecuted(() => {
             const content = ContentSummaryAndCompareStatus.fromContentSummary(wizardPanel.getPersistedItem());
             new ContentDuplicatePromptEvent([content]).setOpenActionAfterDuplicate(true).fire();
