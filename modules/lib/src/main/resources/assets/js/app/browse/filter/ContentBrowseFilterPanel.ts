@@ -148,7 +148,7 @@ export class ContentBrowseFilterPanel
 
     protected appendExtraSections() {
         super.appendExtraSections();
-        this.dependenciesSection = new DependenciesSection(this.removeDependencyItem.bind(this));
+        this.dependenciesSection = new DependenciesSection();
         this.appendChild(this.dependenciesSection);
     }
 

@@ -5,7 +5,6 @@ import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
 import {Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
-import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
 import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -17,6 +16,7 @@ import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfConte
 import {DependantItemViewer} from './DependantItemViewer';
 import {DialogDependantItemsList, ObserverConfig, SelectionType} from './DialogDependantItemsList';
 import {DialogMainItemsList} from './DialogMainItemsList';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 
 enum DependantsStatus {
     HAS_EXCLUDED = 'has-excluded',
@@ -38,7 +38,7 @@ export interface DependantItemsDialogConfig
 export abstract class DependantItemsDialog
     extends ModalDialogWithConfirmation {
 
-    protected actionButton: DialogButton;
+    protected actionButton: ActionButton;
 
     private ignoreItemsChanged: boolean;
 
