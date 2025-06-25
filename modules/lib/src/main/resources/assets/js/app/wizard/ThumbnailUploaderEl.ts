@@ -7,8 +7,8 @@ import {UrlHelper} from '../util/UrlHelper';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {ContentPath} from '../content/ContentPath';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {WorkflowStateManager, type WorkflowStateStatus} from './WorkflowStateManager';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import type {ContentState} from '../content/ContentState';
 
 export class ThumbnailUploaderEl
     extends UploaderEl<Content> {
@@ -66,17 +66,23 @@ export class ThumbnailUploaderEl
         return new ImgEl(value);
     }
 
-    setStatus(status: WorkflowStateStatus): void {
+    setStatus(status: ContentState | null): void {
         if (!this.statusBlock) {
             this.statusBlock = new DivEl('workflow-status');
             this.appendNewItems([this.statusBlock]);
         }
 
+        if (!status) {
+            this.statusBlock.setClass('workflow-status');
+            this.statusBlock.getEl().removeAttribute('title');
+            return;
+        }
+
         this.statusBlock.setClass(`workflow-status icon-state-${status}`);
 
-        if (WorkflowStateManager.isReady(status)) {
+        if (status === 'ready') {
             this.statusBlock.setTitle(i18n('tooltip.state.ready'));
-        } else if (WorkflowStateManager.isInProgress(status)) {
+        } else if (status === 'in-progress') {
             this.statusBlock.setTitle(i18n('tooltip.state.in_progress'));
         } else {
             this.statusBlock.getEl().removeAttribute('title');

@@ -1,6 +1,8 @@
 import {ContentDuplicatePromptEvent} from '../ContentDuplicatePromptEvent';
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
+import {openDuplicateDialog} from '../../../v6/features/store/dialogs/duplicateDialog.store';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
@@ -8,19 +10,14 @@ import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/li
 export class DuplicateContentAction
     extends ContentTreeGridAction {
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.duplicateMore'));
+    constructor() {
+        super(i18n('action.duplicate'));
 
         this.setEnabled(false).setClass('duplicate');
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedItems();
-
-        new ContentDuplicatePromptEvent(contents)
-            .setYesCallback(() => {
-                this.grid.deselect(this.grid.getSelectedItems());
-            }).fire();
+        openDuplicateDialog([...getCurrentItems()]);
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

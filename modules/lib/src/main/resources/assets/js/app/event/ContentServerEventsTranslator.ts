@@ -5,29 +5,40 @@ import {ServerEventsTranslator} from '@enonic/lib-admin-ui/event/ServerEventsTra
 import {ArchiveServerEvent} from './ArchiveServerEvent';
 import {ContentServerEvent} from './ContentServerEvent';
 import {IssueServerEvent} from './IssueServerEvent';
+import {type PermissionsEventJson, PermissionsServerEvent} from './PermissionsServerEvent';
 import {PrincipalServerEvent} from './PrincipalServerEvent';
 
 export class ContentServerEventsTranslator
     extends ServerEventsTranslator {
 
+    private isNodeEventJson(eventJson: EventJson): eventJson is NodeEventJson {
+        return Array.isArray((eventJson as NodeEventJson).data?.nodes);
+    }
+
     translateServerEvent(eventJson: EventJson): Event {
         const eventType: string = eventJson.type;
 
         if (eventType.indexOf('node.') === 0) {
-            if (ArchiveServerEvent.is(eventJson as NodeEventJson)) {
-                return ArchiveServerEvent.fromJson(eventJson as NodeEventJson);
+            if (PermissionsServerEvent.is(eventJson)) {
+                return PermissionsServerEvent.fromJson(eventJson as PermissionsEventJson);
             }
 
-            if (ContentServerEvent.is(eventJson as NodeEventJson)) {
-                return ContentServerEvent.fromJson(eventJson as NodeEventJson);
-            }
+            if (this.isNodeEventJson(eventJson)) {
+                if (ArchiveServerEvent.is(eventJson)) {
+                    return ArchiveServerEvent.fromJson(eventJson);
+                }
 
-            if (IssueServerEvent.is(eventJson as NodeEventJson)) {
-                return IssueServerEvent.fromJson(eventJson as NodeEventJson);
-            }
+                if (ContentServerEvent.is(eventJson)) {
+                    return ContentServerEvent.fromJson(eventJson);
+                }
 
-            if (PrincipalServerEvent.is(eventJson as NodeEventJson)) {
-                return PrincipalServerEvent.fromJson(eventJson as NodeEventJson);
+                if (IssueServerEvent.is(eventJson)) {
+                    return IssueServerEvent.fromJson(eventJson);
+                }
+
+                if (PrincipalServerEvent.is(eventJson)) {
+                    return PrincipalServerEvent.fromJson(eventJson);
+                }
             }
         }
 

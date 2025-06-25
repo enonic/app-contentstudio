@@ -13,7 +13,7 @@ public class GetContentVersionsJson
 
     @JsonCreator
     public GetContentVersionsJson( @JsonProperty("size") final Integer size,
-                                    @JsonProperty("cursor") final String cursor,
+                                   @JsonProperty("cursor") final String cursor,
                                    @JsonProperty("contentId") final String contentId )
     {
         this.cursor = cursor;

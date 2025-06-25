@@ -28,3 +28,9 @@ testing/allure-results
 .bin
 .pnpm-store
 **/.webpack-cache
+
+# AI Assistant
+settings.local.json
+
+# Workflow
+.worktrees/

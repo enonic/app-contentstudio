@@ -1,39 +1,38 @@
-import Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import Q from 'q';
 
 
-import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {type TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
+import {type ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
 import {ManagedActionState} from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
-import {type ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {type ContentTreeGridAction} from './action/ContentTreeGridAction';
-import {ShowNewContentDialogAction} from './action/ShowNewContentDialogAction';
-import {PreviewContentAction} from './action/PreviewContentAction';
-import {EditContentAction} from './action/EditContentAction';
-import {DuplicateContentAction} from './action/DuplicateContentAction';
-import {ArchiveContentAction} from './action/ArchiveContentAction';
-import {MoveContentAction} from './action/MoveContentAction';
-import {SortContentAction} from './action/SortContentAction';
-import {PublishContentAction} from './action/PublishContentAction';
-import {PublishTreeContentAction} from './action/PublishTreeContentAction';
-import {UnpublishContentAction} from './action/UnpublishContentAction';
-import {MarkAsReadyContentAction} from './action/MarkAsReadyContentAction';
-import {RequestPublishContentAction} from './action/RequestPublishContentAction';
-import {CreateIssueAction} from './action/CreateIssueAction';
-import {ToggleSearchPanelAction} from './action/ToggleSearchPanelAction';
-import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
 import {Permission} from '../access/Permission';
-import {ContentTreeGridItemsState} from './action/ContentTreeGridItemsState';
-import {GetPermittedActionsRequest} from '../resource/GetPermittedActionsRequest';
 import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentType} from '../inputtype/schema/ContentType';
+import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
+import {GetPermittedActionsRequest} from '../resource/GetPermittedActionsRequest';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {type HasUnpublishedChildren, type HasUnpublishedChildrenResult} from '../resource/HasUnpublishedChildrenResult';
-import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
-import {type ContentType} from '../inputtype/schema/ContentType';
+import {ArchiveContentAction} from './action/ArchiveContentAction';
+import {type ContentTreeGridAction} from './action/ContentTreeGridAction';
+import {ContentTreeGridItemsState} from './action/ContentTreeGridItemsState';
+import {CreateIssueAction} from './action/CreateIssueAction';
+import {DuplicateContentAction} from './action/DuplicateContentAction';
+import {EditContentAction} from './action/EditContentAction';
+import {MarkAsReadyContentAction} from './action/MarkAsReadyContentAction';
+import {MoveContentAction} from './action/MoveContentAction';
+import {PreviewContentAction} from './action/PreviewContentAction';
+import {PublishContentAction} from './action/PublishContentAction';
+import {PublishTreeContentAction} from './action/PublishTreeContentAction';
+import {RequestPublishContentAction} from './action/RequestPublishContentAction';
+import {ShowNewContentDialogAction} from './action/ShowNewContentDialogAction';
+import {SortContentAction} from './action/SortContentAction';
+import {ToggleSearchPanelAction} from './action/ToggleSearchPanelAction';
+import {UnpublishContentAction} from './action/UnpublishContentAction';
 import {State} from './State';
 
 
@@ -44,8 +43,6 @@ export enum ActionName {
 
 export class ContentTreeActions implements TreeGridActions<ContentSummaryAndCompareStatus> {
 
-    private readonly grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>;
-
     private actionsMap: Map<ActionName, ContentTreeGridAction> = new Map<ActionName, ContentTreeGridAction>();
 
     private beforeActionsStashedListeners: (() => void)[] = [];
@@ -54,27 +51,26 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
 
     private state: State = State.ENABLED;
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        this.grid = grid;
+    constructor() {
         this.initActions();
         this.initListeners();
     }
 
     private initActions() {
-        this.actionsMap.set(ActionName.SHOW_NEW_DIALOG, new ShowNewContentDialogAction(this.grid));
-        this.actionsMap.set(ActionName.PREVIEW, new PreviewContentAction(this.grid));
-        this.actionsMap.set(ActionName.EDIT, new EditContentAction(this.grid));
-        this.actionsMap.set(ActionName.ARCHIVE, new ArchiveContentAction(this.grid));
-        this.actionsMap.set(ActionName.DUPLICATE, new DuplicateContentAction(this.grid));
-        this.actionsMap.set(ActionName.MOVE, new MoveContentAction(this.grid));
-        this.actionsMap.set(ActionName.SORT, new SortContentAction(this.grid));
-        this.actionsMap.set(ActionName.PUBLISH, new PublishContentAction(this.grid));
-        this.actionsMap.set(ActionName.PUBLISH_TREE, new PublishTreeContentAction(this.grid));
-        this.actionsMap.set(ActionName.UNPUBLISH, new UnpublishContentAction(this.grid));
-        this.actionsMap.set(ActionName.MARK_AS_READY, new MarkAsReadyContentAction(this.grid));
-        this.actionsMap.set(ActionName.REQUEST_PUBLISH, new RequestPublishContentAction(this.grid));
-        this.actionsMap.set(ActionName.CREATE_ISSUE, new CreateIssueAction(this.grid));
-        this.actionsMap.set(ActionName.TOGGLE_SEARCH_PANEL, new ToggleSearchPanelAction(this.grid));
+        this.actionsMap.set(ActionName.SHOW_NEW_DIALOG, new ShowNewContentDialogAction());
+        this.actionsMap.set(ActionName.PREVIEW, new PreviewContentAction());
+        this.actionsMap.set(ActionName.EDIT, new EditContentAction());
+        this.actionsMap.set(ActionName.ARCHIVE, new ArchiveContentAction());
+        this.actionsMap.set(ActionName.DUPLICATE, new DuplicateContentAction());
+        this.actionsMap.set(ActionName.MOVE, new MoveContentAction());
+        this.actionsMap.set(ActionName.SORT, new SortContentAction());
+        this.actionsMap.set(ActionName.PUBLISH, new PublishContentAction());
+        this.actionsMap.set(ActionName.PUBLISH_TREE, new PublishTreeContentAction());
+        this.actionsMap.set(ActionName.UNPUBLISH, new UnpublishContentAction());
+        this.actionsMap.set(ActionName.MARK_AS_READY, new MarkAsReadyContentAction());
+        this.actionsMap.set(ActionName.REQUEST_PUBLISH, new RequestPublishContentAction());
+        this.actionsMap.set(ActionName.CREATE_ISSUE, new CreateIssueAction());
+        this.actionsMap.set(ActionName.TOGGLE_SEARCH_PANEL, new ToggleSearchPanelAction());
     }
 
     private initListeners() {
@@ -89,10 +85,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
         };
 
         ManagedActionManager.instance().onManagedActionStateChanged(managedActionsHandler);
-
-        this.grid.onRemoved(() => {
-            ManagedActionManager.instance().unManagedActionStateChanged(managedActionsHandler);
-        });
+        // No need to unsubscribe here, as tree never gets removed
     }
 
     setState(state: State) {

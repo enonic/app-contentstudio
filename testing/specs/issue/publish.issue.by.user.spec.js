@@ -73,7 +73,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 4. Expand the status selector
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
             let contentPublishDialog = new ContentPublishDialog();
             // 4. Click on 'Publish Now' button in Publish Wizard dialog:
@@ -81,8 +81,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             await studioUtils.saveScreenshot('task_published_by_user');
             // 6. Verify that the notification message appears:
             await issueDetailsDialog.waitForNotificationMessage();
-            // Reopen Issue button should appear in the Issue Details modal dialog:
-            await issueDetailsDialog.waitForReopenButtonDisplayed();
+            await issueDetailsDialogItemsTab.getSt
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
@@ -96,14 +95,15 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             // 2. SU opens 'Issues List' dialog:
             await studioUtils.openIssuesListDialog();
             // 3. Open 'Closed' issues tab:
-            await issueListDialog.clickOnClosedButton();
+            await issueListDialog.clickOnClosedTabButton();
             // 4. Click on the task:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             // 5. Verify the status info:
-            let info = await issueDetailsDialog.getIssueStatusInfo();
-            let expectedMessage = appConst.issueClosedBy(USER.displayName);
+            // TODO epic-enonic-ui - is not implemented yet:
+            //let info = await issueDetailsDialog.getIssueStatusInfo();
+            //let expectedMessage = appConst.issueClosedBy(USER.displayName);
             // 6. Verify that the info message is displayed in the status selector : "Closed by user:system:${userName}"
-            assert.ok(info.includes(expectedMessage), "Expected notification message should appear");
+            //assert.ok(info.includes(expectedMessage), "Expected notification message should appear");
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });

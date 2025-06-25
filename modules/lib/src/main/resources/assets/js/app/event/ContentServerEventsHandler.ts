@@ -13,6 +13,7 @@ import {RepositoryId} from '../repository/RepositoryId';
 import {type ContentId} from '../content/ContentId';
 import {type ContentPath} from '../content/ContentPath';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
+import {PermissionsServerEvent} from './PermissionsServerEvent';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {MovedContentItem} from '../browse/MovedContentItem';
 
@@ -24,6 +25,10 @@ export const CONTENT_SERVER_EVENTS_HANDLER_KEY: string = 'ContentServerEventsHan
 export class ContentServerEventsHandler {
 
     private handler: (event: BatchContentServerEvent) => void;
+
+    private archiveHandler: (event: ArchiveServerEvent) => void;
+
+    private permissionsHandler: (event: PermissionsServerEvent) => void;
 
     private contentCreatedListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
 
@@ -47,7 +52,7 @@ export class ContentServerEventsHandler {
 
     private contentSortListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
 
-    private contentPermissionsUpdatedListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
+    private contentPermissionsUpdatedListeners: ((contentIds: ContentId[]) => void)[] = [];
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher = new ContentSummaryAndCompareStatusFetcher();
 
@@ -69,13 +74,23 @@ export class ContentServerEventsHandler {
             this.handler = this.contentServerEventHandler.bind(this);
         }
 
-        BatchContentServerEvent.on(this.handler);
+        if (!this.archiveHandler) {
+            this.archiveHandler = (event: ArchiveServerEvent) => {
+                if (event.getNodeChange().getChangeType() === NodeServerChangeType.MOVE) {
+                    this.handleContentRestored(event.getNodeChange().getChangeItems());
+                }
+            };
+        }
 
-        ArchiveServerEvent.on((event: ArchiveServerEvent) => {
-            if (event.getNodeChange().getChangeType() === NodeServerChangeType.MOVE) {
-                this.handleContentRestored(event.getNodeChange().getChangeItems());
-            }
-        });
+        if (!this.permissionsHandler) {
+            this.permissionsHandler = (event: PermissionsServerEvent) => {
+                this.handleContentPermissionsUpdated([event.getChangeItem().getContentId()]);
+            };
+        }
+
+        BatchContentServerEvent.on(this.handler);
+        ArchiveServerEvent.on(this.archiveHandler);
+        PermissionsServerEvent.on(this.permissionsHandler);
     }
 
     stop() {
@@ -83,9 +98,19 @@ export class ContentServerEventsHandler {
             BatchContentServerEvent.un(this.handler);
             this.handler = null;
         }
+
+        if (this.archiveHandler) {
+            ArchiveServerEvent.un(this.archiveHandler);
+            this.archiveHandler = null;
+        }
+
+        if (this.permissionsHandler) {
+            PermissionsServerEvent.un(this.permissionsHandler);
+            this.permissionsHandler = null;
+        }
     }
 
-    onContentPermissionsUpdated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
+    onContentPermissionsUpdated(listener: (contentIds: ContentId[]) => void) {
         this.contentPermissionsUpdatedListeners.push(listener);
     }
 
@@ -184,11 +209,9 @@ export class ContentServerEventsHandler {
         this.notifyContentSorted(data);
     }
 
-    unContentPermissionsUpdated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
+    unContentPermissionsUpdated(listener: (contentIds: ContentId[]) => void) {
         this.contentPermissionsUpdatedListeners =
-            this.contentPermissionsUpdatedListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
-                return currentListener !== listener;
-            });
+            this.contentPermissionsUpdatedListeners.filter((currentListener) => currentListener !== listener);
     }
 
     onContentCreated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
@@ -415,8 +438,6 @@ export class ContentServerEventsHandler {
             this.handleDeleteAndUnPublish(changeItems);
         } else if (type === NodeServerChangeType.MOVE) {
             this.handleMovedAndArchived(changeItems);
-        } else if (type === NodeServerChangeType.UPDATE_PERMISSIONS) {
-            this.handleContentPermissionsUpdated(this.extractContentIds(changeItems));
         } else {
             this.handleEventByType(changeItems, type);
         }
@@ -518,14 +539,12 @@ export class ContentServerEventsHandler {
         if (ContentServerEventsHandler.debug) {
             console.debug('ContentServerEventsHandler: permissions updated', contentIds);
         }
-        this.contentFetcher.fetchAndUpdateReadonly(contentIds).then((summaries: ContentSummaryAndCompareStatus[]) =>
-            this.notifyContentPermissionsUpdated(summaries)
-        );
+        this.notifyContentPermissionsUpdated(contentIds);
     }
 
-    private notifyContentPermissionsUpdated(contentSummaries: ContentSummaryAndCompareStatus[]) {
-        this.contentPermissionsUpdatedListeners.forEach((listener: (contentSummaries: ContentSummaryAndCompareStatus[]) => void) => {
-            listener(contentSummaries);
+    private notifyContentPermissionsUpdated(contentIds: ContentId[]) {
+        this.contentPermissionsUpdatedListeners.forEach((listener) => {
+            listener(contentIds);
         });
     }
 

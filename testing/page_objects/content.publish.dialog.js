@@ -1,12 +1,13 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const lib = require('../libs/elements');
+const lib = require('../libs/elements-old');
+const {BUTTONS, DIALOG_ITEMS, COMMON, LIVE_VIEW, WIZARD} = require('../libs/elements');
 const DateTimeRange = require('../page_objects/components/datetime.range');
 const DependantsControls = require('./issue/dependant.controls');
 const DateTimePickerPopup = require('../page_objects/wizardpanel/time/date.time.picker.popup');
 
 const XPATH = {
-    container: "//div[contains(@id,'ContentPublishDialog')]",
+    container: "//div[contains(@role,'dialog') and descendant::h2[contains(.,'Publishing Wizard')]]",
     dialogTitle: "//h2[text()='Publishing Wizard']",
     dialogStateBarDiv: "//div[contains(@id,'DialogStateBar')]",
     logMessageLink: "//div[contains(@class,'content-dialog-sub-title')]/a",
@@ -20,8 +21,9 @@ const XPATH = {
     changeLogInput: "//input[contains(@id,'AutosizeTextInput')]",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     readyForPublishingText: "//span[contains(@class,'entry-text') and text()='Content is ready for publishing']",
-    mainItemDivByName: name => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`,
-    inProgressStateEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-in-progress')]]",
+    mainItemDivByName: name => DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name),
+    // `//div[@data-component='ContentRow' and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${name}')]]]`,
+    inProgressStateEntryDiv: "//div[contains(@data-component,'SelectionStatusBar') and descendant::span[contains(.,'In progress')]]",
     invalidStateEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-invalid')]]",
     inProgressSpan: "//span[contains(@class,'entry-text') and text()='In progress']",
     contentSummaryByDisplayName: displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
@@ -48,8 +50,8 @@ class ContentPublishDialog extends Page {
         return XPATH.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Cancel');
     }
 
-    get cancelButtonTop() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
+    get closeButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
 
     get dependantsBlock() {
@@ -61,11 +63,11 @@ class ContentPublishDialog extends Page {
     }
 
     get showExcludedItemsButton() {
-        return XPATH.container + lib.togglerButton('Show excluded');
+        return XPATH.container + BUTTONS.buttonByLabel('Show excluded');
     }
 
     get hideExcludedItemsButton() {
-        return XPATH.container + lib.togglerButton('Hide excluded');
+        return XPATH.container + BUTTONS.buttonByLabel('Hide excluded');
     }
 
     get logMessageLink() {
@@ -73,11 +75,11 @@ class ContentPublishDialog extends Page {
     }
 
     get publishNowButton() {
-        return XPATH.container + lib.actionButton('Publish Now');
+        return XPATH.container + BUTTONS.buttonAriaLabel('Publish now');
     }
 
     get updateScheduledButton() {
-        return XPATH.container + lib.actionButton('Update Scheduled');
+        return XPATH.container + BUTTONS.buttonAriaLabel('Update Scheduled');
     }
 
     get addScheduleIcon() {
@@ -93,7 +95,7 @@ class ContentPublishDialog extends Page {
     }
 
     get markAsReadyButton() {
-        return XPATH.container + XPATH.inProgressStateEntryDiv + lib.actionButton('Mark as ready');
+        return XPATH.container + XPATH.inProgressStateEntryDiv + BUTTONS.button('Mark as ready');
     }
 
     // Invalid item(s) Exclude button:
@@ -265,8 +267,7 @@ class ContentPublishDialog extends Page {
 
     async waitForDialogClosed() {
         try {
-            await this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout);
-            await this.pause(500);
+            await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError(`Publish Dialog, wait for dialog to be closed `, 'err_close_publish_dialog', err);
         }
@@ -450,22 +451,26 @@ class ContentPublishDialog extends Page {
         return this.waitForElementNotClickable(this.publishNowButton, appConst.mediumTimeout);
     }
 
-    async isRemoveItemIconEnabled(name) {
-        let locator = XPATH.mainItemDivByName(name);
-        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
-        let attr = await this.getAttribute(locator, 'class');
-        return attr.includes('removable');
+    async isRemoveItemIconDisabled(name) {
+        try {
+            let locator = XPATH.container + XPATH.mainItemDivByName(name) + DIALOG_ITEMS.CONTENT_REMOVE_BUTTON;
+            await this.waitForElementDisplayed(locator);
+            let attr = await this.getAttribute(locator, 'aria-disabled');
+            return attr;
+        } catch (err) {
+            await this.handleError(`Publish Dialog, tried to check the remove icon for item ${name} `, 'err_remove_item_icon', err);
+        }
     }
 
     async clickOnRemoveItemIcon(name) {
-        let locator = XPATH.mainItemDivByName(name) + `//div[@class='icon remove']`;
+        let locator = XPATH.container + XPATH.mainItemDivByName(name) + DIALOG_ITEMS.CONTENT_REMOVE_BUTTON;
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         await this.clickOnElement(locator);
     }
 
-    async clickOnCancelTopButton() {
-        await this.pause(400);
-        await this.clickOnElement(this.cancelButtonTop);
+    async clickOnCloseButton() {
+        await this.waitForElementDisplayed(this.closeButton);
+        await this.clickOnElement(this.closeButton);
     }
 
     async typeInOnlineFrom(dateTime) {
@@ -499,8 +504,9 @@ class ContentPublishDialog extends Page {
         }
     }
 
+    // TODO epic-enonic-ui
     async getNumberItemsToPublish() {
-        let selector = XPATH.container + `//button[contains(@id,'ActionButton')]/span[contains(.,'Publish Now')]`;
+        let selector = this.publishNowButton;
         let number = await this.getText(selector);
         let startIndex = number.indexOf('(');
         if (startIndex === -1) {
@@ -644,7 +650,8 @@ class ContentPublishDialog extends Page {
             await this.handleError(`Publish Dialog, 'Update Scheduled' button should be disabled, `, 'err_update_scheduled_button', err);
         }
     }
-    async clickOnUpdateScheduledButton(){
+
+    async clickOnUpdateScheduledButton() {
         try {
             await this.clickOnElement(this.updateScheduledButton);
             return await this.pause(300);

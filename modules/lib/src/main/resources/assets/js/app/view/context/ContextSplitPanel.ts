@@ -1,4 +1,5 @@
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {type Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {type Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from '@enonic/lib-admin-ui/ui/panel/SplitPanel';
 import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
@@ -7,12 +8,11 @@ import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveMa
 import {type ResponsiveRange} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {InspectEvent} from '../../event/InspectEvent';
 import {ContextPanelState} from './ContextPanelState';
 import {type ContextView} from './ContextView';
 import {type DockedContextPanel} from './DockedContextPanel';
-import {type Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export enum ContextPanelMode {
     DOCKED = 'docked',
@@ -22,7 +22,7 @@ export enum ContextPanelMode {
 export class ContextSplitPanel
     extends SplitPanel {
 
-    public static CONTEXT_MIN_WIDTH: number = 280;
+    public static CONTEXT_MIN_WIDTH: number = 310;
 
     private contextPanelMode: ContextPanelMode;
     private contextPanelState: ContextPanelState = ContextPanelState.COLLAPSED;
@@ -55,6 +55,9 @@ export class ContextSplitPanel
         this.dockedContextPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
 
         InspectEvent.on((event: InspectEvent) => {
+            if(event.isSetWidget()) {
+                this.contextView.setActiveExtensionByType(event.getWidgetType());
+            }
             if (event.isShowPanel() && this.isRendered() && !this.isExpanded()) {
                 this.showContextPanel();
             }
@@ -135,6 +138,10 @@ export class ContextSplitPanel
         if (this.dockedContextPanel.getItem()) {
             this.contextView.updateActiveExtension();
         }
+    }
+
+    getSplitterThickness(): number {
+        return 1;
     }
 
     private resetToggleButtonActiveState(): void {

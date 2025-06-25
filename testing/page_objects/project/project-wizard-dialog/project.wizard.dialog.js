@@ -2,47 +2,39 @@
  * Created on 05.08.2022
  */
 const Page = require('../../page');
-const lib = require('../../../libs/elements');
+const {BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
-    container: "//div[contains(@id,'ProjectWizardDialog')]",
+    container: "//div[@role='dialog']",
     title: "//h6[@class='xp-admin-common-main-name']",
-    stepDescription: "//p[@class='xp-admin-common-sub-name']",
+    stepDescription: "//header//p[2]",
     buttonRow: "//div[contains(@class,'button-container')]",
     copyFromParentButton: parent => `//button[contains(@id,'Button') and child::span[text()='Copy from ${parent}']]`,
 };
 
 class ProjectWizardDialog extends Page {
 
-    get cancelButtonTop() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
+    get container() {
+        return XPATH.container;
+    }
+
+    get closeButton() {
+        return this.container + BUTTONS.buttonAriaLabel('Close');
     }
 
     get nextButton() {
-        return XPATH.container + lib.dialogButton('Next');
+        return this.container + BUTTONS.buttonByLabel('Next');
     }
 
-    get backButton() {
-        return XPATH.container + lib.dialogButton('Back');
+    get previousButton() {
+        return this.container + BUTTONS.buttonByLabel('Previous');
     }
 
-    get skipButton() {
-        return XPATH.container + lib.dialogButton('Skip');
-    }
-
-    async waitForSkipButtonDisplayed() {
-        try {
-            return await this.waitUntilDisplayed(this.skipButton, appConst.mediumTimeout);
-        } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_skip_button'));
-            throw new Error('Skip button is not displayed: ' + err);
-        }
-    }
 
     async waitForCopyFromParentButtonNotDisplayed(parent) {
         try {
-            let locator = XPATH.container + XPATH.copyFromParentButton(parent)
+            let locator = this.container + XPATH.copyFromParentButton(parent)
             return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
@@ -52,7 +44,7 @@ class ProjectWizardDialog extends Page {
 
     async waitForCopyFromParentButtonDisplayed(parent) {
         try {
-            let locator = XPATH.container + XPATH.copyFromParentButton(parent)
+            let locator = this.container + XPATH.copyFromParentButton(parent)
             return await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
@@ -62,7 +54,7 @@ class ProjectWizardDialog extends Page {
 
     async waitForCopyFromParentButtonDisabled(parent) {
         try {
-            let locator = XPATH.container + XPATH.copyFromParentButton(parent);
+            let locator = this.container + XPATH.copyFromParentButton(parent);
             await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
             let elements = await this.getDisplayedElements(locator);
             await elements[0].waitForEnabled(
@@ -75,7 +67,7 @@ class ProjectWizardDialog extends Page {
 
     async waitForCopyFromParentButtonEnabled(parent) {
         try {
-            let locator = XPATH.container + XPATH.copyFromParentButton(parent);
+            let locator = this.container + XPATH.copyFromParentButton(parent);
             await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
             let elements = await this.getDisplayedElements(locator);
             await elements[0].waitForEnabled(
@@ -88,34 +80,13 @@ class ProjectWizardDialog extends Page {
 
     async clickOnCopyFromParentButton(parent) {
         try {
-            let locator = XPATH.container + XPATH.copyFromParentButton(parent);
+            let locator = this.container + XPATH.copyFromParentButton(parent);
             await this.waitForCopyFromParentButtonDisplayed(parent);
             let elements = await this.getDisplayedElements(locator);
             return await elements[0].click();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
             throw new Error(`Click on 'Copy from parent' button, screenshot:${screenshot} ` + err);
-        }
-    }
-
-    async waitForSkipButtonEnabled() {
-        try {
-            await this.waitForSkipButtonDisplayed();
-            return await this.waitForElementEnabled(this.skipButton, appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_skip_button');
-            throw new Error(`Skip button is not enabled: screenshot: ${screenshot} ` + err);
-        }
-    }
-
-    async clickOnSkipButton() {
-        try {
-            await this.waitForSkipButtonDisplayed();
-            await this.waitForSkipButtonEnabled();
-            await this.clickOnElement(this.skipButton);
-            return await this.pause(300);
-        } catch (err) {
-            throw new Error("Error occurred during clicking on Skip button: " + err);
         }
     }
 
@@ -158,22 +129,20 @@ class ProjectWizardDialog extends Page {
         }
     }
 
-    async waitForBackButtonDisplayed() {
+    async waitForPreviousButtonDisplayed() {
         try {
-            return await this.waitUntilDisplayed(this.backButton, appConst.mediumTimeout);
+            return await this.waitUntilDisplayed(this.previousButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_back_button');
-            throw new Error('Back button is not displayed: screenshot ' + screenshot + ' ' + err);
+            await this.handleError('Previous button is not displayed', 'err_previous_button', err);
         }
     }
 
-    async clickOnCancelButtonTop() {
+    async clickOnCloseButton() {
         try {
-            await this.clickOnElement(this.cancelButtonTop);
+            await this.clickOnElement(this.closeButton);
             return await this.waitForDialogClosed();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_cancel_button');
-            throw new Error('Project Wizard dialog, error when clicking on Cancel(Top) button  ' + err);
+            await this.handleError('Error occurred during clicking on Close button', 'err_close_button', err);
         }
     }
 
@@ -181,33 +150,25 @@ class ProjectWizardDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(XPATH.container, appConst.saveProjectTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_wizard_not_closed');
-            throw new Error('Project Wizard dialog should be closed, screenshot ' + screenshot + '  ' + err);
-        }
-    }
-
-    async waitForCancelButtonTopDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.cancelButtonTop, appConst.shortTimeout);
-        } catch (err) {
-            throw new Error('Project Wizard dialog - Cancel button is not displayed :' + err);
+           await this.handleError('Project Wizard dialog was not closed', 'err_dialog_not_closed', err);
         }
     }
 
     async getTitle() {
-        return await this.getText(XPATH.container + XPATH.title);
+        return await this.getText(this.container + XPATH.title);
     }
 
     async getStepDescription() {
-        await this.waitForElementDisplayed(XPATH.container + XPATH.stepDescription, appConst.mediumTimeout);
-        return await this.getText(XPATH.container + XPATH.stepDescription);
+        let locator = this.container + XPATH.stepDescription;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 
     async clickOnBackButton() {
         try {
-            await this.waitForBackButtonDisplayed();
-            await this.waitForElementEnabled(this.backButton, appConst.mediumTimeout);
-            return await this.clickOnElement(this.backButton);
+            await this.waitForPreviousButtonDisplayed();
+            await this.waitForElementEnabled(this.previousButton, appConst.mediumTimeout);
+            return await this.clickOnElement(this.previousButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_back_button');
             throw new Error('Error after clicking on Back button, Screenshot: ' + screenshot + '  ' + err);

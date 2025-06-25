@@ -1,9 +1,10 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
+import type {InternalExtensionType} from '../view/context/ExtensionView';
 import {type PageNavigationEventSource} from '../wizard/PageNavigationEventData';
 
-export class InspectEvent
-    extends Event {
+export class InspectEvent extends Event {
+    private readonly widgetType: InternalExtensionType;
 
     private readonly showExtension: boolean;
 
@@ -15,8 +16,13 @@ export class InspectEvent
         super();
 
         this.showExtension = builder.showExtension;
+        this.widgetType = builder.widgetType;
         this.showPanel = builder.showPanel;
         this.source = builder.source;
+    }
+
+    isSetWidget(): boolean {
+        return this.widgetType !== undefined;
     }
 
     isShowExtension(): boolean {
@@ -31,6 +37,10 @@ export class InspectEvent
         return this.source;
     }
 
+    getWidgetType(): InternalExtensionType {
+        return this.widgetType;
+    }
+
     static on(handler: (event: InspectEvent) => void) {
         Event.bind(ClassHelper.getFullName(this), handler);
     }
@@ -42,16 +52,21 @@ export class InspectEvent
     static create(): InspectEventBuilder {
         return new InspectEventBuilder();
     }
-
 }
 
 export class InspectEventBuilder {
+    widgetType: InternalExtensionType;
 
     showExtension: boolean;
 
     showPanel: boolean;
 
     source: PageNavigationEventSource;
+
+    setWidgetType(value: InternalExtensionType): InspectEventBuilder {
+        this.widgetType = value;
+        return this;
+    }
 
     setShowExtension(value: boolean): InspectEventBuilder {
         this.showExtension = value;

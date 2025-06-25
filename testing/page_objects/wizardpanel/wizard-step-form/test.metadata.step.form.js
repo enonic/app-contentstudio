@@ -2,7 +2,7 @@
  * Created on 8.02.2018.
  */
 const Page = require('../../page');
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 
 const XPATH = {
     metadataWizardTabBarItem: `//li[contains(@id,'TabBarItem')]/a[text()='SEO Metadata']`,

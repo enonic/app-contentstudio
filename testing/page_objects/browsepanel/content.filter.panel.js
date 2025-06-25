@@ -1,16 +1,16 @@
 /**
- * Created on 1.12.2017.
+ * Created on 1.12.2017. updated for epic-enonic-ui on 26.02.2026
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
+const {BUTTONS} = require('../../libs/elements');
 const FilterableListBox = require('../components/selectors/filterable.list.box');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowseFilterPanel')]",
-    hitsAndClearDiv: "//div[contains(@class,'hits-and-clear')]",
     clearFilterLink: "//a[contains(@id,'ClearFilterButton')]",
-    searchInput: "//input[contains(@id,'TextSearchField')]",
+    searchInput: "//input[contains(@aria-label,'Search')]",
     dependenciesSection: "//div[contains(@id,'DependenciesSection')]",
     showResultsButton: "//span[contains(@class,'show-filter-results')]",
     showMoreButton: "//button[child::span[text()='Show more']]",
@@ -20,8 +20,8 @@ const XPATH = {
     selectorOptionItemByLabel: label => `//ul[contains(@id,'BucketListBox')]//div[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${label}')]]`,
     ownerAggregationGroupView: "//div[contains(@id,'FilterableAggregationGroupView') and child::h2[text()='Owner']]",
     lastModifiedByAggregationGroupView: "//div[contains(@id,'FilterableAggregationGroupView') and child::h2[text()='Last Modified by']]",
-    aggregationGroupByName: name => `//div[contains(@id,'AggregationContainer')]//div[contains(@id,'AggregationGroupView') and child::h2[text()='${name}']]`,
-    aggregationLabelByName: name => `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]//label`,
+    aggregationGroupByName: name => `//div[child::h4[text()='${name}']]`,
+    aggregationLabelByName: name => `//label[child::input[@type='checkbox'] and descendant::span[contains(.,'${name}')]]`,
     folderAggregation: () => `//div[contains(@class,'checkbox') and child::label[contains(.,'Folder') and not(contains(.,'Template'))]]//label`,
     aggregationCheckboxByName: name => `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]` + lib.CHECKBOX_INPUT,
     lastModifiedAggregationEntry:
@@ -35,19 +35,16 @@ class BrowseFilterPanel extends Page {
     }
 
     get exportButton() {
-        return XPATH.container + XPATH.hitsAndClearDiv + "//span[contains(@id,'ContentExportElement')]";
-    }
-
-    get showResultsButton() {
-        return XPATH.container + XPATH.showResultsButton;
+        return XPATH.container + BUTTONS.buttonAriaLabel('Export');
     }
 
     get showMoreButton() {
-        return XPATH.container + "//div[contains(@id,'AggregationGroupView') and child::h2[text()='Content Types']]" + XPATH.showMoreButton;
+        return `${XPATH.container}//div[child::h4[text()='Content Types']]${BUTTONS.buttonAriaLabel('Show more')}`;
+
     }
 
     get showLessButton() {
-        return XPATH.container + "//div[contains(@id,'AggregationGroupView') and child::h2[text()='Content Types']]" + XPATH.showLessButton;
+        return `${XPATH.container}//div[child::h4[text()='Content Types']]${BUTTONS.buttonAriaLabel('Show less')}`;
     }
 
 
@@ -59,14 +56,12 @@ class BrowseFilterPanel extends Page {
         return XPATH.container + XPATH.searchInput;
     }
 
-
     async typeSearchText(text) {
         try {
             await this.typeTextInInput(this.searchTextInput, text);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_filter_input');
-            throw new Error("Error when type text in Search Input, screenshot: " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Search Input', 'err_filter_input', err);
         }
     }
 
@@ -74,8 +69,7 @@ class BrowseFilterPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.exportButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_export_btn');
-            throw new Error("Error - Export button should be displayed, screenshot: " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Export Button should be displayed', 'err_export_btn', err);
         }
     }
 
@@ -83,33 +77,16 @@ class BrowseFilterPanel extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.exportButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_export_btn');
-            throw new Error("Error - Export button should not be displayed, screenshot: " + screenshot + ' ' + err);
-        }
-    }
-
-    async waitForExportButtonDisabled() {
-        try {
-            await this.getBrowser().waitUntil(async () => {
-                let text = await this.getAttribute(this.exportButton, "class");
-                return text.includes('disabled');
-            }, {timeout: appConst.shortTimeout, timeoutMsg: "'Export' button should be disabled"});
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_export_btn');
-            throw new Error("Error - Export button should be disabled, screenshot: " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Export Button should not be displayed', 'err_export_btn_not_displayed', err);
         }
     }
 
     async waitForExportButtonEnabled() {
         try {
             await this.waitForExportButtonDisplayed();
-            await this.getBrowser().waitUntil(async () => {
-                let text = await this.getAttribute(this.exportButton, "class");
-                return !text.includes('disabled');
-            }, {timeout: appConst.shortTimeout, timeoutMsg: "'Export' button should be enabled"});
+            await this.waitForElementEnabled(this.exportButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_export_btn');
-            throw new Error("Error - Export button should be enabled, screenshot: " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Export Button should be enabled', 'err_export_btn_enabled', err);
         }
     }
 
@@ -121,10 +98,6 @@ class BrowseFilterPanel extends Page {
     async waitForOpened() {
         await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
         await this.pause(300);
-    }
-
-    waitForShowResultsButtonDisplayed() {
-        return this.waitForElementDisplayed(this.showResultsButton, appConst.mediumTimeout);
     }
 
     waitForShowMoreButtonDisplayed() {
@@ -152,16 +125,6 @@ class BrowseFilterPanel extends Page {
         return this.waitForElementNotDisplayed(this.showLessButton, appConst.shortTimeout);
     }
 
-    async clickOnShowResultsButton() {
-        try {
-            await this.waitForShowResultsButtonDisplayed();
-            return await this.clickOnElement(this.showResultsButton);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_show_results_button');
-            throw new Error("Error when click on Show Results button, screenshot: " + screenshot + ' ' + err);
-        }
-    }
-
     async waitForCloseDependenciesSectionButtonDisplayed() {
         try {
             let el = await this.findElements(this.closeDependenciesSectionButtonLocator);
@@ -184,14 +147,11 @@ class BrowseFilterPanel extends Page {
         return this.waitForElementNotDisplayed(this.clearFilterLink, appConst.mediumTimeout)
     }
 
-    async waitForDependenciesSectionVisible(ms) {
+    async waitForDependenciesSectionVisible(ms = appConst.mediumTimeout) {
         try {
-            let timeout;
-            timeout = ms === undefined ? appConst.mediumTimeout : ms;
-            return await this.waitForElementDisplayed(XPATH.container + XPATH.dependenciesSection, timeout)
+            return await this.waitForElementDisplayed(XPATH.container + XPATH.dependenciesSection, ms)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_load_dependencies_section');
-            throw new Error("Filter Panel: Dependencies section should be visible! screenshot " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Dependencies section should be visible', 'err_dependencies_section', err);
         }
     }
 
@@ -212,10 +172,9 @@ class BrowseFilterPanel extends Page {
             }
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             await this.clickOnElement(selector);
-            return await this.pause(1200);
+            return await this.pause(700);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_content_types_filtering');
-            throw new Error("Error, checkbox in Content Types aggregation block, screenshot " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Tried to click on checkbox in  aggregation block', 'err_click_checkbox', err);
         }
     }
 
@@ -276,7 +235,7 @@ class BrowseFilterPanel extends Page {
             let endIndex = label.indexOf(')');
             return label.substring(startIndex + 1, endIndex);
         } catch (err) {
-            await this.handleError('Filter Panel: Tried to get the number in aggregation','err_numb_in_aggregation', err);
+            await this.handleError('Filter Panel: Tried to get the number in aggregation', 'err_numb_in_aggregation', err);
         }
     }
 

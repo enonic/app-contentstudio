@@ -1,15 +1,15 @@
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {type CreateHtmlAreaDialogEvent} from './CreateHtmlAreaDialogEvent';
-import {type ContentSummary} from '../../../content/ContentSummary';
 import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {type ContentSummary} from '../../../content/ContentSummary';
 import {type Project} from '../../../settings/data/project/Project';
+import {type CreateHtmlAreaDialogEvent} from './CreateHtmlAreaDialogEvent';
 
 export class HtmlEditorParams {
 
     private readonly content?: ContentSummary; // used for image dialog
     private readonly applicationKeys: ApplicationKey[]; // used for macro dialog
-    private readonly project?: Project; // used to set correct requests paths in dialogs
+    private readonly project?: Readonly<Project>; // used to set correct requests paths in dialogs
 
     private readonly assetsUri: string;
     private readonly editorContainerId: string;
@@ -185,7 +185,7 @@ export class HtmlEditorParams {
         return this.langDirection;
     }
 
-    getProject(): Project {
+    getProject(): Readonly<Project> {
         return this.project;
     }
 
@@ -244,7 +244,7 @@ export class HtmlEditorParamsBuilder {
 
     langDirection: LangDirection = LangDirection.AUTO;
 
-    project: Project;
+    project: Readonly<Project>;
 
     label: string;
 
@@ -359,7 +359,7 @@ export class HtmlEditorParamsBuilder {
         return this;
     }
 
-    setProject(value: Project): HtmlEditorParamsBuilder {
+    setProject(value: Readonly<Project>): HtmlEditorParamsBuilder {
         this.project = value;
         return this;
     }

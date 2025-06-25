@@ -113,7 +113,7 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+        await studioUtils.navigateToContentStudioSelectDefault();
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

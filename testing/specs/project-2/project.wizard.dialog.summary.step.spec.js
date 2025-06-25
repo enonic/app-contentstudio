@@ -58,8 +58,8 @@ describe('project.wizard.dialog.summary.step.spec - ui-tests for Summary wizard 
             assert.equal(actualParentProject, 'Default (default)');
             let actualDefaultLanguage = await summaryStep.getDefaultLanguage();
             assert.equal(actualDefaultLanguage, appConst.LANGUAGES.EN, "Expected language should be displayed");
-            // 7. Verify that 'Back' button is displayed
-            await summaryStep.waitForBackButtonDisplayed();
+            // 7. Verify that 'Previous' button is displayed
+            await summaryStep.waitForPreviousButtonDisplayed();
         });
 
     beforeEach(async () => {

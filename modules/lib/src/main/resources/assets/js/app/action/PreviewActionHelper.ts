@@ -1,13 +1,13 @@
-import {UriHelper} from '../rendering/UriHelper';
-import {RenderingMode} from '../rendering/RenderingMode';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type ContentSummary} from '../content/ContentSummary';
-import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
-import {RepositoryId} from '../repository/RepositoryId';
 import {ProjectContext} from '../project/ProjectContext';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {RenderingMode} from '../rendering/RenderingMode';
+import {UriHelper} from '../rendering/UriHelper';
+import {RepositoryId} from '../repository/RepositoryId';
 
 interface OpenedWindow {
     openedWindow: Window;
@@ -39,15 +39,15 @@ export class PreviewActionHelper {
         return isBlocked;
     }
 
-    setPreviewUrl(extension: Extension, url?: string) {
-        extension.getConfig().setProperty("previewUrl", url);
+    setPreviewUrl(widget: Readonly<Extension>, url?: string) {
+        widget.getConfig().setProperty("previewUrl", url);
     }
 
-    getPreviewUrl(extension: Extension): string {
-        return extension.getConfig().getProperty("previewUrl");
+    getPreviewUrl(widget: Readonly<Extension>): string {
+        return widget.getConfig().getProperty("previewUrl");
     }
 
-    getUrl(content: ContentSummary, extension?: Extension, mode: RenderingMode = RenderingMode.INLINE): string {
+    getUrl(content: ContentSummary, extension?: Readonly<Extension>, mode: RenderingMode = RenderingMode.INLINE): string {
         if (!content) {
             throw new Error('Content parameter is required for preview');
         }
@@ -80,7 +80,7 @@ export class PreviewActionHelper {
     }
 
     // should be called only in async block
-    openWindow(content: ContentSummary, extension?: Extension, mode: RenderingMode = RenderingMode.PREVIEW) {
+    openWindow(content: ContentSummary, extension?: Readonly<Extension>, mode: RenderingMode = RenderingMode.PREVIEW) {
         const targetWindow = this.openBlankWindow(content);
         if (!targetWindow.isBlocked) {
             this.updateLocation(targetWindow.openedWindow, content, extension, mode, false);
@@ -88,8 +88,8 @@ export class PreviewActionHelper {
     }
 
     // should be called only in async block
-    openWindows(contents: ContentSummary[], extension?: Extension, mode: RenderingMode = RenderingMode.PREVIEW) {
-        contents.forEach((content) => this.openWindow(content, extension, mode));
+    openWindows(contents: ContentSummary[], widget?: Readonly<Extension>, mode: RenderingMode = RenderingMode.PREVIEW) {
+        contents.forEach((content) => this.openWindow(content, widget, mode));
     }
 
     // should be called only in async block
@@ -99,8 +99,8 @@ export class PreviewActionHelper {
         return {openedWindow, isBlocked};
     }
 
-    private updateLocation(targetWindow: Window, content: ContentSummary, extension?: Extension, mode?: RenderingMode, focus: boolean = true) {
-        targetWindow.location.href = this.getUrl(content, extension, mode);
+    private updateLocation(targetWindow: Window, content: ContentSummary, widget?: Readonly<Extension>, mode?: RenderingMode, focus: boolean = true) {
+        targetWindow.location.href = this.getUrl(content, widget, mode);
         if (focus) {
             targetWindow.focus(); // behavior depends on user settings for firefox
         }

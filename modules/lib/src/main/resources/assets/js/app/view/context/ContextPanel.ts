@@ -1,9 +1,9 @@
-import type Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import type Q from 'q';
+import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {type ContextView} from './ContextView';
 import {type ExtensionView} from './ExtensionView';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 
 export class ContextPanel
     extends Panel {

@@ -18,7 +18,7 @@ export class CreateHtmlAreaDialogEvent
 
     private readonly type: HtmlAreaDialogType;
 
-    private readonly project?: Project;
+    private readonly project?: Readonly<Project>;
 
     constructor(builder: CreateHtmlAreaDialogEventBuilder) {
         super();
@@ -37,7 +37,7 @@ export class CreateHtmlAreaDialogEvent
     }
 
     getProject(): Project {
-        return this.project;
+        return this.project as Project;
     }
 
     static create(): CreateHtmlAreaDialogEventBuilder {
@@ -59,7 +59,7 @@ export class CreateHtmlAreaDialogEventBuilder {
 
     type: HtmlAreaDialogType;
 
-    project: Project;
+    project: Readonly<Project>;
 
     setType(type: HtmlAreaDialogType): this {
         this.type = type;
@@ -71,7 +71,7 @@ export class CreateHtmlAreaDialogEventBuilder {
         return this;
     }
 
-    setProject(project: Project): this {
+    setProject(project: Readonly<Project>): this {
         this.project = project;
         return this;
     }

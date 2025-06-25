@@ -2,7 +2,7 @@
  * Created on 24.12.2024
  */
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
-const lib = require('../../../../libs/elements');
+const lib = require('../../../../libs/elements-old');
 const appConst = require('../../../../libs/app_const');
 const utils = require('../../../../libs/studio.utils');
 const InsertLinkDialog = require('../../html-area/insert.link.modal.dialog.cke');

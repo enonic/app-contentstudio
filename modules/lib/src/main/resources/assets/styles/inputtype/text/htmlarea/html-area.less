@@ -18,6 +18,11 @@
     display: none;
   }
 
+  .cke_inner,
+  .cke_contents {
+    border-radius: 0.25rem;
+  }
+
   .cke_contents {
     min-height: 200px;
   }
@@ -97,9 +102,6 @@
   }
 
   .cke_focus {
-    box-shadow: 0 0 5px @admin-input-blue;
-    .input-border(@admin-input-blue);
-
     .cke_top, .cke_bottom {
       display: block;
     }

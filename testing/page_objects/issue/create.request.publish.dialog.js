@@ -1,32 +1,26 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const lib = require('./../../libs/elements');
+const {BUTTONS, DIALOG_ITEMS, SELECTION_STATUS_BAR} = require('./../../libs/elements');
 const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown');
 const DependantsControls = require('./dependant.controls');
+const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 
 const xpath = {
-    container: `//div[contains(@id,'RequestContentPublishDialog')]`,
-    createRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Create request')]]`,
-    changesInput: `//div[contains(@id,'FormItem') and descendant::span[text()='Describe the changes']]`,
-    publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
-    dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
+    container: `//div[@data-component='RequestPublishDialogContent']`,
+    titleInput: "//div[descendant::div[text()='Title']]/following-sibling::div[1]//input[contains(@class,'text')]",
+    commentTextArea: "//div[descendant::div[text()='Add a comment']]/following-sibling::div[1]//textarea",
+    invalidItemsDiv: "//div[@data-component='SelectionStatusBar' and descendant::span[contains(.,'Invalid items')]]",
+    //publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
     warningMessagePart2: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part2']",
     invalidIcon: "//span[contains(@class,'icon-state-invalid')]",
     errorEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'error-entry')]",
-    excludeInvalidItems: "//button[child::span[contains(.,'Exclude')]]",
     inProgressEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-in-progress')]]",
     invalidEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-invalid')]]",
-    contentSummaryByDisplayName:
-        displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
-    itemToRequest:
-        displayName => `//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
-    contentStatus:
-        displayName => `//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
 
 };
 // Modal Dialog for creating of new publish request
-// Select a content then expand Publish menu and click on 'Request Publishing...' menu item
+// Select a content then expand Publish menu and click on 'Request Publishing' menu item
 class CreateRequestPublishDialog extends Page {
 
     constructor() {
@@ -34,44 +28,44 @@ class CreateRequestPublishDialog extends Page {
         this.dependantsControls = new DependantsControls(xpath.container);
     }
 
+    get container() {
+        return xpath.container;
+    }
+
     get dependantsBlock() {
-        return xpath.container + lib.DEPENDANTS.DEPENDANTS_BLOCK;
+        return xpath.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV;
     }
 
     get invalidIcon() {
         return xpath.container + xpath.invalidEntryDiv + xpath.invalidIcon;
     }
 
-    get nextButton() {
-        return xpath.container + lib.actionButton('Next');
-    }
-
-    get cancelButtonTop() {
-        return xpath.container + lib.CANCEL_BUTTON_TOP;
-    }
-
-    get previousButton() {
-        return xpath.container + lib.dialogButton('Previous');
+    get closeButton() {
+        return xpath.container + BUTTONS.buttonAriaLabel('Close');
     }
 
     get markAsReadyButton() {
-        return xpath.container + xpath.inProgressEntryDiv + lib.actionButton('Mark as ready');
+        return xpath.container + SELECTION_STATUS_BAR.buttonByLabel('Mark as ready');
     }
 
     get excludeItemsInProgressButton() {
-        return xpath.container + xpath.inProgressEntryDiv + lib.PUBLISH_DIALOG.EXCLUDE_BTN;
+        return xpath.container + SELECTION_STATUS_BAR.buttonByLabel('Exclude');
     }
 
     get excludeInvalidItemsButton() {
-        return xpath.container + xpath.invalidEntryDiv + xpath.excludeInvalidItems;
+        return xpath.container + xpath.invalidItemsDiv + SELECTION_STATUS_BAR.buttonByLabel('Exclude');
     }
 
     get createRequestButton() {
-        return xpath.container + xpath.createRequestButton;
+        return xpath.container + BUTTONS.buttonByLabel('Create request');
     }
 
-    get describeChangesInput() {
-        return xpath.container + xpath.changesInput + lib.TEXT_INPUT;
+    get titleInput() {
+        return xpath.container + xpath.titleInput;
+    }
+
+    get commentTextArea() {
+        return xpath.container + xpath.commentTextArea;
     }
 
     get warningMessagePart1() {
@@ -100,8 +94,8 @@ class CreateRequestPublishDialog extends Page {
         }
     }
 
-    async clickOnCancelButtonTop() {
-        await this.clickOnElement(this.cancelButtonTop);
+    async clickOnCloseButton() {
+        await this.clickOnElement(this.closeButton);
         return await this.waitForDialogClosed();
     }
 
@@ -110,18 +104,16 @@ class CreateRequestPublishDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_mark_as_ready_btn');
-            throw new Error(`Request Publishing, Mark as ready button is not displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Request Publishing, Mark as ready button should be visible`, 'err_mark_as_ready_btn', err);
         }
     }
 
     // dialog-state-bar
     async waitForMarkAsReadyButtonNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
+            return await this.waitForElementNotDisplayed(this.markAsReadyButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_mark_as_ready_btn');
-            throw new Error(`Request Publishing, Mark as ready button should be not visible, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Request Publishing, Mark as ready button should be not visible`, 'err_mark_as_ready_btn', err);
         }
     }
 
@@ -149,13 +141,36 @@ class CreateRequestPublishDialog extends Page {
         return await this.pause(500);
     }
 
-    async isItemRemovable(displayName) {
-        let selector = xpath.itemToRequest(displayName);
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        let attr = await this.getAttribute(selector, 'class');
-        return attr.includes('removable');
+
+    // return the value of 'aria-disabled' attribute, if the button is disabled it should return 'true', otherwise 'false'
+    async isRemoveItemIconDisabled(name) {
+        try {
+            let locator = xpath.container + DIALOG_ITEMS.mainItemDivByName(name) + DIALOG_ITEMS.CONTENT_REMOVE_BUTTON;
+            await this.waitForElementDisplayed(locator);
+            let attr = await this.getAttribute(locator, 'aria-disabled');
+            return attr;
+        } catch (err) {
+            await this.handleError(`Publish Dialog, tried to check the remove icon for item ${name} `, 'err_remove_item_icon', err);
+        }
     }
 
+    async clickOnDropDownHandleInItemsToPublishCombobox() {
+        try {
+            let contentSelector = new ContentSelectorDropdown(this.container);
+            await contentSelector.clickOnDropdownHandle();
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError('Request Publish Dialog tried to click on items to publish dropdown handle',
+                'err_click_items_to_publish_dropdown', err);
+        }
+    }
+
+    async clickOnExpanderIconInOptionsList(optionName) {
+        let contentSelector = new ContentSelectorDropdown(xpath.container);
+        return await contentSelector.clickOnExpanderIconInOptionsList(optionName);
+    }
+
+    // TODO epic-enonic-ui
     async clickOnItemToPublishAndSwitchToWizard(displayName) {
         let selector = xpath.publishItemList + xpath.itemToRequest(displayName);
         await this.clickOnElement(selector);
@@ -170,22 +185,6 @@ class CreateRequestPublishDialog extends Page {
 
     waitForNextButtonDisplayed() {
         return this.waitForElementDisplayed(this.nextButton, appConst.mediumTimeout);
-    }
-
-    async waitForNextButtonEnabled() {
-        try {
-            return await this.waitForElementClickable(this.nextButton, appConst.mediumTimeout);
-        } catch (err) {
-            throw new Error("Request Publishing dialog:  'Next' button should be enabled :" + err);
-        }
-    }
-
-    async waitForNextButtonDisabled() {
-        try {
-            return await this.waitForElementNotClickable(this.nextButton, appConst.mediumTimeout);
-        } catch (err) {
-            throw new Error("Request Publishing dialog:  'Next' button should be disabled :" + err);
-        }
     }
 
     async waitForInvalidIconDisplayed() {
@@ -206,32 +205,28 @@ class CreateRequestPublishDialog extends Page {
         }
     }
 
-    waitForPreviousButtonDisplayed() {
-        return this.waitUntilDisplayed(this.previousButton, appConst.mediumTimeout);
-    }
-
-    waitForCreateRequestButtonDisplayed() {
-        return this.waitUntilDisplayed(this.createRequestButton, appConst.mediumTimeout);
-    }
-
     async waitForDialogClosed() {
-        let message = 'Request publish Dialog is not closed! timeout is ' + appConst.mediumTimeout;
+        let message = 'Request publish Dialog was not closed! timeout is ' + appConst.mediumTimeout;
         await this.getBrowser().waitUntil(async () => {
             return await this.isElementNotDisplayed(xpath.container);
         }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
         return await this.pause(400);
     }
 
-    waitForCreateRequestButtonDisabled() {
-        return this.waitForElementDisabled(this.createRequestButton, appConst.mediumTimeout).catch(err => {
-            throw new Error('Request Publishing dialog - Create Request button should be disabled ' + err);
-        })
+    async waitForCreateRequestButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.createRequestButton, appConst.mediumTimeout)
+        } catch (err) {
+            await this.handleError('Request Publishing dialog - Create Request button should be disabled', 'err_create_request_btn', err);
+        }
     }
 
-    waitForCreateRequestButtonEnabled() {
-        return this.waitForElementEnabled(this.createRequestButton, appConst.mediumTimeout).catch(err => {
-            throw new Error('Request Publishing dialog - Create Request button should be enabled !' + err);
-        })
+    async waitForCreateRequestButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.createRequestButton);
+        } catch (err) {
+            await this.handleError('Request Publishing - Create Request button should be enabled', 'err_create_request_btn', err);
+        }
     }
 
     getContentStatus(name) {
@@ -239,43 +234,36 @@ class CreateRequestPublishDialog extends Page {
         return this.getText(selector);
     }
 
-    async clickOnNextButton() {
+    async selectUserInAssignees(userName) {
         try {
-            await this.waitForNextButtonDisplayed();
-            await this.clickOnElement(this.nextButton);
-            return await this.pause(300);
+            let principalComboBox = new PrincipalComboBox(this.container);
+            await principalComboBox.selectFilteredUser(userName);
+            await principalComboBox.clickOnApplySelectionButton();
         } catch (err) {
-            await this.handleError('Request Publish Dialog -  tried to click on Next button', 'err_click_next_btn', err);
+            await this.handleError(`Error when selecting user in Assignees combobox: ${userName}`, 'err_select_user_assignees', err);
         }
     }
 
     async clickOnDropDownHandleInAssigneesCombobox() {
         try {
-            let principalComboBox = new PrincipalComboBox();
-            await principalComboBox.clickOnDropdownHandle(xpath.container);
+            let principalComboBox = new PrincipalComboBox(this.container);
+            await principalComboBox.clickOnDropdownHandle();
             return await this.pause(300);
         } catch (err) {
             await this.handleError('Request Publish Dialog tried to click on Assignees button', 'err_click_assignees_btn', err);
         }
     }
 
+    // TODO: Refactor this method for epic-enonic-ui
     async getOptionsInAssigneesDropdownList() {
-        let principalComboBox = new PrincipalComboBox();
-        return await principalComboBox.getPrincipalsDisplayNameInOptions(xpath.container);
+        let principalComboBox = new PrincipalComboBox(xpath.container);
+        return await principalComboBox.getPrincipalsDisplayNameInOptions();
     }
 
-    async clickOnPreviousButton() {
-        try {
-            await this.waitForPreviousButtonDisplayed();
-            return await this.clickOnElement(this.previousButton);
-        } catch (err) {
-            await this.handleError('Request Publish Dialog tried to click on Previous button', 'err_click_previous_btn', err);
-        }
-    }
 
-    async clickOnIncludeChildItems(displayName) {
+    async clickOnIncludeChildItems(name) {
         try {
-            let includeIcon = xpath.itemToRequest(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
+            let includeIcon = DIALOG_ITEMS.mainItemDivByName(name) + DIALOG_ITEMS.INCLUDE_CHILDREN_CHECKBOX;
             await this.waitForElementDisplayed(includeIcon, appConst.mediumTimeout);
             await this.clickOnElement(includeIcon);
             return await this.pause(1000);
@@ -304,9 +292,22 @@ class CreateRequestPublishDialog extends Page {
         return this.isElementDisplayed(this.warningMessagePart1);
     }
 
-    async typeInChangesInput(changes) {
-        await this.waitForElementDisplayed(this.describeChangesInput);
-        return await this.typeTextInInput(this.describeChangesInput, changes);
+    async typeTextInCommentTextarea(text) {
+        try {
+            await this.waitForElementDisplayed(this.commentTextArea);
+            return await this.typeTextInInput(this.commentTextArea, text);
+        } catch (err) {
+            await this.handleError('Request Publish Dialog - Tried to type a text in Comment textarea', 'err_comment_text_area', err);
+        }
+    }
+
+    async typeInTitleInput(title) {
+        try {
+            await this.waitForElementDisplayed(this.titleInput);
+            return await this.typeTextInInput(this.titleInput, title);
+        } catch (err) {
+            await this.handleError('Request Publish Dialog - Tried to type in Title input', 'err_type_title_input', err);
+        }
     }
 
     async clickOnCreateRequestButton() {

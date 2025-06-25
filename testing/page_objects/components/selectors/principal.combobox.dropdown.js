@@ -1,38 +1,49 @@
 /**
- * Created on 12.02.2024
+ * Created on 12.02.2024  updated on 12.02.2026
  */
 const BasDropdown = require('./base.dropdown');
-const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
+const {DROPDOWN} = require('../../../libs/elements');
 const XPATH = {
-    container: "//div[contains(@id,'CSPrincipalCombobox')]",
     listBoxUL: "//ul[contains(@id,'PrincipalsListBox')]",
     principalViewerDiv: "//div[contains(@id,'PrincipalViewer')]",
 };
 
-class PrincipalComboBox extends BasDropdown {
+class PrincipalSelector extends BasDropdown {
+
+    constructor(parentElementXpath='') {
+        super();
+        this._container = parentElementXpath;
+    }
+
+    optionsFilterInput(ariaLabel = 'Assignees') {
+        return super.optionsFilterInput(ariaLabel);
+    }
 
     get container() {
-        return XPATH.container;
+        return this._container;
     }
 
-    async selectFilteredUser(userDisplayName, parentElement) {
+    get dataComponentDiv() {
+        return "//div[contains(@data-component,'AssigneeSelector')]";
+    }
+
+    async selectFilteredUser(userDisplayName) {
         try {
-            await this.clickOnFilteredByDisplayNameItem(userDisplayName, parentElement);
+            await this.doFilterItem(userDisplayName);
+            await this.clickOnOptionByDisplayName(userDisplayName);
         } catch (err) {
-            await this.handleError('Principal Comboboox selector','err_principal_dropdown',err );
+            await this.handleError(`Principal Selector, tried to click on the option, ${userDisplayName} `, 'err_principal_sel', err);
         }
     }
 
-    async getPrincipalsDisplayNameInOptions(parentXpath) {
-        if (parentXpath === undefined) {
-            parentXpath = '';
-        }
-        let locator = parentXpath + XPATH.listBoxUL + XPATH.principalViewerDiv + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(500);
-        return await this.getTextInDisplayedElements(locator);
+    // Return display names of the options(principal display name) in the dropdown.
+    async getPrincipalsDisplayNameInOptions() {
+        let optionsLocator = DROPDOWN.COMBOBOX_POPUP + "//div[@role='option']/div/div[1]//span[1]";
+        await this.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
+        await this.pause(200);
+        return await this.getTextInDisplayedElements(optionsLocator);
     }
 }
 
-module.exports = PrincipalComboBox;
+module.exports = PrincipalSelector;

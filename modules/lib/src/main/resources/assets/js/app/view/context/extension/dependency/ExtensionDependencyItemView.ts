@@ -1,20 +1,23 @@
-import {ExtensionItemView} from '../../ExtensionItemView';
-import {DependencyGroup} from './DependencyGroup';
-import {ResolveDependenciesRequest} from '../../../../resource/ResolveDependenciesRequest';
-import {type ContentDependencyJson} from '../../../../resource/json/ContentDependencyJson';
-import {type ResolveDependencyResult} from '../../../../resource/ResolveDependencyResult';
-import {type ResolveDependenciesResult} from '../../../../resource/ResolveDependenciesResult';
-import {ShowDependenciesEvent} from '../../../../browse/ShowDependenciesEvent';
-import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {DependencyType} from '../../../../browse/DependencyType';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DependencyParams} from '../../../../browse/DependencyParams';
+import {DependencyType} from '../../../../browse/DependencyType';
+import {ShowDependenciesEvent} from '../../../../browse/ShowDependenciesEvent';
+import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {type ContentDependencyJson} from '../../../../resource/json/ContentDependencyJson';
+import {ResolveDependenciesRequest} from '../../../../resource/ResolveDependenciesRequest';
+import {type ResolveDependenciesResult} from '../../../../resource/ResolveDependenciesResult';
+import {type ResolveDependencyResult} from '../../../../resource/ResolveDependencyResult';
+import {ExtensionItemView} from '../../ExtensionItemView';
+import {DependencyGroup} from './DependencyGroup';
 
+/**
+ * @deprecated Use DependenciesWidgetElement instead
+ */
 export class ExtensionDependencyItemView
     extends ExtensionItemView {
 
@@ -55,16 +58,14 @@ export class ExtensionDependencyItemView
         if (dependencies.length === 0) {
             button.hide();
         } else {
-            button.setLabel(button.getAction().getLabel() + ' (' + this.getTotalItemCount(dependencies) + ')');
+            button.getAction().setLabel(button.getAction().getLabel() + ' (' + this.getTotalItemCount(dependencies) + ')');
             button.show();
         }
     }
 
-    private appendButton(label: string, cls: string): ActionButton {
-        const action = new Action(label);
-        const button = new ActionButton(action);
+    private appendButton(label: string, className: string): ActionButton {
+        const button = new ActionButton({action: new Action(label), className});
 
-        button.addClass(cls);
         this.appendChild(button);
 
         return button;

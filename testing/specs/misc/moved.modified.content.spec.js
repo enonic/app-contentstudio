@@ -88,7 +88,7 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             await contentWizard.waitForNotificationMessage();
             await contentPublishDialog.waitForDialogOpened();
             // 3. Close the modal dialog
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('moved_modified_folder_mark_as_ready');
             // 4. Page Editor with Preview Widget should be opened by default, Verify that status gets Moved

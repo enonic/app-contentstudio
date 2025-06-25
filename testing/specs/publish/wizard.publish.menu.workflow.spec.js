@@ -55,7 +55,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             // 2. 'Page Editor' is opened by default, Verify that status gets  Published
             await studioUtils.saveScreenshot('check_default_action_unpublish');
             let status = await contentWizard.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED);
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE);
             // 2. Verify that Unpublish is default action now
             await contentWizard.waitForUnpublishButtonDisplayed();
         });

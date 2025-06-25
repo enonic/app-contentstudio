@@ -1,9 +1,9 @@
 /**
- * Created on 04.12.2018.
+ * Created on 04.12.2018. updated on 11.02.2026
  */
 const OccurrencesFormView = require('../occurrences.form.view');
 const appConst = require('../../../libs/app_const');
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 const HtmlAreaForm = require('../htmlarea.form.panel');
 
 const XPATH = {
@@ -15,12 +15,13 @@ class XDataHtmlArea extends OccurrencesFormView {
     async typeTextInHtmlArea(text) {
         let htmlAreaForm = new HtmlAreaForm(XPATH.container);
         await htmlAreaForm.clickInTextArea();
-        await htmlAreaForm.pause(200);
         await htmlAreaForm.typeTextInHtmlArea(text)
         //await htmlAreaForm.pressEnterKey();
     }
 
     getTextInHtmlArea() {
+        let htmlAreaForm = new HtmlAreaForm(XPATH.container);
+        return htmlAreaForm.getTextFromHtmlArea();
         let htmlAreaForm = new HtmlAreaForm(XPATH.container);
         return htmlAreaForm.getTextFromHtmlArea();
     }

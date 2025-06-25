@@ -8,7 +8,7 @@ const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const CompareWithPublishedVersionDialog = require('../../page_objects/compare.with.published.version.dialog');
 
-describe.skip("compare.with.published.version.dialog.spec tests for 'Show changes' modal dialog", function () {
+describe("compare.with.published.version.dialog.spec tests for 'Show changes' modal dialog", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -33,19 +33,19 @@ describe.skip("compare.with.published.version.dialog.spec tests for 'Show change
             let contentWizard = new ContentWizard();
             let compareWithPublishedVersionDialog = new CompareWithPublishedVersionDialog();
             // 1. Open the folder:
-            await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
+            await studioUtils.selectAndOpenContentInWizard('folder1');//FOLDER_NAME);
             await contentWizard.openContextWindow();
             await contentWizard.openDetailsWidget();
             // 2. Open Edit Setting modal dialog and select the language:
             let editDetailsDialog = await studioUtils.openEditSettingDialog();
-            await editDetailsDialog.waitForLoaded();
             await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
             await editDetailsDialog.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSaveButtonDisabled();
             // preview toolbar should be shown by default:
             // 3. Open 'Compare With Published Version' modal dialog
-            await contentWizard.clickOnShowChangesToolbarButton();
+            await contentWizard.clickOnVersionHistoryButton();
+            ///TODO epic-enonic-ui new tests: select 2 items in versions widget
             await compareWithPublishedVersionDialog.waitForDialogOpened();
             // 4. Verify that language property is displayed now :
             await compareWithPublishedVersionDialog.waitForAddedPropertyDisplayed(appConst.COMPARE_VERSIONS_DLG_PROP.LANGUAGE);
@@ -58,6 +58,7 @@ describe.skip("compare.with.published.version.dialog.spec tests for 'Show change
             await compareWithPublishedVersionDialog.waitForModifiedPropertyDisplayed(appConst.COMPARE_VERSIONS_DLG_PROP.MODIFIED_TIME);
         });
 
+    // TODO epic-enonic-ui new tests:
     it(`GIVEN language has been removed in the wizard WHEN Compare With Published Version Dialog has been opened THEN 'language' property should not be present in the modal dialog`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -73,7 +74,8 @@ describe.skip("compare.with.published.version.dialog.spec tests for 'Show change
             await contentWizard.waitForNotificationMessage();
             // preview toolbar should be shown by default:
             // 3. Open 'Compare With Published Version' modal dialog
-            await contentWizard.clickOnShowChangesToolbarButton();
+            // TODO
+            await contentWizard.clickOnVersionHistoryButton();
             await compareWithPublishedVersionDialog.waitForDialogOpened();
             // 4. Verify that language property is not displayed now :
             await compareWithPublishedVersionDialog.waitForAddedPropertyNotDisplayed(appConst.COMPARE_VERSIONS_DLG_PROP.LANGUAGE);

@@ -2,7 +2,7 @@
  * Created on 24.01.2023
  */
 const LayoutInspectionPanel = require('./layout.inspection.panel');
-const lib = require('../../../../libs/elements');
+const lib = require('../../../../libs/elements-old');
 const appConst = require('../../../../libs/app_const');
 const SingleSelectionOptionSet = require('../../optionset/single.selection.option.set.view');
 

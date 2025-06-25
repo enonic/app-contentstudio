@@ -1,17 +1,24 @@
-import {type WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {type Content} from '../../content/Content';
-import {ContentMovePromptEvent} from '../../move/ContentMovePromptEvent';
+import {openMoveDialog} from '../../../v6/features/store/dialogs/moveDialog.store';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {type ContentWizardPanel} from '../ContentWizardPanel';
 
 export class MoveContentAction
     extends Action {
 
-    constructor(wizardPanel: WizardPanel<Content>) {
-        super(i18n('action.moveMore'), 'alt+m');
+    constructor(wizardPanel: ContentWizardPanel) {
+        super(i18n('action.move'), 'alt+m');
         this.onExecuted(() => {
             const content = wizardPanel.getPersistedItem();
-            new ContentMovePromptEvent([content]).fire();
+            if (!content) {
+                return;
+            }
+            openMoveDialog([new ContentSummaryAndCompareStatus()
+                .setContentSummary(content)
+                .setCompareStatus(wizardPanel.getCompareStatus())
+                .setPublishStatus(wizardPanel.getPublishStatus())
+            ]);
         });
     }
 }
