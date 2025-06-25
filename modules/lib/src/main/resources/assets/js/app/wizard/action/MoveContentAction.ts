@@ -8,7 +8,7 @@ export class MoveContentAction
     extends Action {
 
     constructor(wizardPanel: WizardPanel<Content>) {
-        super(i18n('action.moveMore'), 'alt+m');
+        super(i18n('action.move'), 'alt+m');
         this.onExecuted(() => {
             const content = wizardPanel.getPersistedItem();
             new ContentMovePromptEvent([content]).fire();

@@ -13,6 +13,7 @@ import {ContextView} from './ContextView';
 import {DockedContextPanel} from './DockedContextPanel';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {cn} from '@enonic/ui';
 
 export enum ContextPanelMode {
     DOCKED = 'docked',
@@ -55,6 +56,9 @@ export class ContextSplitPanel
         this.dockedContextPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
 
         InspectEvent.on((event: InspectEvent) => {
+            if(event.isSetWidget()) {
+                this.contextView.setActiveWidgetByType(event.getWidgetType());
+            }
             if (event.isShowPanel() && this.isRendered() && !this.isExpanded()) {
                 this.showContextPanel();
             }
@@ -132,6 +136,10 @@ export class ContextSplitPanel
         this.showSecondPanel();
         this.setState(ContextPanelState.EXPANDED);
         this.resetToggleButtonActiveState();
+    }
+
+    getSplitterThickness(): number {
+        return 1;
     }
 
     private resetToggleButtonActiveState(): void {

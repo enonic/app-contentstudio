@@ -22,6 +22,7 @@ import {ConfirmValueDialog} from './ConfirmValueDialog';
 import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
 import {DependantItemsWithReferencesDialog} from '../dialog/DependantItemsWithReferencesDialog';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {DialogPresetConfirmDeletePreset} from '../../v6/features/shared/dialogs/DialogPreset';
 
 enum ActionType {
     DELETE = 'delete',
@@ -173,17 +174,25 @@ export class ContentDeleteDialog
             Body.get().setFocusedElement(lastFocusedElement);
         }
 
-        if (!this.confirmExecutionDialog) {
-            this.confirmExecutionDialog = new ConfirmValueDialog();
-        }
+        const dialog = new DialogPresetConfirmDeletePreset({
+            open: true,
+            title: this.actionInProgressType === ActionType.DELETE
+                   ? i18n('dialog.confirmDelete')
+                   : i18n('dialog.confirmArchive'),
+            description: this.actionInProgressType === ActionType.DELETE
+                         ? i18n('dialog.confirmDelete.subname')
+                         : i18n('dialog.confirmArchive.subname'),
+            expected: totalItemsToProcess,
+            onConfirm: () => {
+                dialog.close();
+                yesCallback();
+            },
+            onCancel: () => {
+                dialog.close();
+            },
+        });
 
-        this.confirmExecutionDialog
-            .setHeaderText(this.actionInProgressType === ActionType.DELETE ? i18n('dialog.confirmDelete') : i18n('dialog.confirmArchive'))
-            .setSubheaderText(this.actionInProgressType === ActionType.DELETE ? i18n('dialog.confirmDelete.subname') : i18n(
-                'dialog.confirmArchive.subname'))
-            .setValueToCheck('' + totalItemsToProcess)
-            .setYesCallback(yesCallback)
-            .open();
+        dialog.open();
     }
 
     private createConfirmExecutionCallback(): () => void {
