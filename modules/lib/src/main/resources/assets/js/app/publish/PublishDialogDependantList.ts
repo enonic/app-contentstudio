@@ -1,47 +1,23 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {CompareStatusChecker} from '../content/CompareStatus';
 import {ContentId} from '../content/ContentId';
 import {ContentIds} from '../content/ContentIds';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {DependantItemViewer} from '../dialog/DependantItemViewer';
 import {DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
-import {StatusCheckableItem} from '../dialog/StatusCheckableItem';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {CheckableListItemWithStatus} from '../ui2/list/CheckableListItemWithStatus';
+
 
 export class PublishDialogDependantList
     extends DialogDependantItemsList {
 
-    private requiredIds: ContentIds;
-
-    private visibleIds: ContentIds;
+    private requiredIds = ContentIds.empty();
+    private visibleIds = ContentIds.empty();
 
     private listChangedListeners: (() => void)[] = [];
-
     private visibleUpdatedListeners: (() => void)[] = [];
 
     constructor(observer: ObserverConfig) {
-        super({
-            className: 'publish-dialog-dependant-list',
-            observer,
-            createViewer: () => new DependantItemViewer(),
-            createItem: (viewer, item) => {
-                return new StatusCheckableItem({
-                    viewer,
-                    item,
-                    checkbox: {
-                        nonSelectableTooltip: i18n('dialog.publish.itemRequired'),
-                        checked: () => this.mustSelectItem(item),
-                        enabled: () => this.isItemExcludable(item),
-                    },
-                    hidden: () => this.isItemHidden(item),
-                });
-            },
-
-        });
-
-        this.requiredIds = ContentIds.empty();
-        this.visibleIds = ContentIds.empty();
+        super({className: 'publish-dialog-dependant-list', observer});
     }
 
     hasExcluded(): boolean {
@@ -57,37 +33,40 @@ export class PublishDialogDependantList
         this.notifyVisibleUpdated();
     }
 
-    onListChanged(listener: () => void) {
-        this.listChangedListeners.push(listener);
-    }
-
-    onVisibleUpdated(listener: () => void) {
-        this.visibleUpdatedListeners.push(listener);
-    }
-
     refresh(): void {
         //
     }
 
+
+    createItemView(content: ContentSummaryAndCompareStatus, readOnly: boolean): CheckableListItemWithStatus {
+        const className = this.isItemHidden(content) ? 'hidden' : undefined;
+
+        return new CheckableListItemWithStatus({
+            content,
+            className,
+            readOnly: readOnly || !this.isItemExcludable(content),
+            checked: this.mustSelectItem(content),
+            onCheckedChange: () => this.handleSelectionChange(),
+        });
+    }
+
     protected initListeners(): void {
         super.initListeners();
-
         const serverEvents = ContentServerEventsHandler.getInstance();
 
         const permissionsUpdatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]): void => {
             const updatedIds = updatedItems.map(item => item.getId());
-            const isItemsPermissionsUpdated = this.getItems().some(item => updatedIds.findIndex(updatedId => updatedId === item.getId()) > -1);
-            if (isItemsPermissionsUpdated) {
+            const touched = this.getItems().some(item => updatedIds.includes(item.getId()));
+            if (touched) {
                 this.notifyListChanged();
             }
         };
 
         const deletedHandler = (deletedItems: ContentServerChangeItem[]) => {
-            const isItemsDeleted = deletedItems.some(deletedItem => {
-                return this.getItems().forEach(item => item.getContentId().equals(deletedItem.getContentId()));
-            });
-
-            if (isItemsDeleted) {
+            const touched = deletedItems.some(del =>
+                this.getItems().some(item => item.getContentId().equals(del.getContentId()))
+            );
+            if (touched) {
                 this.notifyListChanged();
             }
         };
@@ -114,11 +93,6 @@ export class PublishDialogDependantList
     }
 
     protected isItemExcludable(item: ContentSummaryAndCompareStatus): boolean {
-        const isHidden = this.isItemHidden(item);
-        if (isHidden) {
-            return true;
-        }
-
         return this.isIdExcludable(item.getContentId());
     }
 
@@ -140,5 +114,13 @@ export class PublishDialogDependantList
         this.visibleUpdatedListeners.forEach(listener => {
             listener();
         });
+    }
+
+    onListChanged(listener: () => void) {
+        this.listChangedListeners.push(listener);
+    }
+
+    onVisibleUpdated(listener: () => void) {
+        this.visibleUpdatedListeners.push(listener);
     }
 }

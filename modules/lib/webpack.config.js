@@ -26,7 +26,15 @@ module.exports = {
         filename: './[name].js'
     },
     resolve: {
-        extensions: ['.ts', '.js', '.less', '.css']
+        extensions: ['.tsx', '.ts', '.jsx', '.js', '.less', '.css'],
+        alias: {
+            'preact': 'preact',
+            'preact/hooks': 'preact/hooks',
+            'react': 'preact/compat',
+            'react-dom': 'preact/compat',
+            'react/jsx-runtime': 'preact/jsx-runtime',
+            'react/jsx-dev-runtime': 'preact/jsx-dev-runtime'
+        }
     },
     module: {
         rules: [
@@ -85,7 +93,7 @@ module.exports = {
         new ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
-            'window.jQuery': 'jquery'
+            'window.jQuery': 'jquery',
         }),
         new MiniCssExtractPlugin({
             filename: '[name].css',

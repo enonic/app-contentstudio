@@ -61,7 +61,6 @@ import {ProjectDeletedEvent} from 'lib-contentstudio/app/settings/event/ProjectD
 import {SettingsServerEventsListener} from 'lib-contentstudio/app/settings/event/SettingsServerEventsListener';
 import {ProjectListRequest} from 'lib-contentstudio/app/settings/resource/ProjectListRequest';
 import {$isDown, subscribe as subscribeToWorker} from 'lib-contentstudio/app/stores/worker';
-import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
 import {UrlAction} from 'lib-contentstudio/app/UrlAction';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
@@ -501,8 +500,6 @@ async function startContentWizard() {
     NewContentEvent.on(ContentEventsProcessor.handleNew);
 
     Body.get().addClass('wizard-page').appendChild(wizard);
-
-    TooltipHelper.init();
 }
 
 function getTheme(): string {

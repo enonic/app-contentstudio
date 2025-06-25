@@ -4,6 +4,7 @@ import {AppContext} from '../AppContext';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {WidgetButton} from './WidgetButton';
+import {Button as UIButton} from '@enonic/lib-admin-ui/ui2/Button';
 
 export class WidgetsToolbar
     extends DivEl {

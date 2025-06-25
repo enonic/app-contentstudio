@@ -1,11 +1,11 @@
-import {ContentWizardActions} from './action/ContentWizardActions';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentWizardPublishMenuButton} from '../browse/ContentWizardPublishMenuButton';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {BasePublishAction} from './action/BasePublishAction';
-import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
+import {ContentWizardPublishMenuButton} from '../browse/ContentWizardPublishMenuButton';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {IssueDialogsManager} from '../issue/IssueDialogsManager';
+import {BasePublishAction} from './action/BasePublishAction';
+import {ContentWizardActions} from './action/ContentWizardActions';
 
 export class ContentWizardToolbarPublishControls
     extends DivEl {
@@ -77,15 +77,19 @@ export class ContentWizardToolbarPublishControls
     }
 
     protected createPublishButtonForMobile(): ActionButton {
-        const publishButtonForMobile = new ActionButton(this.actions.getPublishAction());
-        publishButtonForMobile.addClass('mobile-edit-publish-button');
+        const publishButtonForMobile = new ActionButton({
+            action: this.actions.getPublishAction(),
+            className: 'mobile-edit-publish-button',
+        });
 
         return publishButtonForMobile;
     }
 
     protected createMarkAsReadyButtonForMobile(): ActionButton {
-        const markAsReadyButtonForMobile = new ActionButton(this.actions.getMarkAsReadyAction());
-        markAsReadyButtonForMobile.addClass('mobile-edit-mark-as-ready-button');
+        const markAsReadyButtonForMobile = new ActionButton({
+            action: this.actions.getMarkAsReadyAction(),
+            className: 'mobile-edit-mark-as-ready-button',
+        });
 
         return markAsReadyButtonForMobile;
     }

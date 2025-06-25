@@ -1,15 +1,15 @@
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import Q from 'q';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ProjectWizardDialog} from './ProjectWizardDialog';
-import {ProjectSteps} from './ProjectSteps';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import Q from 'q';
 import {ProjectContext} from '../../../../project/ProjectContext';
+import {ProjectSteps} from './ProjectSteps';
+import {ProjectWizardDialog} from './ProjectWizardDialog';
 
 export class ProjectNotAvailableDialog
     extends ModalDialog {
@@ -78,7 +78,10 @@ export class ProjectNotAvailableDialog
     private createNoProjectsBlock(): Element {
         const noProjectsBlock: DivEl = new DivEl('no-projects-text');
         const textBlock: DivEl = new DivEl().setHtml(i18n('notify.settings.project.notAvailable'));
-        const wizardButton: Element = new ActionButton(this.openProjectWizardAction).addClass('open-create-project-dialog-action');
+        const wizardButton = new ActionButton({
+            action: this.openProjectWizardAction,
+            className: 'open-create-project-dialog-action',
+        });
         noProjectsBlock.appendChild(textBlock);
         noProjectsBlock.appendChild(wizardButton);
 

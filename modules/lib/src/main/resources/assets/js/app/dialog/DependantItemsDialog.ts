@@ -4,11 +4,11 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
-import {Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
-import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
+import {Checkbox} from '@enonic/lib-admin-ui/ui2/Checkbox';
 import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {CheckboxChecked} from '@enonic/ui';
 import Q from 'q';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
@@ -17,6 +17,7 @@ import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfConte
 import {DependantItemViewer} from './DependantItemViewer';
 import {DialogDependantItemsList, ObserverConfig, SelectionType} from './DialogDependantItemsList';
 import {DialogMainItemsList} from './DialogMainItemsList';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 
 enum DependantsStatus {
     HAS_EXCLUDED = 'has-excluded',
@@ -38,28 +39,21 @@ export interface DependantItemsDialogConfig
 export abstract class DependantItemsDialog
     extends ModalDialogWithConfirmation {
 
-    protected actionButton: DialogButton;
+    protected actionButton: ActionButton;
 
     private ignoreItemsChanged: boolean;
 
     private subTitle: DivEl;
-
     private itemList: DialogMainItemsList;
-
     private dependantsContainer: DivEl;
-
     private dependantList: DialogDependantItemsList;
 
     protected dependantsControls: DivEl;
-
     protected allCheckBox: Checkbox;
-
     protected excludedToggler: TogglerButton;
-
     protected excludedNote: SpanEl;
 
     protected resolvedIds: ContentId[];
-
     protected dependantIds: ContentId[];
 
     declare protected config: DependantItemsDialogConfig;
@@ -71,18 +65,26 @@ export abstract class DependantItemsDialog
         this.resolvedIds = [];
     }
 
+    private static createChecked(selection: SelectionType): CheckboxChecked {
+        switch (selection) {
+        case SelectionType.PARTIAL:
+            return 'indeterminate';
+        case SelectionType.ALL:
+            return true;
+        case SelectionType.NONE:
+            return false;
+        }
+    }
+
     protected initElements() {
         super.initElements();
-
         this.subTitle = new H6El('sub-title').setHtml(this.config.dialogSubName);
         this.itemList = this.createItemList();
-
         this.initDependants();
     }
 
     protected initDependants(): void {
         this.dependantsContainer = new DivEl('dependants');
-
         const header = this.createDependantsHeader();
         this.dependantList = this.createDependantList();
 
@@ -97,15 +99,11 @@ export abstract class DependantItemsDialog
     protected initListeners() {
         super.initListeners();
 
-        const hasControls = !!this.config.controls;
-        if (hasControls) {
+        if (this.config.controls) {
             this.initControlsListeners();
         }
 
-        this.dependantList.onExclusionUpdated(() => {
-            this.refreshControls();
-        });
-
+        this.dependantList.onExclusionUpdated(() => this.refreshControls());
         this.dependantList.onItemsRemoved(() => this.onDependantsChanged());
         this.dependantList.onItemsAdded(() => this.onDependantsChanged());
 
@@ -115,14 +113,8 @@ export abstract class DependantItemsDialog
         });
     }
 
-    protected initControlsListeners(): void {
-        this.allCheckBox.onValueChanged(() => {
-            const selectionType = this.dependantList.getSelectionType();
-            const isAllSelected = selectionType !== SelectionType.NONE;
-            this.dependantList.toggleSelectAll(!isAllSelected);
-            this.updateAllCheckbox();
-        });
 
+    protected initControlsListeners(): void {
         this.excludedToggler.onActiveChanged(active => {
             this.excludedToggler.setLabel(active ? i18n('dialog.publish.excluded.hide') : i18n('dialog.publish.excluded.show'));
             this.dependantsContainer.toggleClass(DependantsStatus.EXCLUDED_HIDDEN, !active);
@@ -133,8 +125,7 @@ export abstract class DependantItemsDialog
     }
 
     protected postInitListeners(): void {
-        const hasControls = !!this.config.controls;
-        if (hasControls) {
+        if (this.config.controls) {
             this.excludedToggler.setActive(true);
         }
     }
@@ -142,10 +133,10 @@ export abstract class DependantItemsDialog
     protected lazyLoadDependants(): void {
         const size = this.getDependantList().getItemCount();
         this.showLoadMask();
-
-        this.loadDescendants(size).then((newItems: ContentSummaryAndCompareStatus[]) => {
-            this.addDependantItems(newItems);
-        }).catch(DefaultErrorHandler.handle).finally(() => this.hideLoadMask());
+        this.loadDescendants(size)
+            .then((newItems: ContentSummaryAndCompareStatus[]) => this.addDependantItems(newItems))
+            .catch(DefaultErrorHandler.handle)
+            .finally(() => this.hideLoadMask());
     }
 
     doRender(): Q.Promise<boolean> {
@@ -165,21 +156,17 @@ export abstract class DependantItemsDialog
     protected onDependantsChanged(): void {
         const count = this.countDependantItems(this.isExcludedShown());
 
-        const hasControls = this.config.controls;
-        if (hasControls) {
+        if (this.config.controls) {
             this.allCheckBox.setLabel(i18n('dialog.select.all', count));
-            const hasEnabledItems = this.dependantList.hasExcludableItems();
-            this.allCheckBox.setEnabled(hasEnabledItems);
+            this.allCheckBox.setProps({disabled: !this.dependantList.hasExcludableItems()});
         }
 
-        const hasDependants = count > 0;
-        this.markDependantsEmpty(!hasDependants);
+        this.markDependantsEmpty(count === 0);
     }
 
     protected updateAllCheckbox(): void {
-        const selectionType = this.dependantList.getSelectionType();
-        this.allCheckBox.setPartial(selectionType === SelectionType.PARTIAL);
-        this.allCheckBox.setChecked(selectionType !== SelectionType.NONE, true);
+        const type = this.dependantList.getSelectionType();
+        this.allCheckBox.setChecked(DependantItemsDialog.createChecked(type), true);
     }
 
     protected createItemList(): DialogMainItemsList {
@@ -188,19 +175,27 @@ export abstract class DependantItemsDialog
 
     protected createDependantsHeader(): DivEl {
         const header = new DivEl('dependants-header');
-
         const title = new SpanEl('dependants-title');
-        const titleText = this.config.dependantsTitle ?? i18n('dialog.dependencies');
-        title.setHtml(titleText);
+        title.setHtml(this.config.dependantsTitle ?? i18n('dialog.dependencies'));
         header.appendChild(title);
-
         return header;
     }
 
     protected createDependantsControls(): DivEl {
         const controls = new DivEl('dependants-controls');
 
-        this.allCheckBox = new CheckboxBuilder().setLabelText(i18n('dialog.select.all', 0)).setChecked(true).build();
+        this.allCheckBox = new Checkbox({
+            label: i18n('dialog.select.all', 0),
+            checked: 'indeterminate',
+            onCheckedChange: next => {
+                if (next === 'indeterminate') {
+                    return;
+                }
+                this.dependantList.toggleSelectAll(!!next);
+                this.updateAllCheckbox();
+            },
+        });
+
         this.allCheckBox.addClass('all-dependants-control');
 
         this.excludedToggler = new TogglerButton('excluded-items-toggler');
@@ -266,9 +261,8 @@ export abstract class DependantItemsDialog
         this.dependantList.clearItems(true);
 
         if (this.config.controls) {
-            this.allCheckBox.setChecked(true);
-            this.allCheckBox.setPartial(false);
-            this.allCheckBox.setEnabled(true);
+            this.allCheckBox.setChecked('indeterminate', true);
+            this.allCheckBox.setProps({disabled: false});
             this.excludedToggler.setActive(true);
         }
 
@@ -375,11 +369,8 @@ export abstract class DependantItemsDialog
     }
 
     protected refreshControls(): void {
-        const hasExcluded = this.dependantList.hasExcluded();
-        this.markDependantsHasExcluded(hasExcluded);
-
-        const hasControls = !!this.config.controls;
-        if (hasControls) {
+        this.markDependantsHasExcluded(this.dependantList.hasExcluded());
+        if (this.config.controls) {
             this.updateAllCheckbox();
         }
     }
