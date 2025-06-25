@@ -26,8 +26,16 @@ module.exports = {
         assetModuleFilename: './[file]'
     },
     resolve: {
-        extensions: ['.ts', '.js', '.less', '.css'],
-        conditionNames: ['import', 'node', 'default']
+        extensions: ['.tsx', '.ts', '.jsx', '.js', '.less', '.css'],
+        conditionNames: ['import', 'node', 'default'],
+        alias: {
+            'preact': 'preact',
+            'preact/hooks': 'preact/hooks',
+            'react': 'preact/compat',
+            "react-dom": 'preact/compat',
+            'react/jsx-runtime': 'preact/jsx-runtime',
+            'react/jsx-dev-runtime': 'preact/jsx-dev-runtime'
+        }
     },
     module: {
         rules: [
@@ -38,7 +46,7 @@ module.exports = {
                         loader: 'swc-loader',
                         options: {
                             ...swcConfig,
-                            sourceMaps: !isProd,
+                            sourceMaps: isProd ? false : 'inline',
                             inlineSourcesContent: !isProd,
                         },
                     },
@@ -85,7 +93,7 @@ module.exports = {
         new ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
-            'window.jQuery': 'jquery'
+            'window.jQuery': 'jquery',
         }),
         new MiniCssExtractPlugin({
             filename: '[name].css',
@@ -102,6 +110,6 @@ module.exports = {
         }),
     ],
     mode: isProd ? 'production' : 'development',
-    devtool: isProd ? false : 'cheap-module-source-map',
+    devtool: isProd ? false : 'source-map',
     performance: {hints: false}
 };
