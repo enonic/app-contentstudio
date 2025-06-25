@@ -1,8 +1,8 @@
 apply plugin: 'com.github.node-gradle.node'
 
 node {
-    version = '22.19.0'
-    pnpmVersion = '10.16.0'
+    version = '24.12.0'
+    pnpmVersion = '10.26.1'
     download = true
 }
 
@@ -34,7 +34,9 @@ tasks.named( 'pnpmInstall' ).configure {
 
     // I/O only necessary files
     inputs.file 'package.json'
-    inputs.file 'pnpm-lock.yaml'
+    if (file( 'pnpm-lock.yaml' ).exists()) {
+        inputs.file 'pnpm-lock.yaml'
+    }
     if (file( '.npmrc' ).exists()) {
         inputs.file '.npmrc'
     }

@@ -16,7 +16,6 @@ import {SettingsDataViewItem} from './view/SettingsDataViewItem';
 import {ProjectViewItem} from './view/ProjectViewItem';
 import {ProjectUpdatedEvent} from './event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from './event/ProjectDeletedEvent';
-import {ProjectSelectionDialog} from '../dialog/ProjectSelectionDialog';
 import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
 import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {ContentAppBar} from '../bar/ContentAppBar';
@@ -32,6 +31,8 @@ export class SettingsAppPanel
     private deletedIds: string[] = [];
 
     constructor() {
+        // TODO: Enonic UI
+        // When possible, remove ContentAppBar dependency or migrate to AppBarElement
         super(ContentAppBar.getInstance());
     }
 
@@ -47,7 +48,6 @@ export class SettingsAppPanel
         });
 
         ProjectCreatedEvent.on((event: ProjectCreatedEvent) => {
-            ProjectSelectionDialog.get().setUpdateOnOpen(true);
             this.deletedIds = this.deletedIds.filter((deletedId: string) => deletedId !== event.getProjectName());
         });
 
@@ -56,7 +56,6 @@ export class SettingsAppPanel
                 return;
             }
 
-            ProjectSelectionDialog.get().setUpdateOnOpen(true);
             this.handleItemDeleted(event.getProjectName());
         });
 

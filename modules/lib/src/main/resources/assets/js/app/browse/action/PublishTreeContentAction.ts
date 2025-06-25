@@ -1,15 +1,14 @@
-import {PublishContentAction} from './PublishContentAction';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {PublishContentAction} from './PublishContentAction';
 
 export class PublishTreeContentAction extends PublishContentAction {
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
+    constructor(grid: ContentTreeListElement) {
         super(grid, true, false);
 
-        this.setClass('publish-tree').setLabel(i18n('action.publishTreeMore'));
+        this.setClass('publish-tree').setLabel(i18n('action.publishTree'));
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

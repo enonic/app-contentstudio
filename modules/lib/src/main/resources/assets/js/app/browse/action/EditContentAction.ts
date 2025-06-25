@@ -1,3 +1,5 @@
+import {getSelectedItems} from '../../../v6/features/store/contentTreeSelectionStore';
+import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -6,8 +8,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentLocalizer} from './ContentLocalizer';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class EditContentAction
     extends ContentTreeGridAction {
@@ -18,14 +18,14 @@ export class EditContentAction
 
     private contentLocalizer?: ContentLocalizer;
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
+    constructor(grid: ContentTreeListElement) {
         super(grid, i18n('action.edit'), 'mod+e');
 
         this.setEnabled(false).setClass('edit');
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedItems();
+        const contents: ContentSummaryAndCompareStatus[] = getSelectedItems();
 
         if (contents.length > EditContentAction.MAX_ITEMS_TO_EDIT) {
             showWarning(i18n('notify.edit.tooMuch'));

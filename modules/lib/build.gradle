@@ -38,8 +38,15 @@ tasks.register( 'pnpmCheck', PnpmTask ) {
     outputs.cacheIf { false }
 }
 
+tasks.register( 'pnpmTest', PnpmTask ) {
+    dependsOn tasks.named( 'pnpmInstall' )
+    args = ['run', 'test:run']
+    outputs.cacheIf { false }
+}
+
 tasks.named( 'check' ).configure {
     dependsOn tasks.named( 'pnpmCheck' )
+    dependsOn tasks.named( 'pnpmTest' )
 }
 
 tasks.register( 'pnpmBuild', PnpmTask ) {
@@ -53,12 +60,10 @@ tasks.register( 'pnpmBuild', PnpmTask ) {
                   "$buildDir/resources/main/dev/${base.archivesName.get()}" )
 }
 
-tasks.register( 'copyPackage', NodeTask ) {
+tasks.register( 'copyPackage', Copy ) {
     dependsOn tasks.named( 'pnpmBuild' )
-    script = file( 'util/modify.js' )
-    args = ["--out=$buildDir/resources/main/dev/${base.archivesName.get()}"]
-    inputs.file "./package.json"
-    outputs.file "$buildDir/resources/main/dev/${base.archivesName.get()}/package.json"
+    from "$projectDir/package.json"
+    into "$buildDir/resources/main/dev/${base.archivesName.get()}"
 }
 
 tasks.register( 'devJar', Jar ) {
@@ -108,6 +113,7 @@ tasks.register( 'yolo' ) {
     npmSetup.enabled = false
     pnpmSetup.enabled = false
     pnpmCheck.enabled = false
+    pnpmTest.enabled = false
     check.enabled = false
     test.enabled = false
 }

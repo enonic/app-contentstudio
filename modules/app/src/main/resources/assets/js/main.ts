@@ -4,7 +4,6 @@ import {Application} from '@enonic/lib-admin-ui/app/Application';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
@@ -24,11 +23,8 @@ import {CONFIG, ConfigObject} from '@enonic/lib-admin-ui/util/Config';
 import {LauncherHelper} from '@enonic/lib-admin-ui/util/LauncherHelper';
 import {i18n, Messages} from '@enonic/lib-admin-ui/util/Messages';
 import * as $ from 'jquery';
-import {AppContext} from 'lib-contentstudio/app/AppContext';
-import {ContentDeletePromptEvent} from 'lib-contentstudio/app/browse/ContentDeletePromptEvent';
 import {ContentDuplicatePromptEvent} from 'lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
 import {ContentPublishPromptEvent} from 'lib-contentstudio/app/browse/ContentPublishPromptEvent';
-import {ContentUnpublishPromptEvent} from 'lib-contentstudio/app/browse/ContentUnpublishPromptEvent';
 import {CreateIssuePromptEvent} from 'lib-contentstudio/app/browse/CreateIssuePromptEvent';
 import {RequestContentPublishPromptEvent} from 'lib-contentstudio/app/browse/RequestContentPublishPromptEvent';
 import {ShowDependenciesEvent} from 'lib-contentstudio/app/browse/ShowDependenciesEvent';
@@ -40,7 +36,6 @@ import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
 import {ContentEventsListener} from 'lib-contentstudio/app/ContentEventsListener';
 import {ContentEventsProcessor} from 'lib-contentstudio/app/ContentEventsProcessor';
 import {NewContentEvent} from 'lib-contentstudio/app/create/NewContentEvent';
-import {ProjectSelectionDialog} from 'lib-contentstudio/app/dialog/ProjectSelectionDialog';
 import {AggregatedServerEventsListener} from 'lib-contentstudio/app/event/AggregatedServerEventsListener';
 import {ContentServerEventsHandler} from 'lib-contentstudio/app/event/ContentServerEventsHandler';
 import {ContentUpdatedEvent} from 'lib-contentstudio/app/event/ContentUpdatedEvent';
@@ -56,16 +51,16 @@ import {GetContentTypeByNameRequest} from 'lib-contentstudio/app/resource/GetCon
 import {Router} from 'lib-contentstudio/app/Router';
 import {Project} from 'lib-contentstudio/app/settings/data/project/Project';
 import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/ProjectHelper';
-import {ProjectNotAvailableDialog} from 'lib-contentstudio/app/settings/dialog/project/create/ProjectNotAvailableDialog';
 import {ProjectDeletedEvent} from 'lib-contentstudio/app/settings/event/ProjectDeletedEvent';
 import {SettingsServerEventsListener} from 'lib-contentstudio/app/settings/event/SettingsServerEventsListener';
 import {ProjectListRequest} from 'lib-contentstudio/app/settings/resource/ProjectListRequest';
 import {$isDown, subscribe as subscribeToWorker} from 'lib-contentstudio/app/stores/worker';
-import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
 import {UrlAction} from 'lib-contentstudio/app/UrlAction';
+import {VersionHelper} from 'lib-contentstudio/app/util/VersionHelper';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
-import {VersionHelper} from 'lib-contentstudio/app/util/VersionHelper';
+import {AppElement} from 'lib-contentstudio/v6/features/App';
+import {$activeProjectName} from 'lib-contentstudio/v6/features/store/projects.store';
 import Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
@@ -298,26 +293,18 @@ const getFirstAvailableProject = (projects: Project[]): Project => {
     return projects.find((p: Project) => ProjectHelper.isAvailable(p));
 };
 
-const handleNoProjectsAvailable = () => {
-    if (AuthHelper.isContentAdmin()) {
-        new ProjectNotAvailableDialog().open();
-    } else {
-        ProjectSelectionDialog.get().setUpdateOnOpen(true);
-        ProjectSelectionDialog.get().open();
-    }
-};
-
 let connectionDetector: ConnectionDetector;
 
 async function startApplication() {
+    // v6 app initialization
+    AppElement.initialize();
+
     const application: Application = getApplication();
     connectionDetector = startLostConnectionDetector();
     Store.instance().set('application', application);
 
     startServerEventListeners(application);
     initApplicationEventListener();
-
-    ProjectContext.get().onNoProjectsAvailable(() => handleNoProjectsAvailable());
 
     initProjectContext(application)
         .then(() => {
@@ -368,21 +355,6 @@ async function startApplication() {
         moveContentDialog.handlePromptEvent(event);
     });
 
-    const {ContentDeleteDialog} = await import('lib-contentstudio/app/remove/ContentDeleteDialog');
-    let contentDeleteDialog = null;
-
-    ContentDeletePromptEvent.on((event) => {
-        if (!contentDeleteDialog) {
-            contentDeleteDialog = new ContentDeleteDialog();
-        }
-
-        contentDeleteDialog
-            .setContentToDelete(event.getModels())
-            .setYesCallback(event.getYesCallback())
-            .setNoCallback(event.getNoCallback())
-            .open();
-    });
-
     const {ContentPublishDialog} = await import('lib-contentstudio/app/publish/ContentPublishDialog');
     let contentPublishDialog = null;
 
@@ -391,25 +363,13 @@ async function startApplication() {
             contentPublishDialog = ContentPublishDialog.get();
         }
 
+        // TODO: Enonic UI - Reference event
         contentPublishDialog
             .setContentToPublish(event.getModels())
             .setKeepDependencies(event.isKeepDependencies())
             .setExcludedIds(event.getExcludedIds())
             .setIncludeChildItems(event.isIncludeChildItems(), event.getExceptedContentIds())
             .setMessage(event.getMessage())
-            .open();
-    });
-
-    const {ContentUnpublishDialog} = await import('lib-contentstudio/app/publish/ContentUnpublishDialog');
-    let contentUnpublishDialog = null;
-
-    ContentUnpublishPromptEvent.on((event) => {
-        if (!contentUnpublishDialog) {
-            contentUnpublishDialog = new ContentUnpublishDialog();
-        }
-
-        contentUnpublishDialog
-            .setContentToUnpublish(event.getModels())
             .open();
     });
 
@@ -502,8 +462,6 @@ async function startContentWizard() {
     NewContentEvent.on(ContentEventsProcessor.handleNew);
 
     Body.get().addClass('wizard-page').appendChild(wizard);
-
-    TooltipHelper.init();
 }
 
 function getTheme(): string {
@@ -514,9 +472,6 @@ function getTheme(): string {
     return '';
 }
 
-function isDefaultAppUrl(url: string): boolean {
-    return url.endsWith('/main') || url.endsWith('/browse') || url.indexOf('/inbound/') > 0 || url.indexOf('/outbound/') > 0;
-}
 
 async function startContentBrowser() {
     await import('lib-contentstudio/app/ContentAppPanel');
@@ -526,26 +481,6 @@ async function startContentBrowser() {
 
     if (CONFIG.isTrue('checkLatestVersion') && AuthHelper.isContentAdmin()) {
         VersionHelper.checkAndNotifyIfNewerVersionExists();
-    }
-
-    if (isDefaultAppUrl(url)) {
-        commonWrapper.selectDefaultWidget();
-    } else {
-        commonWrapper.onItemAdded((item: Widget) => {
-            if (AppContext.get().getCurrentAppOrWidgetId()) {
-                return;
-            }
-
-            if (url.endsWith(`/${item.getWidgetDescriptorKey().getName()}`)) {
-                commonWrapper.selectWidget(item);
-            }
-        });
-
-        setTimeout(() => { // if no external app is loaded then switch to a studio
-            if (!AppContext.get().getCurrentAppOrWidgetId()) {
-                commonWrapper.selectDefaultWidget();
-            }
-        }, 3000);
     }
 
     LauncherHelper.appendLauncherPanel();
@@ -569,15 +504,15 @@ async function startContentBrowser() {
                                 newContentDialog.setParentContent(newParentContent);
                                 newContentDialog.open();
                             }).catch((reason) => {
-                                DefaultErrorHandler.handle(reason);
-                            }).done();
+                            DefaultErrorHandler.handle(reason);
+                        }).done();
                     } else {
                         newContentDialog.setParentContent(newParentContent);
                         newContentDialog.open();
                     }
                 }).catch((reason) => {
-                    DefaultErrorHandler.handle(reason);
-                }).done();
+                DefaultErrorHandler.handle(reason);
+            }).done();
         } else {
             newContentDialog.setParentContent(null);
             newContentDialog.open();
@@ -596,9 +531,7 @@ async function startContentBrowser() {
 
 function initProjectContext(application: Application): Q.Promise<void> {
     return new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
-        ProjectSelectionDialog.get().setProjects(projects);
-
-        const projectName: string = application.getPath().getElement(0) || localStorage.getItem(ProjectContext.LOCAL_STORAGE_KEY);
+        const projectName: string = application.getPath().getElement(0) || localStorage.getItem(ProjectContext.LOCAL_STORAGE_KEY) || $activeProjectName.get();
 
         if (projectName) {
             const currentProject: Project =
@@ -619,8 +552,6 @@ function initProjectContext(application: Application): Q.Promise<void> {
             ProjectContext.get().setNotAvailable();
             return;
         }
-
-        ProjectSelectionDialog.get().open();
     });
 }
 

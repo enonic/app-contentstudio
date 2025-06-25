@@ -1,6 +1,8 @@
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
+import {cn} from '@enonic/ui';
+import {ContentListItemElement} from '../../v6/features/shared/items/ContentListItem';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
@@ -50,7 +52,7 @@ export function compareItems(a: ContentSummaryAndCompareStatus, b: ContentSummar
     return readOnlyToNumber(b) - readOnlyToNumber(a) + validityToNumber(a) - validityToNumber(b);
 }
 
-export class DialogDependantItemsList<View extends StatusCheckableItem = StatusCheckableItem>
+export class DialogDependantItemsList<View extends StatusCheckableItem | ContentListItemElement = StatusCheckableItem>
     extends LazyListBox<ContentSummaryAndCompareStatus> {
 
     protected config: DialogDependantItemsListConfig<View>;
@@ -70,7 +72,7 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
     protected excludedHidden: boolean;
 
     constructor(config: DialogDependantItemsListConfig<View> = {}) {
-        super(`dialog-dependant-items-list ${config.className ?? ''}`);
+        super(cn('grid gap-y-[5px] mt-3.5', config.className));
 
         this.config = config;
         this.itemClickListeners = [];
@@ -86,7 +88,7 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
         this.initListeners();
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): StatusCheckableItem {
+    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): Element {
         const viewer = this.config.createViewer?.() ?? new ContentSummaryAndCompareStatusViewer();
         viewer.setObject(item);
         viewer.onClicked((event) => {
