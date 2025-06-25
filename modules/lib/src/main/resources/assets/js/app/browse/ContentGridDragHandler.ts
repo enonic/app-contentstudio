@@ -40,4 +40,9 @@ export class ContentGridDragHandler extends DragHandler {
 
         this.movements.addChildMovement(new OrderChildMovement(movedItem.getContentId(), moveBeforeItem?.getContentId()));
     }
+
+    setEnabled(enabled: boolean): void {
+        this.sortable.option('disabled', !enabled);
+        this.listBox.toggleClass('sorting-disabled', !enabled);
+    }
 }
