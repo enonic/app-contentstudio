@@ -1,24 +1,25 @@
-import {CreateIssuePromptEvent} from '../CreateIssuePromptEvent';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {getSelectedItems} from '../../../v6/features/store/contentTreeSelectionStore';
+import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {CreateIssuePromptEvent} from '../CreateIssuePromptEvent';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class CreateIssueAction extends ContentTreeGridAction {
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.createIssueMore'));
+    constructor(grid: ContentTreeListElement) {
+        super(grid, i18n('action.createIssue'));
 
         this.setEnabled(false).setClass('create-issue');
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedItems();
+        const contents: ContentSummaryAndCompareStatus[] = getSelectedItems();
         new CreateIssuePromptEvent(contents).fire();
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return !this.grid.getSelectedItems().some(item => item.hasUploadItem());
+        return !getSelectedItems().some(item => item.hasUploadItem());
     }
 }

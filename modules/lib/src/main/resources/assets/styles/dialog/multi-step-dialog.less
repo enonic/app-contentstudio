@@ -25,10 +25,9 @@
     }
 
     &.first-step {
-      .button-container {
-        button:first-child {
-          visibility: hidden;
-        }
+      .button-container > :first-child {
+        visibility: hidden;
+        pointer-events: none;
       }
     }
   }

@@ -1,21 +1,22 @@
-import {ContentUnpublishPromptEvent} from '../ContentUnpublishPromptEvent';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {getSelectedItems} from '../../../v6/features/store/contentTreeSelectionStore';
+import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {openUnpublishDialog} from '../../../v6/features/store/dialogs/unpublishDialog.store';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class UnpublishContentAction extends ContentTreeGridAction {
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.unpublishMore'));
+    constructor(grid: ContentTreeListElement) {
+        super(grid, i18n('action.unpublish'));
 
         this.setEnabled(false).setClass('unpublish');
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedItems();
-        new ContentUnpublishPromptEvent(contents).fire();
+        const contents: ContentSummaryAndCompareStatus[] = getSelectedItems();
+        openUnpublishDialog(contents);
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

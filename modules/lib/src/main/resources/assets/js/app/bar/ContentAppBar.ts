@@ -5,7 +5,6 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import {ProjectSelectionDialog} from '../dialog/ProjectSelectionDialog';
 import {ShowIssuesDialogButton} from '../issue/view/ShowIssuesDialogButton';
 import {ProjectContext} from '../project/ProjectContext';
 import {Project} from '../settings/data/project/Project';
@@ -42,9 +41,6 @@ export class ContentAppBar
     }
 
     private initListeners() {
-        const openProjectSelectionDialog = () => ProjectSelectionDialog.get().open();
-        this.selectedProjectViewer.onClicked(openProjectSelectionDialog);
-
         AccessibilityHelper.makeTabbable(this.selectedProjectViewer);
 
         const handler: () => void = this.handleProjectUpdate.bind(this);
@@ -61,7 +57,6 @@ export class ContentAppBar
         const currentProjectName: string = ProjectContext.get().getProject().getName();
 
         new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
-            ProjectSelectionDialog.get().setProjects(projects);
             const project: Project = projects.find((p: Project) => p.getName() === currentProjectName);
             this.selectedProjectViewer.setObject(project);
             this.selectedProjectViewer.toggleClass('multi-projects', projects.length > 1);

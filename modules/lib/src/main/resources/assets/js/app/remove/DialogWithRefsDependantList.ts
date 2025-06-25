@@ -1,35 +1,36 @@
+import {ContentListItemElement} from '../../v6/features/shared/items/ContentListItem';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ArchiveCheckableItem} from '../dialog/ArchiveCheckableItem';
-import {DependantArchiveItemViewer} from '../dialog/DependantArchiveItemViewer';
 import {compareItems, DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
+import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
 
 export class DialogWithRefsDependantList
-    extends DialogDependantItemsList {
-
+    extends DialogDependantItemsList<ContentListItemElement> {
     private resolveDependenciesResult: ContentWithRefsResult;
 
     constructor(observer: Omit<ObserverConfig, 'sort'>) {
+        const className = 'gap-y-1.5';
         super({
             observer: {
                 ...observer,
                 sort: (items) => [...items].sort((a, b) => this.itemsWithRefsOnTop(a, b)),
             },
+            className,
         });
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ArchiveCheckableItem {
-        const viewer = new DependantArchiveItemViewer();
-        viewer.setObject(item);
-        return new ArchiveCheckableItem({viewer, item});
+    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentListItemElement {
+        return new ContentListItemElement({
+            content: item,
+            selected: false,
+            className: 'archive-item',
+            onClick: readOnly ? undefined : () => new EditContentEvent([item]).fire(),
+            children: undefined,
+        });
     }
 
     setResolveDependenciesResult(resolveDependenciesResult: ContentWithRefsResult) {
         this.resolveDependenciesResult = resolveDependenciesResult;
-    }
-
-    getItemViews(): ArchiveCheckableItem[] {
-        return super.getItemViews() as ArchiveCheckableItem[];
     }
 
     private itemsWithRefsOnTop(a: ContentSummaryAndCompareStatus, b: ContentSummaryAndCompareStatus): number {
@@ -39,5 +40,4 @@ export class DialogWithRefsDependantList
     private hasInboundToNumber(item: ContentSummaryAndCompareStatus): number {
         return this.resolveDependenciesResult?.hasInboundDependency(item.getId()) ? 3 : 0;
     }
-
 }

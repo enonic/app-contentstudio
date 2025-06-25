@@ -21,6 +21,17 @@ type LiteralUnion<T extends U, U = string> = T | (U & Record<never, never>);
 type Merge<T, U> = Identity<Omit<T, keyof U> & U>;
 
 //
+// DOM Extensions
+//
+
+// focusVisible is supported in Firefox 104+ and Safari 18.4+
+// Chrome does not support focusVisible yet, but shows focus in situation more reliably.
+// https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus#focusvisible
+interface FocusOptions {
+    focusVisible?: boolean;
+}
+
+//
 // JQuery
 //
 interface JQuery {

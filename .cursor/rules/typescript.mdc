@@ -1,0 +1,338 @@
+---
+description:
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+
+# TypeScript Coding Standards
+
+## Code Style
+
+```typescript
+// ✅ Spaces inside `{}` in imports, types, objects, or destructuring
+import { Data } from './components/Button';
+type IdBad = { id: string };
+const bar = { foo: 1; };
+function getIdBad({ id }: IdBad): string {
+  const { foo } = bar;
+  return id;
+}
+
+// ❌ Avoid absence of spaces inside `{}`
+import {Data } from './components/Button';
+type Id = {id: string};
+const bar = {foo: 1;};
+function getId({id}: Id): string {
+  const {foo} = bar;
+  return id;
+}
+
+// ✅ Prefer single quotes over double quotes
+import { atom } from 'nanostores';
+const $note = atom(`Time: ${Date.now()}`);
+
+// ✅ Check for both null and undefined with `!= null`
+if (response != null) {
+  // safe to use response
+}
+
+// ❌ No nested ternaries - use if/else or object lookup
+const status = isLoading ? 'loading' : isError ? 'error' : 'idle'; // Bad
+
+// ✅ Good alternatives
+const status = getStatus(); // Extract to function with if/else, switch/case or object lookup
+const statusMap = { loading: isLoading, error: isError };
+
+// ✅ Leverage modern TypeScript syntax
+const len = items?.length ?? 0;
+settings.debug ||= false;
+cache?.clear();
+const size = 1_000;
+
+// ✅ Prefer `const` over `let` if variable won't change
+const max = 100;
+
+// ✅ Prefer destructing assignment
+const [body, headers = {}] = request;
+const { signal } = new AbortController();
+
+// ✅ Prefer single-line guard clauses (early return)
+if (element == null) return;
+if (!isSupported) return false;
+
+// ❌ Do not wrap single-statement guard clauses in braces
+if (data == null) {
+  return;
+}
+if (!isEnabled) {
+  return children;
+}
+
+// ✅ Insert exactly one blank line between logically distinct operations
+const result = doSomething();
+
+updateAnotherThing();
+
+// ✅ End every source file with a single trailing newline
+
+```
+
+## Naming Standards
+
+```typescript
+// ✅ All stores must start with `$` sign
+export const $counter = atom(0);
+
+// ✅ Standalone booleans use `is`/`has`/`can`/`should`/`will` prefixes
+const isEnabled = true;
+const hasFocus = false;
+const canEdit = permissions.includes('edit');
+const shouldUpdate = version < latest;
+const willUnmount = false;
+
+// ✅ Object props: drop prefixes for boolean props
+const enabled = true;
+const state = { enabled };
+
+// ✅ React props: drop prefixes for boolean props
+interface ButtonProps {
+  disabled?: boolean; // Not 'isDisabled'
+  loading?: boolean; // Not 'isLoading'
+  active?: boolean; // Not 'isActive'
+  onClick?: () => void; // Event handlers use 'on' prefix
+  onChange?: (value: string) => void;
+}
+
+// ✅ Internal handlers use 'handle' prefix
+const handleClick = () => {
+  onClick?.();
+};
+const handleSubmit = (e: FormEvent) => {
+  e.preventDefault();
+};
+
+// ✅ Use standard prop names
+interface InputProps {
+  value?: string; // Not 'text' or 'content'
+  defaultValue?: string; // Not 'initialText'
+  onChange?: (value: string) => void; // Not 'onUpdate'
+}
+
+// ✅ Arrays use plural forms
+const users: User[] = [];
+const selectedIds: string[] = [];
+
+// ✅ Functions use verb prefixes
+function getUserById(id: string) {} // get/fetch/load/parse
+function setUserName(name: string) {} // set/update/save/calc/compute
+function isValidEmail(email: string) {} // is/has for boolean returns
+
+// ❌ Avoid unprefixed standalone flags or prefixed props
+const enabledFlag = true; // Bad for standalone
+const config = { isEnabled }; // Bad for object prop
+
+// ✅ Add comma after the last element in multi-line function arguments, arrays, objects
+function add(
+  firstNumericValue: number,
+  secondNumericValue: number,
+  thirdNumericValue: number,
+  fourthNumericValue: number,
+): number {
+  // ...
+}
+
+// ✅ Name constants using UPPERCASE and underscrore
+const TIMEOUT_MS = 30_000;
+const MAX_RETRIES = 3;
+```
+
+## Type Definitions
+
+```typescript
+// ✅ Prefer types for object shapes
+type User = {
+  id: string;
+  name: string;
+}
+
+// ✅ Use type aliases for unions/primitives
+type UserStatus = 'active' | 'inactive' | 'pending';
+type UserId = string;
+
+// ✅ Use T[] syntax for arrays
+type Users = User[];
+const items: string[] = [];
+
+// ❌ Avoid Array<T> generic syntax
+type Users = Array<User>; // Bad
+const items: Array<string> = []; // Bad
+
+// ❌ Avoid any type
+const data: any = fetchData(); // Bad
+
+// ✅ Use unknown and type guards
+const data: unknown = fetchData();
+if (isUser(data)) {
+  // TypeScript knows data is User here
+}
+
+// ❌ Avoid type assertions with 'as' - use type guards or proper typing
+const user = {} as User; // Bad
+const element = event.target as HTMLInputElement; // Bad
+// ✅ Good alternatives
+const user: Partial<User> = {};
+if (event.target instanceof HTMLInputElement) { /* use target */ }
+
+// ❌ Avoid non-null assertion '!' - use optional chaining or guards
+const value = getUserInput()!; // Bad
+// ✅ Good alternatives
+const value = getUserInput() ?? defaultValue;
+if (!input) return; // Guard clause
+
+// ✅ Prefer defining type separatelly instead of setting it's shape in generics
+type Identifiable = { id: string; }
+function getById<T extends Identifiable>(items: T[], id: string): T {
+  return items.find(item => item.id === id);
+}
+
+// ✅ Explicit type annotation when assigning objects
+const user: User = { id, name };
+
+// ✅ Use `satisfies` for precise literal types without widening
+const options = {
+  retry: 3,
+  timeout: 5000,
+} satisfies RequestOptions;
+
+// ✅ Define and use `Maybe<T>` for nullish values
+type Maybe<T> = T | null | undefined;
+function findUser(id: string): Maybe<User> {
+  // ...
+}
+
+// ✅ Prefer `undefined` over `null` for unset values
+const [activeId, setActiveId] = useState<string | undefined>(undefined);
+const context = createContext<MenuContextValue | undefined>(undefined);
+
+// ❌ Avoid `null` for optional/unset values
+const [activeId, setActiveId] = useState<string | null>(null); // Bad
+const context = createContext<MenuContextValue | null>(null); // Bad
+
+// ✅ Exception: refs use `null` (React convention)
+const ref = useRef<HTMLDivElement | null>(null);
+```
+
+**Rationale for `undefined` over `null`:**
+- `undefined` is JavaScript's default for uninitialized values
+- More semantically correct for "not set" vs "intentionally empty"
+- Consistent with TypeScript optional properties (`prop?: string`)
+- Exception: React refs use `null` by convention
+
+- Do not place types in the same file with the store definition, except the store type
+- Prefer one file per type
+- Define types in the same file, if one of the type is used inside the other one
+
+## Type Composition
+
+```typescript
+// ✅ Use regular imports for types
+import { MenuContextOperations } from '@/primitives/menu-primitive';
+
+export type MenuItemProps = Omit<MenuPrimitiveItemProps, keyof MenuContextOperations>;
+
+// ❌ Avoid inline/dynamic type imports - harder to read and refactor
+export type MenuItemPropsBad = Omit<
+  MenuPrimitiveItemProps,
+  keyof import('@/primitives/menu-primitive').MenuContextOperations
+>;
+
+// ✅ Prefer composition: define base "own" types, then extend
+type MenuItemOwnProps = {
+  id?: string;
+  disabled?: boolean;
+  onSelect?: (event: Event) => void;
+} & ComponentPropsWithoutRef<'div'>;
+
+// Internal type combines base + injected dependencies
+type MenuPrimitiveItemProps = MenuItemOwnProps & MenuContextOperations;
+
+// Consumer type uses base directly - clean and readable
+export type MenuItemProps = MenuItemOwnProps;
+
+// ❌ Avoid subtracting types that were just added (Omit gymnastics)
+type FullProps = BaseProps & InjectedDeps;
+export type PublicProps = Omit<FullProps, keyof InjectedDeps>; // Bad - just use BaseProps
+
+// ❌ Especially avoid nested Omit - very hard to understand
+export type RadioItemProps = Omit<
+  PrimitiveRadioItemProps,
+  keyof Omit<MenuContextOperations, 'setOpen'>
+>; // Bad
+
+// ✅ Instead, define what you need directly (single-level Omit is fine)
+type RadioItemOwnProps = { value: string; disabled?: boolean; /* ... */ };
+type PrimitiveRadioItemProps = RadioItemOwnProps & Omit<MenuContextOperations, 'setOpen'>;
+export type RadioItemProps = RadioItemOwnProps; // Clean
+```
+
+**Rationale:**
+- Inline type imports (`import('...').Type`) are harder to read, refactor, and don't show up in "Find References"
+- Composition (`Base & Extensions`) is clearer than subtraction (`Full - Removed`)
+- IDE hover shows actual properties instead of computed `Omit<...>` types
+- TypeScript errors reference real property names, not derived types
+- Nested `Omit<X, keyof Omit<Y, 'z'>>` is a code smell - restructure the types
+
+## Function Signatures
+
+```typescript
+// ✅ Explicit return types for public functions
+export function calculateTotal(items: OrderItem[]): number {
+  return items.reduce((sum, item) => sum + item.price, 0);
+}
+
+// ✅ Prefer arrow functions without explicit return type in handlers
+export function add2(values: number[]): number[] {
+  return values.map(v => v + 2);
+}
+
+// ✅ Prefer arrow functions with return type is one line helpers
+const isEven = (value: number): boolean => value % 2 === 0;
+
+// ✅ Use generic constraints
+function updateEntity<T extends { id: string }>(entity: T, updates: Partial<T>): T {
+  return { ...entity, ...updates };
+}
+```
+
+## Error Handling
+
+```typescript
+// ✅ Use Result pattern to wrap operations that are unsafe
+async function parse(data: string): <Result<User>> {
+  return Result.tryCatch((): unknown => JSON.parse(data));
+}
+```
+
+- `Result`, `Ok`, `Err` have custom implementations inside the project.
+
+## Import/Export Standards
+
+```typescript
+// ✅ Named exports preferred
+export { UserService, ProductService };
+
+// ✅ Group imports by source
+import React, { useState, useEffect } from 'react';
+import { Router } from 'express';
+
+import { UserService } from '../services/UserService';
+import { validateEmail } from '../utils/validation';
+
+import type { User, CreateUserInput } from '../types';
+
+// ✅ Prefer importing local files with alias `@/` instead of long relative paths
+import { MyComponent } from '@/components/MyComponent';
+
+// ✅ Import with relative paths only from the same directory
+import { MyComponent } from './MyComponent';
+```

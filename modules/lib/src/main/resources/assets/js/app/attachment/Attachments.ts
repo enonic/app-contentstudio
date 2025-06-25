@@ -32,6 +32,12 @@ export class Attachments
         });
     }
 
+    map(callBack: (attachment: Attachment, index: number) => unknown): unknown[] {
+        return this.attachments.map((attachment: Attachment, index: number) => {
+            return callBack(attachment, index);
+        });
+    }
+
     getAttachmentByName(name: string): Attachment {
         return this.attachmentByName[name];
     }
