@@ -49,9 +49,8 @@ export class DialogTogglableItemList
 
         const serverEvents = ContentServerEventsHandler.getInstance();
 
-        const itemsByIdsUpdatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]): void => {
-            const updatedIds = updatedItems.map(item => item.getId());
-            const isItemsUpdated = this.getItems().some(item => updatedIds.findIndex(updatedId => updatedId === item.getId()) > -1);
+        const permissionsUpdatedHandler = (contentIds: ContentId[]): void => {
+            const isItemsUpdated = this.getItems().some(item => contentIds.some(id => id.toString() === item.getId()));
 
             if (isItemsUpdated) {
                 this.notifyListChanged();
@@ -59,7 +58,12 @@ export class DialogTogglableItemList
         };
 
         const itemsUpdatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]) => {
-            itemsByIdsUpdatedHandler(updatedItems);
+            const updatedIds = updatedItems.map(item => item.getId());
+            const isItemsUpdated = this.getItems().some(item => updatedIds.includes(item.getId()));
+
+            if (isItemsUpdated) {
+                this.notifyListChanged();
+            }
         };
 
         const deletedHandler = (deletedItems: ContentServerChangeItem[]) => {
@@ -73,13 +77,13 @@ export class DialogTogglableItemList
         };
 
         this.onAdded(() => {
-            serverEvents.onContentPermissionsUpdated(itemsByIdsUpdatedHandler);
+            serverEvents.onContentPermissionsUpdated(permissionsUpdatedHandler);
             serverEvents.onContentUpdated(itemsUpdatedHandler);
             serverEvents.onContentDeleted(deletedHandler);
         });
 
         this.onRemoved(() => {
-            serverEvents.unContentPermissionsUpdated(itemsByIdsUpdatedHandler);
+            serverEvents.unContentPermissionsUpdated(permissionsUpdatedHandler);
             serverEvents.unContentUpdated(itemsUpdatedHandler);
             serverEvents.unContentDeleted(deletedHandler);
         });

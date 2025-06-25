@@ -22,6 +22,7 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
     const DATE_TIME_IN_FUTURE = '2029-09-10 00:00';
     let SITE;
 
+    // TODO epic-enonic-ui new tests: verify scheduled status in versions widget
     it(`WHEN existing site(include child items) has been scheduled THEN PUBLISHING SCHEDULED status should be displayed in the grid`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -49,11 +50,11 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             assert.equal(actualStatus, appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED, "Scheduled status should be displayed in the grid");
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 6. 'Scheduled' status should be displayed in the 'Preview Item toolbar':
-            let status = await contentItemPreviewPanel.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED,
-                "'Scheduled' status should be displayed in the Preview Item toolbar");
+            //let status = await contentItemPreviewPanel.getContentStatus();
+            //assert.equal(status, appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED,
+             //   "'Scheduled' status should be displayed in the Preview Item toolbar");
             // 7. 'Show Changes' button should be displayed in the 'Preview Item' toolbar:
-            await contentItemPreviewPanel.waitForShowChangesButtonNotDisplayed();
+           // await contentItemPreviewPanel.waitForShowChangesButtonNotDisplayed();
         });
 
     // Verify issue: Unpublish Item dialog - dependent items are not displayed when content with children are scheduled #4185

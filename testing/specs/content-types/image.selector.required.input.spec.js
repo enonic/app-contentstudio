@@ -64,11 +64,11 @@ describe('image.selector.required.input.spec tests for validation of content wit
             await studioUtils.doSwitchToContentBrowsePanel();
             // 4. Delete the image:
             await studioUtils.findAndSelectItem(IMAGE_DISPLAY_NAME2);
-            // Open Archive modal  dialog:
-            await browsePanel.clickOnArchiveButton();
+            // Open Delete content modal  dialog:
+            await browsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.clickOnIgnoreInboundReferences();
-            await deleteContentDialog.clickOnDeleteMenuItem();
+            await deleteContentDialog.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogClosed();
             await studioUtils.switchToContentTabWindow(CONTENT_NAME_2);
             // 5. Verify that the content remains valid:

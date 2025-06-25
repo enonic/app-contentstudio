@@ -14,7 +14,9 @@ class SiteConfiguratorComboBox extends BasDropdown {
 
     async selectFilteredApplicationAndClickOnApply(appDisplayName, parentElement) {
         try {
-            await this.clickOnFilteredByDisplayNameItemAndClickOnApply(appDisplayName, parentElement);
+            await this.clickOnFilteredByDisplayNameItem(appDisplayName, parentElement);
+            // 3. Click on 'OK' button:
+            return await this.clickOnApplySelectionButtonOld(parentElement);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('SiteConfigurator  - Error occurred during selecting the option, screenshot: ' + screenshot + ' ' + err);

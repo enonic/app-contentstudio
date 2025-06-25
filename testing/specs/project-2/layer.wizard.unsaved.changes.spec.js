@@ -82,8 +82,8 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             await settingsBrowsePanel.clickOnEditButton();
             await layerWizard.waitForLoaded();
             await layerWizard.clickOnCopyAccessModeFromParent(PARENT_PROJECT);
-            // 2. Confirm the coping:
-            await confirmationDialog.clickOnYesButton();
+            // 2. Confirm the action:
+            await confirmationDialog.clickOnConfirmButton();
             await layerWizard.waitForNotificationMessage();
             // 3. Click on 'close' icon:
             await settingsBrowsePanel.clickOnCloseIcon(LAYER_DISPLAY_NAME);

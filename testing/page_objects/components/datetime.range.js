@@ -2,7 +2,7 @@
  * Created on 02.08.2019.
  */
 const appConst = require('../../libs/app_const');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const Page = require('../page');
 const XPATH = {
     container: `//div[contains(@id,'DateTimeRange')]`,

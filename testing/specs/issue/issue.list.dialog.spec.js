@@ -21,14 +21,14 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             let title = await issueListDialog.getTitle();
             assert.strictEqual(title, 'Issues', 'Expected dialog hider should be displayed');
             // 'Open' button should be displayed
-            await issueListDialog.waitForOpenButtonDisplayed();
-            let closedButtonDisplayed = await issueListDialog.isClosedButtonDisplayed();
-            assert.ok(closedButtonDisplayed, "'Closed' button should be displayed");
+            await issueListDialog.waitForOpenTabButtonDisplayed();
+            // 'Closed' tab button should be displayed
+            await issueListDialog.waitForClosedTabButtonDisplayed();
 
             let typeFilter = await issueListDialog.isTypeFilterSelectorDisplayed();
             assert.ok(typeFilter, "'Type Filter' selector  should be displayed");
 
-            let result = await issueListDialog.getTypeFilterSelectedOption();
+            let result = await issueListDialog.getSelectedOptionInTypeFilter();
             assert.ok(result.includes(`All`), "All' option should be selected by default");
             await issueListDialog.waitForNewIssueButtonDisplayed();
         });

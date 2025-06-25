@@ -2,7 +2,7 @@
  * Created on 08.07.2019.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const xpath = {
     container: "//div[contains(@id,'XDataWizardStepForm') and preceding-sibling::div[child::span[text()='Photo']]]",
     lensInput: `//input[contains(@name,'lens')]`,

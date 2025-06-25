@@ -1,12 +1,11 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const lib = require('./../../libs/elements');
+const {BUTTONS,DEPENDANTS_COMPONENT} = require('./../../libs/elements');
 const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown');
 const DependantsControls = require('./dependant.controls');
 
 const xpath = {
-    container: `//div[contains(@id,'RequestContentPublishDialog')]`,
-    createRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Create request')]]`,
+    container: `//div[@data-component='RequestPublishDialogContent']`,
     changesInput: `//div[contains(@id,'FormItem') and descendant::span[text()='Describe the changes']]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
@@ -26,7 +25,7 @@ const xpath = {
 
 };
 // Modal Dialog for creating of new publish request
-// Select a content then expand Publish menu and click on 'Request Publishing...' menu item
+// Select a content then expand Publish menu and click on 'Request Publishing' menu item
 class CreateRequestPublishDialog extends Page {
 
     constructor() {
@@ -35,27 +34,19 @@ class CreateRequestPublishDialog extends Page {
     }
 
     get dependantsBlock() {
-        return xpath.container + lib.DEPENDANTS.DEPENDANTS_BLOCK;
+        return xpath.container + DEPENDANTS_COMPONENT.SECONDARY_DATA_COMPONENT_DIV;
     }
 
     get invalidIcon() {
         return xpath.container + xpath.invalidEntryDiv + xpath.invalidIcon;
     }
 
-    get nextButton() {
-        return xpath.container + lib.actionButton('Next');
-    }
-
-    get cancelButtonTop() {
-        return xpath.container + lib.CANCEL_BUTTON_TOP;
-    }
-
-    get previousButton() {
-        return xpath.container + lib.dialogButton('Previous');
+    get closeButton() {
+        return xpath.container + BUTTONS.buttonAriaLabel('Close');
     }
 
     get markAsReadyButton() {
-        return xpath.container + xpath.inProgressEntryDiv + lib.actionButton('Mark as ready');
+        return xpath.container +  BUTTONS.buttonStatusBar('Mark as ready');
     }
 
     get excludeItemsInProgressButton() {
@@ -67,10 +58,10 @@ class CreateRequestPublishDialog extends Page {
     }
 
     get createRequestButton() {
-        return xpath.container + xpath.createRequestButton;
+        return xpath.container + BUTTONS.createRequestButton;
     }
 
-    get describeChangesInput() {
+    get titleInput() {
         return xpath.container + xpath.changesInput + lib.TEXT_INPUT;
     }
 
@@ -100,8 +91,8 @@ class CreateRequestPublishDialog extends Page {
         }
     }
 
-    async clickOnCancelButtonTop() {
-        await this.clickOnElement(this.cancelButtonTop);
+    async clickOnCloseButton() {
+        await this.clickOnElement(this.closeButton);
         return await this.waitForDialogClosed();
     }
 
@@ -180,13 +171,6 @@ class CreateRequestPublishDialog extends Page {
         }
     }
 
-    async waitForNextButtonDisabled() {
-        try {
-            return await this.waitForElementNotClickable(this.nextButton, appConst.mediumTimeout);
-        } catch (err) {
-            throw new Error("Request Publishing dialog:  'Next' button should be disabled :" + err);
-        }
-    }
 
     async waitForInvalidIconDisplayed() {
         try {
@@ -204,10 +188,6 @@ class CreateRequestPublishDialog extends Page {
             await this.handleError(`Request Publishing dialog:  'invalid' icon should be not visible`,
                 'err_request_publish_dialog_invalid_icon', err);
         }
-    }
-
-    waitForPreviousButtonDisplayed() {
-        return this.waitUntilDisplayed(this.previousButton, appConst.mediumTimeout);
     }
 
     waitForCreateRequestButtonDisplayed() {
@@ -239,15 +219,6 @@ class CreateRequestPublishDialog extends Page {
         return this.getText(selector);
     }
 
-    async clickOnNextButton() {
-        try {
-            await this.waitForNextButtonDisplayed();
-            await this.clickOnElement(this.nextButton);
-            return await this.pause(300);
-        } catch (err) {
-            await this.handleError('Request Publish Dialog -  tried to click on Next button', 'err_click_next_btn', err);
-        }
-    }
 
     async clickOnDropDownHandleInAssigneesCombobox() {
         try {
@@ -264,14 +235,6 @@ class CreateRequestPublishDialog extends Page {
         return await principalComboBox.getPrincipalsDisplayNameInOptions(xpath.container);
     }
 
-    async clickOnPreviousButton() {
-        try {
-            await this.waitForPreviousButtonDisplayed();
-            return await this.clickOnElement(this.previousButton);
-        } catch (err) {
-            await this.handleError('Request Publish Dialog tried to click on Previous button', 'err_click_previous_btn', err);
-        }
-    }
 
     async clickOnIncludeChildItems(displayName) {
         try {
@@ -304,9 +267,9 @@ class CreateRequestPublishDialog extends Page {
         return this.isElementDisplayed(this.warningMessagePart1);
     }
 
-    async typeInChangesInput(changes) {
-        await this.waitForElementDisplayed(this.describeChangesInput);
-        return await this.typeTextInInput(this.describeChangesInput, changes);
+    async typeInTitleInput(title) {
+        await this.waitForElementDisplayed(this.titleInput);
+        return await this.typeTextInInput(this.titleInput, title);
     }
 
     async clickOnCreateRequestButton() {

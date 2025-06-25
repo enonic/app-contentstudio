@@ -2,7 +2,7 @@
  * Created on 02.12.2017.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 const xpath = {
@@ -195,8 +195,8 @@ class ShortcutForm extends Page {
     }
 
     async filterOptionsAndSelectTarget(displayName) {
-        let contentSelectorDropdown = new ContentSelectorDropdown();
-        return await contentSelectorDropdown.selectFilteredByDisplayNameContent(displayName, xpath.stepForm);
+        let contentSelectorDropdown = new ContentSelectorDropdown(xpath.stepForm);
+        await contentSelectorDropdown.clickOnFilteredByDisplayNameItem(displayName);
     }
 
     async getSelectedTargetDisplayName() {

@@ -4,6 +4,9 @@ import {type ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {type ContentSummary} from '../content/ContentSummary';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ContentUnnamed} from '../content/ContentUnnamed';
+import {setWizardToolbarWorkflowStatus} from '../../v6/features/store/wizardToolbar.store';
 
 export enum WorkflowStateStatus {
     INVALID = 'invalid',
@@ -39,7 +42,7 @@ export class WorkflowStateManager {
 
     private updateIcons(): void {
         const thumbnailUploader: ThumbnailUploaderEl = this.wizard.getFormIcon();
-        const toolbarIcon: DivEl = this.wizard.getMainToolbar()?.getStateIcon();
+        const toolbarIcon: DivEl = this.wizard.getContentWizardToolbar()?.getStateIcon();
         const isStatusHidden: boolean = this.isStatusToBeHidden();
 
         thumbnailUploader.setStatus(this.status);
@@ -49,6 +52,8 @@ export class WorkflowStateManager {
         toolbarIcon?.toggleClass(WorkflowStateStatus.READY, WorkflowStateManager.isReady(this.status));
         toolbarIcon?.toggleClass(WorkflowStateStatus.IN_PROGRESS, WorkflowStateManager.isInProgress(this.status));
         toolbarIcon?.toggleClass('status-hidden', isStatusHidden);
+
+        setWizardToolbarWorkflowStatus(this.status ?? null);
     }
 
     private isStatusToBeHidden(): boolean {
@@ -70,6 +75,15 @@ export class WorkflowStateManager {
             return null;
         }
 
+        const displayName = this.wizard.getWizardHeader()?.getDisplayName();
+        const name = this.wizard.getWizardHeader()?.getName();
+        const hasDisplayName = !StringHelper.isBlank(displayName);
+        const hasName = !StringHelper.isBlank(name) && !name.startsWith(ContentUnnamed.UNNAMED_PREFIX);
+
+        if (!hasDisplayName || !hasName) {
+            return WorkflowStateStatus.INVALID;
+        }
+
         const isValid: boolean = this.wizard.isValid();
 
         if (!isValid) {
@@ -78,6 +92,10 @@ export class WorkflowStateManager {
 
         const hasUnsavedChanges: boolean = this.wizard.hasUnsavedChanges();
         const contentSummary: ContentSummary = content.getContentSummary();
+
+        if (!contentSummary) {
+            return WorkflowStateStatus.IN_PROGRESS;
+        }
 
         const isReady: boolean = isValid && !hasUnsavedChanges && contentSummary.isReady();
 
@@ -106,6 +124,10 @@ export class WorkflowStateManager {
 
     static isInvalid(status: WorkflowStateStatus): boolean {
         return status === WorkflowStateStatus.INVALID;
+    }
+
+    public getStatus(): WorkflowStateStatus {
+        return this.status;
     }
 
     public onStatusChanged(listener: (status: WorkflowStateStatus) => void) {

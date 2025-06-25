@@ -1,7 +1,7 @@
 /**
  * Created on 05.08.2022
  */
-const lib = require('../../../libs/elements');
+const {DROPDOWN} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 const ProjectApplicationsComboBox = require('../../components/projects/project.applications.combobox');
@@ -17,7 +17,7 @@ const DESCRIPTION = "Select applications for the project content";
 class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
 
     get appSelectorDropDownHandler() {
-        return XPATH.container + XPATH.projectApplicationsComboBox + lib.DROP_DOWN_HANDLE;
+        return XPATH.container + XPATH.projectApplicationsComboBox + DROPDOWN.DROP_DOWN_HANDLE;
     }
 
     //types an application name and click on the filtered option

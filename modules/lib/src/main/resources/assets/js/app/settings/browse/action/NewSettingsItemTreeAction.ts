@@ -4,39 +4,29 @@ import {type Project} from '../../data/project/Project';
 import {type SettingsViewItem} from '../../view/SettingsViewItem';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
-import {ProjectWizardDialog} from '../../dialog/project/create/ProjectWizardDialog';
-import {ProjectSteps} from '../../dialog/project/create/ProjectSteps';
 import {ProjectConfigContext} from '../../data/project/ProjectConfigContext';
+import {getCurrentItems} from '../../../../v6/features/store/settingsTreeSelection.store';
+import {openNewProjectDialog} from '../../../../v6/features/store/dialogs/newProjectDialog.store';
 import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
-export class NewSettingsItemTreeAction
-    extends Action {
-
-    private tree: SelectableListBoxWrapper<SettingsViewItem>;
-
-    constructor(tree: SelectableListBoxWrapper<SettingsViewItem>) {
-        super(i18n('action.newMore'), 'alt+n');
-
-        this.tree = tree;
+export class NewSettingsItemTreeAction extends Action {
+    constructor() {
+        super(i18n('action.new'), 'alt+n');
 
         this.onExecuted(() => {
-            new ProjectWizardDialog({
-                steps: ProjectSteps.create(),
-                title: i18n('dialog.project.wizard.title'),
-                parentProjects: this.getSelectedProjects()
-            }).open();
+            openNewProjectDialog(this.getSelectedProjects());
         });
     }
 
     private getSelectedProjects(): Project[] {
         const isMultiInheritance: boolean = ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance();
-        const selectedItems: SettingsViewItem[] = this.tree.getSelectedItems();
+        const selectedItems: SettingsViewItem[] = [...getCurrentItems()];
         const selectedProjects = selectedItems
             .filter((item: SettingsViewItem) => ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem))
             .map((item: ProjectViewItem) => item.getData());
 
         if (!selectedProjects.length) {
-            return null;
+            return [];
         }
 
         if (isMultiInheritance) {

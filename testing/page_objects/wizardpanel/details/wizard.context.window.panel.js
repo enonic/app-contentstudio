@@ -1,9 +1,10 @@
 /**
  * Created on 30/07/2018.
  */
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 const BaseContextWindowPanel = require('../../details_panel/base.context.window.panel');
+const {WIZARD} = require('../../../libs/elements');
 
 const xpath = {
     container: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'DockedContextPanel') or contains(@id,'FloatingContextPanel')]`,
@@ -17,7 +18,7 @@ class WizardContextWindowPanel extends BaseContextWindowPanel {
     }
 
     get widgetSelectorDropdown() {
-        return xpath.container + lib.DROPDOWN_SELECTOR.WIDGET_FILTER_DROPDOWN;
+        return xpath.container + WIZARD.CONTEXT_WINDOW_WIDGET_SELECTOR_ITEM
     }
 
     get widgetSelectorDropdownHandle() {

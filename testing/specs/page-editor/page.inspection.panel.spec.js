@@ -81,7 +81,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             await pageInspectionPanel.selectPageTemplateOrController('Automatic');
             // 4. Click on 'Yes' button
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await studioUtils.saveScreenshot('controller_automatic');
             // 5. Verify that the content is automatically saved:
             await contentWizard.waitForNotificationMessage();

@@ -263,8 +263,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
-            await createRequestPublishDialog.clickOnNextButton();
-            await createRequestPublishDialog.typeInChangesInput('owner request');
+            await createRequestPublishDialog.typeInTitleInput('owner request');
             // 3. Click on 'Create Request' button:
             await createRequestPublishDialog.clickOnCreateRequestButton();
             // 4. Verify that Create Request dialog closes:

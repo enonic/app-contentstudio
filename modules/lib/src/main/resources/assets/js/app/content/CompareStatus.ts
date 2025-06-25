@@ -1,13 +1,13 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export enum CompareStatus {
-    NEW,
-    NEWER,
-    OLDER,
-    EQUAL,
-    MOVED,
-    UNKNOWN,
-    ARCHIVED
+    NEW = 'new',
+    NEWER = 'modified',
+    OLDER = 'outofdate',
+    EQUAL = 'published',
+    MOVED = 'moved',
+    ARCHIVED = 'archived',
+    UNKNOWN = 'unknown',
 }
 
 export class CompareStatusFormatter {
@@ -15,49 +15,38 @@ export class CompareStatusFormatter {
     public static formatStatusClass(compareStatus: CompareStatus): string {
 
         switch (compareStatus) {
-        case CompareStatus.NEW:
-            return 'new';
-        case CompareStatus.NEWER:
-            return 'modified';
-        case CompareStatus.EQUAL:
-            return 'online';
-        case CompareStatus.MOVED:
-            return 'moved';
-        case CompareStatus.ARCHIVED:
-            return 'archived';
-        default:
-            return 'unknown';
+            case CompareStatus.NEW:
+                return 'new';
+            case CompareStatus.NEWER:
+                return 'modified';
+            case CompareStatus.EQUAL:
+                return 'online';
+            case CompareStatus.MOVED:
+                return 'moved';
+            case CompareStatus.ARCHIVED:
+                return 'archived';
+            default:
+                return 'unknown';
         }
     }
 
     public static formatStatusText(compareStatus: CompareStatus): string {
-
-        let status;
-
         switch (compareStatus) {
-        case CompareStatus.NEW:
-            status = i18n('status.new');
-            break;
-        case CompareStatus.NEWER:
-            status = i18n('status.modified');
-            break;
-        case CompareStatus.OLDER:
-            status = i18n('status.outofdate');
-            break;
-        case CompareStatus.EQUAL:
-            status = i18n('status.published');
-            break;
-        case CompareStatus.MOVED:
-            status = i18n('status.moved');
-            break;
-        case CompareStatus.ARCHIVED:
-            status = i18n('status.archived');
-            break;
-        default:
-            status = i18n('status.unknown');
+            case CompareStatus.NEW:
+                return i18n('status.new');
+            case CompareStatus.NEWER:
+                return i18n('status.modified');
+            case CompareStatus.OLDER:
+                return i18n('status.outofdate');
+            case CompareStatus.EQUAL:
+                return i18n('status.published');
+            case CompareStatus.MOVED:
+                return i18n('status.moved');
+            case CompareStatus.ARCHIVED:
+                return i18n('status.archived');
+            default:
+                return i18n('status.unknown');
         }
-
-        return status;
     }
 }
 

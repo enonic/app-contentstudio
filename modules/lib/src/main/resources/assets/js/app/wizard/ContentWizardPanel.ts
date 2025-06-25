@@ -18,14 +18,13 @@ import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {type Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
 import {type FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
-import {showFeedback, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {showFeedback, showWarning, showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {type PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {type ActivatedEvent} from '@enonic/lib-admin-ui/ui/ActivatedEvent';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
@@ -35,6 +34,7 @@ import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
 import {type ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {type Toolbar, type ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {type UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {assert} from '@enonic/lib-admin-ui/util/Assert';
@@ -45,6 +45,7 @@ import {ValidationErrorHelper} from '@enonic/lib-admin-ui/ValidationErrorHelper'
 import {type ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
+import {DialogPresetConfirmElement} from '../../v6/features/shared/dialogs/DialogPreset';
 import {Permission} from '../access/Permission';
 import {AI} from '../ai/AI';
 import {AiContentDataHelper} from '../ai/AiContentDataHelper';
@@ -60,11 +61,11 @@ import {ContentPathPrettifier} from '../content/ContentPathPrettifier';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 import {Mixin} from '../content/Mixin';
+import {type MixinDescriptor} from '../content/MixinDescriptor';
+import {MixinName} from '../content/MixinName';
 import {type PageTemplate} from '../content/PageTemplate';
 import {type Site} from '../content/Site';
 import {WorkflowState} from '../content/WorkflowState';
-import {type MixinDescriptor} from '../content/MixinDescriptor';
-import {MixinName} from '../content/MixinName';
 import {ContentFormContext} from '../ContentFormContext';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
 import {ContentLanguageUpdatedEvent} from '../event/ContentLanguageUpdatedEvent';
@@ -87,8 +88,8 @@ import {ContentsExistRequest} from '../resource/ContentsExistRequest';
 import {type ContentsExistResult} from '../resource/ContentsExistResult';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {type CreateContentRequest} from '../resource/CreateContentRequest';
-import {GetApplicationRequest} from '../resource/GetApplicationRequest';
 import {GetApplicationMixinsRequest} from '../resource/GetApplicationMixinsRequest';
+import {GetApplicationRequest} from '../resource/GetApplicationRequest';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentMixinsRequest} from '../resource/GetContentMixinsRequest';
 import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
@@ -106,7 +107,7 @@ import {ContextPanelState} from '../view/context/ContextPanelState';
 import {type ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
-import {VersionContext} from '../view/context/widget/version/VersionContext';
+import {AccessControlHelper} from './AccessControlHelper';
 import {type ContentSaveAction} from './action/ContentSaveAction';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentContext} from './ContentContext';
@@ -118,7 +119,7 @@ import {type ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentWizardStep} from './ContentWizardStep';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
-import {ContentWizardToolbar} from './ContentWizardToolbar';
+import {ContentWizardToolbar} from '../browse/ContentWizardToolbar';
 import {type ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {DisplayNameResolver} from './DisplayNameResolver';
 import {type RoutineContext} from './Flow';
@@ -133,17 +134,36 @@ import {PageComponentsWizardStep} from './PageComponentsWizardStep';
 import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
 import {PageEventsManager} from './PageEventsManager';
 import {PageNavigationEventSource} from './PageNavigationEventData';
-import {AccessControlHelper} from './AccessControlHelper';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {SiteContentWizardStepForm} from './SiteContentWizardStepForm';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
+import {UpdatePersistedContentWithStoreRoutine} from './UpdatePersistedContentWithStoreRoutine';
 import {WorkflowStateManager, type WorkflowStateStatus} from './WorkflowStateManager';
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {type ContentItemPreviewToolbar} from '../view/ContentItemPreviewToolbar';
+import {type PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
+import {ContentWizardTabsToolbarElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
+import {
+    $displayName, $isContentFormExpanded,
+    $wizardHasChanges,
+    initializeWizardContentState,
+    resetWizardContent,
+    setContentFormExpanded,
+    setContentType as setWizardContentType,
+    setDraftDisplayName,
+    setDraftName,
+    setDraftPage,
+    setDraftWorkflowState,
+    setMixinsDescriptors as setWizardMixinsDescriptors,
+    setPersistedContent as setWizardPersistedContent,
+} from '../../v6/features/store/wizardContent.store';
+import {openRenameContentDialog} from '../../v6/features/store/dialogs/renameContentDialog.store';
+import {setWizardToolbarContentPath, setWizardToolbarIsPathAvailable} from '../../v6/features/store/wizardToolbar.store';
+import {$isContextOpen, setContextOpen} from '../../v6/features/store/contextWidgets.store';
+import {setWizardContent} from '../../v6/features/store/context/contextContent.store';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -151,6 +171,8 @@ export class ContentWizardPanel
     private contextSplitPanel: ContentWizardContextSplitPanel;
 
     private contextView: ContextView;
+
+    private loadDifferenceDialog?: DialogPresetConfirmElement;
 
     private livePanel?: LiveFormPanel;
 
@@ -189,8 +211,6 @@ export class ContentWizardPanel
     private xDataWizardStepForms: XDataWizardStepForms;
 
     private displayNameResolver: DisplayNameResolver;
-
-    private minimizeEditButton?: DivEl;
 
     private toggleMinimizeListener?: (event: ActivatedEvent) => void;
 
@@ -263,6 +283,14 @@ export class ContentWizardPanel
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     private isRename: boolean;
+
+    private contentWizardTabsElement: ContentWizardTabsToolbarElement;
+
+    private wizardDisplayNameUnsubscribe?: () => void;
+
+    private wizardHasChangesUnsubscribe?: () => void;
+
+    private contentFormExpandedUnsubscribe?: () => void;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
@@ -430,9 +458,30 @@ export class ContentWizardPanel
         this.listenToContentEvents();
         this.handleSiteConfigApply();
         this.handleBrokenImageInTheWizard();
+        this.getWizardHeader().onContentPathClick(() => {
+            this.requestContentPathRename();
+        });
         this.getWizardHeader().onPropertyChanged(this.dataChangedHandler);
         this.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
-            if (event.getPropertyName() === 'displayName') {
+            const propertyName = event.getPropertyName();
+            const header = this.getWizardHeader();
+
+            setDraftDisplayName(header.getDisplayName());
+            setDraftName(this.resolveContentNameForUpdateRequest());
+            setWizardToolbarContentPath(this.normalizeToolbarContentPath(header.getName() || ''));
+            this.workflowStateManager.update();
+
+            if (propertyName === 'unique') {
+                const isPathAvailable = event.getNewValue() !== 'false';
+                const wasPathAvailable = event.getOldValue() !== 'false';
+                setWizardToolbarIsPathAvailable(isPathAvailable);
+
+                if (!isPathAvailable && wasPathAvailable) {
+                    showError(i18n('notify.path.not.available'));
+                }
+            }
+
+            if (propertyName === 'displayName') {
                 this.debouncedEnonicAiDataChangedHandler();
             }
         });
@@ -447,12 +496,6 @@ export class ContentWizardPanel
         this.getWizardHeader().onNameCheckIsOff(() => {
             saveAction.setLocked(false);
             saveAction.setEnabled(this.hasUnsavedChanges());
-        });
-
-        this.getWizardHeader().onRenamed(() => {
-            this.isRename = true;
-            saveAction.setEnabled(true);
-            saveAction.execute();
         });
 
         const updateSaveInLivePanel = AppHelper.debounce(() => {
@@ -477,21 +520,21 @@ export class ContentWizardPanel
 
         this.stepNavigator.unNavigationItemActivated(this.toggleMinimizeListener);
         this.formPanel.toggleClass('minimized');
-        this.minimizeEditButton.toggleClass('icon-arrow-right', this.minimized);
-        this.minimizeEditButton.toggleClass('icon-arrow-left', !this.minimized);
 
         new MinimizeWizardPanelEvent().fire();
 
         if (this.minimized) {
             this.stepNavigator.setScrollEnabled(false);
+            this.formPanel.addClass('border-r border-bdr-soft');
 
             this.scrollPosition = scroll;
-            this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.PIXELS(40));
+            this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.PIXELS(60));
             this.splitPanel.hideSplitter();
             this.stepNavigator.onNavigationItemActivated(this.toggleMinimizeListener);
             this.undockPCV();
         } else {
             this.splitPanel.loadPanelSizesAndDistribute();
+            this.formPanel.removeClass('border-r border-bdr-soft');
 
             if (!this.splitPanel.isSecondPanelHidden()) {
                 this.splitPanel.showSplitter();
@@ -508,7 +551,8 @@ export class ContentWizardPanel
         if (this.helpTextToggleButton) {
             this.helpTextToggleButton.setVisible(maximized);
         }
-        this.stepNavigatorAndToolbarContainer.changeOrientation(maximized);
+
+        setContentFormExpanded(!this.minimized);
     }
 
     protected createWizardActions(): ContentWizardActions {
@@ -529,7 +573,10 @@ export class ContentWizardPanel
     }
 
     fetchContentXData(): Q.Promise<MixinDescriptor[]> {
-        return new GetContentMixinsRequest(this.getPersistedItem().getContentId()).sendAndParse();
+        return new GetContentMixinsRequest(this.getPersistedItem().getContentId()).sendAndParse().then((mixinsDescriptors) => {
+            setWizardMixinsDescriptors(mixinsDescriptors.slice());
+            return mixinsDescriptors;
+        });
     }
 
     protected doLoadData(): Q.Promise<Content> {
@@ -614,11 +661,13 @@ export class ContentWizardPanel
         return super.getFormIcon() as ThumbnailUploaderEl;
     }
 
-    protected createMainToolbar(): ContentWizardToolbar {
+    protected createMainToolbar(): Toolbar<ToolbarConfig> {
         return new ContentWizardToolbar({
             actions: this.wizardActions,
             workflowStateIconsManager: this.workflowStateManager,
-            className: 'content-wizard-toolbar',
+            onContentPathClick: () => {
+                this.requestContentPathRename();
+            },
             compareVersionsPreHook: () => {
                 if (!this.hasUnsavedChanges()) {
                     return Q();
@@ -626,14 +675,14 @@ export class ContentWizardPanel
 
                 return this.saveChangesWithoutValidation().thenResolve(undefined);
             }
-        });
+        }) as unknown as Toolbar<ToolbarConfig>;
     }
 
-    public getMainToolbar(): ContentWizardToolbar {
-        return super.getMainToolbar() as ContentWizardToolbar;
+    public getContentWizardToolbar(): ContentWizardToolbar {
+        return super.getMainToolbar() as unknown as ContentWizardToolbar;
     }
 
-    private getWidgetToolbar(): ContentItemPreviewToolbar {
+    private getWidgetToolbar(): PreviewToolbarElement {
         return this.getLivePanel().getFrameContainer().getToolbar();
     }
 
@@ -658,8 +707,11 @@ export class ContentWizardPanel
     }
 
     protected createWizardAndDetailsSplitPanel(leftPanel: Panel): SplitPanel {
-        this.contextView = new ContextView(true);
+        this.contextView = new ContextView(false); // don't show the widget until it is fixed
+
         this.contextView.setItem(this.getContent());
+        setWizardContent(this.getContent());
+
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
         const contextToggleButton = new NonMobileContextPanelToggleButton();
 
@@ -672,7 +724,25 @@ export class ContentWizardPanel
             .build();
 
         this.contextSplitPanel.hideSecondPanel();
-        this.mainToolbar.addElement(contextToggleButton);
+
+        // Backward compatibility with legacy context panel while React toggle controls store state.
+        setContextOpen(this.contextSplitPanel.getState() === ContextPanelState.EXPANDED);
+
+        this.contextSplitPanel.onStateChanged((state: ContextPanelState) => {
+            setContextOpen(state === ContextPanelState.EXPANDED);
+        });
+
+        $isContextOpen.subscribe((isOpen: boolean, wasOpen: boolean) => {
+            if (isOpen === wasOpen) {
+                return;
+            }
+
+            if (isOpen) {
+                this.contextSplitPanel.showContextPanel();
+            } else {
+                this.contextSplitPanel.hideContextPanel();
+            }
+        });
 
         if (this.livePanel) {
             this.splitPanel.onPanelResized(() => this.updateStickyToolbar());
@@ -692,7 +762,10 @@ export class ContentWizardPanel
                 this.livePanel.setContextPanelMode(mode);
             });
 
+            setContextOpen(this.contextSplitPanel.getState() === ContextPanelState.EXPANDED);
+
             this.contextSplitPanel.onStateChanged((state: ContextPanelState) => {
+                setContextOpen(state === ContextPanelState.EXPANDED);
                 this.livePanel.setContextPanelState(state);
 
                 if (this.isMinimized()) {
@@ -709,6 +782,12 @@ export class ContentWizardPanel
                 }
             });
         }
+
+        this.contentFormExpandedUnsubscribe = $isContentFormExpanded.listen((isExpanded) => {
+            if (isExpanded === this.minimized) {
+                this.toggleMinimize();
+            }
+        });
 
         return this.contextSplitPanel;
     }
@@ -741,9 +820,6 @@ export class ContentWizardPanel
         liveFormPanel.onRenderableChanged((renderable: boolean) => {
             PageEventsManager.get().notifyRenderableChanged(renderable);
         });
-
-        this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
-        this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
 
         return liveFormPanel;
     }
@@ -790,18 +866,26 @@ export class ContentWizardPanel
 
             this.onRemoved(() => {
                 ResponsiveManager.unAvailableSizeChanged(this);
+                this.wizardDisplayNameUnsubscribe?.();
+                this.wizardDisplayNameUnsubscribe = undefined;
+                this.wizardHasChangesUnsubscribe?.();
+                this.wizardHasChangesUnsubscribe = undefined;
+                this.contentFormExpandedUnsubscribe?.();
+                this.contentFormExpandedUnsubscribe = undefined;
+                resetWizardContent();
             });
 
             const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
 
             this.onValidityChanged((event: ValidityChangedEvent) => {
+                const isThisValid: boolean = this.isValid();
+                this.isContentFormValid = isThisValid;
+                this.workflowStateManager.update();
+
                 if (!this.getPersistedItem()) {
                     return;
                 }
 
-                const isThisValid: boolean = this.isValid();
-                this.isContentFormValid = isThisValid;
-                this.workflowStateManager.update();
                 this.wizardActions
                     .setContentCanBePublished(this.checkContentCanBePublished())
                     .setIsValid(isThisValid)
@@ -828,18 +912,59 @@ export class ContentWizardPanel
             if (this.livePanel) {
                 this.livePanel.addClass('rendering');
                 ResponsiveManager.onAvailableSizeChanged(this.formPanel);
-                this.stepNavigatorAndToolbarContainer.appendChild(this.minimizeEditButton);
             }
 
             if (this.params.createSite || this.getPersistedItem().isSite()) {
                 thumbnailUploader.addClass('site');
             }
 
+            this.stepNavigatorAndToolbarContainer?.getParentElement()?.remove(); // removing legacy nav bar
+
             return rendered;
         });
     }
 
     protected prepareMainPanel(): Panel {
+        this.formPanel.addClass('content-wizard-form-panel px-5 py-3');
+
+        if (this.getPersistedItem()) {
+            initializeWizardContentState(
+                this.getPersistedItem(),
+                this.contentType ?? null,
+                [],
+                this.markedAsReady ? WorkflowState.READY : this.getPersistedItem().getWorkflow()?.getState() ?? null,
+            );
+        } else if (this.contentType) {
+            setWizardContentType(this.contentType);
+        }
+
+        if (!this.wizardHasChangesUnsubscribe) {
+            this.wizardHasChangesUnsubscribe = $wizardHasChanges.subscribe((hasChanges, previousHasChanges) => {
+                if (previousHasChanges === undefined || hasChanges === previousHasChanges) {
+                    return;
+                }
+
+                this.notifyDataChanged();
+            });
+        }
+
+        if (!this.wizardDisplayNameUnsubscribe) {
+            this.wizardDisplayNameUnsubscribe = $displayName.subscribe((displayName, previousDisplayName) => {
+                if (previousDisplayName === undefined || displayName === previousDisplayName) {
+                    return;
+                }
+
+                if (this.getWizardHeader().getDisplayName() !== displayName) {
+                    this.getWizardHeader().setDisplayName(displayName);
+                }
+            });
+        }
+
+        this.contentWizardTabsElement = new ContentWizardTabsToolbarElement();
+        this.formPanel.prependChild(this.contentWizardTabsElement);
+
+        this.onPageStateChanged(() => this.updateTabsElement());
+
         const leftPanel: Panel = this.createSplitFormAndLivePanel(this.formPanel, this.livePanel);
         return this.createWizardAndDetailsSplitPanel(leftPanel);
     }
@@ -847,6 +972,7 @@ export class ContentWizardPanel
     private createSplitFormAndLivePanel(firstPanel: Panel, secondPanel: Panel): SplitPanel {
         const builder: SplitPanelBuilder = new SplitPanelBuilder(firstPanel, secondPanel)
             .setFirstPanelMinSize(SplitPanelSize.PIXELS(280))
+            .setSplitterThickness(1)
             .setAlignment(SplitPanelAlignment.VERTICAL);
 
         if ($(window).width() > this.splitPanelThreshold) {
@@ -1104,12 +1230,15 @@ export class ContentWizardPanel
                     if (persistedContent.getType().isDescendantOfMedia()) {
                         this.updateXDataStepForms(currentContent);
                     } else {
-                        new ConfirmationDialog()
-                            .setQuestion(i18n('dialog.confirm.contentDiffers'))
-                            .setYesCallback(() => void this.doLayoutPersistedItem(currentContent))
-                            .setNoCallback(() => { /* empty */
-                            })
-                            .show();
+                        this.loadDifferenceDialog = new DialogPresetConfirmElement({
+                            open: true,
+                            title: i18n('dialog.confirm.title'),
+                            description: i18n('dialog.confirm.contentDiffers'),
+                            onConfirm: () => void this.doLayoutPersistedItem(currentContent),
+                            onCancel: () => this.loadDifferenceDialog.close()
+                        });
+
+                        this.loadDifferenceDialog.open();
                     }
                 }
 
@@ -1301,6 +1430,7 @@ export class ContentWizardPanel
                 this.formsContexts.delete(xDataName);
             }
         });
+        this.updateTabsElement();
     }
 
     private resetWizard() {
@@ -1465,14 +1595,14 @@ export class ContentWizardPanel
             }
         };
 
-        const contentPermissionsUpdatedHandler = (contents: ContentSummaryAndCompareStatus[]) => {
+        const contentPermissionsUpdatedHandler = (contentIds: ContentId[]) => {
             if (this.contentUpdateDisabled || !this.getPersistedItem()) {
                 return;
             }
 
             const thisContentId: ContentId = this.getPersistedItem().getContentId();
 
-            if (!ContentSummaryAndCompareStatus.isInArray(thisContentId, contents)) {
+            if (!contentIds.some((id: ContentId) => id.equals(thisContentId))) {
                 return;
             }
 
@@ -1551,8 +1681,6 @@ export class ContentWizardPanel
             }
         };
 
-        VersionContext.onActiveVersionChanged(versionChangeHandler);
-
         serverEvents.onContentCreated(createdHandler);
         serverEvents.onContentMoved(movedHandler);
         serverEvents.onContentSorted(sortedHandler);
@@ -1566,8 +1694,6 @@ export class ContentWizardPanel
         serverEvents.onContentDeleted(deleteHandler);
 
         this.onClosed(() => {
-            VersionContext.unActiveVersionChanged(versionChangeHandler);
-
             serverEvents.unContentCreated(createdHandler);
             serverEvents.unContentMoved(movedHandler);
             serverEvents.unContentSorted(sortedHandler);
@@ -1602,7 +1728,7 @@ export class ContentWizardPanel
         this.currentCompareStatus = updatedContent.getCompareStatus();
         this.currentPublishStatus = updatedContent.getPublishStatus();
         this.setPersistedContent(updatedContent);
-        this.getMainToolbar().setItem(updatedContent);
+        this.getContentWizardToolbar().setItem(updatedContent);
         this.getWidgetToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
         this.workflowStateManager.update();
@@ -1901,7 +2027,9 @@ export class ContentWizardPanel
                 return Q(null);
             }
 
-            return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this));
+            return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this)).then(() => {
+                this.updateTabsElement();
+            });
         });
     }
 
@@ -2031,7 +2159,9 @@ export class ContentWizardPanel
             formViewLayoutPromises.push(promise);
         });
 
-        return Q.all(formViewLayoutPromises).thenResolve(null);
+        return Q.all(formViewLayoutPromises).then(() => {
+            this.updateTabsElement();
+        }).thenResolve(null);
     }
 
     private layoutXDataWizardStepForm(content: Content, xDataStepForm: XDataWizardStepForm): Q.Promise<void> {
@@ -2079,10 +2209,17 @@ export class ContentWizardPanel
 
     updatePersistedItem(): Q.Promise<Content> {
         const persistedContent: Content = this.getPersistedItem();
-        const viewedContent: Content = this.assembleViewedContent(persistedContent.newBuilder(), true, this.isRename).build();
         const isInherited: boolean = persistedContent.isDataInherited();
+        const hasStoreChanges = $wizardHasChanges.get();
+        const updateContentRoutine = hasStoreChanges
+            ? new UpdatePersistedContentWithStoreRoutine(this, persistedContent)
+            : new UpdatePersistedContentRoutine(
+                this,
+                persistedContent,
+                this.assembleViewedContent(persistedContent.newBuilder(), true, this.isRename).build(),
+            );
 
-        const updateContentRoutine: UpdatePersistedContentRoutine = new UpdatePersistedContentRoutine(this, persistedContent, viewedContent)
+        updateContentRoutine
             .setRequireValid(this.requireValid)
             .setWorkflowState(this.markedAsReady ? WorkflowState.READY : WorkflowState.IN_PROGRESS);
 
@@ -2164,7 +2301,7 @@ export class ContentWizardPanel
             return true;
         }
 
-        return this.hasContentChanged();
+        return this.hasContentChanged() || $wizardHasChanges.get();
     }
 
     private enableDisplayNameScriptExecution(formView: FormView) {
@@ -2203,6 +2340,7 @@ export class ContentWizardPanel
 
                 return Q.all(layoutPromises).then(() => {
                     this.xDataWizardStepForms.resetState();
+                    this.updateTabsElement();
                 });
 
             }).catch((reason) => {
@@ -2265,6 +2403,7 @@ export class ContentWizardPanel
 
     setMarkedAsReady(value: boolean) {
         this.markedAsReady = value;
+        setDraftWorkflowState(value ? WorkflowState.READY : WorkflowState.IN_PROGRESS);
     }
 
     isMarkedAsReady(): boolean {
@@ -2334,7 +2473,7 @@ export class ContentWizardPanel
     }
 
     getContentWizardToolbarPublishControls(): ContentWizardToolbarPublishControls {
-        return this.getMainToolbar().getContentWizardToolbarPublishControls();
+        return this.getContentWizardToolbar().getContentWizardToolbarPublishControls();
     }
 
 
@@ -2490,7 +2629,7 @@ export class ContentWizardPanel
                     this.currentCompareStatus = CompareStatus.NEWER;
                 }
             }
-            this.getMainToolbar().setItem(this.getContent());
+            this.getContentWizardToolbar().setItem(this.getContent());
             this.wizardActions.setContent(this.getContent()).refreshState();
             this.workflowStateManager.update();
         }
@@ -2498,6 +2637,10 @@ export class ContentWizardPanel
 
     getLiveMask(): LoadMask {
         return this.liveMask;
+    }
+
+    private updateTabsElement(): void {
+        setDraftPage(PageState.getState());
     }
 
     onPageStateChanged(listener: () => void) {
@@ -2535,6 +2678,8 @@ export class ContentWizardPanel
     protected setPersistedItem(newPersistedItem: Content): void {
         super.setPersistedItem(newPersistedItem);
 
+        setWizardPersistedContent(newPersistedItem);
+
         this.wizardHeader?.setPersistedPath(newPersistedItem);
         AI.get().setContent(newPersistedItem);
     }
@@ -2560,8 +2705,49 @@ export class ContentWizardPanel
 
         this.wizardHeader?.setOnline(!content.isNew());
         this.wizardHeader?.setPath(this.getWizardHeaderPath());
+        setWizardToolbarContentPath(
+            this.normalizeToolbarContentPath(this.wizardHeader?.getName() || content.getPath()?.getName() || '')
+        );
+        setWizardToolbarIsPathAvailable(true);
         this.wizardHeader?.setDir(Locale.supportsRtl(content.getLanguage()) ? LangDirection.RTL : LangDirection.AUTO);
         this.contextView?.setItem(content);
+    }
+
+    private normalizeToolbarContentPath(pathName: string): string {
+        return pathName?.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? '' : pathName;
+    }
+
+    private requestContentPathRename(): void {
+        if (!this.isItemPersisted()) {
+            return;
+        }
+
+        const persistedPath = this.getPersistedItem()?.getPath();
+        if (!persistedPath) {
+            return;
+        }
+
+        const initialName = this.normalizeToolbarContentPath(this.getWizardHeader().getName()) ||
+                            this.normalizeToolbarContentPath(persistedPath.getName());
+
+        void openRenameContentDialog({
+            parentPath: persistedPath.getParentPath(),
+            initialName,
+            isPublished: this.wizardActions.isOnline(),
+        }).then((newName?: string) => {
+            if (!newName) {
+                return;
+            }
+
+            this.getWizardHeader().applyRenamedName(newName);
+            setWizardToolbarContentPath(this.normalizeToolbarContentPath(this.getWizardHeader().getName()));
+            setDraftName(this.resolveContentNameForUpdateRequest());
+            this.isRename = true;
+
+            const saveAction: ContentSaveAction = this.getWizardActions().getSaveAction();
+            saveAction.setEnabled(true);
+            saveAction.execute();
+        });
     }
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {
@@ -2624,14 +2810,6 @@ export class ContentWizardPanel
             }
             return hasControllers ?? false;
         });
-    }
-
-    protected calcNavigationWidth(): number {
-        if (this.minimized) {
-            return this.splitPanel.getEl().getHeight() + this.stepNavigatorAndToolbarContainer.getEl().getPaddingLeft();
-        }
-
-        return super.calcNavigationWidth();
     }
 
     isInMobileViewMode(): boolean {

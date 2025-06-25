@@ -3,7 +3,7 @@
  */
 const Page = require('../page');
 const ConfirmationDialog = require('../confirmation.dialog');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const PrincipalFilterPanel = require('./principal.filter.panel');
 
@@ -289,6 +289,7 @@ class UserBrowsePanel extends Page {
         let closeIcon = xpath.closeItemTabButton(displayName);
         await this.waitForElementDisplayed(closeIcon, appConst.mediumTimeout);
         await this.waitForElementEnabled(closeIcon, appConst.mediumTimeout);
+        await this.pause(100);
         await this.clickOnElement(closeIcon);
         await this.pause(500);
         let confirmationDialog = new ConfirmationDialog();
