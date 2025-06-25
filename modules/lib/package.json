@@ -30,6 +30,7 @@
     "jsondiffpatch": "^0.5.0",
     "lodash": "^4.17.21",
     "nanostores": "^0.11.4",
+    "preact": "^10.26.9",
     "q": "^1.5.1",
     "sortablejs": "^1.15.6"
   },
