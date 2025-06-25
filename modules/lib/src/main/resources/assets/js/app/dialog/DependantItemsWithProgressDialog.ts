@@ -2,6 +2,8 @@ import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {DependantItemsDialog, DependantItemsDialogConfig} from './DependantItemsDialog';
 import {TaskProgressManager, WithTaskProgress} from './TaskProgressManager';
+import {ContentItem} from '../ui2/list/ContentItem';
+import {StatusCheckableItem} from './StatusCheckableItem';
 
 export interface DependantItemsWithProgressDialogConfig
     extends DependantItemsDialogConfig {
@@ -9,8 +11,8 @@ export interface DependantItemsWithProgressDialogConfig
     processHandler: () => void;
 }
 
-export abstract class DependantItemsWithProgressDialog
-    extends DependantItemsDialog
+export abstract class DependantItemsWithProgressDialog<Item extends StatusCheckableItem | ContentItem = StatusCheckableItem>
+    extends DependantItemsDialog<Item>
     implements WithTaskProgress {
 
     protected progressManager: TaskProgressManager;

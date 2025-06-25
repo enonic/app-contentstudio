@@ -9,11 +9,12 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
+import {ActionIcon} from '@enonic/lib-admin-ui/ui2/ActionIcon';
 import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
 import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {AlignCenter, AlignJustify, AlignLeft, AlignRight, LucideIcon} from 'lucide-react';
 import {Content} from '../../../../../content/Content';
 import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
 import {OverrideNativeDialog} from '../OverrideNativeDialog';
@@ -747,7 +748,7 @@ export class ImageDialogToolbar
 
     private previewEl: FigureEl;
 
-    private alignmentButtons: Record<string, ActionButton> = {};
+    private alignmentButtons: Record<string, ActionIcon> = {};
 
     private customWidthCheckbox: Checkbox;
 
@@ -783,28 +784,23 @@ export class ImageDialogToolbar
         const alignmentButtonContainer = new DivEl('alignment-container');
 
         alignmentButtonContainer.appendChildren(
-            this.createAlignmentButton('icon-paragraph-justify', StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS),
-            this.createAlignmentButton('icon-paragraph-left', StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS),
-            this.createAlignmentButton('icon-paragraph-center', StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS),
-            this.createAlignmentButton('icon-paragraph-right', StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)
+            this.createAlignmentButton(AlignJustify, StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS),
+            this.createAlignmentButton(AlignLeft, StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS),
+            this.createAlignmentButton(AlignCenter, StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS),
+            this.createAlignmentButton(AlignRight, StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)
         );
 
         return alignmentButtonContainer;
     }
 
-    private createAlignmentButton(iconClass: string, styleClass: string): ActionButton {
-        const action: Action = new Action();
+    private createAlignmentButton(icon: LucideIcon, styleClass: string): ActionIcon {
 
-        action.setIconClass(iconClass);
-
-        const button = new ActionButton(action);
-
-        action.onExecuted(() => {
+        const action = new Action().onExecuted(() => {
             this.resetActiveAlignmentButton();
             button.addClass('active');
-
             this.notifyStylesChanged();
         });
+        const button = new ActionIcon({action, icon});
 
         this.alignmentButtons[styleClass] = button;
 
