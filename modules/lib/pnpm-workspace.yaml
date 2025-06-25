@@ -2,8 +2,13 @@ packages:
   - .
   - .xp/dev/*
 
-onlyBuiltDependencies:
+ignoredBuiltDependencies:
   - '@swc/core'
+  - '@tailwindcss/oxide'
   - esbuild
   - edgedriver
   - geckodriver
+
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - '@enonic/ui'

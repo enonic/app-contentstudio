@@ -143,7 +143,7 @@ import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {ContentItemPreviewToolbar} from '../view/ContentItemPreviewToolbar';
+import {PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -633,7 +633,7 @@ export class ContentWizardPanel
         return super.getMainToolbar() as ContentWizardToolbar;
     }
 
-    private getWidgetToolbar(): ContentItemPreviewToolbar {
+    private getWidgetToolbar(): PreviewToolbarElement {
         return this.getLivePanel().getFrameContainer().getToolbar();
     }
 

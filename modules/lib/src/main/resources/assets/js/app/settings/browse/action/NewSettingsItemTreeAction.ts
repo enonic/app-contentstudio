@@ -15,7 +15,7 @@ export class NewSettingsItemTreeAction
     private tree: SelectableListBoxWrapper<SettingsViewItem>;
 
     constructor(tree: SelectableListBoxWrapper<SettingsViewItem>) {
-        super(i18n('action.newMore'), 'alt+n');
+        super(i18n('action.new'), 'alt+n');
 
         this.tree = tree;
 

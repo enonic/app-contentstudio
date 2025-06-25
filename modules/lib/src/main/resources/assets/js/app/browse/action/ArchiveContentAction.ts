@@ -8,7 +8,7 @@ import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/Se
 export class ArchiveContentAction extends ContentTreeGridAction {
 
     constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.archiveMore'), 'mod+del');
+        super(grid, i18n('action.archive'), 'mod+del');
 
         this.setEnabled(false).setClass('archive');
     }
