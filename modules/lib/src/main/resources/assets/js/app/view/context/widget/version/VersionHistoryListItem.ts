@@ -1,8 +1,9 @@
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {VersionHistoryItemViewer} from './VersionHistoryItemViewer';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
+import {ActionIcon} from '@enonic/lib-admin-ui/ui2/ActionIcon';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
@@ -12,10 +13,11 @@ import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
-import {VersionHistoryItem, VersionItemStatus} from './VersionHistoryItem';
+import {VersionHistoryItem} from './VersionHistoryItem';
 import {VersionContext} from './VersionContext';
 import Q from 'q';
 import {VersionHistoryHelper} from './VersionHistoryHelper';
+import {GitCompareArrows} from 'lucide-react';
 
 export class VersionHistoryListItem
     extends LiEl {
@@ -25,7 +27,7 @@ export class VersionHistoryListItem
     private readonly versionViewer: VersionHistoryItemViewer;
     private tooltip: Tooltip;
     private actionButton: ActionButton;
-    private compareButton: ActionButton;
+    private compareButton: ActionIcon;
 
     constructor(version: VersionHistoryItem, content: ContentSummaryAndCompareStatus) {
         super('version-list-item');
@@ -106,7 +108,9 @@ export class VersionHistoryListItem
     }
 
     private createActiveVersionButton(): ActionButton {
-        return new ActionButton(new Action(i18n('text.activeVersion')));
+        return new ActionButton({
+            action: new Action(i18n('text.activeVersion')),
+        });
     }
 
     private createRevertButton(): ActionButton {
@@ -121,19 +125,17 @@ export class VersionHistoryListItem
             });
         }
 
-        return new ActionButton(revertAction);
+        return new ActionButton({
+            action: revertAction,
+        });
     }
 
-    private createCompareButton(): ActionButton {
-        const compareButton: ActionButton = new ActionButton(new Action());
+    private createCompareButton(): ActionIcon {
+        const action = new Action();
+        action.setTitle(i18n('text.versions.showChanges'));
+        action.onExecuted(this.openCompareDialog.bind(this));
 
-        compareButton
-            .setTitle(i18n('text.versions.showChanges'))
-            .addClass('compare icon-compare icon-medium transparent');
-
-        compareButton.getAction().onExecuted(this.openCompareDialog.bind(this));
-
-        return compareButton;
+        return new ActionIcon({action, icon: GitCompareArrows, className: ''});
     }
 
     private openCompareDialog() {

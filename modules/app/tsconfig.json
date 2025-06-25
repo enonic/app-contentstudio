@@ -3,6 +3,12 @@
         "module": "ES2022",
         "moduleResolution": "bundler",
         "target": "ES2023",
+        "lib": [
+            "ES2022",
+            "DOM"
+        ],
+        "jsx": "react-jsx",
+        "jsxImportSource": "preact",
         "sourceMap": true,
         "downlevelIteration": true,
         "useDefineForClassFields": false,
@@ -12,14 +18,9 @@
             "jqueryui",
             "q"
         ],
-        "lib": [
-            "ES2022",
-            "DOM"
-        ]
     },
     "include": [
         "./src/**/*",
-        "../../../lib-admin-ui/src/main/resources/assets/admin/common/js/**/*.ts",
         ".xp/dev/lib-admin-ui/**/*.ts",
         ".xp/dev/lib-contentstudio/**/*.ts"
     ],
