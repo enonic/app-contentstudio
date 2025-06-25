@@ -49,8 +49,8 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
             // 1. Open New Content Dialog
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
-            // 2. Click on Cancel Top button
-            await newContentDialog.clickOnCancelButtonTop();
+            // 2. Click on Close button
+            await newContentDialog.clickOnCloseButton();
             await newContentDialog.waitForClosed();
         });
 

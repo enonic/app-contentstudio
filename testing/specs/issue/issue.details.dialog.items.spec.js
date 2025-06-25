@@ -35,7 +35,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             await createIssueDialog.clickOnCreateIssueButton();
             // 4. Task Details dialog should be loaded:
             await issueDetailsDialog.waitForDialogLoaded();
-            let result = await issueDetailsDialog.getNumberOfItems();
+            let result = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '1', '1 should be present in the `Items` tab link');
         });
 
@@ -54,8 +54,8 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
 
             let isActive = await issueDetailsDialog.isItemsTabBarItemActive();
             assert.ok(isActive, "Items tab gets active");
-            // 4. Content option filter input should be present:
-            await issueDetailsDialogItemsTab.waitForContentOptionsFilterInputDisplayed();
+            // 4. Content(Items) option filter input should be displayed:
+            await issueDetailsDialogItemsTab.waitForItemsOptionsFilterInputDisplayed();
             let result = await issueDetailsDialogItemsTab.isPublishButtonDisplayed();
             assert.ok(result, "'Publish...' button should be displayed");
         });
@@ -151,8 +151,8 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             await issueDetailsDialog.waitForDialogLoaded();
             // 2. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            // 3. Add one more item:
-            await issueDetailsDialogItemsTab.addItem(appConst.TEST_IMAGES.CAPE);
+            // 3. Add one more item in the content combobox and click on 'Apply' button:
+            await issueDetailsDialogItemsTab.filterAndSelectItem(appConst.TEST_IMAGES.CAPE);
             // 4. Verify that Items tab remains active:
             await issueDetailsDialogItemsTab.pause(2000);
             let isActive = await issueDetailsDialog.isItemsTabBarItemActive();

@@ -189,7 +189,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await contentBrowsePanel.waitForNotificationMessage();
             // 4. Verify that status of thr folder is Published:
             let status = await contentBrowsePanel.getContentStatus(FOLDER_NAME);
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, "The folder should be 'Online'");
         });
 
     // Users with Owner and Editor roles don't have access to HTML source in the editor #8526

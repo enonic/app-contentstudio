@@ -2,7 +2,7 @@
  * Created on 08.01.2024
  */
 const BaseDropdown = require('./base.dropdown');
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 const XPATH = {
     container: "//div[contains(@id,'ContentTreeSelectorDropdown')]",
@@ -14,6 +14,9 @@ class ContentSelectorDropdown extends BaseDropdown {
 
     get container() {
         return XPATH.container;
+    }
+    get dataComponent() {
+        return "//div[contains(@data-component,'AssigneeSelector')]";
     }
 
     async selectFilteredByDisplayNameContent(displayName, parent) {

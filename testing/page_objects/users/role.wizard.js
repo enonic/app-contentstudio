@@ -3,7 +3,7 @@
  */
 const WizardPanel = require('./wizard.panel').WizardPanel;
 const baseXpath = require('./wizard.panel').XPATH;
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 
 const xpath = {

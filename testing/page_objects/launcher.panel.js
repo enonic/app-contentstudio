@@ -126,7 +126,7 @@ class LauncherPanel extends Page {
         try {
             await this.waitForElementDisplayed(this.launcherToggler, appConst.mediumTimeout);
             await this.clickOnElement(this.launcherToggler);
-            return await this.pause(400);
+            return await this.pause(200);
         } catch (err) {
             await this.handleError('Launcher Panel: tried to click on Launcher Toggle', 'err_click_launcher_toggler', err);
         }

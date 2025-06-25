@@ -1,0 +1,90 @@
+---
+description: Nanostores usage patterns and reactivity rules
+globs: *.tsx,*.ts
+alwaysApply: false
+---
+
+# Store Usage Patterns
+
+## Critical: Reactive Rendering in Components
+
+```typescript
+// ❌ NEVER use .get() for rendering - component won't re-render
+function BadComponent() {
+  const value = $store.get(); // Not reactive!
+  return <div>{value}</div>;
+}
+
+// ❌ NEVER use .get() indirectly in render path
+function AlsoBad() {
+  const items = getItems(); // If this calls $store.get() internally
+  return <ul>{items.map(...)}</ul>; // Won't update!
+}
+
+// ✅ ALWAYS use useStore() hook for reactive rendering
+import { useStore } from '@nanostores/preact';
+
+function GoodComponent() {
+  const value = useStore($store);
+  return <div>{value}</div>;
+}
+```
+
+## Hook Placement
+
+```typescript
+export function MyComponent({ title }: Props) {
+  // ✅ Hoist store hooks at the very top, before other hooks
+  const data = useStore($myStore);
+  const { account } = useStore($app, { keys: ['account'] });
+
+  // Other hooks next
+  const [count, setCount] = useState(0);
+  // ...
+}
+```
+
+## Performance: Subscribe to Specific Keys
+
+```typescript
+// ❌ Subscribes to ALL changes in the map store
+const state = useStore($application);
+
+// ✅ Subscribe only to 'account' key changes
+const { account } = useStore($application, { keys: ['account'] });
+```
+
+## When .get() IS Appropriate
+
+```typescript
+// ✅ Event handlers - read current value at click time
+const handleClick = () => {
+  const current = $store.get();
+  doSomething(current);
+};
+
+// ✅ Utility/helper functions outside components
+export function hasSelectedItems(): boolean {
+  return $contentTreeSelection.get().size > 0;
+}
+
+// ✅ Inside store files for state updates
+export function addItem(id: string): void {
+  const current = $store.get();
+  $store.set([...current, id]);
+}
+
+// ✅ One-time initialization or effects
+useEffect(() => {
+  const initial = $store.get();
+  // ...
+}, []);
+```
+
+## Store Naming
+
+```typescript
+// ✅ All stores must be prefixed with `$`
+export const $projects = map<ProjectsStore>({...});
+export const $activeProject = computed($projects, ...);
+```

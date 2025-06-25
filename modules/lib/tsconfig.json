@@ -7,6 +7,9 @@
             "ES2023",
             "DOM"
         ],
+        "baseUrl": ".",
+        "jsx": "react-jsx",
+        "jsxImportSource": "preact",
         "outDir": "build/resources/main/dev/lib-contentstudio/",
         "declaration": true,
         "declarationDir": "build/resources/main/dev/lib-contentstudio/",
@@ -25,12 +28,16 @@
             "hasher",
             "jquery",
             "jqueryui"
-        ]
+        ],
+        "paths": {
+            "react": ["node_modules/preact/compat"],
+            "react-dom": ["node_modules/preact/compat"],
+            "@enonic/lib-admin-ui": [".xp/dev/lib-admin-ui/"]
+        }
     },
     "include": [
         "./src/main/resources/assets/js/types.d.ts",
-        "./src/main/resources/assets/js/**/*",
-        "./.xp/dev/lib-admin-ui/**/*.d.ts"
+        "./src/main/resources/assets/js/**/*"
     ],
     "exclude": [
         "build/**/*",

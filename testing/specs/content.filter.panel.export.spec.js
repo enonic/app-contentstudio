@@ -32,8 +32,8 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             // 3. Fill in the search input with the random text (non-existing content)
             await filterPanel.typeSearchText(RANDOM_TEXT);
             await studioUtils.saveScreenshot('export_btn_hidden1');
-            // 4. Verify that Export button gets disabled:
-            await filterPanel.waitForExportButtonDisabled();
+            // 4. Verify that Export button gets not visible:
+            await filterPanel.waitForExportButtonNotDisplayed();
         });
 
     it(`GIVEN 'Executable' checkbox has been clicked in Filter Panel WHEN 'Export' button has been clicked THEN expected number of items should be displayed in Confirmation dialog`,
@@ -64,7 +64,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             await filterPanel.clickOnExportButton();
             await confirmationDialog.waitForDialogOpened();
             CONFIRMATION_QUESTION_NON_FILTERED_GRID = await confirmationDialog.getWarningMessage();
-            await confirmationDialog.clickOnNoButton();
+            await confirmationDialog.clickOnConfirmButton();
 
             // 1. Click on "Executable" checkbox in 'Filter Panel'
             await filterPanel.clickOnCheckboxInContentTypesBlock('Executable');
@@ -110,7 +110,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             await filterPanel.clickOnExportButton();
             // 2. Click on 'Yes' button in the Confirmation modal dialog:
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             // 3. Verify that the modal dialog is closed:
             await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('export_csv_saved');

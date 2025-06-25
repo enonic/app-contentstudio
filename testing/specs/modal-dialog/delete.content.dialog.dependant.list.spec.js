@@ -23,7 +23,7 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             // 1. Select existing folder with 11 child content
             await studioUtils.findAndSelectItem(appConst.TEST_DATA.SELENIUM_TESTS_FOLDER_NAME);
             // 2. Open Delete content Dialog
-            await contentBrowsePanel.clickOnArchiveButton();
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             // 3. Verify that 'Dependants' header is displayed:
             await deleteContentDialog.waitForDependantsHeaderDisplayed();
@@ -42,8 +42,8 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             let deleteContentDialog = new DeleteContentDialog();
             await studioUtils.findContentAndClickCheckBox(appConst.TEST_DATA.SELENIUM_TESTS_FOLDER_DISPLAY_NAME);
             await studioUtils.findContentAndClickCheckBox(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
-            // Click on 'Archive...' button:
-            await contentBrowsePanel.clickOnArchiveButton();
+            // Click on 'Delete...' button:
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot('2_folders_dependant');
             let result = await deleteContentDialog.getDependantItemsName();
@@ -59,8 +59,8 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             let deleteContentDialog = new DeleteContentDialog();
             //1. Open existing folder
             await studioUtils.selectByDisplayNameAndOpenContent(appConst.TEST_DATA.SELENIUM_TESTS_FOLDER_DISPLAY_NAME);
-            //2. Open Delete Dialog in the wizard:
-            await contentWizard.clickOnArchiveButton();
+            //2. Open Delete content Dialog in the wizard:
+            await contentWizard.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             //3. Verify the number ot items: should be 11
             await studioUtils.saveScreenshot('wizard_folder_11_shown_dependant');

@@ -248,7 +248,7 @@ describe('Child and parent content, replace existing permissions in child conten
             await editPermissionsSummaryStep.waitForNoChangesToApplyDisabled();
         });
 
-    it(`GIVEN clicks 'Children Only Radio' Button  and 'Replace Existing Child Permissions' have been clicked WHEN Yes button in Confirmation dialog has been pressed THEN the button should be accordingly updated`,
+    it(`GIVEN clicks 'Children Only Radio' Button  and 'Replace Existing Child Permissions' have been clicked WHEN Confirm button in Confirmation dialog has been pressed THEN the button should be accordingly updated`,
         async () => {
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
@@ -268,7 +268,7 @@ describe('Child and parent content, replace existing permissions in child conten
             let confirmationDialog = new ConfirmationDialog();
             await confirmationDialog.waitForDialogOpened();
             // 6. Click on 'Yes' button in Confirmation dialog:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 7. Go to Summary Step:
             await editPermissionsChooseApplyChangesStep.clickOnNextButton();
@@ -285,11 +285,11 @@ describe('Child and parent content, replace existing permissions in child conten
                 `'Permissions applied' - message should appears`);
             // 11. Verify that the parent folder remains with 'Published' status:
             let status = await contentBrowsePanel.getContentStatus(PARENT_FOLDER.displayName);
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "'Published' status should be in the top version item");
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, "'Online' status should be in the top version item");
             // 12. Expand the parent folder and verify that the child folder has 'Published' status:
             await contentBrowsePanel.clickOnExpanderIcon(PARENT_FOLDER.displayName);
             status = await contentBrowsePanel.getContentStatus(CHILD_FOLDER.displayName);
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "'Published' status should be in the top version item");
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, "'Online' status should be in the top version item");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

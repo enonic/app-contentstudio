@@ -2,7 +2,7 @@
  * Created on 28.12.2017.
  */
 const OccurrencesFormView = require('./occurrences.form.view');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 
 const XPATH = {
     textLine: "//div[contains(@id,'TextLine')]",

@@ -1,14 +1,13 @@
-const Page = require('../page');
-const lib = require('../../libs/elements');
+const BaseIssueDetailsDialog = require('./base.details.dialog');
+const {NEW_DROPDOWN, COMMON, BUTTONS} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const DependantsControls = require('./dependant.controls');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 
 const xpath = {
-    container: `//div[contains(@id,'IssueDetailsDialog')]`,
-    buttonRow: `//div[contains(@id,'IssueDetailsDialogButtonRow')]`,
-    itemList: `//ul[contains[@id,'PublishDialogItemList']`,
+    container: `//div[@data-component='IssueDialogDetailsContent' and @role='dialog']`,
+    panelItemsDiv: `//div[contains(@id,'panel-items')]`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
@@ -24,31 +23,23 @@ const xpath = {
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]//div[@class='status']`,
 };
 
-class IssueDetailsDialogItemsTab extends Page {
+class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
 
     constructor() {
         super();
         this.dependantsControls = new DependantsControls(xpath.container);
     }
 
-    get dropdownHandle() {
-        return xpath.container + lib.DROPDOWN_SELECTOR.CONTENT_TREE_SELECTOR + lib.DROP_DOWN_HANDLE;
-    }
-
-    get applySelectionButton() {
-        return xpath.container + xpath.editEntry + lib.actionButton('Apply');
+    get itemsComboboxDropdownHandle() {
+        return xpath.container + NEW_DROPDOWN.CONTENT_COMBOBOX + NEW_DROPDOWN.DROP_DOWN_HANDLE;
     }
 
     get showExcludedItemsButton() {
         return xpath.container + lib.togglerButton('Show excluded');
     }
 
-    get reopenIssueButton() {
-        return xpath.container + lib.dialogButton('Reopen Issue');
-    }
-
-    get publishButton() {
-        return xpath.container + xpath.buttonRow + lib.dialogButton('Publish...');
+    get publishNowButton() {
+        return xpath.container + COMMON.FOOTER_ELEMENT + BUTTONS.buttonByLabel('Publish now');
     }
 
     get itemNamesToPublish() {
@@ -70,7 +61,7 @@ class IssueDetailsDialogItemsTab extends Page {
     // clicks on Publish... button and  opens 'Publishing Wizard'
     async clickOnPublishAndOpenPublishWizard() {
         try {
-            await this.clickOnElement(this.publishButton);
+            await this.clickOnElement(this.publishNowButton);
             let publishContentDialog = new ContentPublishDialog();
             await publishContentDialog.waitForDialogOpened();
             await publishContentDialog.pause(1000);
@@ -82,11 +73,11 @@ class IssueDetailsDialogItemsTab extends Page {
     }
 
     isPublishButtonDisplayed() {
-        return this.isElementDisplayed(this.publishButton);
+        return this.isElementDisplayed(this.publishNowButton);
     }
 
     isPublishButtonEnabled() {
-        return this.isElementEnabled(this.publishButton);
+        return this.isElementEnabled(this.publishNowButton);
     }
 
     async clickOnDropdownHandle() {
@@ -106,19 +97,18 @@ class IssueDetailsDialogItemsTab extends Page {
     }
 
     async waitForPublishButtonEnabled() {
-        return await this.waitForElementEnabled(this.publishButton, appConst.mediumTimeout);
+        return await this.waitForElementEnabled(this.publishNowButton, appConst.mediumTimeout);
     }
 
     async waitForPublishButtonDisabled() {
         try {
-            return await this.waitForElementNotClickable(this.publishButton, appConst.mediumTimeout);
+            return await this.waitForElementNotClickable(this.publishNowButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_issue_publish_btn');
-            throw new Error(`Publish button is not disabled, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Items tab - 'Publish now'  should be disabled`, 'err_issue_publish_btn', err);
         }
     }
 
-    async waitForContentOptionsFilterInputDisplayed() {
+    async waitForItemsOptionsFilterInputDisplayed() {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown();
             await contentSelectorDropdown.waitForOptionFilterInputDisplayed(xpath.container);
@@ -171,15 +161,8 @@ class IssueDetailsDialogItemsTab extends Page {
         }
     }
 
-    async waitForReopenIssueButtonDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.reopenIssueButton, appConst.mediumTimeout);
-        } catch (err) {
-            throw new Error("'Reopen Issue' button is not displayed: " + err)
-        }
-    }
 
-    async addItem(itemDisplayName) {
+    async filterAndSelectItem(itemDisplayName) {
         try {
             let contentSelectorDropdown = new ContentSelectorDropdown();
             return await contentSelectorDropdown.selectFilteredByDisplayNameContent(itemDisplayName, xpath.container);

@@ -1,20 +1,20 @@
-import {ContentWizardPanel} from '../ContentWizardPanel';
-import {ContentDeletePromptEvent} from '../../browse/ContentDeletePromptEvent';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {openDeleteDialog} from '../../../v6/features/store/dialogs/deleteDialog.store';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ContentWizardPanel} from '../ContentWizardPanel';
 
 export class ArchiveContentAction
     extends Action {
 
     constructor(wizardPanel: ContentWizardPanel) {
-        super(i18n('action.archiveMore'), 'mod+del', true);
+        super(i18n('action.delete'), 'mod+del', true);
         this.onExecuted(() => {
-            new ContentDeletePromptEvent([new ContentSummaryAndCompareStatus().
+            openDeleteDialog([new ContentSummaryAndCompareStatus().
                 setContentSummary(wizardPanel.getPersistedItem()).
                 setCompareStatus(wizardPanel.getCompareStatus()).
                 setPublishStatus(wizardPanel.getPublishStatus())
-            ]).fire();
+            ]);
         });
     }
 }

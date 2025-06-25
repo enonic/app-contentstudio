@@ -53,10 +53,11 @@ describe('close.issue.without.items.spec: create an issue without items, close t
             let issueDetailsDialog = new IssueDetailsDialog();
             await studioUtils.openIssuesListDialog();
             // 1. Click on 'Closed' button and load 'closed' issues:
-            await issueListDialog.clickOnClosedButton();
+            await issueListDialog.clickOnClosedTabButton();
             await issueListDialog.clickOnIssue(issueTitle);
             await issueDetailsDialog.waitForDialogLoaded();
             // 2. Reopen the issue:
+            // TODO epic-enonic-ui  reopen  the issue
             await issueDetailsDialog.clickOnReopenIssueButton();
             await studioUtils.saveScreenshot('empty_issue_reopened');
             // 3. 'The issue is Open - this message should appear:
@@ -93,7 +94,7 @@ describe('close.issue.without.items.spec: create an issue without items, close t
             await issueListDialog.clickOnIssue(issueTitle);
             await issueDetailsDialog.waitForDialogLoaded();
             // 3. Click on Back button:
-            await issueDetailsDialog.clickOnBackButton();
+            await issueDetailsDialog.clickOnBackToIssuesButton();
             await studioUtils.saveScreenshot('issue_details_back_clicked');
             // issues list dialog should be loaded:
             await issueListDialog.waitForDialogOpened();

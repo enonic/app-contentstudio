@@ -15,7 +15,7 @@ const appConst = require('../../libs/app_const');
 
 describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal dialog`, function () {
     this.timeout(csConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const ISSUE_TITLE = csConst.generateRandomName('issue');
@@ -105,19 +105,19 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await studioUtils.openIssuesListDialog();
             let closedNumberBeforeClose = await issueListDialog.getNumberInClosedButton();
             let openNumberBeforeClose = await issueListDialog.getNumberInOpenButton();
-            let filterInputNumberBeforeClose = await issueListDialog.getNumberInSelectedOption();
+            let filterInputNumberBeforeClose = await issueListDialog.getNumberItemsInFilterCombobox();
             // 2. Click on the issue, open Issue Details dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 3. Close the issue:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
-            await issueDetailsDialog.clickOnBackButton();
-            await issueListDialog.pause(4000);
+            await issueDetailsDialog.clickOnBackToIssuesButton();
+            await issueListDialog.pause(2000);
             let closedNumber = await issueListDialog.getNumberInClosedButton();
             // 4. Number of closed and Open issues should be updated:
             await issueListDialog.isOpenButtonActive();
             let openNumber = await issueListDialog.getNumberInOpenButton();
-            let filterInputNumber = await issueListDialog.getNumberInSelectedOption();
+            let filterInputNumber = await issueListDialog.getNumberItemsInFilterCombobox();
             // 5. Number in 'All()' should be reduced, because 'Open' button is active:
             assert.equal(filterInputNumberBeforeClose - filterInputNumber, 1, "Number in TypeFilter should be reduced by 1");
             // 6. Number of Open issues should be reduced:
@@ -133,23 +133,23 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             let issueDetailsDialog = new IssueDetailsDialog();
             // 1. Open 'Issue List' dialog:
             await studioUtils.openIssuesListDialog();
-            await issueListDialog.clickOnClosedButton();
+            await issueListDialog.clickOnClosedTabButton();
             let closedNumberBeforeReopen = await issueListDialog.getNumberInClosedButton();
             let openNumberBeforeReopen = await issueListDialog.getNumberInOpenButton();
-            let filterInputNumberBeforeReopen = await issueListDialog.getNumberInSelectedOption();
+            let filterInputNumberBeforeReopen = await issueListDialog.getNumberItemsInFilterCombobox();
             // 2. Click on 'Closed' button, load Closed-issues then click on the closed task( open 'Task Details' dialog):
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 3. Click on 'Reopen Task' button and reopen the task:
             await issueDetailsDialog.clickOnReopenIssueButton();
             // 4. Go to Issue List  dialog:
-            await issueDetailsDialog.clickOnBackButton();
+            await issueDetailsDialog.clickOnBackToIssuesButton();
             await issueListDialog.pause(5000);
             let closedNumber = await issueListDialog.getNumberInClosedButton();
             // 5. 'Closed()' button should be active:
             await issueListDialog.isClosedButtonActive();
             let openNumber = await issueListDialog.getNumberInOpenButton();
-            let filterInputNumber = await issueListDialog.getNumberInSelectedOption();
+            let filterInputNumber = await issueListDialog.getNumberItemsInFilterCombobox();
             await studioUtils.saveScreenshot('issue_list_number_in_all');
             // 6. Number in 'All()' should be reduced, because 'Closed' button is active:
             assert.equal((filterInputNumberBeforeReopen - filterInputNumber), 1, "number in 'All' should be reduced");

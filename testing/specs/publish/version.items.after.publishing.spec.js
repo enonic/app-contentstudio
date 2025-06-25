@@ -76,7 +76,7 @@ describe.skip('version.items.after.publishing.spec tests for version items', fun
             await editPermissionsSummaryStep.waitForDialogClosed();
             // 5. Verify that status remains  'Published' (Page editor is opened by default)
             let actualStatus = await contentWizard.getContentStatus();
-            assert.equal(actualStatus, appConst.CONTENT_STATUS.PUBLISHED, `The folder should remain 'Published'`);
+            assert.equal(actualStatus, appConst.CONTENT_STATUS.ONLINE, `The folder should remain 'Online'`);
         });
 
     it(`WHEN existing folder with updated permissions is selected THEN the folder remains 'Published' after updating its permissions`,
@@ -86,9 +86,10 @@ describe.skip('version.items.after.publishing.spec tests for version items', fun
             await studioUtils.typeNameInFilterPanel(FOLDER_NAME);
             let state = await contentBrowsePanel.getWorkflowStateByName(FOLDER_NAME);
             // 2. Verify -  folder with updated permissions remains 'Published':
-            assert.equal(state, appConst.WORKFLOW_STATE.PUBLISHED, `The content should be 'Published'`);
+            assert.equal(state, appConst.WORKFLOW_STATE.ONLINE, `The content should be 'Online'`);
         });
 
+    // TODO epic-enonic-ui new tests:
     it.skip("GIVEN modified folder with updated permissions is opened WHEN 'Show changes' button has been clicked THEN 'inheritPermissions' should be present in 'Compare With Published Version'",
         async () => {
             let contentWizard = new ContentWizard();
@@ -96,7 +97,8 @@ describe.skip('version.items.after.publishing.spec tests for version items', fun
             // 1. Open the modified folder(permissions updated):
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
             // 2. Open 'Compare With Published Version' modal dialog
-            await contentWizard.clickOnShowChangesToolbarButton();
+            await contentWizard.clickOnVersionHistoryButton();
+            // TODO
             await compareWithPublishedVersionDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot('compare_dlg_inherit_perm')
             // 3. Verify that inheritPermissions property is false now:

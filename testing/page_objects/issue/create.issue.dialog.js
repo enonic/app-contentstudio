@@ -3,17 +3,17 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const lib = require('../../libs/elements');
+const {BUTTONS} = require('../../libs/elements');
 const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 const DependantsControls = require('./dependant.controls');
+const IssueItemsSelector = require('../components/selectors/issue.items.selector');
 
-const XPATH = {
-    container: `//div[contains(@id,'CreateIssueDialog')]`,
-    dialogTitle: "//div[contains(@id,'DefaultModalDialogHeader') and child::h2[@class='title']]",
-    createIssueButton: `//button[contains(@class,'dialog-button') and child::span[contains(.,'Create Issue')]]`,
-    titleFormItem: "//div[contains(@id,'FormItem') and descendant::span[@class='label-text' and text()='Title']]",
-    addItemsButton: "//button[contains(@id,'Button') and child::span[text()='Add items']]",
+const xpath = {
+    container: `//div[contains(@role,'dialog') and @data-component='NewIssueDialogContent']`,
+    dialogTitle: "//h2]",
+    titleInput: "//label[text()='Title']/following-sibling::div[1]//input[contains(@class,'text')]",
+    descriptionTextArea: "//label[text()='Description']/following-sibling::textarea",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     selectionItemByDisplayName:
@@ -24,47 +24,39 @@ class CreateIssueDialog extends Page {
 
     constructor() {
         super();
-        this.dependantsControls = new DependantsControls(XPATH.container);
+        this.dependantsControls = new DependantsControls(xpath.container);
     }
 
-    get cancelTopButton() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
+    get container() {
+        return xpath.container;
     }
 
-    get cancelButton() {
-        return XPATH.container + lib.dialogButton('Cancel');
-    }
-
-    get titleInputValidationMessage() {
-        return XPATH.container + XPATH.titleFormItem + lib.VALIDATION_RECORDING_VIEWER;
+    get closeButton() {
+        return xpath.container + BUTTONS.buttonAriaLabel('Close');
     }
 
     get titleInput() {
-        return XPATH.container + XPATH.titleFormItem + lib.TEXT_INPUT;
-    }
-
-    get addItemsButton() {
-        return XPATH.container + XPATH.addItemsButton;
+        return xpath.container + xpath.titleInput;
     }
 
     get descriptionTextArea() {
-        return XPATH.container + lib.TEXT_AREA;
+        return xpath.container + xpath.descriptionTextArea;
     }
 
     get createIssueButton() {
-        return XPATH.container + XPATH.createIssueButton;
+        return xpath.container + BUTTONS.buttonByLabel('Create issue');
     }
 
     getDialogTitle() {
-        return this.getText(XPATH.container + XPATH.dialogTitle);
+        return this.getText(xpath.container + xpath.dialogTitle);
     }
 
     get showExcludedItemsButton() {
-        return XPATH.container + lib.togglerButton('Show excluded');
+        return xpath.container + lib.togglerButton('Show excluded');
     }
 
     get hideExcludedItemsButton() {
-        return XPATH.container + lib.togglerButton('Hide excluded');
+        return xpath.container + lib.togglerButton('Hide excluded');
     }
 
     async clickOnCreateIssueButton() {
@@ -73,103 +65,58 @@ class CreateIssueDialog extends Page {
             await this.clickOnElement(this.createIssueButton);
             await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_create_issue_btn');
-            throw new Error(`create issue dialog:${screenshot} `  + err);
+            await this.handleError(`Error after clicking on 'Create Issue' button`, 'err_click_create_issue_btn', err);
         }
     }
 
-    waitForAddItemsButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.addItemsButton);
-    }
-
-    waitForAddItemsButtonDisplayed() {
-        return this.waitForElementDisplayed(this.addItemsButton);
-    }
-
-    async clickOnAddItemsButton() {
+    async clickOnCloseButton() {
         try {
-            await this.clickOnElement(this.addItemsButton)
-        } catch (err) {
-            let screenshot = await this.saveScreenshot('err_click_add_items');
-            throw new Error(`Error occurred in Create Issue dialog - screenshot:${screenshot} `  + err);
-        }
-    }
-
-    async clickOnCancelButton() {
-        try {
-            await this.clickOnElement(this.cancelButton);
+            await this.clickOnElement(this.closeButton);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot('err_close_issue_dialog');
-            throw new Error('Create Issue dialog, Error during Clicking on Cancel button, ' + err);
+            await this.handleError('Create Issue dialog, Error after Clicking on Close button', 'err_close_issue_dialog', err);
         }
     }
 
     async clickOnIncludeChildrenToggler(contentName) {
         try {
-            let selector = XPATH.container + XPATH.selectionItemByDisplayName(contentName) + lib.INCLUDE_CHILDREN_TOGGLER;
+            let selector = xpath.container + xpath.selectionItemByDisplayName(contentName) + lib.INCLUDE_CHILDREN_TOGGLER;
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             await this.clickOnElement(selector);
             await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_include_children');
-            throw new Error(`Error when clicking on 'include children' icon , screenshot:${screenshot}`  + err);
+            throw new Error(`Error when clicking on 'include children' icon , screenshot:${screenshot}` + err);
         }
     }
 
-    getValidationMessageForTitleInput() {
-        return this.getText(this.titleInputValidationMessage);
-    }
-
     // Insert text in Issue title input
-    typeTitle(issueName) {
-        return this.typeTextInInput(this.titleInput, issueName).catch(err => {
-            this.saveScreenshot("err_type_issue_name");
-            throw new Error('error when type the issue-name ' + err);
-        })
-    }
-
-    clickOnCancelTopButton() {
-        return this.clickOnElement(this.cancelTopButton);
+    async typeTitle(issueName) {
+        try {
+            return await this.typeTextInInput(this.titleInput, issueName);
+        } catch (err) {
+            await this.handleError('Error when typing the issue name in the Title input field', 'err_type_issue_name', err);
+        }
     }
 
     async waitForDialogLoaded() {
         try {
-            await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-            await this.pause(2000);
+            await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
+            await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_create_issue_loaded');
-            throw new Error(`Create issue dialog: screenshot ${screenshot}`  + err);
+            await this.handleError('Create issue dialog should be loaded! ', 'err_create_issue_dialog_loaded', err);
         }
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(xpath.container, appConst.mediumTimeout);
     }
 
-    isWarningMessageDisplayed() {
-        return this.isElementDisplayed(this.warningMessage);
-    }
 
     isTitleInputDisplayed() {
         return this.isElementDisplayed(this.titleInput);
     }
 
-    isCreateIssueButtonDisplayed() {
-        return this.isElementDisplayed(this.createIssueButton);
-    }
-
-    isCancelButtonTopDisplayed() {
-        return this.isElementDisplayed(this.cancelTopButton);
-    }
-
-    isCancelButtonBottomDisplayed() {
-        return this.isElementDisplayed(this.cancelButton);
-    }
-
-    isAddItemsButtonDisplayed() {
-        return this.isElementDisplayed(this.addItemsButton);
-    }
 
     isDescriptionTextAreaDisplayed() {
         return this.isElementDisplayed(this.descriptionTextArea);
@@ -187,11 +134,11 @@ class CreateIssueDialog extends Page {
 
     async selectUserInAssignees(userName) {
         try {
-            let principalComboBox = new PrincipalComboBox();
+            let principalComboBox = new PrincipalComboBox(this.container);
             await principalComboBox.selectFilteredUser(userName, this.container);
             await principalComboBox.clickOnApplySelectionButton(this.container);
         } catch (err) {
-            throw new Error("Error occurred in Create issue Dialog  " + err);
+            await this.handleError(`Error when selecting user in Assignees combobox: ${userName}`, 'err_select_user_assignees', err);
         }
     }
 
@@ -208,20 +155,21 @@ class CreateIssueDialog extends Page {
     async getCheckedOptionsDisplayNameInDropdownList(contentName) {
         try {
             let contentSelector = new ContentSelectorDropdown();
-            return await contentSelector.getCheckedOptionsDisplayNameInDropdownList( XPATH.container );
+            return await contentSelector.getCheckedOptionsDisplayNameInDropdownList(xpath.container);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_issue_dropdown_filtered');
             throw new Error(`Error in Create issue Dialog, items selector, screenshot: ${screenshot} ` + err);
         }
     }
 
-    async selectItemsInContentCombobox(contentName) {
+    async selectItemsInContentCombobox(displayName) {
         try {
-            let contentSelector = new ContentSelectorDropdown();
-            return await contentSelector.selectFilteredByDisplayNameContentMulti(contentName);
+            let issueItemsSelector = new IssueItemsSelector(this.container);
+            await issueItemsSelector.clickOnFilteredByDisplayNameContent(displayName);
+            await issueItemsSelector.clickOnApplySelectionButton();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_items_combo');
-            throw new Error(`Error in Create issue Dialog, items combobox, screenshot:${screenshot}  `  + err);
+            await this.handleError(`Create issue dialog, tried to select items in Items combobox: ${displayName}`,
+                'err_select_items_combobox', err);
         }
     }
 
@@ -241,7 +189,7 @@ class CreateIssueDialog extends Page {
             await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error(`Create Issue dialog, Show Excluded button, screenshot:${screenshot}  `  + err);
+            throw new Error(`Create Issue dialog, Show Excluded button, screenshot:${screenshot}  ` + err);
         }
     }
 
@@ -250,7 +198,7 @@ class CreateIssueDialog extends Page {
             return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error(`Create Issue, 'Show excluded button' should be visible! screenshot: ${screenshot} `  +err)
+            throw new Error(`Create Issue, 'Show excluded button' should be visible! screenshot: ${screenshot} ` + err)
         }
     }
 
@@ -279,12 +227,12 @@ class CreateIssueDialog extends Page {
             return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} `  +err)
+            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + err)
         }
     }
 
     async getDisplayNameInDependentItems() {
-        let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
+        let locator = xpath.container + xpath.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
         return await this.getTextInElements(locator);
     }
 
@@ -293,7 +241,7 @@ class CreateIssueDialog extends Page {
     }
 
     async waitForDependenciesListDisplayed() {
-        let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
+        let locator = xpath.container + xpath.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
         return await this.waitForElementDisplayed(locator);
     }
 

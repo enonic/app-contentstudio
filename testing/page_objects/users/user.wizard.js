@@ -3,7 +3,7 @@
  */
 const wizards = require('./wizard.panel');
 const wpXpath = require('./wizard.panel').XPATH;
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const UsersPrincipalCombobox = require('./selectors/users.principal.combobox');
 
@@ -168,7 +168,7 @@ class UserWizard extends wizards.WizardPanel {
 
     async clickOnRolesAndGroupsLink() {
         await this.clickOnElement(this.rolesGroupsLink);
-        await this.pause(300);
+        await this.pause(1000);
     }
 
     getUserName() {

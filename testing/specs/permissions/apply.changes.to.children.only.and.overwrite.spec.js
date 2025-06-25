@@ -72,7 +72,7 @@ describe(`Child and parent content, apply changes to children content only and c
                 // 5. Click on 'Yes' in the confirmation dialog:
                 let confirmationDialog = new ConfirmationDialog();
                 await confirmationDialog.waitForDialogOpened();
-                await confirmationDialog.clickOnYesButton();
+                await confirmationDialog.clickOnConfirmButton();
                 await editPermissionsChooseApplyChangesStep.clickOnNextButton();
                 // 6. Click on 'Replace all permissions' button in Summary step:
                 let editPermissionsSummaryStep = new EditPermissionsSummaryStep();

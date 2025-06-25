@@ -28,7 +28,7 @@ public final class PublishContentProgressListener
     @Override
     public void contentResolved( final int count )
     {
-        total = count * 2; // progress for resolving + copying
+        total = count; // x2 previously for resolving + copying
         progressReporter.progress( progressCount, total );
     }
 }

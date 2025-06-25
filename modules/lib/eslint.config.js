@@ -69,7 +69,15 @@ module.exports = [
         }
     },
     {
+        files: ["**/*.tsx", "**/v6/**/*.ts"],
+        rules: {
+            '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+        }
+    },
+    {
         ignores: [
+            "vite.config.css.ts",
+            "vitest.setup.ts",
             "**/node_modules/",
             "**/build/",
             "**/dist/",

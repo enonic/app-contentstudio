@@ -2,7 +2,13 @@ import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentPublishDialog} from '../publish/ContentPublishDialog';
-import {RequestContentPublishDialog} from '../publish/RequestContentPublishDialog';
+import {
+    openIssueDialog,
+    openIssueDialogDetails,
+    setIssueDialogListFilter,
+} from '../../v6/features/store/dialogs/issueDialog.store';
+import {openNewIssueDialog} from '../../v6/features/store/dialogs/newIssueDialog.store';
+import {openRequestPublishDialog} from '../../v6/features/store/dialogs/requestPublishDialog.store';
 import {IssueServerEventsHandler} from './event/IssueServerEventsHandler';
 import {Issue} from './Issue';
 import {GetIssueRequest} from './resource/GetIssueRequest';
@@ -18,7 +24,6 @@ export class IssueDialogsManager {
     private listDialog: IssueListDialog;
     private createDialog: CreateIssueDialog;
     private publishDialog: ContentPublishDialog;
-    private requestPublishDialog: RequestContentPublishDialog;
     private getIssueRequest: GetIssueRequest;
 
     private issue: Issue;
@@ -34,7 +39,6 @@ export class IssueDialogsManager {
         this.listDialog = IssueListDialog.get();
         this.createDialog = CreateIssueDialog.get();
         this.publishDialog = ContentPublishDialog.get();
-        this.requestPublishDialog = RequestContentPublishDialog.get();
 
         this.initHandlers();
         this.initListeners();
@@ -93,7 +97,6 @@ export class IssueDialogsManager {
         this.listenListDialog();
         this.listenDetailsDialog();
         this.listenPublishDialog();
-        this.listenRequestPublishDialog();
     }
 
     private listenCreateDialog() {
@@ -151,15 +154,6 @@ export class IssueDialogsManager {
         });
     }
 
-    private listenRequestPublishDialog() {
-        this.requestPublishDialog.onIssueCreated(issue => {
-            if (this.requestPublishDialog.isOpen()) {
-                if (this.requestPublishDialog.isIssueCreatedByCurrentUser(issue)) {
-                    this.requestPublishDialog.close();
-                }
-            }
-        });
-    }
 
     private static closeDialog(dialog: ModalDialog) {
         if (dialog.isOpen()) {
@@ -168,40 +162,24 @@ export class IssueDialogsManager {
     }
 
     openDetailsDialogWithListDialog(issue: Issue) {
-        if (!this.listDialog.isOpen()) {
-            this.listDialog.open();
-        }
-
-        this.detailsDialog.showBackButton();
-        this.detailsDialog.setIssue(issue).open();
+        openIssueDialogDetails(issue.getId());
     }
 
     openDetailsDialog(issue: Issue) {
-        this.detailsDialog.hideBackButton();
-        this.detailsDialog.setIssue(issue).open();
+        openIssueDialogDetails(issue.getId());
     }
 
     openListDialog(assignedToMe: boolean = false) {
-        this.listDialog.open(assignedToMe);
+        openIssueDialog();
+        setIssueDialogListFilter(assignedToMe ? 'assignedToMe' : 'all');
     }
 
     openCreateDialog(summaries?: ContentSummaryAndCompareStatus[]) {
-        this.createDialog.unlockPublishItems();
-        if (summaries) {
-            this.createDialog.setItems(summaries, true);
-        } else {
-            this.createDialog.reset();
-        }
-        this.createDialog
-            .forceResetOnClose(true)
-            .open();
+        openNewIssueDialog(summaries);
     }
 
     openCreateRequestDialog(summaries?: ContentSummaryAndCompareStatus[], isIncludeChildren?: boolean) {
-        this.requestPublishDialog
-            .setContentToPublish(summaries)
-            .setIncludeChildItems(isIncludeChildren)
-            .open();
+        openRequestPublishDialog(summaries, isIncludeChildren);
     }
 
 }

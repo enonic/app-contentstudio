@@ -169,7 +169,7 @@ describe('Move Fragment specification', function () {
             // 5. Verify - Confirmation dialog should be loaded!
             await confirmationDialog.waitForDialogOpened();
             // 6. Click on 'Yes' button:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             // 7. Verify the notification message - "You are about to move content out of its site which might make it unreachable. Are you sure?"
             await studioUtils.saveScreenshot('fragment_is_moved');
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
@@ -203,10 +203,10 @@ describe('Move Fragment specification', function () {
             // 1. Select the fragment-content and delete it:
             await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
             // Open 'Delete Content' modal dialog:
-            await contentBrowsePanel.clickOnArchiveButton();
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.clickOnIgnoreInboundReferences();
-            await deleteContentDialog.clickOnDeleteMenuItem();
+            await deleteContentDialog.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogClosed();
             // 2. Open fragment's parent site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);

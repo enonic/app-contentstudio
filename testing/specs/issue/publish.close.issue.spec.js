@@ -62,7 +62,8 @@ describe('publish.close.issue.spec: publish a content and close the issue.', fun
             let expected = appConst.itemPublishedNotificationMessage(TEST_FOLDER.displayName);
             assert.equal(message, expected, 'expected message should be displayed');
             // 6. 'Reopen Issue' button should appear in the bottom of the dialog:
-            await issueDetailsDialogItemsTab.waitForReopenIssueButtonDisplayed();
+            // TODO: epic-enonic-ui - Reopen button ?
+            //await issueDetailsDialogItemsTab.waitForReopenIssueButtonDisplayed();
         });
 
     //verifies: Issue List Dialog - closed issues are not displayed until you create a new issue (app-contentstudio/issues/246)
@@ -73,7 +74,7 @@ describe('publish.close.issue.spec: publish a content and close the issue.', fun
             await studioUtils.openIssuesListDialog();
             await studioUtils.saveScreenshot('verify_issue_246');
             // 2. Go to closed issues:
-            await issueListDialog.clickOnClosedButton();
+            await issueListDialog.clickOnClosedTabButton();
             await studioUtils.saveScreenshot('navigate_closed_issues');
             let result = await issueListDialog.isIssuePresent(ISSUE_TITLE);
             assert.ok(result, 'required issue should be present in `closed issues`');

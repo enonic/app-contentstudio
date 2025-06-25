@@ -1,0 +1,67 @@
+@layer theme, base, legacy, utilities, overrides;
+
+
+@import "tailwindcss/theme.css" layer(theme);
+
+@import "tailwindcss/preflight.css" layer(base);
+
+@import "@enonic/ui/preset.css";
+
+@import "tw-animate-css";
+
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@source "../../../../../node_modules/@enonic/ui/";
+@source "../../../../../node_modules/@enonic/lib-admin-ui/ui2/";
+
+@theme {
+  /* Temporary alias until @enonic/ui exposes grey-500 */
+  --color-surface-muted: #b2b2b2;
+
+  /* SIZINGS */
+  --sizing-19: calc(var(--spacing) * 19);
+}
+
+/* HACKS */
+@layer overrides {
+  /* Hide launcher buttons that is injected from Launcher app */
+  #launcher-button {
+    display: none !important;
+  }
+
+  /* Make all elements inside Preact roots to ignore legacy outline styles*/
+  .contents * {
+    outline-style: none;
+  }
+
+  .xp-admin-focused,
+  :focus-visible,
+  :focus,
+  input[type="checkbox"]:focus + label::before,
+  input[type="checkbox"]:focus + label::after {
+    outline: none;
+  }
+
+  .splitter {
+    @apply !bg-bdr-soft after:content-[''] after:absolute after:w-2.25 after:h-full after:z-1 after:-left-1;
+  }
+
+  .vertical .ghost-dragger {
+    @apply -ml-0.5;
+  }
+
+  .context-split-panel {
+    @apply bg-surface-neutral;
+  }
+
+  .load-mask {
+    @apply !bg-overlay;
+  }
+
+  .datetime-selector-input {
+    input + div {
+      @apply !bg-surface-neutral;
+      @apply !px-2;
+    }
+  }
+}

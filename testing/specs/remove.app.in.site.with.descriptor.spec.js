@@ -63,7 +63,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             let confirmationDialog = new ConfirmationDialog();
             // 8. Click on 'Yes' button in the confirmation dialog:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await contentWizard.waitForSaveButtonDisabled();
             let contextWindow = await contentWizard.openContextWindow();
@@ -150,7 +150,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             let confirmationDialog = new ConfirmationDialog();
             // 6. Click on 'Yes' button in the confirmation dialog:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await contentWizard.waitForSaveButtonDisabled();
             // 7. Details widget should be shown in Widget selector:

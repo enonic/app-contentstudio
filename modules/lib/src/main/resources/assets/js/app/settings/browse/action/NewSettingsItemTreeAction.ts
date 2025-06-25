@@ -4,27 +4,20 @@ import {Project} from '../../data/project/Project';
 import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
-import {ProjectWizardDialog} from '../../dialog/project/create/ProjectWizardDialog';
-import {ProjectSteps} from '../../dialog/project/create/ProjectSteps';
 import {ProjectConfigContext} from '../../data/project/ProjectConfigContext';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {openNewProjectDialog} from '../../../../v6/features/store/dialogs/newProjectDialog.store';
 
-export class NewSettingsItemTreeAction
-    extends Action {
-
+export class NewSettingsItemTreeAction extends Action {
     private tree: SelectableListBoxWrapper<SettingsViewItem>;
 
     constructor(tree: SelectableListBoxWrapper<SettingsViewItem>) {
-        super(i18n('action.newMore'), 'alt+n');
+        super(i18n('action.new'), 'alt+n');
 
         this.tree = tree;
 
         this.onExecuted(() => {
-            new ProjectWizardDialog({
-                steps: ProjectSteps.create(),
-                title: i18n('dialog.project.wizard.title'),
-                parentProjects: this.getSelectedProjects()
-            }).open();
+            openNewProjectDialog(this.getSelectedProjects());
         });
     }
 
@@ -36,7 +29,7 @@ export class NewSettingsItemTreeAction
             .map((item: ProjectViewItem) => item.getData());
 
         if (!selectedProjects.length) {
-            return null;
+            return [];
         }
 
         if (isMultiInheritance) {

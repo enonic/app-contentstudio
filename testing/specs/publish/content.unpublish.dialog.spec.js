@@ -110,7 +110,7 @@ describe('content.unpublish.dialog.spec tests for unpublish modal dialog', funct
             assert.equal(items.length, 1, "One items should be present in the items list");
             // 3. the site's status should be 'published'
             let status = await contentUnpublishDialog.getItemStatus(SITE.displayName);
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "'Published' status should be displayed");
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, "'Online' status should be displayed");
 
             await studioUtils.saveScreenshot('unpublish_hide_dependent_items');
             // 4. Verify that 'dependent items' are visible:
