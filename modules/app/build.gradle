@@ -133,4 +133,5 @@ tasks.register( 'yolo' ) {
     checkLint.enabled = false
     check.enabled = false
     test.enabled = false
+    compileTestJava.enabled = false
 }
