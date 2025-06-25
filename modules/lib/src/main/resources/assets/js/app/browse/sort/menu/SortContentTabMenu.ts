@@ -30,6 +30,8 @@ export class SortContentTabMenu
 
         this.addNavigationItems(this.createNavigationItems());
 
+        this.getTabMenuButtonEl().getLabel().setTabIndex(-1);
+
         this.dropdownHandle = new DropdownHandle();
         this.appendChild(this.dropdownHandle);
         this.dropdownHandle.up();
@@ -250,6 +252,13 @@ export class SortContentTabMenu
 
     getDropdownHandle(): DropdownHandle {
         return this.dropdownHandle;
+    }
+
+    setEnabled(enabled: boolean): TabMenu {
+        super.setEnabled(enabled);
+        this.dropdownHandle.setEnabled(enabled);
+
+        return this;
     }
 
 }

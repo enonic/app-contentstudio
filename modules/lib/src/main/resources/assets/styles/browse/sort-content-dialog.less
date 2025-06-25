@@ -91,7 +91,7 @@
       .sort-content-grid {
         flex: 1 0 auto;
 
-        &.inherited {
+        &.inherited, &.sorting-disabled {
           opacity: 0.5;
           pointer-events: none;
         }
@@ -254,6 +254,11 @@
 
     .@{_COMMON_PREFIX}dropdown-handle {
       z-index: 3;
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      pointer-events: none;
     }
   }
 
