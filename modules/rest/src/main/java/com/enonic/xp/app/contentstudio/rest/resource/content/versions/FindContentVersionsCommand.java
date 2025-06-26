@@ -1,0 +1,44 @@
+package com.enonic.xp.app.contentstudio.rest.resource.content.versions;
+
+import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentVersions;
+import com.enonic.xp.content.FindContentVersionsResult;
+import com.enonic.xp.node.GetNodeVersionsParams;
+import com.enonic.xp.node.NodeId;
+import com.enonic.xp.node.NodeService;
+import com.enonic.xp.node.NodeVersionQueryResult;
+
+public class FindContentVersionsCommand
+{
+    private final NodeService nodeService;
+
+    public FindContentVersionsCommand( final NodeService nodeService )
+    {
+        this.nodeService = nodeService;
+    }
+
+    public FindContentVersionsResult getContentVersions( final ContentId contentId, final int from, final int size )
+    {
+        final NodeId nodeId = NodeId.from( contentId );
+
+        final NodeVersionQueryResult nodeVersionQueryResult = nodeService.findVersions( GetNodeVersionsParams.create().
+            nodeId( nodeId ).
+            from( from ).
+            size( size ).
+            build() );
+
+        final FindContentVersionsResult.Builder findContentVersionsResultBuilder = FindContentVersionsResult.create().
+            hits( nodeVersionQueryResult.getHits() ).
+            totalHits( nodeVersionQueryResult.getTotalHits() ).
+            from( nodeVersionQueryResult.getFrom() ).
+            size( nodeVersionQueryResult.getSize() );
+
+        final ContentVersionFactory contentVersionFactory = new ContentVersionFactory( this.nodeService );
+
+        final ContentVersions contentVersions = contentVersionFactory.create( nodeId, nodeVersionQueryResult.getNodeVersionsMetadata() );
+
+        findContentVersionsResultBuilder.contentVersions( contentVersions );
+
+        return findContentVersionsResultBuilder.build();
+    }
+}
