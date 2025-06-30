@@ -559,5 +559,10 @@ module.exports = Object.freeze({
         TEXT_AREA_X_DATA_NAME: 'Text Area x-data',
         HTML_AREA_X_DATA_NAME: 'Html Area x-data',
         IMAGE_X_DATA_NAME: 'X-data (image selector)'
+    },
+    PERMISSIONS_DIALOG:{
+        APPLY_TO:{
+            THIS_ITEM: 'This item',
+        }
     }
 });

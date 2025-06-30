@@ -9,6 +9,9 @@ const xpath = {
     stepDescriptionP: "//p[contains(@class,'sub-name') and contains(.,'Summary')]",
     dialogButtonRow: `//div[contains(@class,'button-container')]`,
     sectionSummary: "//section[@clas='summary-step']",
+    applyToText: "//dt[contains(.,'Apply to')]/following-sibling::dd[1]",
+    replaceChildPermissionsText: "//dt[contains(.,'Replace child permissions')]/following-sibling::dd[1]",
+    summaryDataDl: "//dl[contains(@class,'summary-data-container')]",
     showHideDetailsButtonDiv: (text) => `//button[contains(@id,'ShowHideDetailsButton') and child::span[contains(.,'${text}')]]`
 };
 
@@ -45,6 +48,16 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
 
     get noChangesToApply() {
         return this.container + xpath.dialogButtonRow + lib.dialogButton('No changes to apply');
+    }
+
+    async getApplyToText() {
+        try {
+            let locator = this.container + xpath.applyToText;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError(`'Apply to' text should be displayed`, 'err_apply_to_text', err);
+        }
     }
 
     async waitForApplyChangesButtonEnabled() {
@@ -117,7 +130,8 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
             let res = await this.findElements(this.hideNewPermissionsButton);
             await this.waitForElementDisplayed(this.hideNewPermissionsButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Permissions Summary step - Hide new permissions button should be displayed', 'err_hide_new_permissions_button', err);
+            await this.handleError('Permissions Summary step - Hide new permissions button should be displayed',
+                'err_hide_new_permissions_button', err);
         }
     }
 

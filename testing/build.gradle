@@ -231,7 +231,7 @@ tasks.register( 'w_testProjects_2', NpmTask ) {
 }
 
 tasks.register( 'testProjects_multi', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer, copyProjectMultiConfig )
+    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, copyProjectMultiConfig, startServer )
     args = ['run-script', 'test_project_multi:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
