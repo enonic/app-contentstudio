@@ -50,8 +50,11 @@ public class ArchiveRunnableTask
             .sorted( ( a, b ) -> b.getPath().elementCount() - a.getPath().elementCount() )
             .collect( Collectors.toList() ) )
         {
-            final ArchiveContentParams archiveContentParams =
-                ArchiveContentParams.create().contentId( content.getId() ).archiveContentListener( listener ).build();
+            final ArchiveContentParams archiveContentParams = ArchiveContentParams.create()
+                .contentId( content.getId() )
+                .message( params.getMessage() )
+                .archiveContentListener( listener )
+                .build();
             try
             {
                 final ArchiveContentsResult archiveResult = contentService.archive( archiveContentParams );
