@@ -26,7 +26,9 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Save 2 projects:
             await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME_1, DESCRIPTION);
+            await studioUtils.saveScreenshot('issue_project_1_saved');
             await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME_2, DESCRIPTION);
+            await studioUtils.saveScreenshot('issue_project_2_saved');
             // 2 .Click on Content app-mode button
             await studioUtils.switchToContentMode();
             // 3. Expand the project selector and verify that 2 new items appeared:

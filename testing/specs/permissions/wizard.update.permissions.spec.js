@@ -34,6 +34,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             // 2. Fill in the name input:
             await contentWizard.typeDisplayName(folderName);
             // 3. Don't save the folder but open 'Edit Permissions' dialog:
+            await contentWizard.openDetailsPanel();
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             // 4. Update and apply changes in the dialog:
             await editPermissionsGeneralStep.removeAclEntry(appConst.SYSTEM_ROLES_NAME.ADMINISTRATOR);
@@ -54,8 +55,10 @@ describe('wizard.update.permissions.spec: update permissions and check the state
         async () => {
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let userAccessWidget = new UserAccessWidget();
+            let contentWizard = new ContentWizard();
             // 1. Open new folder-wizard,
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            await contentWizard.openDetailsPanel();
             // 2. Open 'Edit Permissions' dialog:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             // 3. 'Copy from project' button should be disabled:
@@ -78,6 +81,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             let userAccessWidget = new UserAccessWidget();
             // 1. Open new folder-wizard, and open Edit Permissions dialog
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            await contentWizard.openDetailsPanel();
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             // 2. Click on Next button
             await editPermissionsGeneralStep.clickOnNextButton();
@@ -86,7 +90,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             await editPermissionsSummaryStep.waitForNoChangesToApplyDisabled();
 
         });
-    it(`GIVEN a folder has been saved WHEN permissions have been updated THEN 'Saved' button remains visible after applying the permissions`,
+    it(`WHEN permissions have been updated THEN 'Saved' button remains visible after applying the permissions`,
         async () => {
             let contentWizard = new ContentWizard();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
@@ -96,6 +100,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             await contentWizard.typeDisplayName(DISPLAY_NAME);
             // 2. Save the folder:
             await contentWizard.waitAndClickOnSave();
+            await contentWizard.openDetailsPanel();
             // 3. Open 'Edit Permissions' dialog:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             // 4.  Restricted radio has been clicked:
@@ -113,10 +118,9 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             await contentWizard.waitForSavedButtonVisible();
         });
 
-    it.skip(
-        `GIVEN existing content is opened WHEN folder's permissions have been updated in browse panel (Details Panel) THEN 'Save(Disabled)' button should still be present after applying permissions in the grid`,
+    it(`WHEN folder's permissions have been updated in browse panel (Details Panel) THEN 'Save(Disabled)' button should still be present after applying permissions in the grid`,
         async () => {
-            let editPermissionsDialog = new EditPermissionsDialog();
+            let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let userAccessWidget = new UserAccessWidget();
             let contentWizard = new ContentWizard();
             // 1. Select and open the folder:
@@ -125,8 +129,16 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             await studioUtils.doSwitchToContentBrowsePanel();
             await studioUtils.openBrowseDetailsPanel();
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.SUPER_USER);
-            await editPermissionsDialog.clickOnApplyButton();
+            await editPermissionsGeneralStep.filterAndSelectPrincipal(appConst.SYSTEM_ROLES.AUDIT_LOG);
+            await editPermissionsGeneralStep.clickOnNextButton();
+            let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
+            await editPermissionsSummaryStep.waitForLoaded();
+            // 3. Verify the text in the 'Apply to':
+            let applyToValue = await editPermissionsSummaryStep.getApplyToText();
+            assert.strictEqual(applyToValue, appConst.PERMISSIONS_DIALOG.APPLY_TO.THIS_ITEM,'This item should be displayed')
+            await editPermissionsSummaryStep.clickOnApplyChangesButton();
+            await editPermissionsSummaryStep.waitForNotificationMessage();
+            await editPermissionsSummaryStep.waitForDialogClosed();
             // 3. Go to the wizard:
             await studioUtils.switchToContentTabWindow(DISPLAY_NAME);
             // 'Save(Disabled)' button should still be present after applying permissions in browse-panel:
