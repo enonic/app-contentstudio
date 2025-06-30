@@ -927,7 +927,7 @@ module.exports = {
             await settingsBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
             return settingsBrowsePanel;
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_open_settings'));
+            await this.saveScreenshotUniqueName('err_open_settings');
             throw new Error('Settings Panel was not opened: ' + err);
         }
     },
@@ -1004,6 +1004,7 @@ module.exports = {
         await this.clickOnSystemOpenUserWizard();
         // 2. Type the data:
         await userWizard.typeData(userData);
+        await userWizard.clickOnRolesAndGroupsLink()
         await this.saveScreenshot(appConst.generateRandomName('user'));
         // 3. Save the data and close the wizard:
         return await this.saveAndCloseUserWizard(userData.displayName);

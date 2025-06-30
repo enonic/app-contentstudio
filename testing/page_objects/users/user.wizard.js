@@ -166,8 +166,9 @@ class UserWizard extends wizards.WizardPanel {
         return this.isElementDisplayed(this.roleOptionsFilterInput);
     }
 
-    clickOnRolesAndGroupsLink() {
-        return this.clickOnElement(this.rolesGroupsLink);
+    async clickOnRolesAndGroupsLink() {
+        await this.clickOnElement(this.rolesGroupsLink);
+        await this.pause(300);
     }
 
     getUserName() {

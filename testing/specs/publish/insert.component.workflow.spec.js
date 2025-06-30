@@ -19,7 +19,7 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
     }
 
     let SITE;
-    let CONTROLLER_NAME = 'main region';
+    let CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const TEXT_WITH_SPACES = 'test text2   ';
 
     it("Precondition - new site should be added",
@@ -38,12 +38,13 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             let contentPublishDialog = new ContentPublishDialog();
             // 1. Open an existing site (work in progress)
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu("main");
+            await pageComponentView.openMenu('main');
             // 3. Insert Text Component with test text and save it:
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
-            await textComponentCke.typeTextInCkeEditor("test text");
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await studioUtils.saveScreenshot('issue_text_component_inserted');
+            await textComponentCke.typeTextInCkeEditor('test text');
             // 4. Click on 'Mark as Ready' button:
             await contentWizard.clickOnMarkAsReadyButton();
             let expectedMessage = appConst.itemMarkedAsReadyMessage(SITE.displayName);
@@ -56,7 +57,7 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             await contentWizard.clickOnMinimizeLiveEditToggler();
             let actualWorkflow = await contentWizard.getContentWorkflowState();
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
-                "Ready for publishing status should be displayed in the wizard");
+                `Ready for publishing status should be displayed in the wizard`);
             // 6. Verify that Publish button gets displayed in the wizard-toolbar
             await contentWizard.waitForPublishButtonDisplayed();
             // 7. Verify the workflow status in Browse Panel:
@@ -73,10 +74,10 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             let contentWizard = new ContentWizard();
             // 1. Open an existing site and insert new text component:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             // 3. insert a text with spaces:
             await textComponentCke.insertTextInCkeEditor(TEXT_WITH_SPACES);
             await textComponentCke.insertTextInCkeEditor(TEXT_WITH_SPACES);
@@ -84,7 +85,7 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(2000);
-            await studioUtils.saveScreenshot("text_component_saved_button");
+            await studioUtils.saveScreenshot('text_component_saved_button');
             // 5. Verify that Saved button gets visible in the toolbar:
             await contentWizard.waitForSavedButtonVisible();
         });
