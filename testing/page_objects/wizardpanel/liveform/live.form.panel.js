@@ -39,8 +39,7 @@ class LiveFormPanel extends Page {
             let locator = `//div[contains(@id,'LayoutPlaceholder')]` + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_layout');
-            throw new Error(`Error occurred -  layout combobox, options filter input screenshot:${screenshot} ` + err);
+            await this.handleError(`Layout combobox, options filter input should be displayed in Live Edit`, 'err_layout_combobox', err);
         }
     }
 
@@ -54,8 +53,7 @@ class LiveFormPanel extends Page {
             await contentWizard.switchToParentFrame();
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_select_layout');
-            throw new Error(`Error after selecting the layout in Live Edit - screenshot:${screenshot} ` + err);
+            await this.handleError(`Error during selecting the layout in Live Edit`, 'err_select_layout', err);
         }
     }
 
@@ -68,8 +66,7 @@ class LiveFormPanel extends Page {
             await componentDescriptorsDropdown.selectFilteredComponent(displayName, parentForComboBox);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_select_layout');
-            throw new Error(`Error when selecting the part in Live Edit, screenshot:${screenshot} ` + err);
+            await this.handleError('Error during selecting the part in Live Edit','err_select_part',err);
         }
     }
 
@@ -79,7 +76,7 @@ class LiveFormPanel extends Page {
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getText(selector);
         } catch (err) {
-            throw new Error('Error when getting text in the part component! ' + err);
+            await this.handleError('Try to get text from the part component!','err_part_component',err);
         }
     }
 
@@ -90,11 +87,11 @@ class LiveFormPanel extends Page {
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(selector);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_txt_component');
-            throw new Error(`Error, Live Edit frame, text component, screenshot: ${screenshot}` + err);
+            await this.handleError('Try to get text from the text component!','err_txt_component',err);
         }
     }
 
+    // get text from 'section' element:
     async getTextInTextComponent() {
         try {
             let selector = xpath.sectionTextComponentView + '/p';
@@ -166,8 +163,7 @@ class LiveFormPanel extends Page {
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(selector);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_txt_layout');
-            throw new Error(`Error when getting text in the layout component! screenshot:${screenshot} ` + err);
+            await this.handleError(`Error when getting text in the layout component!`, 'err_txt_layout', err)
         }
     }
 
@@ -176,8 +172,7 @@ class LiveFormPanel extends Page {
             let selector = xpath.textComponentByText(text);
             return await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_txt_comp_displayed');
-            throw new Error('Text component should not visible in Live Editor! screenshot:' + screenshot + '  ' + err);
+            await this.handleError(`Text component should not be visible in Live Editor!`, 'err_txt_comp', err);
         }
     }
 
@@ -186,8 +181,7 @@ class LiveFormPanel extends Page {
             let selector = xpath.textComponentByText(text);
             return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_txt_component');
-            throw new Error('Text component should be visible in Live Editor! screenshot:' + screenshot + '  ' + err);
+            await this.handleError(`Text component should be visible in Live Editor!`, 'err_txt_comp', err)
         }
     }
 
@@ -210,8 +204,7 @@ class LiveFormPanel extends Page {
             await this.doRightClickWithOffset(selector, liveFrameX + 35, liveFrameY + 15);
             return await this.pause(700);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_live_frame_right_click');
-            throw new Error('Error when showing context menu for text component, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError(`Try to open the context menu for text component`, 'err_live_frame_right_click', err);
         }
     }
 
@@ -221,8 +214,7 @@ class LiveFormPanel extends Page {
             await this.clickOnElement(selector);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_live_frame_click_component');
-            throw new Error(`Error after clicking on the component in Live Edit, screenshot:${screenshot} ` + err);
+            await this.handleError(`Try to click on text component`, 'err_live_frame_click_text_component', err);
         }
     }
 
@@ -231,8 +223,7 @@ class LiveFormPanel extends Page {
             let selector = xpath.itemViewContextMenu;
             return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_live_frame_item_view_context_menu');
-            throw new Error(`Image component should not visible in Live Editor! screenshot:${screenshot} ` + err);
+            await this.handleError(`Item View Context Menu should be displayed in Live Editor!`, 'err_live_frame_item_view_context_menu', err);
         }
     }
 
@@ -256,19 +247,16 @@ class LiveFormPanel extends Page {
             await contentWizard.switchToLiveEditFrame();
             await fragmentDropdown.selectFilteredFragment(displayName);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_fragment_selector');
-            throw new Error(`Error after selecting the fragment in Live Edit -screenshot :${screenshot} ` + err);
+            await this.handleError(`Error during selecting the fragment in Live Edit`, 'err_fragment_selector', err);
         }
     }
 
     async waitForCaptionDisplayed(text) {
         try {
             let locator = xpath.captionByText(text);
-            let aa = await this.findElements(locator);
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_img_caption_live_edit');
-            throw new Error(`Expected caption is not displayed in LiveEdit frame. screenshot:${screenshot} ` + err);
+            await this.handleError(`Caption should be displayed in LiveEdit frame`, 'err_caption_live_edit', err);
         }
     }
 
@@ -317,8 +305,7 @@ class LiveFormPanel extends Page {
         try {
             return await this.waitForElementNotDisplayed(xpath.layoutComponentView, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_live_edit_layout');
-            throw new Error(`Live Editor - layout component should not be present, screenshot:${screenshot} ` + err);
+            await this.handleError(`Live Editor - layout component should not be displayed`, 'err_live_edit_layout', err);
         }
     }
 
