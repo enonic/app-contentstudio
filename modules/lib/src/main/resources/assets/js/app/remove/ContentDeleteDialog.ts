@@ -7,11 +7,13 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {MenuButton, MenuButtonConfig} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
 import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
 import {ContentTreeGridDeselectAllEvent} from '../browse/ContentTreeGridDeselectAllEvent';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentDialogSubTitle} from '../dialog/ContentDialogSubTitle';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {ArchiveContentRequest} from '../resource/ArchiveContentRequest';
 import {DeleteContentRequest} from '../resource/DeleteContentRequest';
@@ -45,6 +47,8 @@ export class ContentDeleteDialog
 
     private actionInProgressType: ActionType;
 
+    private messageSubTitle: ContentDialogSubTitle;
+
     constructor() {
         super({
             title: i18n('dialog.archive'),
@@ -72,6 +76,13 @@ export class ContentDeleteDialog
             menuActions: [this.deleteNowAction]
         });
         this.actionButton = this.menuButton.getActionButton();
+
+        const options = {
+            dialog: this,
+            placeholderText: i18n('dialog.archive.message.placeholder'),
+            hintText: i18n('dialog.archive.message.hint')
+        };
+        this.messageSubTitle = new ContentDialogSubTitle(options);
     }
 
     getButtonRow(): ContentDeleteDialogButtonRow {
@@ -83,6 +94,8 @@ export class ContentDeleteDialog
 
         this.progressManager.onProgressComplete((task: TaskState) => {
             if (this.actionInProgressType === ActionType.ARCHIVE && task === TaskState.FINISHED) {
+                this.messageSubTitle.setMessage('');
+
                 const msg: string = this.totalItemsToDelete > 1 ? i18n('dialog.archive.success.multiple', this.totalItemsToDelete) :
                                     i18n('dialog.archive.success.single', this.getItemList().getItems()[0].getDisplayName());
                 NotifyManager.get().showSuccess(msg);
@@ -98,7 +111,6 @@ export class ContentDeleteDialog
         this.setIgnoreItemsChanged(true);
         this.setListItems(contents);
         this.setIgnoreItemsChanged(false);
-        this.updateSubTitle();
 
         return this;
     }
@@ -249,6 +261,8 @@ export class ContentDeleteDialog
             archiveContentRequest.addContentId(item.getContentId());
         });
 
+        archiveContentRequest.setArchiveMessage(this.messageSubTitle.getValue());
+
         return archiveContentRequest;
     }
 
@@ -256,12 +270,6 @@ export class ContentDeleteDialog
         return items.some((item: ContentSummaryAndCompareStatus) => {
             return item.getContentSummary().hasChildren();
         });
-    }
-
-    private updateSubTitle(): void {
-        const items: ContentSummaryAndCompareStatus[] = this.getItemList().getItems();
-
-        super.setSubTitle(this.doAnyHaveChildren(items) ? i18n('dialog.archive.subname') : '');
     }
 
     private isAnySiteToBeDeleted(): boolean {
@@ -299,6 +307,18 @@ export class ContentDeleteDialog
         this.archiveAction.setEnabled(true);
         this.deleteNowAction.setEnabled(true);
         this.menuButton.setDropdownHandleEnabled(true);
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.setSubTitleEl(this.messageSubTitle);
+
+            return rendered;
+        });
+    }
+
+    setSubTitle(text: string) {
+        this.messageSubTitle.setMessage(text.trim());
     }
 
 }
