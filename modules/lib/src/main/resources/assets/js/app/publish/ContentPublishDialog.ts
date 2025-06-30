@@ -1,20 +1,15 @@
-import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
-import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
-import {AutosizeTextInput} from '@enonic/lib-admin-ui/ui/text/AutosizeTextInput';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import * as Q from 'q';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {ContentId} from '../content/ContentId';
 import {BasePublishDialog} from '../dialog/BasePublishDialog';
+import {ContentDialogSubTitle} from '../dialog/ContentDialogSubTitle';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {PublishContentRequest} from '../resource/PublishContentRequest';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
@@ -32,7 +27,7 @@ export class ContentPublishDialog
 
     private publishAction: Action;
 
-    private publishSubTitle: ContentPublishDialogSubTitle;
+    private publishSubTitle: ContentDialogSubTitle;
 
     private scheduleAction: Action;
 
@@ -79,7 +74,12 @@ export class ContentPublishDialog
 
         super.initElements();
 
-        this.publishSubTitle = new ContentPublishDialogSubTitle();
+        const options = {
+            dialog: this,
+            placeholderText: i18n('dialog.publish.messagePlaceholder'),
+            hintText: i18n('dialog.publish.messageHint')
+        };
+        this.publishSubTitle = new ContentDialogSubTitle(options);
 
         this.addAction(this.scheduleAction);
 
@@ -125,7 +125,6 @@ export class ContentPublishDialog
         super.close();
 
         this.publishScheduleForm.setFormVisible(false);
-        this.resetSubTitleMessage();
         this.message = null;
     }
 
@@ -252,125 +251,5 @@ export class ContentPublishDialog
     setSubTitleMessage(message: string) {
         this.publishSubTitle.setValue(message);
     }
-
-    resetSubTitleMessage() {
-        this.publishSubTitle.resetValue();
-    }
 }
 
-export class ContentPublishDialogSubTitle
-    extends DivEl {
-    private input: AutosizeTextInput;
-    private message: AEl;
-
-    constructor() {
-        super('publish-dialog-sub-title');
-        this.input = new AutosizeTextInput();
-        this.input.setPlaceholder(i18n('dialog.publish.messagePlaceholder'));
-        this.input.setVisible(false);
-
-        this.message = new AEl();
-        this.message.setHtml(i18n('dialog.publish.messageHint'));
-        this.message.onClicked((event: MouseEvent) => {
-            event.stopImmediatePropagation();
-            event.preventDefault();
-
-            this.toggleInput(true);
-        });
-
-        this.initListeners();
-    }
-
-    getValue(): string {
-        return this.input.getValue();
-    }
-
-    setValue(text: string) {
-        if (!text) {
-            return;
-        }
-        this.input.setValue(text);
-        this.toggleInput(true, false);
-    }
-
-    resetValue() {
-        this.input.reset();
-        this.input.resetBaseValues();
-    }
-
-    setMessage(text: string) {
-        this.message.setHtml(text || i18n('dialog.publish.messageHint'));
-        this.toggleClass('custom-message', !!text);
-    }
-
-    private toggleInput(visible: boolean, focus: boolean = true) {
-        if (visible) {
-            this.message.hide();
-            this.input.show();
-            if (focus) {
-                this.input.giveFocus();
-            }
-        } else {
-            this.input.reset();
-            this.input.hide();
-            this.message.show();
-        }
-    }
-
-    private initListeners() {
-        const keyDownHandler = (event: KeyboardEvent) => {
-            const isTextInputFocused = document.activeElement &&
-                                       (document.activeElement.tagName.toUpperCase() === 'INPUT' ||
-                                        document.activeElement.tagName.toUpperCase() === 'TEXTAREA');
-
-            const isPublishMessageInputFocused = this.input.getHTMLElement() === document.activeElement;
-
-            if (isTextInputFocused && !isPublishMessageInputFocused) {
-                // don't hijack focus from other inputs
-                return;
-            }
-
-            const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey && KeyHelper.isAlphaNumeric(event);
-
-            if (!isPublishMessageInputFocused && isLetterOrNumber) {
-                this.toggleInput(true);
-            } else if (isPublishMessageInputFocused) {
-                if (KeyHelper.isEscKey(event)) {
-                    event.stopImmediatePropagation();
-                    this.toggleInput(false);
-                } else if (KeyHelper.isEnterKey(event)) {
-                    event.stopImmediatePropagation();
-                    this.input.giveBlur();
-                }
-            }
-        };
-
-        const clickHandler = (event: MouseEvent) => {
-            if (this.input.isVisible()
-                && StringHelper.isBlank(this.input.getValue())
-                && event.target !== this.input.getHTMLElement()) {
-
-                this.toggleInput(false);
-            }
-        };
-
-        this.onShown(() => {
-            Body.get().onKeyDown(keyDownHandler);
-        });
-        this.onHidden(() => Body.get().unKeyDown(keyDownHandler));
-
-        this.input.onShown(() => Body.get().onClicked(clickHandler));
-        this.input.onHidden(() => Body.get().unClicked(clickHandler));
-    }
-
-    getLinkEl(): AEl {
-        return this.message;
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            this.appendChildren<Element>(this.message, this.input);
-            return rendered;
-        });
-    }
-}
