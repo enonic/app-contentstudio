@@ -75,24 +75,20 @@ public final class ContentIconResource
             throw new WebApplicationException( Response.Status.NOT_FOUND );
         }
 
-        ResolvedImage resolvedImage = resolveResponseFromThumbnail( content, size, crop );
-        if ( resolvedImage.isOK() )
+        final ResolvedImage imageResolvedFromThumbnail = resolveResponseFromThumbnail( content, size, crop );
+
+        if ( imageResolvedFromThumbnail.isOK() )
         {
-            return cacheAndReturnResponse( timestamp, resolvedImage );
+            return cacheAndReturnResponse( timestamp, imageResolvedFromThumbnail );
         }
-        else
+
+        if ( content instanceof final Media media && media.isImage() )
         {
-            if ( content instanceof Media )
+            final ResolvedImage imageResolvedFromAttachment = resolveResponseFromImageAttachment( media, size, crop );
+
+            if ( imageResolvedFromAttachment.isOK() )
             {
-                final Media media = (Media) content;
-                if ( media.isImage() )
-                {
-                    resolvedImage = resolveResponseFromImageAttachment( media, size, crop );
-                    if ( resolvedImage.isOK() )
-                    {
-                        return resolvedImage.toResponse();
-                    }
-                }
+                return imageResolvedFromAttachment.toResponse();
             }
         }
 
@@ -128,7 +124,7 @@ public final class ContentIconResource
             final ResolveIconParams params = new ResolveIconParams().
                 setBinaryReference( imageAttachment.getBinaryReference() ).
                 setId( media.getId() ).
-                setImageOrientation( getSourceAttachmentOrientation( media ) ).
+                setImageOrientation( media.getOrientation() ).
                 setCropping( media.getCropping() ).
                 setMimeType( imageAttachment.getMimeType() ).
                 setFileName( imageAttachment.getName() ).
@@ -242,26 +238,14 @@ public final class ContentIconResource
         }
     }
 
-    private ImageOrientation getSourceAttachmentOrientation( final Media media )
-    {
-        return getImageBinaryOrientation( media.getId(), media.getMediaAttachment().getBinaryReference(),
-                                          media.getMediaAttachment().getMimeType() );
-    }
-
     private ImageOrientation getThumbnailOrientation( final Thumbnail thumbnail, final Content content )
     {
-        return getImageBinaryOrientation( content.getId(), thumbnail.getBinaryReference(), thumbnail.getMimeType() );
-    }
-
-    private ImageOrientation getImageBinaryOrientation( final ContentId contentId, final BinaryReference binaryReference,
-                                                        final String mimeType )
-    {
-        if ( SKIP_IMAGE_MIME_TYPES.contains( mimeType ) )
+        if ( SKIP_IMAGE_MIME_TYPES.contains( thumbnail.getMimeType() ) )
         {
             return ImageOrientation.DEFAULT;
         }
 
-        final ByteSource sourceBinary = contentService.getBinary( contentId, binaryReference );
+        final ByteSource sourceBinary = contentService.getBinary( content.getId(), thumbnail.getBinaryReference() );
         return mediaInfoService.getImageOrientation( sourceBinary );
     }
 

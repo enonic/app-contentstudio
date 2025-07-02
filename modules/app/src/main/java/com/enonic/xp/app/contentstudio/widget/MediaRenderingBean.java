@@ -9,11 +9,11 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.io.ByteSource;
+
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.Response;
-
-import com.google.common.io.ByteSource;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentImageHelper;
 import com.enonic.xp.attachment.Attachment;
@@ -32,7 +32,6 @@ import com.enonic.xp.image.ImageService;
 import com.enonic.xp.image.ReadImageParams;
 import com.enonic.xp.image.ScaleParams;
 import com.enonic.xp.media.ImageOrientation;
-import com.enonic.xp.media.MediaInfoService;
 import com.enonic.xp.node.NodePath;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeFromMimeTypeResolver;
@@ -71,8 +70,6 @@ public class MediaRenderingBean
 
     private Supplier<ContentTypeService> contentTypeServiceSupplier;
 
-    private Supplier<MediaInfoService> mediaInfoServiceSupplier;
-
     private static final Set<String> MEDIA_ATTACHMENT_TYPES =
         Stream.concat(
             ContentTypeFromMimeTypeResolver.resolveMimeTypes(
@@ -109,7 +106,6 @@ public class MediaRenderingBean
         this.contentServiceSupplier = beanContext.getService( ContentService.class );
         this.imageServiceSupplier = beanContext.getService( ImageService.class );
         this.contentTypeServiceSupplier = beanContext.getService( ContentTypeService.class );
-        this.mediaInfoServiceSupplier = beanContext.getService( MediaInfoService.class );
     }
 
     public Object image( final String id, final String repository, final String branch, final boolean archive )
@@ -320,8 +316,7 @@ public class MediaRenderingBean
             }
 
             final Cropping cropping = ( !source && crop ) ? media.getCropping() : null;
-            final ImageOrientation imageOrientation =
-                source ? null : this.mediaInfoServiceSupplier.get().getImageOrientation( binary );
+            final ImageOrientation imageOrientation = source ? null : media.getOrientation();
             final FocalPoint focalPoint = source ? null : media.getFocalPoint();
             final int sizeParam = ( size > 0 ) ? size : ( source ? 0 : getOriginalWidth( media ) );
             final ScaleParams scaleParam = parseScaleParam( media, scale, sizeParam );
