@@ -1,0 +1,35 @@
+.dependant-items-dialog {
+  &._0-240,
+  &._240-360,
+  &._360-540 {
+    .content-dialog-sub-title {
+      a,
+      input {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .modal-dialog-header {
+    .content-dialog-sub-title {
+      margin-top: 6px;
+
+      a {
+        font-size: 14px;
+        text-decoration: none;
+        line-height: 30px; // equal to the height of the input to prevent wiggle on switch
+      }
+
+      input {
+        border: none;
+      }
+
+      &.custom-message {
+        a {
+          color: @admin-font-gray2;
+          pointer-events: none;
+        }
+      }
+    }
+  }
+}
