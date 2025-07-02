@@ -37,7 +37,6 @@ import com.enonic.xp.image.ReadImageParams;
 import com.enonic.xp.image.ScaleParams;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.media.ImageOrientation;
-import com.enonic.xp.media.MediaInfoService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
@@ -66,8 +65,6 @@ public final class ContentImageResource
     private ContentTypeService contentTypeService;
 
     private ContentService contentService;
-
-    private MediaInfoService mediaInfoService;
 
     private ImageService imageService;
 
@@ -160,7 +157,7 @@ public final class ContentImageResource
                     }
 
                     final Cropping cropping = ( !source && crop ) ? media.getCropping() : null;
-                    final ImageOrientation imageOrientation = source ? null : mediaInfoService.getImageOrientation( binary );
+                    final ImageOrientation imageOrientation = source ? null : media.getOrientation();
                     final FocalPoint focalPoint = source ? null : media.getFocalPoint();
                     final int sizeParam = ( size > 0 ) ? size : ( source ? 0 : getOriginalWidth( media ) );
                     final ScaleParams scaleParam = parseScaleParam( media, scale, sizeParam );
@@ -270,12 +267,6 @@ public final class ContentImageResource
     public void setContentService( final ContentService contentService )
     {
         this.contentService = contentService;
-    }
-
-    @Reference
-    public void setMediaInfoService( final MediaInfoService mediaInfoService )
-    {
-        this.mediaInfoService = mediaInfoService;
     }
 
     @Reference
