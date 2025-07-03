@@ -10,6 +10,9 @@ const xpath = {
     dialogButtonRow: `//div[contains(@class,'button-container')]`,
     sectionSummary: "//section[@clas='summary-step']",
     applyToText: "//dt[contains(.,'Apply to')]/following-sibling::dd[1]",
+    accessModeText: "//dt[contains(.,'Access mode')]/following-sibling::dd[1]",
+    accessModeUpdatedText: `${this.accessModeText}/span[2]`,
+    accessModePreviousText: `${this.accessModeText}/span[1]`,
     replaceChildPermissionsText: "//dt[contains(.,'Replace child permissions')]/following-sibling::dd[1]",
     summaryDataDl: "//dl[contains(@class,'summary-data-container')]",
     showHideDetailsButtonDiv: (text) => `//button[contains(@id,'ShowHideDetailsButton') and child::span[contains(.,'${text}')]]`
@@ -50,6 +53,7 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
         return this.container + xpath.dialogButtonRow + lib.dialogButton('No changes to apply');
     }
 
+    // summary-data-container: 'Apply to' 'Children only' or 'This item' or 'This item and all children'
     async getApplyToText() {
         try {
             let locator = this.container + xpath.applyToText;
@@ -57,6 +61,36 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
             return await this.getText(locator);
         } catch (err) {
             await this.handleError(`'Apply to' text should be displayed`, 'err_apply_to_text', err);
+        }
+    }
+
+    async getAccessModeText() {
+        try {
+            let locator = this.container + xpath.accessModeText;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError(`'Access mode' text should be displayed`, 'err_access_mode_text', err);
+        }
+    }
+
+    async getUpdatedAccessModeText() {
+        try {
+            let locator = this.container + xpath.accessModeUpdatedText;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError(`'Access mode' text should be displayed`, 'err_access_mode_text', err);
+        }
+    }
+
+    async getPreviousAccessModeText() {
+        try {
+            let locator = this.container + xpath.accessModePreviousText;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError(`'Access mode' text should be displayed`, 'err_access_mode_text', err);
         }
     }
 
@@ -130,8 +164,7 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
             let res = await this.findElements(this.hideNewPermissionsButton);
             await this.waitForElementDisplayed(this.hideNewPermissionsButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Permissions Summary step - Hide new permissions button should be displayed',
-                'err_hide_new_permissions_button', err);
+            await this.handleError('Perm.Summary step - Hide new permissions button should be displayed', 'err_hide_new_permissions', err);
         }
     }
 
@@ -140,8 +173,7 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
             await this.waitForElementDisplayed(this.hideNewPermissionsButton, appConst.mediumTimeout);
             await this.clickOnElement(this.hideNewPermissionsButton);
         } catch (err) {
-            await this.handleError('Permissions Summary step - Click on Hide new permissions button',
-                'err_click_hide_new_permissions_button', err);
+            await this.handleError('Perm.Summary step - Click on Hide new permissions button', 'err_click_hide_new_permissions', err);
         }
     }
 
@@ -149,8 +181,7 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
         try {
             await this.waitForElementDisplayed(this.showNewPermissionsButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Permissions Summary step - Show new permissions button should be displayed',
-                'err_show_new_permissions_button', err);
+            await this.handleError('Perm.Summary step - Show new permissions button should be displayed', 'err_show_new_permissions', err);
         }
     }
 
@@ -159,8 +190,7 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
             await this.waitForElementDisplayed(this.showNewPermissionsButton, appConst.mediumTimeout);
             await this.clickOnElement(this.showNewPermissionsButton);
         } catch (err) {
-            await this.handleError('Permissions Summary step - Click on Show new permissions button',
-                'err_click_show_new_permissions_button', err);
+            await this.handleError('Perm.Summary step - Click on Show new permissions button', 'err_click_show_new_permissions', err);
         }
     }
 
@@ -180,6 +210,29 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
             await this.handleError('Permissions Summary step - Click on Hide changes button', 'err_click_hide_changes_button', err);
         }
     }
+
+    async getNumberFromApplyChangesButton() {
+        try {
+            let text = await this.getText(this.applyChangesButton + '//span');
+            const match = text.match(/\((\d+)\)/); // Regular expression to find number inside parentheses
+            return match ? parseInt(match[1], 10) : null; // Return the number as an integer or null
+        } catch (err) {
+            await this.handleError('Error extracting number from text:', err);
+            return null;
+        }
+    }
+
+    async getNumberFromReplaceAllPermissionsButton() {
+        try {
+            let text = await this.getText(this.replaceAllPermissionsButton + '//span');
+            const match = text.match(/\((\d+)\)/); // Regular expression to find number inside parentheses
+            return match ? parseInt(match[1], 10) : null; // Return the number as an integer or null
+        } catch (err) {
+            await this.handleError('Error extracting number from text:', err);
+            return null;
+        }
+    }
+
 }
 
 module.exports = EditPermissionsSummaryStep;
