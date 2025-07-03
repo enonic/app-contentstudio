@@ -77,9 +77,11 @@ describe(`Child and parent content, apply changes to children content only and c
                 // 6. Click on 'Replace all permissions' button in Summary step:
                 let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
                 await editPermissionsSummaryStep.waitForLoaded();
+                let number = await editPermissionsSummaryStep.getNumberFromReplaceAllPermissionsButton();
                 await editPermissionsSummaryStep.clickOnReplaceAllPermissionsButton()   ;
                 await editPermissionsSummaryStep.waitForNotificationMessage();
                 await editPermissionsSummaryStep.waitForDialogClosed();
+                assert.equal(number, 1,`1 should be displayed in the 'Replace All Permissions' button`);
             });
 
         it(`WHEN select the child folder AND open Edit Permissions dialog THEN all permissions should be overwritten in the child folder('Administrator' and 'Audit Log' entries should not be displayed)`,

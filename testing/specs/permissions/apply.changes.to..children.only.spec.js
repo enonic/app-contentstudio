@@ -50,9 +50,11 @@ describe('Child and parent content, apply changes to children content only(do no
             // 9. Click on 'Apply Changes' button in Summary step:
             let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
             await editPermissionsSummaryStep.waitForLoaded();
+            let number = await editPermissionsSummaryStep.getNumberFromApplyChangesButton();
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
             await editPermissionsSummaryStep.waitForNotificationMessage();
             await editPermissionsSummaryStep.waitForDialogClosed();
+            assert.equal(number, 1, "Expected number of changes should be displayed in the button: 1");
         });
 
     // 'Children only' radio button was selected in the first test, so permissions should not be updated in the parent folder:

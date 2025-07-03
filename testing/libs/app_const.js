@@ -429,6 +429,8 @@ module.exports = Object.freeze({
     },
     roleName: {
         CONTENT_MANAGER_APP: 'cms.cm.app',
+        ADMINISTRATOR:'system.admin',
+        CM_ADMIN: 'cms.admin'
     },
     roleDisplayName: {
         CONTENT_MANAGER_APP: 'Content Manager App',
@@ -563,6 +565,10 @@ module.exports = Object.freeze({
     PERMISSIONS_DIALOG:{
         APPLY_TO:{
             THIS_ITEM: 'This item',
+        },
+        ACCESS_MODE:{
+            RESTRICTED: 'Restricted',
+            PUBLIC: 'Public',
         }
     }
 });

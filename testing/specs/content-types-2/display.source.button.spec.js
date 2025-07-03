@@ -1,6 +1,7 @@
 /**
  * Created on 31.01.2022
  */
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -62,11 +63,13 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
             await editPermissionsChooseApplyChangesStep.waitForLoaded();
             await editPermissionsChooseApplyChangesStep.clickOnNextButton();
             await editPermissionsSummaryStep.waitForLoaded();
+            let number = await editPermissionsSummaryStep.getNumberFromApplyChangesButton();
             // 7. click on 'Apply Changes' button:
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
             await editPermissionsSummaryStep.waitForDialogClosed();
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
+            assert.equal(number, 1, "Expected number of changes should be displayed in the button: 1");
         });
 
     it("GIVEN user with roles 'Author ' and 'Content Manager Expert' is logged in WHEN content with html area has been opened THEN 'Source' button should be displayed in the htmlArea toolbar",
