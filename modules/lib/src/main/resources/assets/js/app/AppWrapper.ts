@@ -149,7 +149,7 @@ export class AppWrapper
     }
 
     private updateUrl(widget: Widget): void {
-        if (widget.getFullUrl() === UrlAction.BROWSE.toString()) {
+        if (this.isDefaultWidget(widget)) {
             Router.get().setHash(UrlAction.BROWSE);
             return;
         }

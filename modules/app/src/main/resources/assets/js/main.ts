@@ -515,7 +515,7 @@ function getTheme(): string {
 }
 
 function isDefaultAppUrl(url: string): boolean {
-    return url.endsWith('/main') || url.indexOf('/inbound/') > 0 || url.indexOf('/outbound/') > 0;
+    return url.endsWith('/main') || url.endsWith('/browse') || url.indexOf('/inbound/') > 0 || url.indexOf('/outbound/') > 0;
 }
 
 async function startContentBrowser() {
