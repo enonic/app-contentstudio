@@ -565,6 +565,7 @@ module.exports = Object.freeze({
     PERMISSIONS_DIALOG:{
         APPLY_TO:{
             THIS_ITEM: 'This item',
+            CHILDREN_ONLY: 'Children only',
         },
         ACCESS_MODE:{
             RESTRICTED: 'Restricted',

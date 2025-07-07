@@ -15,6 +15,7 @@ const xpath = {
     accessModePreviousText: `${this.accessModeText}/span[1]`,
     replaceChildPermissionsText: "//dt[contains(.,'Replace child permissions')]/following-sibling::dd[1]",
     summaryDataDl: "//dl[contains(@class,'summary-data-container')]",
+    accessControlChangedItemsListUL: "//ul[contains(@class,'access-control-changed-items-list')]",
     showHideDetailsButtonDiv: (text) => `//button[contains(@id,'ShowHideDetailsButton') and child::span[contains(.,'${text}')]]`
 };
 
@@ -232,8 +233,15 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
             return null;
         }
     }
-
+    async getChangedItemsList() {
+        try {
+            let locator = this.container + xpath.accessControlChangedItemsListUL + lib.H6_DISPLAY_NAME;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getTextInElements(locator );
+        } catch (err) {
+            await this.handleError(`Access Control Changed Items List should be displayed`, 'err_access_control_changed_items_list', err);
+        }
+    }
 }
 
 module.exports = EditPermissionsSummaryStep;
-

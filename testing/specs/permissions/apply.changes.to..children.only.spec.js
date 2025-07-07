@@ -51,10 +51,13 @@ describe('Child and parent content, apply changes to children content only(do no
             let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
             await editPermissionsSummaryStep.waitForLoaded();
             let number = await editPermissionsSummaryStep.getNumberFromApplyChangesButton();
+            let applyTo = await editPermissionsSummaryStep.getApplyToText();
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
             await editPermissionsSummaryStep.waitForNotificationMessage();
             await editPermissionsSummaryStep.waitForDialogClosed();
             assert.equal(number, 1, "Expected number of changes should be displayed in the button: 1");
+            const expectedApplyTo = appConst.PERMISSIONS_DIALOG.APPLY_TO.CHILDREN_ONLY
+            assert.equal(applyTo, expectedApplyTo, 'Children only - the tex should be displayed in the summary step');
         });
 
     // 'Children only' radio button was selected in the first test, so permissions should not be updated in the parent folder:
