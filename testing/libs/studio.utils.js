@@ -204,9 +204,9 @@ module.exports = {
         let browsePanel = new BrowsePanel();
         let browseDetailsPanel = new BrowseDetailsPanel();
         let result = await browseDetailsPanel.isPanelVisible();
-        if (!result) {
+        //if (!result) {
             await browsePanel.clickOnDetailsPanelToggleButton();
-        }
+        //}
         await browseDetailsPanel.waitForDetailsPanelLoaded();
         await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
         return await browsePanel.pause(1000);

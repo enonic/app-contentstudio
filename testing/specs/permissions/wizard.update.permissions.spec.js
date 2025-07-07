@@ -110,7 +110,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
             await editPermissionsSummaryStep.waitForLoaded();
             let accessModeToUpdate = await editPermissionsSummaryStep.getUpdatedAccessModeText();
-            let accessModeBefore = await editPermissionsSummaryStep.getUpdatedAccessModeText();
+            let accessModeBefore = await editPermissionsSummaryStep.getPreviousAccessModeText();
 
             // 6. click on 'Apply Changes' button:
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
