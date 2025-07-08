@@ -8,7 +8,7 @@ const DateTimePickerPopup = require('../page_objects/wizardpanel/time/date.time.
 const XPATH = {
     container: "//div[contains(@id,'ContentPublishDialog')]",
     dialogStateBarDiv: "//div[contains(@id,'DialogStateBar')]",
-    logMessageLink: "//div[contains(@id,'ContentPublishDialogSubTitle')]/a",
+    logMessageLink: "//div[contains(@class,'content-dialog-sub-title')]/a",
     publishScheduleForm: "//div[contains(@id,'PublishScheduleForm')]",
     scheduleButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Schedule')]]`,
     includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
@@ -110,8 +110,12 @@ class ContentPublishDialog extends Page {
     }
 
     async clickOnLogMessageLink() {
-        await this.waitForElementDisplayed(this.logMessageLink, appConst.mediumTimeout);
-        return await this.clickOnElement(this.logMessageLink);
+        try {
+            await this.waitForElementDisplayed(this.logMessageLink, appConst.mediumTimeout);
+            return await this.clickOnElement(this.logMessageLink);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, log message input `, 'err_log_message_input', err);
+        }
     }
 
     typeTextInLogMessageInput(text) {
@@ -123,8 +127,7 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.dependantsBlock, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dependencies_block');
-            throw new Error(`Apply selection button is not displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Publish Dialog, dependencies block is not displayed, `, 'err_dependencies_block', err);
         }
     }
 
@@ -132,8 +135,7 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.dependantsBlock, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dependencies_block');
-            throw new Error(`Apply selection button is  displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Publish Dialog, dependencies block should not be displayed, `, 'err_dependencies_block', err);
         }
     }
 
@@ -150,8 +152,7 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_exclude_items_in_progress');
-            throw new Error(`Exclude items in progress button should not be displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Publish Dialog, 'Exclude items in progress' button should not be displayed, `, 'err_exclude_items_in_progress_button', err);
         }
     }
 
@@ -219,20 +220,18 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_mark_as_ready_btn');
-            throw new Error(`Mark as ready button is not displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Publish Dialog, 'Mark as ready' button should be displayed, `, 'err_mark_as_ready_btn', err);
         }
     }
 
     async clickOnMarkAsReadyButton() {
         try {
             await this.waitForMarkAsReadyButtonDisplayed();
-            await this.pause(1000);
+            await this.pause(700);
             await this.clickOnElement(this.markAsReadyButton);
             return await this.pause(700);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_mark_as_ready_btn');
-            throw new Error(`Error during clicking on 'Mark as ready' button, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Publish Dialog, click on 'Mark as ready' button `, 'err_click_mark_as_ready_btn', err);
         }
     }
 
@@ -240,8 +239,7 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_mark_as_ready_btn');
-            throw new Error(`Mark as ready button is still displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Publish Dialog, 'Mark as ready' button should not be displayed, `, 'err_mark_as_ready_btn', err);
         }
     }
 
@@ -255,8 +253,7 @@ class ContentPublishDialog extends Page {
             await this.waitForElementDisplayed(this.publishNowButton, appConst.mediumTimeout);
             await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_open_publish_dialog');
-            throw new Error(`Publish dialog should be loaded, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Publish Dialog, dialog should be opened `, 'err_open_publish_dialog', err);
         }
     }
 
@@ -265,8 +262,7 @@ class ContentPublishDialog extends Page {
             await this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout);
             await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_close_publish_dialog');
-            throw new Error(`Publish dialog must be closed, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Publish Dialog, wait for dialog to be closed `, 'err_close_publish_dialog', err);
         }
     }
 
@@ -276,12 +272,11 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.publishNowButton);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_publish_now_button');
-            throw new Error(`Error occurred after clicking on 'Publish Now' button screenshot:${screenshot} ` + err);
+            await this.handleError(`Publish Dialog, click on 'Publish Now' button `, 'err_click_on_publish_now_button', err);
         }
     }
 
-    isIncludeChildTogglerDisplayed() {
+    isIncludeChildToggleDisplayed() {
         return this.isElementDisplayed(this.includeChildrenToogler);
     }
 
@@ -292,8 +287,7 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.addScheduleIcon);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_publish_dialog_schedule_button');
-            throw new Error(`Error, Publish Wizard, 'Add Schedule' icon-button, screenshot:  ` + screenshot + ' ' + err);
+            await this.handleError(`Publish Dialog, click on 'Add Schedule' icon-button `, 'err_publish_dialog_schedule_button', err);
         }
     }
 
@@ -304,8 +298,7 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.scheduleButton);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_dialog_schedule_button');
-            throw new Error('Error when clicking on Schedule button  ' + err);
+            await this.handleError(`Publish Dialog, click on 'Schedule' button `, 'err_click_on_schedule_button', err);
         }
     }
 
@@ -323,8 +316,7 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.showExcludedItemsButton);
             await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error('Error after clicking on Show Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
+            await this.handleError(`Publish Dialog, click on Show Excluded dependent items button `, 'err_show_excluded_btn', err);
         }
     }
 
@@ -334,8 +326,7 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.hideExcludedItemsButton);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error('Error after clicking on Hide Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
+            await this.handleError(`Publish Dialog, click on Hide Excluded dependent items button `, 'err_hide_excluded_btn', err);
         }
     }
 
@@ -343,8 +334,7 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error(`'Show excluded items' button should be visible! screenshot: ${screenshot} ` + err)
+            await this.handleError(`Publish Dialog, 'Show excluded items' button should be visible, `, 'err_show_excluded_btn', err);
         }
     }
 
@@ -352,17 +342,15 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error(`'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + err)
+            await this.handleError(`Publish Dialog, 'Show excluded items' button should not be displayed, `, 'err_show_excluded_btn', err);
         }
     }
 
     async waitForHideExcludedItemsButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
+            return await this.waitForElementDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error(`'Hide excluded items' button should be visible! screenshot: ${screenshot} ` + err)
+            await this.handleError(`Publish Dialog, 'Hide excluded items' button should be displayed, `, 'err_hide_excluded_btn', err);
         }
     }
 
@@ -370,8 +358,7 @@ class ContentPublishDialog extends Page {
         try {
             return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + err)
+            await this.handleError(`Publish Dialog, 'Hide excluded items' button should not be displayed, `, 'err_hide_excluded_btn', err);
         }
     }
 
@@ -381,8 +368,7 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.includeChildrenToogler);
             return await this.pause(700);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_include_children');
-            throw new Error(`Error when clicking on Include Children toggle, screenshot ${screenshot} ` + err);
+            await this.handleError(`Publish Dialog, click on Include Children toggle `, 'err_include_children_toggle', err);
         }
     }
 
@@ -437,8 +423,9 @@ class ContentPublishDialog extends Page {
         })
     }
 
-    isLogMessageLinkDisplayed() {
-        return this.isElementDisplayed(this.logMessageLink, appConst.shortTimeout);
+    async isLogMessageLinkDisplayed() {
+        await this.saveScreenshotUniqueName('publish_dlg_log_message_input');
+        return await this.isElementDisplayed(this.logMessageLink, appConst.shortTimeout);
     }
 
     async waitForPublishNowButtonEnabled() {
@@ -446,8 +433,7 @@ class ContentPublishDialog extends Page {
             await this.waitForElementDisplayed(this.publishNowButton, appConst.mediumTimeout);
             return await this.waitForElementEnabled(this.publishNowButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('publish_now_disabled');
-            throw new Error(`Publish Wizard - 'Publish Now' button should be enabled, screenshot:${screenshot} ` + err);
+            await this.handleError(`Publish Wizard, 'Publish Now' button should be enabled, `, 'err_publish_now_button_enabled', err);
         }
     }
 
@@ -500,8 +486,7 @@ class ContentPublishDialog extends Page {
             let dateTimePickerPopup = new DateTimePickerPopup();
             await dateTimePickerPopup.clickOnOkButton();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_picker_popup');
-            throw new Error(`Error occurred in picker popup dialog, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Publish Dialog, click on OK in picker popup `, 'err_picker_popup_ok', err);
         }
     }
 
@@ -559,8 +544,7 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(locator);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot('err_close_schedule_form');
-            throw new Error(`Publish Schedule Form, close icon: ` + err);
+            await this.handleError(`Publish Schedule Form, close icon `, 'err_close_schedule_form', err);
         }
     }
 
