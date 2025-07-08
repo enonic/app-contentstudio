@@ -9,7 +9,7 @@ const XPATH = {
     container: "//div[contains(@id,'ContentPublishDialog')]",
     dialogTitle: "//h2[text()='Publishing Wizard']",
     dialogStateBarDiv: "//div[contains(@id,'DialogStateBar')]",
-    logMessageLink: "//div[contains(@class,'publish-dialog-sub-title')]/a",
+    logMessageLink: "//div[contains(@class,'content-dialog-sub-title')]/a",
     publishScheduleForm: "//div[contains(@id,'PublishScheduleForm')]",
     scheduleButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Schedule')]]`,
     includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
@@ -157,8 +157,7 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Exclude items in progress' button should not be displayed, `,
-                'err_exclude_items_in_progress_button', err);
+            await this.handleError(`Publish Dialog, 'Exclude items in progress' button should not be displayed, `, 'err_exclude_items_in_progress_button', err);
         }
     }
 

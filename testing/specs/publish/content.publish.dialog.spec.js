@@ -89,12 +89,10 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentPublishDialog.waitForAddScheduleIconDisplayed();
             // Remove-icon should be disabled for the Parent item
             let isEnabled = await contentPublishDialog.isRemoveItemIconEnabled(appConst.TEST_FOLDER_WITH_IMAGES);
-            assert.ok(isEnabled === false, "Remove icon should be disabled for the Parent item");
-
+            assert.ok(isEnabled === false, 'Remove icon should be disabled for the Parent item');
             let isDisplayed = await contentPublishDialog.isIncludeChildToggleDisplayed();
-            assert.ok(isDisplayed, "Include child icon should be visible");
-
-            // 'Publish Now' button should be enabled!
+            assert.ok(isDisplayed, 'Include child icon should be visible');
+            // 6. 'Publish Now' button should be enabled!
             await contentPublishDialog.waitForPublishNowButtonEnabled();
             // Log message link should be displayed:
             let isLinkDisplayed = await contentPublishDialog.isLogMessageLinkDisplayed();
