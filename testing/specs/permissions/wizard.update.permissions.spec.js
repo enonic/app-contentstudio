@@ -109,6 +109,9 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             // 5. click on 'Next' button to go to 'Summary' step:
             let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
             await editPermissionsSummaryStep.waitForLoaded();
+            let accessModeToUpdate = await editPermissionsSummaryStep.getUpdatedAccessModeText();
+            let accessModeBefore = await editPermissionsSummaryStep.getPreviousAccessModeText();
+
             // 6. click on 'Apply Changes' button:
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
             await editPermissionsSummaryStep.waitForDialogClosed();
@@ -116,6 +119,9 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
             // 7. Verify that 'Saved' button remains visible after applying the permissions:
             await contentWizard.waitForSavedButtonVisible();
+            // 8. Mode should be changed to 'Restricted', so it should be displayed in Summary step
+            assert.strictEqual(accessModeToUpdate, appConst.PERMISSIONS_DIALOG.ACCESS_MODE.RESTRICTED,'Mode is going to be Restricted in Edit permissions dialog');
+            assert.strictEqual(accessModeBefore, appConst.PERMISSIONS_DIALOG.ACCESS_MODE.PUBLIC,`The Mode was 'Public' before`);
         });
 
     it(`WHEN folder's permissions have been updated in browse panel (Details Panel) THEN 'Save(Disabled)' button should still be present after applying permissions in the grid`,
@@ -125,7 +131,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             let contentWizard = new ContentWizard();
             // 1. Select and open the folder:
             await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
-            // 2. Go to browse-panel and add default permissions for 'Super User'
+            // 2. Go to browse-panel and add the default permissions for 'Audit Log' role
             await studioUtils.doSwitchToContentBrowsePanel();
             await studioUtils.openBrowseDetailsPanel();
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
@@ -133,13 +139,15 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             await editPermissionsGeneralStep.clickOnNextButton();
             let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
             await editPermissionsSummaryStep.waitForLoaded();
-            // 3. Verify the text in the 'Apply to':
+            // 3. Verify the text in the 'Apply to': 'This item'
             let applyToValue = await editPermissionsSummaryStep.getApplyToText();
-            assert.strictEqual(applyToValue, appConst.PERMISSIONS_DIALOG.APPLY_TO.THIS_ITEM,'This item should be displayed')
+            assert.strictEqual(applyToValue, appConst.PERMISSIONS_DIALOG.APPLY_TO.THIS_ITEM,`'This item' should be displayed`);
+            let accessMode = await editPermissionsSummaryStep.getAccessModeText();
+            assert.strictEqual(accessMode, appConst.PERMISSIONS_DIALOG.ACCESS_MODE.RESTRICTED,'Restricted mode should be displayed');
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
             await editPermissionsSummaryStep.waitForNotificationMessage();
             await editPermissionsSummaryStep.waitForDialogClosed();
-            // 3. Go to the wizard:
+            // 3. Switch to the wizard:
             await studioUtils.switchToContentTabWindow(DISPLAY_NAME);
             // 'Save(Disabled)' button should still be present after applying permissions in browse-panel:
             await contentWizard.waitForSaveButtonVisible();
