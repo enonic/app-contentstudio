@@ -47,8 +47,7 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
             await this.clickOnElement(this.fragmentDropdownHandle);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_fragment_inspect');
-            throw new Error("Fragment dropdown handle, screenshot:" + screenshot + ' ' + err);
+            await this.handleError('Fragment Inspection Panel', 'err_fragment_inspect_dropdown_handle', err)
         }
     }
 
@@ -68,11 +67,12 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
         await this.waitForSpinnerNotVisible();
     }
 
-    waitForOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_load_inspect_panel');
-            throw new Error('Live Edit, Fragment Inspection Panel is not loaded' + err);
-        });
+    async waitForOpened() {
+        try {
+            return await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout)
+        } catch (err) {
+            await this.handleError('Fragment Inspection Panel was not loaded', 'err_fragment_inspection_panel', err);
+        }
     }
 
     async getSelectedOptionPath() {
@@ -84,8 +84,7 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
         try {
             return await this.waitForElementDisplayed(xpath.container + lib.EMPTY_OPTIONS_H5, appConst.longTimeout);
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_empty_options');
-            throw new Error("Empty options text is not visible " + err);
+            await this.handleError('Fragment Inspection Panel, Empty options text is not visible', 'err_empty_options', err);
         }
     }
 }

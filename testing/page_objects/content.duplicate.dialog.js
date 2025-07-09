@@ -46,8 +46,7 @@ class ContentDuplicateDialog extends Page {
             await this.clickOnElement(this.includeChildToggler);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_duplicate_dlg_child_toggler');
-            throw new Error("Content Duplicate dialog, error, screenshot:" + screenshot + ' ' + err);
+            await this.handleError('Content Duplicate dialog', 'err_duplicate_dlg_child_toggle', err);
         }
     }
 
@@ -57,8 +56,7 @@ class ContentDuplicateDialog extends Page {
             await this.clickOnElement(this.duplicateButton);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_duplicate_btn');
-            throw new Error('Error after clicking on Duplicate button, screenshot:  ' + screenshot + ' ' + err);
+            await this.handleError('Content Duplicate dialog', 'err_duplicate_btn', err);
         }
     }
 
@@ -80,8 +78,7 @@ class ContentDuplicateDialog extends Page {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
             await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_duplicate_dlg');
-            throw new Error("'Content Duplicate' dialog was not loaded, screenshot:  " + screenshot + ' ' + err);
+            await this.handleError('Content Duplicate dialog', 'err_duplicate_dlg', err);
         }
     }
 
@@ -89,8 +86,7 @@ class ContentDuplicateDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_duplicate_dlg');
-            throw new Error("'Content Duplicate' dialog must be closed, screenshot:  " + screenshot + ' ' + err);
+            await this.handleError('Content Duplicate dialog', 'err_duplicate_dlg_close', err);
         }
     }
 
@@ -106,7 +102,7 @@ class ContentDuplicateDialog extends Page {
             let endIndex = result.indexOf(')');
             return result.substring(startIndex + 1, endIndex);
         } catch (err) {
-            throw new Error("Error when getting number in 'Duplicate' button " + err);
+            await this.handleError('Content Duplicate dialog', 'err_duplicate_btn_number', err);
         }
     }
 
@@ -115,8 +111,7 @@ class ContentDuplicateDialog extends Page {
             let selector = XPATH.container + `//ul[contains(@id,'DialogTogglableItemList')]` + lib.H6_DISPLAY_NAME;
             return await this.getTextInElements(selector);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_duplicate_dlg');
-            throw new Error('Duplicate Dialog: error when getting display names, screenshot : ' + screenshot + ' ' + err)
+            await this.handleError('Content Duplicate dialog', 'err_duplicate_dlg_display_names', err);
         }
     }
 
@@ -125,8 +120,7 @@ class ContentDuplicateDialog extends Page {
             let locator = XPATH.container + lib.DEPENDANTS.DEPENDENT_ITEM_LIST_UL + lib.H6_DISPLAY_NAME;
             return await this.getTextInElements(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_duplicate_dlg');
-            throw new Error('Duplicate Dialog: error when getting dependents name, screenshot : ' + screenshot + '' + err)
+            await this.handleError('Content Duplicate dialog', 'err_duplicate_dlg_dependents_name', err);
         }
     }
 

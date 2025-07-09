@@ -59,7 +59,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 4. Insert 'City list' part
             await pageComponentView.openMenu('country');
             await pageComponentView.selectMenuItem(['Insert', 'Part']);
-            await liveFormPanel.selectPartByDisplayName('City list');
+            await liveFormPanel.selectPartByDisplayName(appConst.PART_NAME.MY_FIRST_APP_CITY_LIST);
             await contentWizard.switchToMainFrame();
             // the site should be  automatically saved:
             await contentWizard.waitForNotificationMessage();
@@ -204,7 +204,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 1. Open USA country content:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await contentWizard.pause(1000);
-            // 2. 'Page Component View' modal dialog should not be displayed, because the content is not customised:
+            // 2. 'Page Component View' modal dialog should not be displayed, because the content is not customized:
             await pageComponentView.waitForNotDisplayed();
             // 3. Click on 'Customize' menu item in Live Edit frame:
             await contentWizard.doUnlockLiveEditor();

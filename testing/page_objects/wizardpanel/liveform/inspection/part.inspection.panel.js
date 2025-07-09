@@ -1,7 +1,7 @@
 /**
  * Created on 02.05.2024
  */
-const Page = require('../../../page');
+const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 
@@ -11,42 +11,24 @@ const xpath = {
 };
 
 // Context Window, Part Inspect tab
-class PartInspectionPanel extends Page {
+class PartInspectionPanel extends BaseComponentInspectionPanel {
+
+    get container() {
+        return xpath.container;
+    }
 
     get partDropdownOptionsFilterInput() {
-        return xpath.container + lib.DROPDOWN_OPTION_FILTER_INPUT;
+        return this.container + lib.DROPDOWN_OPTION_FILTER_INPUT;
     }
 
     async getDropdownSelectedOption() {
-        let locator = xpath.container + lib.INSPECT_PANEL.DESCRIPTOR_VIEWER_DIV + lib.H6_DISPLAY_NAME;
+        let locator = this.container + lib.INSPECT_PANEL.DESCRIPTOR_VIEWER_DIV + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(xpath.container);
-    }
-
-    async getTextFomTextInputConfig() {
-        try {
-            let locatorTextLine = xpath.container + "//div[contains(@id,'TextLine')]" + lib.TEXT_INPUT;
-            await this.waitForElementDisplayed(locatorTextLine, appConst.mediumTimeout);
-            return await this.getTextInInput(locatorTextLine);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_part_inspect_text_input');
-            throw new Error(`Error occurred in Part Inspect Panel screenshot: ${screenshot} ` + err);
-        }
-    }
-
-    async typeTexInTextInputConfig(text) {
-        try {
-            let locatorTextLine = xpath.container + "//div[contains(@id,'TextLine')]" + lib.TEXT_INPUT;
-            await this.waitForElementDisplayed(locatorTextLine, appConst.mediumTimeout);
-            return await this.typeTextInInput(locatorTextLine, text);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_part_inspect_text_input');
-            throw new Error(`Error occurred in Part Inspect Panel screenshot: ${screenshot} ` + err);
-        }
+        return this.waitForElementDisplayed(this.container);
     }
 }
 

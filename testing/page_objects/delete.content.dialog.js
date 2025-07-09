@@ -63,8 +63,7 @@ class DeleteContentDialog extends Page {
             await this.waitForElementDisplayed(this.archiveButton, appConst.mediumTimeout);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_archive_dialog'));
-            throw new Error('Archive or delete dialog is not loaded ' + err)
+            await this.handleError('Delete Content Dialog', 'err_archive_dialog_opened', err);
         }
     }
 
@@ -91,8 +90,7 @@ class DeleteContentDialog extends Page {
             await this.clickOnElement(this.archiveButton);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_delete_dialog');
-            throw new Error("Delete Content Dialog, Archive button, screenshot:" + screenshot + ' ' + err);
+            await this.handleError('Delete Content Dialog', 'err_click_on_archive_button', err);
         }
     }
 
@@ -110,8 +108,7 @@ class DeleteContentDialog extends Page {
             await this.clickOnDeleteMenuItem();
             return await this.waitForDialogClosed();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_delete_dialog');
-            throw new Error("Delete Content Dialog, Delete menu item, screenshot:" + screenshot + ' ' + err);
+            await this.handleError('Delete Content Dialog', 'err_click_on_delete_menu_item', err);
         }
     }
 
@@ -204,8 +201,7 @@ class DeleteContentDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.dependentsHeader, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_dependants_header'));
-            throw new Error('Delete content dialog, dependants header is not displayed: ' + err);
+            await this.handleError('Delete Content Dialog', 'err_dependants_header_displayed', err);
         }
     }
 
@@ -220,8 +216,7 @@ class DeleteContentDialog extends Page {
             await this.clickOnElement(this.ignoreInboundReferencesButton);
             return await this.pause(700);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_ignore_inbound_ref');
-            throw new Error("Delete Content dialog, screenshot:" + screenshot + ' ' + err);
+            await this.handleError('Delete Content Dialog', 'err_ignore_inbound_ref', err);
         }
     }
 

@@ -34,8 +34,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
                 return await this.getPanelWidth(widthValue) > 150;
             }, {timeout: appConst.mediumTimeout, timeoutMsg: "Details Panel was not loaded in " + appConst.mediumTimeout});
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_load_details');
-            throw new Error("Details Panel was not loaded, screenshot:" + screenshot + ' ' + err);
+            await this.handleError('Wizard: Details Panel', 'err_details_panel_loaded', err);
         }
     }
 
