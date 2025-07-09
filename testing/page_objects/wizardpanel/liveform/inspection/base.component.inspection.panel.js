@@ -12,6 +12,12 @@ class BaseComponentInspectionPanel extends Page {
         return "//div[contains(@id,'InspectionsPanel')]" + lib.actionButton('Apply');
     }
 
+    async getDropdownSelectedOption() {
+        let locator = this.container + lib.INSPECT_PANEL.DESCRIPTOR_VIEWER_DIV + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
     async clickOnApplyButton() {
         await this.waitForApplyButtonEnabled();
         await this.clickOnElement(this.applyButton);
@@ -27,8 +33,7 @@ class BaseComponentInspectionPanel extends Page {
             await this.waitForElementEnabled(this.applyButton, appConst.mediumTimeout);
             await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_apply_button');
-            throw new Error(`Inspection Panel - Apply button is not enabled , screenshot: ${screenshot} ` + err);
+            await this.handleError('Inspection Panel, Apply button should be enabled', 'err_apply_button', err);
         }
     }
 
@@ -37,8 +42,7 @@ class BaseComponentInspectionPanel extends Page {
             await this.waitForElementDisabled(this.applyButton, appConst.mediumTimeout);
             await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_apply_button');
-            throw new Error(`Inspection Panel - Apply button should be disabled , screenshot: ${screenshot} ` + err);
+            await this.handleError('Inspection Panel, Apply button should be disabled', 'err_apply_button', err)
         }
     }
 }

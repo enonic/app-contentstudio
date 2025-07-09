@@ -1,27 +1,27 @@
 /**
  * Created on 08.11.2023
  */
-const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const ImageSelectorDropdown = require('../../../components/selectors/image.selector.dropdown');
+const PartInspectionPanel = require('./part.inspection.panel');
 const xpath = {
     container: `//div[contains(@id,'PartInspectionPanel')]`,
 };
 
 // Context Window, Inspect tab for City Creation Part Component
-class CityCreationPartInspectionPanel extends BaseComponentInspectionPanel {
+class CityCreationPartInspectionPanel extends PartInspectionPanel {
 
     get imageComboBoxDropdownHandle() {
-        return xpath.container + lib.DROPDOWN_SELECTOR.IMAGE_CONTENT_COMBOBOX_DIV + lib.DROPDOWN_SELECTOR.DROPDOWN_HANDLE;
+        return this.container + lib.DROPDOWN_SELECTOR.IMAGE_CONTENT_COMBOBOX_DIV + lib.DROPDOWN_SELECTOR.DROPDOWN_HANDLE;
     }
 
-    get imageSelectorModeTogglerButton() {
-        return xpath.container + lib.DROPDOWN_SELECTOR.IMAGE_CONTENT_COMBOBOX_DIV + lib.DROPDOWN_SELECTOR.MODE_TOGGLER_BUTTON;
+    get imageSelectorModeToggleButton() {
+        return this.container + lib.DROPDOWN_SELECTOR.IMAGE_CONTENT_COMBOBOX_DIV + lib.DROPDOWN_SELECTOR.MODE_TOGGLER_BUTTON;
     }
 
     get imageSelectorOptionsFilterInput() {
-        return xpath.container + lib.DROPDOWN_SELECTOR.IMAGE_CONTENT_COMBOBOX_DIV + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
+        return this.container + lib.DROPDOWN_SELECTOR.IMAGE_CONTENT_COMBOBOX_DIV + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     async clickOnImageSelectorModeTogglerButton() {
@@ -30,8 +30,7 @@ class CityCreationPartInspectionPanel extends BaseComponentInspectionPanel {
             await imageSelectorDropdown.clickOnModeTogglerButton(xpath.container);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_inspect_panel_mode_toggler');
-            throw new Error("Inspect Panel, error after clicking on modeToggler in image selector, screenshot: " + screenshot + ' ' + err);
+            await this.handleError('City Creation Part Inspection Panel', 'err_inspect_panel_selector_mode_toggle', err);
         }
     }
 
@@ -42,7 +41,7 @@ class CityCreationPartInspectionPanel extends BaseComponentInspectionPanel {
 
 
     async removeSelectedContent(displayName) {
-        let locator = xpath.container + lib.CONTENT_SELECTOR.selectedOptionByName(displayName) + lib.REMOVE_ICON;
+        let locator = this.container + lib.CONTENT_SELECTOR.selectedOptionByName(displayName) + lib.REMOVE_ICON;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
         await this.pause(1000);
@@ -54,8 +53,7 @@ class CityCreationPartInspectionPanel extends BaseComponentInspectionPanel {
             await this.clickOnElement(this.imageComboBoxDropdownHandle);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName("err_inspect_panel_dropdown");
-            throw new Error("Error during clicking on dropdown handle in image selector, screenshot: " + screenshot + ' ' + err);
+            await this.handleError('City Creation Part Inspection Panel', 'err_inspect_panel_img_dropdown', err);
         }
     }
 
@@ -63,13 +61,12 @@ class CityCreationPartInspectionPanel extends BaseComponentInspectionPanel {
         try {
             return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_load_inspect_panel');
-            throw new Error('Live Edit, Part Inspection Panel is not loaded, screenshot:' + screenshot + ' ' + err);
+            await this.handleError('City Creation Part Inspection Panel', 'err_city_creation_part_inspect_panel', err);
         }
     }
 
     async getSelectedImageDisplayName() {
-        let locator = xpath.container + lib.CONTENT_SELECTED_OPTION_VIEW + lib.H6_DISPLAY_NAME;
+        let locator = this.container + lib.CONTENT_SELECTED_OPTION_VIEW + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }

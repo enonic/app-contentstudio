@@ -36,8 +36,7 @@ class ConfirmationDialog extends Page {
             await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout)
             await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_confirmation_dlg_yes');
-            throw new Error(`Confirmation dialog Yes button! screenshot: ${screenshot}` + err);
+            await this.handleError('Confirmation dialog Yes button', 'err_confirmation_dlg_yes', err);
         }
     }
 
@@ -53,8 +52,7 @@ class ConfirmationDialog extends Page {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
             await this.pause(700);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_confirmation_dlg');
-            throw new Error(`Confirmation dialog is not loaded! screenshot:${screenshot} ` + err);
+            await this.handleError('Confirmation dialog', 'err_confirmation_dlg_opened', err);
         }
     }
 
@@ -67,8 +65,7 @@ class ConfirmationDialog extends Page {
             await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
             return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_confirmation_dlg_closing');
-            throw new Error(`Confirmation dialog should be closed! screenshot: ${screenshot} ` + err);
+            await this.handleError('Confirmation dialog should be closed', 'err_confirmation_dlg_closed', err);
         }
     }
 

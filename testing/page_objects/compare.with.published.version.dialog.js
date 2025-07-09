@@ -22,9 +22,7 @@ class CompareWithPublishedVersionDialog extends Page {
         try {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_compare_dlg');
-            await this.saveScreenshot(screenshot);
-            throw new Error("Compare With Published Version Dialog  is not loaded! , screenshot" + screenshot + '  ' + err);
+            await this.handleError('Compare With Published Version Dialog', 'err_compare_dlg_opened', err);
         }
     }
 
@@ -54,9 +52,7 @@ class CompareWithPublishedVersionDialog extends Page {
             let locator = XPATH.container + XPATH.modifiedProperty(propertyName);
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_published_prop');
-            await this.saveScreenshot(screenshot);
-            throw new Error('Compare with published version dialog - the property is not displayed, screenshot ' + screenshot + '  ' + err);
+            await this.handleError('Compare with published version dialog', 'err_published_prop', err);
         }
     }
 
@@ -65,9 +61,7 @@ class CompareWithPublishedVersionDialog extends Page {
             let locator = XPATH.container + "//li[@data-key='workflow']";
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_published_prop');
-            await this.saveScreenshot(screenshot);
-            throw new Error('Compare with published version dialog - the property is not displayed, screenshot ' + screenshot + '  ' + err);
+            await this.handleError('Compare with published version dialog', 'err_published_workflow', err);
         }
     }
 
@@ -76,9 +70,7 @@ class CompareWithPublishedVersionDialog extends Page {
             let locator = XPATH.container + XPATH.addedProperty(propertyName);
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_published_prop');
-            await this.saveScreenshot(screenshot);
-            throw new Error('Compare with published version dialog - the property is not displayed, screenshot ' + screenshot + '  ' + err);
+            await this.handleError('Compare with published version dialog', 'err_published_prop', err);
         }
     }
 
@@ -87,9 +79,7 @@ class CompareWithPublishedVersionDialog extends Page {
             let locator = XPATH.container + XPATH.addedProperty(propertyName);
             return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_published_prop');
-            await this.saveScreenshot(screenshot);
-            throw new Error('Compare with published version dialog - the property is  displayed, screenshot ' + screenshot + '  ' + err);
+            await this.handleError('Compare with published version dialog', 'err_published_prop', err);
         }
     }
 
@@ -99,9 +89,7 @@ class CompareWithPublishedVersionDialog extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_added_prop');
-            await this.saveScreenshot(screenshot);
-            throw new Error('Compare with published version dialog - the property is not displayed, screenshot ' + screenshot + '  ' + err);
+            await this.handleError('Compare with published version dialog', 'err_added_prop', err);
         }
     }
 
@@ -111,9 +99,7 @@ class CompareWithPublishedVersionDialog extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_published_prop');
-            await this.saveScreenshot(screenshot);
-            throw new Error('Compare with published version dialog - the property is not displayed, screenshot ' + screenshot + '  ' + err);
+            await this.handleError('Compare with published version dialog', 'err_modified_prop', err);
         }
     }
 }

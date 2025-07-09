@@ -33,8 +33,7 @@ class EmulatorWidget extends Page {
             await this.clickOnElement(locator);
             return await this.pause(400);
         } catch (err) {
-            let screenshot = await studioUtils.saveScreenshotUniqueName('err_emulator');
-            throw new Error(`Error after clicking on the resolution: ${resolution} , screenshot:${screenshot} ` + err);
+            await this.handleError('Emulator Widget', 'err_emulator_widget_click_resolution', err);
         }
     }
 

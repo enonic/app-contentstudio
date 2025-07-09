@@ -41,8 +41,7 @@ class WizardDependenciesWidget extends BaseDependenciesWidget {
             await this.waitForElementDisplayed(this.dependenciesWidget, appConst.shortTimeout);
             await this.pause(500);
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_widget_dependencies');
-            throw new Error('Wizard: Dependencies Widget was not loaded in ' + appConst.shortTimeout);
+            await this.handleError('Wizard: Dependencies Widget', 'err_dependencies_widget_loaded', err);
         }
     }
 }

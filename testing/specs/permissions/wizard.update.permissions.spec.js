@@ -88,8 +88,8 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             await editPermissionsSummaryStep.waitForLoaded();
             // 3. Verify - 'No Changes To Apply' button should be disabled:
             await editPermissionsSummaryStep.waitForNoChangesToApplyDisabled();
-
         });
+
     it(`WHEN permissions have been updated THEN 'Saved' button remains visible after applying the permissions`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -120,8 +120,9 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             // 7. Verify that 'Saved' button remains visible after applying the permissions:
             await contentWizard.waitForSavedButtonVisible();
             // 8. Mode should be changed to 'Restricted', so it should be displayed in Summary step
-            assert.strictEqual(accessModeToUpdate, appConst.PERMISSIONS_DIALOG.ACCESS_MODE.RESTRICTED,'Mode is going to be Restricted in Edit permissions dialog');
-            assert.strictEqual(accessModeBefore, appConst.PERMISSIONS_DIALOG.ACCESS_MODE.PUBLIC,`The Mode was 'Public' before`);
+            assert.strictEqual(accessModeToUpdate, appConst.PERMISSIONS_DIALOG.ACCESS_MODE.RESTRICTED,
+                'Mode is going to be Restricted in Edit permissions dialog');
+            assert.strictEqual(accessModeBefore, appConst.PERMISSIONS_DIALOG.ACCESS_MODE.PUBLIC, `The Mode was 'Public' before`);
         });
 
     it(`WHEN folder's permissions have been updated in browse panel (Details Panel) THEN 'Save(Disabled)' button should still be present after applying permissions in the grid`,
@@ -141,9 +142,9 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             await editPermissionsSummaryStep.waitForLoaded();
             // 3. Verify the text in the 'Apply to': 'This item'
             let applyToValue = await editPermissionsSummaryStep.getApplyToText();
-            assert.strictEqual(applyToValue, appConst.PERMISSIONS_DIALOG.APPLY_TO.THIS_ITEM,`'This item' should be displayed`);
+            assert.strictEqual(applyToValue, appConst.PERMISSIONS_DIALOG.APPLY_TO.THIS_ITEM, `'This item' should be displayed`);
             let accessMode = await editPermissionsSummaryStep.getAccessModeText();
-            assert.strictEqual(accessMode, appConst.PERMISSIONS_DIALOG.ACCESS_MODE.RESTRICTED,'Restricted mode should be displayed');
+            assert.strictEqual(accessMode, appConst.PERMISSIONS_DIALOG.ACCESS_MODE.RESTRICTED, 'Restricted mode should be displayed');
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
             await editPermissionsSummaryStep.waitForNotificationMessage();
             await editPermissionsSummaryStep.waitForDialogClosed();

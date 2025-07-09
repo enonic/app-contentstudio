@@ -1,28 +1,28 @@
 /**
  * Created on 29.09.2023
  */
-const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
+const PartInspectionPanel = require('./part.inspection.panel');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const ContentSelectorDropdown = require('../../../components/selectors/content.selector.dropdown');
+
 const xpath = {
-    container: `//div[contains(@id,'PartInspectionPanel')]`,
     zoomLevelViewDiv: "//div[contains(@id,'InputView') and descendant::div[text()='Zoom level 1-15']]",
 };
 
 // Context Window, Inspect tab for City List Part Component
-class CityListPartInspectionPanel extends BaseComponentInspectionPanel {
+class CityListPartInspectionPanel extends PartInspectionPanel {
 
     get contentSelector() {
-        return xpath.container + lib.CONTENT_SELECTOR.DIV;
+        return this.container + lib.CONTENT_SELECTOR.DIV;
     }
 
     get contentDropdownHandle() {
-        return xpath.container + lib.CONTENT_SELECTOR.DIV + lib.DROP_DOWN_HANDLE;
+        return this.container + lib.CONTENT_SELECTOR.DIV + lib.DROP_DOWN_HANDLE;
     }
 
     get zoomLevelTextInput() {
-        return xpath.container + xpath.zoomLevelViewDiv + lib.TEXT_INPUT;
+        return this.container + xpath.zoomLevelViewDiv + lib.TEXT_INPUT;
     }
 
     typeTextInZoomLevelInput(text) {
@@ -38,20 +38,18 @@ class CityListPartInspectionPanel extends BaseComponentInspectionPanel {
             let contentSelectorDropdown = new ContentSelectorDropdown();
             return await contentSelectorDropdown.selectFilteredByDisplayNameContentMulti(displayName, xpath.container);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_part_inspection');
-            throw new Error(`Part Inspection Panel - Error during selecting an option, screenshot: ${screenshot} ` + err);
+            await this.handleError('City List Part Inspection Panel', 'err_select_content', err);
         }
     }
 
     async removeSelectedContent(displayName) {
         try {
-            let locator = xpath.container + lib.CONTENT_SELECTOR.selectedOptionByName(displayName) + lib.REMOVE_ICON;
+            let locator = this.container + lib.CONTENT_SELECTOR.selectedOptionByName(displayName) + lib.REMOVE_ICON;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             await this.clickOnElement(locator);
             await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_remove_selected_content');
-            throw new Error(`Part Inspection Panel - Error during removing selected content, screenshot: ${screenshot} ` + err);
+            await this.handleError('City List Part Inspection Panel, remove selected option', 'err_remove_selected_content', err);
         }
     }
 
@@ -68,15 +66,14 @@ class CityListPartInspectionPanel extends BaseComponentInspectionPanel {
 
     async waitForLoaded() {
         try {
-            return await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout)
+            return await this.waitForElementDisplayed(this.container, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_load_inspect_panel');
-            throw new Error(`Live Edit, Part Inspection Panel is not loaded, screenshot: ${screenshot} ` + err);
+            await this.handleError('City List Part Inspection Panel, was not loaded', 'err_city_list_inspect_panel', err);
         }
     }
 
     async getSelectedContentDisplayName() {
-        let locator = xpath.container + lib.CONTENT_SELECTED_OPTION_VIEW + lib.H6_DISPLAY_NAME;
+        let locator = this.container + lib.CONTENT_SELECTED_OPTION_VIEW + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }

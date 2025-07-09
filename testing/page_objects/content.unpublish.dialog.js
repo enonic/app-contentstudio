@@ -86,8 +86,7 @@ class ContentUnpublishDialog extends Page {
             await this.clickOnElement(this.ignoreInboundReferencesButton);
             return await this.pause(700);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_ignore_inbound_ref');
-            throw new Error(`Unpublish Content dialog, screenshot: ${screenshot}  ` + err);
+            await this.handleError('Content Unpublish Dialog', 'err_ignore_inbound_ref', err);
         }
     }
 

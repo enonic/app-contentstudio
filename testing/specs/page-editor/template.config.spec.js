@@ -6,7 +6,7 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
-const DefaultPageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/default.page.inspection.panel');
+const HomePageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/home.page.inspection.panel');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
@@ -24,8 +24,8 @@ describe('template.config.spec: template config should be displayed in the Inspe
     let TEMPLATE;
     const SUPPORT = 'article';
     const CONTROLLER_NAME = 'Page';
-    const TITLE_TEXT = "My title";
-    const TEST_TEXT = "test text";
+    const TITLE_TEXT = 'My title';
+    const TEST_TEXT = 'test text';
     const ARTICLE_NAME = contentBuilder.generateRandomName('article');
 
     it(`Preconditions: new site should be created`,
@@ -46,24 +46,25 @@ describe('template.config.spec: template config should be displayed in the Inspe
     // verifies https://github.com/enonic/xp/issues/7396 and https://github.com/enonic/app-contentstudio/issues/947
     it(`WHEN new wizard for article has been opened THEN input from template-config should be displayed in the Inspection Panel`,
         async () => {
-            let defaultPageInspectionPanel = new DefaultPageInspectionPanel();
+            let homePageInspectionPanel = new HomePageInspectionPanel();
             let wizardDetailsPanel = new WizardDetailsPanel();
             let contentWizard = new ContentWizard();
             // 1. Open new wizard for Article content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
-            // 2. Click on Customize menu item:
+            // 2. Click on 'Customize' menu item:
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToMainFrame();
             // 3. Inspection Panel should be loaded:
             await wizardDetailsPanel.waitForDetailsPanelLoaded();
             await studioUtils.saveScreenshot('article_details_panel');
-            // 4. Verify that Text input is displayed in the Inspection panel, insert a text:
-            await defaultPageInspectionPanel.waitForTitleInputDisplayed();
-            await defaultPageInspectionPanel.typeTitle(TITLE_TEXT);
-            // 5. Click on 'Apply' button in Inspect Panel and save the changes:
-            await defaultPageInspectionPanel.clickOnApplyButton();
-            // 6. Verify that text is applied:
-            let result = await defaultPageInspectionPanel.getTitle();
+            // 4. Verify that the 'title' text input is displayed in the Page Inspection panel(config):
+            await homePageInspectionPanel.waitForTitleInputDisplayed();
+            // 5. insert a text in the input:
+            await homePageInspectionPanel.typeTitle(TITLE_TEXT);
+            // 6. Click on 'Apply' button on the Inspect Panel and save the changes:
+            await homePageInspectionPanel.clickOnApplyButton();
+            // 7. Verify that text is applied:
+            let result = await homePageInspectionPanel.getTitle();
             assert.equal(result, TITLE_TEXT, 'expected and actual title should be equal');
         });
 
