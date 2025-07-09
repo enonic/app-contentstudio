@@ -1,12 +1,12 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {GetContentVersionsForViewResultsJson} from './json/GetContentVersionsForViewResultsJson';
-import {ContentVersions} from '../ContentVersions';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {GetContentVersionsResult} from './GetContentVersionsResult';
+import {GetContentVersionsForViewResultsJson} from './json/GetContentVersionsForViewResultsJson';
 
 export class GetContentVersionsRequest
-    extends CmsContentResourceRequest<ContentVersions> {
+    extends CmsContentResourceRequest<GetContentVersionsResult> {
 
     private contentId: ContentId;
     private from: number;
@@ -37,7 +37,7 @@ export class GetContentVersionsRequest
         };
     }
 
-    protected parseResponse(response: JsonResponse<GetContentVersionsForViewResultsJson>): ContentVersions {
-        return ContentVersions.fromJson(response.getResult());
+    protected parseResponse(response: JsonResponse<GetContentVersionsForViewResultsJson>): GetContentVersionsResult {
+        return GetContentVersionsResult.fromJson(response.getResult());
     }
 }

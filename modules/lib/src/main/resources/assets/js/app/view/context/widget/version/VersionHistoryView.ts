@@ -1,18 +1,13 @@
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
+import {ContentId} from '../../../../content/ContentId';
+import {ContentSummary} from '../../../../content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import {WidgetItemView} from '../../WidgetItemView';
 import {VersionHistoryList} from './VersionHistoryList';
-import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
-import {ContentSummary} from '../../../../content/ContentSummary';
-import {ContentVersionsLoader} from './ContentVersionsLoader';
-import {VersionHistoryItem} from './VersionHistoryItem';
-import {ContentId} from '../../../../content/ContentId';
-import {ContentVersionsConverter} from './ContentVersionsConverter';
-import {ContentVersions} from '../../../../ContentVersions';
-import {VersionContext} from './VersionContext';
 
 export class VersionHistoryView extends WidgetItemView {
 
@@ -22,14 +17,11 @@ export class VersionHistoryView extends WidgetItemView {
 
     private content: ContentSummaryAndCompareStatus;
 
-    private readonly versionsLoader: ContentVersionsLoader;
-
     public static debug: boolean = false;
 
     constructor() {
         super('version-widget-item-view');
 
-        this.versionsLoader = new ContentVersionsLoader();
         this.managePublishEvent();
     }
 
@@ -106,20 +98,7 @@ export class VersionHistoryView extends WidgetItemView {
             console.debug('VersionsWidgetItemView.reloadActivePanel');
         }
 
-        if (this.versionListView) {
-            return this.versionsLoader.load(this.content).then((versions: ContentVersions) => {
-                VersionContext.setActiveVersion(this.content.getId(), versions.getActiveVersionId());
-
-                const items: VersionHistoryItem[] = ContentVersionsConverter.create()
-                    .setContent(this.content)
-                    .setContentVersions(versions)
-                    .build()
-                    .toVersionHistoryItems();
-
-                this.versionListView.setContent(this.content);
-                this.versionListView.setItems(items);
-            });
-        }
+        this.versionListView?.setContent(this.content);
 
         return Q();
     }

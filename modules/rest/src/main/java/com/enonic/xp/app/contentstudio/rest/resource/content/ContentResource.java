@@ -1455,7 +1455,7 @@ public final class ContentResource
     {
         final ContentId contentId = ContentId.from( params.getContentId() );
         final int from = params.getFrom() != null ? params.getFrom() : 0;
-        final int size = params.getSize() != null ? params.getSize() : 10;
+        final int size = params.getSize() != null ? params.getSize() : 50;
         final FindContentVersionsCommand contentVersionsCommand = new FindContentVersionsCommand( nodeService );
         final FindContentVersionsResult result = contentVersionsCommand.getContentVersions( contentId, from, size );
 
@@ -1482,13 +1482,13 @@ public final class ContentResource
         final int from = params.getFrom() != null ? params.getFrom() : 0;
         final int size = params.getSize() != null ? params.getSize() : 50;
         final FindContentVersionsCommand contentVersionsCommand = new FindContentVersionsCommand( nodeService );
-        final FindContentVersionsResult allVersions = contentVersionsCommand.getContentVersions( contentId, from, size );
+        final FindContentVersionsResult result = contentVersionsCommand.getContentVersions( contentId, from, size );
 
         final GetActiveContentVersionsCommand activeContentVersionsCommand = new GetActiveContentVersionsCommand( nodeService );
         final Branches branches = Branches.from( ContentConstants.BRANCH_DRAFT, ContentConstants.BRANCH_MASTER );
         final GetActiveContentVersionsResult activeVersions = activeContentVersionsCommand.getActiveVersions( contentId, branches );
 
-        return new GetContentVersionsForViewResultJson( allVersions, activeVersions, this.principalsResolver );
+        return new GetContentVersionsForViewResultJson( result, activeVersions, this.principalsResolver );
     }
 
     @GET

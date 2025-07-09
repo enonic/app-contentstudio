@@ -13,6 +13,7 @@ import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {Menu} from '@enonic/lib-admin-ui/ui/menu/Menu';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {GetContentVersionsResult} from '../resource/GetContentVersionsResult';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
@@ -328,8 +329,8 @@ export class CompareContentVersionsDialog
             return;
         }
 
-        return this.versionsLoader.load(this.content).then((versions: ContentVersions) => {
-            this.resetVersions(versions);
+        return this.versionsLoader.load(this.content).then((result: GetContentVersionsResult) => {
+            this.resetVersions(result.getContentVersions());
 
             const items: VersionHistoryItem[] = this.convertVersionsToHistoryItems();
 
@@ -360,7 +361,7 @@ export class CompareContentVersionsDialog
         if (!this.leftVersionId) {
             const prev: VersionHistoryItem =
                 leftAliases.find((v: VersionHistoryItem) => v.getAliasType() === AliasType.PREV);
-            this.leftVersionId = prev.getSecondaryId() || newestVersionOption.getSecondaryId();
+            this.leftVersionId = prev?.getSecondaryId() || newestVersionOption.getSecondaryId();
         }
 
         const leftOptionToSelect: VersionHistoryItem = this.getNewOptionToSelect(this.leftDropdown, this.leftVersionId);
