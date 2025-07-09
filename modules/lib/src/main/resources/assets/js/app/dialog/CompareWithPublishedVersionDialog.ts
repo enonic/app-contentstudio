@@ -1,21 +1,22 @@
-import * as Q from 'q';
-import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
-import {Delta, DiffPatcher, formatters, HtmlFormatter} from 'jsondiffpatch';
-import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentVersionsLoader} from '../view/context/widget/version/ContentVersionsLoader';
-import {ContentVersions} from '../ContentVersions';
-import {VersionContext} from '../view/context/widget/version/VersionContext';
-import {ContentVersion} from '../ContentVersion';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
+import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Delta, DiffPatcher, formatters, HtmlFormatter} from 'jsondiffpatch';
+import * as Q from 'q';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentVersion} from '../ContentVersion';
+import {ContentVersionHelper} from '../ContentVersionHelper';
+import {ContentVersions} from '../ContentVersions';
+import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
+import {ContentVersionsLoader} from '../view/context/widget/version/ContentVersionsLoader';
+import {VersionContext} from '../view/context/widget/version/VersionContext';
 
 export class CompareWithPublishedVersionDialog
     extends ModalDialog {
@@ -150,12 +151,14 @@ export class CompareWithPublishedVersionDialog
 
         this.setLoading(true);
 
-        this.versionsLoader.load(this.content).then((versions) => {
+        this.versionsLoader.load(this.content).then((result) => {
+            const versions = result.getContentVersions();
             this.versions = versions;
-            const pubIdChanged = versions.getPublishedVersionId() !== this.publishedVersionId;
+            const publishedVersionId = ContentVersionHelper.findPublishedVersionId(versions.get());
+            const pubIdChanged = publishedVersionId !== this.publishedVersionId;
             const actIdChanged = versions.getActiveVersionId() !== this.activeVersionId;
             if (pubIdChanged) {
-                this.setPublishedVersion(versions.getPublishedVersionId(), false);
+                this.setPublishedVersion(publishedVersionId, false);
             }
             if (actIdChanged) {
                 this.setActiveVersion(versions.getActiveVersionId(), false);
