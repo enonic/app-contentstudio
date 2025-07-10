@@ -1532,7 +1532,7 @@ export class ContentWizardPanel
             }
         };
 
-        VersionContext.onActiveVersionChanged(versionChangeHandler);
+   //     VersionContext.onActiveVersionChanged(versionChangeHandler);
 
         serverEvents.onContentCreated(createdHandler);
         serverEvents.onContentMoved(movedHandler);
@@ -1547,7 +1547,7 @@ export class ContentWizardPanel
         serverEvents.onContentDeleted(deleteHandler);
 
         this.onClosed(() => {
-            VersionContext.unActiveVersionChanged(versionChangeHandler);
+            //VersionContext.unActiveVersionChanged(versionChangeHandler);
 
             serverEvents.unContentCreated(createdHandler);
             serverEvents.unContentMoved(movedHandler);
