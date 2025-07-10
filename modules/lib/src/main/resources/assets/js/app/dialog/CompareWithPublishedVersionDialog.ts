@@ -1,3 +1,4 @@
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
@@ -6,15 +7,18 @@ import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHea
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Delta, DiffPatcher, formatters, HtmlFormatter} from 'jsondiffpatch';
 import * as Q from 'q';
+import {ActiveContentVersion} from '../ActiveContentVersion';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentVersion} from '../ContentVersion';
 import {ContentVersionHelper} from '../ContentVersionHelper';
-import {ContentVersions} from '../ContentVersions';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {GetActiveContentVersionsRequest} from '../resource/GetActiveContentVersionsRequest';
 import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
+import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
+import {GetContentVersionsResult} from '../resource/GetContentVersionsResult';
 import {ContentVersionsLoader} from '../view/context/widget/version/ContentVersionsLoader';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
 
@@ -27,7 +31,7 @@ export class CompareWithPublishedVersionDialog
 
     private publishedVersionId: string;
 
-    private versions: ContentVersions;
+    private versions: ContentVersion[];
 
     private content: ContentSummaryAndCompareStatus;
 
@@ -151,22 +155,27 @@ export class CompareWithPublishedVersionDialog
 
         this.setLoading(true);
 
-        this.versionsLoader.load(this.content).then((result) => {
-            const versions = result.getContentVersions();
-            this.versions = versions;
-            const publishedVersionId = ContentVersionHelper.findPublishedVersionId(versions.get());
-            const pubIdChanged = publishedVersionId !== this.publishedVersionId;
-            const actIdChanged = versions.getActiveVersionId() !== this.activeVersionId;
-            if (pubIdChanged) {
-                this.setPublishedVersion(publishedVersionId, false);
-            }
-            if (actIdChanged) {
-                this.setActiveVersion(versions.getActiveVersionId(), false);
-            }
-            if (pubIdChanged || actIdChanged) {
-                this.displayDiff();
-            }
-        });
+        const versionsPromise = new GetContentVersionsRequest(this.content.getContentId()).sendAndParse();
+        const activeVersionPromise = new GetActiveContentVersionsRequest(this.content.getContentId()).sendAndParse();
+
+        Q.all([versionsPromise, activeVersionPromise]).spread(
+            (versionsResult: GetContentVersionsResult, activeVersions: ActiveContentVersion[]) => {
+                const versions = versionsResult.getContentVersions();
+                const activeVersionId = activeVersions.shift()?.getContentVersion().getId();
+                this.versions = versions;
+                const publishedVersionId = ContentVersionHelper.findPublishedVersionId(versions);
+                const pubIdChanged = publishedVersionId !== this.publishedVersionId;
+                const actIdChanged = activeVersionId !== this.activeVersionId;
+                if (pubIdChanged) {
+                    this.setPublishedVersion(publishedVersionId, false);
+                }
+                if (actIdChanged) {
+                    this.setActiveVersion(activeVersionId, false);
+                }
+                if (pubIdChanged || actIdChanged) {
+                    this.displayDiff();
+                }
+            }).catch(DefaultErrorHandler.handle);
     }
 
     private setLoading(flag: boolean) {
@@ -259,7 +268,7 @@ export class CompareWithPublishedVersionDialog
             '_id', 'creator', 'createdTime', 'hasChildren'
         ].forEach(e => delete contentJson[e]);
 
-        const version: ContentVersion = this.versions.getVersionById(versionId);
+        const version: ContentVersion = ContentVersionHelper.getVersionById(this.versions, versionId);
 
         if (ObjectHelper.isDefined(version?.getPermissions())) {
             contentJson['permissions'] = version.getPermissions().toJson();

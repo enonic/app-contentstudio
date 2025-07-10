@@ -5,7 +5,6 @@ import java.net.InetSocketAddress;
 import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,7 +54,6 @@ import com.enonic.xp.app.contentstudio.json.content.ContentVersionViewJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentsExistByPathJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentsExistJson;
 import com.enonic.xp.app.contentstudio.json.content.GetActiveContentVersionsResultJson;
-import com.enonic.xp.app.contentstudio.json.content.GetContentVersionsForViewResultJson;
 import com.enonic.xp.app.contentstudio.json.content.GetContentVersionsResultJson;
 import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentJson;
 import com.enonic.xp.app.contentstudio.json.task.TaskResultJson;
@@ -115,7 +113,6 @@ import com.enonic.xp.content.ContentValidityResult;
 import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.content.ContentVersionId;
 import com.enonic.xp.content.ContentVersionPublishInfo;
-import com.enonic.xp.content.ContentVersions;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.CreateContentParams;
 import com.enonic.xp.content.CreateMediaParams;
@@ -125,8 +122,6 @@ import com.enonic.xp.content.FindContentByParentResult;
 import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
 import com.enonic.xp.content.FindContentPathsByQueryResult;
-import com.enonic.xp.content.FindContentVersionsParams;
-import com.enonic.xp.content.FindContentVersionsResult;
 import com.enonic.xp.content.GetActiveContentVersionsParams;
 import com.enonic.xp.content.GetActiveContentVersionsResult;
 import com.enonic.xp.content.GetContentByIdsParams;
@@ -2231,11 +2226,10 @@ public class ContentResourceTest
 
         mockVersions();
 
-        GetContentVersionsForViewResultJson result =
-            contentResource.getContentVersionsForView( new GetContentVersionsJson( 0, 10, content.getId().toString() ) );
+        GetContentVersionsResultJson result =
+            contentResource.getContentVersions( new GetContentVersionsJson( 0, 10, content.getId().toString() ) );
 
-        assertEquals( "/new", result.getActiveVersion().getContentVersion().getPath() );
-        final ContentVersionViewJson[] resultArray = result.getContentVersions().toArray(ContentVersionViewJson[]::new);
+        final ContentVersionJson[] resultArray = result.getContentVersions().toArray(ContentVersionJson[]::new);
         assertTrue( resultArray.length == 2 );
         assertEquals( "DEF", resultArray[1].getDisplayName() );
     }

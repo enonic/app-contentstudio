@@ -1,35 +1,36 @@
-import * as Q from 'q';
-import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
-import {Delta, DiffPatcher, formatters, HtmlFormatter} from 'jsondiffpatch';
-import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {Menu} from '@enonic/lib-admin-ui/ui/menu/Menu';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {GetContentVersionsResult} from '../resource/GetContentVersionsResult';
-import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
-import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
+import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {Menu} from '@enonic/lib-admin-ui/ui/menu/Menu';
+import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {Delta, DiffPatcher, formatters, HtmlFormatter} from 'jsondiffpatch';
+import * as Q from 'q';
+import {ContentJson} from '../content/ContentJson';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {AliasType, VersionHistoryItem} from '../view/context/widget/version/VersionHistoryItem';
-import {ContentVersionsLoader} from '../view/context/widget/version/ContentVersionsLoader';
-import {ContentVersions} from '../ContentVersions';
+import {ContentVersion} from '../ContentVersion';
+import {ContentVersionHelper} from '../ContentVersionHelper';
+import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
+import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
+import {GetContentVersionsResult} from '../resource/GetContentVersionsResult';
 import {ContentVersionsConverter} from '../view/context/widget/version/ContentVersionsConverter';
+import {ContentVersionsLoader} from '../view/context/widget/version/ContentVersionsLoader';
+import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
 import {VersionHistoryHelper} from '../view/context/widget/version/VersionHistoryHelper';
-import {ContentVersion} from '../ContentVersion';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ContentJson} from '../content/ContentJson';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {AliasType, VersionHistoryItem} from '../view/context/widget/version/VersionHistoryItem';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -40,7 +41,7 @@ export class CompareContentVersionsDialog
 
     private rightVersionId: string;
 
-    private versions: ContentVersions;
+    private versions: ContentVersion[];
 
     private content: ContentSummaryAndCompareStatus;
 
@@ -329,8 +330,11 @@ export class CompareContentVersionsDialog
             return;
         }
 
-        return this.versionsLoader.load(this.content).then((result: GetContentVersionsResult) => {
-            this.resetVersions(result.getContentVersions());
+        ContentVersionHelper.fetchAndSetActiveVersion(this.content.getContentId());
+
+        return new GetContentVersionsRequest(this.content.getContentId()).sendAndParse().then((result: GetContentVersionsResult) => {
+            this.versions = result.getContentVersions();
+            this.versionIdCounters = {};
 
             const items: VersionHistoryItem[] = this.convertVersionsToHistoryItems();
 
@@ -340,12 +344,6 @@ export class CompareContentVersionsDialog
             this.updateButtonsState();
             this.displayDiff();
         });
-    }
-
-    private resetVersions(versions: ContentVersions): void {
-        this.versions = versions;
-        VersionContext.setActiveVersion(this.content.getId(), versions.getActiveVersionId());
-        this.versionIdCounters = {};
     }
 
     private updateLeftDropdown(items: VersionHistoryItem[]): void {
@@ -388,7 +386,7 @@ export class CompareContentVersionsDialog
     private convertVersionsToHistoryItems(): VersionHistoryItem[] {
         return ContentVersionsConverter.create()
             .setContent(this.content)
-            .setContentVersions(this.versions)
+            .setContentVersions(this.versions.slice())
             .build()
             .toVersionHistoryItems();
     }
@@ -715,7 +713,7 @@ export class CompareContentVersionsDialog
             '_id', 'creator', 'createdTime', 'hasChildren'
         ].forEach(e => delete contentJson[e]);
 
-        const version: ContentVersion = this.versions.getVersionById(versionId);
+        const version: ContentVersion = ContentVersionHelper.getVersionById(this.versions, versionId);
 
         if (ObjectHelper.isDefined(version?.getPermissions())) {
             contentJson['permissions'] = version.getPermissions().toJson();
