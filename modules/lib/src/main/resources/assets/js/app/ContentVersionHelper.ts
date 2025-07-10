@@ -1,4 +1,9 @@
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from './content/ContentId';
 import {ContentVersion} from './ContentVersion';
+import {GetActiveContentVersionsRequest} from './resource/GetActiveContentVersionsRequest';
+import {VersionContext} from './view/context/widget/version/VersionContext';
+import * as Q from 'q';
 
 export class ContentVersionHelper {
 
@@ -12,5 +17,19 @@ export class ContentVersionHelper {
             }
             return prevPublished;
         })?.getId();
+    }
+
+    public static getVersionById(versions: ContentVersion[], versionId: string): ContentVersion | undefined {
+        return versions.find((version: ContentVersion) => version.getId() === versionId);
+    }
+
+    public static fetchAndSetActiveVersion(contentId: ContentId): Q.Promise<void> {
+        return new GetActiveContentVersionsRequest(contentId).sendAndParse().then((activeVersions) => {
+            const activeVersion = activeVersions.shift()?.getContentVersion();
+
+            if (activeVersion) {
+                VersionContext.setActiveVersion(contentId.toString(), activeVersion.getId());
+            }
+        }).catch(DefaultErrorHandler.handle);
     }
 }

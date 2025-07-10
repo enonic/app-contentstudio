@@ -16,7 +16,7 @@ export class GetContentVersionsRequest
         super();
         this.setMethod(HttpMethod.POST);
         this.contentId = contentId;
-        this.addRequestPathElements('getVersionsForView');
+        this.addRequestPathElements('getVersions');
     }
 
     setFrom(from: number): GetContentVersionsRequest {

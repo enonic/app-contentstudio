@@ -1,11 +1,10 @@
-import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
-import {ContentVersion} from '../../../../ContentVersion';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {VersionHistoryItem, VersionHistoryItemBuilder, VersionItemStatus} from './VersionHistoryItem';
-import {ContentVersions} from '../../../../ContentVersions';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {ContentPath} from '../../../../content/ContentPath';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersionPublishInfo} from '../../../../ContentVersionPublishInfo';
+import {VersionHistoryItem, VersionHistoryItemBuilder, VersionItemStatus} from './VersionHistoryItem';
 
 export class ContentVersionsConverter {
 
@@ -13,7 +12,7 @@ export class ContentVersionsConverter {
 
     private readonly content: ContentSummaryAndCompareStatus;
 
-    private readonly allContentVersions: ContentVersions;
+    private readonly allContentVersions: ContentVersion[];
 
     private readonly filteredVersions: ContentVersion[];
 
@@ -22,7 +21,7 @@ export class ContentVersionsConverter {
     constructor(builder: Builder) {
         this.content = builder.content;
         this.allContentVersions = builder.contentVersions;
-        this.allContentVersions.get().sort(this.sortByDate);
+        this.allContentVersions.sort(this.sortByDate);
         this.filteredVersions = this.filterSameVersions();
     }
 
@@ -49,7 +48,7 @@ export class ContentVersionsConverter {
         const filteredVersions: ContentVersion[] = [];
         let previousVersion: ContentVersion = null;
 
-        this.allContentVersions.get().forEach((version: ContentVersion) => {
+        this.allContentVersions.forEach((version: ContentVersion) => {
             if (!previousVersion || !!version.getPublishInfo() || this.isSeparateVersion(version, previousVersion)) {
                 previousVersion = version;
                 filteredVersions.push(version);
@@ -263,14 +262,14 @@ export class Builder {
 
     content: ContentSummaryAndCompareStatus;
 
-    contentVersions: ContentVersions;
+    contentVersions: ContentVersion[];
 
     setContent(value: ContentSummaryAndCompareStatus): Builder {
         this.content = value;
         return this;
     }
 
-    setContentVersions(value: ContentVersions): Builder {
+    setContentVersions(value: ContentVersion[]): Builder {
         this.contentVersions = value;
         return this;
     }

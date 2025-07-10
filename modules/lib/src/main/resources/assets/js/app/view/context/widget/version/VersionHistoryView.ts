@@ -5,6 +5,7 @@ import * as Q from 'q';
 import {ContentId} from '../../../../content/ContentId';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {ContentVersionHelper} from '../../../../ContentVersionHelper';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import {WidgetItemView} from '../../WidgetItemView';
 import {VersionHistoryList} from './VersionHistoryList';
@@ -98,7 +99,11 @@ export class VersionHistoryView extends WidgetItemView {
             console.debug('VersionsWidgetItemView.reloadActivePanel');
         }
 
-        this.versionListView?.setContent(this.content);
+        if (this.versionListView && this.content) {
+            ContentVersionHelper.fetchAndSetActiveVersion(this.content.getContentId()).then(() => {
+                this.versionListView.setContent(this.content);
+            });
+        }
 
         return Q();
     }

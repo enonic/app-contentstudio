@@ -1,5 +1,4 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import * as Q from 'q';
@@ -8,7 +7,6 @@ import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersionPublishInfo} from '../../../../ContentVersionPublishInfo';
 import {GetContentVersionsRequest} from '../../../../resource/GetContentVersionsRequest';
 import {GetContentVersionsResult} from '../../../../resource/GetContentVersionsResult';
-import {VersionContext} from './VersionContext';
 import {VersionHistoryItem, VersionHistoryItemBuilder} from './VersionHistoryItem';
 import {VersionHistoryListHelper} from './VersionHistoryListHelper';
 import {VersionHistoryListItem} from './VersionHistoryListItem';
@@ -16,7 +14,7 @@ import {VersionHistoryListItem} from './VersionHistoryListItem';
 export class VersionHistoryList
     extends LazyListBox<VersionHistoryItem> {
 
-    private static LOAD_SIZE: number = 10;
+    private static LOAD_SIZE: number = 20;
 
     private content: ContentSummaryAndCompareStatus;
 
@@ -31,10 +29,6 @@ export class VersionHistoryList
     }
 
     setContent(content: ContentSummaryAndCompareStatus): void {
-        if (ObjectHelper.equals(this.content, content)) {
-            return;
-        }
-
         this.content = content;
         this.loadedItems = [];
         this.clearItems();
@@ -62,11 +56,7 @@ export class VersionHistoryList
         this.doLoad().then((result: GetContentVersionsResult) => {
             const versions = result.getContentVersions();
 
-            if (this.loadedItems.length === 0) {
-                VersionContext.setActiveVersion(this.content.getId(), versions.getActiveVersionId());
-            }
-
-            this.loadedItems.push(...versions.get().slice());
+            this.loadedItems.push(...versions);
             this.totalCount = result.getMetadata().totalHits;
 
             const filteredNoSameVersions = VersionHistoryListHelper.filterSameVersions(this.loadedItems);
