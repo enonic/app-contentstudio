@@ -1,11 +1,11 @@
 import * as Q from 'q';
-import {GetContentVersionsRequest} from '../../../../resource/GetContentVersionsRequest';
-import {ContentVersions} from '../../../../ContentVersions';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {GetContentVersionsRequest} from '../../../../resource/GetContentVersionsRequest';
+import {GetContentVersionsResult} from '../../../../resource/GetContentVersionsResult';
 
 export class ContentVersionsLoader {
 
-    load(content: ContentSummaryAndCompareStatus): Q.Promise<ContentVersions> {
+    load(content: ContentSummaryAndCompareStatus): Q.Promise<GetContentVersionsResult> {
         if (!content?.getContentId()) {
             throw new Error('Required contentId not set for ActiveContentVersionsTreeGrid');
         }

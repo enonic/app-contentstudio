@@ -124,14 +124,6 @@ export class ContentVersion
         return this.workspaces;
     }
 
-    hasWorkspaces(): boolean {
-        return this.workspaces && this.workspaces.length > 0;
-    }
-
-    hasBothWorkspaces(): boolean {
-        return this.workspaces && this.workspaces.length > 1;
-    }
-
     isPublished(): boolean {
         return !!this.hasPublishInfo() && !!this.getPublishInfo().getPublishedFrom();
     }

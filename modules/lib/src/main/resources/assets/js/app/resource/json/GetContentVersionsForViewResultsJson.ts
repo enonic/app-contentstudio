@@ -11,7 +11,5 @@ export interface GetContentVersionsForViewResultsJson {
 
     totalHits: number;
 
-    activeVersion: ActiveContentVersionJson;
-
     contentVersions: ContentVersionViewJson[];
 }
