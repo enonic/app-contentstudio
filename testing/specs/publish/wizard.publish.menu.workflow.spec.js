@@ -8,7 +8,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 
 describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -131,11 +131,11 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
     it(`GIVEN existing 'modified' content is opened WHEN 'unpublish...' button has been pressed AND it confirmed in the modal dialog THEN 'UNPUBLISHED' status should appear in the wizard`,
         async () => {
             let contentWizard = new ContentWizard();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open the modified content:
             await studioUtils.selectByDisplayNameAndOpenContent(NEW_DISPLAY_NAME);
             // 2. Verify that Schedule widget item should be present in the Details widget:
-            await wizardDetailsPanel.waitForScheduleWidgetItemDisplayed();
+            await wizardContextPanel.waitForScheduleWidgetItemDisplayed();
             //'MARK AS READY' is default action now
             // So need to open the publish-menu and select 'Unpublish...' menu item
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.UNPUBLISH);
@@ -154,7 +154,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             let workflow = await contentWizard.getContentWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
             // 7. Schedule widget item gets not visible in the details widget:
-            await wizardDetailsPanel.waitForScheduleWidgetItemNotDisplayed();
+            await wizardContextPanel.waitForScheduleWidgetItemNotDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

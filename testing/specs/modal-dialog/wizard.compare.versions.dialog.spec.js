@@ -7,7 +7,7 @@ const appConst = require('../../libs/app_const');
 const contentBuilder = require("../../libs/content.builder");
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 
@@ -31,12 +31,12 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openDetailsPanel();
             // 2. Open Version panel:
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Click on 'show changes' icon in the first 'edited' item:
             await wizardVersionsWidget.clickOnShowChangesButtonByHeader('Edited', 0);
@@ -64,12 +64,12 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openDetailsPanel();
             // 2. Open Version History panel:
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Click on 'show changes' icon in the previous version:
             await wizardVersionsWidget.clickOnOnShowChangesButton(1);
@@ -91,12 +91,12 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openDetailsPanel();
             // 2. Open Version History panel:
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Click on 'show changes' icon:
             await wizardVersionsWidget.clickOnOnShowChangesButton(1);
@@ -123,12 +123,12 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openDetailsPanel();
             // 2. Open Version History panel:
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Click on 'compare' icon in the Active version(the first item):
             await wizardVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
@@ -145,12 +145,12 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openDetailsPanel();
             // 2. Open Version History panel:
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Click on 'compare' icon in the Active version(the first item):
             await wizardVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
@@ -167,12 +167,12 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openDetailsPanel();
             // 2. Open Version History panel:
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Open Compare Versions dialog(click in previous version):
             await wizardVersionsWidget.clickOnOnShowChangesButton(1);
@@ -188,11 +188,11 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open Comparing Versions Dialog:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openDetailsPanel();
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             await wizardVersionsWidget.clickOnOnShowChangesButton(1);
             await compareContentVersionsDialog.waitForDialogOpened();
@@ -207,11 +207,11 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open Comparing Versions Dialog:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openDetailsPanel();
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             await wizardVersionsWidget.clickOnOnShowChangesButton(1);
             await compareContentVersionsDialog.waitForDialogOpened();

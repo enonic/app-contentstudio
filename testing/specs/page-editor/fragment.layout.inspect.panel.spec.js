@@ -14,7 +14,7 @@ const FragmentInspectionPanel = require('../../page_objects/wizardpanel/liveform
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const ContentFilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 
@@ -143,13 +143,13 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let contentWizard = new ContentWizardPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let contentFilterPanel = new ContentFilterPanel();
             // 1. Existing content with x-data(image) is opened:
             await studioUtils.selectContentAndOpenWizard(SITE_1_NAME);
             await contentWizard.openDetailsPanel();
             // 2. Dependencies widget is opened:
-            await wizardDetailsPanel.openDependencies();
+            await wizardContextPanel.openDependencies();
             // 3. Click on 'Show outbound' button
             await wizardDependenciesWidget.clickOnShowOutboundButton();
             await studioUtils.doSwitchToNextTab();
@@ -226,14 +226,14 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let pageComponentView = new PageComponentView();
             let fragmentInspectionPanel = new FragmentInspectionPanel();
             let siteFormPanel = new SiteFormPanel();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let contentWizardPanel = new ContentWizardPanel();
             // 1. Open new site-wizard, select the application and controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizardPanel.typeDisplayName(SITE_2_NAME);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
-            await wizardDetailsPanel.waitForDetailsPanelLoaded();
+            await wizardContextPanel.waitForDetailsPanelLoaded();
             // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             // 3. Insert the fragment-component:

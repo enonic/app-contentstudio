@@ -10,7 +10,7 @@ const xpath = {
     widgetItem: `//div[contains(@id,'ContentWidgetItemView')]`
 };
 
-class WizardDetailsPanel extends BaseDetailsPanel {
+class WizardContextPanel extends BaseDetailsPanel {
 
     get widgetSelectorDropdown() {
         return xpath.container + lib.DROPDOWN_SELECTOR.WIDGET_FILTER_DROPDOWN;
@@ -78,6 +78,6 @@ class WizardDetailsPanel extends BaseDetailsPanel {
     }
 }
 
-module.exports = WizardDetailsPanel;
+module.exports = WizardContextPanel;
 
 

@@ -7,7 +7,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const EditPermissionsDialog = require('../../page_objects/permissions/edit.permissions.general.step');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const PublishContentDialog = require('../../page_objects/content.publish.dialog');
 const CompareWithPublishedVersionDialog = require('../../page_objects/compare.with.published.version.dialog');
@@ -34,13 +34,13 @@ describe('version.items.after.publishing.spec tests for version items', function
     it('GIVEN Publish Wizard is opened WHEN publish message has been inserted AND the content has been published THEN publish message should appear in Version Item',
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let contentPublishDialog = new ContentPublishDialog();
             let contentWizard = new ContentWizard();
             // 1. Open an existing folder
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
             // 2. Open Version widget:
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             // 3. Open Publish wizard and insert a publish-message:
             await contentWizard.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
@@ -57,7 +57,7 @@ describe('version.items.after.publishing.spec tests for version items', function
     it.skip(`GIVEN existing published folder is opened WHEN permissions have been updated THEN 'Permissions updated' item should appear in Versions Widget, the content gets Modified`,
         async () => {
             let contentWizard = new ContentWizard();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
             let userAccessWidget = new UserAccessWidget();
@@ -68,7 +68,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
             await editPermissionsDialog.clickOnApplyButton();
             // Open version widget:
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             // 3. Verify that 'Permissions updated' item appears in the widget
             await wizardVersionsWidget.waitForPermissionsUpdatedItemDisplayed();
             // 4. Open Page Editor with Preview Widget, Verify that status gets  Modified
@@ -119,12 +119,12 @@ describe('version.items.after.publishing.spec tests for version items', function
     it.skip(`GIVEN existing folder with 'Permissions updated' is opened WHEN the folder has been published THEN 'Permissions updated' item should be present in Versions Widget`,
         async () => {
             let contentWizard = new ContentWizard();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
             let publishContentDialog = new PublishContentDialog();
             // 1. Select the folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             // 2. Publish the folder:
             await contentWizard.clickOnPublishButton();
             await publishContentDialog.waitForDialogOpened();
