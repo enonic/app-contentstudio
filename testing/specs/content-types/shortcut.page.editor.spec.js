@@ -9,7 +9,7 @@ const appConst = require('../../libs/app_const');
 const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 
 describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortcuts', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -32,7 +32,7 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
         async () => {
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.SHORTCUT);
             // 1. Type a shortcut name:
             await contentWizard.typeDisplayName(SHORTCUT_NAME);
@@ -42,7 +42,7 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('shortcut_target_site_with_controller');
             // 4. Details option should be selected in the widget selector dropdown:
-            let selectedOption = await wizardDetailsPanel.getSelectedOptionInWidgetSelectorDropdown();
+            let selectedOption = await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
             assert.equal(selectedOption, 'Details', "'Details' selected option should be in the widget selector");
         });
 

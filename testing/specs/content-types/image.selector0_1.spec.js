@@ -7,7 +7,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ImageSelectorForm = require('../../page_objects/wizardpanel/imageselector.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
@@ -130,13 +130,13 @@ describe('image.selector0_1.spec tests for not required image selector', functio
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let versionsWidget = new VersionsWidget();
             // 1. Open existing image content(no selected images):
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             await contentWizard.pause(1000);
             // 2. Open Version widget
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await versionsWidget.waitForVersionsLoaded();
             await versionsWidget.clickAndExpandVersion(1);
             // 3. revert the version with single selected image:

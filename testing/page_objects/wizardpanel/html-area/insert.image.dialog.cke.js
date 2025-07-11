@@ -190,13 +190,12 @@ class InsertImageDialog extends Page {
 
     async clickOnCustomWidthCheckBox() {
         try {
-            let locator = this.customWidthCheckbox + "//label";
+            let locator = this.customWidthCheckbox + '//label';
             await this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout);
             await this.clickOnElement(locator);
             return await this.pause(200);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_clicking_on_custom_width_checkbox');
-            throw new Error(`Error when clicking on custom width checkbox! screenshot:${screenshot} ` + err);
+            await this.handleError(`Insert Image Dialog`, 'err_clicking_on_custom_width_checkbox', err);
         }
     }
 
@@ -205,8 +204,7 @@ class InsertImageDialog extends Page {
             await this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout);
             return await this.isSelected(this.customWidthCheckbox + lib.CHECKBOX_INPUT);
         } catch (err) {
-            await this.saveScreenshot('err_custom_width_checkbox');
-            throw new Error('Error occurred during checking the custom width checkbox! ' + err);
+            await this.handleError(`Insert Image Dialog Custom Width-`, 'err_is_custom_width_checkbox_selected', err);
         }
     }
 
@@ -218,8 +216,7 @@ class InsertImageDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.uploadButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshotName = await this.saveScreenshotUniqueName('err_upload_btn');
-            throw new Error("Insert Image Dialog, upload button is not visible, screenshot: " + screenshotName + "  " + err);
+            await this.handleError(`Insert Image Dialog`, 'err_upload_button_not_visible', err);
         }
     }
 
@@ -278,8 +275,7 @@ class InsertImageDialog extends Page {
             await this.waitForElementDisplayed(XPATH.imageRangeValue, appConst.mediumTimeout);
             return await this.getText(XPATH.imageRangeValue);
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_range');
-            throw new Error("Error when getting text in element with image range " + err);
+            await this.handleError(`Insert Image Dialog`, 'err_wait_for_image_range_value', err);
         }
     }
 
@@ -319,8 +315,7 @@ class InsertImageDialog extends Page {
             await this.clickOnElement(this.styleSelectorDropDownHandle);
             await this.pause(900);
         } catch (err) {
-            await this.saveScreenshot('err_style_selector_drop_down_handle');
-            throw new Error('Error occurred during clicking on style drop down handle! ' + err);
+            await this.handleError(`Insert Image Dialog`, 'err_click_on_style_selector_drop_down_handle', err);
         }
     }
 

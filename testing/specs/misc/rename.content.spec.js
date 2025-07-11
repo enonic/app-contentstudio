@@ -7,7 +7,7 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
@@ -30,10 +30,10 @@ describe('rename.content.spec - tests for Renamed version item', function () {
     it("GIVEN existing 'new' folder is opened WHEN the name(path) has been updated THEN 'Renamed' version item should appear in the version widget",
         async () => {
             let contentWizard = new ContentWizard();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await contentWizard.typeInPathInput(NEW_NAME);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessages();

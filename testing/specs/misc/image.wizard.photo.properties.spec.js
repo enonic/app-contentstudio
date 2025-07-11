@@ -7,7 +7,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
 const ImagePhotoInfoFormPanel = require('../../page_objects/wizardpanel/image.photoinfo.form.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const appConst = require('../../libs/app_const');
 
@@ -26,7 +26,7 @@ describe("image.wizard.photo.properties.spec: Open an image and update photo pro
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
             let imagePhotoInfoFormPanel = new ImagePhotoInfoFormPanel();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. open existing image
             await studioUtils.selectContentAndOpenWizard(IMAGE_DISPLAY_NAME);
             await imageFormPanel.clickOnPhotoWizardStep();
@@ -37,7 +37,7 @@ describe("image.wizard.photo.properties.spec: Open an image and update photo pro
             await contentWizard.waitAndClickOnSave();
             // 3. open Versions widget in wizard-details panel
             await contentWizard.openDetailsPanel();
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             let wizardVersionsWidget = new WizardVersionsWidget();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 4. Expand menu and restore the previous version

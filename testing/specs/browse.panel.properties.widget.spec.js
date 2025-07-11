@@ -8,7 +8,7 @@ const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 const StatusWidget = require('../page_objects/browsepanel/detailspanel/status.widget.itemview');
-const WidgetItemView = require('../page_objects/browsepanel/detailspanel/content.widget.item.view');
+const BrowseContentWidgetItemView = require('../page_objects/browsepanel/detailspanel/browse.content.widget.item.view');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
 const PublishContentDialog = require('../page_objects/content.publish.dialog');
@@ -151,17 +151,17 @@ describe('Browse panel, properties widget, language spec', function () {
     it(`GIVEN existing folder is highlighted WHEN click on the row THEN Details Panel should be cleared`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            let widgetItemView = new WidgetItemView();
+            let browseContentWidgetItemView = new BrowseContentWidgetItemView();
             // 1. Click on row and select a folder:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await studioUtils.saveScreenshot('details_panel_folder_selected');
-            let actualDisplayName = await widgetItemView.getContentName();
+            let actualDisplayName = await browseContentWidgetItemView.getContentName();
             assert.equal(actualDisplayName, TEST_FOLDER.displayName, 'Expected displayName should be in the widget');
             // 2. click on the row and unselect the folder:
             await contentBrowsePanel.clickOnRowByDisplayName(TEST_FOLDER.displayName);
             await studioUtils.saveScreenshot('details_panel_cleared_1');
             // 4. Verify that Details Panel is cleared:
-            await widgetItemView.waitForNotDisplayed();
+            await browseContentWidgetItemView.waitForNotDisplayed();
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/1744
@@ -169,17 +169,17 @@ describe('Browse panel, properties widget, language spec', function () {
     it(`GIVEN existing folder is checked WHEN uncheck the row THEN Details Panel should be cleared`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            let widgetItemView = new WidgetItemView();
+            let browseContentWidgetItemView = new BrowseContentWidgetItemView();
             // 1. Click on the checkbox and select the row:
             await studioUtils.typeNameInFilterPanel(TEST_FOLDER.displayName);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(TEST_FOLDER.displayName);
-            let actualDisplayName = await widgetItemView.getContentName();
+            let actualDisplayName = await browseContentWidgetItemView.getContentName();
             assert.equal(actualDisplayName, TEST_FOLDER.displayName, 'Expected displayName should be in the widget');
-            // 2. Click on the checkbox and unselect the row :
+            // 2. Click on the checkbox and uncheck the row :
             await studioUtils.saveScreenshot('details_panel_cleared_2');
             await contentBrowsePanel.clickOnCheckboxByName(TEST_FOLDER.displayName);
             // 3. Verify that Details Panel is cleared:
-            await widgetItemView.waitForNotDisplayed();
+            await browseContentWidgetItemView.waitForNotDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -12,7 +12,7 @@ const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspane
 const contentBuilder = require("../../libs/content.builder");
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('tests for Sorted versions item', function () {
@@ -150,11 +150,11 @@ describe('tests for Sorted versions item', function () {
     it("GIVEN existing folder with 'Sorted' version items is opened WHEN the folder has been published THEN 'Sorted' items remain visible in Versions Widget",
         async () => {
             let contentWizard = new ContentWizard();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
             // 1. Open the existing folder with sorted version items:
             await studioUtils.selectAndOpenContentInWizard(PARENT_FOLDER.displayName);
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             // 2. Click on Mark as ready button then publish the folder:
             await contentWizard.clickOnMarkAsReadyButton();
             await studioUtils.doPublish();
