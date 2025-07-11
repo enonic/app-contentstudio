@@ -7,7 +7,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const HomePageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/home.page.inspection.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const TextComponent = require('../../page_objects/components/text.component');
@@ -47,7 +47,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
     it(`WHEN new wizard for article has been opened THEN input from template-config should be displayed in the Inspection Panel`,
         async () => {
             let homePageInspectionPanel = new HomePageInspectionPanel();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let contentWizard = new ContentWizard();
             // 1. Open new wizard for Article content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
@@ -55,7 +55,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToMainFrame();
             // 3. Inspection Panel should be loaded:
-            await wizardDetailsPanel.waitForDetailsPanelLoaded();
+            await wizardContextPanel.waitForDetailsPanelLoaded();
             await studioUtils.saveScreenshot('article_details_panel');
             // 4. Verify that the 'title' text input is displayed in the Page Inspection panel(config):
             await homePageInspectionPanel.waitForTitleInputDisplayed();

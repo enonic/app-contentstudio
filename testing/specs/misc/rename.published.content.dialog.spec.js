@@ -7,7 +7,7 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('rename.published.content.dialog.spec - tests for Rename published content modal dialog', function () {
@@ -158,12 +158,12 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
 
     it("GIVEN renamed folder has been opened THEN 'Renamed' version item should be visible in the published content",
         async () => {
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
             // 1. Open the folder with moved version items:
             await studioUtils.openContentAndSwitchToTabByDisplayName(NEW_NAME, TEST_FOLDER.displayName);
             // 2. Open Versions widget:
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             // 3. Verify that Renamed version item is visible in the published content:
             await wizardVersionsWidget.waitForRenamedItemDisplayed();
             await studioUtils.saveScreenshot('moved_versions_after_publishing');

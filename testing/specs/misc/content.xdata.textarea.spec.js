@@ -8,7 +8,7 @@ const contentBuilder = require("../../libs/content.builder");
 const XDataHtmlArea = require('../../page_objects/wizardpanel/wizard-step-form/xdata.htmlarea.wizard.step.form');
 const XDataTextArea = require('../../page_objects/wizardpanel/wizard-step-form/xdata.textarea.wizard.step.form');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const appConst = require('../../libs/app_const');
 
@@ -98,13 +98,13 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
     it(`GIVEN existing site with active x-data WHEN the version disabled x-data has been restored THEN x-data form is getting not active`,
         async () => {
             let contentWizard = new ContentWizard();
-            let detailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let versionsWidget = new WizardVersionsWidget();
             // 1. Open existing site, then open details panel:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.openDetailsPanel();
             // 2. Open versions widget
-            await detailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await versionsWidget.waitForVersionsLoaded();
             // 3. Revert the version with disabled x-data:
             await versionsWidget.clickAndExpandVersion(2);
@@ -221,12 +221,12 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let contentWizard = new ContentWizard();
             let versionsWidget = new WizardVersionsWidget();
             let xDataTextArea = new XDataTextArea();
-            let detailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             await studioUtils.selectContentAndOpenWizard(DOUBLE_0_0_CONTENT);
             // 1. Open details panel:
             await contentWizard.openDetailsPanel();
             // 2. Open versions widget:
-            await detailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await versionsWidget.clickAndExpandVersion(1);
             // 3. Revert the previous version:
             await versionsWidget.clickOnRevertButton();

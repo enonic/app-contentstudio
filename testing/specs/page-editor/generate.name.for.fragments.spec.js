@@ -13,7 +13,7 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const BrowseDependenciesWidget = require('../../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const FragmentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/fragment.inspection.panel');
 const appConst = require('../../libs/app_const');
@@ -132,7 +132,7 @@ describe('Generate name for fragments specification', function () {
         async () => {
             let pageComponentView = new PageComponentView();
             let contentWizard = new ContentWizard();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
             // 1. Open the site with a fragment(text component)
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
@@ -145,7 +145,7 @@ describe('Generate name for fragments specification', function () {
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             //TODO check this behavior:
-            await wizardDetailsPanel.openDependencies();
+            await wizardContextPanel.openDependencies();
             // 5. Verify that there are no fragments in Page Component View:
             let result = await pageComponentView.getFragmentsDisplayName();
             assert.equal(result.length, 0, 'Fragment should not be present in Page Component View');

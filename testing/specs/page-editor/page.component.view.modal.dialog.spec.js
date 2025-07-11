@@ -10,7 +10,7 @@ const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wiz
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SiteForm = require('../../page_objects/wizardpanel/site.form.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
@@ -71,7 +71,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
         async () => {
             let contentWizard = new ContentWizardPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
-            let detailsPanel = new WizardDetailsPanel();
+            let detailsPanel = new WizardContextPanel();
             let versionsWidget = new WizardVersionsWidget();
             let pageComponentViewDialog = new PageComponentView();
             // 1. Open new site-wizard

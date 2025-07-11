@@ -9,7 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const InsertablesPanel = require('../../page_objects/wizardpanel/liveform/insertables.panel');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const appConst = require('../../libs/app_const');
 
@@ -112,12 +112,12 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
         async () => {
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.openDetailsPanel();
             // 2. Open Versions widget:
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Expand the version item and click on Revert:
             await wizardVersionsWidget.clickAndExpandVersion(1);

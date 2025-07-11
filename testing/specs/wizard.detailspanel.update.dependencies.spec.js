@@ -6,7 +6,8 @@ const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
-const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContentWidgetItemView = require('../page_objects/wizardpanel/details/wizard.content.widget.item.view');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const ImageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
@@ -82,29 +83,30 @@ describe('Content with image-selector, select images and verify that Outbound de
         it(`GIVEN 5 images have been selected in image selector(2:4) and saved WHEN the content has been reopened THEN 4 images remain in wizard AND Red icon should not be present in the Widget View`,
             async () => {
                 let imageSelectorForm = new ImageSelectorForm();
-                let wizardDetailsPanel = new WizardDetailsPanel();
+                let wizardContentWidgetItemView = new WizardContentWidgetItemView();
                 let contentWizard = new ContentWizard();
                 // 1. Open new wizard and type a name:
                 await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
                 await contentWizard.typeDisplayName(CONTENT_NAME2);
                 // 2. Click on dropdown handle, expand the options and click on 5 checkboxes:
                 await imageSelectorForm.clickOnDropDownHandleAndSelectImages(5);
-                await studioUtils.saveScreenshot("image_selector_exceed");
+                await studioUtils.saveScreenshot('image_selector_exceed');
                 // 3. Click on Save button and close the wizard:
                 await studioUtils.saveAndCloseWizard();
                 // 4. Reopen the content again:
                 await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME2, false);
-                await studioUtils.saveScreenshot("image_selector_reopened");
-                // Details Panel should be automatically opened:
+                // Details Panel should be automatically opened if the width is more than 1920px
+                await contentWizard.openDetailsPanel();
+                await studioUtils.saveScreenshot('image_selector_reopened');
                 // Verify that the content is valid:
-                let isInvalid = await wizardDetailsPanel.isContentInvalid();
+                let isInvalid = await wizardContentWidgetItemView.isContentInvalid();
                 assert.ok(isInvalid === false, "Red icon should not be present in the Widget View(Details Panel)");
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
         afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
         before(async () => {
-            if (typeof browser !== "undefined") {
+            if (typeof browser !== 'undefined') {
                 await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
             }
             return console.log('specification starting: ' + this.title);
@@ -113,10 +115,10 @@ describe('Content with image-selector, select images and verify that Outbound de
 
 function openWizardDependencyWidget() {
     let contentWizard = new ContentWizard();
-    let wizardDetailsPanel = new WizardDetailsPanel();
+    let wizardContextPanel = new WizardContextPanel();
     let wizardDependenciesWidget = new WizardDependenciesWidget();
     return contentWizard.openDetailsPanel().then(() => {
-        return wizardDetailsPanel.openDependencies();
+        return wizardContextPanel.openDependencies();
     }).then(() => {
         return wizardDependenciesWidget.waitForWidgetLoaded();
     })

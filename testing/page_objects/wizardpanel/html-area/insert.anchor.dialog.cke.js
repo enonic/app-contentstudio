@@ -30,8 +30,7 @@ class InsertAnchorModalDialog extends Page {
         try {
             return await this.typeTextInInput(this.textInput, text)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_insert_anchor');
-            throw new Error("Insert Anchor Dialog -screenshot:  " + screenshot + ' ' + err);
+            await this.handleError(`Insert Anchor Dialog`, 'err_insert_anchor_text_input', err);
         }
     }
 
@@ -49,8 +48,7 @@ class InsertAnchorModalDialog extends Page {
             await this.clickOnElement(this.insertButton);
             return await this.waitForDialogClosed(appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_insert_anchor_icon');
-            throw new Error('Insert Anchor Dialog, screenshot:  ' + screenshot + "   " + err);
+            await this.handleError(`Insert Anchor Dialog`, 'err_click_on_insert_anchor_icon', err);
         }
     }
 
@@ -59,8 +57,7 @@ class InsertAnchorModalDialog extends Page {
             let locator = XPATH.container + lib.VALIDATION_RECORDING_VIEWER;
             return await this.waitForElementDisplayed(locator, appConst.shortTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_insert_anchor_icon');
-            throw new Error('Insert Anchor dialog, validation message should be displayed! screenshot: ' + screenshot + '' + err);
+            await this.handleError(`Insert Anchor Dialog`, 'err_wait_for_validation_message', err);
         }
     }
 

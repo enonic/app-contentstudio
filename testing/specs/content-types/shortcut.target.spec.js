@@ -8,7 +8,7 @@ const appConst = require('../../libs/app_const');
 const contentBuilder = require("../../libs/content.builder");
 const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
@@ -112,12 +112,12 @@ describe("Shortcut's target specification", function () {
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing shortcut:
             await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
             // 2. Open versions widget
             await contentWizard.openDetailsPanel();
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Expand the previous version and click on 'Revert' button:
             await wizardVersionsWidget.clickAndExpandVersion(1);

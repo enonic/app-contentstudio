@@ -9,7 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 
 describe('Wizard page - verify schedule form', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -25,7 +25,7 @@ describe('Wizard page - verify schedule form', function () {
         async () => {
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             // 1. Open new folder-wizard, type a name and save:
@@ -42,13 +42,13 @@ describe('Wizard page - verify schedule form', function () {
             assert.equal(status, 'New', "New status should be in ContentWizardToolbar");
             await studioUtils.saveScreenshot('schedule_widget_item_not_displayed');
             // 4. Schedule widget item should not be displayed in the Details widget
-            await wizardDetailsPanel.waitForScheduleWidgetItemNotDisplayed();
+            await wizardContextPanel.waitForScheduleWidgetItemNotDisplayed();
         });
 
     it(`GIVEN existing content is opened WHEN content has been published THEN 'Schedule' form should appear in 'Edit Properties' modal dialog`,
         async () => {
             let contentWizard = new ContentWizard();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open then publish the content:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.openPublishMenuAndPublish();
@@ -60,7 +60,7 @@ describe('Wizard page - verify schedule form', function () {
             assert.equal(status, 'Published', "'Published' status should be displayed in the toolbar");
             await studioUtils.saveScreenshot('edit_prop_not_schedule');
             // 4. Schedule widget item appears in the details panel:
-            await wizardDetailsPanel.waitForScheduleWidgetItemDisplayed();
+            await wizardContextPanel.waitForScheduleWidgetItemDisplayed();
             // 5. Open Edit Properties modal dialog:
             let editScheduleDialog = await studioUtils.openEditScheduleDialog();
             // 6. Verify the date in Online from input:
@@ -104,7 +104,7 @@ describe('Wizard page - verify schedule form', function () {
     it(`GIVEN existing published content is opened WHEN content has been unpublished THEN 'Schedule' form should not be displayed in the 'Edit Properties' dialog`,
         async () => {
             let contentWizard = new ContentWizard();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Select and open the folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             // 2. Unpublish the folder:
@@ -114,7 +114,7 @@ describe('Wizard page - verify schedule form', function () {
             // 3. Open Page Editor with Preview Widget
             await contentWizard.clickOnPageEditorToggler();
             // 4. 'Edit Schedule' widget item should not be displayed in Details Panel
-            await wizardDetailsPanel.waitForScheduleWidgetItemNotDisplayed();
+            await wizardContextPanel.waitForScheduleWidgetItemNotDisplayed();
             // 5. 'Unpublished' status should be displayed in the toolbar:
             let status = await contentWizard.getContentStatus();
             assert.equal(status, 'Unpublished', "'Unpublished' status should be displayed in the toolbar");

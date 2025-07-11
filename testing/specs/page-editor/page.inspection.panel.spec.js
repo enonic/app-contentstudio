@@ -10,7 +10,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 
 describe('page.inspection.panel.spec: tests for page-inspection panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -68,7 +68,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             let contextWindow = new ContextWindow();
             let contentWizard = new ContentWizard();
             let pageInspectionPanel = new PageInspectionPanel();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let confirmationDialog = new ConfirmationDialog();
             // 1. Open existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
@@ -87,7 +87,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             // 6. Details Panel should be loaded
             // TODO #8203 add test for new functionality:
             //await pageInspectionPanel.waitForNotDisplayed();
-            //await wizardDetailsPanel.waitForDetailsPanelLoaded();
+            //await wizardContextPanel.waitForDetailsPanelLoaded();
             // 7. Controller selector should be loaded in Live Edit:
             await contentWizard.waitForControllerOptionFilterInputVisible();
         });
