@@ -297,6 +297,11 @@ export class CompareContentVersionsDialog
         return this;
     }
 
+    setLeftVersion(version: VersionHistoryItem): CompareContentVersionsDialog {
+        this.leftVersionId = version.getSecondaryId();
+        return this;
+    }
+
     resetLeftVersion(): CompareContentVersionsDialog {
         this.leftVersionId = null;
         return this;
@@ -790,13 +795,15 @@ class CompareDropdown
     protected initListeners(): void {
         super.initListeners();
 
-        this.onSelectionChanged(() => {
-            this.selectedItemViewer.setObject(this.getSelectedItems()[0]);
-        });
-
         this.selectedItemViewer.onClicked(() => {
            this.handleDropdownHandleClicked();
         });
+    }
+
+    protected doSelect(itemToSelect: VersionHistoryItem) {
+        super.doSelect(itemToSelect);
+
+        this.selectedItemViewer.setObject(itemToSelect);
     }
 
     hideDropdown(): void {
