@@ -50,7 +50,7 @@
 
       &:first-child {
         .version-date {
-          margin-top: 10px;
+          margin-top: 8px;
         }
       }
 
@@ -129,7 +129,6 @@
           display: flex;
           width: 100%;
           position: relative;
-          padding-right: 25px;
           box-sizing: border-box;
 
           .names-and-icon-view {
@@ -174,6 +173,12 @@
             }
           }
 
+          .checkbox {
+            order: 1;
+            padding: 5px;
+            display: none;
+          }
+
           button.compare {
             position: absolute;
             right: 0;
@@ -209,6 +214,12 @@
             }
           }
         }
+
+        &.selected {
+          .checkbox {
+            display: block;
+          }
+        }
       }
 
       &.expanded {
@@ -220,6 +231,36 @@
           }
 
           .version-action-button {
+            display: block;
+          }
+        }
+      }
+    }
+  }
+
+  .action-buttons-wrapper {
+    width: 100%;
+    padding: 12px 0;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    position: sticky;
+    bottom: 0;
+    margin: 0 auto;
+    background: @admin-white;
+    z-index: 1;
+
+    .reset-compare-button {
+      padding: 5px 12px;
+      border-left: 1px solid @admin-white;
+    }
+  }
+
+  &:not(.selection-limit-reached) {
+    .version-list {
+      .version-list-item {
+        .version-viewer:hover {
+          .checkbox {
             display: block;
           }
         }
