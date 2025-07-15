@@ -20,7 +20,6 @@ import {GetActiveContentVersionsRequest} from '../resource/GetActiveContentVersi
 import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
 import {GetContentVersionsResult} from '../resource/GetContentVersionsResult';
-import {ContentVersionsLoader} from '../view/context/widget/version/ContentVersionsLoader';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
 
 export class CompareWithPublishedVersionDialog
@@ -44,8 +43,6 @@ export class CompareWithPublishedVersionDialog
 
     private isLoading: boolean;
 
-    private readonly versionsLoader: ContentVersionsLoader;
-
     protected constructor() {
         super({
             class: 'compare-content-versions-dialog grey-header',
@@ -53,7 +50,6 @@ export class CompareWithPublishedVersionDialog
             alwaysFullscreen: true
         } as ModalDialogConfig);
 
-        this.versionsLoader = new ContentVersionsLoader();
         this.diffPatcher = new DiffPatcher();
     }
 
