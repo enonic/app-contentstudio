@@ -137,7 +137,7 @@ describe('occurrences.tag.spec: tests for content with tag input', function () {
             // 2. Revert the version without tags:
             await contentWizard.openVersionsHistoryPanel();
             await versionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED,0);
-            await versionsWidget.clickOnRevertButton();
+            await versionsWidget.clickOnRestoreButton();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('req_tag_reverted');
             // 3. Verify that the content gets invalid even before clicking on the 'Save' button

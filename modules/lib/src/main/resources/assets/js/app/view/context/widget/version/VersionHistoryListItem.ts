@@ -41,15 +41,15 @@ export class VersionHistoryListItem
         return VersionHistoryHelper.isComparableItem(this.version); //&& this.version.getStatus() !== VersionItemStatus.CREATED;
     }
 
-    addCompareButton(): void {
-        if (!this.hasCompareButton()) {
-            this.compareButton = this.createCompareButton();
-            this.versionViewer.appendToNamesAndIconViewWrapper(this.compareButton)
-        }
+    setActiveHandler(handler: (item: VersionHistoryListItem) => void): this {
+        this.activeHandler = handler;
+        return this;
     }
 
-    hasCompareButton(): boolean {
-        return !!this.compareButton;
+    setActive(active: boolean): void {
+        this.toggleTooltip(active);
+        this.toggleClass('expanded', active);
+        this.actionButton?.setVisible(active);
     }
 
     getVersion(): VersionHistoryItem {

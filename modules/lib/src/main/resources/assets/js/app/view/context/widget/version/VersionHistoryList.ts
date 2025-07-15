@@ -80,7 +80,6 @@ export class VersionHistoryList
             const versionHistoryItems = this.versionsConverter.append(result.getContentVersions(), this.loadedCount < this.totalCount);
 
             this.addItems(versionHistoryItems.slice(this.getItemCount(), versionHistoryItems.length));
-            this.addMissingCompareButtons();
         }).catch(DefaultErrorHandler.handle).finally(() => {
             this.loading = false;
 
@@ -97,15 +96,5 @@ export class VersionHistoryList
             .setFrom(this.loadedCount)
             .setSize(VersionHistoryList.LOAD_SIZE)
             .sendAndParse();
-    }
-
-    private addMissingCompareButtons(): void {
-        this.getItemViews().forEach((view: VersionHistoryListItem, index) => {
-            if (!view.hasCompareButton() && view.isComparableItem()) {
-                if (this.getItemViews().slice(index + 1).some((itemView: VersionHistoryListItem) => itemView.isComparableItem())) {
-                    view.addCompareButton();
-                }
-            }
-        });
     }
 }

@@ -54,7 +54,7 @@ describe('folder.content.revert.display.name.spec: tests for reverting of folder
             // 3. Revert the version with the previous display name:
             await contentWizard.openVersionsHistoryPanel();
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED,2);
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             await contentWizard.waitForNotificationMessage();
             let actualDisplayName = await contentWizard.getDisplayName();
             // 4. Verify that 'displayName' is reverted

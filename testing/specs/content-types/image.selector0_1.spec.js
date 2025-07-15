@@ -140,7 +140,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await wizardVersionsWidget.waitForVersionsLoaded();
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED,1);
             // 3. revert the version with single selected image:
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             // 4. Verify the selected image:
             let result = await imageSelectorForm.getSelectedImages();
             assert.equal(result.length, 1, 'One image should be present in the selected options');

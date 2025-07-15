@@ -235,7 +235,7 @@ describe("image.content.crop.spec: tests for crop button", function () {
             await contentWizard.openVersionsHistoryPanel();
             // 3. Revert the previous version(image should be focused):
             await wizardVersionsWidget.clickAndExpandVersion(1);
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             await studioUtils.saveScreenshot('cropped_version_reverted');
             // 4. Verify that 'Reset filters' button gets visible:
             await imageEditor.waitForResetFiltersDisplayed();
