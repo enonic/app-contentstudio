@@ -65,14 +65,14 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             assert.equal(numberItems, 1, "One 'Permissions updated'  item should be present in the widget");
 
             // 8. Verify 'Show changes' in all version items:
-            let isDisplayed = await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            let isDisplayed = await wizardVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             assert.ok(isDisplayed === false, "'Show changes' button should not be displayed for the first item (Created)");
 
             isDisplayed =
-                await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 0);
+                await wizardVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 0);
             assert.ok(isDisplayed, "'Show changes' button should be displayed in the first Permissions updated-item");
 
-            isDisplayed = await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            isDisplayed = await wizardVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             assert.ok(isDisplayed, "'Show changes' button should be displayed in Edit-item");
 
         });
@@ -170,13 +170,25 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             // 2. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            // 3. Click on 'Show changes' button  in the previous edit-item:
-            await browseVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            // 3. Move the cursor to the 'Edited' version item::
+            await browseVersionsWidget.moveCursorToVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            // 4. Verify that 'Compare changes' checkbox gets visible in the item:
+            await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED,0);
+            // 5. Click on 'Compare changes' button in the 'Edited' item:
+            await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            // 6. Move the cursor to the 'Permissions Updated' version item:
+            await browseVersionsWidget.moveCursorToVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 1);
+            // 7. Verify that 'Compare changes' checkbox gets visible in the item:
+            await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 1);
+            // 8. Click on 'Compare changes' button in the 'Permissions Updated' item:
+            await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 1);
+            // 9. Click on 'Compare Versions' button in the Versions Widget:
+            await browseVersionsWidget.clickOnCompareVersionsButton();
             await compareContentVersionsDialog.waitForDialogOpened();
-            // 4. Click on the left dropdown handle:
+            // 10. Click on the left dropdown handle:
             await compareContentVersionsDialog.clickOnLeftDropdownHandle();
             await studioUtils.saveScreenshot('compare_versions_dlg_changed_options');
-            // 5. Verify that 2 options with 'Permissions updated' icon should be present in the dropdown list:
+            // 11. Verify that 2 options with 'Permissions updated' icon should be present in the dropdown list:
             let result = await compareContentVersionsDialog.getPermissionsUpdatedOptionsInDropdownList();
             assert.equal(result.length, 2, '2 Permissions updated items should be present in the selector options');
         });

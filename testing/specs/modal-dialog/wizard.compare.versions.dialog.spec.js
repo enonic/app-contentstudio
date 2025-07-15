@@ -39,7 +39,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Click on 'show changes' icon in the first 'edited' item:
-            await wizardVersionsWidget.clickOnShowChangesButtonByHeader('Edited', 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader('Edited', 0);
             await compareContentVersionsDialog.waitForDialogOpened();
             // 4. Expand the left dropdown and click on the edited-option:
             await compareContentVersionsDialog.expandLeftDropdownAndClickOnModifiedOption(0);
@@ -131,7 +131,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Click on 'compare' icon in the Active version(the first item):
-            await wizardVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             // 4. Verify that modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             // 5. Right 'Revert' menu-button should be disabled:
@@ -153,7 +153,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Click on 'compare' icon in the Active version(the first item):
-            await wizardVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             // 4. Verify that modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             // 5. Right 'Revert' menu-button should be enabled:

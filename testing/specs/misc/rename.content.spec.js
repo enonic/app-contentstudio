@@ -63,8 +63,9 @@ describe('rename.content.spec - tests for Renamed version item', function () {
             await browseVersionsWidget.waitForRevertButtonNotDisplayed();
             //5. Verify that 'Active version' button should not be present in the latest Renamed item:
             await browseVersionsWidget.waitForActiveVersionButtonNotDisplayed();
-            //6. 'Show changes' icon should be present in the Renamed item
-            await browseVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.RENAMED, 0);
+            //6. 'Compare Versions' checkbox should be displayed in the Renamed item
+            let isDisplayed = await browseVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.RENAMED, 0);
+            assert.ok(isDisplayed, "Compare Versions checkbox should be displayed in the Renamed item");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

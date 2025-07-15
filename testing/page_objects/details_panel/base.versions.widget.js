@@ -11,11 +11,15 @@ const xpath = {
     versionItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
     itemByDisplayName: displayName => `${lib.itemByDisplayName(displayName)}`,
     anyItemByHeader: header => `//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'${header}')]]`,
-    showChangesButtonLocator: ".//button[@title='Show changes']",
+    compareVersionsDiv: ".//div[@name='compare-version-checkbox']",
     publishMessageDiv: "//div[contains(@class, 'publish-message')]",
 };
 
 class BaseVersionsWidget extends Page {
+
+    get compareVersionsButton() {
+        return this.versionsWidget + lib.actionButton('Compare versions');
+    }
 
     get compareWithCurrentVersionButton() {
         return this.versionsWidget + lib.VERSIONS_SHOW_CHANGES_BUTTON;
@@ -145,8 +149,7 @@ class BaseVersionsWidget extends Page {
             await items[i].click();
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_expand_version');
-            throw new Error(`Error occurred in Version Widget -  screenshot: ${screenshot} ` + err);
+            await this.handleError(`Version Widget - error during clicking on the version : ${versionHeader}`, 'err_expand_version', err);
         }
     }
 
@@ -266,11 +269,34 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    async clickOnShowChangesButtonByHeader(itemHeader, index) {
+    async moveCursorToVersionItemByHeader(itemHeader, index) {
         try {
             let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
             let versionItems = await this.findElements(itemLocator);
-            let buttonElements = await versionItems[index].$$(xpath.showChangesButtonLocator);
+            await this.doPerformMoveToAction(versionItems[index]);
+            return await this.pause(200);
+        } catch (err) {
+            await this.handleError(`Version Widget -moving cursor to version item: ${itemHeader}`, 'err_move_cursor_to_version', err);
+        }
+    }
+
+    async waitForCompareChangesCheckboxDisplayed(itemHeader, index) {
+        try {
+            let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+            let versionItems = await this.findElements(itemLocator);
+            let compareVersionsDivElements = await versionItems[index].$$(xpath.compareVersionsDiv);
+            await compareVersionsDivElements[0].waitForDisplayed({timeout: appConst.shortTimeout});
+        } catch (err) {
+            await this.handleError(`Version Widget - compare changes checkbox should be displayed: ${itemHeader}`,
+                'err_compare_ch_checkbox', err);
+        }
+    }
+
+    async clickOnCompareChangesCheckboxByHeader(itemHeader, index) {
+        try {
+            let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+            let versionItems = await this.findElements(itemLocator);
+            let buttonElements = await versionItems[index].$$(xpath.compareVersionsDiv);
             await buttonElements[0].click();
             return await this.pause(200);
         } catch (err) {
@@ -317,11 +343,21 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    async isShowChangesInVersionButtonDisplayed(itemHeader, index) {
+    async isCompareVersionCheckboxDisplayed(itemHeader, index) {
         let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
         let elements = await this.findElements(itemLocator);
-        let buttonElements = await elements[index].$$(xpath.showChangesButtonLocator);
+        let buttonElements = await elements[index].$$(xpath.compareVersionsDiv);
         return buttonElements.length > 0;
+    }
+
+    async clickOnCompareVersionsButton() {
+        try {
+            await this.waitForElementDisplayed(this.compareVersionsButton, appConst.mediumTimeout);
+            return await this.clickOnElement(this.compareVersionsButton);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_compare_versions_button');
+            throw new Error(`Version Widget - error when clicking on Compare versions button, screenshot: ${screenshot} ` + err);
+        }
     }
 }
 
