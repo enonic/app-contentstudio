@@ -24,11 +24,20 @@ export class VersionHistoryList
 
     private loadedItems: ContentVersion[] = [];
 
+    private pendingLoadContent: ContentSummaryAndCompareStatus;
+
+    private loading: boolean = false;
+
     constructor() {
         super('version-list');
     }
 
     setContent(content: ContentSummaryAndCompareStatus): void {
+        if (this.loading) {
+            this.pendingLoadContent = content;
+            return;
+        }
+
         this.content = content;
         this.loadedItems = [];
         this.clearItems();
@@ -45,6 +54,13 @@ export class VersionHistoryList
     }
 
     protected handleLazyLoad(): void {
+        if (this.pendingLoadContent) {
+            const itemToLoad = this.pendingLoadContent;
+            this.pendingLoadContent = null;
+            this.setContent(itemToLoad);
+            return;
+        }
+
         super.handleLazyLoad();
 
         if (this.loadedItems.length !== this.totalCount) {
@@ -53,6 +69,8 @@ export class VersionHistoryList
     }
 
     private load(): void {
+        this.loading = true;
+
         this.doLoad().then((result: GetContentVersionsResult) => {
             const versions = result.getContentVersions();
 
@@ -63,7 +81,15 @@ export class VersionHistoryList
             const versionHistoryItems = this.makeVersionHistoryItems(filteredNoSameVersions);
 
             this.addItems(versionHistoryItems.slice(this.getItemCount(), versionHistoryItems.length));
-        }).catch(DefaultErrorHandler.handle);
+        }).catch(DefaultErrorHandler.handle).finally(() => {
+            this.loading = false;
+
+            if (this.pendingLoadContent) {
+                const itemToLoad = this.pendingLoadContent;
+                this.pendingLoadContent = null;
+                this.setContent(itemToLoad);
+            }
+        });
     }
 
     private doLoad(): Q.Promise<GetContentVersionsResult> {

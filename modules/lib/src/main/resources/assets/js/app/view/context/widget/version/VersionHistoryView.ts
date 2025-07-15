@@ -1,12 +1,11 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
-import {ContentId} from '../../../../content/ContentId';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentVersionHelper} from '../../../../ContentVersionHelper';
-import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import {WidgetItemView} from '../../WidgetItemView';
 import {VersionHistoryList} from './VersionHistoryList';
 
@@ -22,8 +21,6 @@ export class VersionHistoryView extends WidgetItemView {
 
     constructor() {
         super('version-widget-item-view');
-
-        this.managePublishEvent();
     }
 
     public layout(): Q.Promise<void> {
@@ -69,29 +66,10 @@ export class VersionHistoryView extends WidgetItemView {
             return Q();
         }
 
-        this.statusBlock.setClass(`status ${content.getStatusClass()}`);
-        this.statusBlock.setHtml(this.getContentStatus(content));
-
         this.content = content;
+        this.statusBlock.setClass(`status ${content.getStatusClass()}`).setHtml(this.getContentStatus(content));
+
         return this.reloadActivePanel();
-    }
-
-    private managePublishEvent() {
-        const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
-
-        serverEvents.onContentPublished((contents: ContentSummaryAndCompareStatus[]) => {
-            if (this.versionListView && this.content?.getContentId()) {
-                // check for item because it can be null after publishing pending for delete item
-                const itemId: ContentId = this.content.getContentId();
-                const isPublished: boolean = contents.some((content: ContentSummaryAndCompareStatus) => {
-                    return itemId.equals(content.getContentId());
-                });
-
-                if (isPublished) {
-                    this.reloadActivePanel();
-                }
-            }
-        });
     }
 
     private reloadActivePanel(): Q.Promise<void> {
