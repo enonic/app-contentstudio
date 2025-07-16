@@ -4,8 +4,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
-import com.enonic.xp.content.ActiveContentVersionEntry;
-import com.enonic.xp.content.GetActiveContentVersionsResult;
+import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ActiveContentVersionEntry;
+import com.enonic.xp.app.contentstudio.rest.resource.content.versions.GetActiveContentVersionsResult;
 
 public class GetActiveContentVersionsResultJson
 {

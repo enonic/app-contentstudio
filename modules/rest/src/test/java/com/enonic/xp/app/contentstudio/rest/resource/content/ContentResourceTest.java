@@ -83,12 +83,13 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.ReorderChildre
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResetContentInheritJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.RevertContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UnpublishContentJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVersion;
+import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVersionPublishInfo;
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.attachment.Attachments;
 import com.enonic.xp.attachment.CreateAttachment;
 import com.enonic.xp.blob.NodeVersionKey;
 import com.enonic.xp.branch.Branch;
-import com.enonic.xp.content.ActiveContentVersionEntry;
 import com.enonic.xp.content.CompareContentResult;
 import com.enonic.xp.content.CompareContentResults;
 import com.enonic.xp.content.CompareContentsParams;
@@ -110,9 +111,7 @@ import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.ContentValidityParams;
 import com.enonic.xp.content.ContentValidityResult;
-import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.content.ContentVersionId;
-import com.enonic.xp.content.ContentVersionPublishInfo;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.CreateContentParams;
 import com.enonic.xp.content.CreateMediaParams;
@@ -122,8 +121,6 @@ import com.enonic.xp.content.FindContentByParentResult;
 import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
 import com.enonic.xp.content.FindContentPathsByQueryResult;
-import com.enonic.xp.content.GetActiveContentVersionsParams;
-import com.enonic.xp.content.GetActiveContentVersionsResult;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.content.GetPublishStatusResult;
 import com.enonic.xp.content.GetPublishStatusesParams;
@@ -2186,13 +2183,7 @@ public class ContentResourceTest
 
         when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) ).thenReturn( (Optional) Optional.of( User.ANONYMOUS ) );
 
-        final ContentPrincipalsResolver contentPrincipalsResolver = new ContentPrincipalsResolver( securityService );
         when( securityService.getUser( PrincipalKey.ofAnonymous() ) ).thenReturn( Optional.of( User.ANONYMOUS ) );
-
-        when( contentService.getActiveVersions( any( GetActiveContentVersionsParams.class ) ) ).thenReturn(
-            GetActiveContentVersionsResult.create()
-                .add( ActiveContentVersionEntry.from( ContentConstants.BRANCH_DRAFT, contentVersion ) )
-                .build() );
 
         mockVersions();
 
@@ -2530,17 +2521,14 @@ public class ContentResourceTest
         when( currentContent.getChildOrder() ).thenReturn( ChildOrder.manualOrder() );
         when( contentService.getBinary( any( ContentId.class ), any( ContentVersionId.class ), any( BinaryReference.class ) ) ).thenReturn(
             byteSource );
-        when( contentService.getActiveVersions( any( GetActiveContentVersionsParams.class ) ) ).thenReturn(
-            GetActiveContentVersionsResult.create()
-                .add( ActiveContentVersionEntry.from( ContextAccessor.current().getBranch(), contentVersion ) )
-                .build() );
+        mockVersions();
 
         // test
         final ContentVersionJson result = instance.revert( params );
 
         // assert
         assertNotNull( result );
-        assertEquals( "contentVersionId", result.getId() );
+        assertEquals( "nodeVersionNew", result.getId() );
 
         // verify
         verify( this.contentService, times( 1 ) ).getByIdAndVersionId( any( ContentId.class ), any( ContentVersionId.class ) );
@@ -2549,7 +2537,6 @@ public class ContentResourceTest
         verify( this.contentService, times( 1 ) ).update( any( UpdateContentParams.class ) );
         verify( this.contentService, times( 1 ) ).setChildOrder( any( SetContentChildOrderParams.class ) );
         verify( this.contentService, times( 2 ) ).getById( any( ContentId.class ) );
-        verify( this.contentService, times( 1 ) ).getActiveVersions( any( GetActiveContentVersionsParams.class ) );
         verifyNoMoreInteractions( contentService );
     }
 
@@ -2576,23 +2563,19 @@ public class ContentResourceTest
         when( contentService.getByPath( any( ContentPath.class ) ) ).thenReturn( currentContent );
         when( contentService.update( any( UpdateContentParams.class ) ) ).thenReturn( updatedContent );
         when( contentService.getById( any( ContentId.class ) ) ).thenReturn( currentContent );
-        when( contentService.getActiveVersions( any( GetActiveContentVersionsParams.class ) ) ).thenReturn(
-            GetActiveContentVersionsResult.create()
-                .add( ActiveContentVersionEntry.from( ContextAccessor.current().getBranch(), contentVersion ) )
-                .build() );
+        mockVersions();
 
         // test
         final ContentVersionJson result = instance.revert( params );
 
         // assert
         assertNotNull( result );
-        assertEquals( "contentVersionId", result.getId() );
+        assertEquals( "nodeVersionNew", result.getId() );
 
         // verify
         verify( this.contentService, times( 1 ) ).getByIdAndVersionId( any( ContentId.class ), any( ContentVersionId.class ) );
         verify( this.contentService, times( 1 ) ).update( any( UpdateContentParams.class ) );
         verify( this.contentService, times( 2 ) ).getById( any( ContentId.class ) );
-        verify( this.contentService, times( 1 ) ).getActiveVersions( any( GetActiveContentVersionsParams.class ) );
         verifyNoMoreInteractions( contentService );
     }
 

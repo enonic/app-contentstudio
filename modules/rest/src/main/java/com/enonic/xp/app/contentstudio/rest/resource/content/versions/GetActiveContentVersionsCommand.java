@@ -4,9 +4,7 @@ import java.util.Map;
 
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.branch.Branches;
-import com.enonic.xp.content.ActiveContentVersionEntry;
 import com.enonic.xp.content.ContentId;
-import com.enonic.xp.content.GetActiveContentVersionsResult;
 import com.enonic.xp.node.GetActiveNodeVersionsParams;
 import com.enonic.xp.node.GetActiveNodeVersionsResult;
 import com.enonic.xp.node.NodeId;
