@@ -4,8 +4,8 @@ import java.time.Instant;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ChildOrderJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVersion;
 import com.enonic.xp.content.ContentPath;
-import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.security.Principal;
 
 public class ContentVersionJson

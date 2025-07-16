@@ -112,8 +112,12 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.task.DuplicateRunna
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.MoveRunnableTask;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.PublishRunnableTask;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.UnpublishRunnableTask;
+import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ActiveContentVersionEntry;
+import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVersion;
 import com.enonic.xp.app.contentstudio.rest.resource.content.versions.FindContentVersionsCommand;
+import com.enonic.xp.app.contentstudio.rest.resource.content.versions.FindContentVersionsResult;
 import com.enonic.xp.app.contentstudio.rest.resource.content.versions.GetActiveContentVersionsCommand;
+import com.enonic.xp.app.contentstudio.rest.resource.content.versions.GetActiveContentVersionsResult;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
 import com.enonic.xp.attachment.Attachment;
@@ -123,7 +127,6 @@ import com.enonic.xp.attachment.CreateAttachment;
 import com.enonic.xp.attachment.CreateAttachments;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.branch.Branches;
-import com.enonic.xp.content.ActiveContentVersionEntry;
 import com.enonic.xp.content.CompareContentResult;
 import com.enonic.xp.content.CompareContentResults;
 import com.enonic.xp.content.CompareContentsParams;
@@ -143,7 +146,6 @@ import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.ContentValidityParams;
 import com.enonic.xp.content.ContentValidityResult;
-import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.content.ContentVersionId;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.CreateMediaParams;
@@ -151,9 +153,6 @@ import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentByParentResult;
 import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
-import com.enonic.xp.content.FindContentVersionsResult;
-import com.enonic.xp.content.GetActiveContentVersionsParams;
-import com.enonic.xp.content.GetActiveContentVersionsResult;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.content.GetPublishStatusesParams;
 import com.enonic.xp.content.GetPublishStatusesResult;
@@ -1622,11 +1621,11 @@ public final class ContentResource
 
         final Content revertedContent = contentService.update( prepareUpdateContentParams( versionedContent, contentVersionId ) );
 
-        final ContentVersion contentVersion = contentService.getActiveVersions( GetActiveContentVersionsParams.create()
-                                                                                    .branches(
-                                                                                        Branches.from( ContentConstants.BRANCH_DRAFT ) )
-                                                                                    .contentId( revertedContent.getId() )
-                                                                                    .build() )
+        final GetActiveContentVersionsCommand activeContentVersionsCommand = new GetActiveContentVersionsCommand( nodeService );
+        final GetActiveContentVersionsResult activeVersions =
+            activeContentVersionsCommand.getActiveVersions( revertedContent.getId(), Branches.from( ContentConstants.BRANCH_DRAFT ) );
+
+        final ContentVersion contentVersion = activeVersions
             .getActiveContentVersions()
             .stream()
             .findAny()

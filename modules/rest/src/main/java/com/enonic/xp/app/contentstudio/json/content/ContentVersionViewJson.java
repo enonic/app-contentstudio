@@ -5,7 +5,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
-import com.enonic.xp.content.ContentVersion;
+import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVersion;
 
 public class ContentVersionViewJson
     extends ContentVersionJson

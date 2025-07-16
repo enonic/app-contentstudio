@@ -1,8 +1,6 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.versions;
 
 import com.enonic.xp.content.ContentId;
-import com.enonic.xp.content.ContentVersions;
-import com.enonic.xp.content.FindContentVersionsResult;
 import com.enonic.xp.node.GetNodeVersionsParams;
 import com.enonic.xp.node.NodeId;
 import com.enonic.xp.node.NodeService;

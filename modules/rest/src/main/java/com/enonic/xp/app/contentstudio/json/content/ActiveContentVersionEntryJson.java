@@ -1,7 +1,7 @@
 package com.enonic.xp.app.contentstudio.json.content;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
-import com.enonic.xp.content.ActiveContentVersionEntry;
+import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ActiveContentVersionEntry;
 
 public class ActiveContentVersionEntryJson
 {
