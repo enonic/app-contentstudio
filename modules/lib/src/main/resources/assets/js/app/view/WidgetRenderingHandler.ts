@@ -48,10 +48,10 @@ export class WidgetRenderingHandler {
     protected renderableChangedListeners: ((isRenderable: boolean, wasRenderable: boolean) => void)[] = [];
 
 
-    constructor(renderer: WidgetRenderer) {
+    constructor(renderer: WidgetRenderer, previewHelper?: PreviewActionHelper) {
         this.renderer = renderer;
         this.mode = RenderingMode.INLINE;
-        this.previewHelper = new PreviewActionHelper();
+        this.previewHelper = previewHelper || new PreviewActionHelper();
         this.emptyView = this.createEmptyView();
         this.messageView = this.createErrorView();
     }

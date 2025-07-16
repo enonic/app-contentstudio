@@ -33,7 +33,7 @@ export class ContentItemPreviewPanel
         this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
 
-        this.widgetRenderingHandler = new WidgetRenderingHandler(this);
+        this.widgetRenderingHandler = new WidgetRenderingHandler(this, this.getToolbar()?.getPreviewActionHelper());
 
         this.setupListeners();
     }
