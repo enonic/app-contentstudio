@@ -166,7 +166,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             await studioUtils.openContentAndSwitchToTabByDisplayName(TEST_CONTENT_NAME, TEST_CONTENT_DISPLAY_NAME);
             // 2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
-            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             // 3. Open Compare versions dialog in the latest 'Moved' version item:
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
             await wizardVersionsWidget.clickOnCompareVersionsButton();
@@ -206,7 +206,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             // 2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
             // 3. Open Compare versions dialog in the latest 'Moved' version item:
-            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
             await wizardVersionsWidget.clickOnCompareVersionsButton();
             await compareContentVersionsDialog.waitForDialogOpened();

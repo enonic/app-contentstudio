@@ -297,11 +297,13 @@ class BaseVersionsWidget extends Page {
             let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
             let versionItems = await this.findElements(itemLocator);
             let buttonElements = await versionItems[index].$$(xpath.compareVersionsDiv);
+            if (buttonElements.length === 0) {
+                throw new Error(`No 'compare changes' checkbox found for itemHeader: ${itemHeader} at index: ${index}`);
+            }
             await buttonElements[0].click();
             return await this.pause(200);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_compare');
-            throw new Error(`Version Widget - error when clicking on Show changes button, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Version Widget - error when clicking on compare changes checkbox: ${itemHeader}`,err);
         }
     }
 
@@ -338,8 +340,7 @@ class BaseVersionsWidget extends Page {
             let locator = xpath.versionItemExpanded + "//button[child::span[text()='Active version']]";
             await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('active_version_button');
-            throw new Error(`Version Widget -  'Active version' button should not be displayed, screenshot:  ${screenshot} ` + err);
+            await this.handleError(`Version Widget - 'Active version' button should not be displayed`, 'err_active_version_button', err);
         }
     }
 
