@@ -32,9 +32,8 @@ describe('Folder in root directory, General step, edit.permissions.dialog.spec '
             await studioUtils.openBrowseDetailsPanel();
             // 2. Click on 'Edit Permissions' link and open the modal dialog:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog()
-            // 3. 'Copy from project' is shown for the top level items
-            // TODO uncomment it when the #8837 will be fixed:
-            //await editPermissionsGeneralStep.waitForCopyFromProjectButtonDisabled();
+            // 3. 'Copy from project' is shown for the top level items (#8837)
+            await editPermissionsGeneralStep.waitForCopyFromProjectButtonDisabled();
             // 4. Verify that 'Next' button is enabled, 'Reset' button is disabled, 'Copy from project' button is disabled,
             await editPermissionsGeneralStep.waitForNextButtonEnabled();
             await editPermissionsGeneralStep.waitForResetButtonDisabled();

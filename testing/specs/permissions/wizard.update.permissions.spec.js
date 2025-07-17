@@ -62,8 +62,8 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             // 2. Open 'Edit Permissions' dialog:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             // 3. 'Copy from project' button should be disabled:
-            // TODO uncomment it when the #8837 will be fixed:
-            //await editPermissionsGeneralStep.waitForCopyFromProjectButtonDisabled();
+            // Verify #8837:
+            await editPermissionsGeneralStep.waitForCopyFromProjectButtonDisabled();
             await editPermissionsGeneralStep.waitForNextButtonEnabled();
             await editPermissionsGeneralStep.waitForResetButtonDisabled();
             // 4. Verify that 'Public' radio is selected by default:
@@ -111,7 +111,6 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             await editPermissionsSummaryStep.waitForLoaded();
             let accessModeToUpdate = await editPermissionsSummaryStep.getUpdatedAccessModeText();
             let accessModeBefore = await editPermissionsSummaryStep.getPreviousAccessModeText();
-
             // 6. click on 'Apply Changes' button:
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
             await editPermissionsSummaryStep.waitForDialogClosed();
