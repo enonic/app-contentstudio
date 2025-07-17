@@ -87,6 +87,7 @@ export class MainAccessStep
         accessModeLabel.insertBeforeEl(this.accessModeRadioGroup);
 
         this.accessModeRadioGroup.onValueChanged(() => {
+            this.copyFromParentButton.setEnabled(this.isUnequalToParentPermissions());
             this.notifyDataChanged();
         });
     }
@@ -119,10 +120,11 @@ export class MainAccessStep
         this.parentPermissions = parentPermissions;
 
         this.layoutPermissions(this.originalValues);
-        this.copyFromParentButton.setEnabled(this.isUnequalToParentPermissions());
 
         const hasEveryonePermission = this.originalValues.some((item) => item.getPrincipalKey().equals(RoleKeys.EVERYONE));
         this.accessModeRadioGroup.setValue(hasEveryonePermission ? 'public' : 'restricted', true);
+        this.copyFromParentButton.setEnabled(this.isUnequalToParentPermissions());
+
         this.updateCopyFromParentButtonLabel();
         this.notifyDataChanged();
     }

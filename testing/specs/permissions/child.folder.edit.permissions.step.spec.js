@@ -35,23 +35,22 @@ describe('Child and parent content, replace existing permissions in child conten
             CHILD_FOLDER = contentBuilder.buildFolder(appConst.generateRandomName('child'));
             // 1. Select the folder and open Details Panel:
             await studioUtils.doAddFolder(PARENT_FOLDER);
-            // 1. Select a folder and add a child folder:
+            // 2. Select a folder and add a child folder:
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             await studioUtils.doAddFolder(CHILD_FOLDER);
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
             await studioUtils.openBrowseDetailsPanel();
-            // 2. Click on 'Edit Permissions' link and open the modal dialog:
+            // 3. Click on 'Edit Permissions' link and open the modal dialog:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog()
-            // 3. 'Copy from parent' is shown for the top level items
-            // TODO uncomment it when the #8837 will be fixed:
-            //await editPermissionsGeneralStep.waitForCopyFromParentButtonDisabled();
-            // 4. Verify that 'Next' button is enabled, 'Reset' button is disabled, 'Copy from parent' button is disabled,
+            // 4. 'Copy from parent' is shown for the top level items (issue #8837)
+            await editPermissionsGeneralStep.waitForCopyFromParentButtonDisabled();
+            // 5. Verify that 'Next' button is enabled, 'Reset' button is disabled, 'Copy from parent' button is disabled,
             await editPermissionsGeneralStep.waitForNextButtonEnabled();
             await editPermissionsGeneralStep.waitForResetButtonDisabled();
-            // 5. Verify that 'Public' radio is selected by default:
+            // 6. Verify that 'Public' radio is selected by default:
             let isSelected = await editPermissionsGeneralStep.isPublicRadioSelected();
             assert.ok(isSelected, `'Public' radio should be selected by default`);
-            // 6. 'Restricted' radio should be displayed
+            // 7. 'Restricted' radio should be displayed
             await editPermissionsGeneralStep.waitForRestrictedRadioDisplayed();
         });
 
