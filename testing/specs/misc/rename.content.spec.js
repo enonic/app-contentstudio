@@ -39,7 +39,7 @@ describe('rename.content.spec - tests for Renamed version item', function () {
             await contentWizard.waitForNotificationMessages();
             //3. Verify that Renamed version item is visible in the published content:
             await wizardVersionsWidget.waitForRenamedItemDisplayed();
-            await studioUtils.saveScreenshot("renamed_version_1");
+            await studioUtils.saveScreenshot('renamed_version_1');
             //6. Verify that Renamed version item should appear:
             let renamedItems = await wizardVersionsWidget.countRenamedItems();
             assert.equal(renamedItems, 1, "1 Renamed item should appear");
