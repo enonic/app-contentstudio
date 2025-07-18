@@ -12,6 +12,7 @@
     "build:prod:client": "tsc",
     "build:prod:lib": "webpack --color --stats-error-details",
     "build:dev": "concurrently -c auto -g --timings npm:build:dev:*",
+    "build:dev:types": "tsc --skipLibCheck --emitDeclarationOnly --declaration",
     "build:dev:client": "swc src --out-dir build/tmp",
     "build:dev:lib": "webpack --color --stats-error-details",
     "check": "tsc --skipLibCheck --emitDeclarationOnly --declaration",
