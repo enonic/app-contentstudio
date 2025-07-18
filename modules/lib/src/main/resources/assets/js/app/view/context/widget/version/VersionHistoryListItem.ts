@@ -88,7 +88,7 @@ export class VersionHistoryListItem
     }
 
     private isCompareButtonRequired(): boolean {
-        return this.isComparableItem() && this.version.getStatus() !== VersionItemStatus.CREATED;
+        return this.isComparableItem();
     }
 
     private isInteractableItem(): boolean {
