@@ -77,8 +77,7 @@ export class VersionHistoryList
             this.loadedItems.push(...versions);
             this.totalCount = result.getMetadata().totalHits;
 
-            const filteredNoSameVersions = VersionHistoryListHelper.filterSameVersions(this.loadedItems);
-            const versionHistoryItems = this.makeVersionHistoryItems(filteredNoSameVersions);
+            const versionHistoryItems = this.makeVersionHistoryItems(this.loadedItems);
 
             this.addItems(versionHistoryItems.slice(this.getItemCount(), versionHistoryItems.length));
         }).catch(DefaultErrorHandler.handle).finally(() => {

@@ -14,25 +14,17 @@ export class ContentVersionsConverter {
 
     private readonly allContentVersions: ContentVersion[];
 
-    private readonly filteredVersions: ContentVersion[];
-
     private lastDate: string;
 
     constructor(builder: Builder) {
         this.content = builder.content;
         this.allContentVersions = builder.contentVersions;
-        this.allContentVersions.sort(this.sortByDate);
-        this.filteredVersions = this.filterSameVersions();
-    }
-
-    private sortByDate(v1: ContentVersion, v2: ContentVersion): number {
-        return Number(v2.getDisplayDate()) - Number(v1.getDisplayDate());
     }
 
     toVersionHistoryItems(): VersionHistoryItem[] {
         const result: VersionHistoryItem[] = [];
 
-        this.filteredVersions.forEach((version: ContentVersion, index: number) => {
+        this.allContentVersions.forEach((version: ContentVersion, index: number) => {
             const item: VersionHistoryItem = this.versionToHistoryItem(version, index);
             result.push(item);
 
@@ -42,24 +34,6 @@ export class ContentVersionsConverter {
         });
 
         return result;
-    }
-
-    private filterSameVersions(): ContentVersion[] {
-        const filteredVersions: ContentVersion[] = [];
-        let previousVersion: ContentVersion = null;
-
-        this.allContentVersions.forEach((version: ContentVersion) => {
-            if (!previousVersion || !!version.getPublishInfo() || this.isSeparateVersion(version, previousVersion)) {
-                previousVersion = version;
-                filteredVersions.push(version);
-            }
-        });
-
-        return filteredVersions;
-    }
-
-    private isSeparateVersion(v1: ContentVersion, v2: ContentVersion): boolean {
-        return Math.abs(v1.getTimestamp().getTime() - v2.getTimestamp().getTime()) > ContentVersionsConverter.FILTER_STEP_MS;
     }
 
     private isSameVersionForDraftAndMaster(publishedVersion: ContentVersion): boolean {
@@ -136,7 +110,7 @@ export class ContentVersionsConverter {
 
         const publishedFrom: string = DateHelper.formatDateTime(version.getPublishInfo().getPublishedFrom());
 
-        return this.filteredVersions.some((v: ContentVersion, i: number) => {
+        return this.allContentVersions.some((v: ContentVersion, i: number) => {
             if (i <= index || !v.isPublished()) {
                 return false;
             }
@@ -173,7 +147,7 @@ export class ContentVersionsConverter {
     }
 
     private getFirstVersion(): ContentVersion {
-        return this.filteredVersions.slice().pop();
+        return this.allContentVersions.slice().pop();
     }
 
     private getRegularVersionItemStatus(version: ContentVersion): VersionItemStatus {
@@ -211,9 +185,9 @@ export class ContentVersionsConverter {
     private getPreviousVersion(version: ContentVersion): ContentVersion {
         let previousVersion: ContentVersion = null;
 
-        this.filteredVersions.some((v: ContentVersion, index: number) => {
+        this.allContentVersions.some((v: ContentVersion, index: number) => {
             if (version === v) {
-                previousVersion = this.filteredVersions[index + 1];
+                previousVersion = this.allContentVersions[index + 1];
                 return true;
             }
 
