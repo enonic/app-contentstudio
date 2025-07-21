@@ -1,7 +1,9 @@
 import {ResponsiveToolbar} from './ResponsiveToolbar';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Button2} from '@enonic/lib-admin-ui/ui2/Button2';
+import {Button} from '@enonic/lib-admin-ui/ui2/Button';
+
+type Theme = 'light' | 'dark';
 
 export class ContentBrowseToolbar
     extends ResponsiveToolbar {
@@ -17,13 +19,19 @@ export class ContentBrowseToolbar
 
         this.publishAction = publishAction;
 
-        let counter = 0;
-        const btn = new Button2({label: '(0)', onClick: () => {
-            counter++;
-            btn.setProps({label: `(${counter})`});
-        }});
+        let theme: Theme = 'light';
+        const themeSwitcher = new Button({
+            label: '☼',
+            onClick: () => {
+                const toDark = theme === 'light';
+                theme = toDark ? 'dark' : 'light';
+                const label = toDark ? '☾' : '☼';
+                document.body.classList.toggle('dark', toDark);
+                themeSwitcher.setProps({label});
+            }
+        });
 
-        this.prependChild(btn);
+        this.prependChild(themeSwitcher);
     }
 
     protected processBeforeMobileModeOn() {
