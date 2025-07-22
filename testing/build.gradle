@@ -134,6 +134,7 @@ tasks.register( 'startServer' ) {
         process = pb.start()
         sleep(70000)
     }
+    mustRunAfter downloadApps
 }
 
 
