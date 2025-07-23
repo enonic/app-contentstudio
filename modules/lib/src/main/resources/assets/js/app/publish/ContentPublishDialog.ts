@@ -232,6 +232,13 @@ export class ContentPublishDialog
 
         this.publishAction.setLabel(labelWithNumber(itemsToPublish, containsOnlyScheduled ? i18n('action.updateScheduled') : i18n('action.publishNow')));
         this.scheduleAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.schedule')));
+        this.scheduleFormToggle.setEnabled(this.publishProcessor.hasSchedulable());
+    }
+
+    protected onDependantsChanged(): void {
+        super.onDependantsChanged();
+
+        this.updateButtonCount(null, this.countTotal());
     }
 
     protected lockControls() {

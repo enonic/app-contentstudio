@@ -590,6 +590,12 @@ export class PublishProcessor {
             .every((item: ContentSummaryAndCompareStatus) => item.isScheduledPublishing());
     }
 
+    containsNotPublished(): boolean {
+        return this.itemList.getItems()
+            .concat(this.dependantList.getItems())
+            .some((item: ContentSummaryAndCompareStatus) => item.isNew());
+    }
+
     countParent(): number {
         return this.countToPublish(this.itemList.getItems());
     }
@@ -608,6 +614,10 @@ export class PublishProcessor {
 
     isSomePublishable(): boolean {
         return this.somePublishable;
+    }
+
+    hasSchedulable(): boolean {
+        return this.somePublishable && this.containsNotPublished();
     }
 
     containsInvalidItems(): boolean {
