@@ -279,7 +279,7 @@ export abstract class BasePublishDialog
         this.updateTabbable();
 
         const canPublish: boolean = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
-        this.scheduleFormToggle.getEl().setDisabled(!this.publishProcessor.isSomePublishable() || !canPublish);
+        this.scheduleFormToggle.setEnabled(this.publishProcessor.hasSchedulable() && canPublish);
     }
 
     protected isScheduleFormValid(): boolean {
