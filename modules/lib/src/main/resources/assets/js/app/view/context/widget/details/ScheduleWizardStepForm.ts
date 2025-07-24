@@ -106,8 +106,10 @@ export class ScheduleWizardStepForm
                     .setInputType(DateTimeRange.getName())
                     .setOccurrences(new OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
                     .setInputTypeConfig({
-                        labelStart: i18n('field.onlineFrom'),
-                        labelEnd: i18n('field.onlineTo')
+                        fromLabel: i18n('field.onlineFrom'),
+                        toLabel: i18n('field.onlineTo'),
+                        fromPlaceholder: i18n('text.now'),
+                        optionalFrom: true
                     })
                     .setHelpText(i18n('field.onlineFrom.help'))
                     .setMaximizeUIInputWidth(true)
@@ -119,11 +121,15 @@ export class ScheduleWizardStepForm
         this.propertySet = new PropertyTree().getRoot();
         const pSet: PropertySet = new PropertySet(this.propertySet.getTree());
 
-        const publishFromDate: Date = content.getPublishFromTime();
-        pSet.setLocalDateTime(ScheduleWizardStepForm.FROM_PROPERTY, 0, publishFromDate ? LocalDateTime.fromDate(publishFromDate) : null);
+        if (ObjectHelper.isDefined(content.getPublishFromTime())) {
+            const publishFromDate: Date = content.getPublishFromTime();
+            pSet.setLocalDateTime(ScheduleWizardStepForm.FROM_PROPERTY, 0, publishFromDate ? LocalDateTime.fromDate(publishFromDate) : null);
+        }
 
-        const publishToDate: Date = content.getPublishToTime();
-        pSet.setLocalDateTime(ScheduleWizardStepForm.TO_PROPERTY, 0, publishToDate ? LocalDateTime.fromDate(publishToDate) : null);
+        if (ObjectHelper.isDefined(content.getPublishToTime())) {
+            const publishToDate: Date = content.getPublishToTime();
+            pSet.setLocalDateTime(ScheduleWizardStepForm.TO_PROPERTY, 0, publishToDate ? LocalDateTime.fromDate(publishToDate) : null);
+        }
 
         this.propertySet.setPropertySet(ScheduleWizardStepForm.PUBLISH_PROPERTY, 0, pSet);
 
@@ -155,7 +161,7 @@ export class ScheduleWizardStepForm
     }
 
     applyChange(request: UpdateContentRequest): UpdateContentRequest {
-        request.setPublishFrom(this.getPublishFrom());
+        request.setPublishFrom(this.getPublishFrom() || new Date());
         request.setPublishTo(this.getPublishTo());
 
         return request;

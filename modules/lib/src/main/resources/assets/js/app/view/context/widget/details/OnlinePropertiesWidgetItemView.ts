@@ -24,7 +24,7 @@ export class OnlinePropertiesWidgetItemView
 
     protected createEditPropertiesDialogParams(): EditPropertiesDialogParams {
         return {
-            title: i18n('widget.properties.edit.settings.text'),
+            title: i18n('widget.properties.edit.schedule.text'),
             updatedHandler: (updatedContent: Content) => {
                 NotifyManager.get().showFeedback(i18n('notify.properties.schedule.updated', updatedContent.getName()));
             }

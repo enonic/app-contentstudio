@@ -65,6 +65,11 @@ export class PublishContentRequest
     }
 
     getParams(): object {
+        const schedule = this.publishFrom || this.publishTo ? {
+            from: this.publishFrom ? this.publishFrom.toISOString() : new Date().toISOString(),
+            to: this.publishTo ? this.publishTo.toISOString() : null
+        } : null;
+
         return {
             ids: this.ids.map((el) => {
                 return el.toString();
@@ -75,10 +80,7 @@ export class PublishContentRequest
             excludeChildrenIds: this.excludeChildrenIds.map((el) => {
                 return el.toString();
             }),
-            schedule: this.publishFrom ? {
-                from: this.publishFrom.toISOString(),
-                to: this.publishTo ? this.publishTo.toISOString() : null
-            } : null,
+            schedule,
             message: this.message
         };
     }
