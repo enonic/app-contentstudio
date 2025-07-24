@@ -27,7 +27,13 @@ module.exports = {
     },
     resolve: {
         extensions: ['.ts', '.js', '.less', '.css'],
-        conditionNames: ['import', 'node', 'default']
+        conditionNames: ['import', 'node', 'default'],
+        alias: {
+            "preact": "preact",
+            "preact/hooks": "preact/hooks",
+            "react": "preact/compat",
+            "react-dom": "preact/compat"
+        }
     },
     module: {
         rules: [
@@ -94,7 +100,6 @@ module.exports = {
             $: 'jquery',
             jQuery: 'jquery',
             'window.jQuery': 'jquery',
-            preact: 'preact'
         }),
         new MiniCssExtractPlugin({
             filename: '[name].css',
