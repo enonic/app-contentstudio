@@ -75,23 +75,31 @@ export class WidgetRenderingHandler {
         this.showMask();
         this.renderer.getPreviewAction()?.setEnabled(false);
 
-        return this.doRender(summary, widget).then((result) => {
-            const isRenderable = result.isRenderable();
-            deferred.resolve(isRenderable);
+        return this.doRender(summary, widget)
+            .then((result) => {
+                const isRenderable = result.isRenderable();
+                deferred.resolve(isRenderable);
 
-            if (isRenderable !== wasRenderable) {
-                this.notifyRenderableChanged(isRenderable, wasRenderable);
-            }
+                if (isRenderable !== wasRenderable) {
+                    this.notifyRenderableChanged(isRenderable, wasRenderable);
+                }
 
-            if (isRenderable) {
-                this.handlePreviewSuccess(result.getResponse(), result.getData());
-            } else {
-                // handle last item failure meaning no one was successful
-                this.handlePreviewFailure(result.getResponse(), result.getData());
-            }
+                if (isRenderable) {
+                    this.handlePreviewSuccess(result.getResponse(), result.getData());
+                } else {
+                    // handle last item failure meaning no one was successful
+                    this.handlePreviewFailure(result.getResponse(), result.getData());
+                }
 
-            return isRenderable;
-        });
+                return isRenderable;
+            })
+            .catch((err) => {
+                this.setPreviewType(PREVIEW_TYPE.FAILED);
+                this.hideMask();
+                deferred.resolve(false);
+
+                return false;
+            });
     }
 
     public isItemRenderable(): Q.Promise<boolean> {
