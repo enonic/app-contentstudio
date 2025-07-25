@@ -7,6 +7,7 @@ import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {CustomSelectorItem} from './CustomSelectorItem';
+import {CustomSelectorMode} from './CustomSelectorMode';
 import {CustomSelectorComboBox, CustomSelectorSelectedOptionsView} from './CustomSelectorComboBox';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
@@ -40,6 +41,8 @@ export class CustomSelector
 
     private static serviceUrlPrefix: string;
 
+    private mode: CustomSelectorMode = CustomSelectorMode.FLAT;
+
     constructor(context: ContentInputTypeViewContext) {
         super(context, 'custom-selector');
 
@@ -69,6 +72,21 @@ export class CustomSelector
     }
 
     protected readInputConfig(): void {
+        this.content = this.context.content;
+        this.requestPath = this.createRequestPath();
+    }
+
+    private getSelectorMode(): CustomSelectorMode {
+        const modeConfig = this.context.inputConfig?.galleryMode;
+
+        if (modeConfig) {
+            return modeConfig[0]?.value === 'true' ? CustomSelectorMode.GALLERY : CustomSelectorMode.FLAT;
+        }
+
+        return CustomSelectorMode.FLAT;
+    }
+
+    private createRequestPath(): string {
         const cfg = this.context.inputConfig;
         const serviceCfg = cfg['service'];
         let serviceUrl;
@@ -82,10 +100,8 @@ export class CustomSelector
             return prev;
         }, {});
 
-        this.content = this.context.content;
-
         if (serviceUrl) {
-            this.requestPath = `${CustomSelector.getServiceUrlPrefix()}/${UriHelper.appendUrlParams(serviceUrl, params)}`;
+            return `${CustomSelector.getServiceUrlPrefix()}/${UriHelper.appendUrlParams(serviceUrl, params)}`;
         }
     }
 
@@ -103,8 +119,9 @@ export class CustomSelector
         }
 
         return super.layout(input, propertyArray).then(() => {
+            this.mode = this.getSelectorMode();
             this.initiallySelectedItems = this.getSelectedItemsIds();
-            this.comboBox = this.createComboBox(input, propertyArray);
+            this.comboBox = this.createComboBox(input);
             this.appendChild(this.comboBox);
 
             this.setupSortable();
@@ -140,9 +157,10 @@ export class CustomSelector
         return !ObjectHelper.stringArrayEquals(this.initiallySelectedItems, this.getSelectedItemsIds());
     }
 
-    private createComboBox(input: Input, propertyArray: PropertyArray): CustomSelectorComboBox {
+    private createComboBox(input: Input): CustomSelectorComboBox {
         const comboBox: CustomSelectorComboBox = new CustomSelectorComboBox({
             maxSelected: input.getOccurrences().getMaximum(),
+            mode: this.mode
         });
 
         comboBox.getLoader().setRequestPath(this.getRequestPath());

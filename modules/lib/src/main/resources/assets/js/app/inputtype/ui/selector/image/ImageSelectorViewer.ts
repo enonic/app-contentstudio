@@ -6,7 +6,7 @@ export class ImageSelectorViewer
     extends NamesAndIconViewer<MediaTreeSelectorItem> {
 
     constructor() {
-        super('image-selector-viewer');
+        super('gallery-item-viewer');
     }
 
     resolveDisplayName(object: MediaTreeSelectorItem): string {

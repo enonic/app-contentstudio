@@ -10,12 +10,14 @@ import {
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 import {CustomSelectorLoader} from './CustomSelectorLoader';
 import {CustomSelectorListBox} from './CustomSelectorListBox';
+//import {CustomSelectorMode, CustomSelector} from './CustomSelector';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import * as Q from 'q';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {CustomSelectorMode} from './CustomSelectorMode';
 
 interface CustomSelectorComboBoxOptions extends ListBoxInputOptions<CustomSelectorItem> {
     loader: CustomSelectorLoader;
@@ -23,6 +25,7 @@ interface CustomSelectorComboBoxOptions extends ListBoxInputOptions<CustomSelect
 
 export interface CustomSelectorBuilderOptions {
     maxSelected: number;
+    mode: CustomSelectorMode;
 }
 
 export class CustomSelectorComboBox
@@ -32,8 +35,9 @@ export class CustomSelectorComboBox
 
     constructor(options: CustomSelectorBuilderOptions) {
         const loader = new CustomSelectorLoader();
+        const listBox = new CustomSelectorListBox(loader, options.mode);
 
-        super(new CustomSelectorListBox(loader), {
+        super(listBox, {
             selectedOptionsView: new CustomSelectorSelectedOptionsView(),
             className: 'custom-selector-combobox',
             loader: loader,
