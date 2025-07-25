@@ -16,6 +16,10 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {CustomSelectorMode} from './CustomSelectorMode';
+import {CustomSelectorGallerySelectedOptionsView} from './CustomSelectorGallerySelectedOptionsView';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 interface CustomSelectorComboBoxOptions extends ListBoxInputOptions<CustomSelectorItem> {
     loader: CustomSelectorLoader;
@@ -23,6 +27,7 @@ interface CustomSelectorComboBoxOptions extends ListBoxInputOptions<CustomSelect
 
 export interface CustomSelectorBuilderOptions {
     maxSelected: number;
+    mode: CustomSelectorMode;
 }
 
 export class CustomSelectorComboBox
@@ -32,17 +37,27 @@ export class CustomSelectorComboBox
 
     constructor(options: CustomSelectorBuilderOptions) {
         const loader = new CustomSelectorLoader();
+        const listBox = new CustomSelectorListBox(loader, options.mode);
+        const className = `custom-selector-combobox${options.mode === CustomSelectorMode.GALLERY ? ' gallery-mode' : ''}`;
+        const selectedOptionsView = options.mode === CustomSelectorMode.GALLERY ? new CustomSelectorGallerySelectedOptionsView() : new CustomSelectorSelectedOptionsView();
 
-        super(new CustomSelectorListBox(loader), {
-            selectedOptionsView: new CustomSelectorSelectedOptionsView(),
-            className: 'custom-selector-combobox',
-            loader: loader,
+        super(listBox, {
+            selectedOptionsView,
+            className,
+            loader,
             maxSelected: options.maxSelected,
         } as CustomSelectorComboBoxOptions);
     }
 
     protected initListeners(): void {
         super.initListeners();
+
+        if (ObjectHelper.iFrameSafeInstanceOf(this.selectedOptionsView, CustomSelectorGallerySelectedOptionsView)) {
+            (this.selectedOptionsView as CustomSelectorGallerySelectedOptionsView).onOptionDeselected((event: SelectedOptionEvent<CustomSelectorItem>) => {
+                const customSelectorItem = event.getSelectedOption().getOption().getDisplayValue();
+                this.deselect(customSelectorItem);
+            });
+        }
 
         this.options.loader.onLoadedData((event: LoadedDataEvent<CustomSelectorItem>) => {
             const entries = event.getData();
@@ -93,7 +108,7 @@ export class CustomSelectorComboBox
         return this.options.loader;
     }
 
-    getSelectedOptionView(): CustomSelectorSelectedOptionsView {
+    getSelectedOptionView(): CustomSelectorSelectedOptionsView | CustomSelectorGallerySelectedOptionsView {
         return this.selectedOptionsView;
     }
 
@@ -112,6 +127,7 @@ export class CustomSelectorComboBox
 
 export class CustomSelectorSelectedOptionsView
     extends BaseSelectedOptionsView<CustomSelectorItem> {
+
     createSelectedOption(option: Option<CustomSelectorItem>): SelectedOption<CustomSelectorItem> {
         return new SelectedOption<CustomSelectorItem>(new CustomSelectorSelectedOptionView(option), this.count());
     }

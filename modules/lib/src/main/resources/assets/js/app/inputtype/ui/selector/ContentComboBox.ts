@@ -33,6 +33,7 @@ export class ContentSelectedOptionsView
 
         const selectedContentId = option.getDisplayValue().getId();
         const refersToItself: boolean = this.contextContent && this.contextContent.getId() === selectedContentId;
+
         optionView.toggleClass('non-editable', !!refersToItself);
 
         return new SelectedOption<ContentTreeSelectorItem>(optionView, this.count());

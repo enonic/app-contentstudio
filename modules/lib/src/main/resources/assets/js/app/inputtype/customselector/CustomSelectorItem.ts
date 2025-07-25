@@ -17,10 +17,7 @@ export class CustomSelectorItem {
     displayName: string;
     description: string;
     iconUrl: string;
-    icon: {
-        data: string;
-        type: string;
-    };
+    icon: CustomSelectorItemIcon;
 
     constructor(json: CustomSelectorItemJson) {
         this.id = json.id;
@@ -30,7 +27,23 @@ export class CustomSelectorItem {
         this.icon = json.icon;
     }
 
-    getId() {
+    getId(): string {
         return this.id;
+    }
+
+    getDisplayName(): string {
+        return this.displayName;
+    }
+
+    getDescription(): string {
+        return this.description;
+    }
+
+    getIconUrl(): string {
+        return this.iconUrl;
+    }
+
+    getIcon(): CustomSelectorItemIcon {
+        return this.icon;
     }
 }
