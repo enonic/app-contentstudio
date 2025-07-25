@@ -11,6 +11,7 @@
 
     &.checkbox-right, &.checkbox-left {
       display: block;
+      position: relative;
     }
 
     .item-view {
@@ -20,6 +21,8 @@
     .checkbox {
       position: absolute;
       z-index: 1;
+      top: 5px;
+      left: 5px;
     }
 
     .gallery-item-viewer {
@@ -34,6 +37,11 @@
           height: 100%;
           width: 100%;
           margin-right: 0;
+
+          > * {
+            padding: 5px;
+            box-sizing: border-box;
+          }
         }
 
         .@{_COMMON_PREFIX}names-view {
