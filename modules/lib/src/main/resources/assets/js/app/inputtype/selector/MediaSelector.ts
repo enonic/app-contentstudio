@@ -17,9 +17,11 @@ import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ContentPath} from '../../content/ContentPath';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../../content/CompareStatus';
+import {ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 
-export class MediaSelector
-    extends ContentSelector {
+export class MediaSelector<T extends BaseSelectedOptionsView<ContentTreeSelectorItem> = ContentSelectedOptionsView>
+    extends ContentSelector<T> {
 
     protected uploader: MediaUploaderEl;
 
