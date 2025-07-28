@@ -1,30 +1,22 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.enonic.xp.app.contentstudio.json.task.AbstractRunnableTask;
 import com.enonic.xp.app.contentstudio.rest.resource.content.UnpublishContentProgressListener;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UnpublishContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.query.ContentQueryWithChildren;
-import com.enonic.xp.content.CompareContentResults;
-import com.enonic.xp.content.CompareContentsParams;
-import com.enonic.xp.content.CompareStatus;
-import com.enonic.xp.content.ContentIds;
-import com.enonic.xp.content.ContentService;
-import com.enonic.xp.content.GetContentByIdsParams;
-import com.enonic.xp.content.PushContentListener;
-import com.enonic.xp.content.UnpublishContentParams;
-import com.enonic.xp.content.UnpublishContentsResult;
-import com.enonic.xp.app.contentstudio.json.task.AbstractRunnableTask;
+import com.enonic.xp.content.*;
 import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 public class UnpublishRunnableTask
     extends AbstractRunnableTask
 {
+    public static final Set<CompareStatus> IGNORE_STATUES = EnumSet.of( CompareStatus.EQUAL, CompareStatus.NEWER );
+
     private final UnpublishContentJson params;
 
     private UnpublishRunnableTask( Builder builder )
@@ -35,14 +27,13 @@ public class UnpublishRunnableTask
 
     private ContentIds filterIdsByStatus( final ContentIds ids )
     {
-        final List<CompareStatus> statuses = Arrays.asList( CompareStatus.EQUAL, CompareStatus.NEWER );
         final CompareContentResults compareResults = contentService.compare( CompareContentsParams.create().contentIds( ids ).build() );
 
-        return ContentIds.from( compareResults.getCompareContentResultsMap().entrySet().
+        return compareResults.
             stream().
-            filter( entry -> statuses.contains( entry.getValue().getCompareStatus() ) ).
-            map( Map.Entry::getKey ).
-            collect( Collectors.toSet() ) );
+            filter( entry -> IGNORE_STATUES.contains( entry.getCompareStatus() ) ).
+            map( CompareContentResult::getContentId ).
+            collect( ContentIds.collector() );
     }
 
     @Override

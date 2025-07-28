@@ -1155,7 +1155,7 @@ public final class ContentResource
             .build()
             .find();
 
-        final boolean isFilterNeeded = json.getFilterStatuses() != null && json.getFilterStatuses().size() > 0;
+        final boolean isFilterNeeded = json.getFilterStatuses() != null && !json.getFilterStatuses().isEmpty();
 
         if ( isFilterNeeded )
         {
@@ -1243,16 +1243,16 @@ public final class ContentResource
             .build();
     }
 
-    private Stream<ContentId> filterIdsByStatus( final ContentIds ids, final Collection<CompareStatus> statuses )
+    private Stream<ContentId> filterIdsByStatus( final ContentIds ids, final Set<CompareStatus> statuses )
     {
         final CompareContentResults compareResults =
             contentService.compare( CompareContentsParams.create().contentIds( ids ).build() );
         final Map<ContentId, CompareContentResult> compareResultMap = compareResults.getCompareContentResultsMap();
 
-        return compareResultMap.entrySet()
-            .stream()
-            .filter( entry -> statuses.contains( entry.getValue().getCompareStatus() ) )
-            .map( Map.Entry::getKey );
+        return compareResults
+                .stream()
+                .filter( entry -> statuses.contains(entry.getCompareStatus() ) )
+                .map( CompareContentResult::getContentId );
     }
 
     @POST

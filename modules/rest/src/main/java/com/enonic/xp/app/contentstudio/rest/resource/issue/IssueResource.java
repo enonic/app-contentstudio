@@ -517,12 +517,11 @@ public final class IssueResource
     {
         if ( newKeys.getSize() == 0 )
         {
-            return existing ? PrincipalKeys.from( oldKeys ) : PrincipalKeys.empty();
+            return existing ? oldKeys : PrincipalKeys.empty();
         }
         else
         {
-            return PrincipalKeys.from(
-                newKeys.stream().filter( key -> existing == oldKeys.contains( key ) ).collect( Collectors.toList() ) );
+            return newKeys.stream().filter( key -> existing == oldKeys.contains( key ) ).collect( PrincipalKeys.collector() );
         }
     }
 

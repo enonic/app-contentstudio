@@ -80,7 +80,7 @@ public final class PageTemplateResource
 
         final ContentListMetaData metaData =
             ContentListMetaData.create().totalHits( pageTemplates.getSize() ).hits( pageTemplates.getSize() ).build();
-        return new ContentListJson<>( pageTemplates.toContents(), metaData,
+        return new ContentListJson<>( pageTemplates, metaData,
                                       c -> jsonObjectsFactory.createContentJson( c, request ) );
     }
 
@@ -96,7 +96,7 @@ public final class PageTemplateResource
         final PageTemplates filteredPageTemplates = pageTemplates.filter( spec );
         final ContentListMetaData metaData =
             ContentListMetaData.create().totalHits( filteredPageTemplates.getSize() ).hits( filteredPageTemplates.getSize() ).build();
-        return new ContentListJson<>( filteredPageTemplates.toContents(), metaData,
+        return new ContentListJson<>( filteredPageTemplates, metaData,
                                       c -> jsonObjectsFactory.createContentJson( c, request ) );
     }
 
