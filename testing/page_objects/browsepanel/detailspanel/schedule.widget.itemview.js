@@ -7,8 +7,8 @@ const lib = require('../../../libs/elements');
 
 const xpath = {
     container: `//div[contains(@id,'WidgetView')]//div[contains(@id,'OnlinePropertiesWidgetItemView')]`,
-    onlineFromFromProperty: "//dd[contains(.,'Online from')]/following-sibling::dt[1]",
-    onlineFromToProperty: "//dd[contains(.,'Online to')]/following-sibling::dt[1]",
+    onlineFromDescriptionTerm: "//dd[contains(.,'Online from')]/following-sibling::dt[1]",//<dt>
+    onlineToDescriptionTerm: "//dd[contains(.,'Online to')]/following-sibling::dt[1]",
     editScheduleButton: "//a[contains(@class,'edit-settings-link') and text()='Edit Schedule']",
 };
 
@@ -18,16 +18,16 @@ class ScheduleItemView extends Page {
         return xpath.scheduleForm + lib.OCCURRENCE_ERROR_BLOCK;
     }
 
-    get onlineFromFromProperty() {
-        return xpath.container + xpath.onlineFromFromProperty;
+    get onlineFromDateTimeTerm() {
+        return xpath.container + xpath.onlineFromDescriptionTerm;
     }
 
     get editScheduleButton() {
         return xpath.container + xpath.editScheduleButton;
     }
 
-    get onlineFromToProperty() {
-        return xpath.container + xpath.onlineFromToProperty;
+    get onlineToDateTimeTerm() {
+        return xpath.container + xpath.onlineToDescriptionTerm;
     }
 
 
@@ -45,9 +45,23 @@ class ScheduleItemView extends Page {
             await this.clickOnElement(this.editScheduleButton);
             await this.pause(300);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('widget_schedule_edit');
-            await this.saveScreenshot(screenshot);
-            throw new Error(`Properties Widget, Edit Schedule  ${screenshot} ` + err);
+            await this.handleError('OnlinePropertiesWidget - Edit Schedule button:', 'err_edit_schedule_button', err);
+        }
+    }
+    async getOnlineFromDateTime() {
+        try {
+            await this.waitForElementDisplayed(this.onlineFromDateTimeTerm, appConst.mediumTimeout);
+            return await this.getText(this.onlineFromDateTimeTerm);
+        } catch (err) {
+            await this.handleError('OnlinePropertiesWidget - Online From Date/Time:', 'err_online_from_date_time', err);
+        }
+    }
+    async getOnlineToDateTime() {
+        try {
+            await this.waitForElementDisplayed(this.onlineToDateTimeTerm, appConst.mediumTimeout);
+            return await this.getText(this.onlineToDateTimeTerm);
+        } catch (err) {
+            await this.handleError('OnlinePropertiesWidget - Online to Date/Time:', 'err_online_to_date_time', err);
         }
     }
 }

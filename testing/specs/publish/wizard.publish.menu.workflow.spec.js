@@ -9,6 +9,8 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
 const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const ScheduleWidgetItem = require('../../page_objects/browsepanel/detailspanel/schedule.widget.itemview');
+const EditScheduleDialog = require('../../page_objects/details_panel/edit.schedule.dialog');
 
 describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -42,7 +44,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             assert.ok(isInvalid, "The content should be invalid");
         });
 
-    it(`GIVEN 'Marked as Ready' folder is opened WHEN 'Publish...' button has been pressed AND the folder has been published THEN 'UNPUBLISH' button gets visible on the toolbar`,
+    it(`GIVEN 'Marked as Ready' folder is opened WHEN 'Publish...' button has been pressed AND the folder has been published THEN 'UNPUBLISH' button gets visible in the toolbar`,
         async () => {
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('folder');
@@ -61,12 +63,16 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.waitForUnpublishButtonDisplayed();
         });
 
-    it(`WHEN existing 'published' folder is opened THEN 'Online from' and 'Online to' appear in the Schedule step form`,
+    it(`GIVEN wizard for existing 'published' folder is opened WHEN Edit Schedule button has been clicked  THEN 'Online from' and 'Online to' appear in the Schedule step form`,
         async () => {
-            //1. Open the published folder
+            let contentWizard = new ContentWizard();
+            let scheduleWidgetItem = new ScheduleWidgetItem();
+            let  editScheduleDialog = new EditScheduleDialog();
+            // 1. Open the published folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await contentWizard.openDetailsPanel();
             // 2. Open 'Edit Schedule' dialog
-            let editScheduleDialog = await studioUtils.openEditScheduleDialog();
+            await scheduleWidgetItem.clickOnEditScheduleButton();
             // 3. Verify that actual dateTime is correct in Online From input
             let fromActual = await editScheduleDialog.getOnlineFrom();
             let expectedDate = new Date().toISOString().substring(0, 10);
@@ -107,8 +113,12 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             assert.equal(status, appConst.CONTENT_STATUS.MODIFIED);
             // 4. Verify that 'Mark as ready' button gets visible:
             await contentWizard.waitForMarkAsReadyButtonVisible();
+            await contentWizard.openDetailsPanel();
             // 5. Open Edit Schedule modal dialog:
-            let editScheduleDialog = await studioUtils.openEditScheduleDialog();
+            let scheduleWidgetItem = new ScheduleWidgetItem();
+            let editScheduleDialog = new EditScheduleDialog();
+            await scheduleWidgetItem.clickOnEditScheduleButton();
+            await editScheduleDialog.waitForLoaded();
             // 6. Verify that actual dateTime is correct in 'Online From' input
             let onlineFrom = await editScheduleDialog.getOnlineFrom();
             assert.ok(studioUtils.isStringEmpty(onlineFrom) === false, 'Online from input should not be empty');
