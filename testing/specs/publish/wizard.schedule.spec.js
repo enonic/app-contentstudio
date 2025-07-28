@@ -10,6 +10,8 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const ScheduleWidgetItem = require('../../page_objects/browsepanel/detailspanel/schedule.widget.itemview');
+const EditScheduleDialog = require('../../page_objects/details_panel/edit.schedule.dialog');
 
 describe('Wizard page - verify schedule form', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -45,14 +47,17 @@ describe('Wizard page - verify schedule form', function () {
             await wizardContextPanel.waitForScheduleWidgetItemNotDisplayed();
         });
 
-    it(`GIVEN existing content is opened WHEN content has been published THEN 'Schedule' form should appear in 'Edit Properties' modal dialog`,
+    it(`GIVEN the content has been published WHEN 'Edit Schedule' button has been clicked THEN the expected date/time should be displayed in the 'Online from' input`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardContextPanel = new WizardContextPanel();
+            let scheduleWidgetItem = new ScheduleWidgetItem();
+            let editScheduleDialog = new EditScheduleDialog();
             // 1. Open then publish the content:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.openPublishMenuAndPublish();
             await contentWizard.waitForNotificationMessage();
+            await contentWizard.openDetailsPanel();
             // 2. Open Page Editor with Preview Widget, Verify that status gets  Published
             await contentWizard.clickOnPageEditorToggler();
             // 3. Published status should be displayed in the wizard toolbar
@@ -61,20 +66,41 @@ describe('Wizard page - verify schedule form', function () {
             await studioUtils.saveScreenshot('edit_prop_not_schedule');
             // 4. Schedule widget item appears in the details panel:
             await wizardContextPanel.waitForScheduleWidgetItemDisplayed();
-            // 5. Open Edit Properties modal dialog:
-            let editScheduleDialog = await studioUtils.openEditScheduleDialog();
+            // 5. Click on 'Edit Schedule' button in the Schedule Widget Item
+            await scheduleWidgetItem.clickOnEditScheduleButton();
+            await editScheduleDialog.waitForLoaded();
             // 6. Verify the date in Online from input:
             let expectedDate = new Date().toISOString().substring(0, 10);
             let from = await editScheduleDialog.getOnlineFrom();
-            assert.ok(from.includes(expectedDate), "Expected date time should be displayed");
+            assert.ok(from.includes(expectedDate), "Expected Online from date/time should be displayed");
         });
 
-    it("GIVEN existing published folder is opened WHEN 'Online to' is earlier than 'Online from' THEN expected validation message appears",
+    it(`WHEN the published content is opened THEN the expected 'Online from' should be displayed in the 'Schedule Widget'`,
         async () => {
+            let contentWizard = new ContentWizard();
+            let wizardContextPanel = new WizardContextPanel();
+            let scheduleWidgetItem = new ScheduleWidgetItem();
+            // 1. Open the folder and publish it:
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await contentWizard.openDetailsPanel();
+            // 2. Verify the 'Online from' date in Schedule Widget:
+            await studioUtils.saveScreenshot('wizard_schedule_widget_item');
+            await wizardContextPanel.waitForScheduleWidgetItemDisplayed();
+            let actualFromDate = await scheduleWidgetItem.getOnlineFromDateTime();
+            let expectedDate = new Date().toISOString().substring(0, 10);
+            assert.ok(actualFromDate.includes(expectedDate), "Expected Online from date/time should be displayed");
+        });
+
+    it("GIVEN Edit schedule dialog has been opened WHEN 'Online to' is earlier than 'Online from' THEN expected validation message appears",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let scheduleWidgetItem = new ScheduleWidgetItem();
+            let editScheduleDialog = new EditScheduleDialog();
             // 1. Open the 'published' folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await contentWizard.openDetailsPanel();
             // 3. Open Edit Properties modal dialog:
-            let editScheduleDialog = await studioUtils.openEditScheduleDialog();
+            await scheduleWidgetItem.clickOnEditScheduleButton();
             await editScheduleDialog.typeOnlineTo(DATE_TIME_IN_PAST);
             await studioUtils.saveScreenshot('online_to_in_past');
             await editScheduleDialog.waitForValidationRecording();
@@ -87,6 +113,7 @@ describe('Wizard page - verify schedule form', function () {
             let contentWizard = new ContentWizard();
             // 1. Open the 'published' folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await contentWizard.openDetailsPanel();
             // 2. Open Edit Schedule modal dialog:
             let editScheduleDialog = await studioUtils.openEditScheduleDialog();
             // 3. 'Online from' input has been cleared and 'Online to' has been set in future
@@ -101,12 +128,13 @@ describe('Wizard page - verify schedule form', function () {
             assert.equal(recordingActual, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED);
         });
 
-    it(`GIVEN existing published content is opened WHEN content has been unpublished THEN 'Schedule' form should not be displayed in the 'Edit Properties' dialog`,
+    it(`GIVEN existing published content is opened WHEN the content has been unpublished THEN 'Edit Schedule' button should not be displayed in the widget`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardContextPanel = new WizardContextPanel();
             // 1. Select and open the folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await contentWizard.openDetailsPanel();
             // 2. Unpublish the folder:
             await studioUtils.doUnPublishInWizard();
             await contentWizard.pause(500);

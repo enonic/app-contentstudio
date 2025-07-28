@@ -71,13 +71,21 @@ class EditScheduleDialog extends Page {
     }
 
     async getOnlineFrom() {
-        let dateTimeRange = new DateTimeRange(xpath.scheduleStepFormDiv);
-        return await dateTimeRange.getOnlineFrom();
+        try {
+            let dateTimeRange = new DateTimeRange(xpath.scheduleStepFormDiv);
+            return await dateTimeRange.getOnlineFrom();
+        } catch (err) {
+            await this.handleError(`Error while getting Online From value: `, 'eer_schedule', err)
+        }
     }
 
-    getOnlineTo() {
-        let dateTimeRange = new DateTimeRange(xpath.scheduleStepFormDiv);
-        return dateTimeRange.getOnlineTo();
+    async getOnlineTo() {
+        try {
+            let dateTimeRange = new DateTimeRange(xpath.scheduleStepFormDiv);
+            return dateTimeRange.getOnlineTo();
+        } catch (err) {
+            await this.handleError(`Error while getting Online To value: `, 'eer_schedule', err)
+        }
     }
 
     typeOnlineTo(value) {
@@ -102,8 +110,7 @@ class EditScheduleDialog extends Page {
         try {
             await this.waitForElementNotDisplayed(xpath.container + xpath.scheduleStepFormDiv, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_schedule_form');
-            throw new Error(`Error - Schedule form should not be displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Edit schedule dialog `, 'err_schedule_form', err);
         }
     }
 

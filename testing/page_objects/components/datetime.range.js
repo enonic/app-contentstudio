@@ -5,11 +5,11 @@ const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
 const Page = require('../page');
 const XPATH = {
-    container: "//div[contains(@id,'DateTimeRange')]",
-    onlineFromDateTime: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online from']]]//input[contains(@id,'TextInput')]",
-    onlineFromPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online from']]]//div[contains(@id,'DateTimePickerPopup')]",
-    onlineToPickerPopup: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online to']]]//div[contains(@id,'DateTimePickerPopup')]",
-    onlineToDateTime: "//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online to']]]//input[contains(@id,'TextInput')]",
+    container: `//div[contains(@id,'DateTimeRange')]`,
+    onlineFromDateTime: `//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online from']]]//input[contains(@id,'TextInput')]`,
+    onlineFromPickerPopup: `//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online from']]]//div[contains(@id,'DateTimePickerPopup')]`,
+    onlineToPickerPopup: `//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online to']]]//div[contains(@id,'DateTimePickerPopup')]`,
+    onlineToDateTime: `//div[contains(@id,'DateTimePicker') and preceding-sibling::label[child::span[text()='Online to']]]//input[contains(@id,'TextInput')]`,
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
 };
 
@@ -38,8 +38,12 @@ class DateTimeRange extends Page {
     }
 
     async showOnlineToPickerPopup() {
-        await this.clickOnElement(this.onlineToDateTimeInput);
-        return await this.pause(300);
+        try {
+            await this.clickOnElement(this.onlineToDateTimeInput);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError('DateTimeRange - showOnlineToPickerPopup', 'err_show_online_to_picker_popup', err);
+        }
     }
 
     async showOnlineFromPickerPopup() {
@@ -86,8 +90,7 @@ class DateTimeRange extends Page {
         try {
             return await this.getText(this.validationRecord);
         } catch (err) {
-            await this.saveScreenshot('err_schedule_validation_record');
-            throw new Error('getting Validation text: ' + err);
+            await this.handleError('DateTimeRange - validation record.', 'err_schedule_validation_record', err);
         }
     }
 
@@ -99,7 +102,7 @@ class DateTimeRange extends Page {
         try {
             return await this.waitUntilDisplayed(XPATH.onlineFromPickerPopup, appConst.shortTimeout);
         } catch (err) {
-            throw new Error("Online from picker popup should be opened!" + err);
+            await this.handleError('DateTimeRange - Online from picker popup', 'err_online_from_picker_popup', err);
         }
     }
 
@@ -116,10 +119,14 @@ class DateTimeRange extends Page {
     }
 
     async clickOnHoursArrowOnlineFrom() {
-        let selector = XPATH.onlineFromPickerPopup + "//a[@class='next']/span";
-        let elems = await this.findElements(selector);
-        await elems[0].click();
-        return await this.pause(300);
+        try {
+            let selector = XPATH.onlineFromPickerPopup + "//a[@class='next']/span";
+            let elems = await this.findElements(selector);
+            await elems[0].click();
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError('DateTimeRange - try to click on HoursArrow online From', 'err_click_on_hours_arrow_online_from', err);
+        }
     }
 }
 
