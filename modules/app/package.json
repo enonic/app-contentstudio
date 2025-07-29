@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@enonic/lib-admin-ui": "file:.xp/dev/lib-admin-ui",
-    "@enonic/ui": "file:../../../enonic-ui",
+    "@enonic/ui": "^0.2.0",
     "chart.js": "^4.5.0",
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.14.1",
@@ -67,7 +67,7 @@
     "extends browserslist-config-enonic"
   ],
   "engines": {
-    "node": ">= 22.16.0",
-    "npm": ">= 10.9.2"
+    "node": ">=22.17.1",
+    "npm": ">=9.15.9"
   }
 }
