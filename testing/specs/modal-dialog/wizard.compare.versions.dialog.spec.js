@@ -26,7 +26,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await studioUtils.doAddFolder(FOLDER);
         });
 
-    it("GIVEN Comparing Versions Dialog is opened WHEN the first 'Edited' option has been selected in the left dropdown THEN 'Versions are identical' message get visible",
+    it("GIVEN Comparing Versions Dialog is opened WHEN the current 'Edited' option has been selected in the left dropdown THEN 'Versions are identical' message get visible",
         async () => {
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
@@ -39,11 +39,15 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Click on 'show changes' icon in the first 'edited' item:
+
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             await wizardVersionsWidget.clickOnCompareVersionsButton();
             await compareContentVersionsDialog.waitForDialogOpened();
-            // 4. Expand the left dropdown and click on the edited-option:
+            // 4. Expand the left dropdown(Older) and click on the edited-option in the dropdown list:
             await compareContentVersionsDialog.expandLeftDropdownAndClickOnModifiedOption(0);
             // 5. Verify that 'Versions are identical' message appears in the dialog:
             let actualMessage = await compareContentVersionsDialog.waitForVersionsIdenticalMessage();
@@ -54,6 +58,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentWizard.openDetailsPanel();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
             await editSettingsDialog.clickOnApplyButton();
@@ -73,8 +78,14 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             // 2. Open Version History panel:
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
-            // 3. Click on 'show changes' icon in the previous version:
-            await wizardVersionsWidget.clickOnOnShowChangesButton(1);
+
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+
+            await wizardVersionsWidget.clickOnCompareVersionsButton();
             // 4. Verify that modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             let type = await compareContentVersionsDialog.getTypeProperty();
@@ -132,17 +143,21 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             // 2. Open Version History panel:
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
-            // 3. Click on 'compare' icon in the Active version(the first item):
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            await wizardVersionsWidget.clickOnCompareVersionsButton();
             // 4. Verify that modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
-            // 5. Right 'Revert' menu-button should be disabled:
+            // 5. Right 'Revert'(Newer) menu-button should be disabled:
             await compareContentVersionsDialog.waitForRightRevertMenuButtonDisabled();
-            // 6. Left 'Revert' menu-button should be enabled:
+            // 6. Left (Older)'Revert' menu-button should be enabled:
             await compareContentVersionsDialog.waitForLeftRevertMenuButtonEnabled();
         });
 
-    it(`GIVEN existing folder is opened WHEN compare icon in the second Edited version item has been clicked THEN then both Revert buttons should be enabled in the compare versions dialog`,
+    it(`GIVEN the active 'Edited'(the first on the top) and Created items have been checked WHEN compare versions dialog has been opened THEN (Newer) 'Revert' menu button should be disabled`,
         async () => {
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
@@ -154,17 +169,23 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             // 2. Open Version History panel:
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
-            // 3. Click on 'compare' icon in the Active version(the first item):
-            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+            // 3. Click on the Active version(the first item on the top) and click on its checkbox:
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            // 4. Click on the Created version and click on its checkbox:
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            // 5. Click on the Compare Versions button:
+            await wizardVersionsWidget.clickOnCompareVersionsButton();
             // 4. Verify that modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
-            // 5. Right 'Revert' menu-button should be enabled:
-            await compareContentVersionsDialog.waitForRightRevertMenuButtonEnabled();
-            // 6. Left 'Revert' menu-button should be enabled:
+            // 5. Right(Newer) 'Revert' menu-button should be disabled:
+            await compareContentVersionsDialog.waitForRightRevertMenuButtonDisabled();
+            // 6. Left (older) 'Revert' menu-button should be enabled:
             await compareContentVersionsDialog.waitForLeftRevertMenuButtonEnabled();
         });
 
-    it(`GIVEN Comparing Versions Dialog is opened in wizard WHEN left revert menu button has been clicked THEN 'Revert' menu item gets visible in the expanded menu`,
+    it(`GIVEN the previous 'Edited' AND 'Created' versions items are checked WHEN left revert menu button has been clicked THEN 'Revert' menu item gets visible in the expanded menu`,
         async () => {
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
@@ -177,7 +198,12 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Open Compare Versions dialog(click in previous version):
-            await wizardVersionsWidget.clickOnOnShowChangesButton(1);
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            await wizardVersionsWidget.clickOnCompareVersionsButton();
             await compareContentVersionsDialog.waitForDialogOpened();
             // 4. Click on left 'Revert' menu-button and expand the menu:
             await compareContentVersionsDialog.clickOnLeftRevertMenuButton();
@@ -185,7 +211,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await compareContentVersionsDialog.waitForLeftRevertMenuItemDisplayed();
         });
 
-    it(`GIVEN Comparing Versions Dialog is loaded WHEN Esc key has been pressed THEN the modal dialog closes`,
+    it(`GIVEN Comparing Versions Dialog is loaded WHEN 'Esc' key has been pressed THEN the modal dialog closes`,
         async () => {
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
@@ -196,7 +222,13 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await contentWizard.openDetailsPanel();
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
-            await wizardVersionsWidget.clickOnOnShowChangesButton(1);
+            // 2. Click on the Edited version item and click on its checkbox:
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+            // 3. Click on the Created version item and click on its checkbox:
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            await wizardVersionsWidget.clickOnCompareVersionsButton();
             await compareContentVersionsDialog.waitForDialogOpened();
             // 2. 'Esc' key has been pressed:
             await contentWizard.pressEscKey();
@@ -215,11 +247,17 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await contentWizard.openDetailsPanel();
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
-            await wizardVersionsWidget.clickOnOnShowChangesButton(1);
+            // 2. Click on the Edited version item and click on its checkbox:
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+            // 3. Click on the Created version item and click on its checkbox:
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            await wizardVersionsWidget.clickOnCompareVersionsButton();
             await compareContentVersionsDialog.waitForDialogOpened();
-            // 2. 'Cancel button top' key been pressed:
+            // 4. 'Cancel button top' key been pressed:
             await compareContentVersionsDialog.clickOnCancelButtonTop();
-            // 3. Verify that the modal dialog is closed:
+            // 5. Verify that the modal dialog is closed:
             await compareContentVersionsDialog.waitForDialogClosed();
         });
 

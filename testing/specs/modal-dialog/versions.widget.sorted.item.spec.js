@@ -167,7 +167,7 @@ describe('tests for Sorted versions item', function () {
             await compareContentVersionsDialog.clickOnRightDropdownHandle();
             await studioUtils.saveScreenshot('compare_versions_right_dropdown_options');
             result = await compareContentVersionsDialog.getSortedOptionsInRightDropdownList();
-            assert.equal(result.length, 3, "3 sorted items should be present in the options selector after the line-divider");
+            assert.equal(result.length, 4, "4 sorted items should be present in the options selector after the line-divider");
         });
 
     it("GIVEN existing folder with 'Sorted' version items is opened WHEN the folder has been published THEN 'Sorted' items remain visible in Versions Widget",
