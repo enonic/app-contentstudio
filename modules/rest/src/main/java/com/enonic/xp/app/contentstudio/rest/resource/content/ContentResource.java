@@ -1247,7 +1247,6 @@ public final class ContentResource
     {
         final CompareContentResults compareResults =
             contentService.compare( CompareContentsParams.create().contentIds( ids ).build() );
-        final Map<ContentId, CompareContentResult> compareResultMap = compareResults.getCompareContentResultsMap();
 
         return compareResults
                 .stream()
