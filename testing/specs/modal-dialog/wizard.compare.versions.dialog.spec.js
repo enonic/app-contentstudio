@@ -39,7 +39,9 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Click on 'show changes' icon in the first 'edited' item:
-            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader('Edited', 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            await wizardVersionsWidget.clickOnCompareVersionsButton();
             await compareContentVersionsDialog.waitForDialogOpened();
             // 4. Expand the left dropdown and click on the edited-option:
             await compareContentVersionsDialog.expandLeftDropdownAndClickOnModifiedOption(0);

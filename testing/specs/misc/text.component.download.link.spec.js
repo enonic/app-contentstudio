@@ -140,6 +140,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             let contentWizard = new ContentWizard();
             // 1. open the existing moved content:
             await studioUtils.openContentAndSwitchToTabByDisplayName(TEST_CONTENT_NAME, TEST_CONTENT_DISPLAY_NAME);
+            await contentWizard.openDetailsPanel();
             // 2. open Versions Widget:
             await contentWizard.openDetailsPanel();
             await contentWizard.openVersionsHistoryPanel();
@@ -164,6 +165,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             // 1. open the existing moved content:
             await studioUtils.openContentAndSwitchToTabByDisplayName(TEST_CONTENT_NAME, TEST_CONTENT_DISPLAY_NAME);
+            await contentWizard.openDetailsPanel();
             // 2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
@@ -205,6 +207,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             // 1. open the existing moved content:
             await studioUtils.openContentAndSwitchToTabByDisplayName(TEST_CONTENT_NAME, TEST_CONTENT_DISPLAY_NAME);
+            await contentWizard.openDetailsPanel();
             // 2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
             // 3. Open Compare versions dialog in the latest 'Moved' version item:
@@ -218,7 +221,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             // 4.Verify that left revert-menu is enabled in the dialog, because the previous version is Moved:
             await compareContentVersionsDialog.waitForLeftRevertMenuButtonDisabled();
             // 5. Verify that right revert menu is disabled, because Moved item is selected in the right selector:
-            await compareContentVersionsDialog.waitForRightRevertMenuButtonDisabled()
+            await compareContentVersionsDialog.waitForRightRevertMenuButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
