@@ -48,8 +48,8 @@ exports.getParams = function (path, locales) {
             bundles: ['i18n/phrases'],
             locale: locales
         }),
-        aiContentOperatorAssetsUrl: isAiContentOperatorEnabled ? portal.assetUrl({application: AI_CONTENT_OPERATOR_APP_KEY}) : undefined,
-        aiTranslatorAssetsUrl: isAiTranslatorEnabled ? portal.assetUrl({application: AI_TRANSLATOR_APP_KEY}) : undefined,
+        aiContentOperatorAssetsUrl: isAiContentOperatorEnabled ? portal.assetUrl({path: '', application: AI_CONTENT_OPERATOR_APP_KEY}) : undefined,
+        aiTranslatorAssetsUrl: isAiTranslatorEnabled ? portal.assetUrl({path: '', application: AI_TRANSLATOR_APP_KEY}) : undefined,
         configScriptId: configLib.configJsonId,
         configAsJson: JSON.stringify(configLib.getConfig(locales, isAiEnabled), null, 4).replace(/<(\/?script|!--)/gi, "\\u003C$1"),
         isBrowseMode: isBrowseMode,

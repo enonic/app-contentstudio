@@ -3,6 +3,9 @@ build/
 target/
 .gradle/
 node_modules/
+modules/app/bin/
+modules/lib/bin/
+modules/rest/bin/
 *.iws
 *.ids
 *.iml
@@ -23,3 +26,4 @@ testing/allure-results
 .enonic
 .eslintcache
 .bin
+
