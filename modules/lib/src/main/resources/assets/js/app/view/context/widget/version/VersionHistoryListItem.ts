@@ -22,14 +22,33 @@ export class VersionHistoryListItem
 
     private readonly version: VersionHistoryItem;
     private readonly content: ContentSummaryAndCompareStatus;
+    private readonly versionViewer: VersionHistoryItemViewer;
     private tooltip: Tooltip;
     private actionButton: ActionButton;
+    private compareButton: ActionButton;
 
     constructor(version: VersionHistoryItem, content: ContentSummaryAndCompareStatus) {
         super('version-list-item');
 
         this.version = version;
         this.content = content;
+
+        this.versionViewer = this.createVersionViewer();
+    }
+
+    public isComparableItem(): boolean {
+        return VersionHistoryHelper.isComparableItem(this.version); //&& this.version.getStatus() !== VersionItemStatus.CREATED;
+    }
+
+    addCompareButton(): void {
+        if (!this.hasCompareButton()) {
+            this.compareButton = this.createCompareButton();
+            this.versionViewer.appendToNamesAndIconViewWrapper(this.compareButton)
+        }
+    }
+
+    hasCompareButton(): boolean {
+        return !!this.compareButton;
     }
 
     private createVersionViewer(): VersionHistoryItemViewer {
@@ -40,11 +59,6 @@ export class VersionHistoryListItem
         }
 
         versionViewer.setObject(this.version);
-
-        if (this.isCompareButtonRequired()) {
-            const compareButton: ActionButton = this.createCompareButton();
-            versionViewer.appendToNamesAndIconViewWrapper(compareButton);
-        }
 
         if (this.version.getMessage()) {
             const messageBlock: DivEl = new DivEl('publish-message');
@@ -58,16 +72,8 @@ export class VersionHistoryListItem
         return versionViewer;
     }
 
-    private isCompareButtonRequired(): boolean {
-        return this.isComparableItem() && this.version.getStatus() !== VersionItemStatus.CREATED;
-    }
-
     private isInteractableItem(): boolean {
         return VersionHistoryHelper.isInteractableItem(this.version);
-    }
-
-    private isComparableItem(): boolean {
-        return VersionHistoryHelper.isComparableItem(this.version);
     }
 
     private createTooltip() {
@@ -212,7 +218,7 @@ export class VersionHistoryListItem
                 this.appendChild(this.createVersionDateBlock(this.version.getDateTime()));
             }
 
-            this.appendChild(this.createVersionViewer());
+            this.appendChild(this.versionViewer);
 
             return rendered;
         });

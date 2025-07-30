@@ -16,6 +16,7 @@ export class VersionHistoryHelper {
     static isComparableItem(version: VersionHistoryItem): boolean {
         return !version.isPublishAction() &&
                !version.isRestored() &&
-               !version.isArchived();
+               !version.isArchived() &&
+               !version.isReadonly();
     }
 }
