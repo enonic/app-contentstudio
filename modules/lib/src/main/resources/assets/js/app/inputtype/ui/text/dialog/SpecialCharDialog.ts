@@ -3,10 +3,10 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
 import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
 import eventInfo = CKEDITOR.eventInfo;
 import {HtmlEditor} from '../HtmlEditor';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 
 export class SpecialCharDialog
     extends ModalDialog {
@@ -77,8 +77,8 @@ export class SpecialCharDialog
         return charsBlock;
     }
 
-    addCancelButtonToBottom(buttonLabel: string = i18n('action.cancel')): DialogButton {
-        const cancelButton: DialogButton = super.addCancelButtonToBottom(buttonLabel);
+    addCancelButtonToBottom(buttonLabel: string = i18n('action.cancel')): ActionButton {
+        const cancelButton = super.addCancelButtonToBottom(buttonLabel);
         this.setElementToFocusOnShow(cancelButton);
 
         return cancelButton;

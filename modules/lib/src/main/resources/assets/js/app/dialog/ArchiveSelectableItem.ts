@@ -1,11 +1,11 @@
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 import * as Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../event/EditContentEvent';
-import {StatusSelectionItem} from './StatusSelectionItem';
 import {Branch} from '../versioning/Branch';
 import {ArchiveDialogHelper} from './ArchiveDialogHelper';
+import {StatusSelectionItem} from './StatusSelectionItem';
 
 export interface ArchiveSelectableItemConfig {
     viewer: Viewer<ContentSummaryAndCompareStatus>;
@@ -23,7 +23,7 @@ export class ArchiveSelectableItem
 
     protected config: ArchiveSelectableItemConfig;
 
-    showRefButton: ActionButton;
+    private showRefButton: ActionButton;
 
     constructor(config: ArchiveSelectableItemConfig) {
         const {viewer, item, clickable = true} = config;

@@ -1,11 +1,11 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DeckPanel} from '@enonic/lib-admin-ui/ui/panel/DeckPanel';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {BaseInspectionPanel} from './BaseInspectionPanel';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 import * as Q from 'q';
+import {BaseInspectionPanel} from './BaseInspectionPanel';
 
 export interface InspectionsPanelConfig {
     inspectionPanels: BaseInspectionPanel[];
@@ -57,7 +57,7 @@ export class InspectionsPanel
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.buttonContainer.appendChild(new ActionButton(this.config.saveAction));
+            this.buttonContainer.appendChild(new ActionButton({action: this.config.saveAction}));
             this.appendChildren(this.deck as Element, this.buttonContainer);
 
             return rendered;

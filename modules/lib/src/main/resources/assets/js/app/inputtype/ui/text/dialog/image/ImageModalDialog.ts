@@ -1,63 +1,64 @@
-import * as Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
-import {UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
-import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {Content} from '../../../../../content/Content';
-import {OverrideNativeDialog} from '../OverrideNativeDialog';
-import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from '../ModalDialog';
-import {ImageStyleSelector} from './ImageStyleSelector';
-import {MediaTreeSelectorItem} from '../../../selector/media/MediaTreeSelectorItem';
-import {ImageUploaderEl} from '../../../selector/image/ImageUploaderEl';
-import {ContentSelectedOptionsView} from '../../../selector/ContentComboBox';
-import {MediaUploaderElOperation} from '../../../upload/MediaUploaderEl';
-import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
-import {StylesRequest} from '../../styles/StylesRequest';
-import {Styles} from '../../styles/Styles';
-import {Style} from '../../styles/Style';
-import {HTMLAreaHelper} from '../../HTMLAreaHelper';
-import {ImageUrlResolver} from '../../../../../util/ImageUrlResolver';
-import {StyleHelper} from '../../styles/StyleHelper';
-import {HtmlEditor} from '../../HtmlEditor';
-import {ImageHelper} from '../../../../../util/ImageHelper';
-import {ProgressBar} from '@enonic/lib-admin-ui/ui/ProgressBar';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {FigureEl} from '@enonic/lib-admin-ui/dom/FigureEl';
-import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {DropzoneContainer} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {Toolbar, ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
-import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
-import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
+import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 import {LinkEl} from '@enonic/lib-admin-ui/dom/LinkEl';
-import {ContentSummary} from '../../../../../content/ContentSummary';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
+import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
+import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
+import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import {ProgressBar} from '@enonic/lib-admin-ui/ui/ProgressBar';
+import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
+import {Toolbar, ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import {DropzoneContainer} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
+import {UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
+import {ActionIcon} from '@enonic/lib-admin-ui/ui2/ActionIcon';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {AlignCenter, AlignJustify, AlignLeft, AlignRight, LucideIcon} from 'lucide-react';
+import * as Q from 'q';
+import {Content} from '../../../../../content/Content';
 import {ContentId} from '../../../../../content/ContentId';
-import {Project} from '../../../../../settings/data/project/Project';
 import {ContentPath} from '../../../../../content/ContentPath';
-import {ImageSelectorDropdown} from '../../../../selector/ImageSelectorDropdown';
+import {ContentSummary} from '../../../../../content/ContentSummary';
+import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
+import {Project} from '../../../../../settings/data/project/Project';
+import {ImageHelper} from '../../../../../util/ImageHelper';
+import {ImageUrlResolver} from '../../../../../util/ImageUrlResolver';
 import {ContentSelectorDropdownOptions} from '../../../../selector/ContentSelectorDropdown';
 import {ImageContentListBox} from '../../../../selector/ImageContentListBox';
+import {ImageSelectorDropdown} from '../../../../selector/ImageSelectorDropdown';
+import {ContentSelectedOptionsView} from '../../../selector/ContentComboBox';
 import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from '../../../selector/image/ImageOptionDataLoader';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
-import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
-import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {ImageUploaderEl} from '../../../selector/image/ImageUploaderEl';
+import {MediaTreeSelectorItem} from '../../../selector/media/MediaTreeSelectorItem';
+import {MediaUploaderElOperation} from '../../../upload/MediaUploaderEl';
+import {HTMLAreaHelper} from '../../HTMLAreaHelper';
+import {HtmlEditor} from '../../HtmlEditor';
+import {Style} from '../../styles/Style';
+import {StyleHelper} from '../../styles/StyleHelper';
+import {Styles} from '../../styles/Styles';
+import {StylesRequest} from '../../styles/StylesRequest';
+import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from '../ModalDialog';
+import {OverrideNativeDialog} from '../OverrideNativeDialog';
+import {ImageStyleSelector} from './ImageStyleSelector';
 import eventInfo = CKEDITOR.eventInfo;
 
 enum ImageAccessibilityType {
@@ -745,7 +746,7 @@ export class ImageDialogToolbar
 
     private previewEl: FigureEl;
 
-    private alignmentButtons: Record<string, ActionButton> = {};
+    private alignmentButtons: Record<string, ActionIcon> = {};
 
     private customWidthCheckbox: Checkbox;
 
@@ -781,28 +782,23 @@ export class ImageDialogToolbar
         const alignmentButtonContainer = new DivEl('alignment-container');
 
         alignmentButtonContainer.appendChildren(
-            this.createAlignmentButton('icon-paragraph-justify', StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS),
-            this.createAlignmentButton('icon-paragraph-left', StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS),
-            this.createAlignmentButton('icon-paragraph-center', StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS),
-            this.createAlignmentButton('icon-paragraph-right', StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)
+            this.createAlignmentButton(AlignJustify, StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS),
+            this.createAlignmentButton(AlignLeft, StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS),
+            this.createAlignmentButton(AlignCenter, StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS),
+            this.createAlignmentButton(AlignRight, StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)
         );
 
         return alignmentButtonContainer;
     }
 
-    private createAlignmentButton(iconClass: string, styleClass: string): ActionButton {
-        const action: Action = new Action();
+    private createAlignmentButton(icon: LucideIcon, styleClass: string): ActionIcon {
 
-        action.setIconClass(iconClass);
-
-        const button = new ActionButton(action);
-
-        action.onExecuted(() => {
+        const action = new Action().onExecuted(() => {
             this.resetActiveAlignmentButton();
             button.addClass('active');
-
             this.notifyStylesChanged();
         });
+        const button = new ActionIcon({action, icon});
 
         this.alignmentButtons[styleClass] = button;
 
