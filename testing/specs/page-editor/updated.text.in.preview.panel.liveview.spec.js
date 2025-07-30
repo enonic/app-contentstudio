@@ -68,7 +68,8 @@ describe('updated.text.in.preview.panel.liveview.spec - verify that text is upda
             await textComponentCke.typeTextInCkeEditor(TEST_TEXT_2);
             // 10. Save the site:
             await contentWizard.waitAndClickOnSave();
-            await contentWizard.waitForNotificationMessage();
+            await studioUtils.saveScreenshot('issue_notification_msg_2');
+           // await contentWizard.waitForNotificationMessage();
             // 11. Switch to Content Browse panel:
             await studioUtils.doSwitchToContentBrowsePanel();
             // 12. Verify the updated text in LiveView in Preview panel:

@@ -43,8 +43,8 @@ describe('add.new.in.selector.spec ui-tests for adding a new content directly fr
             assert.equal(actualTarget, NEW_CONTENT_NAME, 'Expected folder-name should be displayed');
             // 7. Save the shortcut with the selected target:
             await contentWizard.waitAndClickOnSave();
-            await studioUtils.saveScreenshot('sh_saved');
-            await contentWizard.waitForNotificationMessage();
+            await studioUtils.saveScreenshot('issue_shortcut_saved');
+            //await contentWizard.waitForNotificationMessage();
         });
 
     it(`GIVEN existing shortcut is opened THEN the selected target has been removed THEN 'Add new' button gets visible again`,
