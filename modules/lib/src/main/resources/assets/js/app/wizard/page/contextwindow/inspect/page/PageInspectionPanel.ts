@@ -10,12 +10,12 @@ import {ContentFormContext} from '../../../../../ContentFormContext';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {FormContextBuilder} from '@enonic/lib-admin-ui/form/FormContext';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {Descriptor} from '../../../../../page/Descriptor';
 import {PageState} from '../../../PageState';
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 import {PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 
 export class PageInspectionPanel
     extends BaseInspectionPanel {
@@ -71,8 +71,7 @@ export class PageInspectionPanel
         return super.doRender().then((rendered) => {
             this.insertChild(this.pageTemplateAndControllerForm, 0);
 
-            const saveAsTemplateButton = new ActionButton(this.saveAsTemplateAction);
-            saveAsTemplateButton.addClass('blue large save-as-template');
+            const saveAsTemplateButton = new ActionButton({action: this.saveAsTemplateAction});
             this.pageTemplateAndControllerForm.appendChild(saveAsTemplateButton);
 
             return rendered;

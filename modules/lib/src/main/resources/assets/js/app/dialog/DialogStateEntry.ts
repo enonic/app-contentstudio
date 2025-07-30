@@ -1,7 +1,7 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 import * as Q from 'q';
 
 export enum ButtonType {
@@ -151,11 +151,10 @@ export class DialogStateEntry
         this.text.setHtml(text);
 
         this.actionButtons = actionButtons.map(({label, type = ButtonType.LINK, className = ''}) => {
-            const action = new Action(label);
-            const actionButton = new ActionButton(action);
-            const typeClass = type !== ButtonType.BUTTON ? type : '';
-            actionButton.addClass(`entry-button ${className} ${typeClass}`);
-            return actionButton;
+            return new ActionButton({
+                action: new Action(label),
+                className: `entry-button ${className} ${type !== ButtonType.BUTTON ? type : ''}`,
+            });
         });
     }
 
