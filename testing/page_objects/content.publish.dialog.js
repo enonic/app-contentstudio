@@ -152,7 +152,8 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Publish Dialog, 'Exclude items in progress' button should not be displayed, `, 'err_exclude_items_in_progress_button', err);
+            await this.handleError(`Publish Dialog, 'Exclude items in progress' button should not be displayed, `,
+                'err_exclude_items_in_progress_button', err);
         }
     }
 
@@ -417,10 +418,12 @@ class ContentPublishDialog extends Page {
         })
     }
 
-    waitForAddScheduleIconNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.addScheduleIcon, appConst.shortTimeout).catch(err => {
-            throw new Error("'Add Schedule' button should not be displayed " + err);
-        })
+    async waitForAddScheduleIconNotDisplayed() {
+        try {
+            return this.waitForElementNotDisplayed(this.addScheduleIcon, appConst.shortTimeout)
+        } catch (err) {
+            await this.handleError(`Publish Dialog, 'Add Schedule' button should not be displayed, `, 'err_add_schedule_icon', err);
+        }
     }
 
     async isLogMessageLinkDisplayed() {
@@ -596,6 +599,26 @@ class ContentPublishDialog extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getAttribute(locator, 'data-count');
     }
+
+    getScheduleValidationRecord() {
+        let dateTimeRange = new DateTimeRange(XPATH.container);
+        return dateTimeRange.getValidationRecord();
+    }
+
+    waitForScheduleValidationMessageNotDisplayed() {
+        let dateTimeRange = new DateTimeRange(XPATH.container);
+        return dateTimeRange.waitForValidationRecordingNotDisplayed();
+    }
+
+    async waitForScheduleValidationMessageDisplayed() {
+        try {
+            let dateTimeRange = new DateTimeRange(XPATH.container);
+            return await dateTimeRange.waitForValidationRecording(appConst.shortTimeout);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, schedule validation message should be displaye `, 'err_schedule_val_message', err);
+        }
+    }
+
 }
 
 module.exports = ContentPublishDialog;
