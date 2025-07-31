@@ -14,6 +14,7 @@ import com.enonic.xp.content.FindContentIdsByQueryResult;
 import com.enonic.xp.index.ChildOrder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ContentQueryWithChildrenTest
 {
@@ -66,9 +67,16 @@ public class ContentQueryWithChildrenTest
             ContentQueryWithChildren.create().contentService( contentService ).build();
 
         FindContentIdsByQueryResult result = contentQueryWithChildren.find();
-        assertEquals( result, FindContentIdsByQueryResult.empty() );
+        assertTrue( result.getContentIds().isEmpty() );
+        assertTrue( result.getAggregations().isEmpty() );
+        assertEquals( 0, result.getHits() );
+        assertEquals( 0, result.getTotalHits() );
 
         result = contentQueryWithChildren.findOrdered();
-        assertEquals( result, FindContentIdsByQueryResult.empty() );
+
+        assertTrue( result.getContentIds().isEmpty() );
+        assertTrue( result.getAggregations().isEmpty() );
+        assertEquals( 0, result.getHits() );
+        assertEquals( 0, result.getTotalHits() );
     }
 }

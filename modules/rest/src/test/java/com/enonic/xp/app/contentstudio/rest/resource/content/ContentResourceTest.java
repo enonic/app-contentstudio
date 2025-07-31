@@ -276,7 +276,7 @@ public class ContentResourceTest
         resource.setContentService( contentService );
         resource.setContentTypeService( contentTypeService );
 
-        knownContentTypes = new HashSet<>( BuiltinContentTypesAccessor.getAll() );
+        knownContentTypes = new HashSet<>( BuiltinContentTypesAccessor.getAll().stream().toList() );
 
         lenient().when( contentTypeService.getByName(
                 argThat( argument -> knownContentTypes.stream().anyMatch( ct -> ct.getName().equals( argument.getContentTypeName() ) ) ) ) )
@@ -1069,15 +1069,8 @@ public class ContentResourceTest
         when( contentService.getById( isA( ContentId.class ) ) ).thenReturn( content );
         when( contentService.setChildOrder( isA( SetContentChildOrderParams.class ) ) ).thenReturn( content );
 
-        final ReorderChildContentsParams reorderChildren = ReorderChildContentsParams.create()
-            .add( ReorderChildParams.create()
-                      .contentToMove( ContentId.from( "content-id-1" ) )
-                      .contentToMoveBefore( ContentId.from( "content-id-2" ) )
-                      .build() )
-            .add( ReorderChildParams.create().contentToMove( ContentId.from( "content-id-3" ) ).build() )
-            .build();
         final ReorderChildContentsResult result = new ReorderChildContentsResult( 2 );
-        when( contentService.reorderChildren( eq( reorderChildren ) ) ).thenReturn( result );
+        when( contentService.reorderChildren( any( ReorderChildContentsParams.class ) ) ).thenReturn( result );
 
         String jsonString = request().path( "content/reorderChildren" )
             .entity( readFromFile( "reorder_children_params.json" ), MediaType.APPLICATION_JSON_TYPE )
@@ -1100,15 +1093,8 @@ public class ContentResourceTest
         when( contentService.getById( isA( ContentId.class ) ) ).thenReturn( content );
         when( contentService.setChildOrder( isA( SetContentChildOrderParams.class ) ) ).thenReturn( content );
 
-        final ReorderChildContentsParams reorderChildren = ReorderChildContentsParams.create()
-            .add( ReorderChildParams.create()
-                      .contentToMove( ContentId.from( "content-id-1" ) )
-                      .contentToMoveBefore( ContentId.from( "content-id-2" ) )
-                      .build() )
-            .add( ReorderChildParams.create().contentToMove( ContentId.from( "content-id-3" ) ).build() )
-            .build();
         final ReorderChildContentsResult result = new ReorderChildContentsResult( 2 );
-        when( contentService.reorderChildren( eq( reorderChildren ) ) ).thenReturn( result );
+        when( contentService.reorderChildren( any(ReorderChildContentsParams.class) ) ).thenReturn( result );
 
         String jsonString = request().path( "content/reorderChildren" )
             .entity( readFromFile( "resort_reorder_children_params.json" ), MediaType.APPLICATION_JSON_TYPE )
@@ -1707,7 +1693,7 @@ public class ContentResourceTest
 
         Content content2 = createContent( "content-id2", "content-name2", "myapplication:content-type" );
 
-        when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content1.getId(), content2.getId() ) ) ) ).thenReturn(
+        when( contentService.getByIds( any(GetContentByIdsParams.class) ) ).thenReturn(
             Contents.from( content1, content2 ) );
 
         ContentListJson result =
@@ -1735,8 +1721,7 @@ public class ContentResourceTest
 
         Content content2 = createContent( "content-id2", "content-name2", "myapplication:content-type" );
 
-        when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content1.getId(), content2.getId() ) ) ) ).thenReturn(
-            Contents.from( content1, content2 ) );
+        when( contentService.getByIds( any(GetContentByIdsParams.class) ) ).thenReturn( Contents.from( content1, content2 ) );
 
         List<String> result = contentResource.checkContentsReadOnly(
             new ContentIdsJson( List.of( content1.getId().toString(), content2.getId().toString() ) ) );
@@ -1906,7 +1891,7 @@ public class ContentResourceTest
             .contents( ContentIds.from( content1.getId(), content2.getId() ) )
             .build();
 
-        when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( "content-id1", "content-id2" ) ) ) ).thenReturn(
+        when( contentService.getByIds( any(GetContentByIdsParams.class) ) ).thenReturn(
             Contents.from( content1, content2 ) );
         when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn( findResult );
         when( contentService.getOutboundDependencies( ContentId.from( "content-id1" ) ) ).thenReturn(
@@ -1931,7 +1916,7 @@ public class ContentResourceTest
         final Content content2 =
             createContent( "content-id2", content1.getPath(), "content-name2", "myapplication:content-type", AccessControlList.empty() );
 
-        when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( "content-id1", "content-id2" ) ) ) ).thenReturn(
+        when( contentService.getByIds(any(GetContentByIdsParams.class) ) ).thenReturn(
             Contents.from( content1, content2 ) );
 
         final FindContentIdsByQueryResult idsToRemove = FindContentIdsByQueryResult.create()
@@ -1999,7 +1984,7 @@ public class ContentResourceTest
 
         when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn( findResult );
 
-        when( contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) ).thenReturn( Contents.from( content ) );
+        when( contentService.getByIds( any(GetContentByIdsParams.class) ) ).thenReturn( Contents.from( content ) );
 
         AbstractContentQueryResultJson result = contentResource.query(
             new ContentQueryJson( "", 0, 10, new ArrayList<>(), null, null, null, null, null, null,
@@ -2037,7 +2022,7 @@ public class ContentResourceTest
 
         when( contentService.find( isA( ContentQuery.class ) ) ).thenReturn( findResult );
 
-        when( contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) ).thenReturn( Contents.from( content ) );
+        when( contentService.getByIds( any(GetContentByIdsParams.class) ) ).thenReturn( Contents.from( content ) );
 
         AbstractContentQueryResultJson result = contentResource.selectorQuery(
             new ContentTreeSelectorQueryJson( "", 0, 10, null, null, null, new ArrayList<>(), new ArrayList<>(), null, null, null, null ),
@@ -2378,14 +2363,10 @@ public class ContentResourceTest
         Content content3 = createContent( "content-id4", parentContent.getPath(), "content-name4", "myapplication:content-type",
                                           AccessControlList.empty() );
 
-        FindContentByParentParams params =
-            FindContentByParentParams.create().parentId( parentContent.getId() ).childOrder( ChildOrder.defaultOrder() ).build();
-
-        when( this.contentService.findIdsByParent( params ) ).thenReturn( FindContentIdsByParentResult.create()
-                                                                              .contentIds(
-                                                                                  ContentIds.from( content1.getId(), content2.getId(),
-                                                                                                   content3.getId() ) )
-                                                                              .build() );
+        when( this.contentService.findIdsByParent( any( FindContentByParentParams.class ) ) ).thenReturn(
+            FindContentIdsByParentResult.create()
+                .contentIds( ContentIds.from( content1.getId(), content2.getId(), content3.getId() ) )
+                .build() );
 
         List<ContentIdJson> result =
             contentResource.listChildrenIds( parentContent.getId().toString(), ChildOrder.defaultOrder().toString() );

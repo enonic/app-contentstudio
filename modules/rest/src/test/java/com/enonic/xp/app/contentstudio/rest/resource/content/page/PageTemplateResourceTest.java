@@ -81,7 +81,7 @@ public class PageTemplateResourceTest
     {
         contentTypeService = mock( ContentTypeService.class );
 
-        knownContentTypes = new HashSet<>( BuiltinContentTypesAccessor.getAll() );
+        knownContentTypes = new HashSet<>( BuiltinContentTypesAccessor.getAll().stream().toList() );
 
         lenient().when( contentTypeService.getByName(
             argThat( argument -> knownContentTypes.stream().anyMatch( ct -> ct.getName().equals( argument.getContentTypeName() ) ) ) ) )
