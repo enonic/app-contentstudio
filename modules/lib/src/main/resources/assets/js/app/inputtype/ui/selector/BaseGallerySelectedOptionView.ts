@@ -11,8 +11,13 @@ export abstract class BaseGallerySelectedOptionView<T> extends LibBaseSelectedOp
 
     private selectionChangeListeners: ((option: BaseGallerySelectedOptionView<T>, checked: boolean) => void)[] = [];
 
-    constructor(option: Option<T>) {
-        super(new BaseSelectedOptionViewBuilder<T>().setOption(option));
+    constructor(option: Option<T>, readonly: boolean) {
+        const builder = new BaseSelectedOptionViewBuilder<T>().setOption(option);
+        if (readonly) {
+            builder.setRemovable(false).setEditable(false);
+        }
+
+        super(builder);
     }
 
     protected createWrapper(): DivEl {
@@ -21,6 +26,12 @@ export abstract class BaseGallerySelectedOptionView<T> extends LibBaseSelectedOp
 
     protected initElements(): void {
         this.label = new DivEl('label');
+        if (this.editable || this.removable) {
+            this.createCheckbox();
+        }
+    }
+
+    private createCheckbox(): void {
         this.check = Checkbox.create().build();
 
         this.check.onClicked((event: MouseEvent) => {

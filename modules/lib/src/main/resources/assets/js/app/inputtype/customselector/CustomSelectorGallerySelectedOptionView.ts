@@ -3,17 +3,19 @@ import {CustomSelectorItemViewer} from './CustomSelectorItemViewer';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {BaseGallerySelectedOptionView} from '../ui/selector/BaseGallerySelectedOptionView';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class CustomSelectorGallerySelectedOptionView extends BaseGallerySelectedOptionView<CustomSelectorItem> {
     private icon: CustomSelectorItemViewer;
 
-    constructor(option: Option<CustomSelectorItem>) {
-        super(option);
-    }
-
     protected createWrapper(): DivEl {
-        return super.createWrapper()
-            .appendChildren(this.label, this.check, this.icon);
+        const childItems: Element[] = [this.label];
+        if (this.check) {
+            childItems.push(this.check);
+        }
+        childItems.push(this.icon);
+
+        return super.createWrapper().appendChildren(...childItems);
     }
 
     protected initElements(): void {

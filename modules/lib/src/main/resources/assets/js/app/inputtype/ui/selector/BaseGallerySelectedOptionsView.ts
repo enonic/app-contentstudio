@@ -7,17 +7,25 @@ import {SelectionToolbar} from './SelectionToolbar';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {BaseGallerySelectedOptionView} from './BaseGallerySelectedOptionView';
 
+export interface SelectedOptionsViewConfig {
+    editable?: boolean;
+    readonly?: boolean;
+}
+
 export abstract class BaseGallerySelectedOptionsView<T> extends BaseSelectedOptionsView<T> {
     protected activeOption: SelectedOption<T>;
     protected selection: SelectedOption<T>[] = [];
     protected toolbar: SelectionToolbar;
     private mouseClickListener: (event: MouseEvent) => void;
-    private clickDisabled: boolean = false;
 
-    constructor(editable: boolean = true) {
+    constructor(config: SelectedOptionsViewConfig) {
         super();
-        this.initAndAppendSelectionToolbar(editable);
-        this.addOptionMovedEventHandler();
+
+        this.readonly = config.readonly || false;
+        if (!config.readonly) {
+            this.initAndAppendSelectionToolbar(config.editable);
+            this.addOptionMovedEventHandler();
+        }
     }
 
     private initAndAppendSelectionToolbar(editable: boolean) {
@@ -42,15 +50,6 @@ export abstract class BaseGallerySelectedOptionsView<T> extends BaseSelectedOpti
                 selectedOptionMoved.getCheckbox().giveFocus();
             }
         });
-    }
-
-    protected handleDnDStop(): void {
-        this.temporarilyDisableClickEvent();
-    }
-
-    private temporarilyDisableClickEvent() {
-        this.clickDisabled = true;
-        setTimeout(() => (this.clickDisabled = false), 50);
     }
 
     private handleOptionViewChecked(checked: boolean, option: SelectedOption<T>,

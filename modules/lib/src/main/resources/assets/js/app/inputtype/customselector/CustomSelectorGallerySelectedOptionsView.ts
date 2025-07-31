@@ -5,15 +5,11 @@ import {CustomSelectorGallerySelectedOptionView} from './CustomSelectorGallerySe
 import {BaseGallerySelectedOptionsView} from '../ui/selector/BaseGallerySelectedOptionsView';
 
 export class CustomSelectorGallerySelectedOptionsView extends BaseGallerySelectedOptionsView<CustomSelectorItem> {
-    constructor() {
-        super(false);
-    }
-
     protected getNumberOfEditableOptions(): number {
         return 0; // CustomSelectorGallery does not have editable options
     }
 
     createSelectedOption(option: Option<CustomSelectorItem>): SelectedOption<CustomSelectorItem> {
-        return new SelectedOption<CustomSelectorItem>(new CustomSelectorGallerySelectedOptionView(option), this.count());
+        return new SelectedOption<CustomSelectorItem>(new CustomSelectorGallerySelectedOptionView(option, this.readonly), this.count());
     }
 }

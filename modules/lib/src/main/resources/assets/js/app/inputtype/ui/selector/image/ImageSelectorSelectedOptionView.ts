@@ -17,13 +17,14 @@ export class ImageSelectorSelectedOptionView extends BaseGallerySelectedOptionVi
     private loadMask: LoadMask;
     private error: NamesAndIconView;
 
-    constructor(option: Option<MediaTreeSelectorItem>) {
-        super(option);
-    }
-
     protected createWrapper(): DivEl {
-        return super.createWrapper()
-                    .appendChildren(this.icon, this.label, this.check, this.progress, this.error, this.loadMask);
+        const childItems: Element[] = [this.icon, this.label];
+        if (this.check) {
+            childItems.push(this.check);
+        }
+        childItems.push(this.progress, this.error, this.loadMask);
+
+        return super.createWrapper().appendChildren(...childItems);
     }
 
     protected initElements(): void {
@@ -80,7 +81,7 @@ export class ImageSelectorSelectedOptionView extends BaseGallerySelectedOptionVi
 
     private showSpinner() {
         this.progress.hide();
-        this.check.hide();
+        this.check?.hide();
         this.icon.setClass('visibility-hidden');
         this.loadMask.show();
     }
@@ -88,7 +89,7 @@ export class ImageSelectorSelectedOptionView extends BaseGallerySelectedOptionVi
     private showResult() {
         this.loadMask.hide();
         this.icon.setClass('visibility-visible');
-        this.check.show();
+        this.check?.show();
         this.progress.hide();
         this.error.hide();
         this.removeClass('image-not-found');
@@ -97,10 +98,10 @@ export class ImageSelectorSelectedOptionView extends BaseGallerySelectedOptionVi
     showImageNotAvailable(imageId: string) {
         this.progress.hide();
         this.error.addClass('error');
-        this.check.addClass('error');
+        this.check?.addClass('error');
         this.error.setMainName(imageId).setSubName(i18n('text.image.notavailable'));
         this.error.show();
-        this.check.show();
+        this.check?.show();
         this.icon.setSrc('');
         this.label.setHtml('');
         this.addClass('image-not-found');
