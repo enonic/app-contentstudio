@@ -163,7 +163,6 @@
     ]
   },
   "iconUrl": "/admin/rest-v2/cs/schema/content/icon/myapplication:my_cty?hash=f95b70fdc3088560732a5ac135644506",
-  "metadata": [],
   "name": "myapplication:my_cty",
   "superType": "base:unstructured"
 }
