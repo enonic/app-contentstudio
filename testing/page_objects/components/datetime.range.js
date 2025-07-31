@@ -82,6 +82,10 @@ class DateTimeRange extends Page {
         return this.waitForElementDisplayed(this.validationRecord, ms);
     }
 
+    waitForValidationRecordingNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.validationRecord, appConst.shortTimeout);
+    }
+
     isValidationRecordingDisplayed() {
         return this.isElementDisplayed(this.validationRecord);
     }

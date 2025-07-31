@@ -63,7 +63,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.waitForUnpublishButtonDisplayed();
         });
 
-    it(`GIVEN wizard for existing 'published' folder is opened WHEN Edit Schedule button has been clicked  THEN 'Online from' and 'Online to' appear in the Schedule step form`,
+    it(`GIVEN wizard for existing 'published' folder is opened WHEN 'Edit Schedule' button has been clicked  THEN 'Online from' and 'Online to' appear in the Schedule step form`,
         async () => {
             let contentWizard = new ContentWizard();
             let scheduleWidgetItem = new ScheduleWidgetItem();
