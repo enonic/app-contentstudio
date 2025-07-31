@@ -9,10 +9,10 @@ export class ImageSelectorSelectedOptionsView
 
     private editSelectedOptionsListeners: ((option: SelectedOption<MediaTreeSelectorItem>[]) => void)[] = [];
 
-    constructor() {
-        super(true);
+    constructor(readonly: boolean) {
+        super({editable: !readonly, readonly});
 
-        this.toolbar.onEditClicked(() => {
+        this.toolbar?.onEditClicked(() => {
             this.notifyEditSelectedOptions(this.selection);
         });
     }
@@ -22,7 +22,7 @@ export class ImageSelectorSelectedOptionsView
     }
 
     createSelectedOption(option: Option<MediaTreeSelectorItem>): SelectedOption<MediaTreeSelectorItem> {
-        return new SelectedOption<MediaTreeSelectorItem>(new ImageSelectorSelectedOptionView(option), this.count());
+        return new SelectedOption<MediaTreeSelectorItem>(new ImageSelectorSelectedOptionView(option, this.readonly), this.count());
     }
 
     private notifyEditSelectedOptions(option: SelectedOption<MediaTreeSelectorItem>[]) {

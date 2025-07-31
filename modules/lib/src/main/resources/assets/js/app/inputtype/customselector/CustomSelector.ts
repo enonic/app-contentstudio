@@ -161,7 +161,8 @@ export class CustomSelector
     private createComboBox(input: Input): CustomSelectorComboBox {
         const comboBox: CustomSelectorComboBox = new CustomSelectorComboBox({
             maxSelected: input.getOccurrences().getMaximum(),
-            mode: this.mode
+            mode: this.mode,
+            readonly: this.context.content.isReadOnly()
         });
 
         comboBox.getLoader().setRequestPath(this.getRequestPath());

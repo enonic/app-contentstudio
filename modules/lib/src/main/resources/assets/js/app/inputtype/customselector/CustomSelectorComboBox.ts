@@ -28,6 +28,7 @@ interface CustomSelectorComboBoxOptions extends ListBoxInputOptions<CustomSelect
 export interface CustomSelectorBuilderOptions {
     maxSelected: number;
     mode: CustomSelectorMode;
+    readonly: boolean;
 }
 
 export class CustomSelectorComboBox
@@ -39,7 +40,12 @@ export class CustomSelectorComboBox
         const loader = new CustomSelectorLoader();
         const listBox = new CustomSelectorListBox(loader, options.mode);
         const className = `custom-selector-combobox${options.mode === CustomSelectorMode.GALLERY ? ' gallery-mode' : ''}`;
-        const selectedOptionsView = options.mode === CustomSelectorMode.GALLERY ? new CustomSelectorGallerySelectedOptionsView() : new CustomSelectorSelectedOptionsView();
+        const config = {
+            readonly: options.readonly,
+            editable: false
+        };
+        const selectedOptionsView = options.mode === CustomSelectorMode.GALLERY ? new CustomSelectorGallerySelectedOptionsView(config) : new CustomSelectorSelectedOptionsView();
+        selectedOptionsView.setReadonly(options.readonly);
 
         super(listBox, {
             selectedOptionsView,
@@ -129,7 +135,7 @@ export class CustomSelectorSelectedOptionsView
     extends BaseSelectedOptionsView<CustomSelectorItem> {
 
     createSelectedOption(option: Option<CustomSelectorItem>): SelectedOption<CustomSelectorItem> {
-        return new SelectedOption<CustomSelectorItem>(new CustomSelectorSelectedOptionView(option), this.count());
+        return new SelectedOption<CustomSelectorItem>(new CustomSelectorSelectedOptionView(option, this.readonly), this.count());
     }
 
 }
@@ -137,9 +143,9 @@ export class CustomSelectorSelectedOptionsView
 export class CustomSelectorSelectedOptionView
     extends RichSelectedOptionView<CustomSelectorItem> {
 
-    constructor(option: Option<CustomSelectorItem>) {
+    constructor(option: Option<CustomSelectorItem>, readonly: boolean) {
         super(new RichSelectedOptionViewBuilder<CustomSelectorItem>()
-            .setDraggable(true)
+            .setDraggable(!readonly)
             .setOption(option) as RichSelectedOptionViewBuilder<CustomSelectorItem>
         );
     }

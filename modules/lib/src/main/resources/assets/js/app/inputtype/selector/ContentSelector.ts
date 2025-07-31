@@ -402,8 +402,11 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
         this.ignorePropertyChange(true);
         this.getPropertyArray().removeAll(true);
 
-        this.contentSelectorDropdown.getSelectedOptions().filter((option: SelectedOption<ContentTreeSelectorItem>) => {
-            const contentId = option.getOption().getDisplayValue().getContentId();
+        this.contentSelectorDropdown.getSelectedOptions().filter((selectedOption: SelectedOption<ContentTreeSelectorItem>) => {
+            const contentId = selectedOption.getOption().getDisplayValue()?.getContentId();
+            if (!contentId) {
+                return false;
+            }
             const reference: Reference = new Reference(contentId.toString());
             const value: Value = new Value(reference, ValueTypes.REFERENCE);
             this.getPropertyArray().add(value);
