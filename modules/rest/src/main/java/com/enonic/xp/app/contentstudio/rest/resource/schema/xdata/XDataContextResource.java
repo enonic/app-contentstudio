@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -35,17 +36,14 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.jaxrs.JaxRsComponent;
+import com.enonic.xp.project.Project;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.repository.RepositoryId;
-import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
-import com.enonic.xp.schema.content.ContentTypeService;
-import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.schema.xdata.XData;
 import com.enonic.xp.schema.xdata.XDataService;
-import com.enonic.xp.schema.xdata.XDatas;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
@@ -70,8 +68,6 @@ public final class XDataContextResource
     private ContentService contentService;
 
     private SiteService siteService;
-
-    private ContentTypeService contentTypeService;
 
     private LocaleService localeService;
 
@@ -99,15 +95,28 @@ public final class XDataContextResource
 
         final Map<XData, Boolean> resultXData = new LinkedHashMap<>();
 
-        getContentTypeXData( content ).forEach( xData -> resultXData.putIfAbsent( xData, false ) );
-
         getSiteXData( content ).forEach( resultXData::putIfAbsent );
-
-        getProjectXData( content ).forEach( resultXData::putIfAbsent );
 
         result.addXDatas( createXDataListJson( resultXData, request ) );
 
         return result;
+    }
+
+    private SiteConfigs getSiteOrProjectConfigs( final Content content )
+    {
+        final Site nearestSite = this.contentService.getNearestSite( content.getId() );
+
+        return nearestSite == null ? getProjectSiteConfigs() : nearestSite.getSiteConfigs();
+    }
+
+    private SiteConfigs getProjectSiteConfigs()
+    {
+        final RepositoryId repositoryId = ContextAccessor.current().getRepositoryId();
+
+        return Optional.ofNullable( repositoryId != null ? ProjectName.from( repositoryId ) : null )
+            .map( projectService::get )
+            .map( Project::getSiteConfigs )
+            .orElseGet( SiteConfigs::empty );
     }
 
     private List<XDataJson> createXDataListJson( final Map<XData, Boolean> xDatas, @Context HttpServletRequest request )
@@ -127,39 +136,15 @@ public final class XDataContextResource
 
     private Map<XData, Boolean> getSiteXData( final Content content )
     {
-        final Map<XData, Boolean> result = new LinkedHashMap<>();
+        final List<ApplicationKey> applicationKeys =
+            Stream.concat( getSiteOrProjectConfigs( content ).stream().map( SiteConfig::getApplicationKey ),
+                           Stream.of( ApplicationKey.PORTAL ) ).distinct().collect( toList() );
 
-        final Site nearestSite = this.contentService.getNearestSite( content.getId() );
-
-        if ( nearestSite != null )
-        {
-            final List<ApplicationKey> applicationKeys =
-                nearestSite.getSiteConfigs().stream().map( SiteConfig::getApplicationKey ).collect( toList() );
-
-            return getXDataByApps( applicationKeys, content.getType() );
-
-        }
-        return result;
-    }
-
-    private Map<XData, Boolean> getProjectXData( final Content content )
-    {
-        final RepositoryId repositoryId = ContextAccessor.current().getRepositoryId();
-        return contentService.getNearestSite( content.getId() ) == null ? Optional.ofNullable(
-                repositoryId != null ? ProjectName.from( repositoryId ) : null )
-            .map( projectService::get )
-            .map( project -> getXDataByApps( this.getSiteConfigsApplicationKeys( project.getSiteConfigs() ), content.getType() ) )
-            .orElseGet( Map::of ) : Map.of();
-    }
-
-    private Collection<ApplicationKey> getSiteConfigsApplicationKeys( final SiteConfigs siteConfigs )
-    {
-        return siteConfigs.stream().map( SiteConfig::getApplicationKey ).collect( Collectors.toSet() );
+        return getXDataByApps( applicationKeys, content.getType() );
     }
 
     private Map<XData, Boolean> getXDataByApps( final Collection<ApplicationKey> applicationKeys, final ContentTypeName contentType )
     {
-
         return applicationKeys.stream()
             .map( applicationKey -> siteService.getDescriptor( applicationKey ) )
             .filter( Objects::nonNull )
@@ -190,13 +175,6 @@ public final class XDataContextResource
         return result;
     }
 
-    private XDatas getContentTypeXData( final Content content )
-    {
-        final ContentType contentType = this.contentTypeService.getByName( GetContentTypeParams.from( content.getType() ) );
-
-        return this.xDataService.getByNames( contentType.getXData() );
-    }
-
     @Reference
     public void setXDataService( final XDataService xDataService )
     {
@@ -221,12 +199,6 @@ public final class XDataContextResource
     public void setSiteService( final SiteService siteService )
     {
         this.siteService = siteService;
-    }
-
-    @Reference
-    public void setContentTypeService( final ContentTypeService contentTypeService )
-    {
-        this.contentTypeService = contentTypeService;
     }
 
     @Reference

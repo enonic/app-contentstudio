@@ -1,6 +1,8 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -174,7 +176,10 @@ public class ContentMediaResourceTest
     private Media.Builder addAttachment( final Media.Builder media, final Attachment attachment )
     {
         final Media source = media.build();
-        final Attachments attachments = source.getAttachments().add( attachment );
+        final List<Attachment> newList = source.getAttachments().stream().collect( Collectors.toList());
+        newList.add( attachment );
+
+        final Attachments attachments = Attachments.from( newList );
 
         return Media.create( source ).attachments( attachments );
     }
