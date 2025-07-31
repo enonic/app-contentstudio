@@ -1,13 +1,44 @@
 .custom-selector {
-  &.multiple-occurrence {
-    .selected-option {
-      padding-left: 0;
+
+  &-combobox.gallery-mode {
+    .selected-option > .squared-content,
+    .gallery-list-box > .item-view-wrapper {
+
+      > .names-and-icon-viewer {
+        width: 100%;
+        height: 100%;
+
+        > .names-and-icon-view {
+          width: 100%;
+          height: 100%;
+
+          > .@{_COMMON_PREFIX}wrapper {
+            width: 100%;
+            height: 100%;
+            margin-right: 0;
+
+            > .font-icon-default {
+              > svg {
+                width: 100%;
+                height: 100%;
+              }
+            }
+          }
+
+          .@{_COMMON_PREFIX}names-view {
+            display: none;
+          }
+        }
+      }
     }
   }
 
-  .custom-selector-list-box {
-    z-index: 2;
+  .gallery-list-box {
+    max-height: 370px;
+    overflow: auto;
+  }
 
+  &-list-box {
     .item-view-wrapper {
       &.selected {
         .viewer {
@@ -23,37 +54,11 @@
         }
       }
     }
-
-    .custom-selector-item-viewer {
-      .@{_COMMON_PREFIX}wrapper {
-        .font-icon-default {
-          > svg {
-            width: 100%;
-            height: 100%;
-          }
-        }
-      }
-
-      .@{_COMMON_PREFIX}names-view {
-        .@{_COMMON_PREFIX}sub-name {
-          :empty {
-            display: none;
-          }
-        }
-      }
-    }
   }
 
-  .custom-selector-selected-option-view {
-    .custom-selector-item-viewer {
-      .@{_COMMON_PREFIX}wrapper {
-        .font-icon-default {
-          > svg {
-            width: 100%;
-            height: 100%;
-          }
-        }
-      }
+  .selection-toolbar {
+    .edit {
+      display: none;
     }
   }
 }

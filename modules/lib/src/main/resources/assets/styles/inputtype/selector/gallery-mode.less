@@ -1,0 +1,115 @@
+.gallery-mode {
+  > .filter-and-list-container {
+    position: relative;
+    grid-area: filter-and-list;
+  }
+
+  > .selection-toolbar {
+    display: flex;
+    width: 100%;
+    padding: 10px 0;
+    text-align: center;
+    box-sizing: border-box;
+    grid-area: selection-toolbar;
+
+    button {
+      margin-right: 10px;
+
+      &:disabled {
+        opacity: 0.5;
+      }
+    }
+
+    &.sticky-toolbar {
+      float: none;
+      position: fixed;
+      bottom: 0;
+      z-index: @z-index-toolbar-element;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px 0;
+      box-sizing: content-box;
+    }
+  }
+
+  > .selected-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-column-gap: 20px;
+    grid-row-gap: 20px;
+    margin-top: 5px;
+    padding: 2px;
+
+    &::before {
+      content: none;
+    }
+
+    > .selected-option {
+      position: relative;
+      height: 178px;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+
+      &:not(.placeholder) {
+        background-color: @admin-white;
+        border: 1px solid @admin-medium-gray-border;
+      }
+
+      > .squared-content {
+        position: static;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        padding: 18px 5px 5px;
+        box-sizing: border-box;
+
+        > .checkbox {
+          position: absolute;
+          top: 3px;
+          left: 3px;
+        }
+
+        > .label {
+          .ellipsis();
+          z-index: 1;
+          display: block;
+          position: absolute;
+          width: 100%;
+          padding: 3px 10px 6px;
+          bottom: 0;
+          left: 0;
+          opacity: 0.8;
+          text-align: center;
+          box-sizing: border-box;
+          background-color: @admin-white;
+        }
+      }
+    }
+
+    &._0-240 {
+      grid-template-columns: 1fr;
+    }
+
+    &._240-360 {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  &.multiple-occurrence,
+  &.single-occurrence {
+    > .selected-options {
+      > .selected-option {
+        display: flex;
+        overflow: hidden;
+      }
+    }
+  }
+
+  &.single-occurrence {
+    .selected-options {
+      .selected-option {
+        cursor: pointer;
+      }
+    }
+  }
+}

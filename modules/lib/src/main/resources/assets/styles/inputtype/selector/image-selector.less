@@ -1,13 +1,6 @@
 .image-selector {
   position: relative;
 
-  .image-selector-dropdown.selectable-listbox-wrapper.content-selector-dropdown {
-    grid-template-areas:
-      'filter-and-list extra-button'
-      'selected-options selected-options'
-      'selection-toolbar selection-toolbar';
-  }
-
   .image-uploader-el {
     .dropzone {
       overflow: visible;
@@ -42,20 +35,7 @@
   }
 
   .selected-options {
-    .clearfix();
-
     .selected-option {
-      position: relative;
-      float: left;
-      width: 28.3018867924%;
-      padding: 0;
-      margin: 10px 4.5% 20px 0;
-
-      &:not(.placeholder) {
-        background-color: @admin-white;
-        border: 1px solid @admin-medium-gray-border;
-      }
-
       &.placeholder::before {
         position: absolute;
         left: 0;
@@ -64,24 +44,9 @@
         margin-top: -22px;
       }
 
-      .squared-content > .label {
-        display: block;
-        position: absolute;
-        width: 100%;
-        padding: 3px 0 3px 0;
-        bottom: 0;
-        opacity: 0.8;
-        text-align: center;
-        overflow: hidden;
-        background-color: @admin-white;
-      }
-
-      .squared-content {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-
+      > .squared-content {
         > img {
+          object-fit: contain;
           display: block;
           max-height: 100%;
           max-width: 100%;
@@ -93,16 +58,6 @@
 
           &.visibility-visible {
             visibility: visible;
-          }
-        }
-
-        > .checkbox {
-          position: absolute;
-          top: 3px;
-          left: 3px;
-
-          label {
-            padding: 0;
           }
         }
 
@@ -150,37 +105,6 @@
         }
       }
     }
-  }
-
-  .selection-toolbar {
-    display: flex;
-    width: 100%;
-    padding: 10px;
-    text-align: center;
-    box-sizing: border-box;
-    grid-area: selection-toolbar;
-
-    button {
-      margin-right: 10px;
-
-      &:disabled {
-        opacity: 0.5;
-      }
-    }
-
-    &.image-selector-toolbar-sticky {
-      float: none;
-      position: fixed;
-      bottom: 0;
-      z-index: @z-index-toolbar-element;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 10px 0;
-      box-sizing: content-box;
-    }
-  }
-
-  .open-library-button {
-    background: url("../../../images/folder-open.png") no-repeat center;
   }
 
   &._0-240,
