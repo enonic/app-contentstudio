@@ -45,15 +45,31 @@ class DateTimePickerPopup extends Page {
         return await this.pause(300);
     }
 
-    async getTimeInOnlineFrom() {
-        let locator = XPATH.onlineFromPickerPopup + "//ul[contains(@id,'TimePickerPopup')]/li/span[1]";
-        let elements = await this.findElements(locator);
-        if (elements.length !== 2) {
-            throw new Error('Error occurred during getting time in  TimePickerPopup');
+    // Click on 'Prev' arrow icon in Online To Data Picker and set a date/time in the input
+    async clickOnHoursArrowPrevInOnlineTo() {
+        try {
+            let selector = XPATH.container + "//a[@class='prev']/span";
+            let elems = await this.findElements(selector);
+            await elems[0].click();
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError('DateTimePickerPopup - click ArrowPrev In Online To', 'err_click_on_hours_arrow_prev', err);
         }
-        let h = await elements[0].getText();
-        let min = await elements[1].getText();
-        return h + ':' + min;
+    }
+
+    async getTimeInOnlineFrom() {
+        try {
+            let locator = XPATH.onlineFromPickerPopup + "//ul[contains(@id,'TimePickerPopup')]/li/span[1]";
+            let elements = await this.findElements(locator);
+            if (elements.length !== 2) {
+                throw new Error('Error occurred during getting time in  TimePickerPopup');
+            }
+            let h = await elements[0].getText();
+            let min = await elements[1].getText();
+            return h + ':' + min;
+        }catch (err){
+            await this.handleError('DateTimePickerPopup - getTime In Online From', 'err_get_time_in_online_from', err);
+        }
     }
 }
 
