@@ -114,6 +114,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             let contentWizard = new ContentWizard();
             //1. open new wizard and fill in the name input:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_2);
+            await studioUtils.saveScreenshot('issue_combobox_2_4__2_opt_selected');
             let result = await comboBoxForm.getSelectedOptionValues();
             await studioUtils.saveScreenshot('combobox_2_4__2_opt_selected');
             assert.ok(result.includes(OPTION_A), "'option A' should be selected");
