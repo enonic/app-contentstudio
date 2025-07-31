@@ -9,7 +9,6 @@
       "editable": false,
       "final": true,
       "iconUrl": "/admin/rest-v2/cs/schema/content/icon/application:test-type?hash=f95b70fdc3088560732a5ac135644506",
-      "metadata": [],
       "name": "application:test-type",
       "superType": "base:structured"
     }
