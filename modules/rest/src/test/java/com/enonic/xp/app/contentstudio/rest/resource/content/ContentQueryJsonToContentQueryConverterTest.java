@@ -31,6 +31,7 @@ import com.enonic.xp.util.Reference;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 
 public class ContentQueryJsonToContentQueryConverterTest
 {
@@ -107,7 +108,7 @@ public class ContentQueryJsonToContentQueryConverterTest
                                   new ArrayList<>(), ContentConstants.BRANCH_DRAFT.getValue() );
 
         Mockito.when( contentService.getById( content.getId() ) ).thenReturn( content );
-        Mockito.when( contentService.getByIds( new GetContentByIdsParams( ContentIds.empty() ) ) ).thenReturn( Contents.empty() );
+        Mockito.when( contentService.getByIds( any(GetContentByIdsParams.class) ) ).thenReturn( Contents.empty() );
 
         ContentQueryJsonToContentQueryConverter processor =
             ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
