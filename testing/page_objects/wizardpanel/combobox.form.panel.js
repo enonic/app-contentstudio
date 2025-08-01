@@ -67,7 +67,7 @@ class ComboBoxFormPanel extends Page {
 
     async getSelectedOptionValues() {
         try {
-            let locator = lib.FORM_VIEW + XPATH.comboBoxListInputDiv + "//div[@class='selected-option']//div[@class='option-value']";
+            let locator = lib.FORM_VIEW + XPATH.comboBoxListInputDiv + "//div[contains(@class,'selected-option')]//div[@class='option-value']";
             let res = await this.findElements(locator);
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(locator);
