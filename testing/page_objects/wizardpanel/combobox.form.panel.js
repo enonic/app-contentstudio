@@ -8,6 +8,7 @@ const ComboBoxListInput = require('../components/selectors/combobox.list.input')
 
 const XPATH = {
     container: "//div[contains(@id,'ComboBox')]",
+    comboBoxListInputDiv: "//div[contains(@class,'combobox-list-input')]",
     comboboxUL: "//ul[contains(@id,'ComboBoxList')]",
     inputViewValidationDiv: "//div[contains(@id,'InputViewValidationViewer')]",
     comboBoxSelectedOptionViewDiv: "//div[contains(@id,'ComboBoxSelectedOptionView')]"
@@ -66,7 +67,8 @@ class ComboBoxFormPanel extends Page {
 
     async getSelectedOptionValues() {
         try {
-            let locator = lib.FORM_VIEW + "//div[@class='selected-option']//div[@class='option-value']";
+            let locator = lib.FORM_VIEW + XPATH.comboBoxListInputDiv + "//div[@class='selected-option']//div[@class='option-value']";
+            let res = await this.findElements(locator);
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(locator);
         } catch (err) {
@@ -76,7 +78,7 @@ class ComboBoxFormPanel extends Page {
 
     async waitForNoOptionsSelected() {
         try {
-            let locator = lib.FORM_VIEW + "//div[@class='selected-option']//div[@class='option-value']";
+            let locator = lib.FORM_VIEW + XPATH.comboBoxListInputDiv + "//div[@class='selected-option']//div[@class='option-value']";
             return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError('ComboBoxFormPanel - waitForNoOptionsSelected:', 'err_wait_for_no_options_selected', err);
