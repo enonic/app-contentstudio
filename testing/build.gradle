@@ -1,4 +1,6 @@
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import java.net.HttpURLConnection
+import java.net.URL
 
 plugins {
     id 'java'
@@ -33,11 +35,24 @@ dependencies {
     apps "com.enonic.uitest:test-application:1.0.0-SNAPSHOT"
 }
 
-tasks.register( 'unpackDistro', Copy ) {
+tasks.register( 'downloadDistro', Copy ) {
+    println '*********************************************************'
+    println '* downloadDistro  *'
+    println '*********************************************************'
+
+    configurations.distro.each { file ->
+        println "Downloading ${file.name}"
+    }
+
     from {
         configurations.distro.collect { tarTree( it ) }
     }
     into unpackDir
+
+    doLast {
+        println 'Task downloadDistro completed successfully.'
+        println 'XP distro was downloaded to ' + unpackDir
+    }
 }
 
 tasks.register( 'copyConfig', Copy ) {
@@ -46,7 +61,7 @@ tasks.register( 'copyConfig', Copy ) {
     include '**.*.cfg'
     include '*.properties'
     into file( configDir )
-    mustRunAfter unpackDistro
+    mustRunAfter downloadDistro
 }
 
 tasks.register( 'copyCustomConfig', Copy ) {
@@ -54,6 +69,7 @@ tasks.register( 'copyCustomConfig', Copy ) {
     from "$appDir${File.separator}custom-config"
     include '**.*.cfg'
     into file( configDir )
+    mustRunAfter downloadDistro
 }
 
 tasks.register( 'copyProjectMultiConfig', Copy ) {
@@ -61,26 +77,19 @@ tasks.register( 'copyProjectMultiConfig', Copy ) {
     from "$appDir${File.separator}project-multi-config"
     include '**.*.cfg'
     into file( configDir )
-}
-
-tasks.register( 'copyApps', Copy ) {
-    println '*********************************************************'
-    println '* task started:copyApps  *'
-    println '*********************************************************'
-    println appDir
-    println deployDir
-    from file( appDir )
-    include '*.jar'
-    into file( deployDir )
-    mustRunAfter unpackDistro
+    mustRunAfter downloadDistro
 }
 
 tasks.register( 'downloadApps', Copy ) {
+    println '*********************************************************'
+    println '* downloadApps  *'
+    println '*********************************************************'
+    println 'Downloading test data to ' + deployDir
     from {
         configurations.apps
     }
     into deployDir
-    mustRunAfter unpackDistro
+    mustRunAfter startServer
 
     doLast {
         println 'Task downloadApps completed successfully.'
@@ -92,13 +101,15 @@ tasks.register( 'downloadApps', Copy ) {
 }
 
 tasks.register( 'deployContentStudio', DefaultTask ) {
+    println '*********************************************************'
+    println '* deployContentStudio  *'
+    println '*********************************************************'
+
+    println 'Downloading Content Studio App from ' + contentStudioAppUrl + ' to ' + contentStudioFile
+
     outputs.files( contentStudioFile )
     doLast {
-        println 'Retrieving Content Studio App from:'
-        println contentStudioAppUrl
-        println 'Deploying to:'
-        println contentStudioFile
-
+        println 'Task deployContentStudio completed successfully.'
         def f = new File( contentStudioFile )
         if ( !f.exists() )
         {
@@ -110,13 +121,19 @@ tasks.register( 'deployContentStudio', DefaultTask ) {
             println 'Content Studio App already exists.'
         }
     }
-    mustRunAfter unpackDistro
+    mustRunAfter downloadDistro
 }
 
 def process
 tasks.register( 'startServer' ) {
-    dependsOn( unpackDistro, deployContentStudio )
+    println '*********************************************************'
+    println '* startServer  *'
+    println '*********************************************************'
+
+    dependsOn( downloadDistro, deployContentStudio )
     doLast {
+        sleep(5000)
+        println 'Starting XP Server...'
         def pb
         if (DefaultNativePlatform.getCurrentOperatingSystem().windows) {
             pb = new ProcessBuilder('cmd', '/c', "${distroDir}\\bin\\server.bat")
@@ -132,11 +149,42 @@ tasks.register( 'startServer' ) {
         pb.redirectOutput(logsPath.file("xp.log").asFile)
         pb.redirectErrorStream(true)
         process = pb.start()
-        sleep(70000)
-    }
-    mustRunAfter downloadApps
-}
 
+        // Make an HTTP POST request to check if the server is up
+        def retryCount = 10
+        def serverUp = false
+        def serverUrl = "http://localhost:2609/health"
+
+        while (retryCount > 0 && !serverUp) {
+            try {
+                def url = new URL(serverUrl)
+                def connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = 'GET'
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
+
+                if (connection.responseCode == 200) {
+                    println 'Server is up and running!'
+                    serverUp = true
+                } else {
+                    println "Server response: ${connection.responseCode}"
+                }
+            } catch (Exception e) {
+                println 'Waiting for server to start...'
+            }
+
+            if (!serverUp) {
+                sleep(5000) // Retry every 5 seconds
+                retryCount--
+            }
+        }
+
+        if (!serverUp) {
+            throw new GradleException("Server failed to start within the expected time!")
+        }
+
+    }
+}
 
 tasks.register( 'stopServer' ) {
     doLast {
@@ -160,7 +208,7 @@ tasks.register( 'generateReportAndStopServer', NpmTask ) {
 
 ///////////////// CHROME WDIO , startServer, copyApps
 tasks.register( 'w_testInputTypes', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
+    dependsOn ( npmInstall, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_input_types:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -171,7 +219,7 @@ tasks.register( 'w_testInputTypesLocal', NpmTask ) {
 }
 
 tasks.register( 'w_testInputTypes_2', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
+    dependsOn ( npmInstall, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_input_types_2:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -182,7 +230,7 @@ tasks.register( 'w_testInputTypes_2_Local', NpmTask ) {
 }
 
 tasks.register( 'w_testModalDialog', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
+    dependsOn ( npmInstall, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_modal_dialog:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -193,7 +241,7 @@ tasks.register( 'w_testModalDialogLocal', NpmTask ) {
 }
 
 tasks.register( 'w_testWizardsGrid', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
+    dependsOn ( npmInstall, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_wizards_grid:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -204,7 +252,7 @@ tasks.register( 'w_testWizardsGridLocal', NpmTask ) {
 }
 
 tasks.register( 'w_testPublishIssues', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
+    dependsOn ( npmInstall, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_publish_issues:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -214,25 +262,25 @@ tasks.register( 'w_testPublishIssuesLocal', NpmTask ) {
 }
 
 tasks.register( 'w_testProjects', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, downloadApps,copyConfig, copyConfig,  startServer )
+    dependsOn ( npmInstall, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_project:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 
 tasks.register( 'w_miscTests', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
+    dependsOn ( npmInstall, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_misc:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 
 tasks.register( 'w_testProjects_2', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
+    dependsOn ( npmInstall, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_project_2:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 
 tasks.register( 'testProjects_multi', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, copyProjectMultiConfig, startServer )
+    dependsOn ( npmInstall, downloadApps, copyConfig, copyProjectMultiConfig, startServer )
     args = ['run-script', 'test_project_multi:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -243,7 +291,7 @@ tasks.register( 'w_testProjectsLocal', NpmTask ) {
 }
 
 tasks.register( 'w_testPageEditor', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, startServer )
+    dependsOn ( npmInstall, downloadApps, copyConfig, startServer )
     args = ['run-script', 'test_page_editor:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
@@ -254,7 +302,7 @@ tasks.register( 'w_testPageEditorLocal', NpmTask ) {
 }
 
 tasks.register( 'w_testExcludeDependencies', NpmTask ) {
-    dependsOn ( npmInstall, copyApps, downloadApps, copyConfig, copyCustomConfig, startServer )
+    dependsOn ( npmInstall, downloadApps, copyConfig, copyCustomConfig, startServer )
     args = ['run-script', 'test_exclude_dependencies:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
