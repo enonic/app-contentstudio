@@ -30,10 +30,7 @@ import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
-import com.enonic.xp.schema.content.ContentTypes;
-import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.schema.mixin.MixinService;
-import com.enonic.xp.schema.mixin.Mixins;
 import com.enonic.xp.schema.xdata.XData;
 import com.enonic.xp.schema.xdata.XDataName;
 import com.enonic.xp.schema.xdata.XDataNames;
@@ -85,7 +82,6 @@ public class XDataContextResourceTest
         resource.setLocaleService( localeService );
         resource.setContentService( contentService );
         resource.setSiteService( siteService );
-        resource.setContentTypeService( contentTypeService );
         resource.setProjectService( projectService );
 
         final AdminRestConfig config = mock( AdminRestConfig.class );
@@ -109,15 +105,15 @@ public class XDataContextResourceTest
     public void getContentXDataMultipleConfig()
         throws Exception
     {
-        final XData xdata1 = generateXData1();
-        final ContentType contentType = mockContentType( XDataNames.empty() );
+        final XData xData = generateXData1();
+        final ContentType contentType = createContentType();
         final Content content = mockContent( contentType.getName() );
         final Site site = createSite( contentType.getName().getApplicationKey() );
 
         final SiteDescriptor siteDescriptor = SiteDescriptor.create()
             .xDataMappings( XDataMappings.from(
-                XDataMapping.create().xDataName( xdata1.getName() ).allowContentTypes( "app:testContentType" ).optional( true ).build(),
-                XDataMapping.create().xDataName( xdata1.getName() ).allowContentTypes( "app:testContentType" ).optional( false ).build() ) )
+                XDataMapping.create().xDataName( xData.getName() ).allowContentTypes( "app:testContentType" ).optional( true ).build(),
+                XDataMapping.create().xDataName( xData.getName() ).allowContentTypes( "app:testContentType" ).optional( false ).build() ) )
             .build();
 
         when( siteService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( siteDescriptor );
@@ -125,10 +121,9 @@ public class XDataContextResourceTest
         when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
         when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
 
-        when( mixinService.getByNames( any() ) ).thenReturn( Mixins.empty() );
-        when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
+        when( xDataService.getByNames( XDataNames.from( xData.getName() ) ) ).thenReturn( XDatas.from( xData ) );
         when( xDataService.getByNames( XDataNames.empty() ) ).thenReturn( XDatas.empty() );
-        when( xDataService.getByName( xdata1.getName() ) ).thenReturn( xdata1 );
+        when( xDataService.getByName( xData.getName() ) ).thenReturn( xData );
 
         String result =
             request().path( "cms/default/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
@@ -137,31 +132,27 @@ public class XDataContextResourceTest
     }
 
     @Test
-    public void getContentXData()
+    public void getContentXDataFromNearestSite()
         throws Exception
     {
-        final XData xdata1 = generateXData1();
-        final XData xdata2 = generateXData2();
-        final ContentType contentType = mockContentType( XDataNames.from( xdata1.getName().toString() ) );
+        final XData xData1 = generateXData1();
+        final XData xData2 = generateXData2();
+        final ContentType contentType = createContentType();
         final Content content = mockContent( contentType.getName() );
         final Site site = createSite( contentType.getName().getApplicationKey() );
 
         final SiteDescriptor siteDescriptor = SiteDescriptor.create()
             .xDataMappings( XDataMappings.from(
-                XDataMapping.create().xDataName( xdata2.getName() ).allowContentTypes( "app:testContentType|^app:*" ).build() ) )
+                XDataMapping.create().xDataName( xData1.getName() ).allowContentTypes( "app:testContentType|^app:*" ).build(),
+                XDataMapping.create().xDataName( xData2.getName() ).allowContentTypes( "app:testContentType|^app:*" ).build() ) )
             .build();
 
         when( siteService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( siteDescriptor );
-
         when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
         when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
+        when( xDataService.getByName( xData1.getName() ) ).thenReturn( xData1 );
+        when( xDataService.getByName( xData2.getName() ) ).thenReturn( xData2 );
 
-        when( mixinService.getByNames( any() ) ).thenReturn( Mixins.empty() );
-        when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
-        when( xDataService.getByNames( XDataNames.from( xdata2.getName() ) ) ).thenReturn( XDatas.from( xdata2 ) );
-        when( xDataService.getByName( xdata2.getName() ) ).thenReturn( xdata2 );
-
-        when( xDataService.getByApplication( any() ) ).thenReturn( XDatas.from( xdata2 ) );
 
         String result =
             request().path( "cms/default/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
@@ -170,21 +161,18 @@ public class XDataContextResourceTest
     }
 
     @Test
-    public void getContentXDataNoSiteDescriptor()
+    public void getContentXDataNoSiteDescriptorNoProjectDescriptor()
         throws Exception
     {
-        final XData xdata1 = generateXData1();
-        final ContentType contentType = mockContentType( XDataNames.from( xdata1.getName().toString() ) );
+        final XData xData1 = generateXData1();
+        final ContentType contentType = createContentType();
         final Content content = mockContent( contentType.getName() );
         final Site site = createSite( contentType.getName().getApplicationKey() );
 
         when( siteService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( null );
-
         when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
         when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
-
-        when( mixinService.getByNames( any() ) ).thenReturn( Mixins.empty() );
-        when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
+        when( xDataService.getByName( xData1.getName() ) ).thenReturn( xData1 );
 
         String result =
             request().path( "cms/default/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
@@ -199,7 +187,7 @@ public class XDataContextResourceTest
         final XData xdata1 = generateXData1();
         final XData xdata2 = generateXData2();
 
-        final ContentType contentType = mockContentType( XDataNames.from( xdata1.getName().toString() ) );
+        final ContentType contentType = createContentType();
         final Content content = mockContent( contentType.getName() );
 
         final SiteDescriptor siteDescriptor = SiteDescriptor.create()
@@ -219,7 +207,6 @@ public class XDataContextResourceTest
 
         when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
 
-        when( mixinService.getByNames( any() ) ).thenReturn( Mixins.empty() );
         when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
         when( xDataService.getByNames( XDataNames.from( xdata2.getName() ) ) ).thenReturn( XDatas.from( xdata2 ) );
         when( xDataService.getByName( xdata2.getName() ) ).thenReturn( xdata2 );
@@ -234,7 +221,7 @@ public class XDataContextResourceTest
                 .get()
                 .getAsString() );
 
-        assertJson( "get_content_x_data.json", result );
+        assertJson( "get_project_x_data.json", result );
     }
 
     private XData generateXData1()
@@ -272,22 +259,14 @@ public class XDataContextResourceTest
     private Content mockContent( final ContentTypeName contentTypeName )
     {
         final Content content = mock( Content.class );
-        when( content.getType() ).thenReturn(contentTypeName );
+        when( content.getType() ).thenReturn( contentTypeName );
         when( content.getId() ).thenReturn( ContentId.from( "contentId" ) );
         return content;
     }
 
-    private ContentType mockContentType( final XDataNames xDataNames )
+    private ContentType createContentType()
     {
-        final ContentType contentType = ContentType.create()
-            .name( "app:testContentType" )
-            .superType( ContentTypeName.folder() )
-            .xData( xDataNames )
-            .build();
-        when( contentTypeService.getByName( GetContentTypeParams.from( contentType.getName() ) ) ).thenReturn( contentType );
-        when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( contentType ) );
-
-        return contentType;
+        return ContentType.create().name( "app:testContentType" ).superType( ContentTypeName.folder() ).build();
     }
 
     private Site createSite( final ApplicationKey applicationKey )

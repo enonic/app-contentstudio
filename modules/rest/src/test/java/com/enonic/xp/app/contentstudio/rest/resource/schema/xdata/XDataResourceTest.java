@@ -146,7 +146,6 @@ public class XDataResourceTest
 
         when( siteService.getDescriptor( contentTypeName.getApplicationKey() ) ).thenReturn( siteDescriptor );
 
-        when( mixinService.getByNames( any() ) ).thenReturn( Mixins.empty() );
         when( xDataService.getByNames( XDataNames.from( xdata2.getName().toString(), xdata3.getName().toString() ) ) )
             .thenReturn( XDatas.from( xdata2 ) );
 

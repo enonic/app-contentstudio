@@ -101,7 +101,7 @@ class FilterByContentResolverTest
         when( config.contentTypePatternMode() ).thenReturn( "MATCH" );
         filterByContentResolver.activate( config );
 
-        knownContentTypes = new HashSet<>( BuiltinContentTypesAccessor.getAll() );
+        knownContentTypes = new HashSet<>( BuiltinContentTypesAccessor.getAll().stream().toList() );
 
         lenient().when( contentTypeService.getByName(
                 argThat( argument -> knownContentTypes.stream().anyMatch( ct -> ct.getName().equals( argument.getContentTypeName() ) ) ) ) )
