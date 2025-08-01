@@ -14,7 +14,6 @@ import {OrderContentRequest} from '../../../resource/OrderContentRequest';
 import {Content} from '../../../content/Content';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {TabMenuItem, TabMenuItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
-import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
 import {TabMenu} from '@enonic/lib-admin-ui/ui/tab/TabMenu';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {ModalDialog, ModalDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
@@ -26,6 +25,7 @@ import {ContentSummaryAndCompareStatusFetcher} from '../../../resource/ContentSu
 import {RestoreInheritRequest} from '../../../resource/RestoreInheritRequest';
 import {ContentInheritType} from '../../../content/ContentInheritType';
 import {ChildOrder} from '../../../resource/order/ChildOrder';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 
 export class SortContentDialog
     extends ModalDialog {
@@ -40,7 +40,7 @@ export class SortContentDialog
 
     private gridDragHandler: ContentGridDragHandler;
 
-    private saveButton: DialogButton;
+    private saveButton: ActionButton;
 
     private subHeader: H6El;
 

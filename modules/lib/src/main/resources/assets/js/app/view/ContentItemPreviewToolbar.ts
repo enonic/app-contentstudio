@@ -1,18 +1,18 @@
-import * as Q from 'q';
-import {ContentStatusToolbar} from '../ContentStatusToolbar';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
+import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {PreviewActionHelper} from '../action/PreviewActionHelper';
-import {EmulatorDropdown} from './toolbar/EmulatorDropdown';
-import {AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {PreviewActionHelper} from '../action/PreviewActionHelper';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {RenderingMode} from '../rendering/RenderingMode';
+import {EmulatorDropdown} from './toolbar/EmulatorDropdown';
+import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
 
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {
@@ -40,8 +40,10 @@ export class ContentItemPreviewToolbar
         this.widgetSelector = new PreviewWidgetDropdown();
         this.emulatorSelector = new EmulatorDropdown();
 
-        this.previewButton = new ActionButton(new WidgetPreviewAction(this));
-        this.previewButton.addClass('icon-newtab');
+        this.previewButton = new ActionButton({
+            action: new WidgetPreviewAction(this),
+            className: 'icon-newtab',
+        });
     }
 
     protected initListeners(): void {
