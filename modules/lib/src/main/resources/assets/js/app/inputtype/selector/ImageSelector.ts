@@ -28,9 +28,10 @@ import {ImageSelectorDropdown} from './ImageSelectorDropdown';
 import {ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
 import {ContentListBox} from './ContentListBox';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 
 export class ImageSelector
-    extends MediaSelector {
+    extends MediaSelector<ImageSelectorSelectedOptionsView> {
 
     constructor(context: ContentInputTypeViewContext) {
         super(context);
@@ -47,12 +48,12 @@ export class ImageSelector
         return raw.getContentSummary()?.getPath();
     }
 
-    getSelectedOptionsView(): ImageSelectorSelectedOptionsView {
-        return super.getSelectedOptionsView() as ImageSelectorSelectedOptionsView;
+    getSelectedOptionsView(): BaseSelectedOptionsView<MediaTreeSelectorItem> {
+        return super.getSelectedOptionsView() as BaseSelectedOptionsView<MediaTreeSelectorItem>;
     }
 
-    protected createSelectedOptionsView(): ImageSelectorSelectedOptionsView {
-        let selectedOptionsView = new ImageSelectorSelectedOptionsView();
+    protected createSelectedOptionsView(): BaseSelectedOptionsView<MediaTreeSelectorItem> {
+        let selectedOptionsView = new ImageSelectorSelectedOptionsView(this.context.content?.isReadOnly());
 
         selectedOptionsView.onEditSelectedOptions((options: SelectedOption<MediaTreeSelectorItem>[]) => {
             options.forEach((option: SelectedOption<MediaTreeSelectorItem>) => {
@@ -60,21 +61,6 @@ export class ImageSelector
                 const model = ContentSummaryAndCompareStatus.fromContentSummary(content);
                 new EditContentEvent([model], this.context.project).fire();
             });
-        });
-
-        selectedOptionsView.onRemoveSelectedOptions((options: SelectedOption<MediaTreeSelectorItem>[]) => {
-            options.forEach((option: SelectedOption<MediaTreeSelectorItem>) => {
-                const item: MediaTreeSelectorItem = option.getOption().getDisplayValue();
-
-                if (item.isEmptyContent()) {
-                    selectedOptionsView.removeOption(option.getOption());
-                  //  this.handleDeselected(option.getIndex());
-                } else {
-                    this.contentSelectorDropdown.deselect(item);
-                }
-
-            });
-            this.handleValueChanged(false);
         });
 
         return selectedOptionsView;
@@ -105,9 +91,9 @@ export class ImageSelector
                     config.allowMimeTypes = mimeTypes;
                     return this.doInitUploader(new ImageUploaderEl(config));
                 });
-        } else {
-            return Q(this.doInitUploader(new ImageUploaderEl(config)));
         }
+
+        return Q(this.doInitUploader(new ImageUploaderEl(config)));
     }
 
     protected doInitUploader(uploader: ImageUploaderEl): ImageUploaderEl {
@@ -139,10 +125,10 @@ export class ImageSelector
             const item: UploadItem<Content> = event.getUploadItem();
 
             const selectedOption: SelectedOption<MediaTreeSelectorItem> =
-                this.getSelectedOptionsView().getById(item.getId()) as SelectedOption<MediaTreeSelectorItem>;
+                this.getSelectedOptionsView().getById(item.getId());
 
             if (!!selectedOption) {
-                this.getSelectedOptionsView().removeSelectedOptions([selectedOption]);
+                this.getSelectedOptionsView().removeOption(selectedOption.getOption());
             }
         });
     }
@@ -166,7 +152,7 @@ export class ImageSelector
     }
 
     protected getDropdownClassName(): string {
-        return 'image-selector-dropdown';
+        return 'gallery-mode';
     }
 
     protected handleSelectedOptionDeleted(selectedOption: SelectedOption<ContentTreeSelectorItem>): void {

@@ -5,10 +5,6 @@ import {CustomSelectorItem} from './CustomSelectorItem';
 export class CustomSelectorItemViewer
     extends NamesAndIconViewer<CustomSelectorItem> {
 
-    constructor() {
-        super('custom-selector-item-viewer');
-    }
-
     resolveDisplayName(object: CustomSelectorItem): string {
         return object.displayName;
     }

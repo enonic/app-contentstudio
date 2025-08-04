@@ -52,7 +52,6 @@ export class WizardWidgetRenderingHandler
     protected handlePreviewFailure(response?: Response, data?: Record<string, never>) {
         if (data?.hasControllers && !data.hasPage) {
             // special handling for site engine to show controller dropdown
-            console.info('Special case for site engine widget: showing dropdown');
             super.setPreviewType(PREVIEW_TYPE.EMPTY);
             this.hideMask();
         } else {

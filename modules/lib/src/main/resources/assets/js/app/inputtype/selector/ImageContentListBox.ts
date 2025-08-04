@@ -6,7 +6,7 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 export class ImageContentListBox extends ContentListBox<MediaTreeSelectorItem> {
 
     constructor(options: ContentListBoxOptions<MediaTreeSelectorItem>) {
-        options.className = (options.className || '') + ' image-content-list-box';
+        options.className = `${(options.className || '')} gallery-list-box`;
         super(options);
     }
 
