@@ -1,11 +1,5 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import com.google.common.base.Preconditions;
-
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationWildcardMatcher;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentSelectorQueryJson;
@@ -14,21 +8,18 @@ import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.node.NodeIndexPath;
-import com.enonic.xp.query.expr.CompareExpr;
-import com.enonic.xp.query.expr.ConstraintExpr;
-import com.enonic.xp.query.expr.FieldExpr;
-import com.enonic.xp.query.expr.LogicalExpr;
-import com.enonic.xp.query.expr.QueryExpr;
-import com.enonic.xp.query.expr.ValueExpr;
+import com.enonic.xp.query.expr.*;
 import com.enonic.xp.query.parser.QueryParser;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
 import com.enonic.xp.schema.content.ContentTypeService;
-import com.enonic.xp.schema.relationship.RelationshipType;
-import com.enonic.xp.schema.relationship.RelationshipTypeName;
-import com.enonic.xp.schema.relationship.RelationshipTypeService;
 import com.enonic.xp.site.Site;
+import com.google.common.base.Preconditions;
+
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -39,8 +30,6 @@ public class ContentSelectorQueryJsonToContentQueryConverter
     private final ContentService contentService;
 
     private final ContentTypeService contentTypeService;
-
-    private final RelationshipTypeService relationshipTypeService;
 
     private final Content content;
 
@@ -54,7 +43,6 @@ public class ContentSelectorQueryJsonToContentQueryConverter
     {
         this.contentQueryJson = builder.contentQueryJson;
         this.contentService = builder.contentService;
-        this.relationshipTypeService = builder.relationshipTypeService;
         this.content = contentQueryJson.getContentId() != null ? contentService.getById( contentQueryJson.getContentId() ) : null;
         this.contentTypeService = builder.contentTypeService;
         this.contentTypeParseMode = builder.contentTypeParseMode;
@@ -77,7 +65,7 @@ public class ContentSelectorQueryJsonToContentQueryConverter
 
         if ( contentTypeNames.isEmpty() )
         {
-            return this.getContentTypeNamesFromRelationshipType();
+            return ContentTypeNames.empty();
         }
 
         final ApplicationKey applicationKey = getApplicationKey();
@@ -118,18 +106,6 @@ public class ContentSelectorQueryJsonToContentQueryConverter
 
         return ContentTypeNames.from(
             contentTypeService.getAll().stream().map( ContentType::getName ).filter( filter ).collect( Collectors.toList() ) );
-    }
-
-    private ContentTypeNames getContentTypeNamesFromRelationshipType()
-    {
-        if ( this.contentQueryJson.getRelationshipType() == null )
-        {
-            return ContentTypeNames.empty();
-        }
-
-        final RelationshipType relationshipType =
-            relationshipTypeService.getByName( RelationshipTypeName.from( this.contentQueryJson.getRelationshipType() ) );
-        return getContentTypeNamesFromRelationship( relationshipType );
     }
 
     private QueryExpr createQueryExpr()
@@ -223,15 +199,6 @@ public class ContentSelectorQueryJsonToContentQueryConverter
         return ValueExpr.string( "/" + ContentConstants.CONTENT_ROOT_NAME + resolvedPath );
     }
 
-    private ContentTypeNames getContentTypeNamesFromRelationship( final RelationshipType relationshipType )
-    {
-        if ( relationshipType == null )
-        {
-            return ContentTypeNames.empty();
-        }
-        return ContentTypeNames.from( relationshipType.getAllowedToTypes() );
-    }
-
     public static Builder create()
     {
         return new Builder();
@@ -242,8 +209,6 @@ public class ContentSelectorQueryJsonToContentQueryConverter
         private ContentSelectorQueryJson contentQueryJson;
 
         private ContentService contentService;
-
-        private RelationshipTypeService relationshipTypeService;
 
         private ContentTypeService contentTypeService;
 
@@ -258,12 +223,6 @@ public class ContentSelectorQueryJsonToContentQueryConverter
         public Builder contentService( final ContentService contentService )
         {
             this.contentService = contentService;
-            return this;
-        }
-
-        public Builder relationshipTypeService( final RelationshipTypeService relationshipTypeService )
-        {
-            this.relationshipTypeService = relationshipTypeService;
             return this;
         }
 
@@ -283,7 +242,6 @@ public class ContentSelectorQueryJsonToContentQueryConverter
         {
             Preconditions.checkNotNull( contentQueryJson, "contentQueryJson must be set" );
             Preconditions.checkNotNull( contentTypeParseMode, "contentTypeParseMode must be set" );
-            Preconditions.checkNotNull( relationshipTypeService, "relationshipTypeService must be set" );
             Preconditions.checkNotNull( contentService, "contentService must be set" );
         }
 

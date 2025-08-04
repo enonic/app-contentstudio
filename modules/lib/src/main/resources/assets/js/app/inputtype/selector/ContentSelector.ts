@@ -337,7 +337,6 @@ export class ContentSelector
         return this.createOptionDataLoaderBuilder()
             .setAllowedContentPaths(this.allowedContentPaths)
             .setContentTypeNames(this.allowedContentTypes)
-            .setRelationshipType(this.relationshipType)
             .setContent(this.context.content)
             .setProject(this.context.project)
             .setApplicationKey(this.context.applicationKey)

@@ -174,7 +174,6 @@ import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.GetContentTypeParams;
-import com.enonic.xp.schema.relationship.RelationshipTypeService;
 import com.enonic.xp.schema.xdata.XDataName;
 import com.enonic.xp.security.IdProviderKey;
 import com.enonic.xp.security.Principal;
@@ -253,8 +252,6 @@ public class ContentResourceTest
 
     private TaskService taskService;
 
-    private RelationshipTypeService relationshipTypeService;
-
     private BinaryExtractor binaryExtractor;
 
     private LayoutDescriptorService layoutDescriptorService;
@@ -293,9 +290,6 @@ public class ContentResourceTest
 
         taskService = mock( TaskService.class );
         resource.setTaskService( taskService );
-
-        relationshipTypeService = mock( RelationshipTypeService.class );
-        resource.setRelationshipTypeService( relationshipTypeService );
 
         layoutDescriptorService = mock( LayoutDescriptorService.class );
         partDescriptorService = mock( PartDescriptorService.class );
@@ -2025,7 +2019,7 @@ public class ContentResourceTest
         when( contentService.getByIds( any(GetContentByIdsParams.class) ) ).thenReturn( Contents.from( content ) );
 
         AbstractContentQueryResultJson result = contentResource.selectorQuery(
-            new ContentTreeSelectorQueryJson( "", 0, 10, null, null, null, new ArrayList<>(), new ArrayList<>(), null, null, null, null ),
+            new ContentTreeSelectorQueryJson( "", 0, 10, null, null, null, new ArrayList<>(), new ArrayList<>(), null,  null, null ),
             request );
 
         assertEquals( 1, result.getContents().size() );

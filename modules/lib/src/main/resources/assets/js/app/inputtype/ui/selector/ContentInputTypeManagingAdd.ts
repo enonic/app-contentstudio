@@ -14,8 +14,6 @@ export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
 
     protected context: ContentInputTypeViewContext;
 
-    protected relationshipType: string;
-
     protected allowedContentTypes: string[];
 
     protected allowedContentPaths: string[];
@@ -45,11 +43,6 @@ export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         return new ApplicationBasedName(applicationKey, name).toString();
     }
 
-    private getRelationShipType(inputConfig: Record<string, Record<string, string>[]>): string {
-        const relationshipTypeConfig = inputConfig['relationshipType'] ? inputConfig['relationshipType'][0] : {};
-        return relationshipTypeConfig['value'];
-    }
-
     private getAllowedContentTypes(inputConfig: Record<string, Record<string, string>[]>): string[] {
         const applicationKey: ApplicationKey = (this.context.input as FormItem).getApplicationKey();
         const allowContentTypeConfig = inputConfig['allowContentType'] || [];
@@ -75,7 +68,6 @@ export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     protected readInputConfig(): void {
         const inputConfig: Record<string, Record<string, string>[]> = this.context.inputConfig;
 
-        this.relationshipType = this.getRelationShipType(inputConfig);
         this.allowedContentTypes = this.getAllowedContentTypes(inputConfig);
         this.allowedContentPaths = this.getAllowedContentPaths(inputConfig);
     }

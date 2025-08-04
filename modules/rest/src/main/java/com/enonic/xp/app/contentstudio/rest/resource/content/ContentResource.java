@@ -187,7 +187,6 @@ import com.enonic.xp.query.filter.IdFilter;
 import com.enonic.xp.query.parser.QueryParser;
 import com.enonic.xp.repository.IndexException;
 import com.enonic.xp.schema.content.ContentTypeService;
-import com.enonic.xp.schema.relationship.RelationshipTypeService;
 import com.enonic.xp.security.Principal;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.PrincipalKeys;
@@ -249,8 +248,6 @@ public final class ContentResource
     private ContentPrincipalsResolver principalsResolver;
 
     private SecurityService securityService;
-
-    private RelationshipTypeService relationshipTypeService;
 
     private BinaryExtractor extractor;
 
@@ -1428,7 +1425,6 @@ public final class ContentResource
             .contentQueryJson( contentQueryJson )
             .contentService( this.contentService )
             .contentTypeService( this.contentTypeService )
-            .relationshipTypeService( this.relationshipTypeService )
             .contentTypeParseMode( this.contentTypeParseMode )
             .build();
     }
@@ -1854,12 +1850,6 @@ public final class ContentResource
     {
         this.principalsResolver = new ContentPrincipalsResolver( securityService );
         this.securityService = securityService;
-    }
-
-    @Reference
-    public void setRelationshipTypeService( final RelationshipTypeService relationshipTypeService )
-    {
-        this.relationshipTypeService = relationshipTypeService;
     }
 
     @Reference

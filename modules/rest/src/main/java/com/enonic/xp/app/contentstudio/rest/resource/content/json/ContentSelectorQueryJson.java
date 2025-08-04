@@ -23,8 +23,6 @@ public class ContentSelectorQueryJson
 
     private final List<String> allowedContentPaths;
 
-    private final String relationshipType;
-
     private final ApplicationKey applicationKey;
 
     private Integer from;
@@ -39,7 +37,6 @@ public class ContentSelectorQueryJson
                                      @JsonProperty("inputName") final String inputName,
                                      @JsonProperty("contentTypeNames") final List<String> contentTypeNamesString,
                                      @JsonProperty("allowedContentPaths") final List<String> allowedContentPaths,
-                                     @JsonProperty("relationshipType") final String relationshipType,
                                      @JsonProperty("applicationKey") final String applicationKey )
     {
 
@@ -51,7 +48,6 @@ public class ContentSelectorQueryJson
         this.inputName = inputName;
         this.contentTypeNames = contentTypeNamesString;
         this.allowedContentPaths = allowedContentPaths;
-        this.relationshipType = relationshipType;
         this.applicationKey = applicationKey != null ? ApplicationKey.from( applicationKey ) : null;
     }
 
@@ -101,12 +97,6 @@ public class ContentSelectorQueryJson
     public List<String> getAllowedContentPaths()
     {
         return allowedContentPaths;
-    }
-
-    @JsonIgnore
-    public String getRelationshipType()
-    {
-        return relationshipType;
     }
 
     @JsonIgnore
