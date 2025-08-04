@@ -64,6 +64,8 @@ export abstract class BaseGallerySelectedOptionsView<T> extends BaseSelectedOpti
                 this.selection.splice(index, 1);
             }
         }
+
+        optionView.getCheckbox().setChecked(checked, true);
         optionView.getCheckbox().giveFocus();
         this.updateSelectionToolbarLayout();
     }

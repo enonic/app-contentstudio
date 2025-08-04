@@ -49,6 +49,7 @@
       width: 100%;
       margin: 0;
       padding: 0;
+      z-index: 1;
 
       &:not(.placeholder) {
         background-color: @admin-white;
@@ -67,6 +68,7 @@
           position: absolute;
           top: 3px;
           left: 3px;
+          z-index: 0;
         }
 
         > .label {
@@ -83,6 +85,13 @@
           box-sizing: border-box;
           background-color: @admin-white;
         }
+      }
+    }
+
+    &.sortable:not(.readonly) {
+      > .selected-option,
+      > .selected-option .names-and-icon-view {
+        cursor: pointer;
       }
     }
 

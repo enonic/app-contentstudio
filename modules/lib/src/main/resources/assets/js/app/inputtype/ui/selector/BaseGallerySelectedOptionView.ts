@@ -21,7 +21,17 @@ export abstract class BaseGallerySelectedOptionView<T> extends LibBaseSelectedOp
     }
 
     protected createWrapper(): DivEl {
-        return new DivEl('squared-content');
+        const wrapper = new DivEl('squared-content');
+
+        if (this.editable || this.removable) {
+            wrapper.onClicked((event: MouseEvent) => {
+                this.check.toggleChecked();
+                event.preventDefault();
+                event.stopPropagation();
+            });
+        }
+
+        return wrapper;
     }
 
     protected initElements(): void {
@@ -33,17 +43,6 @@ export abstract class BaseGallerySelectedOptionView<T> extends LibBaseSelectedOp
 
     private createCheckbox(): void {
         this.check = Checkbox.create().build();
-
-        this.check.onClicked((event: MouseEvent) => {
-            this.check.toggleChecked();
-            event.preventDefault();
-            event.stopPropagation();
-        });
-
-        this.check.onMouseDown((event: MouseEvent) => {
-            event.stopPropagation();
-            event.preventDefault();
-        });
 
         this.check.onValueChanged((event: ValueChangedEvent) => {
             this.notifyChecked(event.getNewValue() === 'true');
