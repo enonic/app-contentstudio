@@ -9,7 +9,7 @@ export class ImageSelectorSelectedOptionsView
 
     private editSelectedOptionsListeners: ((option: SelectedOption<MediaTreeSelectorItem>[]) => void)[] = [];
 
-    constructor(readonly: boolean) {
+    constructor(readonly: boolean = false) {
         super({editable: !readonly, readonly});
 
         this.toolbar?.onEditClicked(() => {

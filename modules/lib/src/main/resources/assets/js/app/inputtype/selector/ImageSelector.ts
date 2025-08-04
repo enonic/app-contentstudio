@@ -53,7 +53,7 @@ export class ImageSelector
     }
 
     protected createSelectedOptionsView(): BaseSelectedOptionsView<MediaTreeSelectorItem> {
-        let selectedOptionsView = new ImageSelectorSelectedOptionsView(this.context.content.isReadOnly());
+        let selectedOptionsView = new ImageSelectorSelectedOptionsView(this.context.content?.isReadOnly());
 
         selectedOptionsView.onEditSelectedOptions((options: SelectedOption<MediaTreeSelectorItem>[]) => {
             options.forEach((option: SelectedOption<MediaTreeSelectorItem>) => {
