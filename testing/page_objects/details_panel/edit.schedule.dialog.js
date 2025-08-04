@@ -123,6 +123,11 @@ class EditScheduleDialog extends Page {
         let dateTimeRange = new DateTimeRange(xpath.scheduleStepFormDiv);
         return dateTimeRange.waitForOnlineFromInputDisplayed();
     }
+
+    async showOnlineToPickerPopup() {
+        let dateTimeRange = new DateTimeRange(xpath.container);
+        await dateTimeRange.showOnlineToPickerPopup();
+    }
 }
 
 module.exports = EditScheduleDialog;
