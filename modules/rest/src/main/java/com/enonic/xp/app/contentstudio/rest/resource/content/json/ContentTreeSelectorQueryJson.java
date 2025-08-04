@@ -26,12 +26,11 @@ public class ContentTreeSelectorQueryJson
                                          @JsonProperty("inputName") final String inputName,
                                          @JsonProperty("contentTypeNames") final List<String> contentTypeNamesString,
                                          @JsonProperty("allowedContentPaths") final List<String> allowedContentPaths,
-                                         @JsonProperty("relationshipType") final String relationshipType,
                                          @JsonProperty("parentPath") final String parentPath,
                                          @JsonProperty("childOrder") final String childOrder,
                                          @JsonProperty("applicationKey") final String applicationKey )
     {
-        super( queryExprString, from, size, expand, contentId, inputName, contentTypeNamesString, allowedContentPaths, relationshipType,
+        super( queryExprString, from, size, expand, contentId, inputName, contentTypeNamesString, allowedContentPaths,
                applicationKey );
 
         if ( parentPath != null )

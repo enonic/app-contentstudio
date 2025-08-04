@@ -180,7 +180,6 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         if (this.smartTreeMode) {
             request.setContentTypeNames(builder.contentTypeNames);
             request.setAllowedContentPaths(builder.allowedContentPaths);
-            request.setRelationshipType(builder.relationshipType);
         }
         request.setContent(builder.content);
     }
@@ -270,8 +269,6 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     allowedContentPaths: string[] = [];
 
-    relationshipType: string;
-
     smartTreeMode: boolean = true;
 
     fakeRoot: ContentSummary;
@@ -291,11 +288,6 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     setAllowedContentPaths(allowedContentPaths: string[]): this {
         this.allowedContentPaths = allowedContentPaths;
-        return this;
-    }
-
-    setRelationshipType(relationshipType: string): this {
-        this.relationshipType = relationshipType;
         return this;
     }
 

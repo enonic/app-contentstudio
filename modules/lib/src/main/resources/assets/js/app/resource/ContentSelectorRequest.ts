@@ -38,8 +38,6 @@ export abstract class ContentSelectorRequest<CONTENT>
 
     private allowedContentPaths: string[] = [];
 
-    private relationshipType: string;
-
     private applicationKey: ApplicationKey;
 
     protected loaded: boolean;
@@ -95,10 +93,6 @@ export abstract class ContentSelectorRequest<CONTENT>
 
     setAllowedContentPaths(allowedContentPaths: string[]) {
         this.allowedContentPaths = allowedContentPaths;
-    }
-
-    setRelationshipType(relationshipType: string) {
-        this.relationshipType = relationshipType;
     }
 
     setExpand(expand: Expand) {
@@ -162,7 +156,6 @@ export abstract class ContentSelectorRequest<CONTENT>
             inputName: this.getInputName(),
             contentTypeNames: this.contentTypeNames,
             allowedContentPaths: this.allowedContentPaths,
-            relationshipType: this.relationshipType,
             applicationKey: this.applicationKey?.toString() || null
         };
     }
