@@ -35,13 +35,14 @@ import {ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentListBox} from './ContentListBox';
 import {ContentTreeSelectorDropdown, ContentTreeSelectorDropdownOptions} from './ContentTreeSelectorDropdown';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 
-export class ContentSelector
+export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelectorItem> = ContentSelectedOptionsView>
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
 
     protected contentSelectorDropdown: ContentTreeSelectorDropdown;
 
-    protected contentSelectedOptionsView: ContentSelectedOptionsView;
+    protected contentSelectedOptionsView: T;
 
     protected newContentButton: NewContentButton;
 
@@ -182,7 +183,7 @@ export class ContentSelector
         return '${site}';
     }
 
-    protected getSelectedOptionsView(): ContentSelectedOptionsView {
+    protected getSelectedOptionsView(): BaseSelectedOptionsView<ContentTreeSelectorItem> {
         return this.contentSelectedOptionsView;
     }
 
@@ -218,14 +219,15 @@ export class ContentSelector
     }
 
     protected createSelectorDropdown(input: Input): ContentTreeSelectorDropdown {
-        this.contentSelectedOptionsView = this.createSelectedOptionsView().setContextContent(this.context.content);
+        this.contentSelectedOptionsView = this.createSelectedOptionsView() as T;
+
         const loader = this.createLoader();
         const listBox = this.createContentListBox(loader);
 
         const dropdownOptions: ContentTreeSelectorDropdownOptions = {
             treeMode: this.treeMode,
             hideToggleIcon: this.hideToggleIcon,
-            loader: loader,
+            loader,
             className: this.getDropdownClassName(),
             maxSelected: input.getOccurrences().getMaximum(),
             selectedOptionsView: this.contentSelectedOptionsView,
@@ -280,8 +282,8 @@ export class ContentSelector
         return this.getValueFromPropertyArray(this.getPropertyArray()).split(';');
     }
 
-    protected createSelectedOptionsView(): ContentSelectedOptionsView {
-        return new ContentSelectedOptionsView();
+    protected createSelectedOptionsView(): BaseSelectedOptionsView<ContentTreeSelectorItem> {
+        return new ContentSelectedOptionsView().setContextContent(this.context.content);
     }
 
     protected createContentListBox(loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>): ContentListBox<ContentTreeSelectorItem> {
@@ -403,8 +405,11 @@ export class ContentSelector
         this.ignorePropertyChange(true);
         this.getPropertyArray().removeAll(true);
 
-        this.contentSelectorDropdown.getSelectedOptions().filter((option: SelectedOption<ContentTreeSelectorItem>) => {
-            const contentId = option.getOption().getDisplayValue().getContentId();
+        this.contentSelectorDropdown.getSelectedOptions().filter((selectedOption: SelectedOption<ContentTreeSelectorItem>) => {
+            const contentId = selectedOption.getOption().getDisplayValue()?.getContentId();
+            if (!contentId) {
+                return false;
+            }
             const reference: Reference = new Reference(contentId.toString());
             const value: Value = new Value(reference, ValueTypes.REFERENCE);
             this.getPropertyArray().add(value);

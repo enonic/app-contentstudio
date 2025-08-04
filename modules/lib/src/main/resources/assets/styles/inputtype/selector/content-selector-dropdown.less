@@ -1,87 +1,165 @@
 .content-selector-dropdown {
-  .content-list-box {
-    max-height: 370px;
-    overflow: auto;
+  .extra-button {
+    grid-area: extra-button;
+  }
+
+  .uploader-el {
+    .upload-button {
+      border-left: none;
+    }
+  }
+
+  .filter-and-list-container {
+    position: relative;
+    grid-area: filter-and-list;
+
+    .content-list-box {
+      max-height: 370px;
+      overflow: auto;
+    }
+  }
+
+  .new-content-button {
+    width: 36px;
+    height: 36px;
+    border: 1px solid @admin-medium-gray-border;
+    border-left: none;
+    background-color: @admin-white;
+
+    &.icon-spinner::before {
+      .animation(rotate360, 0.5s, 0s, linear);
+    }
+
+    &::before {
+      font-size: 20px;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    &:not([disabled]) {
+      cursor: pointer;
+
+      &:hover {
+        background-color: @admin-almost-white;
+      }
+    }
+
+    &.uploading {
+      &::before {
+        display: none;
+      }
+    }
   }
 
   .selected-options {
-    .selected-option {
-      height: 45px;
+    grid-area: selected-options;
 
-      .drag-control {
-        grid-area: drag-control;
-        padding: 0;
+    &:empty {
+      display: none;
+    }
+  }
+
+  &.has-extra-button {
+
+    &:not(.selection-limit-reached) {
+      display: grid;
+      grid-template-columns: 1fr 36px;
+
+      &.gallery-mode {
+        grid-template-areas:
+          'filter-and-list extra-button'
+          'selected-options selected-options'
+          'selection-toolbar selection-toolbar';
       }
 
-      .names-and-icon-view {
-        grid-area: data;
-      }
-
-      .status {
-        grid-area: status;
-        text-align: center;
-        .content-status-mixin();
-        .ellipsis();
-      }
-
-      .edit {
-        grid-area: edit;
-      }
-
-      .remove {
-        grid-area: remove;
+      &:not(.gallery-mode) {
+        grid-template-areas:
+          'filter-and-list extra-button'
+          'selected-options selected-options';
       }
     }
   }
 
-  &.multiple-occurrence {
-    .selected-options {
-      .selected-option {
+  &:not(.gallery-mode) {
+    >.selected-options {
+      >.selected-option {
         display: grid;
-        grid-template-columns: 5px 1fr 90px 24px 24px;
         grid-column-gap: 5px;
-        grid-template-areas:
-          "drag-control data status edit remove";
-      }
+        height: 45px;
 
-      &._0-240,
-      &._240-360 {
+        .drag-control {
+          grid-area: drag-control;
+          padding: 0;
+        }
+
+        .names-and-icon-view {
+          grid-area: data;
+        }
+
+        .status {
+          grid-area: status;
+          text-align: center;
+          .content-status-mixin();
+          .ellipsis();
+        }
+
+        .edit {
+          grid-area: edit;
+        }
+
+        .remove {
+          grid-area: remove;
+        }
+      }
+    }
+
+    &.multiple-occurrence {
+      .selected-options {
         .selected-option {
-          grid-template-columns: 5px 1fr 24px 24px;
+          grid-template-columns: 5px 1fr 90px 24px 24px;
           grid-template-areas:
+          "drag-control data status edit remove";
+        }
+
+        &._0-240,
+        &._240-360 {
+          .selected-option {
+            grid-template-columns: 5px 1fr 24px 24px;
+            grid-template-areas:
             "drag-control data edit remove";
 
-          .status {
-            display: none;
+            .status {
+              display: none;
+            }
           }
         }
       }
     }
-  }
 
-  &.single-occurrence {
-    .selected-options {
-      .selected-option {
-        display: grid;
-        grid-template-columns: 1fr 90px 24px 24px;
-        grid-column-gap: 5px;
-        grid-template-areas:
-          "data status edit remove";
-      }
-
-      &._0-240,
-      &._240-360 {
+    &.single-occurrence {
+      .selected-options {
         .selected-option {
-          grid-template-columns: 1fr 24px 24px;
+          grid-template-columns: 1fr 90px 24px 24px;
           grid-template-areas:
+          "data status edit remove";
+          cursor: default;
+        }
+
+        &._0-240,
+        &._240-360 {
+          .selected-option {
+            grid-template-columns: 1fr 24px 24px;
+            grid-template-areas:
             "data edit remove";
 
-          .status {
-            display: none;
+            .status {
+              display: none;
+            }
           }
         }
       }
     }
   }
-
 }

@@ -1,4 +1,4 @@
-.image-content-list-box.selectable-listbox {
+.gallery-list-box.selectable-listbox {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 20px;
@@ -11,18 +11,24 @@
 
     &.checkbox-right, &.checkbox-left {
       display: block;
+      position: relative;
+      padding: 18px 0 0;
+      box-sizing: border-box;
     }
 
     .item-view {
-      padding-left: 0;
+      padding: 0;
     }
 
     .checkbox {
       position: absolute;
       z-index: 1;
+      top: 3px;
+      left: 3px;
+      background-color: transparent !important;
     }
 
-    .image-selector-viewer {
+    .gallery-item-viewer {
       height: 100%;
       width: 100%;
 
@@ -34,6 +40,11 @@
           height: 100%;
           width: 100%;
           margin-right: 0;
+
+          > * {
+            padding: 0 8px 5px;
+            box-sizing: border-box;
+          }
         }
 
         .@{_COMMON_PREFIX}names-view {
@@ -43,7 +54,7 @@
           width: 100%;
           box-sizing: border-box;
           margin: 0;
-          padding: 8px;
+          padding: 3px 10px 3px;
           background-color: rgba(255, 255, 255, 0.7);
           text-align: center;
 
