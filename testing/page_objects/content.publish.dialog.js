@@ -7,6 +7,7 @@ const DateTimePickerPopup = require('../page_objects/wizardpanel/time/date.time.
 
 const XPATH = {
     container: "//div[contains(@id,'ContentPublishDialog')]",
+    dialogTitle: "//h2[text()='Publishing Wizard']",
     dialogStateBarDiv: "//div[contains(@id,'DialogStateBar')]",
     logMessageLink: "//div[contains(@class,'content-dialog-sub-title')]/a",
     publishScheduleForm: "//div[contains(@id,'PublishScheduleForm')]",
@@ -73,6 +74,10 @@ class ContentPublishDialog extends Page {
 
     get publishNowButton() {
         return XPATH.container + lib.actionButton('Publish Now');
+    }
+
+    get updateScheduledButton() {
+        return XPATH.container + lib.actionButton('Update Scheduled');
     }
 
     get addScheduleIcon() {
@@ -251,7 +256,7 @@ class ContentPublishDialog extends Page {
 
     async waitForDialogOpened() {
         try {
-            await this.waitForElementDisplayed(this.publishNowButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(XPATH.dialogTitle, appConst.mediumTimeout);
             await this.pause(1000);
         } catch (err) {
             await this.handleError(`Publish Dialog, dialog should be opened `, 'err_open_publish_dialog', err);
@@ -619,6 +624,33 @@ class ContentPublishDialog extends Page {
         }
     }
 
+    async waitForUpdateScheduledButtonDisplayed() {
+        await this.waitForElementDisplayed(this.updateScheduledButton, appConst.mediumTimeout);
+    }
+
+    async waitForUpdateScheduledButtonEnabled() {
+        try {
+            await this.waitForElementEnabled(this.updateScheduledButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, 'Update Scheduled' button should be enabled, `, 'err_update_scheduled_button', err);
+        }
+    }
+
+    async waitForUpdateScheduledButtonDisabled() {
+        try {
+            await this.waitForElementDisabled(this.updateScheduledButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, 'Update Scheduled' button should be disabled, `, 'err_update_scheduled_button', err);
+        }
+    }
+    async clickOnUpdateScheduledButton(){
+        try {
+            await this.clickOnElement(this.updateScheduledButton);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(`Publish Dialog, click on 'Update Scheduled' button `, 'err_click_update_scheduled_button', err);
+        }
+    }
 }
 
 module.exports = ContentPublishDialog;

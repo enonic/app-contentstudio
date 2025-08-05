@@ -50,8 +50,7 @@ module.exports = {
             await parentProjectStep.clickOnNextButton();
             return new ProjectWizardDialogLanguageStep();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_parent_proj_step');
-            throw new Error(`Error occurred in parent project step, screenshot:${screenshot} ` + err);
+            await this.handleError('Tried to select parent projects by name', 'err_parent_proj_step', err);
         }
     },
     async selectSingleParentProjectsByName(parent) {
@@ -67,8 +66,7 @@ module.exports = {
             await parentProjectStep.clickOnNextButton();
             return new ProjectWizardDialogLanguageStep();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_parent_proj_step');
-            throw new Error(`Error occurred in parent project step, screenshot:${screenshot} ` + err);
+            await this.handleError('Tried to select a single parent project by name', 'err_single_parent_proj_step', err);
         }
     },
     isProjectSelected(arr, text) {
@@ -95,7 +93,7 @@ module.exports = {
             await accessModeStep.clickOnAccessModeRadio(accessMode);
         } else {
             //set the default access mode for ui-tests:
-            await accessModeStep.clickOnAccessModeRadio("Private");
+            await accessModeStep.clickOnAccessModeRadio('Private');
         }
         await accessModeStep.clickOnNextButton();
         return new ProjectWizardDialogPermissionsStep();
@@ -179,8 +177,7 @@ module.exports = {
             await projectWizardDialogSummaryStep.pause(1000);
             await projectWizardDialogSummaryStep.waitForLoaded();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_save_proj');
-            throw new Error("Error during creating the project, screenshot:" + screenshot + "  " + err);
+            await this.handleError('Tried to fill in the project wizard steps', 'err_ave_proj', err);
         }
     },
     async saveScreenshotUniqueName(namePart) {
@@ -204,7 +201,7 @@ module.exports = {
     async selectAndDeleteProject(projectName, identifier) {
         let confirmValueDialog = new ConfirmValueDialog();
         let settingsBrowsePanel = new SettingsBrowsePanel();
-        //1.Select the layer:
+        //1. Select the layer:
         await settingsBrowsePanel.clickOnRowByDisplayName(projectName);
         await settingsBrowsePanel.clickOnDeleteButton();
         //2. Confirm the deleting:
@@ -236,16 +233,17 @@ module.exports = {
         return parentProjectStep;
     },
 
-    saveScreenshot(name, that) {
-        let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');
-        if (!fs.existsSync(screenshotsDir)) {
-            fs.mkdirSync(screenshotsDir, {recursive: true});
+    async saveScreenshot(name, that) {
+        try {
+            let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');
+            if (!fs.existsSync(screenshotsDir)) {
+                fs.mkdirSync(screenshotsDir, {recursive: true});
+            }
+            await this.getBrowser().saveScreenshot(screenshotsDir + name + '.png');
+            console.log('screenshot is saved ' + name);
+        } catch (err) {
+            return console.log('screenshot was not saved ' + err);
         }
-        return this.getBrowser().saveScreenshot(screenshotsDir + name + '.png').then(() => {
-            return console.log('screenshot saved ' + name);
-        }).catch(err => {
-            return console.log('screenshot was not saved ' + screenshotsDir + 'utils  ' + err);
-        })
     },
     buildProject(language, accessMode, principalsToAccess, applications, name, identifier, description) {
         return {
