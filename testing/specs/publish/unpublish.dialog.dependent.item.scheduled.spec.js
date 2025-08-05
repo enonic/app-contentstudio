@@ -69,7 +69,39 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             let actualNumber = await contentUnpublishDialog.getNumberInUnpublishButton();
             assert.equal(actualNumber, '2', '2 items will be unpablished');
         });
-    
+
+    // Test for Publish button caption #8939
+    it(`GIVEN existing scheduled site has been modified WHEN 'Publish' menu has been has been clicked THEN 'Update Scheduled' button should be displayed in the Publish Dialog`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let contentPublishDialog = new ContentPublishDialog();
+            // 1. Select and open the site:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            // 2. Update the site - select the 'main region' controller:
+            await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.MAIN_REGION);
+            // 3. Click on 'Publish...' menu item
+            await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+            await contentPublishDialog.waitForDialogOpened();
+            // 4. Verify that 'Update Scheduled' button is disabled in the modal dialog:
+            await contentPublishDialog.waitForUpdateScheduledButtonDisabled();
+            // 5. Click on Mark as Ready button in the modal dialog:
+            await contentPublishDialog.clickOnMarkAsReadyButton();
+            await contentWizard.waitForNotificationMessage();
+            await studioUtils.saveScreenshot('update_scheduled_button_enabled');
+            // 6. Verify that 'Scheduled, Modified' status is displayed in the modal dialog:
+            let actualStatus = await contentPublishDialog.getContentStatus(SITE.displayName);
+            // 7. Verify that 'Update Scheduled' button gets enabled:
+            await contentPublishDialog.waitForUpdateScheduledButtonEnabled();
+            assert.strictEqual(actualStatus, appConst.CONTENT_STATUS.SCHEDULED_MODIFIED,
+                'Scheduled, Modified status should be displayed in the dialog');
+            // 8. Click on 'Update Scheduled' button in the modal dialog:
+            await contentPublishDialog.clickOnUpdateScheduledButton();
+            // 9. Verify that Item published - notification message appears:
+            let messages = await contentWizard.waitForNotificationMessages();
+            let expectedMessage = appConst.itemPublishedNotificationMessage(SITE.displayName);
+            assert.ok(messages.includes(expectedMessage), 'Item published - notification message should appear');
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
