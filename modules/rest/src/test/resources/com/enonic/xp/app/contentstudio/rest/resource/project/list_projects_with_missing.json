@@ -1,5 +1,9 @@
 {
     "projects" : [ {
+        "name" : "project2",
+        "parents" : [ "project1" ],
+        "siteConfigs" : [ ]
+    }, {
         "description" : "project description 1",
         "displayName" : "project name 1",
         "icon" : {
@@ -23,42 +27,10 @@
         },
         "siteConfigs" : [ ]
     }, {
-        "displayName" : "project2",
-        "language" : "en",
-        "name" : "project2",
-        "parents" : [ "parent1" ],
-        "permissions" : {
-            "author" : [ ],
-            "contributor" : [ ],
-            "editor" : [ "user:system:editor" ],
-            "owner" : [ ]
-        },
-        "readAccess" : {
-            "type" : "PRIVATE",
-            "principals" : [ ]
-        },
-        "siteConfigs" : [ ]
-    }, {
-        "displayName" : "project3",
-        "language" : "en",
-        "name" : "project3",
-        "parents" : [ ],
-        "permissions" : {
-            "author" : [ "user:system:author" ],
-            "contributor" : [ ],
-            "editor" : [ ],
-            "owner" : [ ]
-        },
-        "readAccess" : {
-            "type" : "PRIVATE",
-            "principals" : [ ]
-        },
-        "siteConfigs" : [ ]
-    }, {
         "displayName" : "project4",
         "language" : "en",
         "name" : "project4",
-        "parents" : [ "parent2" ],
+        "parents" : [ "project3" ],
         "permissions" : {
             "author" : [ ],
             "contributor" : [ "user:system:contributor" ],
@@ -68,6 +40,26 @@
         "readAccess" : {
             "type" : "CUSTOM",
             "principals" : [ "user:system:custom" ]
+        },
+        "siteConfigs" : [ ]
+    }, {
+        "name" : "project3",
+        "parents" : [ "project2" ],
+        "siteConfigs" : [ ]
+    }, {
+        "displayName" : "project5",
+        "language" : "en",
+        "name" : "project5",
+        "parents" : [ "project4" ],
+        "permissions" : {
+            "author" : [ "user:system:author" ],
+            "contributor" : [ ],
+            "editor" : [ ],
+            "owner" : [ ]
+        },
+        "readAccess" : {
+            "type" : "PRIVATE",
+            "principals" : [ ]
         },
         "siteConfigs" : [ ]
     } ]

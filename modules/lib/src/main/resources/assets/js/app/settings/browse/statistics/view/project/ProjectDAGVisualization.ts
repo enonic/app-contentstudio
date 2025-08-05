@@ -1,11 +1,11 @@
-import Q from 'q';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import * as d3 from 'd3';
 import * as d3dag from 'd3-dag';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Project} from '../../../../data/project/Project';
-import {ProjectListWithMissingRequest} from '../../../../resource/ProjectListWithMissingRequest';
+import Q from 'q';
 import {Flag} from '../../../../../locale/Flag';
 import {ProjectIconUrlResolver} from '../../../../../project/ProjectIconUrlResolver';
+import {Project} from '../../../../data/project/Project';
+import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
 
 interface DATA {
     id: string
@@ -82,7 +82,7 @@ export class ProjectDAGVisualization extends DivEl{
 
             d3.select(`#${this.svgContainerId}`).attr('style', 'width: 100%; visibility: visible');
         }, 100);
-        
+
     }
 
     private setData(): Q.Promise<void> {
@@ -126,7 +126,7 @@ export class ProjectDAGVisualization extends DivEl{
     }
 
     private loadAllProjects(): Q.Promise<Project[]> {
-        return new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => this.allProjects = projects);
+        return new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => this.allProjects = projects);
     }
 
     //
@@ -181,7 +181,7 @@ export class ProjectDAGVisualization extends DivEl{
 
     private plotEdges(svg: D3SVGG, data: d3dag.DagLink<DATA, undefined>[]): D3SVGG {
         const strokeFn = ({source, target}) => {
-            return target.data.parentIds.length > 0 && target.data.parentIds[0] === source.data.id 
+            return target.data.parentIds.length > 0 && target.data.parentIds[0] === source.data.id
             ? ProjectDAGVisualization.PATH_COLOR
             : ProjectDAGVisualization.PATH_COLOR + '50';
         };

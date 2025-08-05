@@ -1,16 +1,16 @@
-import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
-import {ProjectViewItem} from '../../../../view/ProjectViewItem';
-import {ProjectIconUrlResolver} from '../../../../../project/ProjectIconUrlResolver';
-import {ProjectsChainBlock} from '../../../../wizard/panel/form/element/ProjectsChainBlock';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Project} from '../../../../data/project/Project';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import * as Q from 'q';
-import {ProjectCreatedEvent} from '../../../../event/ProjectCreatedEvent';
-import {ProjectUpdatedEvent} from '../../../../event/ProjectUpdatedEvent';
-import {ProjectDeletedEvent} from '../../../../event/ProjectDeletedEvent';
-import {ProjectListWithMissingRequest} from '../../../../resource/ProjectListWithMissingRequest';
-import {ProjectHelper} from '../../../../data/project/ProjectHelper';
 import {Flag} from '../../../../../locale/Flag';
+import {ProjectIconUrlResolver} from '../../../../../project/ProjectIconUrlResolver';
+import {Project} from '../../../../data/project/Project';
+import {ProjectHelper} from '../../../../data/project/ProjectHelper';
+import {ProjectCreatedEvent} from '../../../../event/ProjectCreatedEvent';
+import {ProjectDeletedEvent} from '../../../../event/ProjectDeletedEvent';
+import {ProjectUpdatedEvent} from '../../../../event/ProjectUpdatedEvent';
+import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
+import {ProjectViewItem} from '../../../../view/ProjectViewItem';
+import {ProjectsChainBlock} from '../../../../wizard/panel/form/element/ProjectsChainBlock';
 
 export class ProjectStatisticsViewer
     extends NamesAndIconViewer<ProjectViewItem> {
@@ -88,7 +88,7 @@ export class ProjectStatisticsViewer
             return Q();
         }
 
-        return new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
+        return new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
             this.allProjects = projects;
             this.projectsUpdateRequired = false;
         });

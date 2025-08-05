@@ -1,17 +1,17 @@
 import {Application} from '@enonic/lib-admin-ui/app/Application';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ShowIssuesDialogButton} from '../issue/view/ShowIssuesDialogButton';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Project} from '../settings/data/project/Project';
-import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
-import {ProjectContext} from '../project/ProjectContext';
-import {ProjectSelectionDialog} from '../dialog/ProjectSelectionDialog';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
-import {ProjectListWithMissingRequest} from '../settings/resource/ProjectListWithMissingRequest';
 import {TabbedAppBar} from '@enonic/lib-admin-ui/app/bar/TabbedAppBar';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
+import {ProjectSelectionDialog} from '../dialog/ProjectSelectionDialog';
+import {ShowIssuesDialogButton} from '../issue/view/ShowIssuesDialogButton';
+import {ProjectContext} from '../project/ProjectContext';
+import {Project} from '../settings/data/project/Project';
+import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
+import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
+import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {AccessibilityHelper} from '../util/AccessibilityHelper';
 
 export class ContentAppBar
@@ -60,7 +60,7 @@ export class ContentAppBar
 
         const currentProjectName: string = ProjectContext.get().getProject().getName();
 
-        new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
+        new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
             ProjectSelectionDialog.get().setProjects(projects);
             const project: Project = projects.find((p: Project) => p.getName() === currentProjectName);
             this.selectedProjectViewer.setObject(project);

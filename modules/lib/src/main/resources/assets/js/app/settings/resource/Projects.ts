@@ -1,6 +1,6 @@
-import {Project} from '../data/project/Project';
-import {ProjectListWithMissingRequest} from './ProjectListWithMissingRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Project} from '../data/project/Project';
+import {ProjectListRequest} from './ProjectListRequest';
 
 export class Projects {
 
@@ -32,7 +32,7 @@ export class Projects {
     }
 
     public reloadProjects(): void {
-        new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
+        new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
             this.setProjects(projects);
         }).catch(DefaultErrorHandler.handle);
     }

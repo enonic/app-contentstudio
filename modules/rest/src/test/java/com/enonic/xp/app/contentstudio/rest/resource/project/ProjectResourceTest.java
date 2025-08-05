@@ -128,7 +128,7 @@ public class ProjectResourceTest
             build() );
 
         final Project project2 = createProject( "project2", "project2", null, null, "parent1" );
-        final Project project3 = createProject( "project3", null, null, null );
+        final Project project3 = createProject( "project3", "project3", null, null );
         final Project project4 = createProject( "project4", "project4", null, null, "parent2" );
 
         mockRootContent();
@@ -154,6 +154,45 @@ public class ProjectResourceTest
         String jsonString = request().path( "project/list" ).get().getAsString();
 
         assertJson( "list_projects.json", jsonString );
+    }
+
+    @Test
+    public void list_projects_with_missing()
+        throws Exception
+    {
+        final Project project1 = createProject( "project1", "project name 1", "project description 1", Attachment.create().
+            name( "logo.png" ).
+            mimeType( "image/png" ).
+            label( "small" ).
+            build() );
+
+        final Project project2 = createProject( "project2", "project2", null, null, "project1" );
+        final Project project3 = createProject( "project3", "project3", null, null, "project2" );
+        final Project project4 = createProject( "project4", "project4", null, null, "project3" );
+        final Project project5 = createProject( "project5", "project5", null, null, "project4" );
+
+
+        mockRootContent();
+
+        when( projectService.list() )
+            .thenReturn( Projects.create().addAll( List.of( project1, project4, project5 ) ).build() )
+            .thenReturn( Projects.create().addAll( List.of( project1, project2, project3, project4, project5 ) ).build() );
+
+        when( projectService.getPermissions( ProjectName.from( "project1" ) ) ).
+            thenReturn( ProjectPermissions.create().addOwner( PrincipalKey.from( "user:system:owner" ) ).build() );
+
+        when( projectService.getPermissions( ProjectName.from( "project4" ) ) ).
+            thenReturn( ProjectPermissions.create().
+            addContributor( PrincipalKey.from( "user:system:contributor" ) ).
+            addViewer( PrincipalKey.from( "user:system:custom" ) ).
+            build() );
+
+        when( projectService.getPermissions( ProjectName.from( "project5" ) ) ).
+            thenReturn( ProjectPermissions.create().addAuthor( PrincipalKey.from( "user:system:author" ) ).build() );
+
+        String jsonString = request().path( "project/list" ).queryParam( "resolveUnavailable", "true" ).get().getAsString();
+
+        assertJson( "list_projects_with_missing.json", jsonString );
     }
 
     @Test
