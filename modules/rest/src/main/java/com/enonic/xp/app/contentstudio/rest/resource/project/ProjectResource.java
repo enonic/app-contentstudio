@@ -2,8 +2,16 @@ package com.enonic.xp.app.contentstudio.rest.resource.project;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Consumes;
@@ -14,14 +22,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Modified;
-import org.osgi.service.component.annotations.Reference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.enonic.xp.app.ApplicationKey;
+import com.enonic.xp.app.contentstudio.json.task.TaskResultJson;
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.ProjectsSyncTask;
@@ -41,6 +43,7 @@ import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.SyncContentService;
+import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.data.PropertyTree;
@@ -54,19 +57,22 @@ import com.enonic.xp.project.ProjectGraph;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.ProjectPermissions;
 import com.enonic.xp.project.ProjectService;
+import com.enonic.xp.project.Projects;
 import com.enonic.xp.security.PrincipalKeys;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
 import com.enonic.xp.security.acl.Permission;
+import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
-import com.enonic.xp.app.contentstudio.json.task.TaskResultJson;
 import com.enonic.xp.task.TaskService;
 import com.enonic.xp.util.ByteSizeParser;
 import com.enonic.xp.web.multipart.MultipartForm;
 import com.enonic.xp.web.multipart.MultipartItem;
+
+import static java.util.stream.Collectors.toList;
 
 @SuppressWarnings("UnusedDeclaration")
 @Path(ResourceConstants.REST_ROOT + "project")
@@ -161,11 +167,64 @@ public final class ProjectResource
 
     @GET
     @Path("list")
-    public ProjectsJson list()
+    public ProjectsJson list( @QueryParam("resolveUnavailable") final boolean resolveUnavailable )
     {
-        final List<ProjectJson> projects = this.projectService.list().stream().map( this::doCreateJson ).collect( Collectors.toList() );
+        final Projects availableProjects = this.projectService.list();
+        final Projects projects = resolveUnavailable ? addUnavailableProjects( availableProjects ) : availableProjects;
 
-        return new ProjectsJson( projects );
+        return new ProjectsJson( projects.stream()
+                                     .map( project -> project.getDisplayName() != null // no displayName means project is read-only
+                                         ? doCreateJson( project )
+                                         : doCreateJson( project, null, null, null ) )
+                                     .collect( toList() ) );
+    }
+
+    private Projects addUnavailableProjects( final Projects availableProjects)
+    {
+        final Map<ProjectName, Project> allProjects =
+            adminContext().callWith( () -> projectService.list().stream().collect( Collectors.toMap( Project::getName, p -> p ) ) );
+
+        final Map<ProjectName, Project> result =
+            availableProjects.stream().collect( Collectors.toMap( Project::getName, p -> p ) );
+
+        availableProjects.forEach( availableProject -> {
+            ProjectName parentName = availableProject.getParent();
+
+            while ( parentName != null && !result.containsKey( parentName ) )
+            {
+                final Project parentProject = allProjects.get( parentName );
+
+                if ( parentProject != null )
+                {
+                    result.putIfAbsent( parentName, createReadOnlyProject( parentProject ) );
+                    parentName = parentProject.getParent();
+                }
+                else
+                {
+                    parentName = null;
+                }
+            }
+        } );
+
+        return Projects.from( result.values() );
+    }
+
+    private Context adminContext()
+    {
+        return ContextBuilder.from( ContextAccessor.current() )
+            .authInfo( AuthenticationInfo.copyOf( ContextAccessor.current().getAuthInfo() ).principals( RoleKeys.ADMIN ).build() )
+            .build();
+    }
+
+    private Project createReadOnlyProject( final Project source )
+    {
+        final Project.Builder projectBuilder = Project.create().name( source.getName() );
+
+        if (source.getParent() != null) {
+            projectBuilder.parent( source.getParent() );
+        }
+
+        return projectBuilder.build();
     }
 
     @GET
@@ -189,7 +248,7 @@ public final class ProjectResource
                 .build()
                 .callWith( () -> contentService.contentExists( contentId ) ) )
             .map( this::doCreateJson )
-            .collect( Collectors.toList() );
+            .collect( toList() );
 
         return new ProjectsJson( projects );
     }
@@ -371,13 +430,4 @@ public final class ProjectResource
     {
         this.syncContentService = syncContentService;
     }
-
-    /*
-    @Reference
-    public void setProjectConfigHolder( final ProjectConfigHolder projectConfigHolder )
-    {
-        this.projectConfigHolder = projectConfigHolder;
-    }
-    */
-
 }

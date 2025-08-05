@@ -1,17 +1,17 @@
-import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Project} from '../settings/data/project/Project';
-import {ProjectList} from '../project/list/ProjectList';
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {ProjectListItem} from '../project/list/ProjectListItem';
-import {ProjectContext} from '../project/ProjectContext';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import * as Q from 'q';
-import {ProjectListWithMissingRequest} from '../settings/resource/ProjectListWithMissingRequest';
-import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {ProjectList} from '../project/list/ProjectList';
+import {ProjectListItem} from '../project/list/ProjectListItem';
+import {ProjectContext} from '../project/ProjectContext';
+import {Project} from '../settings/data/project/Project';
+import {ProjectHelper} from '../settings/data/project/ProjectHelper';
+import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
 
 export class ProjectSelectionDialog
     extends ModalDialog {
@@ -105,7 +105,7 @@ export class ProjectSelectionDialog
     private loadProjects(): Q.Promise<void> {
         this.mask();
 
-        return new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
+        return new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
             this.setProjects(projects);
             this.showItems();
         }).catch(DefaultErrorHandler.handle).finally(() => {

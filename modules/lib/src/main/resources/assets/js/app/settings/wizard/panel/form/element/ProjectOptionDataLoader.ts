@@ -1,17 +1,17 @@
 import {OptionDataLoader, OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
-import {Project} from '../../../../data/project/Project';
-import * as Q from 'q';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {ProjectListWithMissingRequest} from '../../../../resource/ProjectListWithMissingRequest';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import * as Q from 'q';
+import {Project} from '../../../../data/project/Project';
+import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
 
 export class ProjectOptionDataLoader
     extends OptionDataLoader<Project> {
 
     private modeChangeListener: (isTreeMode: boolean) => void;
 
-    protected createRequest(): ProjectListWithMissingRequest {
-        return new ProjectListWithMissingRequest();
+    protected createRequest(): ProjectListRequest {
+        return new ProjectListRequest(true);
     }
 
     filterFn(project: Project): boolean {

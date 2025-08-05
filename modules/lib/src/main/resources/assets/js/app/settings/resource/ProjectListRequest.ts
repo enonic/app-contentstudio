@@ -7,9 +7,18 @@ import {ProjectHelper} from '../data/project/ProjectHelper';
 export class ProjectListRequest
     extends ProjectResourceRequest<Project[]> {
 
-    constructor() {
+    private readonly resolveUnavailable: boolean;
+
+    constructor(resolveUnavailable?: boolean) {
         super();
         this.addRequestPathElements('list');
+        this.resolveUnavailable = resolveUnavailable;
+    }
+
+    getParams(): object {
+        return {
+            resolveUnavailable: !!this.resolveUnavailable,
+        };
     }
 
     protected parseResponse(response: JsonResponse<ProjectJson[]>): Project[] {

@@ -60,7 +60,7 @@ import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/Project
 import {ProjectNotAvailableDialog} from 'lib-contentstudio/app/settings/dialog/project/create/ProjectNotAvailableDialog';
 import {ProjectDeletedEvent} from 'lib-contentstudio/app/settings/event/ProjectDeletedEvent';
 import {SettingsServerEventsListener} from 'lib-contentstudio/app/settings/event/SettingsServerEventsListener';
-import {ProjectListWithMissingRequest} from 'lib-contentstudio/app/settings/resource/ProjectListWithMissingRequest';
+import {ProjectListRequest} from 'lib-contentstudio/app/settings/resource/ProjectListRequest';
 import {$isDown, subscribe as subscribeToWorker} from 'lib-contentstudio/app/stores/worker';
 import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
 import {UrlAction} from 'lib-contentstudio/app/UrlAction';
@@ -265,7 +265,7 @@ const handleProjectDeletedEvent = (projectName: string) => {
 };
 
 const handleCurrentProjectDeleted = () => {
-    new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
+    new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
         const projectToSet: Project = getProjectToSet(projects);
 
         if (projectToSet) {
@@ -591,7 +591,7 @@ async function startContentBrowser() {
 }
 
 function initProjectContext(application: Application): Q.Promise<void> {
-    return new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
+    return new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
         ProjectSelectionDialog.get().setProjects(projects);
 
         const projectName: string = application.getPath().getElement(0) || localStorage.getItem(ProjectContext.LOCAL_STORAGE_KEY);
