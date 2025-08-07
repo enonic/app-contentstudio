@@ -81,7 +81,7 @@
             cursor: pointer;
           }
 
-          &.active {
+          &.active-version {
             .version-action-button {
               cursor: pointer;
               background-color: @admin-white;
@@ -97,7 +97,7 @@
             background-color: @admin-bg-light-gray;
             border-color: @admin-bg-light-gray;
 
-            &.active {
+            &.active-version {
               .version-action-button {
                 background-color: @admin-bg-light-gray;
 
@@ -110,7 +110,7 @@
 
           .version-action-button {
             margin: 10px auto;
-            display: none;
+            order: 1;
           }
         }
 
@@ -229,10 +229,6 @@
           &:hover {
             border-color: @admin-black;
           }
-
-          .version-action-button {
-            display: block;
-          }
         }
       }
     }
@@ -245,7 +241,7 @@
     display: flex;
     justify-content: center;
     position: sticky;
-    bottom: 0;
+    top: 0;
     margin: 0 auto;
     background: @admin-white;
     z-index: 1;
@@ -256,10 +252,22 @@
     }
   }
 
-  &:not(.selection-limit-reached) {
+  &:not(.selection-limit-reached):not(single-version-selected) {
+    .version-list {
+      .version-list-item.expanded {
+        .version-viewer {
+          .checkbox {
+            display: block;
+          }
+        }
+      }
+    }
+  }
+
+  &.single-version-selected {
     .version-list {
       .version-list-item {
-        .version-viewer:hover {
+        .version-viewer {
           .checkbox {
             display: block;
           }

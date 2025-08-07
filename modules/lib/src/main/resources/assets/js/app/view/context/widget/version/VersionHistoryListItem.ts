@@ -6,8 +6,6 @@ import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as $ from 'jquery';
-import * as Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentVersionHelper} from '../../../../ContentVersionHelper';
 import {VersionContext} from './VersionContext';
@@ -23,8 +21,9 @@ export class VersionHistoryListItem
     private readonly content: ContentSummaryAndCompareStatus;
     private readonly versionViewer: VersionHistoryItemViewer;
     private tooltip: Tooltip;
-    private actionButton: ActionButton;
+    private actionButton?: ActionButton;
     private compareCheckbox: Checkbox;
+    private activeHandler?: (item: VersionHistoryListItem) => void;
 
     private selectionChangedListeners: ((isSelected: boolean) => void)[] = [];
 
@@ -71,13 +70,15 @@ export class VersionHistoryListItem
     private createVersionViewer(): VersionHistoryItemViewer {
         const versionViewer: VersionHistoryItemViewer = new VersionHistoryItemViewer();
 
-        if (this.isInteractableItem()) {
-            this.addOnClickHandler(versionViewer);
-        }
-
         versionViewer.setObject(this.version);
 
-        if (this.isCompareButtonRequired()) {
+        if (this.isComparableItem()) {
+            versionViewer.addClass('interactable');
+
+            versionViewer.onClicked(() => {
+                this.activeHandler?.(this);
+            });
+
             this.compareCheckbox = this.createCompareCheckbox();
             versionViewer.appendToNamesAndIconViewWrapper(this.compareCheckbox);
 
@@ -90,6 +91,14 @@ export class VersionHistoryListItem
                 versionViewer.toggleClass('selected', isChecked);
                 this.selectionChangedListeners.forEach(listener => listener(isChecked));
             });
+
+            this.actionButton = this.createActionButton();
+
+            if (this.actionButton) {
+                this.actionButton.addClass('version-action-button');
+                versionViewer.appendChild(this.actionButton);
+                this.actionButton.whenRendered(() => this.actionButton.setVisible(false));
+            }
         }
 
         if (this.version.getMessage()) {
@@ -98,18 +107,15 @@ export class VersionHistoryListItem
             versionViewer.appendChild(messageBlock);
         }
 
-        versionViewer.toggleClass('interactable', this.isInteractableItem());
-        versionViewer.toggleClass('active', this.isActive());
+        versionViewer.toggleClass('active-version', this.isActiveVersion());
 
         return versionViewer;
     }
 
-    private isCompareButtonRequired(): boolean {
-        return this.isComparableItem();
-    }
-
-    private isInteractableItem(): boolean {
-        return VersionHistoryHelper.isInteractableItem(this.version);
+    private createActionButton(): ActionButton | undefined {
+        return !this.isActiveVersion() && VersionHistoryHelper.isRevertableItem(this.version)
+               ? this.createRevertButton()
+               : undefined;
     }
 
     private createTooltip() {
@@ -160,38 +166,17 @@ export class VersionHistoryListItem
         return new ActionButton(revertAction);
     }
 
-    private toggleTooltip() {
+    private toggleTooltip(active: boolean) {
         if (!this.tooltip) {
             return;
         }
 
-        const isActive = this.hasClass('expanded');
-        this.tooltip.setActive(isActive);
-        if (isActive) {
+        this.tooltip.setActive(active);
+        if (active) {
             this.tooltip.show();
         } else {
             this.tooltip.hide();
         }
-    }
-
-    private addOnClickHandler(viewer: VersionHistoryItemViewer) {
-        viewer.onClicked(() => {
-            this.collapseAllExpandedSiblings();
-            this.toggleTooltip();
-            this.toggleClass('expanded');
-
-            if (this.hasClass('expanded') && !this.actionButton) {
-                this.actionButton = this.isActive() ? this.createActiveVersionButton() : this.createRevertButton();
-                this.actionButton.addClass('version-action-button');
-                viewer.appendChild(this.actionButton);
-            }
-        });
-    }
-
-    private collapseAllExpandedSiblings() {
-        $(this.getHTMLElement())
-            .siblings('.expanded')
-            .removeClass('expanded');
     }
 
     private createVersionDateBlock(date: Date): DivEl {
@@ -201,7 +186,7 @@ export class VersionHistoryListItem
         return dateDiv;
     }
 
-    private isActive(): boolean {
+    private isActiveVersion(): boolean {
         return VersionContext.isActiveVersion(this.version.getContentIdAsString(), this.version.getId());
     }
 

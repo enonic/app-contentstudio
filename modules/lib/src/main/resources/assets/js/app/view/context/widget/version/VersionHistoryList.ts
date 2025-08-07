@@ -24,6 +24,8 @@ export class VersionHistoryList
 
     private loading: boolean = false;
 
+    private activeListItem: VersionHistoryListItem;
+
     private versionsConverter: BatchedContentVersionsConverter;
 
     constructor() {
@@ -41,10 +43,22 @@ export class VersionHistoryList
         this.clearItems();
         this.versionsConverter = null;
         this.load();
+        this.activeListItem = null;
     }
 
     createItemView(version: VersionHistoryItem): VersionHistoryListItem {
-        return new VersionHistoryListItem(version, this.content);
+        return new VersionHistoryListItem(version, this.content).setActiveHandler(this.setActiveListItem.bind(this));
+    }
+
+    private setActiveListItem(item: VersionHistoryListItem): void {
+        this.activeListItem?.setActive(false);
+
+        if (item === this.activeListItem) {
+            this.activeListItem = null;
+        } else {
+            this.activeListItem = item;
+            this.activeListItem.setActive(true);
+        }
     }
 
     getItemId(item: VersionHistoryItem): string {

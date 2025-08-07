@@ -49,7 +49,7 @@ export class VersionHistoryView extends WidgetItemView {
             this.buttonsWrapper = new DivEl('action-buttons-wrapper');
             this.buttonsWrapper.appendChildren(this.compareButton, this.resetButton);
             this.buttonsWrapper.hide();
-            this.appendChildren(this.statusBlock, this.versionListView, this.buttonsWrapper);
+            this.appendChildren(this.statusBlock, this.buttonsWrapper, this.versionListView);
             this.listenSelectionChange();
         });
     }
@@ -156,6 +156,7 @@ export class VersionHistoryView extends WidgetItemView {
             }
         }
 
+        this.toggleClass('single-version-selected', this.selectedItems.length === 1);
         this.buttonsWrapper.setVisible(this.selectedItems.length > 0);
         this.compareButton.setEnabled(this.selectedItems.length > 1);
         this.resetButton.setEnabled(this.selectedItems.length > 0);
