@@ -148,10 +148,11 @@ describe('Text Component with CKE - insert download-link specification', functio
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
             await wizardVersionsWidget.pause(500);
             await studioUtils.saveScreenshot('moved_version_item');
-            // 4 'Active version' "Revert" buttons are not displayed in the 'Permission updated' item
-            await wizardVersionsWidget.waitForActiveVersionButtonNotDisplayed();
+            // 4 'Active version' button should be displayed in the 'Permission updated' item
+            await wizardVersionsWidget.waitForActiveVersionButtonDisplayed();
+            // 5. "Revert" button should  not be displayed in the 'Permission updated' item
             await wizardVersionsWidget.waitForRevertButtonNotDisplayed();
-            // 5. Verify that 'Compare with current version' button is displayed in Moved item:
+            // 6. Verify that 'Compare with current version' button is displayed in Moved item:
             //await wizardVersionsWidget.moveCursorToVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
             await wizardVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
             //let result = await wizardVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
