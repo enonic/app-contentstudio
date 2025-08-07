@@ -26,7 +26,11 @@ export class VersionHistoryListHelper {
         return Math.abs(v1.getTimestamp().getTime() - v2.getTimestamp().getTime()) > VersionHistoryListHelper.FILTER_STEP_MS;
     }
 
-    public static getPublishVersionItemStatus(version: ContentVersion): VersionItemStatus {
+    public static getPublishVersionItemStatus(version: ContentVersion, previousVersion?: ContentVersion): VersionItemStatus {
+        if (VersionHistoryListHelper.isPermissionChange(version, previousVersion)) {
+            return VersionItemStatus.PERMISSIONS;
+        }
+
         const publishInfo: ContentVersionPublishInfo = version.getPublishInfo();
 
         if (publishInfo.isPublished()) {
