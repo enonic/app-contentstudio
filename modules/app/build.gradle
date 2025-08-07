@@ -28,6 +28,7 @@ dependencies {
     implementation "com.enonic.xp:core-api:${xpVersion}"
     implementation "com.enonic.xp:admin-api:${xpVersion}"
     implementation "com.enonic.xp:portal-api:${xpVersion}"
+    implementation "com.enonic.xp:jaxrs-api:${xpVersion}"
 
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
     include "com.enonic.xp:lib-admin:${xpVersion}"
