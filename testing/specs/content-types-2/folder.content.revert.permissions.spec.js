@@ -88,8 +88,8 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             // 3. Click on 'Permissions updated' item:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 0);
             await wizardVersionsWidget.pause(500);
-            // 4 'Active version' "Revert" buttons are not displayed in the 'Permission updated' item
-            await wizardVersionsWidget.waitForActiveVersionButtonNotDisplayed();
+            // 4 'Active version'  button should be displayed in the 'Permission updated' item
+            await wizardVersionsWidget.waitForActiveVersionButtonDisplayed();
             await wizardVersionsWidget.waitForRevertButtonNotDisplayed();
             // 5. Click on the first Edited item:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
@@ -170,14 +170,14 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             // 2. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            // 3. Move the cursor to the 'Edited' version item::
-            await browseVersionsWidget.moveCursorToVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            // 3. Click on the 'Edited' version item:
+            await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             // 4. Verify that 'Compare changes' checkbox gets visible in the item:
             await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED,0);
             // 5. Click on 'Compare changes' button in the 'Edited' item:
             await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
-            // 6. Move the cursor to the 'Permissions Updated' version item:
-            await browseVersionsWidget.moveCursorToVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 1);
+            // 6. Click on the 'Permissions Updated' version item:
+            await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 1);
             // 7. Verify that 'Compare changes' checkbox gets visible in the item:
             await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 1);
             // 8. Click on 'Compare changes' button in the 'Permissions Updated' item:
