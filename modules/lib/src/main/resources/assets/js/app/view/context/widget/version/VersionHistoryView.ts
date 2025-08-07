@@ -156,6 +156,7 @@ export class VersionHistoryView extends WidgetItemView {
             }
         }
 
+        this.toggleClass('single-version-selected', this.selectedItems.length === 1);
         this.buttonsWrapper.setVisible(this.selectedItems.length > 0);
         this.compareButton.setEnabled(this.selectedItems.length > 1);
         this.resetButton.setEnabled(this.selectedItems.length > 0);
