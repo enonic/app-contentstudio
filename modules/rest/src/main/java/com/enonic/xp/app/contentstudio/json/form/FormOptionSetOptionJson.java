@@ -8,7 +8,6 @@ import com.google.common.base.Preconditions;
 
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.form.FormItem;
-import com.enonic.xp.form.FormItems;
 import com.enonic.xp.form.FormOptionSetOption;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -29,10 +28,10 @@ public class FormOptionSetOptionJson
         this.formOptionSetOption = formOptionSetOption;
         this.localeMessageResolver = localeMessageResolver;
 
-        this.items = wrapFormItems( formOptionSetOption.getFormItems(), localeMessageResolver );
+        this.items = wrapFormItems( formOptionSetOption, localeMessageResolver );
     }
 
-    private List<FormItemJson> wrapFormItems( final FormItems items, final LocaleMessageResolver localeMessageResolver )
+    private List<FormItemJson> wrapFormItems( final Iterable<FormItem> items, final LocaleMessageResolver localeMessageResolver )
     {
         final List<FormItemJson> formItemJsonList = new ArrayList<>();
         for ( FormItem formItem : items )
