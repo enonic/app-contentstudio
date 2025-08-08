@@ -30,7 +30,7 @@ public class ContentVersionJson
 
     private final ContentWorkflowInfoJson workflow;
 
-    private final RootPermissionsJson permissions;
+    private final boolean permissionsChanged;
 
     private final ContentPath contentPath;
 
@@ -52,8 +52,7 @@ public class ContentVersionJson
                                                                                                         principalsResolver ) : null;
 
         this.workflow = contentVersion.getWorkflowInfo() != null ? new ContentWorkflowInfoJson( contentVersion.getWorkflowInfo() ) : null;
-        this.permissions =
-            contentVersion.getPermissions() != null ? new RootPermissionsJson( contentVersion.getPermissions(), principalsResolver ) : null;
+        this.permissionsChanged = contentVersion.isPermissionsChanged();
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -116,9 +115,9 @@ public class ContentVersionJson
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public RootPermissionsJson getPermissions()
+    public boolean isPermissionsChanged()
     {
-        return permissions;
+        return permissionsChanged;
     }
 
     public String getPath()

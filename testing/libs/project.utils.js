@@ -232,7 +232,10 @@ module.exports = {
         await parentProjectStep.waitForLoaded();
         return parentProjectStep;
     },
-
+    async handleError(errorMessage, screenshotName, error) {
+        let screenshot = await this.saveScreenshotUniqueName(screenshotName);
+        throw new Error(`${errorMessage}, screenshot: ${screenshot} ` + error);
+    },
     async saveScreenshot(name, that) {
         try {
             let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');

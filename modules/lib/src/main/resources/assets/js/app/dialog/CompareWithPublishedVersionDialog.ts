@@ -268,16 +268,6 @@ export class CompareWithPublishedVersionDialog
             '_id', 'creator', 'createdTime', 'hasChildren'
         ].forEach(e => delete contentJson[e]);
 
-        const version: ContentVersion = ContentVersionHelper.getVersionById(this.versions, versionId);
-
-        if (ObjectHelper.isDefined(version?.getPermissions())) {
-            contentJson['permissions'] = version.getPermissions().toJson();
-        }
-
-        if (ObjectHelper.isDefined(version?.isInheritPermissions())) {
-            contentJson['inheritPermissions'] = version.isInheritPermissions();
-        }
-
         return contentJson;
     }
 }
