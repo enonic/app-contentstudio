@@ -56,8 +56,8 @@ import {ContentBrowsePanelKeyNavigator} from './ContentBrowsePanelKeyNavigator';
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
 
-    protected browseToolbar: ContentBrowseToolbar;
-    protected filterPanel: ContentBrowseFilterPanel;
+    declare protected browseToolbar: ContentBrowseToolbar;
+    declare protected filterPanel: ContentBrowseFilterPanel;
     private debouncedFilterRefresh: () => void;
     private debouncedBrowseActionsAndPreviewRefreshOnDemand: () => void;
     private browseActionsAndPreviewUpdateRequired: boolean = false;
@@ -66,7 +66,7 @@ export class ContentBrowsePanel
 
     protected treeListBox: ContentsTreeGridRootList;
 
-    protected treeActions: ContentTreeActions;
+    declare protected treeActions: ContentTreeActions;
 
     protected toolbar: ListBoxToolbar<ContentAndStatusTreeSelectorItem>;
 
@@ -74,7 +74,7 @@ export class ContentBrowsePanel
 
     protected selectionWrapper: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>;
 
-    protected selectableListBoxPanel: SelectableListBoxPanel<ContentSummaryAndCompareStatus>;
+    declare protected selectableListBoxPanel: SelectableListBoxPanel<ContentSummaryAndCompareStatus>;
 
     protected expandedContext: TreeListBoxExpandedHolder;
 

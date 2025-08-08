@@ -12,7 +12,7 @@ export class EditProjectAccessDialog
     extends ModalDialogWithConfirmation
     implements WithTaskProgress {
 
-    header: EditProjectAccessDialogHeader;
+    declare header: EditProjectAccessDialogHeader;
 
     private projectPath: string;
 

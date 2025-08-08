@@ -22,6 +22,7 @@
     "@enonic/lib-admin-ui": "file:.xp/dev/lib-admin-ui",
     "d3": "^7.9.0",
     "d3-dag": "^0.11.5",
+    "dompurify": "^3.2.6",
     "enonic-admin-artifacts": "^2.3.2",
     "flag-icons": "^7.5.0",
     "hasher": "^1.2.0",
@@ -46,11 +47,14 @@
     "@types/sortablejs": "^1.15.8",
     "circular-dependency-plugin": "^5.2.2",
     "concurrently": "^9.1.2",
+    "css-loader": "^7.1.2",
     "eslint": "^9.29.0",
     "globals": "^15.15.0",
+    "less-loader": "^12.3.0",
     "mini-css-extract-plugin": "^2.9.2",
     "minimist": "^1.2.8",
     "postcss-loader": "^8.1.1",
+    "swc-loader": "^0.2.6",
     "terser-webpack-plugin": "^5.3.14",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.34.1",
@@ -58,7 +62,7 @@
     "webpack-cli": "^6.0.1"
   },
   "engines": {
-    "node": ">= 22.16.0",
-    "npm": ">= 10.9.2"
+    "node": ">=22.18.0",
+    "npm": ">=10.9.2"
   }
 }

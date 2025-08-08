@@ -19,9 +19,8 @@ import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {ConnectionDetector} from '@enonic/lib-admin-ui/system/ConnectionDetector';
-import {JSONObject} from '@enonic/lib-admin-ui/types';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {CONFIG, ConfigObject} from '@enonic/lib-admin-ui/util/Config';
 import {LauncherHelper} from '@enonic/lib-admin-ui/util/LauncherHelper';
 import {i18n, Messages} from '@enonic/lib-admin-ui/util/Messages';
 import * as $ from 'jquery';
@@ -629,7 +628,7 @@ function initProjectContext(application: Application): Q.Promise<void> {
         throw Error('Unable to fetch app config');
     }
 
-    CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as JSONObject);
+    CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as ConfigObject);
     Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
     AuthContext.init(Principal.fromJson(CONFIG.get('user') as PrincipalJson),
         (CONFIG.get('principals') as PrincipalJson[]).map(Principal.fromJson));

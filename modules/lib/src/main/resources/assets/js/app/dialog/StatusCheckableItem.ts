@@ -18,7 +18,7 @@ export type StatusCheckableItemConfig = CheckableItemConfig<ContentSummaryAndCom
 export class StatusCheckableItem
     extends CheckableItem<ContentSummaryAndCompareStatus> {
 
-    protected config: StatusCheckableItemConfig;
+    declare protected config: StatusCheckableItemConfig;
 
     protected status: DivEl;
 

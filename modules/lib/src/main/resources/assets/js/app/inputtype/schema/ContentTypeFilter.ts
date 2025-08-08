@@ -23,7 +23,7 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 export class ContentTypeFilter
     extends BaseInputTypeManagingAdd {
 
-    protected context: ContentInputTypeViewContext;
+    declare protected context: ContentInputTypeViewContext;
 
     private typesListDropdown: ContentTypeFilterDropdown;
 

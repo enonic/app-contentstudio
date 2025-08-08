@@ -33,9 +33,9 @@ interface SiteConfiguratorComboBoxOptions
 export class SiteConfiguratorComboBox
     extends FilterableListBoxWrapperWithSelectedView<Application> {
 
-    protected options: SiteConfiguratorComboBoxOptions;
+    declare protected options: SiteConfiguratorComboBoxOptions;
 
-    protected selectedOptionsView: SiteConfiguratorSelectedOptionsView;
+    declare protected selectedOptionsView: SiteConfiguratorSelectedOptionsView;
 
     constructor(maxOccurrences: number, siteConfigProvider: ApplicationConfigProvider,
                 formContext: ContentFormContext, value?: string) {

@@ -22,7 +22,7 @@ export class ProjectMetaStatisticsBlock extends StatisticsBlock {
 
     private locales: Locale[];
 
-    protected item: ProjectViewItem;
+    declare protected item: ProjectViewItem;
 
     constructor() {
         super();

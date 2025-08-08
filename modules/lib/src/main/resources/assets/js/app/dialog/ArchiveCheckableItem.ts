@@ -17,7 +17,7 @@ export class ArchiveCheckableItem
 
     private static readonly CLICKABLE_CLASS = 'clickable';
 
-    protected readonly config: ArchiveItemConfig;
+    declare protected readonly config: ArchiveItemConfig;
 
     showRefButton: ActionButton;
 

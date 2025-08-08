@@ -19,7 +19,7 @@ export class PublishDialogItemList
 
     private excludeChildrenIds: ContentId[] = [];
 
-    protected config: PublishDialogItemListConfig;
+    declare protected config: PublishDialogItemListConfig;
 
     constructor(config: Pick<PublishDialogItemListConfig, 'allowOnlyItemRemoval'> = {}) {
         super({

@@ -1,5 +1,5 @@
 const baseConfig = require('@enonic/eslint-config');
-const { plugin: tsPlugin } = require('typescript-eslint');
+const {plugin: tsPlugin} = require('typescript-eslint');
 const globals = require('globals');
 
 module.exports = [
@@ -16,7 +16,7 @@ module.exports = [
             },
             globals: {
                 ...globals.browser,
-                ...globals.es2015
+                ...globals.ES2023
             }
         },
         plugins: {

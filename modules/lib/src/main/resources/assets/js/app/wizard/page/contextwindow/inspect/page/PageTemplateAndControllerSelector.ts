@@ -32,9 +32,9 @@ import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 export class PageTemplateAndControllerSelector
     extends FilterableListBoxWrapper<PageTemplateAndControllerOption> {
 
-    protected listBox: PageOptionsList;
+    declare protected listBox: PageOptionsList;
 
-    protected selectedViewer: PageTemplateAndSelectorViewer;
+    declare protected selectedViewer: PageTemplateAndSelectorViewer;
 
     private selectedOption: PageTemplateAndControllerOption;
 

@@ -22,7 +22,7 @@ export class FullscreenDialog
 
     private fseditor: HtmlEditor;
 
-    protected config: FullscreenDialogConfig;
+    declare protected config: FullscreenDialogConfig;
 
     constructor(config: FullScreenDialogParams) {
         super({

@@ -10,7 +10,7 @@ export class ContentServerChangeItem
 
     private readonly contentId: ContentId;
 
-    protected path: ContentPath;
+    declare protected path: ContentPath;
 
     constructor(builder: ContentServerChangeItemBuilder) {
         super(builder);

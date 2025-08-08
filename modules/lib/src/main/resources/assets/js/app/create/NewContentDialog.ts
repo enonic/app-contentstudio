@@ -67,7 +67,7 @@ export class NewContentDialog
 
     private uploadHandler?: (items: UploadItem<Content>[]) => void;
 
-    protected header: NewContentDialogHeader;
+    declare protected header: NewContentDialogHeader;
 
     constructor() {
         super({

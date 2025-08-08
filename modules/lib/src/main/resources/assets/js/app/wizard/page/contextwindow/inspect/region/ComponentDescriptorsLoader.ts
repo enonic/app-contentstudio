@@ -8,7 +8,7 @@ import {ContentId} from '../../../../../content/ContentId';
 export class ComponentDescriptorsLoader
     extends BaseLoader<Descriptor> {
 
-    protected request: GetComponentDescriptorsRequest;
+    declare protected request: GetComponentDescriptorsRequest;
 
     constructor() {
         super();

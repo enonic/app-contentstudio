@@ -22,13 +22,13 @@ export class SettingsBrowsePanel
 
     protected toolbar: ListBoxToolbar<SettingsViewItem>;
 
-    protected treeActions: SettingsTreeActions;
+    declare protected treeActions: SettingsTreeActions;
 
     protected contextMenu: TreeGridContextMenu;
 
     protected selectionWrapper: SelectableListBoxWrapper<SettingsViewItem>;
 
-    protected selectableListBoxPanel: SelectableListBoxPanel<SettingsViewItem>;
+    declare protected selectableListBoxPanel: SelectableListBoxPanel<SettingsViewItem>;
 
     protected initListeners(): void {
         super.initListeners();

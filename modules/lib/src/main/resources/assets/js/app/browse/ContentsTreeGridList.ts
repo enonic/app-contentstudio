@@ -181,7 +181,7 @@ export class ContentsTreeGridList
 
 export class ContentsTreeGridListElement extends TreeListElement<ContentSummaryAndCompareStatus> {
 
-    protected childrenList: ContentsTreeGridList;
+    declare protected childrenList: ContentsTreeGridList;
 
     private containsChildren: boolean;
 
