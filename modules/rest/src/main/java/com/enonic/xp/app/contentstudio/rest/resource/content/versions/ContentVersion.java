@@ -8,7 +8,6 @@ import com.enonic.xp.content.ContentVersionId;
 import com.enonic.xp.content.WorkflowInfo;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.security.PrincipalKey;
-import com.enonic.xp.security.acl.AccessControlList;
 
 public final class ContentVersion
 {
@@ -32,7 +31,7 @@ public final class ContentVersion
 
     private final WorkflowInfo workflowInfo;
 
-    private final AccessControlList permissions;
+    private final boolean permissionsChanged;
 
     private ContentVersion( Builder builder )
     {
@@ -46,7 +45,7 @@ public final class ContentVersion
         this.id = builder.id;
         this.publishInfo = builder.publishInfo;
         this.workflowInfo = builder.workflowInfo;
-        this.permissions = builder.permissions;
+        this.permissionsChanged = builder.isPermissionsChanged;
     }
 
     public PrincipalKey getModifier()
@@ -99,9 +98,9 @@ public final class ContentVersion
         return path;
     }
 
-    public AccessControlList getPermissions()
+    public boolean isPermissionsChanged()
     {
-        return permissions;
+        return permissionsChanged;
     }
 
     public static Builder create()
@@ -125,15 +124,13 @@ public final class ContentVersion
             Objects.equals( displayName, that.displayName ) && Objects.equals( modified, that.modified ) &&
             Objects.equals( timestamp, that.timestamp ) && Objects.equals( childOrder, that.childOrder ) &&
             Objects.equals( comment, that.comment ) && Objects.equals( publishInfo, that.publishInfo ) &&
-            Objects.equals( workflowInfo, that.workflowInfo ) && Objects.equals( permissions, that.permissions ) &&
-            Objects.equals( path, that.path );
+            Objects.equals( workflowInfo, that.workflowInfo ) && Objects.equals( path, that.path );
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash( id, modifier, displayName, modified, timestamp, childOrder, comment, publishInfo, workflowInfo, path,
-                             permissions );
+        return Objects.hash( id, modifier, displayName, modified, timestamp, childOrder, comment, publishInfo, workflowInfo, path);
     }
 
     public static final class Builder
@@ -158,7 +155,7 @@ public final class ContentVersion
 
         private WorkflowInfo workflowInfo;
 
-        private AccessControlList permissions;
+        private boolean isPermissionsChanged = false;
 
         private Builder()
         {
@@ -224,9 +221,9 @@ public final class ContentVersion
             return this;
         }
 
-        public Builder permissions( AccessControlList permissions )
+        public Builder permissionsChanged( boolean value )
         {
-            this.permissions = permissions;
+            this.isPermissionsChanged = value;
             return this;
         }
 

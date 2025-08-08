@@ -110,7 +110,7 @@ export class VersionHistoryList
                 return;
             }
 
-            const item = version.hasPublishInfo() ? this.createHistoryItemFromPublishInfo(version, previousVersion, index)
+            const item = version.hasPublishInfo() ? this.createHistoryItemFromPublishInfo(version, index)
                                                   : this.createHistoryItemFromVersion(version, previousVersion);
             result.push(item);
 
@@ -122,12 +122,12 @@ export class VersionHistoryList
         return result;
     }
 
-    private createHistoryItemFromPublishInfo(version: ContentVersion, previousVersion: ContentVersion, index: number): VersionHistoryItem {
+    private createHistoryItemFromPublishInfo(version: ContentVersion, index: number): VersionHistoryItem {
         const publishDateAsString: string = DateHelper.formatDate(version.getDisplayDate());
         const publishInfo: ContentVersionPublishInfo = version.getPublishInfo();
 
         const builder: VersionHistoryItemBuilder = new VersionHistoryItemBuilder()
-            .setStatus(VersionHistoryListHelper.getPublishVersionItemStatus(version, previousVersion))
+            .setStatus(VersionHistoryListHelper.getPublishVersionItemStatus(version))
             .setVersion(version)
             .setDateTime(publishInfo.getTimestamp())
             .setUser(publishInfo.getPublisherDisplayName() || publishInfo.getPublisher())

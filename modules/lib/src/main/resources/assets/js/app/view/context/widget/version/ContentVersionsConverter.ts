@@ -197,9 +197,7 @@ export class ContentVersionsConverter {
             return this.getMoveOrRenameStatus(version, previousVersion);
         }
 
-        const isPermissionsChange: boolean = isNonDataChange && this.isPermissionChange(version, previousVersion);
-
-        if (isPermissionsChange) {
+        if (version.isPermissionsChanged()) {
             return VersionItemStatus.PERMISSIONS;
         }
 
@@ -242,15 +240,6 @@ export class ContentVersionsConverter {
         }
 
         return VersionItemStatus.MOVED;
-    }
-
-    private isPermissionChange(version: ContentVersion, previousVersion: ContentVersion): boolean {
-        if (!previousVersion) {
-            return false;
-        }
-
-        return previousVersion.isInheritPermissions() !== version.isInheritPermissions() ||
-               !previousVersion.getPermissions().equals(version.getPermissions());
     }
 
     static create(): Builder {

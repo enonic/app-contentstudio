@@ -25,9 +25,7 @@ export interface ContentVersionJson {
 
     workflow: WorkflowJson;
 
-    permissions: PermissionsJson;
+    permissionsChanged: boolean;
 
     path: string;
-
-    inheritPermissions
 }

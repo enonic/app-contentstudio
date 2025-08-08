@@ -26,8 +26,8 @@ export class VersionHistoryListHelper {
         return Math.abs(v1.getTimestamp().getTime() - v2.getTimestamp().getTime()) > VersionHistoryListHelper.FILTER_STEP_MS;
     }
 
-    public static getPublishVersionItemStatus(version: ContentVersion, previousVersion?: ContentVersion): VersionItemStatus {
-        if (VersionHistoryListHelper.isPermissionChange(version, previousVersion)) {
+    public static getPublishVersionItemStatus(version: ContentVersion): VersionItemStatus {
+        if (version.isPermissionsChanged()) {
             return VersionItemStatus.PERMISSIONS;
         }
 
@@ -67,9 +67,7 @@ export class VersionHistoryListHelper {
             return VersionHistoryListHelper.getMoveOrRenameStatus(version, previousVersion);
         }
 
-        const isPermissionsChange: boolean = isNonDataChange && VersionHistoryListHelper.isPermissionChange(version, previousVersion);
-
-        if (isPermissionsChange) {
+        if (version.isPermissionsChanged()) {
             return VersionItemStatus.PERMISSIONS;
         }
 
@@ -88,14 +86,14 @@ export class VersionHistoryListHelper {
         return !ObjectHelper.stringEquals(version.getPath(), previousVersion.getPath());
     }
 
-    private static isPermissionChange(version: ContentVersion, previousVersion: ContentVersion): boolean {
-        if (!previousVersion) {
-            return false;
-        }
-
-        return previousVersion.isInheritPermissions() !== version.isInheritPermissions() ||
-               !previousVersion.getPermissions().equals(version.getPermissions());
-    }
+    // private static isPermissionChange(version: ContentVersion, previousVersion: ContentVersion): boolean {
+    //     if (!previousVersion) {
+    //         return false;
+    //     }
+    //
+    //     return previousVersion.isInheritPermissions() !== version.isInheritPermissions() ||
+    //            !previousVersion.getPermissions().equals(version.getPermissions());
+    // }
 
     private static getMoveOrRenameStatus(version: ContentVersion, previousVersion: ContentVersion): VersionItemStatus {
         const path: ContentPath = ContentPath.create().fromString(version.getPath()).build();
