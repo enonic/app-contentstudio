@@ -143,7 +143,7 @@ public class ContentTypeResourceTest
             description( "My description" ).
             icon( Icon.from( new byte[]{123}, "image/gif", SOME_DATE ) ).
             addFormItem( FieldSet.create().
-                name( "myFieldSet" ).
+
                 label( "My field set" ).
                 labelI18nKey( "key.label" ).
                 addFormItem( Input.create().
@@ -347,7 +347,6 @@ public class ContentTypeResourceTest
             build();
 
         FieldSet myFieldSet = FieldSet.create().
-            name( "myFieldSet" ).
             label( "My field set" ).
             addFormItem( Input.create().
                 name( "myTextLine2" ).
