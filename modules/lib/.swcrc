@@ -7,10 +7,9 @@
             "dynamicImport": true
         },
         "transform": {
-            "legacyDecorator": true,
-            "decoratorMetadata": true
+            "useDefineForClassFields": false
         },
-        "target": "es5",
+        "target": "ES2023",
         "keepClassNames": true,
         "loose": true
     },
@@ -18,7 +17,7 @@
         ".*\\.d\\.ts$"
     ],
     "module": {
-        "type": "commonjs",
+        "type": "es6",
         "strict": true,
         "strictMode": true,
         "lazy": false,

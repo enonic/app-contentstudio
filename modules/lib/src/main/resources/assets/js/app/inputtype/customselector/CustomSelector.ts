@@ -30,7 +30,7 @@ export class CustomSelector
 
     public static debug: boolean = false;
 
-    protected context: ContentInputTypeViewContext;
+    declare protected context: ContentInputTypeViewContext;
 
     private requestPath: string;
 

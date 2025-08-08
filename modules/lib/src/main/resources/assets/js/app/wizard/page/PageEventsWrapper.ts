@@ -4,7 +4,7 @@ import {PageConfigUpdateHandler, PageResetHandler, PageUpdatedEventHandler} from
 
 export class PageEventsWrapper extends ComponentEventsWrapper {
 
-    protected eventsHolder: PageEventsHolder;
+    declare protected eventsHolder: PageEventsHolder;
 
     constructor(holder: PageEventsHolder) {
         super(holder);

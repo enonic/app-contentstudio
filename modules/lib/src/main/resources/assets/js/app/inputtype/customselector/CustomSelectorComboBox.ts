@@ -34,7 +34,7 @@ export interface CustomSelectorBuilderOptions {
 export class CustomSelectorComboBox
     extends FilterableListBoxWrapperWithSelectedView<CustomSelectorItem> {
 
-    protected options: CustomSelectorComboBoxOptions;
+    declare protected options: CustomSelectorComboBoxOptions;
 
     constructor(options: CustomSelectorBuilderOptions) {
         const loader = new CustomSelectorLoader();

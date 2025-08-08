@@ -62,7 +62,7 @@ export abstract class DependantItemsDialog
 
     protected dependantIds: ContentId[];
 
-    protected config: DependantItemsDialogConfig;
+    declare protected config: DependantItemsDialogConfig;
 
     protected constructor(config: DependantItemsDialogConfig) {
         super({...config, class: `dependant-items-dialog ${config.class ?? ''}`.trim()});

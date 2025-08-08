@@ -7,7 +7,7 @@ import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 export class LanguageValueContainer
     extends SummaryValueContainer {
 
-    itemContainer: LocaleViewer;
+    declare itemContainer: LocaleViewer;
 
     constructor() {
         super('language-container');

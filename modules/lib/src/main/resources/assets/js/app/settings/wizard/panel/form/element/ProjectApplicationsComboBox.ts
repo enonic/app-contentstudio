@@ -36,7 +36,7 @@ export class ProjectApplicationsComboBox
 
     private inheritedParentSiteConfigs: ApplicationConfig[] = [];
 
-    protected selectedOptionsView: ProjectApplicationsSelectedOptionsView;
+    declare protected selectedOptionsView: ProjectApplicationsSelectedOptionsView;
 
     constructor(params?: ProjectApplicationsFormParams) {
         super(new ProjectApplicationsListBox(), {

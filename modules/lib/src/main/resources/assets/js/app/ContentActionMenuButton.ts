@@ -22,7 +22,7 @@ interface ContentActionMenuButtonConfig
 export class ContentActionMenuButton
     extends MenuButton {
 
-    protected config: ContentActionMenuButtonConfig;
+    declare protected config: ContentActionMenuButtonConfig;
     protected item: ContentSummaryAndCompareStatus;
 
     private issueActionsList: Action[];
