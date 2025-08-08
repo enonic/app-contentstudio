@@ -1,5 +1,10 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.versions;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.StreamSupport;
+
 import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPropertyNames;
@@ -13,6 +18,7 @@ import com.enonic.xp.node.NodeCommitId;
 import com.enonic.xp.node.NodeId;
 import com.enonic.xp.node.NodeService;
 import com.enonic.xp.node.NodeVersion;
+import com.enonic.xp.node.NodeVersionId;
 import com.enonic.xp.node.NodeVersionMetadata;
 import com.enonic.xp.node.NodeVersionsMetadata;
 import com.enonic.xp.security.PrincipalKey;
@@ -33,10 +39,25 @@ class ContentVersionFactory
     public ContentVersions create( final NodeId nodeId, final NodeVersionsMetadata nodeVersionsMetadata )
     {
         final ContentVersions.Builder contentVersionsBuilder = ContentVersions.create().contentId( ContentId.from( nodeId ) );
+        final List<NodeVersionMetadata> nodeVersionsMetaList = StreamSupport.stream( nodeVersionsMetadata.spliterator(), false ).toList();
+        final Map<NodeVersionId, NodeVersion> nodeVersions = new HashMap<>();
 
-        for ( final NodeVersionMetadata nodeVersionMetadata : nodeVersionsMetadata )
+        for ( int i = 0; i < nodeVersionsMetaList.size(); i++ )
         {
-            final ContentVersion contentVersion = create( nodeVersionMetadata );
+            final NodeVersionMetadata currentMeta = nodeVersionsMetaList.get( i );
+            final NodeVersionMetadata nextMeta = ( i + 1 < nodeVersionsMetaList.size() ) ? nodeVersionsMetaList.get( i + 1 ) : null;
+
+            final NodeVersion currentNodeVersion = nodeVersions.computeIfAbsent( currentMeta.getNodeVersionId(),
+                                                                                 ( key ) -> nodeService.getByNodeVersionKey(
+                                                                                     currentMeta.getNodeVersionKey() ) );
+            final NodeVersion nextNodeVersion = nextMeta != null
+                ? nodeVersions.computeIfAbsent( nextMeta.getNodeVersionId(), ( key ) -> nodeService.getByNodeVersionKey(
+                nextMeta.getNodeVersionKey() ) )
+                : null;
+            final boolean isPermissionChanged =
+                nextNodeVersion != null && !currentNodeVersion.getPermissions().equals( nextNodeVersion.getPermissions() );
+
+            final ContentVersion contentVersion = doCreateContentVersion( currentMeta, currentNodeVersion, isPermissionChanged );
             contentVersionsBuilder.add( contentVersion );
         }
 
@@ -46,10 +67,11 @@ class ContentVersionFactory
     public ContentVersion create( final NodeVersionMetadata nodeVersionMetadata )
     {
         final NodeVersion nodeVersion = nodeService.getByNodeVersionKey( nodeVersionMetadata.getNodeVersionKey() );
-        return doCreateContentVersion( nodeVersionMetadata, nodeVersion );
+        return doCreateContentVersion( nodeVersionMetadata, nodeVersion, false );
     }
 
-    private ContentVersion doCreateContentVersion( final NodeVersionMetadata nodeVersionMetadata, final NodeVersion nodeVersion )
+    private ContentVersion doCreateContentVersion( final NodeVersionMetadata nodeVersionMetadata, final NodeVersion nodeVersion,
+                                                   final boolean permissionsChanged )
     {
         final PropertyTree data = nodeVersion.getData();
 
@@ -64,7 +86,7 @@ class ContentVersionFactory
             .id( ContentVersionId.from( nodeVersionMetadata.getNodeVersionId().toString() ) )
             .publishInfo( doCreateContentVersionPublishInfo( nodeVersionMetadata.getNodeCommitId(), data.getRoot() ) )
             .workflowInfo( doCreateContentVersionWorkflowInfo( data.getRoot() ) )
-            .permissions( nodeVersion.getPermissions() )
+            .permissionsChanged( permissionsChanged )
             .build();
     }
 

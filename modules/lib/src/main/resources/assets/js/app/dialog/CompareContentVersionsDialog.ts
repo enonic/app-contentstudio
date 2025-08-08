@@ -3,7 +3,6 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
@@ -715,13 +714,9 @@ export class CompareContentVersionsDialog
 
         const version: ContentVersion = ContentVersionHelper.getVersionById(this.versions, versionId);
 
-        if (ObjectHelper.isDefined(version?.getPermissions())) {
-            contentJson['permissions'] = version.getPermissions().toJson();
-        }
-
-        if (ObjectHelper.isDefined(version?.isInheritPermissions())) {
-            contentJson['inheritPermissions'] = version.isInheritPermissions();
-        }
+        // if (ObjectHelper.isDefined(version?.getPermissions())) {
+        //     contentJson['permissions'] = version.getPermissions().toJson();
+        // }
 
         return contentJson;
     }
