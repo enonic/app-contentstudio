@@ -14,7 +14,7 @@ import {ContentSummary} from '../../../../content/ContentSummary';
 import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import {GetMacrosRequest} from '../../../../macro/resource/GetMacrosRequest';
 import {MacroComboBox, MacroFormInputElWrapper} from '../../../../macro/MacroComboBox';
-import * as DOMPurify from 'dompurify';
+import DOMPurify from 'dompurify';
 import {Macro, MacroDialogParams} from '../HtmlEditor';
 import {HTMLAreaHelper} from '../HTMLAreaHelper';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
@@ -40,7 +40,7 @@ export class MacroModalDialog
 
     private content: ContentSummary;
 
-    protected config: MacroModalDialogConfig;
+    declare protected config: MacroModalDialogConfig;
 
     constructor(config: MacroDialogParams, content: ContentSummary, applicationKeys: ApplicationKey[]) {
         super({
@@ -180,14 +180,15 @@ export class MacroModalDialog
             return value;
         }
 
-        const config: DOMPurify.Config = {ALLOWED_URI_REGEXP: HTMLAreaHelper.getAllowedUriRegexp()};
+        const isEmbed = macroName === 'SYSTEM:EMBED';
 
-        if (macroName === 'SYSTEM:EMBED') {
-            config.ADD_TAGS = ['iframe'];
-            config.ADD_ATTR = ['allow', 'allowfullscreen'];
-        }
-
-        return DOMPurify.sanitize(value, config) as string;
+        return DOMPurify.sanitize(value, {
+            ALLOWED_URI_REGEXP: HTMLAreaHelper.getAllowedUriRegexp(),
+            ADD_TAGS: isEmbed ? ['iframe'] : undefined,
+            ADD_ATTR: isEmbed ? ['allow', 'allowfullscreen'] : undefined,
+            RETURN_DOM: false,
+            RETURN_DOM_FRAGMENT: false,
+        });
     }
 
     private getMacroName(): string {

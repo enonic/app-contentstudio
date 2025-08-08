@@ -32,9 +32,9 @@ class SettingsWizardPanelParams<ITEM extends SettingsDataViewItem<Equitable>> im
 export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewItem<Equitable>>
     extends WizardPanel<ITEM> {
 
-    protected wizardHeader: WizardHeaderWithDisplayNameAndName;
+    declare protected wizardHeader: WizardHeaderWithDisplayNameAndName;
 
-    protected wizardActions: SettingsDataItemWizardActions<ITEM>;
+    declare protected wizardActions: SettingsDataItemWizardActions<ITEM>;
 
     protected wizardStepForms: SettingDataItemWizardStepForm<ITEM>[] = [];
 

@@ -15,7 +15,7 @@ export abstract class DependantItemsWithProgressDialog
 
     protected progressManager: TaskProgressManager;
 
-    protected config: DependantItemsWithProgressDialogConfig;
+    declare protected config: DependantItemsWithProgressDialogConfig;
 
     protected constructor(config: DependantItemsWithProgressDialogConfig) {
         super(config);

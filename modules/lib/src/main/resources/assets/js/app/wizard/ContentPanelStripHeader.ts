@@ -9,7 +9,7 @@ export interface ContentPanelStripHeaderConfig extends PanelStripHeaderConfig {
 
 export class ContentPanelStripHeader extends PanelStripHeader {
 
-    protected config: ContentPanelStripHeaderConfig;
+    declare protected config: ContentPanelStripHeaderConfig;
 
     private toggler: ButtonEl;
 

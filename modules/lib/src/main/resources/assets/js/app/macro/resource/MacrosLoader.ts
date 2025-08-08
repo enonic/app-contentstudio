@@ -8,7 +8,7 @@ import {GetMacrosRequest} from './GetMacrosRequest';
 export class MacrosLoader
     extends BaseLoader<MacroDescriptor> {
 
-    protected request: GetMacrosRequest;
+    declare protected request: GetMacrosRequest;
     private hasRelevantData: boolean;
 
     constructor() {

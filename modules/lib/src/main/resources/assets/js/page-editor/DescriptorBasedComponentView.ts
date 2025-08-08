@@ -9,7 +9,7 @@ export abstract class DescriptorBasedComponentView
 
     private static HAS_DESCRIPTOR_CLASS = 'has-descriptor';
 
-    protected placeholder: DescriptorBasedComponentViewPlaceholder;
+    declare protected placeholder: DescriptorBasedComponentViewPlaceholder;
 
     protected emptyDescriptorBlock?: DivEl;
 

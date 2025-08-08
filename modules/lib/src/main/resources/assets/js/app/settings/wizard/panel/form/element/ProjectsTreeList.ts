@@ -13,7 +13,7 @@ export interface ProjectsTreeListParams
 export class ProjectsTreeList
     extends TreeListBox<Project> {
 
-    options: ProjectsTreeListParams;
+    declare options: ProjectsTreeListParams;
 
     constructor(params: ProjectsTreeListParams) {
         super(params);
@@ -44,7 +44,7 @@ export interface ProjectsTreeListElementParams
 export class ProjectTreeListElement
     extends TreeListElement<Project> {
 
-    protected readonly options: ProjectsTreeListElementParams;
+    declare protected readonly options: ProjectsTreeListElementParams;
 
     constructor(item: Project, options: ProjectsTreeListElementParams) {
         super(item, options);

@@ -27,9 +27,9 @@ export interface ProjectsComboBoxOptions
 export class ProjectsSelector
     extends FilterableListBoxWrapperWithSelectedView<Project> {
 
-    protected options: ProjectsComboBoxOptions;
+    declare protected options: ProjectsComboBoxOptions;
 
-    protected listBox: ProjectsTreeRootList;
+    declare protected listBox: ProjectsTreeRootList;
 
     private readonly helper: ProjectOptionDataHelper;
 

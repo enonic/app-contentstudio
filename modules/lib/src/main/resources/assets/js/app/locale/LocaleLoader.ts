@@ -6,7 +6,7 @@ import {GetLocalesRequest} from '../resource/GetLocalesRequest';
 export class LocaleLoader
     extends BaseLoader<Locale> {
 
-    protected request: GetLocalesRequest;
+    declare protected request: GetLocalesRequest;
     private preservedSearchString: string;
 
     search(searchString: string): Q.Promise<Locale[]> {

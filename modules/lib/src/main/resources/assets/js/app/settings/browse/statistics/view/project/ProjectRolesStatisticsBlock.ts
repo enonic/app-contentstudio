@@ -19,7 +19,7 @@ export class ProjectRolesStatisticsBlock extends StatisticsBlock {
 
     private contributorsColumn: StatisticsBlockColumn;
 
-    protected item: ProjectViewItem;
+    declare protected item: ProjectViewItem;
 
     protected createColumns(): StatisticsBlockColumn[] {
         this.ownersColumn = new StatisticsBlockColumn(i18n('settings.statistics.owners'), new PrincipalsListBox());

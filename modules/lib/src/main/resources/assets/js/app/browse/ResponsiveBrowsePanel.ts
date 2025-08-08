@@ -17,7 +17,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
     static MOBILE_MODE_CLASS = 'mobile-mode';
     static MOBILE_PREVIEW_CLASS = 'mobile-preview-on';
 
-    protected browseToolbar: ResponsiveToolbar;
+    declare protected browseToolbar: ResponsiveToolbar;
     protected contextSplitPanel: ContextSplitPanel;
     protected contextSplitPanelToggler: NonMobileContextPanelToggleButton;
     protected contextView: ContextView;

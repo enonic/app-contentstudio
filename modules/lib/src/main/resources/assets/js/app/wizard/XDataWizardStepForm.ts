@@ -12,7 +12,7 @@ import {ContentPanelStripHeader} from './ContentPanelStripHeader';
 export class XDataWizardStepForm
     extends ContentWizardStepForm {
 
-    protected outerHeader: ContentPanelStripHeader;
+    declare protected outerHeader: ContentPanelStripHeader;
 
     private readonly xData: XData;
 

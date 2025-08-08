@@ -87,7 +87,7 @@ export class ImageModalDialog
     private previewFrame: IFrameEl;
     private editorWidth: number;
     protected secondaryForm: Form;
-    protected config: ImageModalDialogConfig;
+    declare protected config: ImageModalDialogConfig;
 
     static readonly defaultStyles: string[] = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS];
 

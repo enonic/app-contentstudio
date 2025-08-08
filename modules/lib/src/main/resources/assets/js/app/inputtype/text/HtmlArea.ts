@@ -41,7 +41,7 @@ import {AiConfig} from '@enonic/lib-admin-ui/form/inputtype/InputAiConfig';
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
 
-    protected context: ContentInputTypeViewContext;
+    declare protected context: ContentInputTypeViewContext;
     private editors: HtmlAreaOccurrenceInfo[];
     private content: ContentSummary;
     private applicationKeys: ApplicationKey[];

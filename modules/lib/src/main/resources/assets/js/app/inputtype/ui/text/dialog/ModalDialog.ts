@@ -32,8 +32,6 @@ export class ModalDialogFormItemBuilder {
     constructor(id: string, label?: string) {
         this.id = id;
         this.label = label;
-
-        return this;
     }
 
     setValue(value: string): ModalDialogFormItemBuilder {
@@ -71,7 +69,7 @@ export abstract class ModalDialog
     private editor: CKEDITOR.editor;
     private mainForm: Form;
     protected submitAction: Action;
-    protected config: HtmlAreaModalDialogConfig;
+    declare protected config: HtmlAreaModalDialogConfig;
 
     public static CLASS_NAME: string = 'html-area-modal-dialog';
 

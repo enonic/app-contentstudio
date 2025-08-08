@@ -2,9 +2,8 @@ import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ElementEvent} from '@enonic/lib-admin-ui/dom/ElementEvent';
 import {SettingsAppContainer} from 'lib-contentstudio/app/settings/SettingsAppContainer';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {CONFIG, ConfigObject} from '@enonic/lib-admin-ui/util/Config';
 import {ProjectConfigContext} from 'lib-contentstudio/app/settings/data/project/ProjectConfigContext';
-import {JSONObject} from '@enonic/lib-admin-ui/types';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
@@ -29,7 +28,7 @@ const appendHtml = (widgetElem: Element): void => {
 };
 
 const init = async (configScriptId: string, elemId: string): Promise<void> => {
-    CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as JSONObject);
+    CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as ConfigObject);
     AuthContext.init(Principal.fromJson(CONFIG.get('user') as PrincipalJson),
         (CONFIG.get('principals') as PrincipalJson[]).map(Principal.fromJson));
     await ProjectConfigContext.get().init();

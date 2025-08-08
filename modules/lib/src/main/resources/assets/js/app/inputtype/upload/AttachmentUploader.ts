@@ -31,7 +31,7 @@ import {PageHelper} from '../../util/PageHelper';
 export class AttachmentUploader
     extends BaseInputTypeManagingAdd {
 
-    protected context: ContentInputTypeViewContext;
+    declare protected context: ContentInputTypeViewContext;
 
     private uploadButton: Button;
 

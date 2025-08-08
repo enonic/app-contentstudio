@@ -102,7 +102,7 @@ export class LinkModalDialog
 
     private paramsFormIds: FormParam[];
 
-    protected config: LinkModalDialogConfig;
+    declare protected config: LinkModalDialogConfig;
 
     private static contentPrefix: string = 'content://';
     private static mediaDownloadPrefix: string = 'media://download/';

@@ -1,8 +1,7 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ProjectContext} from '../app/project/ProjectContext';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {JSONObject} from '@enonic/lib-admin-ui/types';
+import {CONFIG, ConfigObject} from '@enonic/lib-admin-ui/util/Config';
 import {ProjectJson} from '../app/settings/resource/json/ProjectJson';
 import {LiveEditParams} from './LiveEditParams';
 import {PageJson} from '../app/page/PageJson';
@@ -15,7 +14,7 @@ export class InitializeLiveEditEvent
 
     private readonly projectJson: ProjectJson;
 
-    private readonly config: JSONObject;
+    private readonly config: ConfigObject;
 
     private readonly liveEditParams: LiveEditParams;
 
@@ -39,7 +38,7 @@ export class InitializeLiveEditEvent
         return this.projectJson;
     }
 
-    getConfig(): JSONObject {
+    getConfig(): ConfigObject {
         return this.config;
     }
 

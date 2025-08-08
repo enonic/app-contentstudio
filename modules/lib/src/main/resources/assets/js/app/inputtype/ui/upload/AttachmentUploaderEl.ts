@@ -23,7 +23,7 @@ export interface AttachmentUploaderElConfig
 export class AttachmentUploaderEl
     extends UploaderEl<Attachment> {
 
-    protected config: AttachmentUploaderElConfig;
+    declare protected config: AttachmentUploaderElConfig;
 
     private readonly contentId: string;
 

@@ -10,7 +10,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 export class StatusSelectionItem
     extends SelectionItem<ContentSummaryAndCompareStatus> {
 
-    protected item: ContentSummaryAndCompareStatus;
+    declare protected item: ContentSummaryAndCompareStatus;
     protected status: DivEl;
     private removeHandlerFn: () => void;
     private isRemovableFn: () => boolean;

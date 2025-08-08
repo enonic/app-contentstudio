@@ -12,7 +12,7 @@ import {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
 export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     extends BaseInputTypeManagingAdd {
 
-    protected context: ContentInputTypeViewContext;
+    declare protected context: ContentInputTypeViewContext;
 
     protected allowedContentTypes: string[];
 
