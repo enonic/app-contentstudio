@@ -59,11 +59,7 @@ dependencies {
 
 // Use task configuration avoidance
 tasks.named('copyDevResources').configure {
-    dependsOn ':lib-contentstudio:devJar'
-}
-
-tasks.named('npmInstall').configure {
-    dependsOn tasks.named('copyDevResources')
+    dependsOn project(':lib-contentstudio').tasks.named('devJar')
 }
 
 tasks.named('check').configure {
@@ -72,21 +68,21 @@ tasks.named('check').configure {
 }
 
 tasks.register( 'typecheck', NpmTask ) {
-    dependsOn tasks.named('npmInstall')
+    dependsOn tasks.named('pnpmInstall')
     group 'verification'
     args = ['run', 'check']
     outputs.cacheIf { false }
 }
 
 tasks.register( 'lint', NpmTask ) {
-    dependsOn tasks.named('npmInstall')
+    dependsOn tasks.named('pnpmInstall')
     group 'verification'
     args = ['run', 'lint']
     outputs.cacheIf { false }
 }
 
-tasks.register( 'npmBuild', NpmTask ) {
-    dependsOn tasks.named('npmInstall')
+tasks.register( 'pnpmBuild', NpmTask ) {
+    dependsOn tasks.named('pnpmInstall')
     dependsOn tasks.named('copyDevResources')
     environment = ['NODE_ENV': nodeEnvironment()]
     description = 'Build UI resources (ts, css, etc).'
@@ -115,5 +111,5 @@ tasks.named('jar').configure {
     }
 
     dependsOn(tasks.named('test'))
-    dependsOn(tasks.named('npmBuild'))
+    dependsOn(tasks.named('pnpmBuild'))
 }

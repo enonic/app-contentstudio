@@ -27,8 +27,16 @@
     "properties-reader": "2.3.0",
     "webdriverio": "9.19.1"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "edgedriver",
+      "esbuild",
+      "geckodriver"
+    ]
+  },
   "engines": {
     "node": ">=22.18.0",
-    "npm": ">=10.9.2"
+    "npm": ">=10.9.2",
+    "pnpm": ">= 10.14.0"
   }
 }

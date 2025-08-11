@@ -2,6 +2,7 @@ apply plugin: 'com.github.node-gradle.node'
 
 node {
     version = '22.18.0'
+    pnpmVersion = '10.14.0'
     download = true
 }
 
@@ -20,8 +21,8 @@ tasks.register('copyDevResources') {
     }
 }
 
-// Configure npmInstall dependency lazily
-tasks.named('npmInstall').configure {
+// Configure pnpmInstall dependency lazily
+tasks.named('pnpmInstall').configure {
     if (configurations.hasProperty('devResources')) {
         dependsOn tasks.named('copyDevResources')
     }

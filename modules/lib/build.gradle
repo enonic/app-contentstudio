@@ -19,24 +19,26 @@ dependencies {
 }
 
 tasks.register( 'typecheck', NpmTask ) {
-    dependsOn npmInstall
+    dependsOn tasks.named('pnpmInstall')
     group 'verification'
     args = ['run', 'check']
     outputs.cacheIf { false }
 }
 
 tasks.register( 'lint', NpmTask ) {
-    dependsOn npmInstall
+    dependsOn tasks.named('pnpmInstall')
     group 'verification'
     args = ['run', 'lint']
     outputs.cacheIf { false }
 }
 
-check.dependsOn typecheck
-check.dependsOn lint
+tasks.named('check').configure {
+    dependsOn tasks.named('typecheck')
+    dependsOn tasks.named('lint')
+}
 
 tasks.register( 'typescript', NpmTask ) {
-    dependsOn npmInstall
+    dependsOn tasks.named('pnpmInstall')
     description = 'Build JS and DTS'
     def buildEnv = isProd() ? 'prod' : 'dev'
     environment = ['NODE_ENV': nodeEnvironment()]
@@ -48,19 +50,19 @@ tasks.register( 'typescript', NpmTask ) {
 }
 
 tasks.register( 'copyJS', Copy ) {
-    dependsOn typescript
+    dependsOn tasks.named('typescript')
     if ( !isProd() )
     {
         from "$buildDir/tmp/src/main/resources/assets/js/"
         into "$buildDir/resources/main/dev/${base.archivesName.get()}"
-        includeEmptyDirs false
+        includeEmptyDirs = false
     }
     inputs.dir "$buildDir/tmp/src/main/resources/assets/js/"
     outputs.dir "$buildDir/resources/main/dev/${base.archivesName.get()}"
 }
 
 tasks.register( 'copyPackage', NodeTask ) {
-    dependsOn typescript
+    dependsOn tasks.named('typescript')
     script = file( 'util/modify.js' )
     args = ["--out=$buildDir/resources/main/dev/${base.archivesName.get()}"]
     inputs.file "./package.json"
@@ -71,9 +73,9 @@ tasks.register( 'devJar', Jar ) {
     archiveClassifier = 'dev-resources'
     from sourceSets.main.output
     include 'dev/**'
-    includeEmptyDirs false
-    dependsOn copyJS
-    dependsOn copyPackage
+    includeEmptyDirs = false
+    dependsOn tasks.named('copyJS')
+    dependsOn tasks.named('copyPackage')
 }
 
 tasks.named('jar').configure {
@@ -95,7 +97,7 @@ tasks.named('jar').configure {
 
     includeEmptyDirs = false
 
-    dependsOn(tasks.named('devJar'))
+    dependsOn tasks.named('devJar')
 }
 
 artifacts {

@@ -70,18 +70,6 @@ To rebuild the project from scratch, you may want to remove all compiles sources
 ./gradlew clean
 ```
 
-#### NPM upgrade
-
-In case you want forcefully update all your node dependencies, use:
-
-```
-./gradlew npmInstallForce
-```
-
-Take a note, that you can also use aliases in Gradle, and `nIF` would be just enough to run `npmInstallForce`.
-
 <!-- Links -->
-[travis-url]:    https://travis-ci.org/enonic/app-contentstudio
-[travis-image]:  https://travis-ci.org/enonic/app-contentstudio.svg?branch=master "Build status"
 [license-url]:   LICENSE.txt
 [license-image]: https://img.shields.io/github/license/enonic/app-contentstudio.svg "GPL 3.0"

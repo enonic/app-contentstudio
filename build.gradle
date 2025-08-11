@@ -67,7 +67,7 @@ asciidoctor {
 }
 
 htmlSanityCheck {
-    dependsOn asciidoctor
+    dependsOn tasks.named('asciidoctor')
     sourceDir = tasks.asciidoctor.outputDir
 
     sourceDocuments = fileTree(sourceDir) {

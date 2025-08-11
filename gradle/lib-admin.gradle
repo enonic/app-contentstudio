@@ -1,57 +1,37 @@
-def isLibAdminUiIncluded()
-{
-    return new File( "$rootDir/../lib-admin-ui" ).exists()
+// Cache expensive file system check
+def libAdminUiExists = providers.provider {
+    new File("$rootDir/../lib-admin-ui").exists()
 }
 
-def hasLibAdminUi()
-{
-    return hasEnvironment() && isLibAdminUiIncluded()
-}
+def applyResourcesTaskDependencies() {
+    def libAdminBuild = gradle.includedBuild('lib-admin-ui')
+    def libAdminDevJarTask = libAdminBuild.task(':devJar')
+    def libAdminBuildTask = libAdminBuild.task(':build')
+    def libAdminCleanTask = libAdminBuild.task(':clean')
 
-def hasTask( name )
-{
-    return project.tasks.findByName( name ) != null
-}
-
-def applyResourcesTaskDependencies()
-{
-    def libAdminDevJarTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':devJar' )
-    def libAdminBuildTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':build' )
-    def libAdminCleanTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':clean' )
-
-    if ( hasTask( 'copyDevResources' ) )
-    {
-        copyDevResources.dependsOn libAdminDevJarTask
+    tasks.matching { it.name == 'copyDevResources' }.configureEach {
+        dependsOn libAdminDevJarTask
     }
 
-    build.dependsOn += libAdminBuildTask
+    tasks.named('build').configure {
+        dependsOn libAdminBuildTask
+    }
 
-    if ( hasTask( 'clean' ) )
-    {
-        clean.dependsOn += libAdminCleanTask
+    tasks.named('clean').configure {
+        dependsOn libAdminCleanTask
     }
 }
 
-if ( hasLibAdminUi() )
+if ( hasEnvironment() && libAdminUiExists.get() )
 {
     afterEvaluate {
         applyResourcesTaskDependencies()
     }
 }
 
-ext {
-    hasLibAdminUi = this.&hasLibAdminUi
-}
-
-// Register flush task unconditionally, use lazy configuration for dependency
-tasks.register( 'flush', Delete ) {
-    description = 'Clean the project from built sources and dependencies'
-    delete '.xp'
-}
-
+// Configure clean task to also remove .xp directory
 afterEvaluate {
-    if ( hasTask( 'clean' ) )
-    {
-        clean.dependsOn flush
+    tasks.matching { it.name == 'clean' }.configureEach {
+        delete '.xp'
     }
 }
