@@ -204,15 +204,6 @@ export abstract class ContentVersionsConverter {
         return !ObjectHelper.stringEquals(version.getPath(), previousVersion.getPath());
     }
 
-    private isPermissionChange(version: ContentVersion, previousVersion: ContentVersion): boolean {
-        if (!previousVersion) {
-            return false;
-        }
-
-        return previousVersion.isInheritPermissions() !== version.isInheritPermissions() ||
-               !previousVersion.getPermissions().equals(version.getPermissions());
-    }
-
     private getMoveOrRenameStatus(version: ContentVersion, previousVersion: ContentVersion): VersionItemStatus {
         const path = ContentPath.create().fromString(version.getPath()).build();
         const previousPath = ContentPath.create().fromString(previousVersion.getPath()).build();
