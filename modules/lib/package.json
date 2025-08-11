@@ -9,11 +9,11 @@
   },
   "scripts": {
     "build:prod": "concurrently -c auto -g --timings npm:build:prod:*",
-    "build:prod:client": "tsc",
+    "build:prod:client": "tsc --pretty",
     "build:prod:lib": "webpack --color --stats-error-details",
     "build:dev": "concurrently -c auto -g --timings npm:build:dev:*",
     "build:dev:types": "tsc --skipLibCheck --emitDeclarationOnly --declaration",
-    "build:dev:client": "swc src --out-dir build/tmp",
+    "build:dev:client": "tsc --pretty --inlineSourceMap --inlineSources",
     "build:dev:lib": "webpack --color --stats-error-details",
     "check": "tsc --skipLibCheck --emitDeclarationOnly --declaration",
     "lint": "eslint **/*.ts --quiet --cache"

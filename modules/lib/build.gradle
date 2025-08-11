@@ -44,21 +44,8 @@ tasks.register( 'typescript', NpmTask ) {
     environment = ['NODE_ENV': nodeEnvironment()]
     args = ['run', "build:$buildEnv"]
     inputs.dir "$projectDir/src/main/resources/assets/"
-    outputs.dirs( "$buildDir/tmp/src/main/resources/assets/js/",
-                  "$buildDir/resources/main/assets/",
+    outputs.dirs( "$buildDir/resources/main/assets/",
                   "$buildDir/resources/main/dev/${base.archivesName.get()}" )
-}
-
-tasks.register( 'copyJS', Copy ) {
-    dependsOn tasks.named('typescript')
-    if ( !isProd() )
-    {
-        from "$buildDir/tmp/src/main/resources/assets/js/"
-        into "$buildDir/resources/main/dev/${base.archivesName.get()}"
-        includeEmptyDirs = false
-    }
-    inputs.dir "$buildDir/tmp/src/main/resources/assets/js/"
-    outputs.dir "$buildDir/resources/main/dev/${base.archivesName.get()}"
 }
 
 tasks.register( 'copyPackage', NodeTask ) {
@@ -74,7 +61,7 @@ tasks.register( 'devJar', Jar ) {
     from sourceSets.main.output
     include 'dev/**'
     includeEmptyDirs = false
-    dependsOn tasks.named('copyJS')
+    dependsOn tasks.named('typescript')
     dependsOn tasks.named('copyPackage')
 }
 

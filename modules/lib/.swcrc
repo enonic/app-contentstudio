@@ -9,7 +9,7 @@
         "transform": {
             "useDefineForClassFields": false
         },
-        "target": "ES2023",
+        "target": "es5",
         "keepClassNames": true,
         "loose": true
     },
@@ -17,7 +17,7 @@
         ".*\\.d\\.ts$"
     ],
     "module": {
-        "type": "es6",
+        "type": "commonjs",
         "strict": true,
         "strictMode": true,
         "lazy": false,

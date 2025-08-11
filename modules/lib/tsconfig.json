@@ -19,6 +19,7 @@
         "noImplicitThis": true,
         "strictNullChecks": false,
         "skipLibCheck": true,
+        "incremental": true,
         "types": [
             "ckeditor",
             "hasher",
