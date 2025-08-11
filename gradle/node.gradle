@@ -5,19 +5,24 @@ node {
     download = true
 }
 
-afterEvaluate {
-    if ( configurations.hasProperty( 'devResources' ) )
-    {
-        tasks.register('copyDevResources') {
-            doLast {
-                copy {
-                    from configurations.devResources.files.collect { zipTree( it ) }
-                    include 'dev/**'
-                    into '.xp'
-                }
+tasks.register('copyDevResources') {
+    onlyIf {
+        configurations.hasProperty('devResources')
+    }
+    doLast {
+        if (configurations.hasProperty('devResources')) {
+            copy {
+                from configurations.devResources.files.collect { zipTree( it ) }
+                include 'dev/**'
+                into '.xp'
             }
         }
+    }
+}
 
-        npmInstall.dependsOn copyDevResources
+// Configure npmInstall dependency lazily
+tasks.named('npmInstall').configure {
+    if (configurations.hasProperty('devResources')) {
+        dependsOn tasks.named('copyDevResources')
     }
 }

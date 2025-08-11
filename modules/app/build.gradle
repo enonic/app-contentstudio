@@ -3,7 +3,9 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.enonic.defaults'
 apply plugin: 'com.enonic.xp.app'
 
-archivesBaseName = 'contentstudio'
+base {
+    archivesName = 'contentstudio'
+}
 
 app {
     name = 'com.enonic.app.contentstudio'
@@ -55,29 +57,37 @@ dependencies {
     devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 }
 
-afterEvaluate {
-    copyDevResources.dependsOn ':lib-contentstudio:devJar'
+// Use task configuration avoidance
+tasks.named('copyDevResources').configure {
+    dependsOn ':lib-contentstudio:devJar'
+}
+
+tasks.named('npmInstall').configure {
+    dependsOn tasks.named('copyDevResources')
+}
+
+tasks.named('check').configure {
+    dependsOn tasks.named('typecheck')
+    dependsOn tasks.named('lint')
 }
 
 tasks.register( 'typecheck', NpmTask ) {
-    dependsOn npmInstall
+    dependsOn tasks.named('npmInstall')
     group 'verification'
     args = ['run', 'check']
-    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
 }
 
 tasks.register( 'lint', NpmTask ) {
-    dependsOn npmInstall
+    dependsOn tasks.named('npmInstall')
     group 'verification'
     args = ['run', 'lint']
-    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
 }
 
-check.dependsOn typecheck
-check.dependsOn lint
-
 tasks.register( 'npmBuild', NpmTask ) {
-    dependsOn npmInstall
+    dependsOn tasks.named('npmInstall')
+    dependsOn tasks.named('copyDevResources')
     environment = ['NODE_ENV': nodeEnvironment()]
     description = 'Build UI resources (ts, css, etc).'
     args = ['run', 'build']
@@ -88,7 +98,7 @@ tasks.register( 'npmBuild', NpmTask ) {
     outputs.dir "$buildDir/build/resources/main/assets"
 }
 
-jar {
+tasks.named('jar').configure {
     exclude 'assets/**/*.ts'
     exclude 'assets/**/*.less'
     exclude 'assets/styles/*.js'
@@ -104,6 +114,6 @@ jar {
         exclude 'assets/**/*.map'
     }
 
-    dependsOn += test
-    dependsOn += npmBuild
+    dependsOn(tasks.named('test'))
+    dependsOn(tasks.named('npmBuild'))
 }

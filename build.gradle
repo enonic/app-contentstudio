@@ -23,10 +23,12 @@ subprojects {
         toolchain {
             languageVersion = JavaLanguageVersion.of(21)
         }
+
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = sourceCompatibility
     }
 
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = sourceCompatibility
+
 
     dependencies {
         testImplementation platform(libs.junit.bom)

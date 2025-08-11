@@ -1,7 +1,10 @@
 apply plugin: 'maven-publish'
 
 group = 'com.enonic.lib'
-archivesBaseName = 'lib-contentstudio'
+
+base {
+    archivesName = 'lib-contentstudio'
+}
 
 configurations {
     devResources {
@@ -19,14 +22,14 @@ tasks.register( 'typecheck', NpmTask ) {
     dependsOn npmInstall
     group 'verification'
     args = ['run', 'check']
-    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
 }
 
 tasks.register( 'lint', NpmTask ) {
     dependsOn npmInstall
     group 'verification'
     args = ['run', 'lint']
-    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
 }
 
 check.dependsOn typecheck
@@ -41,7 +44,7 @@ tasks.register( 'typescript', NpmTask ) {
     inputs.dir "$projectDir/src/main/resources/assets/"
     outputs.dirs( "$buildDir/tmp/src/main/resources/assets/js/",
                   "$buildDir/resources/main/assets/",
-                  "$buildDir/resources/main/dev/$archivesBaseName" )
+                  "$buildDir/resources/main/dev/${base.archivesName.get()}" )
 }
 
 tasks.register( 'copyJS', Copy ) {
@@ -49,19 +52,19 @@ tasks.register( 'copyJS', Copy ) {
     if ( !isProd() )
     {
         from "$buildDir/tmp/src/main/resources/assets/js/"
-        into "$buildDir/resources/main/dev/$archivesBaseName"
+        into "$buildDir/resources/main/dev/${base.archivesName.get()}"
         includeEmptyDirs false
     }
     inputs.dir "$buildDir/tmp/src/main/resources/assets/js/"
-    outputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
+    outputs.dir "$buildDir/resources/main/dev/${base.archivesName.get()}"
 }
 
 tasks.register( 'copyPackage', NodeTask ) {
     dependsOn typescript
     script = file( 'util/modify.js' )
-    args = ["--out=$buildDir/resources/main/dev/$archivesBaseName"]
+    args = ["--out=$buildDir/resources/main/dev/${base.archivesName.get()}"]
     inputs.file "./package.json"
-    outputs.file "$buildDir/resources/main/dev/$archivesBaseName/package.json"
+    outputs.file "$buildDir/resources/main/dev/${base.archivesName.get()}/package.json"
 }
 
 tasks.register( 'devJar', Jar ) {
@@ -73,7 +76,7 @@ tasks.register( 'devJar', Jar ) {
     dependsOn copyPackage
 }
 
-jar {
+tasks.named('jar').configure {
     exclude 'admin/**'
     exclude 'assets/js/**'
     exclude 'assets/lib/ckeditor/**/*.md'
@@ -92,7 +95,7 @@ jar {
 
     includeEmptyDirs = false
 
-    dependsOn devJar
+    dependsOn(tasks.named('devJar'))
 }
 
 artifacts {

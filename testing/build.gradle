@@ -12,7 +12,7 @@ group = 'com.enonic.app.contentstudio.js_testing'
 configurations {
     distro
     apps {
-        transitive false
+        transitive = false
     }
 }
 

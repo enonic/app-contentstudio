@@ -32,18 +32,10 @@ def applyResourcesTaskDependencies()
     }
 }
 
-def excludeTasks()
-{
-    gradle.startParameter.getExcludedTaskNames().forEach( taskName -> {
-        gradle.includedBuild( 'lib-admin-ui' ).task( ":$taskName" )?.resolveTask()?.enabled = false
-    } )
-}
-
 if ( hasLibAdminUi() )
 {
     afterEvaluate {
         applyResourcesTaskDependencies()
-        excludeTasks()
     }
 }
 
@@ -51,13 +43,15 @@ ext {
     hasLibAdminUi = this.&hasLibAdminUi
 }
 
+// Register flush task unconditionally, use lazy configuration for dependency
+tasks.register( 'flush', Delete ) {
+    description = 'Clean the project from built sources and dependencies'
+    delete '.xp'
+}
+
 afterEvaluate {
     if ( hasTask( 'clean' ) )
     {
-        tasks.register( 'flush', Delete ) {
-            description = 'Clean the project from built sources and dependencies'
-            delete '.xp'
-        }
         clean.dependsOn flush
     }
 }
