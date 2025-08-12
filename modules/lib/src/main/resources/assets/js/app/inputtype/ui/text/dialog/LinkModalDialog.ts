@@ -154,6 +154,14 @@ export class LinkModalDialog
                 this.updateOriginalDialogInputValues();
                 this.ckeOriginalDialog.getButton('ok').click();
                 this.close();
+
+                const insertedLink = this.getEditor().getSelection().getRanges()[0]?.startContainer;
+                const previousElement = insertedLink?.getPrevious()?.$;
+                const isNbspBeforeLink = previousElement?.textContent?.slice(-1) === '\xA0';
+
+                if (isNbspBeforeLink) {
+                    previousElement.textContent = previousElement.textContent.slice(0, -1) + ' ';
+                }
             }
         });
     }
