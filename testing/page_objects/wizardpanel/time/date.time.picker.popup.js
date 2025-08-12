@@ -38,15 +38,20 @@ class DateTimePickerPopup extends Page {
         await this.pause(200);
     }
 
-    async clickOnHoursArrowOnlineFrom() {
-        let selector = XPATH.container + "//a[@class='next']/span";
-        let elems = await this.findElements(selector);
-        await elems[0].click();
-        return await this.pause(300);
+    // Click on 'Next' (arrow-up) icon in Online To Data Picker and set a date/time in the input
+    async clickOnHoursArrowUp() {
+        try {
+            let selector = XPATH.container + "//a[@class='next']/span";
+            let elems = await this.findElements(selector);
+            await elems[0].click();
+            return await this.pause(300);
+        }catch (err){
+            await this.handleError('DateTimePickerPopup - click hour ArrowUp icon', 'err_click_on_hours_arrow_next', err);
+        }
     }
 
-    // Click on 'Prev' arrow icon in Online To Data Picker and set a date/time in the input
-    async clickOnHoursArrowPrevInOnlineTo() {
+    // Click on 'Prev' (arrow-down) icon in Online To Data Picker and set a date/time in the input
+    async clickOnHoursArrowDown() {
         try {
             let selector = XPATH.container + "//a[@class='prev']/span";
             let elems = await this.findElements(selector);
@@ -67,7 +72,7 @@ class DateTimePickerPopup extends Page {
             let h = await elements[0].getText();
             let min = await elements[1].getText();
             return h + ':' + min;
-        }catch (err){
+        } catch (err) {
             await this.handleError('DateTimePickerPopup - getTime In Online From', 'err_get_time_in_online_from', err);
         }
     }

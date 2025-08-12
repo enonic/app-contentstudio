@@ -46,7 +46,7 @@ describe(`schedule.form.online.fields.spec:  tests for schedule form and Edit Sc
             // 4. Click and show Picker popup for 'Online to' field:
             await contentPublishDialog.showOnlineToPickerPopup();
             // 5. Click on Prev icon in Online To Data Picker and set the current date and 23 hours:
-            await dateTimePickerPopup.clickOnHoursArrowPrevInOnlineTo();
+            await dateTimePickerPopup.clickOnHoursArrowDown();
             await dateRangeInput.pause(1000);
             await studioUtils.saveScreenshot('schedule_online_to_picker_23_hours');
             // 6. Click on OK button in Picker and set the date for the "To" field:
@@ -85,7 +85,7 @@ describe(`schedule.form.online.fields.spec:  tests for schedule form and Edit Sc
             // 4. Click and 'show Picker' popup for 'Online to' field:
             await editScheduleDialog.showOnlineToPickerPopup();
             // 5. Click on Prev icon in Online To Data Picker and set the current date and 22 hours:
-            await dateTimePickerPopup.clickOnHoursArrowPrevInOnlineTo();
+            await dateTimePickerPopup.clickOnHoursArrowDown();
             await dateRangeInput.pause(1000);
             await studioUtils.saveScreenshot('edit_schedule_22_hours');
             await editScheduleDialog.typeOnlineFrom(''); // Clear the 'Online from' field

@@ -56,7 +56,7 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             await contentPublishDialog.waitForAddScheduleIconNotDisplayed();
         });
 
-    it(`GIVEN Publishing wizard has been opened AND schedule form has been added WHEN click on hours-arrow THEN picker popup should not be closed`,
+    it(`GIVEN schedule form has been added WHEN 'Online to' in past has been inserted THEN expected validation message should appear`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
@@ -70,14 +70,65 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             await contentPublishDialog.clickOnMarkAsReadyButton();
             // 3. Verify that icon-calendar gets visible now. Click on this icon:
             await contentPublishDialog.clickOnAddScheduleIcon();
-            // 4. Open date time picker popup:
+            await contentPublishDialog.typeInOnlineTo(DATE_TIME_IN_PAST);
+            await contentPublishDialog.waitForScheduleValidationMessageDisplayed();
+            let actualMsg = await contentPublishDialog.getScheduleValidationRecord();
+            assert.strictEqual(actualMsg, appConst.VALIDATION_MESSAGE.SCHEDULE_FORM_ONLINE_PAST,
+                'Expected validation message should appear');
+        });
+
+    it(`GIVEN schedule form has been added WHEN click on hours 'arrow down' (set the date in the future) icon in 'Online to' THEN validation message should not be displayed in the modal dialog`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
+            let dateTimePickerPopup = new DateTimePickerPopup();
+            let dateRangeInput = new DateRangeInput();
+            // 1. Select existing 'work in progress' folder and open Publish Dialog
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+            await contentPublishDialog.waitForDialogOpened();
+            // 2. Click on this icon Add Schedule calendar icon:
+            await contentPublishDialog.clickOnAddScheduleIcon();
+            // 3. Open 'Online To' date time picker popup:
             await contentPublishDialog.showOnlineToPickerPopup();
-            await studioUtils.saveScreenshot('schedule_picker_popup1');
-            // Click on hours-arrow:
-            await dateTimePickerPopup.clickOnHoursArrowOnlineFrom();
-            await studioUtils.saveScreenshot('schedule_picker_popup2');
+            await studioUtils.saveScreenshot('schedule_picker_popup_online_to_1');
+            // Click on  'arrow up' in hours in the Online To Picker popup:
+            await dateTimePickerPopup.clickOnHoursArrowDown();
+            await studioUtils.saveScreenshot('schedule_picker_popup_online_to_2');
             await dateRangeInput.pause(1000);
+            // 4. Verify that Picker popup is still displayed AND 23 hours is set for the current date:
             await dateRangeInput.waitForOnlineToPickerDisplayed();
+            await dateTimePickerPopup.clickOnOkButton();
+            // 5. Online to is in the future, so validation message should not be displayed:
+            await contentPublishDialog.waitForScheduleValidationMessageNotDisplayed();
+        });
+
+    it(`GIVEN schedule form has been added WHEN click on hours 'arrow up' icon in 'Online to'(set time in the past) THEN validation message should be displayed in the modal dialog`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
+            let dateTimePickerPopup = new DateTimePickerPopup();
+            let dateRangeInput = new DateRangeInput();
+            // 1. Select existing 'work in progress' folder and open Publish Dialog
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+            await contentPublishDialog.waitForDialogOpened();
+            // 2. Click on this icon Add Schedule calendar icon:
+            await contentPublishDialog.clickOnAddScheduleIcon();
+            // 3. Open 'Online To' date time picker popup:
+            await contentPublishDialog.showOnlineToPickerPopup();
+            await studioUtils.saveScreenshot('schedule_picker_popup_online_to_1');
+            // 4. Click on  'arrow up' in hours in the Online To Picker popup:
+            await dateTimePickerPopup.clickOnHoursArrowUp();
+            await studioUtils.saveScreenshot('schedule_picker_popup_online_to_2');
+            await dateRangeInput.pause(1000);
+            // 5. Verify that Picker popup is still displayed AND date in the past has been set:
+            await dateRangeInput.waitForOnlineToPickerDisplayed();
+            await dateTimePickerPopup.clickOnOkButton();
+            // 6. Online to is in the past, so validation message should  be displayed:
+            await contentPublishDialog.waitForScheduleValidationMessageDisplayed();
+            let message = await contentPublishDialog.getScheduleValidationRecord();
+            assert.equal(message, appConst.VALIDATION_MESSAGE.SCHEDULE_FORM_ONLINE_PAST, 'Expected message - Online to cannot be in the past');
         });
 
     it(`GIVEN schedule form has been added in Publish Wizard modal dialog WHEN DatePicker popup has been opened THEN the 'online from' time is set to '12:00' by default`,
