@@ -31,12 +31,12 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
             await studioUtils.doAddFolder(TEST_FOLDER);
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await studioUtils.saveScreenshot('content_item_toolbar');
-            // 2.Verify that 'New' status is displayed in Item Preview toolbar:
+            // 2. Verify that 'New' status is displayed in Item Preview toolbar:
             let status = await contentItemPreviewPanel.getContentStatus();
-            assert.equal(status, 'New', "'New' status should be displayed in the Preview Item toolbar");
+            assert.equal(status, appConst.CONTENT_STATUS.NEW, "'New' status should be displayed in the Preview Item toolbar");
         });
 
-    it(`GIVEN existing 'New' folder WHEN the folder is selected and published THEN 'Published' status should be displayed in the preview toolbar`,
+    it(`WHEN the existing 'New' folder  has been published THEN 'Published' status should be displayed in the preview toolbar`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
@@ -50,13 +50,12 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
             await contentPublishDialog.waitForDialogOpened();
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
-            // 3. Published status should be displayed in the item preview toolbar:
+            // 3. 'Published' status should be displayed in the item preview toolbar:
             let status = await contentItemPreviewPanel.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
         });
 
-
-    it(`WHEN existing folder is selected THEN Preview toolbar gets not visible`,
+    it(`WHEN existing folder has been unselected THEN Preview toolbar gets not visible`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
@@ -69,7 +68,6 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
             // 4. Preview toolbar should not be displayed
             await contentItemPreviewPanel.waitForPreviewToolbarNotDisplayed();
         });
-
 
     it(`WHEN published folder has been modified THEN 'Show changes' button should appear in the item preview toolbar`,
         async () => {
@@ -99,7 +97,7 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             // 2. Verify that Item Preview toolbar has 'toolbar' role attribute:
             await contentItemPreviewPanel.waitForToolbarRoleAttribute(TOOLBAR_ROLE);
-            // 3. Verify arial-label='Main menu bar'
+            // 3. Verify Accessibility -  arial-label='Main menu bar'  - Accessible Rich Internet Applications
             await contentItemPreviewPanel.waitForBrowseToolbarAriaLabelAttribute(ARIA_LABEL_TOOLBAR);
         });
 

@@ -10,6 +10,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('Tests for dependent items in Unpublish dialog (for scheduled content)', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -45,6 +46,12 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             // 5. Verify that status is 'Publishing Scheduled' in Grid:
             let actualStatus = await contentBrowsePanel.getContentStatus(SITE.displayName);
             assert.equal(actualStatus, appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED, "Scheduled status should be displayed in the grid");
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            // 6. 'Scheduled' status should be displayed in the 'Preview Item toolbar':
+            let status = await contentItemPreviewPanel.getContentStatus();
+            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED, "'Scheduled' status should be displayed in the Preview Item toolbar");
+            // 7. 'Show Changes' button should be displayed in the 'Preview Item' toolbar:
+            await contentItemPreviewPanel.waitForShowChangesButtonNotDisplayed();
         });
 
     // Verify issue: Unpublish Item dialog - dependent items are not displayed when content with children are scheduled #4185
