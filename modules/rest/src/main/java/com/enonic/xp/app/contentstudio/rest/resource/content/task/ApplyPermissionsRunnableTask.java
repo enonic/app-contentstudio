@@ -61,11 +61,11 @@ public class ApplyPermissionsRunnableTask
 
         result.getResults().entrySet().forEach( branchResultEntry -> {
             branchResultEntry.getValue().forEach( branchResult -> {
-                if ( ContextAccessor.current().getBranch().equals( branchResult.getBranch() ) )
+                if ( ContextAccessor.current().getBranch().equals( branchResult.branch() ) )
                 {
-                    if ( branchResult.getContent() != null )
+                    if ( branchResult.content() != null )
                     {
-                        builder.succeeded( branchResult.getContent().getPath() );
+                        builder.succeeded( branchResult.content().getPath() );
                     }
                     else
                     {
