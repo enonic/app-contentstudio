@@ -39,7 +39,7 @@ describe('rename.content.spec - tests for Renamed version item', function () {
             await contentWizard.waitForNotificationMessages();
             //3. Verify that Renamed version item is visible in the published content:
             await wizardVersionsWidget.waitForRenamedItemDisplayed();
-            await studioUtils.saveScreenshot("renamed_version_1");
+            await studioUtils.saveScreenshot('renamed_version_1');
             //6. Verify that Renamed version item should appear:
             let renamedItems = await wizardVersionsWidget.countRenamedItems();
             assert.equal(renamedItems, 1, "1 Renamed item should appear");
@@ -61,10 +61,11 @@ describe('rename.content.spec - tests for Renamed version item', function () {
             await studioUtils.saveScreenshot("renamed_version_browse_widget_clicked");
             //4. Verify that Revert button should not be present in the latest Renamed item:
             await browseVersionsWidget.waitForRevertButtonNotDisplayed();
-            //5. Verify that 'Active version' button should not be present in the latest Renamed item:
-            await browseVersionsWidget.waitForActiveVersionButtonNotDisplayed();
-            //6. 'Show changes' icon should be present in the Renamed item
-            await browseVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.RENAMED, 0);
+            //5. Verify that 'Active version' button should be present in the latest Renamed item:
+            await browseVersionsWidget.waitForActiveVersionButtonDisplayed();
+            //6. 'Compare Versions' checkbox should be displayed in the Renamed item
+            let isDisplayed = await browseVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.RENAMED, 0);
+            assert.ok(isDisplayed, "Compare Versions checkbox should be displayed in the Renamed item");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
