@@ -8,6 +8,9 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const InsertLinkDialogContentPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
+const InsertLinkDialogUrlPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
+const InsertLinkDialog = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
+const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('htmlarea.insert.link.to.content.spec: tests for filtering in content selector', function () {
@@ -17,7 +20,7 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
     }
     let SITE;
     let SITE_NAME = contentBuilder.generateRandomName('site');
-    const DUPLICATED_SITE_NAME = SITE_NAME + "-copy";
+    const DUPLICATED_SITE_NAME = SITE_NAME + '-copy';
 
     it(`Preconditions: new site and its copy should be created`,
         async () => {
@@ -71,6 +74,95 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             assert.ok(items.includes('/' + DUPLICATED_SITE_NAME), 'Duplicated site should be present in the options');
         });
 
+    // NBSP appears after pasting text before a link #8996
+    // https://github.com/enonic/app-contentstudio/issues/8996
+    it(`GIVEN paste any text before the link, press space WHEN open 'Insert Link dialog' and new link has been inserted THEN 'NBSP' should not be present in SourceCodeDialog`,
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialog = new InsertLinkDialog();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
+            await studioUtils.selectSiteAndOpenNewWizard(SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
+            await htmlAreaForm.pause(1000);
+            await htmlAreaForm.insertTextInHtmlArea(0, 'test');
+            await htmlAreaForm.clickInTextArea();
+            await htmlAreaForm.pressWhiteSpace();
+            // 1. Open 'Insert Link' dialog:
+            await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+            await insertLinkDialog.typeInLinkTextInput('enonic');
+            // 2. Insert an URL:
+            await insertLinkDialog.clickOnBarItem('URL');
+            await insertLinkDialogUrlPanel.typeUrl("http://enonic.com");
+            // 3. Click on 'Insert' button:
+            await insertLinkDialog.clickOnInsertButton();
+            await insertLinkDialog.waitForDialogClosed();
+            // 4. Open 'Source Code' dialog:
+            await htmlAreaForm.clickOnSourceButton();
+            let sourceCodeDialog = new SourceCodeDialog();
+            await sourceCodeDialog.waitForDialogLoaded();
+            await studioUtils.saveScreenshot('source_code_dialog_nbsp_with_link');
+            // 5. Verify that '&nbsp;' should not be present in the source code:
+            let result = await sourceCodeDialog.getText();
+            assert.ok(!result.includes('nbsp'), "'&nbsp;' should not be present in the source code");
+        });
+
+    it(`WHEN 1 white space has been inserted before the link and 1 white space has been inserted after the link THEN 'NBSP' should not be present in SourceCodeDialog`,
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialog = new InsertLinkDialog();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
+            await studioUtils.selectSiteAndOpenNewWizard(SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
+            await htmlAreaForm.pause(1000);
+            await htmlAreaForm.insertTextInHtmlArea(0, 'test');
+            await htmlAreaForm.clickInTextArea();
+            await htmlAreaForm.pressWhiteSpace();
+            // 1. Open 'Insert Link' dialog:
+            await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+            await insertLinkDialog.typeInLinkTextInput('enonic');
+            // 2. Insert an URL:
+            await insertLinkDialog.clickOnBarItem('URL');
+            await insertLinkDialogUrlPanel.typeUrl("http://enonic.com");
+            // 3. Click on 'Insert' button:
+            await insertLinkDialog.clickOnInsertButton();
+            await insertLinkDialog.waitForDialogClosed();
+            await htmlAreaForm.clickInTextArea();
+            await htmlAreaForm.pressEndKey();
+            await htmlAreaForm.pressWhiteSpace();
+            // 4. Open 'Source Code' dialog:
+            await htmlAreaForm.clickOnSourceButton();
+            let sourceCodeDialog = new SourceCodeDialog();
+            await sourceCodeDialog.waitForDialogLoaded();
+            await studioUtils.saveScreenshot('source_code_nbsp_after_link');
+            // 5. Verify that '&nbsp;' should not be present in the source code:
+            let result = await sourceCodeDialog.getText();
+            assert.ok(!result.includes('nbsp'), "'&nbsp;' should not be present in the source code");
+        });
+
+    it(`WHEN 1 white space has been inserted between two words THEN 'NBSP' should not be present in SourceCodeDialog`,
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialog = new InsertLinkDialog();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
+            await studioUtils.selectSiteAndOpenNewWizard(SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
+            await htmlAreaForm.pause(1000);
+            // 1. Insert text in the html area:
+            await htmlAreaForm.insertTextInHtmlArea(0, 'test');
+            await htmlAreaForm.clickInTextArea();
+            // 2. Copy and paste the text in the html area:
+            await htmlAreaForm.pressCtrl_A();
+            await htmlAreaForm.pressCtrl_C();
+            await htmlAreaForm.pressEndKey();
+            // 3. Add white space between the words:
+            await htmlAreaForm.pressWhiteSpace();
+            await htmlAreaForm.pressCtrl_V();
+            // 4. Open 'Source Code' dialog:
+            await htmlAreaForm.clickOnSourceButton();
+            let sourceCodeDialog = new SourceCodeDialog();
+            await sourceCodeDialog.waitForDialogLoaded();
+            await studioUtils.saveScreenshot('source_code_nbsp_between_words');
+            // 5. Verify that '&nbsp;' should not be present in the source code:
+            let result = await sourceCodeDialog.getText();
+            assert.ok(!result.includes('nbsp'), "'&nbsp;' should not be present in the source code");
+        });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

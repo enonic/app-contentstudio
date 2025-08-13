@@ -44,8 +44,7 @@ class RenameContentDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.validationPathMessage, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot("err_validation_path_dialog");
-            throw new Error("Rename content dialog: Validation path message should be displayed! " + err)
+            await this.handleError("Rename content dialog: Validation path message is not displayed!",'err_validation_path_dialog', err);
         }
     }
 
