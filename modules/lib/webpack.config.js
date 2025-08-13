@@ -80,19 +80,6 @@ module.exports = {
                 }
             })
         ],
-        splitChunks: {
-            chunks: 'all',
-            cacheGroups: {
-                default: false,
-                defaultVendors: {
-                    test: /[\\/]node_modules[\\/]/,
-                    reuseExistingChunk: true,
-                    minChunks: 2,
-                    priority: -10,
-                    filename: 'js/vendors.main~editor.js'
-                }
-            }
-        }
     },
     plugins: [
         new ProvidePlugin({
