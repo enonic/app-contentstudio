@@ -20,6 +20,8 @@
   "dependencies": {
     "@enonic/lib-admin-ui": "file:.xp/dev/lib-admin-ui",
     "chart.js": "^4.5.0",
+    "enonic-admin-artifacts": "^2.3.2",
+    "jquery": "^3.7.1",
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.14.1",
     "lib-contentstudio": "file:.xp/dev/lib-contentstudio",
@@ -27,44 +29,58 @@
     "q": "^1.5.1"
   },
   "devDependencies": {
-    "@enonic-types/core": "7.15.0",
-    "@enonic-types/global": "7.15.0",
-    "@enonic-types/lib-admin": "7.15.0",
-    "@enonic-types/lib-auth": "7.15.0",
-    "@enonic-types/lib-common": "7.15.0",
-    "@enonic-types/lib-context": "7.15.0",
-    "@enonic-types/lib-event": "7.15.0",
-    "@enonic-types/lib-grid": "7.15.0",
-    "@enonic-types/lib-i18n": "7.15.0",
-    "@enonic-types/lib-node": "7.15.0",
-    "@enonic-types/lib-portal": "7.15.0",
-    "@enonic-types/lib-value": "7.15.0",
-    "@enonic-types/lib-websocket": "7.15.0",
+    "@enonic-types/core": "7.15.3",
+    "@enonic-types/global": "7.15.3",
+    "@enonic-types/lib-admin": "7.15.3",
+    "@enonic-types/lib-auth": "7.15.3",
+    "@enonic-types/lib-common": "7.15.3",
+    "@enonic-types/lib-context": "7.15.3",
+    "@enonic-types/lib-event": "7.15.3",
+    "@enonic-types/lib-grid": "7.15.3",
+    "@enonic-types/lib-i18n": "7.15.3",
+    "@enonic-types/lib-node": "7.15.3",
+    "@enonic-types/lib-portal": "7.15.3",
+    "@enonic-types/lib-value": "7.15.3",
+    "@enonic-types/lib-websocket": "7.15.3",
     "@enonic/eslint-config": "^2.0.1",
+    "@swc/core": "^1.13.3",
     "@types/ckeditor": "^4.9.10",
     "@types/jquery": "^3.5.32",
     "@types/jqueryui": "^1.12.24",
     "@types/q": "^1.5.8",
+    "autoprefixer": "^10.4.21",
+    "browserslist-config-enonic": "^1.0.8",
     "circular-dependency-plugin": "^5.2.2",
     "concurrently": "^9.1.2",
     "copy-webpack-plugin": "^12.0.2",
+    "css-loader": "^7.1.2",
     "cssnano": "^7.0.7",
     "eslint": "^9.29.0",
     "globals": "^15.15.0",
+    "less-loader": "^12.3.0",
     "mini-css-extract-plugin": "^2.9.2",
     "postcss-loader": "^8.1.1",
-    "source-map-loader": "^5.0.0",
+    "postcss-normalize": "^13.0.1",
+    "postcss-sort-media-queries": "^5.2.0",
+    "swc-loader": "^0.2.6",
     "terser-webpack-plugin": "^5.3.14",
+    "ts-loader": "^9.5.2",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.34.1",
+    "typescript-eslint": "^8.39.0",
     "webpack": "^5.99.9",
     "webpack-cli": "^6.0.1"
   },
   "browserslist": [
     "extends browserslist-config-enonic"
   ],
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@swc/core"
+    ]
+  },
   "engines": {
-    "node": ">= 22.16.0",
-    "npm": ">= 10.9.2"
+    "node": ">=22.18.0",
+    "npm": ">=10.9.2",
+    "pnpm": ">= 10.14.0"
   }
 }

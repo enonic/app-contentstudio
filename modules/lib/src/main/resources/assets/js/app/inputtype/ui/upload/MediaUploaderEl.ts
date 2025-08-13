@@ -29,7 +29,7 @@ export interface MediaUploaderElConfig
 export class MediaUploaderEl
     extends UploaderEl<Content> {
 
-    protected config: MediaUploaderElConfig;
+    declare protected config: MediaUploaderElConfig;
 
     private fileName: string;
 

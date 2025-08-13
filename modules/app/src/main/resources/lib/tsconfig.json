@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "ES5",
         "module": "commonjs",
         "moduleResolution": "node",
         "sourceMap": false,
@@ -8,7 +8,7 @@
         "skipLibCheck": true,
         "strict": true,
         "lib": [
-            "es2015"
+            "ES2015"
         ],
         "baseUrl": "./",
         "paths": {

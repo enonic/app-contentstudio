@@ -164,11 +164,11 @@ export class ContentWizardPanel
 
     private dataWizardStep?: ContentWizardStep;
 
-    protected wizardActions: ContentWizardActions;
+    declare protected wizardActions: ContentWizardActions;
 
-    protected params: ContentWizardPanelParams;
+    declare protected params: ContentWizardPanelParams;
 
-    protected wizardHeader: ContentWizardHeader;
+    declare protected wizardHeader: ContentWizardHeader;
 
     private parentContent: Content;
 

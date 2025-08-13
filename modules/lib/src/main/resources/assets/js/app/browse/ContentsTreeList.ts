@@ -94,9 +94,9 @@ export interface ContentsListElementParams extends TreeListElementParams<Content
 
 export class ContentListElement extends TreeListElement<ContentTreeSelectorItem> {
 
-    protected readonly options: ContentsListElementParams;
+    declare protected readonly options: ContentsListElementParams;
 
-    protected childrenList: ContentsTreeList;
+    declare protected childrenList: ContentsTreeList;
 
     constructor(content: ContentTreeSelectorItem, params: ContentsListElementParams) {
         super(content, params);

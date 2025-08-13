@@ -24,7 +24,7 @@ interface AccessControlComboBoxOptions extends ListBoxInputOptions<AccessControl
 
 export class AccessControlComboBox extends FilterableListBoxWrapperWithSelectedView<AccessControlEntry> {
 
-    options: AccessControlComboBoxOptions;
+    declare options: AccessControlComboBoxOptions;
 
     constructor() {
         const loader = new CSPrincipalLoader();

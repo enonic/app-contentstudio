@@ -24,7 +24,7 @@ interface ProjectAccessControlComboBoxOptions extends ListBoxInputOptions<Projec
 export class ProjectAccessControlComboBox
     extends FilterableListBoxWrapperWithSelectedView<ProjectAccessControlEntry> {
 
-    options: ProjectAccessControlComboBoxOptions;
+    declare options: ProjectAccessControlComboBoxOptions;
 
     constructor() {
         const loader = new CSPrincipalLoader();

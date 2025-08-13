@@ -27,7 +27,7 @@ import {Projects} from './resource/Projects';
 export class SettingsAppPanel
     extends NavigatedAppPanel {
 
-    protected browsePanel: SettingsBrowsePanel;
+    declare protected browsePanel: SettingsBrowsePanel;
 
     private deletedIds: string[] = [];
 

@@ -1,4 +1,6 @@
-archivesBaseName = 'lib-contentstudio-rest'
+base {
+    archivesName = 'lib-contentstudio-rest'
+}
 
 dependencies {
     implementation libs.jackson.jr.objects

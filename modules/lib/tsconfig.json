@@ -1,23 +1,25 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "ES5",
+        "module": "ES2022",
+        "moduleResolution": "bundler",
+        "target": "ES2023",
         "lib": [
-            "ES2020",
+            "ES2023",
             "DOM"
         ],
         "outDir": "build/resources/main/dev/lib-contentstudio/",
-        "moduleResolution": "node",
         "declaration": true,
         "declarationDir": "build/resources/main/dev/lib-contentstudio/",
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
         "downlevelIteration": true,
+        "useDefineForClassFields": false,
         "allowJs": false,
         "noImplicitReturns": false,
         "noImplicitThis": true,
         "strictNullChecks": false,
         "skipLibCheck": true,
+        "incremental": true,
         "types": [
             "ckeditor",
             "hasher",

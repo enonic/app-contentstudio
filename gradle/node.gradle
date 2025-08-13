@@ -1,32 +1,29 @@
 apply plugin: 'com.github.node-gradle.node'
 
 node {
-    version = '22.16.0'
+    version = '22.18.0'
+    pnpmVersion = '10.14.0'
     download = true
 }
 
-tasks.register( 'npmInstallForce', NpmTask ) {
-    description = 'Update all project node dependencies'
-    args = ['install', '--force']
-}
-
-tasks.register( 'cleanNode', Delete ) {
-    delete 'node_modules'
-}
-
-afterEvaluate {
-    if ( configurations.hasProperty( 'devResources' ) )
-    {
-        tasks.register('copyDevResources') {
-            doLast {
-                copy {
-                    from configurations.devResources.files.collect { zipTree( it ) }
-                    include 'dev/**'
-                    into '.xp'
-                }
+tasks.register('copyDevResources') {
+    onlyIf {
+        configurations.hasProperty('devResources')
+    }
+    doLast {
+        if (configurations.hasProperty('devResources')) {
+            copy {
+                from configurations.devResources.files.collect { zipTree( it ) }
+                include 'dev/**'
+                into '.xp'
             }
         }
+    }
+}
 
-        npmInstall.dependsOn copyDevResources
+// Configure pnpmInstall dependency lazily
+tasks.named('pnpmInstall').configure {
+    if (configurations.hasProperty('devResources')) {
+        dependsOn tasks.named('copyDevResources')
     }
 }

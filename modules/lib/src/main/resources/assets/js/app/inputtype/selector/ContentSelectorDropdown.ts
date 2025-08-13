@@ -30,7 +30,7 @@ export class ContentSelectorDropdown
 
     protected helper: ContentSummaryOptionDataHelper;
 
-    protected options: ContentSelectorDropdownOptions;
+    declare protected options: ContentSelectorDropdownOptions;
 
     protected searchValue: string;
 

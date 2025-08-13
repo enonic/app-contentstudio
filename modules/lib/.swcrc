@@ -7,8 +7,7 @@
             "dynamicImport": true
         },
         "transform": {
-            "legacyDecorator": true,
-            "decoratorMetadata": true
+            "useDefineForClassFields": false
         },
         "target": "es5",
         "keepClassNames": true,

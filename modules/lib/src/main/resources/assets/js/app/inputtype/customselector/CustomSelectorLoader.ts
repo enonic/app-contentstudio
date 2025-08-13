@@ -8,7 +8,7 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 export class CustomSelectorLoader
     extends PostLoader<CustomSelectorItem> {
 
-    protected request: CustomSelectorRequest;
+    declare protected request: CustomSelectorRequest;
 
     private readonly debouncedRequest: (promise: Q.Deferred<CustomSelectorItem[]>) => void;
 

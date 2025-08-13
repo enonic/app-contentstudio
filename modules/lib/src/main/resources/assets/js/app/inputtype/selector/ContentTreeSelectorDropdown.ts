@@ -32,7 +32,7 @@ export class ContentTreeSelectorDropdown
 
     protected loadTreeListOnShow: boolean;
 
-    protected options: ContentTreeSelectorDropdownOptions;
+    declare protected options: ContentTreeSelectorDropdownOptions;
 
     constructor(listBox, options: ContentSelectorDropdownOptions) {
         super(listBox, options);

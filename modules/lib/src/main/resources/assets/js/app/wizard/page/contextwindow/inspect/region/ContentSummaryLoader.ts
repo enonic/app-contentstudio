@@ -10,7 +10,7 @@ import {ContentPath} from '../../../../../content/ContentPath';
 export class ContentSummaryLoader
     extends PostLoader<ContentSummary> {
 
-    protected request: ContentSummaryRequest;
+    declare protected request: ContentSummaryRequest;
 
     constructor() {
         super();

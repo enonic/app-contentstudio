@@ -1,7 +1,10 @@
 apply plugin: 'maven-publish'
 
 group = 'com.enonic.lib'
-archivesBaseName = 'lib-contentstudio'
+
+base {
+    archivesName = 'lib-contentstudio'
+}
 
 configurations {
     devResources {
@@ -16,64 +19,53 @@ dependencies {
 }
 
 tasks.register( 'typecheck', NpmTask ) {
-    dependsOn npmInstall
+    dependsOn tasks.named('pnpmInstall')
     group 'verification'
     args = ['run', 'check']
-    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
 }
 
 tasks.register( 'lint', NpmTask ) {
-    dependsOn npmInstall
+    dependsOn tasks.named('pnpmInstall')
     group 'verification'
     args = ['run', 'lint']
-    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
 }
 
-check.dependsOn typecheck
-check.dependsOn lint
+tasks.named('check').configure {
+    dependsOn tasks.named('typecheck')
+    dependsOn tasks.named('lint')
+}
 
 tasks.register( 'typescript', NpmTask ) {
-    dependsOn npmInstall
+    dependsOn tasks.named('pnpmInstall')
     description = 'Build JS and DTS'
     def buildEnv = isProd() ? 'prod' : 'dev'
     environment = ['NODE_ENV': nodeEnvironment()]
     args = ['run', "build:$buildEnv"]
     inputs.dir "$projectDir/src/main/resources/assets/"
-    outputs.dirs( "$buildDir/tmp/src/main/resources/assets/js/",
-                  "$buildDir/resources/main/assets/",
-                  "$buildDir/resources/main/dev/$archivesBaseName" )
-}
-
-tasks.register( 'copyJS', Copy ) {
-    dependsOn typescript
-    if ( !isProd() )
-    {
-        from "$buildDir/tmp/src/main/resources/assets/js/"
-        into "$buildDir/resources/main/dev/$archivesBaseName"
-        includeEmptyDirs false
-    }
-    inputs.dir "$buildDir/tmp/src/main/resources/assets/js/"
-    outputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
+    outputs.dirs( "$buildDir/resources/main/assets/",
+                  "$buildDir/resources/main/dev/${base.archivesName.get()}" )
 }
 
 tasks.register( 'copyPackage', NodeTask ) {
-    dependsOn typescript
+    dependsOn tasks.named('typescript')
     script = file( 'util/modify.js' )
-    args = ["--out=$buildDir/resources/main/dev/$archivesBaseName"]
+    args = ["--out=$buildDir/resources/main/dev/${base.archivesName.get()}"]
     inputs.file "./package.json"
-    outputs.file "$buildDir/resources/main/dev/$archivesBaseName/package.json"
+    outputs.file "$buildDir/resources/main/dev/${base.archivesName.get()}/package.json"
 }
 
 tasks.register( 'devJar', Jar ) {
     archiveClassifier = 'dev-resources'
     from sourceSets.main.output
     include 'dev/**'
-    includeEmptyDirs false
-    dependsOn copyJS
-    dependsOn copyPackage
+    includeEmptyDirs = false
+    dependsOn tasks.named('typescript')
+    dependsOn tasks.named('copyPackage')
 }
 
-jar {
+tasks.named('jar').configure {
     exclude 'admin/**'
     exclude 'assets/js/**'
     exclude 'assets/lib/ckeditor/**/*.md'
@@ -92,7 +84,7 @@ jar {
 
     includeEmptyDirs = false
 
-    dependsOn devJar
+    dependsOn tasks.named('devJar')
 }
 
 artifacts {

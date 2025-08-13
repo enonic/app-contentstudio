@@ -21,7 +21,7 @@ export class FragmentDropdown
 
     private selectedFragment: ContentSummary;
 
-    protected listBox: FragmentDropdownList;
+    declare protected listBox: FragmentDropdownList;
 
     constructor() {
         super(new FragmentDropdownList(), {

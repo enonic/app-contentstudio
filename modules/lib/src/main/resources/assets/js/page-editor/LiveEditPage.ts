@@ -41,7 +41,7 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {ComponentItemType} from './ComponentItemType';
 import {FragmentItemType} from './fragment/FragmentItemType';
-import * as DOMPurify from 'dompurify';
+import DOMPurify from 'dompurify';
 import {HTMLAreaHelper} from '../app/inputtype/ui/text/HTMLAreaHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LoadComponentViewEvent} from './event/incoming/manipulation/LoadComponentViewEvent';

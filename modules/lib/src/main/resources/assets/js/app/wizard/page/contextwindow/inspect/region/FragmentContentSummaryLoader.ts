@@ -5,7 +5,7 @@ import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeNa
 export class FragmentContentSummaryLoader
     extends ContentSummaryLoader {
 
-    protected request: FragmentContentSummaryRequest;
+    declare protected request: FragmentContentSummaryRequest;
 
     constructor() {
         super();

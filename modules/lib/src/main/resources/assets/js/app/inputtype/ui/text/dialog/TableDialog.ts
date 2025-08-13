@@ -31,7 +31,7 @@ export class TableDialog
 
     private dialogType: DialogType;
 
-    protected config: TableModalDialogConfig;
+    declare protected config: TableModalDialogConfig;
 
     constructor(config: eventInfo) {
 

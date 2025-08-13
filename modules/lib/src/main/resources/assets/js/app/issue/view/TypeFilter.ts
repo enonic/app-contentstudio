@@ -11,7 +11,7 @@ export class TypeFilter
 
     private currentSelection: IssuePanelFilterAction;
 
-    protected menuActions: IssuePanelFilterAction[];
+    declare protected menuActions: IssuePanelFilterAction[];
 
     private selectionListeners: ((type: FilterType) => void)[] = [];
 
