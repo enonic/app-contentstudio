@@ -58,7 +58,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             // 6. Verify that the number of version-items with (Revert button) is not changed:
             let result = await wizardVersionsWidget.countVersionItems();
             await studioUtils.saveScreenshot('number_versions_items_permissions_updated');
-            assert.equal(result, 3, 'the number of versions items should be increased by 1');
+            assert.equal(result, 4, 'the number of versions items should be increased by 1');
 
             // 7. Verify that 'Permissions updated' item gets visible in the widget
             let numberItems = await wizardVersionsWidget.countPermissionsUpdatedItems();

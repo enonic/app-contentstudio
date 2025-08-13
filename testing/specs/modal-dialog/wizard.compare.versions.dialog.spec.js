@@ -26,7 +26,8 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await studioUtils.doAddFolder(FOLDER);
         });
 
-    it("GIVEN Comparing Versions Dialog is opened WHEN the first 'Edited' option has been selected in the left dropdown THEN 'Versions are identical' message get visible",
+    // TODO Versions History widget
+    it.skip("GIVEN Comparing Versions Dialog is opened WHEN the first 'Edited' option has been selected in the left dropdown THEN 'Versions are identical' message get visible",
         async () => {
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();

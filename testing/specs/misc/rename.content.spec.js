@@ -39,13 +39,13 @@ describe('rename.content.spec - tests for Renamed version item', function () {
             await contentWizard.waitForNotificationMessages();
             //3. Verify that Renamed version item is visible in the published content:
             await wizardVersionsWidget.waitForRenamedItemDisplayed();
-            await studioUtils.saveScreenshot("renamed_version_1");
+            await studioUtils.saveScreenshot('renamed_version_1');
             //6. Verify that Renamed version item should appear:
             let renamedItems = await wizardVersionsWidget.countRenamedItems();
             assert.equal(renamedItems, 1, "1 Renamed item should appear");
-            //7. The total number of items should be 3:
+            //7. The total number of items should be 4:
             let allItems = await wizardVersionsWidget.countVersionItems();
-            assert.equal(allItems, 3, "3 version items should be displayed in the widget");
+            assert.equal(allItems, 4, "4 version items should be displayed in the widget");
         });
 
     it("WHEN existing renamed folder has been selected THEN 'Revert' and 'Active version' buttons should not be displayed in the version widget",
