@@ -11,6 +11,7 @@ const InsertLinkDialogContentPanel = require('../../page_objects/wizardpanel/htm
 const InsertLinkDialogUrlPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
 const InsertLinkDialog = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
 const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('htmlarea.insert.link.to.content.spec: tests for filtering in content selector', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -98,6 +99,7 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             await htmlAreaForm.clickOnSourceButton();
             let sourceCodeDialog = new SourceCodeDialog();
             await sourceCodeDialog.waitForDialogLoaded();
+            await studioUtils.saveScreenshot('source_code_dialog_with_link');
             // 5. Verify that '&nbsp;' should not be present in the source code:
             let result = await sourceCodeDialog.getText();
             assert.ok(!result.includes('nbsp'), "'&nbsp;' should not be present in the source code" );
