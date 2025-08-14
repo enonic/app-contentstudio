@@ -8,6 +8,7 @@ def applyResourcesTaskDependencies() {
     def libAdminDevJarTask = libAdminBuild.task(':devJar')
     def libAdminBuildTask = libAdminBuild.task(':build')
     def libAdminCleanTask = libAdminBuild.task(':clean')
+    def libAdminYoloTask = libAdminBuild.task(':yolo')
 
     tasks.matching { it.name == 'copyDevResources' }.configureEach {
         dependsOn libAdminDevJarTask
@@ -19,6 +20,10 @@ def applyResourcesTaskDependencies() {
 
     tasks.named('clean').configure {
         dependsOn libAdminCleanTask
+    }
+
+    tasks.named('yolo').configure {
+        dependsOn libAdminYoloTask
     }
 }
 

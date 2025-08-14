@@ -6,7 +6,7 @@ import {ContentSummary} from '../content/ContentSummary';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import * as Q from 'q';
+import Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {PreviewActionHelper} from '../action/PreviewActionHelper';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';

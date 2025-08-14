@@ -11,7 +11,7 @@ import {AccessControlChangedItemsList} from '../AccessControlChangedItemsList';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ShowHideDetailsButton} from '../ShowHideDetailsButton';
 import {AccessModeLine} from '../AccessModeLine';
-import * as Q from 'q';
+import Q from 'q';
 
 export class SummaryStep
     extends DialogStep {

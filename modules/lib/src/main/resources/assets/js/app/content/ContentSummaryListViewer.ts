@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ContentSummaryAndCompareStatusViewer} from './ContentSummaryAndCompareStatusViewer';
 import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';

@@ -1,7 +1,7 @@
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {SettingsDataItemWizardPanel} from './SettingsDataItemWizardPanel';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectUpdateRequest} from '../../resource/ProjectUpdateRequest';

@@ -3,7 +3,7 @@ import {Descriptor} from '../../../../../page/Descriptor';
 import {ComponentDescriptorsDropdown} from '../region/ComponentDescriptorsDropdown';
 import {PageComponentType} from '../../../../../page/region/PageComponentType';
 import {ContentId} from '../../../../../content/ContentId';
-import * as Q from 'q';
+import Q from 'q';
 
 export class PageDescriptorDropdown
     extends ComponentDescriptorsDropdown {

@@ -25,7 +25,7 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import * as $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 import {ProjectContext} from '../../project/ProjectContext';

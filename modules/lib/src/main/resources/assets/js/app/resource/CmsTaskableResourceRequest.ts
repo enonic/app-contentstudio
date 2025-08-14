@@ -1,6 +1,6 @@
 import {UrlHelper} from '../util/UrlHelper';
 import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
-import * as Q from 'q';
+import Q from 'q';
 import {TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';

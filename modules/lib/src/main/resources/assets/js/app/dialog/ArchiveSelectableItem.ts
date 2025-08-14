@@ -1,6 +1,6 @@
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {StatusSelectionItem} from './StatusSelectionItem';

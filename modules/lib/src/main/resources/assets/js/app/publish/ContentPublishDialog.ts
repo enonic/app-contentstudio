@@ -5,7 +5,7 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {ContentId} from '../content/ContentId';
 import {BasePublishDialog} from '../dialog/BasePublishDialog';

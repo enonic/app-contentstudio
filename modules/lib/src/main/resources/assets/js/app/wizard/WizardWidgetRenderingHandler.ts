@@ -6,7 +6,7 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {ContentSummary} from '../content/ContentSummary';
-import * as Q from 'q';
+import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class WizardWidgetRenderingHandler

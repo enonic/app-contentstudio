@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ParentProjectDialogStep} from './step/ParentProjectDialogStep';
 import {ProjectLocaleDialogStep} from './step/ProjectLocaleDialogStep';

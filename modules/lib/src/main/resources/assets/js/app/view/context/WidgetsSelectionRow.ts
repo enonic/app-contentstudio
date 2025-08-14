@@ -3,7 +3,7 @@ import {WidgetView} from './WidgetView';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import * as Q from 'q';
+import Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';

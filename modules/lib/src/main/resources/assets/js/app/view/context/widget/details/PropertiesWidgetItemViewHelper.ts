@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {PropertiesWidgetItemViewValue} from './PropertiesWidgetItemViewValue';
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';

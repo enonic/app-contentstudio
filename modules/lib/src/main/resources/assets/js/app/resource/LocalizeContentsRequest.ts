@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ListContentResult} from './ListContentResult';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';

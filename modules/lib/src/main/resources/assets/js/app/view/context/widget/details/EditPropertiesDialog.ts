@@ -8,7 +8,7 @@ import {Content} from '../../../../content/Content';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {UpdateContentRequest} from '../../../../resource/UpdateContentRequest';
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
-import * as Q from 'q';
+import Q from 'q';
 import {Workflow} from '../../../../content/Workflow';
 import {WorkflowState} from '../../../../content/WorkflowState';
 import {ModalDialogWithConfirmation} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';

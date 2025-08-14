@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {GetContentVersionsRequest} from '../../../../resource/GetContentVersionsRequest';
 import {GetContentVersionsResult} from '../../../../resource/GetContentVersionsResult';

@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
 import {FieldExpr} from '@enonic/lib-admin-ui/query/expr/FieldExpr';
 import {CompareExpr} from '@enonic/lib-admin-ui/query/expr/CompareExpr';

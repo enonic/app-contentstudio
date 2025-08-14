@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ContentWizardPanel} from './ContentWizardPanel';
 import {CreateContentRequest} from '../resource/CreateContentRequest';
 import {Flow, RoutineContext} from './Flow';

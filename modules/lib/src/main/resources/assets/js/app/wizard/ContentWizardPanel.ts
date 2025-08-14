@@ -44,7 +44,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ValidationErrorHelper} from '@enonic/lib-admin-ui/ValidationErrorHelper';
 import {ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
-import * as Q from 'q';
+import Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {Permission} from '../access/Permission';
 import {AI} from '../ai/AI';

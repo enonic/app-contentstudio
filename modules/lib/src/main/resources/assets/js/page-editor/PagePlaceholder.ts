@@ -12,7 +12,7 @@ import {Descriptor} from '../app/page/Descriptor';
 import {ContentId} from '../app/content/ContentId';
 import {SelectPageDescriptorEvent} from './event/outgoing/manipulation/SelectPageDescriptorEvent';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import * as Q from 'q';
+import Q from 'q';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export class PagePlaceholder

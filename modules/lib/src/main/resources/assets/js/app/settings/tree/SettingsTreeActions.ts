@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {SettingsViewItem} from '../view/SettingsViewItem';

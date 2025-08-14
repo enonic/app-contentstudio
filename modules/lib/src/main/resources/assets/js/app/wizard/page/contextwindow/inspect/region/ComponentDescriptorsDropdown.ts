@@ -4,7 +4,7 @@ import {ContentId} from '../../../../../content/ContentId';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Descriptor} from '../../../../../page/Descriptor';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import * as Q from 'q';
+import Q from 'q';
 import {DescriptorViewer} from '../DescriptorViewer';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';

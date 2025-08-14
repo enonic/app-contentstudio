@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';

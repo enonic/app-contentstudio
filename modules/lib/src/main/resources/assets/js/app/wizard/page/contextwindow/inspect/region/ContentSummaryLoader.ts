@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {PostLoader} from '@enonic/lib-admin-ui/util/loader/PostLoader';
 import {ContentSummaryRequest} from '../../../../../resource/ContentSummaryRequest';
 import {GetContentSummaryByIds} from '../../../../../resource/GetContentSummaryByIds';

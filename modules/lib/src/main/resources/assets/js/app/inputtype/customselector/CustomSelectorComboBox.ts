@@ -11,7 +11,7 @@ import {
 import {CustomSelectorLoader} from './CustomSelectorLoader';
 import {CustomSelectorListBox} from './CustomSelectorListBox';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import * as Q from 'q';
+import Q from 'q';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';

@@ -7,7 +7,7 @@ import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import * as Q from 'q';
+import Q from 'q';
 import {AI} from '../ai/AI';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ProjectContext} from '../project/ProjectContext';

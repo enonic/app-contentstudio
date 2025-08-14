@@ -1,5 +1,5 @@
 import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
-import * as Q from 'q';
+import Q from 'q';
 import {ProjectSelectedApplicationViewer} from './ProjectSelectedApplicationViewer';
 import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {SiteConfiguratorDialog} from '../../../../../inputtype/ui/siteconfigurator/SiteConfiguratorDialog';

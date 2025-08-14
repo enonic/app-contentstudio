@@ -6,7 +6,7 @@ import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';

@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ContentItemPreviewToolbar, WidgetPreviewAction} from './ContentItemPreviewToolbar';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';

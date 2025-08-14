@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import {SaveAction} from '@enonic/lib-admin-ui/app/wizard/SaveAction';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';

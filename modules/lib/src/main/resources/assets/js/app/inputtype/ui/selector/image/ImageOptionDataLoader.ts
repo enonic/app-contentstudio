@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ImageContentLoader} from './ImageContentLoader';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';

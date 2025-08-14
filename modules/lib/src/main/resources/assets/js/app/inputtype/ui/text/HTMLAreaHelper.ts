@@ -3,7 +3,7 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {Styles} from './styles/Styles';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import * as Q from 'q';
+import Q from 'q';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
 import {ContentId} from '../../../content/ContentId';

@@ -1,0 +1,7 @@
+packages:
+  - .
+  - .xp/dev/*
+
+onlyBuiltDependencies:
+  - '@swc/core'
+  - esbuild

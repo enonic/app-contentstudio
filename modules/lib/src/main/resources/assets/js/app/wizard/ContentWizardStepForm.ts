@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
 import {Form} from '@enonic/lib-admin-ui/form/Form';
 import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';

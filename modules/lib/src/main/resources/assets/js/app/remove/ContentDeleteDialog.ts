@@ -7,7 +7,7 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {MenuButton, MenuButtonConfig} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
 import {ContentTreeGridDeselectAllEvent} from '../browse/ContentTreeGridDeselectAllEvent';
 import {CompareStatus} from '../content/CompareStatus';

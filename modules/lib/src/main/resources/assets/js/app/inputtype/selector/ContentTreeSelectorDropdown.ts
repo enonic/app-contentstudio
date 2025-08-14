@@ -2,7 +2,7 @@ import {ContentSelectorDropdown, ContentSelectorDropdownOptions} from './Content
 import {ContentsTreeList} from '../../browse/ContentsTreeList';
 import {ModeTogglerButton} from '../ui/selector/ModeTogglerButton';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import * as Q from 'q';
+import Q from 'q';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';

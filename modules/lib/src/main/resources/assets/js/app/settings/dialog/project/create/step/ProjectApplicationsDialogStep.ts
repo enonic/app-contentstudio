@@ -6,7 +6,7 @@ import {ProjectApplicationsComboBox} from '../../../../wizard/panel/form/element
 import {ProjectApplicationsDialogStepData} from '../data/ProjectApplicationsDialogStepData';
 import {ProjectApplicationsFormParams} from '../../../../wizard/panel/form/element/ProjectApplicationsFormParams';
 import {Project} from '../../../../data/project/Project';
-import * as Q from 'q';
+import Q from 'q';
 
 export class ProjectApplicationsDialogStep
     extends ProjectDialogStep {

@@ -1,5 +1,5 @@
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import * as Q from 'q';
+import Q from 'q';
 import {ProjectViewItem} from '../../../view/ProjectViewItem';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';

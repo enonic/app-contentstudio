@@ -6,7 +6,7 @@ import {Permission} from '../access/Permission';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import * as Q from 'q';
+import Q from 'q';
 import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
 import {Content} from '../content/Content';
 import {ContentPath} from '../content/ContentPath';

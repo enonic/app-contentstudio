@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';

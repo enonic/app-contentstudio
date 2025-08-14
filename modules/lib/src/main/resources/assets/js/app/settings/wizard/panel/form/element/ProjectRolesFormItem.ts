@@ -7,7 +7,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectItemPermissionsBuilder, ProjectPermissions} from '../../../../data/project/ProjectPermissions';
-import * as Q from 'q';
+import Q from 'q';
 import {ProjectAccessControlEntry} from '../../../../access/ProjectAccessControlEntry';
 import {GetPrincipalsByKeysRequest} from '../../../../../security/GetPrincipalsByKeysRequest';
 import {ProjectAccess} from '../../../../access/ProjectAccess';

@@ -1,6 +1,6 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import * as Q from 'q';
+import Q from 'q';
 
 export abstract class SummaryItemContainer
     extends DivEl {

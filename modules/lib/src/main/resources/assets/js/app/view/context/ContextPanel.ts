@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContextView} from './ContextView';
 import {WidgetView} from './WidgetView';

@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultModels} from './page/DefaultModels';
 import {DefaultModelsFactory, DefaultModelsFactoryConfig} from './page/DefaultModelsFactory';

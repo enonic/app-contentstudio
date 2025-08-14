@@ -5,7 +5,7 @@ import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {DefaultModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {TaskProgressManager, WithTaskProgress} from '../dialog/TaskProgressManager';
 
 export class EditProjectAccessDialog

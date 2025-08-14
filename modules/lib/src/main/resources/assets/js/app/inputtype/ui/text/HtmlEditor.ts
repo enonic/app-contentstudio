@@ -9,7 +9,7 @@ import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveMa
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentPath} from '../../../content/ContentPath';
 import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';

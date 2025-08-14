@@ -65,7 +65,7 @@ import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
 import {UrlAction} from 'lib-contentstudio/app/UrlAction';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
-import * as Q from 'q';
+import Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app

@@ -18,27 +18,32 @@ dependencies {
     devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 }
 
-tasks.register( 'typecheck', NpmTask ) {
-    dependsOn tasks.named('pnpmInstall')
+tasks.register( 'checkTypes', PnpmTask ) {
+    dependsOn tasks.named( 'pnpmInstall' )
     group 'verification'
+    args = ['run', 'check:types']
+    outputs.cacheIf { false }
+}
+
+tasks.register( 'checkLint', PnpmTask ) {
+    dependsOn tasks.named( 'pnpmInstall' )
+    group 'verification'
+    args = ['run', 'check:lint']
+    outputs.cacheIf { false }
+}
+
+tasks.register( 'pnpmCheck', PnpmTask ) {
+    dependsOn tasks.named( 'pnpmInstall' )
     args = ['run', 'check']
     outputs.cacheIf { false }
 }
 
-tasks.register( 'lint', NpmTask ) {
-    dependsOn tasks.named('pnpmInstall')
-    group 'verification'
-    args = ['run', 'lint']
-    outputs.cacheIf { false }
+tasks.named( 'check' ).configure {
+    dependsOn tasks.named( 'pnpmCheck' )
 }
 
-tasks.named('check').configure {
-    dependsOn tasks.named('typecheck')
-    dependsOn tasks.named('lint')
-}
-
-tasks.register( 'typescript', NpmTask ) {
-    dependsOn tasks.named('pnpmInstall')
+tasks.register( 'pnpmBuild', PnpmTask ) {
+    dependsOn tasks.named( 'pnpmInstall' )
     description = 'Build JS and DTS'
     def buildEnv = isProd() ? 'prod' : 'dev'
     environment = ['NODE_ENV': nodeEnvironment()]
@@ -49,7 +54,7 @@ tasks.register( 'typescript', NpmTask ) {
 }
 
 tasks.register( 'copyPackage', NodeTask ) {
-    dependsOn tasks.named('typescript')
+    dependsOn tasks.named( 'pnpmBuild' )
     script = file( 'util/modify.js' )
     args = ["--out=$buildDir/resources/main/dev/${base.archivesName.get()}"]
     inputs.file "./package.json"
@@ -61,11 +66,11 @@ tasks.register( 'devJar', Jar ) {
     from sourceSets.main.output
     include 'dev/**'
     includeEmptyDirs = false
-    dependsOn tasks.named('typescript')
-    dependsOn tasks.named('copyPackage')
+    dependsOn tasks.named( 'pnpmBuild' )
+    dependsOn tasks.named( 'copyPackage' )
 }
 
-tasks.named('jar').configure {
+tasks.named( 'jar' ).configure {
     exclude 'admin/**'
     exclude 'assets/js/**'
     exclude 'assets/lib/ckeditor/**/*.md'
@@ -84,7 +89,7 @@ tasks.named('jar').configure {
 
     includeEmptyDirs = false
 
-    dependsOn tasks.named('devJar')
+    dependsOn tasks.named( 'devJar' )
 }
 
 artifacts {
@@ -92,3 +97,17 @@ artifacts {
 }
 
 components.java.addVariantsFromConfiguration( configurations.devResources ) {}
+
+tasks.register( 'yolo' ) {
+    description = 'Build without running install, check, or test tasks'
+
+    dependsOn tasks.named( 'build' )
+    dependsOn tasks.named( 'checkTypes' )
+
+    nodeSetup.enabled = false
+    npmSetup.enabled = false
+    pnpmSetup.enabled = false
+    pnpmCheck.enabled = false
+    check.enabled = false
+    test.enabled = false
+}

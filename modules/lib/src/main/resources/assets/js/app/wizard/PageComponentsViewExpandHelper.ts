@@ -1,6 +1,6 @@
 import {ComponentPath} from '../page/region/ComponentPath';
 import {PageComponentsListElement, PageComponentsTreeGrid} from './PageComponentsTreeGrid';
-import * as Q from 'q';
+import Q from 'q';
 import {ComponentsTreeItem} from './ComponentsTreeItem';
 
 export class PageComponentsViewExpandHelper {

@@ -11,7 +11,7 @@ import {InputBuilder} from '@enonic/lib-admin-ui/form/Input';
 import {DateTimeRange} from '@enonic/lib-admin-ui/form/inputtype/time/DateTimeRange';
 import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class PublishScheduleForm

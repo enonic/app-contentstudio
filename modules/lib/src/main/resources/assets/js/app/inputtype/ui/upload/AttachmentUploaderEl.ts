@@ -4,7 +4,7 @@ import {AttachmentItem} from './AttachmentItem';
 import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
 import {AttachmentJson} from '../../../attachment/AttachmentJson';
 import {UploaderEl, UploaderElConfig} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
-import * as Q from 'q';
+import Q from 'q';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ContentPath} from '../../../content/ContentPath';

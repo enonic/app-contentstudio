@@ -1,5 +1,5 @@
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {StatusCheckableItem, StatusCheckableItemConfig} from './StatusCheckableItem';

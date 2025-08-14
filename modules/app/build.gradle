@@ -62,26 +62,31 @@ tasks.named('copyDevResources').configure {
     dependsOn project(':lib-contentstudio').tasks.named('devJar')
 }
 
-tasks.named('check').configure {
-    dependsOn tasks.named('typecheck')
-    dependsOn tasks.named('lint')
-}
-
-tasks.register( 'typecheck', NpmTask ) {
+tasks.register( 'checkTypes', PnpmTask ) {
     dependsOn tasks.named('pnpmInstall')
     group 'verification'
+    args = ['run', 'check:types']
+    outputs.cacheIf { false }
+}
+
+tasks.register( 'checkLint', PnpmTask ) {
+    dependsOn tasks.named('pnpmInstall')
+    group 'verification'
+    args = ['run', 'check:lint']
+    outputs.cacheIf { false }
+}
+
+tasks.register( 'pnpmCheck', PnpmTask ) {
+    dependsOn tasks.named( 'pnpmInstall' )
     args = ['run', 'check']
     outputs.cacheIf { false }
 }
 
-tasks.register( 'lint', NpmTask ) {
-    dependsOn tasks.named('pnpmInstall')
-    group 'verification'
-    args = ['run', 'lint']
-    outputs.cacheIf { false }
+tasks.named( 'check' ).configure {
+    dependsOn tasks.named( 'pnpmCheck' )
 }
 
-tasks.register( 'pnpmBuild', NpmTask ) {
+tasks.register( 'pnpmBuild', PnpmTask ) {
     dependsOn tasks.named('pnpmInstall')
     dependsOn tasks.named('copyDevResources')
     environment = ['NODE_ENV': nodeEnvironment()]
@@ -112,4 +117,20 @@ tasks.named('jar').configure {
 
     dependsOn(tasks.named('test'))
     dependsOn(tasks.named('pnpmBuild'))
+}
+
+tasks.register( 'yolo' ) {
+    description = 'Build without running install, check, or test tasks'
+
+    dependsOn tasks.named( 'deploy' )
+    dependsOn tasks.named( 'checkTypes' )
+    dependsOn project(':lib-contentstudio').tasks.named('yolo')
+
+    nodeSetup.enabled = false
+    npmSetup.enabled = false
+    pnpmSetup.enabled = false
+    pnpmCheck.enabled = false
+    checkLint.enabled = false
+    check.enabled = false
+    test.enabled = false
 }

@@ -6,7 +6,7 @@ import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentDuplicatePromptEvent} from '../browse/ContentDuplicatePromptEvent';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';

@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {Input} from '@enonic/lib-admin-ui/form/Input';
 import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {Value} from '@enonic/lib-admin-ui/data/Value';

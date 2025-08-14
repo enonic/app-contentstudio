@@ -9,7 +9,7 @@ import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
 import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';

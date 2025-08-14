@@ -1,7 +1,7 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {OptionDataLoader, OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentId} from '../../../content/ContentId';
 import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';

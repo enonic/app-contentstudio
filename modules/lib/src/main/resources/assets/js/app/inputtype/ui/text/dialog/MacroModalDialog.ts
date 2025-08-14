@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';

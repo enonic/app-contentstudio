@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {UpdateContentRequest} from '../resource/UpdateContentRequest';
 import {CreatePageRequest} from './CreatePageRequest';
