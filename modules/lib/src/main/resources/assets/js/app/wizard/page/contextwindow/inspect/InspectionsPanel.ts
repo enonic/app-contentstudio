@@ -5,7 +5,7 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DeckPanel} from '@enonic/lib-admin-ui/ui/panel/DeckPanel';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {BaseInspectionPanel} from './BaseInspectionPanel';
-import * as Q from 'q';
+import Q from 'q';
 
 export interface InspectionsPanelConfig {
     inspectionPanels: BaseInspectionPanel[];

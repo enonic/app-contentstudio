@@ -3,7 +3,7 @@ import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import * as Q from 'q';
+import Q from 'q';
 import {SettingsDataViewItem} from '../../../view/SettingsDataViewItem';
 import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
 import {SettingsType} from '../../../data/type/SettingsType';

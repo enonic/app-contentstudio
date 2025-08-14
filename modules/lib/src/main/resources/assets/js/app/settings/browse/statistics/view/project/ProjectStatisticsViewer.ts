@@ -1,6 +1,6 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
-import * as Q from 'q';
+import Q from 'q';
 import {Flag} from '../../../../../locale/Flag';
 import {ProjectIconUrlResolver} from '../../../../../project/ProjectIconUrlResolver';
 import {Project} from '../../../../data/project/Project';

@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';

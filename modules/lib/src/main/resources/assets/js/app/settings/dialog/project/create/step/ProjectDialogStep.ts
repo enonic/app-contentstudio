@@ -7,7 +7,7 @@ import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {ProjectDialogStepData} from '../data/ProjectDialogStepData';
 import {Project} from '../../../../data/project/Project';
 import {CopyFromParentFormItem} from '../../../../wizard/panel/form/element/CopyFromParentFormItem';
-import * as Q from 'q';
+import Q from 'q';
 
 export abstract class ProjectDialogStep
     extends DialogStep {

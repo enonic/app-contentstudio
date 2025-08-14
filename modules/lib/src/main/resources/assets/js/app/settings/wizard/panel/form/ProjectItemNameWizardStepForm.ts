@@ -4,7 +4,7 @@ import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {ProjectViewItem} from '../../../view/ProjectViewItem';
-import * as Q from 'q';
+import Q from 'q';
 import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
 import {Project} from '../../../data/project/Project';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';

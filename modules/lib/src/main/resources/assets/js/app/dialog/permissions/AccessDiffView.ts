@@ -1,7 +1,7 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {Access, ACCESS_OPTIONS} from '../../security/Access';
-import * as Q from 'q';
+import Q from 'q';
 
 export class AccessDiffView extends DivEl {
 

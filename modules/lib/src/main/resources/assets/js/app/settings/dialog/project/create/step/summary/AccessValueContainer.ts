@@ -1,6 +1,6 @@
 import {SummaryValueContainer} from './SummaryValueContainer';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import * as Q from 'q';
+import Q from 'q';
 import {PrincipalsContainer} from './PrincipalsContainer';
 
 export class AccessValueContainer

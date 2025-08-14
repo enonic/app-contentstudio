@@ -35,7 +35,7 @@ import {RegionView} from './RegionView';
 import {ItemType} from './ItemType';
 import {RemoveComponentViewEvent} from './event/incoming/manipulation/RemoveComponentViewEvent';
 import {ComponentView} from './ComponentView';
-import * as Q from 'q';
+import Q from 'q';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {CreateItemViewConfig} from './CreateItemViewConfig';

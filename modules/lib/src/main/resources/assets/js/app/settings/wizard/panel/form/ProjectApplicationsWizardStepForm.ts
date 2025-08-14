@@ -2,7 +2,7 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {ProjectViewItem} from '../../../view/ProjectViewItem';
-import * as Q from 'q';
+import Q from 'q';
 import {SettingsType} from '../../../data/type/SettingsType';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectApplicationsFormItem} from './element/ProjectApplicationsFormItem';

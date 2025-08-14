@@ -6,7 +6,7 @@ import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {AutosizeTextInput} from '@enonic/lib-admin-ui/ui/text/AutosizeTextInput';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import * as Q from 'q';
+import Q from 'q';
 
 export class ContentDialogSubTitleOptions {
     dialog: ModalDialog;

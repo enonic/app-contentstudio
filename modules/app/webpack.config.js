@@ -38,7 +38,7 @@ module.exports = {
                         loader: 'swc-loader',
                         options: {
                             ...swcConfig,
-                            sourceMaps: isProd ? false : 'inline',
+                            sourceMaps: !isProd,
                             inlineSourcesContent: !isProd,
                         },
                     },
@@ -102,6 +102,6 @@ module.exports = {
         }),
     ],
     mode: isProd ? 'production' : 'development',
-    devtool: isProd ? false : 'source-map',
+    devtool: isProd ? false : 'cheap-module-source-map',
     performance: {hints: false}
 };

@@ -9,7 +9,7 @@ import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeNa
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import * as Q from 'q';
+import Q from 'q';
 
 export interface ContentTypeFilterDropdownOptions {
     maxSelected?: number;

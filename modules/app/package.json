@@ -8,23 +8,24 @@
     "url": "https://github.com/enonic/app-contentstudio"
   },
   "scripts": {
-    "build": "concurrently -c auto -g --timings npm:build:*",
+    "build": "pnpm --color /^build:.*$/",
     "build:worker": "webpack --config webpack.worker.config.js --color --stats=minimal",
     "build:client": "webpack --color --stats=minimal",
     "build:server": "tsc --project ./src/main/resources/lib/tsconfig.json",
-    "check": "concurrently -c auto -g --timings npm:check:*",
-    "check:client": "tsc --pretty --skipLibCheck --noEmit",
-    "check:worker": "tsc --pretty --skipLibCheck --noEmit --project ./src/main/resources/assets/shared-socket/tsconfig.json",
-    "lint": "eslint **/*.ts --quiet --cache"
+    "check": "pnpm --color /^check:.*$/",
+    "check:types": "pnpm --color /^check:types:.*$/",
+    "check:types:client": "tsc --pretty --skipLibCheck --noEmit",
+    "check:types:worker": "tsc --pretty --skipLibCheck --noEmit --project ./src/main/resources/assets/shared-socket/tsconfig.json",
+    "check:lint": "eslint **/*.ts --quiet --cache"
   },
   "dependencies": {
-    "@enonic/lib-admin-ui": "file:.xp/dev/lib-admin-ui",
+    "@enonic/lib-admin-ui": "workspace:*",
     "chart.js": "^4.5.0",
     "enonic-admin-artifacts": "^2.3.2",
     "jquery": "^3.7.1",
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.14.1",
-    "lib-contentstudio": "file:.xp/dev/lib-contentstudio",
+    "lib-contentstudio": "workspace:*",
     "nanostores": "^0.11.4",
     "q": "^1.5.1"
   },
@@ -51,7 +52,6 @@
     "autoprefixer": "^10.4.21",
     "browserslist-config-enonic": "^1.0.8",
     "circular-dependency-plugin": "^5.2.2",
-    "concurrently": "^9.1.2",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
     "cssnano": "^7.0.7",
@@ -73,11 +73,6 @@
   "browserslist": [
     "extends browserslist-config-enonic"
   ],
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@swc/core"
-    ]
-  },
   "engines": {
     "node": ">=22.18.0",
     "npm": ">=10.9.2",

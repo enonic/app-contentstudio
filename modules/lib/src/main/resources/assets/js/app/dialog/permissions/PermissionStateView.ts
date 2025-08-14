@@ -1,6 +1,6 @@
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {Permission} from '../../access/Permission';
-import * as Q from 'q';
+import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {EditPermissionState} from './EditPermissionState';
 

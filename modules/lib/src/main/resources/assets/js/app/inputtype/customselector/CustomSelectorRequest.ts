@@ -3,7 +3,7 @@ import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
-import * as Q from 'q';
+import Q from 'q';
 
 export interface CustomSelectorResponse {
     total: number;

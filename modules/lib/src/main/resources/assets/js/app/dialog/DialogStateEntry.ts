@@ -2,7 +2,7 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import * as Q from 'q';
+import Q from 'q';
 
 export enum ButtonType {
     BUTTON = 'button',

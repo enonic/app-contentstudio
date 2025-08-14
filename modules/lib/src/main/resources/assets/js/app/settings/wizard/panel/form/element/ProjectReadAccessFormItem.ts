@@ -11,7 +11,7 @@ import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {ProjectHelper} from '../../../../data/project/ProjectHelper';
 import {ProjectPermissions} from '../../../../data/project/ProjectPermissions';
-import * as Q from 'q';
+import Q from 'q';
 import {GetPrincipalsByKeysRequest} from '../../../../../security/GetPrincipalsByKeysRequest';
 import {CopyFromParentFormItem} from './CopyFromParentFormItem';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';

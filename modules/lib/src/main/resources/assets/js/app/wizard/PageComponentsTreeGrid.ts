@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
 import {Component} from '../page/region/Component';
 import {ComponentsTreeItem} from './ComponentsTreeItem';

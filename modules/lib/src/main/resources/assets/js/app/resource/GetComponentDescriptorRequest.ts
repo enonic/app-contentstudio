@@ -6,7 +6,7 @@ import {ComponentType} from '../page/region/ComponentType';
 import {PageComponentType} from '../page/region/PageComponentType';
 import {CmsResourceRequest} from './CmsResourceRequest';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import * as Q from 'q';
+import Q from 'q';
 
 export class GetComponentDescriptorRequest
     extends CmsResourceRequest<Descriptor> {

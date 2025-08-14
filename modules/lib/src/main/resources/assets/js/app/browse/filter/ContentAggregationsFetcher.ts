@@ -1,7 +1,7 @@
 import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
 import {AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
 import {SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentQuery} from '../../content/ContentQuery';
 import {SearchContentQueryCreator} from './SearchContentQueryCreator';
 import {ContentQueryRequest} from '../../resource/ContentQueryRequest';

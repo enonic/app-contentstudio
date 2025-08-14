@@ -4,7 +4,7 @@ import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregat
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentAggregation} from './ContentAggregation';
 import {GetPrincipalsByKeysRequest} from '../../security/GetPrincipalsByKeysRequest';
-import * as Q from 'q';
+import Q from 'q';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';

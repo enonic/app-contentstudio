@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {Element as UIElement} from '@enonic/lib-admin-ui/dom/Element';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';

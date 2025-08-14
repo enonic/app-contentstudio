@@ -14,7 +14,7 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {VersionHistoryItem, VersionItemStatus} from './VersionHistoryItem';
 import {VersionContext} from './VersionContext';
-import * as Q from 'q';
+import Q from 'q';
 import {VersionHistoryHelper} from './VersionHistoryHelper';
 
 export class VersionHistoryListItem

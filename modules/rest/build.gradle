@@ -18,3 +18,10 @@ dependencies {
     testImplementation( testFixtures( "com.enonic.xp:core-schema:${xpVersion}" ) )
     testImplementation( testFixtures( "com.enonic.xp:web-api:${xpVersion}" ) )
 }
+
+tasks.register( 'yolo' ) {
+    dependsOn tasks.named( 'build' )
+
+    check.enabled = false
+    test.enabled = false
+}

@@ -2,7 +2,7 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentVersionHelper} from '../../../../ContentVersionHelper';

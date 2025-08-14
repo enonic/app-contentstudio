@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ContentSummaryOptionDataHelper} from '../../util/ContentSummaryOptionDataHelper';

@@ -10,7 +10,7 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ModalDialogWithConfirmation} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {SearchAndExpandItemEvent} from '../browse/SearchAndExpandItemEvent';
 import {ContentIds} from '../content/ContentIds';
 import {ContentPath} from '../content/ContentPath';

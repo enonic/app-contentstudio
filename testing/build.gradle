@@ -229,7 +229,7 @@ tasks.register('cleanup', Delete) {
     delete './build/reports/allure'
 }
 
-tasks.register('generateReportAndStopServer', NpmTask) {
+tasks.register('generateReportAndStopServer', PnpmTask) {
     description = 'Generate Allure report and stop server'
     group = 'verification'
 
@@ -239,7 +239,7 @@ tasks.register('generateReportAndStopServer', NpmTask) {
 }
 
 // Test tasks
-tasks.register('w_testInputTypes', NpmTask) {
+tasks.register('w_testInputTypes', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
     dependsOn tasks.named('downloadApps')
     dependsOn tasks.named('copyConfig')
@@ -251,7 +251,7 @@ tasks.register('w_testInputTypes', NpmTask) {
     finalizedBy tasks.named('generateReportAndStopServer')
 }
 
-tasks.register('w_testInputTypesLocal', NpmTask) {
+tasks.register('w_testInputTypesLocal', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
 
     group = 'verification'
@@ -259,7 +259,7 @@ tasks.register('w_testInputTypesLocal', NpmTask) {
     args = ['run-script', 'test_input_types:wdio_chrome']
 }
 
-tasks.register('w_testInputTypes_2', NpmTask) {
+tasks.register('w_testInputTypes_2', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
     dependsOn tasks.named('downloadApps')
     dependsOn tasks.named('copyConfig')
@@ -271,7 +271,7 @@ tasks.register('w_testInputTypes_2', NpmTask) {
     finalizedBy tasks.named('generateReportAndStopServer')
 }
 
-tasks.register('w_testInputTypes_2_Local', NpmTask) {
+tasks.register('w_testInputTypes_2_Local', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
 
     group = 'verification'
@@ -279,7 +279,7 @@ tasks.register('w_testInputTypes_2_Local', NpmTask) {
     args = ['run-script', 'test_input_types_2:wdio_chrome']
 }
 
-tasks.register('w_testModalDialog', NpmTask) {
+tasks.register('w_testModalDialog', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
     dependsOn tasks.named('downloadApps')
     dependsOn tasks.named('copyConfig')
@@ -291,7 +291,7 @@ tasks.register('w_testModalDialog', NpmTask) {
     finalizedBy tasks.named('generateReportAndStopServer')
 }
 
-tasks.register('w_testModalDialogLocal', NpmTask) {
+tasks.register('w_testModalDialogLocal', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
 
     group = 'verification'
@@ -299,7 +299,7 @@ tasks.register('w_testModalDialogLocal', NpmTask) {
     args = ['run-script', 'test_modal_dialog:wdio_chrome']
 }
 
-tasks.register('w_testWizardsGrid', NpmTask) {
+tasks.register('w_testWizardsGrid', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
     dependsOn tasks.named('downloadApps')
     dependsOn tasks.named('copyConfig')
@@ -311,7 +311,7 @@ tasks.register('w_testWizardsGrid', NpmTask) {
     finalizedBy tasks.named('generateReportAndStopServer')
 }
 
-tasks.register('w_testWizardsGridLocal', NpmTask) {
+tasks.register('w_testWizardsGridLocal', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
 
     group = 'verification'
@@ -319,7 +319,7 @@ tasks.register('w_testWizardsGridLocal', NpmTask) {
     args = ['run-script', 'test_wizards_grid:wdio_chrome']
 }
 
-tasks.register('w_testPublishIssues', NpmTask) {
+tasks.register('w_testPublishIssues', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
     dependsOn tasks.named('downloadApps')
     dependsOn tasks.named('copyConfig')
@@ -331,7 +331,7 @@ tasks.register('w_testPublishIssues', NpmTask) {
     finalizedBy tasks.named('generateReportAndStopServer')
 }
 
-tasks.register('w_testPublishIssuesLocal', NpmTask) {
+tasks.register('w_testPublishIssuesLocal', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
 
     group = 'verification'
@@ -339,7 +339,7 @@ tasks.register('w_testPublishIssuesLocal', NpmTask) {
     args = ['run-script', 'test_publish_issues:wdio_chrome']
 }
 
-tasks.register('w_testProjects', NpmTask) {
+tasks.register('w_testProjects', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
     dependsOn tasks.named('downloadApps')
     dependsOn tasks.named('copyConfig')
@@ -351,7 +351,7 @@ tasks.register('w_testProjects', NpmTask) {
     finalizedBy tasks.named('generateReportAndStopServer')
 }
 
-tasks.register('w_miscTests', NpmTask) {
+tasks.register('w_miscTests', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
     dependsOn tasks.named('downloadApps')
     dependsOn tasks.named('copyConfig')
@@ -363,7 +363,7 @@ tasks.register('w_miscTests', NpmTask) {
     finalizedBy tasks.named('generateReportAndStopServer')
 }
 
-tasks.register('w_testProjects_2', NpmTask) {
+tasks.register('w_testProjects_2', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
     dependsOn tasks.named('downloadApps')
     dependsOn tasks.named('copyConfig')
@@ -375,7 +375,7 @@ tasks.register('w_testProjects_2', NpmTask) {
     finalizedBy tasks.named('generateReportAndStopServer')
 }
 
-tasks.register('testProjects_multi', NpmTask) {
+tasks.register('testProjects_multi', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
     dependsOn tasks.named('downloadApps')
     dependsOn tasks.named('copyConfig')
@@ -388,7 +388,7 @@ tasks.register('testProjects_multi', NpmTask) {
     finalizedBy tasks.named('generateReportAndStopServer')
 }
 
-tasks.register('w_testProjectsLocal', NpmTask) {
+tasks.register('w_testProjectsLocal', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
 
     group = 'verification'
@@ -396,7 +396,7 @@ tasks.register('w_testProjectsLocal', NpmTask) {
     args = ['run-script', 'test_project:wdio_chrome']
 }
 
-tasks.register('w_testPageEditor', NpmTask) {
+tasks.register('w_testPageEditor', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
     dependsOn tasks.named('downloadApps')
     dependsOn tasks.named('copyConfig')
@@ -408,7 +408,7 @@ tasks.register('w_testPageEditor', NpmTask) {
     finalizedBy tasks.named('generateReportAndStopServer')
 }
 
-tasks.register('w_testPageEditorLocal', NpmTask) {
+tasks.register('w_testPageEditorLocal', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
 
     group = 'verification'
@@ -416,7 +416,7 @@ tasks.register('w_testPageEditorLocal', NpmTask) {
     args = ['run-script', 'test_page_editor:wdio_chrome']
 }
 
-tasks.register('w_testExcludeDependencies', NpmTask) {
+tasks.register('w_testExcludeDependencies', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
     dependsOn tasks.named('downloadApps')
     dependsOn tasks.named('copyConfig')
@@ -427,4 +427,8 @@ tasks.register('w_testExcludeDependencies', NpmTask) {
     description = 'Run exclude dependencies tests'
     args = ['run-script', 'test_exclude_dependencies:wdio_chrome']
     finalizedBy tasks.named('generateReportAndStopServer')
+}
+
+tasks.register( 'yolo' ) {
+    dependsOn tasks.named( 'build' )
 }

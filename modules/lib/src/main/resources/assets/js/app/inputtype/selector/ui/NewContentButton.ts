@@ -6,7 +6,7 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Content} from '../../../content/Content';
 import {EditContentEvent} from '../../../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentHelper} from '../../../util/ContentHelper';
 import {ContentTypesHelper} from '../../../util/ContentTypesHelper';
 import {ContentServerEventsHandler} from '../../../event/ContentServerEventsHandler';

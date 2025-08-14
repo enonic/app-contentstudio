@@ -12,7 +12,7 @@ import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem'
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {Highlighter} from '../../page-editor/Highlighter';
 import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
 import {PageViewController} from '../../page-editor/PageViewController';

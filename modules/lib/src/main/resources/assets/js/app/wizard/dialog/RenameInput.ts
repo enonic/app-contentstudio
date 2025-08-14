@@ -1,5 +1,5 @@
 import {CheckedValueInput, ValidityStatus, ValueValidationState} from '../../inputtype/text/CheckedValueInput';
-import * as Q from 'q';
+import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentPath} from '../../content/ContentPath';
 import {ContentExistsByPathRequest} from '../../resource/ContentExistsByPathRequest';

@@ -13,8 +13,9 @@ import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {Delta, DiffPatcher, formatters, HtmlFormatter} from 'jsondiffpatch';
-import * as Q from 'q';
+import {Delta, DiffPatcher} from 'jsondiffpatch';
+import {format, showUnchanged} from 'jsondiffpatch/formatters/html';
+import Q from 'q';
 import {ContentJson} from '../content/ContentJson';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentVersion} from '../ContentVersion';
@@ -63,8 +64,6 @@ export class CompareContentVersionsDialog
     private contentCache: Record<string, object>;
 
     private diffPatcher: DiffPatcher;
-
-    private htmlFormatter: HtmlFormatter;
 
     private readonly versionsLoader: ContentVersionsLoader;
 
@@ -246,11 +245,10 @@ export class CompareContentVersionsDialog
             rightContainer.appendChildren<Element>(this.rightLabel, this.rightDropdown, this.revertRightButton);
 
             const bottomContainer = new DivEl('container bottom');
-            this.htmlFormatter = formatters.html;
-            this.htmlFormatter.showUnchanged(false, null, 0);
+            showUnchanged(false, null, 0);
             const changesCheckbox = new CheckboxBuilder().setLabelText(i18n('field.content.showEntire')).build();
             changesCheckbox.onValueChanged(event => {
-                this.htmlFormatter.showUnchanged(event.getNewValue() === 'true', null, 0);
+                showUnchanged(event.getNewValue() === 'true', null, 0);
             });
             bottomContainer.appendChild(changesCheckbox);
             this.appendChildToFooter(bottomContainer);
@@ -320,7 +318,7 @@ export class CompareContentVersionsDialog
             return;
         }
 
-        this.htmlFormatter.showUnchanged(false, null, 0);
+        showUnchanged(false, null, 0);
         this.reloadVersions();
     }
 
@@ -677,7 +675,7 @@ export class CompareContentVersionsDialog
             let text;
             let isEmpty = false;
             if (delta) {
-                text = formatters.html.format(delta, rightJson || leftJson);
+                text = format(delta, rightJson || leftJson);
             } else {
                 isEmpty = true;
                 text = `<h3>${i18n('dialog.compareVersions.versionsIdentical')}</h3>`;

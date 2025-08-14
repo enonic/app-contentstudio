@@ -5,8 +5,9 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Delta, DiffPatcher, formatters, HtmlFormatter} from 'jsondiffpatch';
-import * as Q from 'q';
+import {Delta, DiffPatcher} from 'jsondiffpatch';
+import {format, showUnchanged} from 'jsondiffpatch/formatters/html';
+import Q from 'q';
 import {ActiveContentVersion} from '../ActiveContentVersion';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
@@ -41,8 +42,6 @@ export class CompareWithPublishedVersionDialog
 
     private diffPatcher: DiffPatcher;
 
-    private htmlFormatter: HtmlFormatter;
-
     private isLoading: boolean;
 
     private readonly versionsLoader: ContentVersionsLoader;
@@ -56,7 +55,6 @@ export class CompareWithPublishedVersionDialog
 
         this.versionsLoader = new ContentVersionsLoader();
         this.diffPatcher = new DiffPatcher();
-        this.htmlFormatter = formatters.html;
     }
 
     protected initListeners() {
@@ -118,7 +116,7 @@ export class CompareWithPublishedVersionDialog
             const bottomContainer = new DivEl('container bottom');
             const changesCheckbox = new CheckboxBuilder().setLabelText(i18n('field.content.showEntire')).build();
             changesCheckbox.onValueChanged(event => {
-                this.htmlFormatter.showUnchanged(event.getNewValue() === 'true', null, 0);
+                showUnchanged(event.getNewValue() === 'true', null, 0);
             });
             bottomContainer.appendChild(changesCheckbox);
             this.appendChildToFooter(bottomContainer);
@@ -143,7 +141,7 @@ export class CompareWithPublishedVersionDialog
     open() {
         super.open();
         this.contentCache = {};
-        this.htmlFormatter.showUnchanged(false, null, 0);
+        showUnchanged(false, null, 0);
 
         this.loadVersionHistory();
     }
@@ -230,7 +228,7 @@ export class CompareWithPublishedVersionDialog
             let text;
             let isEmpty = false;
             if (delta) {
-                text = formatters.html.format(delta, publishedJson || {});
+                text = format(delta, publishedJson || {});
             } else {
                 isEmpty = true;
                 text = `<h3>${i18n('dialog.publishedChanges.versionsIdentical')}</h3>`;

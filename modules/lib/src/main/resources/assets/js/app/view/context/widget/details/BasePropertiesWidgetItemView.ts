@@ -6,7 +6,7 @@ import {BasePropertiesWidgetItemViewHelper} from './BasePropertiesWidgetItemView
 import {GetApplicationRequest} from '../../../../resource/GetApplicationRequest';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {Application} from '@enonic/lib-admin-ui/application/Application';
-import * as Q from 'q';
+import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
 import {EditPropertiesDialogParams} from './EditPropertiesDialog';

@@ -2,7 +2,7 @@ import {Project} from './Project';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ProjectGetRequest} from '../../resource/ProjectGetRequest';
 import {ProjectContext} from '../../../project/ProjectContext';
-import * as Q from 'q';
+import Q from 'q';
 import {ProjectPermissions} from './ProjectPermissions';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 

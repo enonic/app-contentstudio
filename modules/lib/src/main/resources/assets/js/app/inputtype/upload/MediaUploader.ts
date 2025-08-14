@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Input} from '@enonic/lib-admin-ui/form/Input';

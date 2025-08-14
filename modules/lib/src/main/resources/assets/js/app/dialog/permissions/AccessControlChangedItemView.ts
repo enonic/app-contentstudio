@@ -2,7 +2,7 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {AccessControlChangedItem} from './AccessControlChangedItem';
 import {ApplyPermissionsScope} from './PermissionsData';
 import {Permission} from '../../access/Permission';
-import * as Q from 'q';
+import Q from 'q';
 import {PrincipalViewer} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
 import {EditPermissionState} from './EditPermissionState';
 import {AccessHelper} from '../../security/AccessHelper';

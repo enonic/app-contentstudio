@@ -9,7 +9,7 @@ import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {ArchiveCheckableItem} from './ArchiveCheckableItem';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import * as Q from 'q';
+import Q from 'q';
 import {ArchiveSelectableItem} from './ArchiveSelectableItem';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';

@@ -24,7 +24,7 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import * as Q from 'q';
+import Q from 'q';
 import {LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/LiveEditPageInitializationErrorEvent';
 import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEditEvent';

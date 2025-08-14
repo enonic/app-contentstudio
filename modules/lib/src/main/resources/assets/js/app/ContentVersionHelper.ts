@@ -3,7 +3,7 @@ import {ContentId} from './content/ContentId';
 import {ContentVersion} from './ContentVersion';
 import {GetActiveContentVersionsRequest} from './resource/GetActiveContentVersionsRequest';
 import {VersionContext} from './view/context/widget/version/VersionContext';
-import * as Q from 'q';
+import Q from 'q';
 
 export class ContentVersionHelper {
 

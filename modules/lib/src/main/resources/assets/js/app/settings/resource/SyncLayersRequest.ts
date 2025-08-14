@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {TaskInfo} from '@enonic/lib-admin-ui/task/TaskInfo';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';

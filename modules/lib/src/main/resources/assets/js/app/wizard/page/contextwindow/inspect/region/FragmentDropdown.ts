@@ -3,7 +3,7 @@ import {ContentSummaryViewer} from '../../../../../content/ContentSummaryViewer'
 import {ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
 import {ContentPath} from '../../../../../content/ContentPath';
-import * as Q from 'q';
+import Q from 'q';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 import {FragmentDropdownList} from './FragmentDropdownList';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';

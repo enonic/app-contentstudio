@@ -1,5 +1,5 @@
 import {ContentSummary} from '../content/ContentSummary';
-import * as Q from 'q';
+import Q from 'q';
 import {GetContentTypeDescriptorsRequest} from '../resource/GetContentTypeDescriptorsRequest';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';

@@ -3,7 +3,7 @@ import {Regions, RegionsBuilder} from '../page/region/Regions';
 import {Region} from '../page/region/Region';
 import {Component} from '../page/region/Component';
 import {LayoutComponent} from '../page/region/LayoutComponent';
-import * as Q from 'q';
+import Q from 'q';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {Descriptor} from '../page/Descriptor';
 import {RegionDescriptor} from '../page/RegionDescriptor';

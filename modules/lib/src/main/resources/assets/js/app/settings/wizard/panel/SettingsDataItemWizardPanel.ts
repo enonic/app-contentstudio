@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {WizardPanel, WizardPanelParams} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Toolbar, ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';

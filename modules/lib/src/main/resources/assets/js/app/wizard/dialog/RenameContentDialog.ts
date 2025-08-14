@@ -1,6 +1,6 @@
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {ContentPath} from '../../content/ContentPath';

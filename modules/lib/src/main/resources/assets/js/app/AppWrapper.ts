@@ -1,5 +1,5 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import * as Q from 'q';
+import Q from 'q';
 import {Element, NewElementBuilder} from '@enonic/lib-admin-ui/dom/Element';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';

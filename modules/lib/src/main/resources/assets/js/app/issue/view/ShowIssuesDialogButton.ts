@@ -4,7 +4,7 @@ import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {AriaHasPopup, WCAG} from '@enonic/lib-admin-ui/ui/WCAG';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {ShowIssuesDialogAction} from '../../browse/action/ShowIssuesDialogAction';
 import {ProjectContext} from '../../project/ProjectContext';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';

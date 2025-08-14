@@ -5,7 +5,7 @@ import {showError, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/M
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {DialogStateBar} from '../../dialog/DialogStateBar';
 import {Issue} from '../Issue';

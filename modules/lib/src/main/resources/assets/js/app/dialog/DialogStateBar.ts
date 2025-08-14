@@ -1,6 +1,6 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {ButtonType, DialogStateEntry, StateEntryConfig} from './DialogStateEntry';
 
 export interface DialogStateBarConfig {

@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {FilterType} from './FilterType';
 import {FilterState, IssueList} from './IssueList';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';

@@ -3,7 +3,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PropertiesWidgetItemViewHelper} from './PropertiesWidgetItemViewHelper';
 import {PropertiesWidgetItemViewValue} from './PropertiesWidgetItemViewValue';
 import {PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
-import * as Q from 'q';
+import Q from 'q';
 
 export class OnlinePropertiesWidgetItemViewHelper
     extends PropertiesWidgetItemViewHelper {

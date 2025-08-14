@@ -9,7 +9,7 @@ import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/
 import {ProjectViewItem} from '../../../../view/ProjectViewItem';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import * as Q from 'q';
+import Q from 'q';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {GetApplicationsRequest} from '../../../../../resource/GetApplicationsRequest';
 import {ProjectApplicationSelectedOptionView} from './ProjectApplicationSelectedOptionView';

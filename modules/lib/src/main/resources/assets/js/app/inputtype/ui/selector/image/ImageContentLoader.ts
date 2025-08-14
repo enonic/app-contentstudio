@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {GetContentSummaryByIds} from '../../../../resource/GetContentSummaryByIds';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';

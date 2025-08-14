@@ -2,7 +2,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {ProjectDialogStep} from './ProjectDialogStep';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import * as Q from 'q';
+import Q from 'q';
 import {ProjectAccessDialogStepData} from '../data/ProjectAccessDialogStepData';
 import {ProjectReadAccessType} from '../../../../data/project/ProjectReadAccessType';
 import {ProjectReadAccessFormItem} from '../../../../wizard/panel/form/element/ProjectReadAccessFormItem';

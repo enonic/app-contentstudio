@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {GetLocalesRequest} from '../resource/GetLocalesRequest';

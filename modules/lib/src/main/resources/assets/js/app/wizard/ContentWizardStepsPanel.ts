@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
 import {PanelStripHeader} from '@enonic/lib-admin-ui/ui/panel/PanelStripHeader';
 import {ContentPanelStripHeader} from './ContentPanelStripHeader';

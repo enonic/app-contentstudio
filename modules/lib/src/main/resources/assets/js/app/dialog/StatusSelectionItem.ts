@@ -4,7 +4,7 @@ import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class StatusSelectionItem

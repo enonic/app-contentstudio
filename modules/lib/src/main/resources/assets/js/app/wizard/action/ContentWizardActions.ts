@@ -7,7 +7,7 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ActionsMap, ActionsState, ActionsStateManager} from '@enonic/lib-admin-ui/ui/ActionsStateManager';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {AccessControlList} from '../../access/AccessControlList';
 import {Permission} from '../../access/Permission';
 import {CompareStatusChecker} from '../../content/CompareStatus';

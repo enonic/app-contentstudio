@@ -39,7 +39,7 @@ import {ComponentMovedEvent} from '../../page/region/ComponentMovedEvent';
 import {ComponentRemovedOnMoveEvent} from '../../page/region/ComponentRemovedOnMoveEvent';
 import {PageTemplate} from '../../content/PageTemplate';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
-import * as Q from 'q';
+import Q from 'q';
 import {ComponentTextUpdatedOrigin} from '../../page/region/ComponentTextUpdatedOrigin';
 
 export class PageState {

@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';

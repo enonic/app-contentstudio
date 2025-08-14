@@ -2,7 +2,7 @@ import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import * as Q from 'q';
+import Q from 'q';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ProjectWizardDialog} from './ProjectWizardDialog';
 import {ProjectSteps} from './ProjectSteps';

@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {UserAccessListItemView} from './UserAccessListItemView';

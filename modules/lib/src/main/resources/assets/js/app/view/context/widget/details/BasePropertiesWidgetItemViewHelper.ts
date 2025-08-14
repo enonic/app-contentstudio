@@ -8,7 +8,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DateTimeFormatter} from '@enonic/lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {PropertiesWidgetItemViewValue} from './PropertiesWidgetItemViewValue';
 import {PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
-import * as Q from 'q';
+import Q from 'q';
 import {AccessControlHelper} from '../../../../wizard/AccessControlHelper';
 import {ProjectHelper} from '../../../../settings/data/project/ProjectHelper';
 import {ProjectContext} from '../../../../project/ProjectContext';
