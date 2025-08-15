@@ -98,11 +98,19 @@ export class NewContentButton
         this.uploadHandler.setItems(items);
     }
 
+    private isNewContentDialogRequired(types: ContentTypeSummary[]): boolean {
+        if (types.length !== 1) {
+            return true;
+        }
+
+        return types[0].getContentTypeName().isDescendantOfMedia();
+    }
+
     private handleTypesLoaded(types: ContentTypeSummary[]): void {
-        if (types.length === 1) {
-            this.handleTypeSelected(types[0], this.content);
-        } else {
+        if (this.isNewContentDialogRequired(types)) {
             this.openNewContentDialog(types);
+        } else if (types.length === 1) {
+            this.handleTypeSelected(types[0], this.content);
         }
     }
 
