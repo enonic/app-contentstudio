@@ -55,7 +55,7 @@ export class NewContentDialog
 
     private recentContentTypes: RecentItemsBlock;
 
-    private contentTypes?: ContentTypeSummary[];
+    private contentTypes: ContentTypeSummary[] = [];
 
     private project?: Project;
 
@@ -286,7 +286,6 @@ export class NewContentDialog
         this.updateDialogTitlePath();
         this.resetFileInput();
         super.show();
-        this.updateUploaderState();
         this.updateContentTypesLists();
     }
 
@@ -304,7 +303,7 @@ export class NewContentDialog
         this.fileInput.reset();
         this.newContentUploader.reset();
         this.typeSelectedHandler = null;
-        this.contentTypes = null;
+        this.contentTypes = [];
         this.toggleEmptyView(false);
 
         if (this.isOpen()) {
@@ -317,14 +316,25 @@ export class NewContentDialog
 
         this.loadTypesWithAggregations().then((result: TypesAndAggregations) => {
             this.updateLists(result[0], result[1]);
+            this.updateUploaderState();
         }).catch((DefaultErrorHandler.handle)).finally(() => this.handleTypesLoaded());
     }
 
     private loadTypesWithAggregations(): Q.Promise<TypesAndAggregations> {
-        return Q.all([this.loadContentTypes(), ContentTypesHelper.getAggregatedTypesByContent(this.parentContent, this.project)])
+        return Q.all([
+                this.loadContentTypes(),
+                ContentTypesHelper.getAggregatedTypesByContent(this.parentContent, this.project)
+            ])
             .spread((contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult) => [contentTypes, aggregations]);
     }
 
+    private updateUploaderState(): void {
+        this.newContentUploader.reset();
+
+        this.toggleUploaderState();
+    }
+
+/*
     private updateUploaderState(): void {
         this.newContentUploader.reset();
 
@@ -335,6 +345,7 @@ export class NewContentDialog
             this.toggleUploaderState(false);
         });
     }
+*/
 
     private isUploaderToBeEnabled(): Q.Promise<boolean> {
         if (!this.parentContent) {
@@ -351,14 +362,15 @@ export class NewContentDialog
         });
     }
 
-    private toggleUploaderState(enabled: boolean): void {
+    private toggleUploaderState(): void {
+        const enabled: boolean = this.isMediaAllowed();
         this.newContentUploader.setVisible(enabled);
         this.newContentUploader.setEnabled(enabled);
         this.toggleClass('no-uploader-el', !enabled);
     }
 
     private loadContentTypes(): Q.Promise<ContentTypeSummary[]> {
-        if (this.contentTypes) {
+        if (this.contentTypes?.length) {
             return Q.resolve(this.contentTypes);
         }
 
@@ -371,11 +383,31 @@ export class NewContentDialog
         return ContentTypesHelper.getAvailableContentTypes(params);
     }
 
+    private getFilteredContentTypes(contentTypes: ContentTypeSummary[]): ContentTypeSummary[] {
+        return contentTypes.filter((contentType) => !contentType.getContentTypeName().isDescendantOfMedia());
+    }
+
+    private isMediaAllowed(): boolean {
+        if (!this.contentTypes?.length) {
+            return false;
+        }
+        return this.contentTypes.some((contentType) => contentType.getContentTypeName().isDescendantOfMedia());
+    }
+
+    private isOnlyMediaAllowed(): boolean {
+        if (!this.contentTypes?.length) {
+            return false;
+        }
+        return this.contentTypes.every((contentType) => contentType.getContentTypeName().isDescendantOfMedia());
+    }
+
     private updateLists(contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult): void {
-        this.allContentTypes.createItems(contentTypes);
+        //this.setContentTypes(contentTypes);
+        const filteredContentTypes = this.getFilteredContentTypes(contentTypes);
+        this.allContentTypes.createItems(filteredContentTypes);
         this.allContentTypes.setVisible(this.allContentTypes.getItemCount() > 0);
 
-        const popularItemsCount = this.mostPopularContentTypes.getItemsList().createItems(contentTypes, aggregations);
+        const popularItemsCount = this.mostPopularContentTypes.getItemsList().createItems(filteredContentTypes, aggregations);
         this.mostPopularContentTypes.setVisible(popularItemsCount > 0);
 
         const recentItemsCount = this.recentContentTypes.getItemsList().createItems(this.allContentTypes.getItems());
@@ -383,7 +415,8 @@ export class NewContentDialog
     }
 
     private handleTypesLoaded(): void {
-        this.fileInput.setEnabled(this.allContentTypes.getItemCount() > 0);
+        const emptyList = this.allContentTypes.getItemCount() === 0;
+        this.fileInput.setEnabled(!emptyList);
         this.hideLoadMask();
         this.mostPopularContentTypes.showIfNotEmpty();
         this.newContentUploader.focus();
@@ -392,15 +425,20 @@ export class NewContentDialog
             Body.get().onKeyDown(this.keyDownHandler);
         }
 
-        this.toggleEmptyView(this.allContentTypes.getItemCount() === 0);
+        this.toggleEmptyView(emptyList);
     }
 
     private toggleEmptyView(isEmpty: boolean): void {
         this.toggleClass('empty', isEmpty);
 
-        if (isEmpty && !this.emptyView) {
-            this.emptyView = new DivEl('empty-view').setHtml(i18n('dialog.new.createNotAvailable'));
-            this.appendChildToContentPanel(this.emptyView);
+        if (isEmpty) {
+            const emptyViewText = this.isOnlyMediaAllowed() ? i18n('dialog.new.onlyMediaAvailable') : i18n('dialog.new.createNotAvailable');
+            if (this.emptyView) {
+                this.emptyView.setHtml(emptyViewText);
+            } else {
+                this.emptyView = new DivEl('empty-view').setHtml(emptyViewText);
+                this.appendChildToContentPanel(this.emptyView);
+            }
         }
 
         this.emptyView?.setVisible(isEmpty);
