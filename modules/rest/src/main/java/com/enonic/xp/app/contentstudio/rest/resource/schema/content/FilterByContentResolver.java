@@ -45,11 +45,38 @@ import com.enonic.xp.site.SiteConfigs;
 @Component(service = FilterByContentResolver.class)
 public class FilterByContentResolver
 {
+    private static final List<ContentTypeName> MEDIA_CONTENT_TYPE_NAMES =
+            List.of(
+                ContentTypeName.archiveMedia(),
+                ContentTypeName.audioMedia(),
+                ContentTypeName.codeMedia(),
+                ContentTypeName.dataMedia(),
+                ContentTypeName.documentMedia(),
+                ContentTypeName.executableMedia(),
+                ContentTypeName.imageMedia(),
+                ContentTypeName.presentationMedia(),
+                ContentTypeName.spreadsheetMedia(),
+                ContentTypeName.textMedia(),
+                ContentTypeName.unknownMedia(),
+                ContentTypeName.vectorMedia(),
+                ContentTypeName.videoMedia()
+            );
+
     private static final List<ContentTypeName> DEFAULT_CONTENT_TYPE_NAMES =
-        List.of( ContentTypeName.folder(), ContentTypeName.site(), ContentTypeName.shortcut() );
+            Stream.concat(
+                Stream.of(
+                    ContentTypeName.folder(),
+                    ContentTypeName.site(),
+                    ContentTypeName.shortcut()
+                ),
+                MEDIA_CONTENT_TYPE_NAMES.stream()
+            ).toList();
 
     private static final List<ContentTypeName> DEFAULT_SITE_CONTENT_TYPE_NAMES =
-        List.of( ContentTypeName.folder(), ContentTypeName.site(), ContentTypeName.shortcut(), ContentTypeName.templateFolder() );
+            Stream.concat(
+                DEFAULT_CONTENT_TYPE_NAMES.stream(),
+                Stream.of(ContentTypeName.templateFolder())
+            ).toList();
 
     private ContentTypeService contentTypeService;
 
