@@ -41,8 +41,6 @@ export class NewContentDialog
 
     private parentContent?: ContentSummary;
 
-    private allowedContentTypes: string[];
-
     private fileInput: FileInput;
 
     private dropzoneContainer: DropzoneContainer;
@@ -55,7 +53,7 @@ export class NewContentDialog
 
     private recentContentTypes: RecentItemsBlock;
 
-    private contentTypes?: ContentTypeSummary[];
+    private contentTypes: ContentTypeSummary[] = [];
 
     private project?: Project;
 
@@ -115,12 +113,6 @@ export class NewContentDialog
         this.initContentTypesLists();
         this.initFileUploader();
         this.fileInput = new FileInput('large').setPlaceholder(i18n('dialog.new.searchTypes'));
-    }
-
-    protected postInitElements() {
-        super.postInitElements();
-
-        this.getButtonRow().getEl().setAttribute('data-drop', i18n('dialog.new.searchTypesOrDrop'));
     }
 
     protected initListeners() {
@@ -189,14 +181,6 @@ export class NewContentDialog
         };
     }
 
-    // in order to toggle appropriate handlers during drag event
-    // we catch drag enter on this element and trigger uploader to appear,
-
-    setAllowedContentTypes(types: string[]): NewContentDialog {
-        this.allowedContentTypes = types;
-        return this;
-    }
-
     private closeAndFireEventFromMediaUpload(event: UploadStartedEvent<Content>) {
         new NewMediaUploadEvent(event.getUploadItems(), this.parentContent).fire();
         this.close();
@@ -234,6 +218,7 @@ export class NewContentDialog
         this.contentTypes = types;
         return this;
     }
+
 
     setUploadHandler(handler: (items: UploadItem<Content>[]) => void): NewContentDialog {
         this.uploadHandler = handler;
@@ -286,7 +271,6 @@ export class NewContentDialog
         this.updateDialogTitlePath();
         this.resetFileInput();
         super.show();
-        this.updateUploaderState();
         this.updateContentTypesLists();
     }
 
@@ -304,7 +288,7 @@ export class NewContentDialog
         this.fileInput.reset();
         this.newContentUploader.reset();
         this.typeSelectedHandler = null;
-        this.contentTypes = null;
+        this.contentTypes = [];
         this.toggleEmptyView(false);
 
         if (this.isOpen()) {
@@ -316,66 +300,76 @@ export class NewContentDialog
         this.showLoadMask();
 
         this.loadTypesWithAggregations().then((result: TypesAndAggregations) => {
+            this.setContentTypes(result[0]);
             this.updateLists(result[0], result[1]);
+            this.updateUploaderState();
         }).catch((DefaultErrorHandler.handle)).finally(() => this.handleTypesLoaded());
     }
 
     private loadTypesWithAggregations(): Q.Promise<TypesAndAggregations> {
-        return Q.all([this.loadContentTypes(), ContentTypesHelper.getAggregatedTypesByContent(this.parentContent, this.project)])
+        return Q.all([
+                this.loadContentTypes(),
+                ContentTypesHelper.getAggregatedTypesByContent(this.parentContent, this.project)
+            ])
             .spread((contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult) => [contentTypes, aggregations]);
     }
 
     private updateUploaderState(): void {
         this.newContentUploader.reset();
 
-        this.isUploaderToBeEnabled().then((enable: boolean) => {
-            this.toggleUploaderState(enable);
-        }).catch((e: Error) => {
-            DefaultErrorHandler.handle(e);
-            this.toggleUploaderState(false);
-        });
+        this.toggleUploaderState();
     }
 
-    private isUploaderToBeEnabled(): Q.Promise<boolean> {
-        if (!this.parentContent) {
-            return Q.resolve(true);
+    private toggleUploaderState(): void {
+        const isMediaAllowed: boolean = this.isMediaAllowed();
+        let filterTypesText = i18n('dialog.new.filterTypes');
+        if (isMediaAllowed) {
+            filterTypesText += ` (${i18n('dialog.new.orDrop')})`;
         }
-
-        if (this.isTemplateFolderSelected()) {
-            return Q.resolve(false);
-        }
-
-        return new GetContentTypeByNameRequest(this.parentContent.getType()).sendAndParse().then((type: ContentType) => {
-            return ContentTypesHelper.isMediaChildContentAllowedByType(type) &&
-                   ContentTypesHelper.isMediaChildContentAllowed(this.allowedContentTypes);
-        });
-    }
-
-    private toggleUploaderState(enabled: boolean): void {
-        this.newContentUploader.setVisible(enabled);
-        this.newContentUploader.setEnabled(enabled);
-        this.toggleClass('no-uploader-el', !enabled);
+        this.getButtonRow().getEl().setAttribute('data-drop', filterTypesText);
+        this.newContentUploader.setVisible(isMediaAllowed);
+        this.newContentUploader.setEnabled(isMediaAllowed);
+        this.toggleClass('no-uploader-el', !isMediaAllowed);
     }
 
     private loadContentTypes(): Q.Promise<ContentTypeSummary[]> {
-        if (this.contentTypes) {
+        // The list of allowed content types might have been preset by NewContentButton, then skip the request
+        if (this.contentTypes?.length) {
             return Q.resolve(this.contentTypes);
         }
 
         const params: GetTypesParams = {
             contentId: this.parentContent?.getContentId(),
-            allowedContentTypes: this.allowedContentTypes,
             project: this.project
         };
 
         return ContentTypesHelper.getAvailableContentTypes(params);
     }
 
+    private getFilteredContentTypes(contentTypes: ContentTypeSummary[]): ContentTypeSummary[] {
+        return contentTypes.filter((contentType) => !contentType.getContentTypeName().isDescendantOfMedia());
+    }
+
+    private isMediaAllowed(): boolean {
+        if (!this.contentTypes?.length) {
+            return false;
+        }
+        return this.contentTypes.some((contentType) => contentType.getContentTypeName().isDescendantOfMedia());
+    }
+
+    private isOnlyMediaAllowed(): boolean {
+        if (!this.contentTypes?.length) {
+            return false;
+        }
+        return this.contentTypes.every((contentType) => contentType.getContentTypeName().isDescendantOfMedia());
+    }
+
     private updateLists(contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult): void {
-        this.allContentTypes.createItems(contentTypes);
+        const filteredContentTypes = this.getFilteredContentTypes(contentTypes);
+        this.allContentTypes.createItems(filteredContentTypes);
         this.allContentTypes.setVisible(this.allContentTypes.getItemCount() > 0);
 
-        const popularItemsCount = this.mostPopularContentTypes.getItemsList().createItems(contentTypes, aggregations);
+        const popularItemsCount = this.mostPopularContentTypes.getItemsList().createItems(filteredContentTypes, aggregations);
         this.mostPopularContentTypes.setVisible(popularItemsCount > 0);
 
         const recentItemsCount = this.recentContentTypes.getItemsList().createItems(this.allContentTypes.getItems());
@@ -383,7 +377,8 @@ export class NewContentDialog
     }
 
     private handleTypesLoaded(): void {
-        this.fileInput.setEnabled(this.allContentTypes.getItemCount() > 0);
+        const emptyList = this.allContentTypes.getItemCount() === 0;
+        this.fileInput.setEnabled(!emptyList);
         this.hideLoadMask();
         this.mostPopularContentTypes.showIfNotEmpty();
         this.newContentUploader.focus();
@@ -392,15 +387,20 @@ export class NewContentDialog
             Body.get().onKeyDown(this.keyDownHandler);
         }
 
-        this.toggleEmptyView(this.allContentTypes.getItemCount() === 0);
+        this.toggleEmptyView(emptyList);
     }
 
     private toggleEmptyView(isEmpty: boolean): void {
         this.toggleClass('empty', isEmpty);
 
-        if (isEmpty && !this.emptyView) {
-            this.emptyView = new DivEl('empty-view').setHtml(i18n('dialog.new.createNotAvailable'));
-            this.appendChildToContentPanel(this.emptyView);
+        if (isEmpty) {
+            const emptyViewText = this.isOnlyMediaAllowed() ? i18n('dialog.new.onlyMediaAvailable') : i18n('dialog.new.createNotAvailable');
+            if (this.emptyView) {
+                this.emptyView.setHtml(emptyViewText);
+            } else {
+                this.emptyView = new DivEl('empty-view').setHtml(emptyViewText);
+                this.appendChildToContentPanel(this.emptyView);
+            }
         }
 
         this.emptyView?.setVisible(isEmpty);
@@ -419,10 +419,6 @@ export class NewContentDialog
     private resetFileInput() {
         this.fileInput.disable();
         this.fileInput.reset();
-    }
-
-    private isTemplateFolderSelected(): boolean {
-        return !!this.parentContent && this.parentContent.getType().isTemplateFolder();
     }
 }
 
