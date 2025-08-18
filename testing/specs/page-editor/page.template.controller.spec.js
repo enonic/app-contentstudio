@@ -41,9 +41,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
             let newContentDialog = new NewContentDialog();
             // 1. Expand the site, click on Templates folder and click on 'New' button
             await selectTemplatesFolderAndClickOnNew();
-            // 2. Verify that 'Uploader' button is not present in the 'New Content' modal dialog:
-            let isDisplayed = await newContentDialog.waitForUploaderButtonDisplayed();
-            assert.ok(isDisplayed === false, "'Uploader' button should not be displayed for '_templates' folder");
+            // 2. Verify that 'Uploader' button is not be displayed in the 'New Content' modal dialog:
+            await newContentDialog.waitForUploaderButtonNotDisplayed();
         });
 
     // verifies the xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
