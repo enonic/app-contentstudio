@@ -146,8 +146,7 @@ class BaseBrowsePanel extends Page {
             await this.waitForElementEnabled(this.newButton, appConst.mediumTimeout);
             await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_new_button');
-            throw new Error(`New button is not enabled , screenshot:${screenshot} ` + err);
+            await this.handleError('Browse Panel, New button should be enabled. ', 'err_new_button_enabled', err);
         }
     }
 

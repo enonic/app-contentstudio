@@ -29,7 +29,7 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
             await newContentDialog.waitForClosed();
         });
 
-    it(`GIVEN no selections in the grid WHEN New Content Dialog is opened THEN upload button should be present in the dialog`,
+    it(`GIVEN no selections in the grid WHEN 'New Content Dialog' is opened THEN upload button should be present in the dialog`,
         async () => {
             let newContentDialog = new NewContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -37,13 +37,12 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
             // 2. Verify the Upload button
-            let isDisplayed = await newContentDialog.waitForUploaderButtonDisplayed();
-            assert.ok(isDisplayed, "Uploader button should be present in the modal dialog");
+            await newContentDialog.waitForUploaderButtonDisplayed();
             // 3.  Most popular block should be displayed
             await newContentDialog.waitForMostPopularBlockDisplayed();
         });
 
-    it(`GIVEN New Content Dialog is opened WHEN Cancel top button has been pressed THEN the dialog should be closed`,
+    it(`GIVEN New Content Dialog is opened WHEN 'Cancel top' button has been pressed THEN the dialog should be closed`,
         async () => {
             let newContentDialog = new NewContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
