@@ -7,7 +7,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {AppContext} from './AppContext';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {TooltipHelper} from './TooltipHelper';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
@@ -55,8 +54,6 @@ export class AppWrapper
         if (this.isSidebarToBeShownOnEnter()) {
             this.toggleSidebar();
         }
-
-        TooltipHelper.init();
     }
 
     private initElements() {
