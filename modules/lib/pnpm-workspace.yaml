@@ -5,3 +5,5 @@ packages:
 onlyBuiltDependencies:
   - '@swc/core'
   - esbuild
+  - edgedriver
+  - geckodriver
