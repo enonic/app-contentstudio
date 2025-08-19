@@ -15,6 +15,7 @@
     <api>admin:status</api>
     <api>admin:event</api>
     <api>com.enonic.app.contentstudio.plus:license</api>
+    <api>com.enonic.app.contentstudio.plus:layers</api>
   </apis>
   <interfaces>
     <interface>contentstudio.menuitem</interface>

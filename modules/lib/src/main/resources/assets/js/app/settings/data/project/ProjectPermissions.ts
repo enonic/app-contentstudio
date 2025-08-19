@@ -104,9 +104,9 @@ export class ProjectPermissions
     static fromJson(json: ProjectPermissionsJson): ProjectPermissions {
         if (json) {
             return new ProjectItemPermissionsBuilder()
-                .setContributors(json.contributor.map(PrincipalKey.fromString))
-                .setEditors(json.editor.map(PrincipalKey.fromString))
-                .setOwners(json.owner.map(PrincipalKey.fromString))
+                .setContributors(json.contributor ? json.contributor.map(PrincipalKey.fromString) : [])
+                .setEditors(json.editor ? json.editor.map(PrincipalKey.fromString) : [])
+                .setOwners(json.owner ? json.owner.map(PrincipalKey.fromString) : [])
                 .setAuthors(!!json.author ? json.author.map(PrincipalKey.fromString) : [])
                 .build();
         }
