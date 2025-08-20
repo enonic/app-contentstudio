@@ -199,12 +199,31 @@ export class HtmlEditor {
     }
 
     private handlePaste(): void {
+        let isCleanupNbspRequired = false;
+        let indexOfNbsp: number;
+        let selectedTextElement;
+
         this.editor.on('paste', (e: eventInfo) => {
+            isCleanupNbspRequired = false;
             // handlePasteFromGoogleDoc, https://github.com/enonic/app-contentstudio/issues/485
             if (GoogleDocPasteHandler.isPastedFromGoogleDoc(e.data.dataTransfer.getData('text/html'))) {
                 e.data.dataValue = new GoogleDocPasteHandler(e.data.dataValue).process();
             } else { // handle trailing non-breaking spaces , https://github.com/enonic/app-contentstudio/issues/7570
                 e.data.dataValue = e.data.dataValue?.replace(/^(&nbsp;)+|(&nbsp;)+$/g, ' ');
+            }
+
+            selectedTextElement = this.editor.getSelection().getRanges()[0]?.startContainer.$;
+
+            // checking if last character in the current cursor position is non-breaking space
+            if (HTMLAreaHelper.isNbsp(selectedTextElement.textContent.slice(-1))) {
+                isCleanupNbspRequired = true;
+                indexOfNbsp = selectedTextElement.textContent.length;
+            }
+        });
+
+        this.editor.on('afterPaste', (e: eventInfo) => {
+            if (isCleanupNbspRequired) {
+                selectedTextElement.textContent = selectedTextElement.textContent.slice(0, indexOfNbsp - 1) + ' ' + selectedTextElement.textContent.slice(indexOfNbsp);
             }
         });
     }
