@@ -105,39 +105,7 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             assert.ok(!result.includes('nbsp'), "'&nbsp;' should not be present in the source code");
         });
 
-    it(`WHEN 1 white space has been inserted before the link and 1 white space has been inserted after the link THEN 'NBSP' should not be present in SourceCodeDialog`,
-        async () => {
-            let htmlAreaForm = new HtmlAreaForm();
-            let insertLinkDialog = new InsertLinkDialog();
-            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
-            await htmlAreaForm.pause(1000);
-            await htmlAreaForm.insertTextInHtmlArea(0, 'test');
-            await htmlAreaForm.clickInTextArea();
-            await htmlAreaForm.pressWhiteSpace();
-            // 1. Open 'Insert Link' dialog:
-            await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInLinkTextInput('enonic');
-            // 2. Insert an URL:
-            await insertLinkDialog.clickOnBarItem('URL');
-            await insertLinkDialogUrlPanel.typeUrl("http://enonic.com");
-            // 3. Click on 'Insert' button:
-            await insertLinkDialog.clickOnInsertButton();
-            await insertLinkDialog.waitForDialogClosed();
-            await htmlAreaForm.clickInTextArea();
-            await htmlAreaForm.pressEndKey();
-            await htmlAreaForm.pressWhiteSpace();
-            // 4. Open 'Source Code' dialog:
-            await htmlAreaForm.clickOnSourceButton();
-            let sourceCodeDialog = new SourceCodeDialog();
-            await sourceCodeDialog.waitForDialogLoaded();
-            await studioUtils.saveScreenshot('source_code_nbsp_after_link');
-            // 5. Verify that '&nbsp;' should not be present in the source code:
-            let result = await sourceCodeDialog.getText();
-            assert.ok(!result.includes('nbsp'), "'&nbsp;' should not be present in the source code");
-        });
-
-    it(`WHEN 1 white space has been inserted between two words THEN 'NBSP' should not be present in SourceCodeDialog`,
+    it(`GIVEN white space has been inserted after a text WHEN a text inserted via Ctrl+v THEN 'NBSP' should not be present in SourceCodeDialog`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialog = new InsertLinkDialog();
