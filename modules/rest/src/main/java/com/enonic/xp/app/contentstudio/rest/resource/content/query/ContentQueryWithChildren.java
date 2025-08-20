@@ -76,9 +76,7 @@ public class ContentQueryWithChildren
 
     private String makePathExprString( final ContentPath contentPath, final String postfix )
     {
-        final ContentPath root = ContentPath.from( ContentHelper.getContentRoot().toString() );
-        final ContentPath newPath = ContentPath.from( root, contentPath );
-        return newPath + postfix;
+        return ContentHelper.getContentRoot() + contentPath.toString() + postfix;
     }
 
     public FindContentIdsByQueryResult find()

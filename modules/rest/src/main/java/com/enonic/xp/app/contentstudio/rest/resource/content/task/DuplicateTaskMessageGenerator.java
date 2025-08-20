@@ -37,7 +37,7 @@ class DuplicateTaskMessageGenerator
         }
         else if ( succeeded != null && succeeded.size() == 1 )
         {
-            ContentName name = ContentName.from( succeeded.get( 0 ).getName() );
+            ContentName name = succeeded.get( 0 ).getName();
             if ( name.isUnnamed() )
             {
                 builder.append( "Item is duplicated" );
