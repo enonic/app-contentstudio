@@ -32,7 +32,7 @@ class DeleteTaskMessageGenerator
         final List<ContentPath> deleted = result.getSucceeded();
         if ( deleted != null && deleted.size() == 1 )
         {
-            ContentName name = ContentName.from( deleted.get( 0 ).getName() );
+            ContentName name = deleted.get( 0 ).getName();
             if ( name.isUnnamed() )
             {
                 builder.append( "Item is deleted" );

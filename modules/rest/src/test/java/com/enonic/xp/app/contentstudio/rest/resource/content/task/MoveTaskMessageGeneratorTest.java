@@ -69,13 +69,13 @@ public class MoveTaskMessageGeneratorTest
     {
 
         final MoveRunnableTaskResult result = MoveRunnableTaskResult.create().
-            destination( ContentPath.from( "dest/path" ) ).
-            existsFailed( ContentPath.from( "exists-1" ) ).
+            destination( ContentPath.from( "/dest/path" ) ).
+            existsFailed( ContentPath.from( "/dest/path/exists-1" ) ).
             build();
 
         final String message = generator.generate( result );
 
-        assertEquals( "Item \"exists-1\" already exists at \"dest/path\".", message );
+        assertEquals( "Item \"exists-1\" already exists at \"/dest/path\".", message );
     }
 
     @Test
