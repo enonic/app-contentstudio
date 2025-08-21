@@ -186,8 +186,7 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
             return await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_localize_enabled_button');
-            throw new Error(`Localize button should be enabled, screenshot: ${screenshot} ` + err);
+            await this.handleError(`'Localize' button is not enabled in the Content Wizard`, 'err_localize_button_enabled', err);
         }
     }
 
@@ -307,8 +306,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(locator);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_wizard_step');
-            throw new Error(`Error after clicking on the wizard step , screenshot:${screenshot} ` + err);
+            await this.handleError(`tried to click on wizard step: ${stepName}`, 'err_wizard_step_click', err);
         }
     }
 
@@ -340,8 +338,7 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getTextInElements(selector);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_x_data');
-            throw new Error(`Error occurred after getting the title from x-data, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Error when trying to get titles of x-data forms`, 'err_x_data_titles', err);
         }
     }
 
@@ -378,8 +375,7 @@ class ContentWizardPanel extends Page {
             console.log("switched to content browse panel...");
             return await browsePanel.waitForGridLoaded(appConst.longTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_switch');
-            throw new Error(`Error when switching to Content Studio App, screenshot:${screenshot} ` + err);
+            await this.handleError(`Tried to switch to Content Browse panel`, 'err_switch_browse_panel', err);
         }
     }
 
@@ -396,8 +392,7 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(XPATH.hidePageEditorTogglerButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_hide_page_editor_button_not_displayed');
-            throw new Error(`'Hide Page Editor' button should be displayed : ` + err);
+            await this.handleError(`'Hide Page Editor' button is not displayed in the Content Wizard`, 'err_hide_page_editor_button', err);
         }
     }
 
@@ -426,8 +421,7 @@ class ContentWizardPanel extends Page {
             await this.waitForSaveButtonVisible();
             return await this.waitForElementEnabled(this.saveButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_save_button');
-            throw new Error(`Save button should be enabled in the wizard, screenshot: ${screenshot} ` + err);
+            await this.handleError(`'Save' button should be enabled in the Content Wizard`, 'err_save_button_enabled', err);
         }
     }
 
@@ -435,8 +429,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForElementDisabled(this.saveButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_save_button');
-            throw new Error(`Content Wizard - Save button should be disabled! Screenshot: ${screenshot} ` + err);
+            await this.handleError(`'Save' button should be disabled in the Content Wizard`, 'err_save_button_disabled', err);
         }
     }
 
@@ -444,8 +437,7 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.saveButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_save_button');
-            throw new Error(`'Save' button is not visible!, screenshot:${screenshot} ` + err);
+            await this.handleError(`'Save' button is not visible in the Content Wizard`, 'err_save_button_not_visible', err);
         }
     }
 
@@ -454,8 +446,7 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.savedButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.savedButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_saved_button_not_visible');
-            throw new Error(`'Saved' button is not visible or it is not disabled, screenshot ${screenshot} ` + err);
+            await this.handleError(`'Saved' button is not visible or it is not disabled`, 'err_saved_button_not_visible', err);
         }
     }
 
@@ -533,8 +524,7 @@ class ContentWizardPanel extends Page {
             await contentPublishDialog.waitForDialogOpened();
             return await contentPublishDialog.waitForSpinnerNotVisible(appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_when_click_on_publish_button');
-            throw new Error(`Error when Publish button has been clicked, screenshot:${screenshot} ` + err);
+            await this.handleError('Tried to click on Publish button', 'err_publish_button_wizard', err);
         }
     }
 
@@ -587,8 +577,7 @@ class ContentWizardPanel extends Page {
             let result = await this.getAttribute(locator, 'class');
             return result.includes('invalid');
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_wizard_validation');
-            throw new Error(`Error, content validation screenshot:${screenshot} ` + err);
+            await this.handleError(`Error when trying to check if content is invalid`, 'err_wizard_validation', err);
         }
     }
 
@@ -597,8 +586,7 @@ class ContentWizardPanel extends Page {
             let locator = this.workflowIconAndValidation;
             await this.waitUntilInvalid(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_wizard_validation');
-            throw new Error(`Validation Error: invalid-icon did not appear in content-wizard screenshot:${screenshot} ` + err);
+            await this.handleError('Validation Error: invalid-icon did not appear in content-wizard', 'err_wizard_validation', err);
         }
     }
 
@@ -630,6 +618,7 @@ class ContentWizardPanel extends Page {
         return await this.clickOnCustomizeMenuItem();
     }
 
+    // Opens context menu with 'Customize Page' item
     async doOpenItemViewContextMenu() {
         try {
             let selector = `//div[contains(@id,'FrameContainer')]`;
@@ -639,12 +628,11 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(XPATH.itemViewContextMenu, appConst.mediumTimeout);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_customize_menu_item');
-            throw new Error(`'Customize Page' menu item is not displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError('Content wizard, tried to open Item View Context Menu', 'err_item_view_context_menu', err);
         }
     }
 
-    // wait for 'Customize Page' context menu item
+    // wait for 'Customize Page' context menu item and click on it:
     async clickOnCustomizeMenuItem() {
         let locator = XPATH.itemViewContextMenu + `//dl//dt[text()='Customize Page']`;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -699,9 +687,9 @@ class ContentWizardPanel extends Page {
             if (content.settings != null) {
                 await this.typeSettings(content.settings);
             }
-            return await this.pause(500);
+            return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_site');
+            let screenshot = await this.saveScreenshotUniqueName('err_create_site');
             throw new Error(`Content Wizard, error during creating the content, screenshot:${screenshot}  ` + err);
         }
     }
@@ -710,7 +698,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForElementDisplayed(this.publishDropDownHandle, appConst.mediumTimeout);
             await this.clickOnElement(this.publishDropDownHandle);
-            return await this.pause(400);
+            return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_click_on_dropdown');
             throw new Error(`Error occurred after clicking on Publish dropdown handle, ${screenshot} ` + err);
@@ -723,8 +711,7 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.unpublishMenuItem, appConst.mediumTimeout);
             await this.clickOnElement(this.unpublishMenuItem);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_unpublish_menu_item');
-            throw new Error(`Error occurred after clicking on unpublish menu item , screenshot: ${screenshot} ` + err);
+            await this.handleError('Content wizard, tried to click on unpublish menu item', 'err_unpublish_menu_item', err);
         }
     }
 
@@ -734,44 +721,42 @@ class ContentWizardPanel extends Page {
 
     async waitForMinimizeLiveEditTogglerDisplayed() {
         await this.waitForElementDisplayed(this.minimizeLiveEditToggler, appConst.mediumTimeout);
-        await this.pause(700);
+        await this.pause(500);
     }
 
     async clickOnMinimizeLiveEditToggler() {
         try {
             await this.waitForMinimizeLiveEditTogglerDisplayed();
             await this.clickOnElement(this.minimizeLiveEditToggler);
-            await this.pause(500);
+            await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_minimize_icon');
-            throw new Error(`Content wizard minimize toggle, screenshot: ${screenshot} ` + err);
+            await this.handleError('Content wizard, tried to click on minimize live edit toggle', 'err_minimize_icon', err);
         }
     }
 
     async hotKeyDelete() {
-        let status = await this.getBrowserStatus();
-        if (status.os.name.includes('Mac')) {
-            return await this.getBrowser().keys([Key.Command, Key.Delete]);
-        } else {
-            return await this.getBrowser().keys([Key.Ctrl, Key.Delete]);
-        }
+        const isMacOS = await this.isMacOS();
+        const keyCombination = isMacOS ? [Key.Command, Key.Delete] : [Key.Ctrl, Key.Delete];
+        return await this.getBrowser().keys(keyCombination);
     }
 
     async hotKeySave() {
-        await this.getBrowser().keys(['Control', 's']);
-        return await this.pause(1000);
+        const isMacOS = await this.isMacOS();
+        const keyCombination = isMacOS ? [Key.Command, 's'] : [Key.Ctrl, 's'];
+        return await this.getBrowser().keys(keyCombination);
     }
 
-    hotKeyPublish() {
-        return this.getBrowser().keys(['Control', 'Alt', 'p']);
+    async hotKeyPublish() {
+        const isMacOS = await this.isMacOS();
+        const keyCombination = isMacOS ? [Key.Command, Key.Alt, 'p'] : [Key.Ctrl, Key.Alt, 'p'];
+        return await this.getBrowser().keys(keyCombination);
     }
 
     async waitForShowPublishMenuButtonVisible() {
         try {
             return await this.waitForElementDisplayed(this.publishDropDownHandle, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_publish_menu_dropdown_handle');
-            throw new Error(`Wizard - drop down handle in Publish menu is not visible! screenshot:${screenshot} ` + err);
+            await this.handleError('Wizard Publish Menu- drop down handle is not visible', 'err_publish_menu_dropdown_handle', err);
         }
     }
 
@@ -780,9 +765,9 @@ class ContentWizardPanel extends Page {
         return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
-    waitForOpenRequestButtonVisible() {
+    async waitForOpenRequestButtonVisible() {
         let selector = XPATH.container + XPATH.openRequestButton;
-        return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
     async clickOnOpenRequestButton() {
@@ -790,8 +775,7 @@ class ContentWizardPanel extends Page {
             await this.waitForOpenRequestButtonVisible();
             return await this.clickOnElement(XPATH.container + XPATH.openRequestButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_when_click_on_open_req_button');
-            throw new Error(`Error when Open Request button has been clicked screenshot: ${screenshot}` + err);
+            await this.handleError(`Tried to click on 'Open Request button'`, 'err_open_request_button', err);
         }
     }
 
@@ -810,8 +794,7 @@ class ContentWizardPanel extends Page {
                 return await this.isElementDisplayed(selector);
             }, appConst.mediumTimeout, message);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_content_status');
-            throw new Error(`Error when waiting for content status, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Waited for the content status: ${expectedStatus}`, 'err_content_status', err);
         }
     }
 
@@ -819,13 +802,12 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
-            await this.pause(2000);
+            await this.pause(1000);
             let selector = XPATH.publishMenuItemByName(menuItem);
             let result = await this.findElements(selector);
             return result.length > 0;
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_publish_menuItem');
-            throw new Error(`Error when open the publish menu, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Tried to check if publish menu item is present: ${menuItem}`, 'err_publish_menu_item', err);
         }
     }
 
@@ -839,8 +821,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_publish_menuItem');
-            throw new Error(`Error during clicking on publish menu item,${screenshot} ` + err);
+            await this.handleError(`Tried to open Publish menu and select item: ${menuItem}`, 'err_click_publish_menu_item', err);
         }
     }
 
@@ -872,10 +853,9 @@ class ContentWizardPanel extends Page {
             let selector = XPATH.container + XPATH.publishMenuButton + XPATH.markAsReadyButton;
             await this.waitForMarkAsReadyButtonVisible();
             await this.clickOnElement(selector);
-            return await this.pause(1000);
+            return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_mark_as_ready_btn');
-            throw new Error(`Error during clicking on 'Mark As Ready' Button, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Tried to click on 'Mark As Ready' button`, 'err_mark_as_ready_button', err);
         }
     }
 
@@ -908,8 +888,7 @@ class ContentWizardPanel extends Page {
             let selector = XPATH.container + XPATH.publishMenuButton + XPATH.createIssueButton;
             return await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_publish_menu_default_action');
-            throw new Error(`'Create Issue...' button should be default action in 'Publish Menu', screenshot:${screenshot}  ` + err);
+            await this.handleError(`'Create Issue...' button should be displayed as default action`, 'err_publish_menu_def_action', err);
         }
     }
 
@@ -971,8 +950,7 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.duplicateButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_duplicate_button_disabled');
-            throw Error(`Duplicate button should be disabled, screenshot: ${screenshot} ` + err);
+            await this.handleError(`'Duplicate' button should be disabled in the Content Wizard`, 'err_duplicate_button_disabled', err);
         }
     }
 
@@ -992,8 +970,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.previewButton);
             return await this.pause(2000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_button');
-            throw new Error(`Error when clicking on Preview button, screenshot:${screenshot} ` + err);
+            await this.handleError(`Tried to click on Preview button`, 'err_preview_button', err);
         }
     }
 
@@ -1001,12 +978,12 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(this.previewButton, appConst.mediumTimeout);
     }
 
+    // previewItemToolbar
     async waitForPreviewButtonEnabled() {
         try {
             return await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_button');
-            throw new Error(`Preview button should be enabled, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Preview button should be enabled in the Wizard previewItemToolbar`, 'err_preview_button_enabled', err);
         }
     }
 
@@ -1048,8 +1025,7 @@ class ContentWizardPanel extends Page {
                 return text.includes('tooltip_ON');
             }, {timeout: appConst.mediumTimeout, timeoutMsg: `'Click to rename the content' tooltip should be displayed`});
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_path_input_tooltip');
-            throw new Error(`Path input, tooltip should be displayed, screenshot:${screenshot} ` + err);
+            await this.handleError(`Verify tooltip in the Content Wizard`, 'err_path_input_tooltip', err);
         }
     }
 
@@ -1076,8 +1052,7 @@ class ContentWizardPanel extends Page {
         try {
             return this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_reset_button');
-            throw new Error(`Reset button is not displayed in the content wizard, screenshot: ${screenshot} ` + err);
+            await this.handleError(`'Reset' button should be displayed in the Content Wizard`, 'err_reset_button_not_displayed', err);
         }
     }
 
@@ -1155,11 +1130,6 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async waitForErrorMessageInLiveFormPanel(message) {
-        let locator = `//div[contains(@id,'PagePlaceholderInfoBlock')]//div[contains(@class,'page-placeholder-info-line1') and contains(.,'${message}')]`;
-        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-    }
-
     waitForShowChangesButtonDisplayed() {
         return this.waitForElementDisplayed(this.showChangesToolbarButton, appConst.mediumTimeout);
     }
@@ -1184,7 +1154,6 @@ class ContentWizardPanel extends Page {
         await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
     }
 
-
     async waitForPublishMenuDropdownRoleAttribute(expectedRole) {
         let locator = XPATH.toolbarPublish + lib.BUTTONS.DROP_DOWN_HANDLE;
         await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
@@ -1203,8 +1172,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(optionSelector);
             await this.pause(200);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_widget');
-            throw new Error(`Content Wizard, Error occurred during selecting option in Preview Widget, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Err occurred during selecting the option in Preview Widget: ${optionName}`, 'err_preview_widget', err);
         }
     }
 
@@ -1220,8 +1188,7 @@ class ContentWizardPanel extends Page {
             await this.waitForPreviewButtonDisplayed();
             await this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_disabled');
-            throw new Error(`Content Wizard - Preview button should be displayed and disabled, screenshot  : ${screenshot} ` + err);
+            await this.handleError(`Preview button should be displayed and disabled in the Wizard`, 'err_preview_btn_disabled', err);
         }
     }
 
@@ -1248,7 +1215,6 @@ class ContentWizardPanel extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
-
 }
 
 module.exports = ContentWizardPanel;

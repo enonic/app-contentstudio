@@ -23,8 +23,7 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
             await utils.insertTextInCKE(id, text);
             return await this.pause(700);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_text_component_inspect_panel');
-            throw new Error(`Error occurred during inserting the text screenshot : ${screenshot}` + err);
+            await this.handleError('Inspect Panel with text area: ', 'err_text_component_inspect_panel', err);
         }
     }
 
@@ -38,7 +37,6 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
         let id = await this.getIdOfTextEditor();
         return await utils.getTextInCKE(id);
     }
-
 }
 
 module.exports = TextComponentInspectionPanel;

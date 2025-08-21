@@ -62,7 +62,7 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             let pageComponentView = new PageComponentView();
             // 1. Open existing site and insert new text component with the text:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3.Click on the text component in PCV:
             await pageComponentView.clickOnComponent(TEXT_COMPONENT_TEXT);
@@ -71,6 +71,33 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             assert.ok(actualText.includes(TEXT_COMPONENT_TEXT), 'expected text should be present in the text component in Inspect tab');
             // 5. Verify that Apply button is disabled in Inspect Panel:
             await textComponentInspectionPanel.waitForApplyButtonDisabled();
+        });
+
+    // Verify - Content won't get saved when pressing CTRL-S in the Text Inspection panel #8781
+    // https://github.com/enonic/app-contentstudio/issues/8781
+    it(`GIVEN a text has been inserted in htmlArea in Inspect Panel WHEN CTRL(command)+S has been pressed THEN this text appears in LiveView`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
+            let pageComponentView = new PageComponentView();
+            let liveFormPanel = new LiveFormPanel();
+            // 1. Open existing site and insert new text component with the text:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert new text component:
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            // 4. Insert a text in htmlArea in Inspect Panel:
+            await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_TEXT);
+            // 6. Press CTRL(Command) + S :
+            await contentWizard.hotKeySave();
+            await studioUtils.saveScreenshot('issue_save_text_inspect_panel');
+            await contentWizard.waitForNotificationMessage();
+            // 7. Verify that the text appears in LiveView:
+            await contentWizard.switchToLiveEditFrame();
+            let actualResult = await liveFormPanel.getTextFromTextComponents();
+            assert.ok(actualResult.includes(TEXT_COMPONENT_TEXT), 'expected text should be present in the text component in LiveView');
         });
 
 

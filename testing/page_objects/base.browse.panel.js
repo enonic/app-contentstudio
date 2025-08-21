@@ -42,18 +42,15 @@ class BaseBrowsePanel extends Page {
     }
 
     async hotKeyDelete() {
-        const isMacOS = (await this.getBrowserStatus()).os.name.includes('Mac');
+        const isMacOS = await this.isMacOS();
         const keyCombination = isMacOS ? [Key.Command, Key.Delete] : [Key.Ctrl, Key.Delete];
         return await this.getBrowser().keys(keyCombination);
     }
 
     async hotKeyEdit() {
-        let status = await this.getBrowserStatus();
-        if (status.os.name.includes('Mac')) {
-            return await this.getBrowser().keys([Key.Command, 'e']);
-        } else {
-            return await this.getBrowser().keys([Key.Ctrl, 'e']);
-        }
+        const isMacOS = await this.isMacOS();
+        const keyCombination = isMacOS ? [Key.Command, 'e'] : [Key.Ctrl, 'e'];
+        return await this.getBrowser().keys(keyCombination);
     }
 
     async clickOnSelectionControllerCheckbox() {
@@ -61,8 +58,7 @@ class BaseBrowsePanel extends Page {
             await this.clickOnElement(this.selectionControllerCheckBox);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_selection_controller');
-            throw new Error('error when click on selection_controller, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError('Browse Panel, click on Selection Controller checkbox. ', 'err_click_on_selection_controller', err);
         }
     }
 
@@ -119,8 +115,7 @@ class BaseBrowsePanel extends Page {
         try {
             return await this.getTextInElements(this.displayNames)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_get_display_name_grid');
-            throw new Error(`Error occurred when getting display names in grid, screenshot:${screenshot} ` + err);
+            await this.handleError('Browse Panel, get display names in grid: ', 'err_get_display_name_grid', err);
         }
     }
 
@@ -128,23 +123,14 @@ class BaseBrowsePanel extends Page {
         try {
             return await this.waitForElementDisabled(this.newButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_new_disabled_button');
-            throw Error(`New... button should be disabled, screenshot:${screenshot} ` + err);
+            await this.handleError('Browse Panel, New button should be disabled. ', 'err_new_button_disabled', err);
         }
-    }
-
-    //Wait for `New` button is visible
-    waitForNewButtonVisible() {
-        return this.waitForElementDisplayed(this.newButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_new_project_button');
-            throw new Error("New button is not visible! " + err);
-        })
     }
 
     async waitForNewButtonEnabled() {
         try {
             await this.waitForElementEnabled(this.newButton, appConst.mediumTimeout);
-            await this.pause(400);
+            await this.pause(200);
         } catch (err) {
             await this.handleError('Browse Panel, New button should be enabled. ', 'err_new_button_enabled', err);
         }
@@ -164,8 +150,7 @@ class BaseBrowsePanel extends Page {
             await this.waitForElementEnabled(this.editButton, appConst.longTimeout);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_edit_button');
-            throw Error(`Edit button is not enabled, screenshot: ${screenshot} ` + err);
+            await this.handleError('Browse Panel, Edit button should be enabled. ', 'err_edit_button_enabled', err);
         }
     }
 
@@ -185,8 +170,7 @@ class BaseBrowsePanel extends Page {
             await this.clickOnElement(this.editButton);
             return await this.pause(1500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_browse_panel_edit_button');
-            throw new Error(`Browse Panel: Edit button is not enabled! screenshot:${screenshot}  ` + err);
+            await this.handleError('Browse Panel toolbar, click on Edit button: ', 'err_browse_panel_edit_button', err);
         }
     }
 
@@ -197,8 +181,7 @@ class BaseBrowsePanel extends Page {
             await this.clickOnElement(nameXpath);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_find_content');
-            throw Error('Row with the content was not found, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError('Browse Panel, click on row by name: ', 'err_click_on_row_by_name', err);
         }
     }
 
@@ -240,7 +223,6 @@ class BaseBrowsePanel extends Page {
         await this.clickOnElement(checkboxElement);
         return await this.pause(200);
     }
-
 
     async waitForContextMenuDisplayed() {
         await this.getBrowser().waitUntil(async () => {
@@ -296,8 +278,7 @@ class BaseBrowsePanel extends Page {
             await this.doDoubleClick(nameXpath);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_find_');
-            throw Error('Browse Panel - Row with the displayName was not found, screenshot: ' + screenshot + ' ' + err)
+            await this.handleError('Browse Panel, double click on row by displayName: ', 'err_double_click_on_row', err)
         }
     }
 
