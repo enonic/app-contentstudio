@@ -11,6 +11,9 @@ importers:
       '@enonic/lib-admin-ui':
         specifier: workspace:*
         version: link:.xp/dev/lib-admin-ui
+      '@enonic/ui':
+        specifier: ^0.4.2
+        version: 0.4.2(preact@10.27.1)(react@19.1.1)
       d3:
         specifier: ^7.9.0
         version: 7.9.0
@@ -44,12 +47,12 @@ importers:
       lucide-react:
         specifier: ^0.533.0
         version: 0.533.0(react@19.1.1)
+      nanoid:
+        specifier: ~5.1.5
+        version: 5.1.5
       nanostores:
         specifier: ^0.11.4
         version: 0.11.4
-      preact:
-        specifier: ^10.26.9
-        version: 10.27.1
       q:
         specifier: ^1.5.1
         version: 1.5.1
@@ -59,7 +62,7 @@ importers:
     devDependencies:
       '@enonic/eslint-config':
         specifier: ^2.0.1
-        version: 2.1.0(@typescript-eslint/parser@8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(typescript-eslint@8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(typescript@5.9.2)
+        version: 2.1.0(@typescript-eslint/parser@8.40.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(typescript-eslint@8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(typescript@5.9.2)
       '@swc/cli':
         specifier: ^0.7.8
         version: 0.7.8(@swc/core@1.13.3)
@@ -111,6 +114,9 @@ importers:
       postcss-loader:
         specifier: ^8.1.1
         version: 8.1.1(postcss@8.5.6)(typescript@5.9.2)(webpack@5.101.0)
+      preact:
+        specifier: ^10.27.1
+        version: 10.27.1
       swc-loader:
         specifier: ^0.2.6
         version: 0.2.6(@swc/core@1.13.3)(webpack@5.101.0)
@@ -262,6 +268,27 @@ packages:
 
   '@enonic/ui@0.4.1':
     resolution: {integrity: sha512-FMfPXkucBBrsZCuA7EQ9iXplSdr26sIzMvS6Rpj+UZ4JxlKhmnmU3hLsVmg44vmNpxR26M9hS0WCYQ/M+Jtq/Q==}
+    engines: {node: '>=22.17.1', npm: '>=9.15.9', pnpm: '>= 10.11.0'}
+    peerDependencies:
+      '@preact/compat': '>=17.0.0 || >=18.0.0'
+      lucide-preact: '*'
+      preact: '>=10.0.0'
+      react: '>=18.0.0 || >=19.0.0'
+      react-dom: '>=18.0.0 || >=19.0.0'
+    peerDependenciesMeta:
+      '@preact/compat':
+        optional: true
+      lucide-preact:
+        optional: true
+      preact:
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
+  '@enonic/ui@0.4.2':
+    resolution: {integrity: sha512-6JyZBNSO0PKlCqFqV9EflW6FcwW6hu6lnk14281PbZnoqENfqPbc7NqGMOqLbBPofJ7jGuMIpo2hlHav+3qMVg==}
     engines: {node: '>=22.17.1', npm: '>=9.15.9', pnpm: '>= 10.11.0'}
     peerDependencies:
       '@preact/compat': '>=17.0.0 || >=18.0.0'
@@ -2543,6 +2570,7 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   quadprog@1.6.1:
@@ -2967,9 +2995,9 @@ snapshots:
 
   '@dmsnell/diff-match-patch@1.1.0': {}
 
-  '@enonic/eslint-config@2.1.0(@typescript-eslint/parser@8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(typescript-eslint@8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(typescript@5.9.2)':
+  '@enonic/eslint-config@2.1.0(@typescript-eslint/parser@8.40.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(typescript-eslint@8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(typescript@5.9.2)':
     dependencies:
-      '@typescript-eslint/parser': 8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2)
+      '@typescript-eslint/parser': 8.40.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2)
       typescript: 5.9.2
       typescript-eslint: 8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2)
 
@@ -2980,6 +3008,18 @@ snapshots:
       typescript-eslint: 8.40.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2)
 
   '@enonic/ui@0.4.1(preact@10.27.1)(react@19.1.1)':
+    dependencies:
+      '@radix-ui/react-slot': 1.2.3(react@19.1.1)
+      class-variance-authority: 0.7.1
+      clsx: 2.1.1
+      tailwind-merge: 3.3.1
+    optionalDependencies:
+      preact: 10.27.1
+      react: 19.1.1
+    transitivePeerDependencies:
+      - '@types/react'
+
+  '@enonic/ui@0.4.2(preact@10.27.1)(react@19.1.1)':
     dependencies:
       '@radix-ui/react-slot': 1.2.3(react@19.1.1)
       class-variance-authority: 0.7.1
