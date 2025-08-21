@@ -90,8 +90,7 @@ class ImageEditor extends Page {
             await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(700);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_flip_button');
-            throw new Error('Image Editor, button flip, screenshot:  ' + screenshot + ' ' + err);
+            await this.handleError('Image Editor, button flip', 'err_click_on_flip_button', err);
         }
     }
 
@@ -104,8 +103,7 @@ class ImageEditor extends Page {
             await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(700);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_rotate_button');
-            throw new Error('Image Editor, button rotate, screenshot:  ' + screenshot + ' ' + err);
+            await this.handleError('Image Editor, button rotate', 'err_click_on_rotate_button', err);
         }
     }
 
@@ -116,8 +114,7 @@ class ImageEditor extends Page {
             await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_reset_button');
-            throw new Error('Image Editor, button reset, screenshot:  ' + screenshot + ' ' + err);
+            await this.handleError('Image Editor, button reset filters', 'err_click_on_reset_filters_button', err);
         }
     }
 
@@ -129,7 +126,7 @@ class ImageEditor extends Page {
         try {
             await this.waitForElementDisplayed(this.buttonResetFilters, appConst.shortTimeout);
         } catch (err) {
-            throw new Error("Button 'Reset filters' is not displayed in 2 seconds " + err);
+            await this.handleError('Image Editor, button reset filters', 'err_wait_for_reset_filters_displayed', err);
         }
     }
 
@@ -137,7 +134,7 @@ class ImageEditor extends Page {
         try {
             await this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.shortTimeout);
         } catch (err) {
-            throw new Error("Button 'Reset filters' is still displayed in 2 seconds " + err);
+            await this.handleError('Image Editor, button reset filters not displayed', 'err_wait_for_reset_filters_not_displayed', err);
         }
     }
 
@@ -180,8 +177,7 @@ class ImageEditor extends Page {
             let locator = this.focusCircle + "//*[@class='stroke-circle']";
             return await this.waitUntilElementNotVisible(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_focus_circle_displayed');
-            throw new Error(`Focus circle should not be displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError('Image Editor, focus circle not displayed', 'err_focus_circle_displayed', err);
         }
     }
 
@@ -189,8 +185,7 @@ class ImageEditor extends Page {
         try {
             return await this.waitForElementDisplayed(this.buttonApply, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_apply_button_displayed');
-            throw new Error(`Apply button is not displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError('Image Editor, apply button displayed', 'err_apply_button_displayed', err);
         }
     }
 
@@ -239,13 +234,17 @@ class ImageEditor extends Page {
     }
 
     async doCropImage(offset) {
-        let el = await this.findElement(this.cropHandle);
-        let yValue = await el.getAttribute('cy');
-        let xValue = await el.getAttribute('cx');
-        let y1 = parseInt(yValue) + offset;
-        let x1 = parseInt(xValue);
-        await el.dragAndDrop({x: x1, y: y1});
-        return await this.pause(500);
+        try {
+            let el = await this.findElement(this.cropHandle);
+            let yValue = await el.getAttribute('cy');
+            let xValue = await el.getAttribute('cx');
+            let y1 = parseInt(yValue) + offset;
+            let x1 = parseInt(xValue);
+            await el.dragAndDrop({x: x1, y: y1});
+            return await this.pause(500);
+        }catch(err){
+            await this.handleError('Image Editor, do crop image', 'err_do_crop_image', err);
+        }
     }
 
     async doDragFocus(cx, cy) {

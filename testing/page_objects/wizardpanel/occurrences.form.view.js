@@ -73,7 +73,7 @@ class OccurrencesFormView extends Page {
         await this.getBrowser().waitUntil(async () => {
             let elements = await this.getDisplayedElements(this.formValidationRecording);
             return elements.length > 0;
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Form Validation recording should be displayed"});
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Form Validation recording should be displayed'});
     }
 
     async getFormValidationRecording() {
@@ -86,19 +86,18 @@ class OccurrencesFormView extends Page {
         await this.getBrowser().waitUntil(async () => {
             let elements = await this.getDisplayedElements(this.formValidationRecording);
             return elements.length === 0;
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Form Validation recording should not be displayed"});
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Form Validation recording should not be displayed'});
     }
 
     async getOccurrenceValidationRecording(index) {
         try {
             let elements = await this.findElements(this.inputOccurrenceErrorRecording);
             if (elements.length === 0) {
-                throw new Error("occurrences form - Element was not found:" + this.inputOccurrenceErrorRecording);
+                throw new Error('occurrences form - Element was not found:' + this.inputOccurrenceErrorRecording);
             }
             return await elements[index].getText();
         } catch (err) {
-            await this.saveScreenshot('err_long_validation_recording');
-            throw new Error('getting Validation text: ' + err);
+            await this.handleError('Occurrence Validation record', 'err_occurrence_valid_recording', err);
         }
     }
 
@@ -128,7 +127,7 @@ class OccurrencesFormView extends Page {
         let inputs = await this.getDisplayedElements(inputLocator);
         await this.getBrowser().waitUntil(async () => {
             let result = await inputs[index].getAttribute('class');
-            return result.includes("invalid");
+            return result.includes('invalid');
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Attribute class  does not contain the value:invalid"});
     }
 
@@ -136,7 +135,7 @@ class OccurrencesFormView extends Page {
         let inputs = await this.getDisplayedElements(inputLocator);
         await this.getBrowser().waitUntil(async () => {
             let result = await inputs[index].getAttribute('class');
-            return !result.includes("invalid");
+            return !result.includes('invalid');
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Attribute class still contain the value:invalid"});
     }
 }

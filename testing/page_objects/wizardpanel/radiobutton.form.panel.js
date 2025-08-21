@@ -13,9 +13,13 @@ const XPATH = {
 class RadioButtonForm extends Page {
 
     async clickOnRadio(label) {
-        let locator = XPATH.radioByName(label);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.clickOnElement(locator);
+        try {
+            let locator = XPATH.radioByName(label);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.clickOnElement(locator);
+        }catch(err){
+            await this.handleError(`Radio button with label "${label}" is not found.`,'err_click_on_radio', err);
+        }
     }
 
     async isRadioSelected(label) {

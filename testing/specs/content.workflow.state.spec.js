@@ -9,6 +9,7 @@ const contentBuilder = require("../libs/content.builder");
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
 const appConst = require('../libs/app_const');
+const ContentPublishDialog = require('../page_objects/content.publish.dialog');
 
 describe('content.workflow.state.spec: creates a folder and changes and checks the workflow state of this content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -33,7 +34,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             let wizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             let state = await wizard.getContentWorkflowState();
-            assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "'Work in progress' icon should be displayed");
+            assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, `'Work in progress' icon should be displayed`);
         });
 
     it(`GIVEN new folder has been opened WHEN the folder has been marked as ready THEN 'Ready for publishing' state should be displayed in the wizard`,
@@ -44,7 +45,10 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             // 2. Click on 'MARK AS READY' default action:
             await wizard.clickOnMarkAsReadyButton();
             let message = await wizard.waitForNotificationMessage();
-            await studioUtils.saveScreenshot("marked_as_ready_workflow_state");
+            let contentPublishDialog = new ContentPublishDialog();
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCancelTopButton();
+            await studioUtils.saveScreenshot('marked_as_ready_workflow_state');
             assert.equal(message, appConst.markedAsReadyMessage(TEST_FOLDER.displayName),
                 "Message: 'Item is marked as ready' should appear");
             let state = await wizard.getContentWorkflowState();
@@ -58,7 +62,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             let state = await contentBrowsePanel.getWorkflowStateByDisplayName(TEST_FOLDER.displayName);
             assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
-                "'Ready for publishing' icon should be displayed in browse panel");
+                `'Ready for publishing' icon should be displayed in browse panel`);
         });
 
     it(`GIVEN ready for publishing folder is selected WHEN previous version has been restored THEN 'Work in progress' state gets visible in wizard`,
@@ -75,7 +79,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             // State in wizard gets 'Work in Progress':
             let state = await wizard.getContentWorkflowState();
             assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
-                "'Work in progress' -state should appear after reverting the previous version");
+                `'Work in progress' -state should appear after reverting the previous version`);
         });
     // Verifies: Incorrect notification message after reverting a version that is identical to the current version #1656
     it(`GIVEN existing folder is opened WHEN identical to the current version has been reverted THEN 'No changes to revert.' message should appear`,

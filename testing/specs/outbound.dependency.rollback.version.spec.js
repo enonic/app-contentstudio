@@ -20,8 +20,8 @@ describe('Check Outbound dependencies after rollback a version of content with i
     }
     const CONTENT_NAME = contentBuilder.generateRandomName('content');
 
-    const IMAGE_DISPLAY_NAME1 = "Pop_03";
-    const IMAGE_DISPLAY_NAME2 = "Pop_02";
+    const IMAGE_DISPLAY_NAME1 = 'Pop_03';
+    const IMAGE_DISPLAY_NAME2 = 'Pop_02';
     let SITE;
 
     it(`Precondition: new site should be added`,
@@ -40,13 +40,13 @@ describe('Check Outbound dependencies after rollback a version of content with i
             let imageSelectorForm = new ImageSelectorForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
             await contentWizard.typeDisplayName(CONTENT_NAME);
-            //select the first image
+            // 1. select the first image
             await imageSelectorForm.filterOptionsSelectImageAndClickOnApply(IMAGE_DISPLAY_NAME1);
-            // first version is saved(one image is selected)
+            // 2. Press on Save, the first version is saved(one image is selected)
             await contentWizard.waitAndClickOnSave();
-            //select the second image
+            // 3. select the second image
             await imageSelectorForm.filterOptionsSelectImageAndClickOnApply(IMAGE_DISPLAY_NAME2);
-            // the second version is saved(2 images are selected)
+            // 4. the second version is saved(2 images are selected)
             await contentWizard.waitAndClickOnSave();
         });
 
@@ -66,7 +66,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
             // Verify that one image should be present in the grid:
             let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
             await studioUtils.saveScreenshot('issue_outbound_should_be_updated');
-            assert.equal(displayNames.length, 1, "One image should be present in browse grid, after rollback the required version");
+            assert.equal(displayNames.length, 1, 'One image should be present in browse grid, after rollback the required version');
         });
 
     it("GIVEN existing image content(2:4) is opened(single image is selected) WHEN the version with 2 selected images has been reverted THEN the content gets valid",
@@ -87,9 +87,9 @@ describe('Check Outbound dependencies after rollback a version of content with i
             await contentWizard.waitForSpinnerNotVisible();
             // 4. Verify that 2 selected images are present in the selector:
             let result = await imageSelectorForm.getSelectedImages();
-            assert.equal(result.length, 2, "two images should be present in the selected options");
+            assert.equal(result.length, 2, 'two images should be present in the selected options');
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid === false, "The content should be valid after the reverting");
+            assert.ok(isInvalid === false, 'The content should be valid after the reverting');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
