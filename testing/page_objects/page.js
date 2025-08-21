@@ -32,6 +32,10 @@ class Page {
         return this.browser.keys([Key.Ctrl, 'c']);
     }
 
+    pressEndKey() {
+        return this.browser.keys([Key.End]);
+    }
+
     pressCtrl_V() {
         return this.browser.keys([Key.Ctrl, 'v']);
     }

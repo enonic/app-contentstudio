@@ -140,4 +140,8 @@ export class HTMLAreaHelper {
         return /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|content|media|image):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
     }
 
+    public static isNbsp(value: string): boolean {
+        return value === '\xA0';
+    }
+
 }

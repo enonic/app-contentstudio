@@ -53,8 +53,7 @@ class ShortcutForm extends Page {
         try {
             await this.waitForElementDisplayed(this.addNewContentButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
-            throw new Error('Add new button is not displayed, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError('Add new button should be displayed', 'err_add_new_btn', err);
         }
     }
 
@@ -62,8 +61,7 @@ class ShortcutForm extends Page {
         try {
             await this.waitForElementNotDisplayed(this.addNewContentButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
-            throw new Error('Add new button should not be displayed, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError('Add new button should not be displayed', 'err_add_new_btn', err);
         }
     }
 
@@ -94,37 +92,39 @@ class ShortcutForm extends Page {
         return this.typeTextInInput(xpath.parameterValueInput, text);
     }
 
-    getParameterName() {
-        return this.getTextInInput(xpath.parameterNameInput).catch(err => {
-            this.saveScreenshot("err_shortcut_get_parameter_name");
-            throw new Error("shortcut - getting the parameter's name " + err);
-        });
+    async getParameterName() {
+        try {
+            return await this.getTextInInput(xpath.parameterNameInput)
+        } catch (err) {
+            await this.handleError('Getting parameter name', 'err_shortcut_get_parameter_name', err);
+        }
     }
 
-    getParameterValue() {
-        return this.getTextInInput(xpath.parameterValueInput).catch(err => {
-            this.saveScreenshot("err_shortcut_get_parameter_value");
-            throw new Error("shortcut - getting the parameter's value " + err);
-        });
+    async getParameterValue() {
+        try {
+            return await this.getTextInInput(xpath.parameterValueInput)
+        } catch (err) {
+            await this.handleError('Getting parameter value', 'err_shortcut_get_parameter_value', err);
+        }
     }
 
     waitForAddParametersButtonDisplayed() {
         return this.waitForElementDisplayed(this.addParametersButton, appConst.mediumTimeout);
     }
 
-    waitForCollapseBottomLinkVisible() {
-        return this.waitForElementDisplayed(xpath.stepForm + lib.BUTTONS.COLLAPSE_BUTTON_BOTTOM, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot("err_shortcut_collapse_link");
-            throw new Error("shortcut - collapse link is not visible " + err);
-        })
+    async waitForCollapseBottomLinkVisible() {
+        try {
+            return await this.waitForElementDisplayed(xpath.stepForm + lib.BUTTONS.COLLAPSE_BUTTON_BOTTOM, appConst.shortTimeout)
+        } catch (err) {
+            await this.handleError('Collapse link should be visible', 'err_shortcut_collapse_link', err);
+        }
     }
 
     async waitForCollapseTopLinkVisible() {
         try {
             return await this.waitForElementDisplayed(xpath.stepForm + lib.BUTTONS.COLLAPSE_BUTTON_TOP, appConst.shortTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_shortcut_collapse_link');
-            throw new Error(`shortcut - collapse link is not visible, screenshot: ${screenshot} ` + err);
+            await this.handleError('Collapse link should be visible', 'err_shortcut_collapse_link', err);
         }
     }
 
@@ -132,8 +132,7 @@ class ShortcutForm extends Page {
         try {
             return await this.waitForElementDisplayed(xpath.stepForm + xpath.expandButton, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_shortcut_expand_link');
-            throw new Error(`shortcut - Expand link is not visible, screenshot: ${screenshot} ` + err);
+            await this.handleError('Expand link should be visible', 'err_shortcut_expand_link', err);
         }
     }
 
@@ -187,8 +186,7 @@ class ShortcutForm extends Page {
             await this.waitForAddParametersButtonDisplayed();
             return await this.clickOnElement(this.addParametersButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName("err_short");
-            throw new Error(`Error occurred after clicking on Add Parameter button, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Clicked on 'Add Parameter' button.`, 'err_click_on_add_parameters_button', err);
         }
     }
 
