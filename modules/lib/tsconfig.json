@@ -7,6 +7,7 @@
             "ES2023",
             "DOM"
         ],
+        "baseUrl": ".",
         "outDir": "build/resources/main/dev/lib-contentstudio/",
         "declaration": true,
         "declarationDir": "build/resources/main/dev/lib-contentstudio/",
@@ -25,7 +26,11 @@
             "hasher",
             "jquery",
             "jqueryui"
-        ]
+        ],
+        "paths": {
+            "react": ["node_modules/preact/compat"],
+            "react-dom": ["node_modules/preact/compat"]
+        }
     },
     "include": [
         "./src/main/resources/assets/js/types.d.ts",

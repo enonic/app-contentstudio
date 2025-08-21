@@ -86,7 +86,7 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
         this.initListeners();
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): StatusCheckableItem {
+    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): Element {
         const viewer = this.config.createViewer?.() ?? new ContentSummaryAndCompareStatusViewer();
         viewer.setObject(item);
         viewer.onClicked((event) => {

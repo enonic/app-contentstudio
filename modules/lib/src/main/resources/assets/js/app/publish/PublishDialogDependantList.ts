@@ -1,13 +1,10 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {CompareStatusChecker} from '../content/CompareStatus';
 import {ContentId} from '../content/ContentId';
 import {ContentIds} from '../content/ContentIds';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {DependantItemViewer} from '../dialog/DependantItemViewer';
 import {DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
-import {StatusCheckableItem} from '../dialog/StatusCheckableItem';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {CheckableListItemWithStatus} from '../ui2/list/CheckableListItemWithStatus';
 
 export class PublishDialogDependantList
     extends DialogDependantItemsList {
@@ -24,19 +21,6 @@ export class PublishDialogDependantList
         super({
             className: 'publish-dialog-dependant-list',
             observer,
-            createViewer: () => new DependantItemViewer(),
-            createItem: (viewer, item) => {
-                return new StatusCheckableItem({
-                    viewer,
-                    item,
-                    checkbox: {
-                        nonSelectableTooltip: i18n('dialog.publish.itemRequired'),
-                        checked: () => this.mustSelectItem(item),
-                        enabled: () => this.isItemExcludable(item),
-                    },
-                    hidden: () => this.isItemHidden(item),
-                });
-            },
 
         });
 
@@ -67,6 +51,18 @@ export class PublishDialogDependantList
 
     refresh(): void {
         //
+    }
+
+    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): CheckableListItemWithStatus {
+        return new CheckableListItemWithStatus({
+            item,
+            checkbox: {
+                readOnly,
+                checked: () => this.mustSelectItem(item),
+                enabled: () => this.isItemExcludable(item),
+            },
+            hidden: () => this.isItemHidden(item),
+        });
     }
 
     protected initListeners(): void {

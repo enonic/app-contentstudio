@@ -1,33 +1,30 @@
-import * as React from 'react';
 import * as UI from '@enonic/ui';
-import type { ComponentProps } from 'react';
+import type {ComponentProps} from 'react';
 
 // Legacy host (renders React inside lib-admin-ui’s DOM system)
-import { LegacyElement } from '@enonic/lib-admin-ui/ui2/LegacyElement';
-import { SelectableListItem } from '@enonic/ui/dist/types/components/selectable-list-item';
+import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
+import {SelectableListItem} from '@enonic/ui';
 
 ///Users/msk/Documents/EnonicReps/npm-enonic-ui/src/components/selectable-list-item/selectable-list-item.tsx
 // ⚠️ Import the React row from @enonic/ui (adjust path if your package exposes a subpath)
 
-
 export type CheckboxControllerProps = Pick<UI.CheckboxProps, 'checked' | 'label' | 'align'>
     & Partial<Pick<UI.CheckboxProps, 'onCheckedChange' | 'name'>>;
 
-import {unwrap} from '@enonic/ui';
 //
 // Very small “item-like” surface so we can derive texts & status from ContentSummaryAndCompareStatus,
 // but also let callers pass static strings if needed.
 //
-type ItemLike = {
+interface ItemLike {
     getDisplayName?: () => string;
     getName?: () => string;
     getOwnerName?: () => string;
     getSizeString?: () => string;
     getStatusText?: () => string;
     getStatusClass?: () => string;
-};
+}
 
-export type CheckableListItemWithStatusConfig = {
+export interface CheckableListItemWithStatusConfig {
     item?: ItemLike;
 
     // Optional explicit content props (overrides values derived from item)
@@ -41,6 +38,7 @@ export type CheckableListItemWithStatusConfig = {
 
     // Selection & enablement
     checkbox?: {
+        readOnly?: boolean;
         checked?: boolean | (() => boolean);
         enabled?: boolean | (() => boolean);
     };
@@ -52,7 +50,7 @@ export type CheckableListItemWithStatusConfig = {
 
     // Selection callback (parity with older APIs)
     onSelected?: (selected: boolean) => void;
-};
+}
 
 // Props we pass to @enonic/ui SelectableListItem
 type RowProps = ComponentProps<typeof SelectableListItem>;
@@ -71,7 +69,7 @@ const CLS = {
  * - Puts a tiny status text on the Right slot for now (replace with StatusBadge later).
  */
 export class CheckableListItemWithStatus extends LegacyElement<typeof SelectableListItem, RowProps> {
-    private listeners: Array<(selected: boolean) => void> = [];
+    private listeners: ((selected: boolean) => void)[] = [];
     private cfg: CheckableListItemWithStatusConfig;
     private selected = false;
     private enabled = true;
@@ -79,7 +77,7 @@ export class CheckableListItemWithStatus extends LegacyElement<typeof Selectable
     constructor(cfg: CheckableListItemWithStatusConfig) {
         super(
             {
-                className: join('checkable-list-item-with-status', cfg.className),
+                className: UI.cn('checkable-list-item-with-status', cfg.className),
                 selected: false,
 
                 // Content (derive from item unless explicitly provided)
@@ -89,12 +87,12 @@ export class CheckableListItemWithStatus extends LegacyElement<typeof Selectable
 
                 // Checkbox (controlled)
                 checked: evalBool(cfg.checkbox?.checked, false),
-                readOnly: !evalEnabled(cfg),
+                readOnly: evalBool(cfg.checkbox?.readOnly, !evalEnabled(cfg)),
 
                 onCheckedChange: (next) => this.onCheckedChange(next),
 
                 // Right slot (temporary text; replace with StatusBadge later)
-                children: buildRightStatus(cfg),
+                children: resolveStatusText(cfg),
             },
             SelectableListItem
         );
@@ -123,7 +121,7 @@ export class CheckableListItemWithStatus extends LegacyElement<typeof Selectable
         if (force || this.isSelectable()) {
             this.selected = !!selected;
             this.toggleClass(CLS.SELECTED, this.selected);
-            this.setProps({ selected: this.selected, checked: this.selected });
+            this.setProps({selected: this.selected, checked: this.selected});
 
             if (!silent) {
                 this.cfg.onSelected?.(this.selected);
@@ -157,17 +155,17 @@ export class CheckableListItemWithStatus extends LegacyElement<typeof Selectable
         this.toggleClass(CLS.HIDDEN, isHidden);
         this.toggleClass(CLS.READONLY, !enabled);
 
-        this.setProps({ readOnly: !enabled });
+        this.setProps({readOnly: !enabled});
     }
 
     /** Update texts/status from a new "item" (like ContentSummaryAndCompareStatus) */
     setObject(item: ItemLike): void {
-        this.cfg = { ...this.cfg, item };
+        this.cfg = {...this.cfg, item};
         this.setProps({
             label: resolveLabel(this.cfg),
             description: resolveDescription(this.cfg),
             metadata: resolveMetadata(this.cfg),
-            children: buildRightStatus(this.cfg),
+            children: resolveStatusText(this.cfg),
         });
     }
 
@@ -178,7 +176,7 @@ export class CheckableListItemWithStatus extends LegacyElement<typeof Selectable
         this.selected = nextSel;
 
         this.toggleClass(CLS.SELECTED, nextSel);
-        this.setProps({ selected: nextSel, checked: nextSel });
+        this.setProps({selected: nextSel, checked: nextSel});
 
         this.cfg.onSelected?.(nextSel);
         this.listeners.forEach((fn) => fn(nextSel));
@@ -207,14 +205,6 @@ function resolveDescription(cfg: CheckableListItemWithStatusConfig): string | un
 function resolveMetadata(cfg: CheckableListItemWithStatusConfig): string | undefined {
     return cfg.metadata ?? cfg.item?.getSizeString?.() ?? undefined;
 }
-
-function buildRightStatus(cfg: CheckableListItemWithStatusConfig): React.ReactNode {
-    const text = cfg.statusText ?? cfg.item?.getStatusText?.();
-    const cls = cfg.statusClass ?? cfg.item?.getStatusClass?.();
-    if (!text) return null;
-    return React.createElement('span', { className: `text-xs text-subtle ${cls ?? ''}` }, text);
-}
-
-function join(...xs: Array<string | undefined>): string {
-    return xs.filter(Boolean).join(' ');
+function resolveStatusText(cfg: CheckableListItemWithStatusConfig): string | undefined {
+    return cfg.statusText ?? cfg.item?.getStatusText?.() ?? undefined;
 }
