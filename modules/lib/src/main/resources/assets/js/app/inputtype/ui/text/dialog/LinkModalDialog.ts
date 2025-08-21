@@ -13,6 +13,7 @@ import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {UploadStartedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
 import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
+import {HTMLAreaHelper} from '../HTMLAreaHelper';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem';
@@ -154,6 +155,14 @@ export class LinkModalDialog
                 this.updateOriginalDialogInputValues();
                 this.ckeOriginalDialog.getButton('ok').click();
                 this.close();
+
+                const insertedLink = this.getEditor().getSelection().getRanges()[0]?.startContainer;
+                const previousElement = insertedLink?.getPrevious()?.$;
+                const isNbspBeforeLink = HTMLAreaHelper.isNbsp(previousElement?.textContent?.slice(-1));
+
+                if (isNbspBeforeLink) {
+                    previousElement.textContent = previousElement.textContent.slice(0, -1) + ' ';
+                }
             }
         });
     }

@@ -25,7 +25,7 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
         async () => {
             // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
-            let userName = builder.generateRandomName("user");
+            let userName = builder.generateRandomName('user');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, appConst.PASSWORD.MEDIUM, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
@@ -53,7 +53,8 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
             await contentWizard.waitAndClickOnSave();
             // 6. Verify that the owner is updated:
             let actualOwner = await propertiesWidget.getOwnerName();
-            assert.equal(actualOwner, USER.displayName, "Expected user should be in the selected option");
+            await studioUtils.saveScreenshot('owner_is_updated_properties_widget');
+            assert.equal(actualOwner, USER.displayName, 'Expected user should be in the selected option');
         });
 
     it("GIVEN Users app is opened WHEN the user has been removed THEN the user should not be displayed in browse panel",

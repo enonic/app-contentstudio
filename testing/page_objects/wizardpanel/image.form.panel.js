@@ -97,9 +97,13 @@ class ImageFormPanel extends Page {
     }
 
     async waitForImageLoaded(ms) {
-        let timeout = ms === undefined ? appConst.longTimeout : ms;
-        let locator = xpath.imageEditor + "//div[@class='image-canvas']";
-        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        try {
+            let timeout = ms === undefined ? appConst.longTimeout : ms;
+            let locator = xpath.imageEditor + "//div[@class='image-canvas']";
+            return await this.waitForElementDisplayed(locator, timeout);
+        } catch (err) {
+            await this.handleError('Image loading failed', 'err_image_load', err);
+        }
     }
 
     getArtistsTagsText() {

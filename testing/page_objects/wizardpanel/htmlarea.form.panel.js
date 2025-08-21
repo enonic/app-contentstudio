@@ -12,14 +12,14 @@ const XPATH = {
     formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
     removeAreaButton: "//div[contains(@id,'HtmlArea')]//button[@class='remove-button']",
 
-    typeText: function (id, text) {
+    typeText (id, text) {
         return `CKEDITOR.instances['${id}'].setData('${text}')`;
     },
-    getText: function (id) {
-        return `return CKEDITOR.instances['${id}'].getData()`
+    getText (id) {
+        return `return CKEDITOR.instances['${id}'].getData()`;
     },
     formatOptionByName: optionName => {
-        return `//div[@title='Formatting Styles']//li[@class='cke_panel_listItem']//a[@title='${optionName}']`
+        return `//div[@title='Formatting Styles']//li[@class='cke_panel_listItem']//a[@title='${optionName}']`;
     }
 };
 
@@ -104,8 +104,7 @@ class HtmlAreaForm extends OccurrencesFormView {
 
     async doubleClickOnMacroTextInHtmlArea(text) {
         try {
-            await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
-            await this.clickOnElement(XPATH.ckeTextArea);
+            await this.clickInTextArea();
             await this.pause(500);
             let frameLocator = XPATH.ckeTextArea + "//iframe";
             await this.switchToFrame(frameLocator);
@@ -114,9 +113,8 @@ class HtmlAreaForm extends OccurrencesFormView {
             await this.switchToParentFrame();
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_macro');
             await this.switchToParentFrame();
-            throw new Error("Error after double click on macro text, screenshot:  " + screenshot + ' ' + err);
+            await this.handleError('HtmlArea Form - double click on macro text', 'err_macro_double_click', err);
         }
     }
 
@@ -140,25 +138,22 @@ class HtmlAreaForm extends OccurrencesFormView {
 
     async showToolbar() {
         try {
-            await this.clickOnElement(XPATH.ckeTextArea);
+            await this.clickInTextArea();
             return await this.waitUntilDisplayed(XPATH.ckeToolbox, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_htmlarea_toolbar');
-            throw new Error('CKE toolbar is not shown, screenshot ' + screenshot + ' ' + err);
+            await this.handleError('HtmlArea Form - show toolbar', 'err_htmlarea_toolbar', err);
         }
     }
 
     async showToolbarAndClickOnInsertImageButton() {
-        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
-        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.clickInTextArea();
         await this.waitForElementDisplayed(lib.CKE.insertImageButton, appConst.mediumTimeout);
         await this.clickOnElement(lib.CKE.insertImageButton);
         return await this.pause(300);
     }
 
     async showToolbarAndClickOnInsertMacroButton() {
-        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
-        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.clickInTextArea();
         await this.waitForElementDisplayed(lib.CKE.insertMacroButton, appConst.mediumTimeout);
         await this.clickOnElement(lib.CKE.insertMacroButton);
         return await this.pause(300);
@@ -173,7 +168,7 @@ class HtmlAreaForm extends OccurrencesFormView {
 
     // clicks on Format's dropdown handle and expands options
     async showToolbarAndClickOnFormatDropDownHandle() {
-        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.clickInTextArea();
         await this.waitForElementDisplayed(XPATH.formatDropDownHandle, appConst.mediumTimeout);
         return await this.clickOnElement(XPATH.formatDropDownHandle);
     }
@@ -195,24 +190,21 @@ class HtmlAreaForm extends OccurrencesFormView {
     }
 
     async showToolbarAndClickOnInsertAnchorButton() {
-        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
-        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.clickInTextArea();
         await this.waitForElementDisplayed(lib.CKE.insertAnchorButton, appConst.mediumTimeout);
         await this.clickOnElement(lib.CKE.insertAnchorButton);
         return await this.pause(300);
     }
 
     async showToolbarAndClickOnTableButton() {
-        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
-        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.clickInTextArea();
         await this.waitForElementDisplayed(lib.CKE.tableButton, appConst.mediumTimeout);
         await this.clickOnElement(lib.CKE.tableButton);
         return await this.pause(400);
     }
 
     async showToolbarAndClickOnFindAndReplaceButton() {
-        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
-        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.clickInTextArea();
         await this.waitForElementDisplayed(lib.CKE.findAndReplaceButton, appConst.mediumTimeout);
         await this.clickOnElement(lib.CKE.findAndReplaceButton);
         return await this.pause(400);
@@ -230,28 +222,33 @@ class HtmlAreaForm extends OccurrencesFormView {
             await this.switchToFrame("//iframe[@class='cke_panel_frame']");
             return await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_replace_group');
-            throw new Error("Replace group should be displayed, screenshot: " + screenshot + ' ' + err);
+            await this.handleError('HtmlArea toolbar - Replace group', 'err_replace_group', err);
         }
     }
 
     async showToolbarAndClickOnInsertSpecialCharactersButton() {
-        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.clickInTextArea();
         await this.waitForElementDisplayed(lib.CKE.insertSpecialCharacter, appConst.mediumTimeout);
         await this.clickOnElement(lib.CKE.insertSpecialCharacter);
         return await this.pause(300);
     }
 
-    async showToolbarAndClickOnInsertLinkButton() {
+    async clickInTextArea() {
         await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
         await this.clickOnElement(XPATH.ckeTextArea);
-        //click on `Insert Link` button and wait for modal dialog is loaded
+        await this.pause(100);
+    }
+
+    async showToolbarAndClickOnInsertLinkButton() {
+        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
+        await this.clickInTextArea();
+        // click on `Insert Link` button and wait for modal dialog is loaded
         return await this.clickOnInsertLinkButton();
     }
 
     async clickOnInsertLinkButton() {
         let results = await this.getDisplayedElements(lib.CKE.insertLinkButton);
-        //await this.waitForElementDisplayed(XPATH.insertLinkButton, appConst.mediumTimeout);
+        // await this.waitForElementDisplayed(XPATH.insertLinkButton, appConst.mediumTimeout);
         await this.clickOnElement(lib.CKE.insertLinkButton);
         let insertLinkDialog = new InsertLinkDialog();
         await insertLinkDialog.waitForDialogLoaded();
@@ -265,8 +262,7 @@ class HtmlAreaForm extends OccurrencesFormView {
             await this.waitForElementDisplayed(lib.CKE.sourceButton, appConst.mediumTimeout);
             return await this.clickOnElement(lib.CKE.sourceButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_source_button');
-            throw new Error(`Error occurred during clicking on Source button, htmlArea toolbar, screenshot: ${screenshot}` + err);
+            await this.handleError('HtmlArea toolbar - Source button', 'err_source_button', err);
         }
     }
 
@@ -342,8 +338,7 @@ class HtmlAreaForm extends OccurrencesFormView {
         try {
             return await this.waitForElementDisplayed(lib.CKE.increaseIndentButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_increase_indent_btn');
-            throw new Error("HtmlArea toolbar - increase indent button, screenshot: " + screenshot + ' ' + err);
+            await this.handleError('HtmlArea toolbar - increase indent button', 'err_increase_indent_btn', err);
         }
     }
 
@@ -351,8 +346,7 @@ class HtmlAreaForm extends OccurrencesFormView {
         try {
             return await this.waitForElementDisplayed(lib.CKE.decreaseIndentButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_decrease_indent_btn');
-            throw new Error("HtmlArea toolbar - decrease indent button, screenshot: " + screenshot + ' ' + err);
+            await this.handleError('HtmlArea toolbar - decrease indent button', 'err_decrease_indent_btn', err);
         }
     }
 

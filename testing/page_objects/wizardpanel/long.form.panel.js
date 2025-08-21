@@ -37,8 +37,7 @@ class LongForm extends OccurrencesFormView {
         try {
             return await this.waitForRedBorderInInput(index, this.longInput)
         } catch (err) {
-            await this.saveScreenshot("err_red_border_long");
-            throw new Error(err);
+            await this.handleError('Long form, red border should be displayed','err_red_border_long', err);
         }
     }
 
@@ -46,8 +45,7 @@ class LongForm extends OccurrencesFormView {
         try {
             return await this.waitForRedBorderNotDisplayedInInput(index, this.longInput)
         } catch (err) {
-            await this.saveScreenshot("err_red_border_long");
-            throw new Error(err);
+            await this.handleError('Long form, red border should not be displayed','err_red_border_long', err);
         }
     }
 }
