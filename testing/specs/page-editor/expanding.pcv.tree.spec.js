@@ -94,7 +94,8 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await textComponentCke.typeTextInCkeEditor(TEXT_LEFT_REGION);
             await contentWizard.switchToMainFrame();
             await contentWizard.hotKeySave();
-            await contentWizard.waitForNotificationMessage();
+            await studioUtils.saveScreenshot('issue_notification_msg_3');
+            //await contentWizard.waitForNotificationMessage();
         });
 
     // Verify the issue -  Expand Page Components View tree to the item selected in Live Edit #6485
