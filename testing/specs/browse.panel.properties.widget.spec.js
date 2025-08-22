@@ -102,10 +102,9 @@ describe('Browse panel, properties widget, language spec', function () {
             // 2. Verify the options:
             assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DEPENDENCIES), 'Dependencies option should be displayed');
             assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY),
-                "'Version history' option should be displayed");
-            assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS), "'Details' option should be displayed");
-            assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.PAGE), "'Page' option should be displayed");
-            assert.equal(actualOptions.length, 5, 'Five options should be in the selector');
+                `'Version history' option should be displayed`);
+            assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS), `'Details' option should be displayed`);
+            assert.equal(actualOptions.length, 4, 'Four options should be in the selector');
             // 3. Verify the accessibility attribute in Widget Selector:
             await browseDetailsPanel.waitForWidgetDropdownRoleAttribute('button');
         });
