@@ -1,103 +1,52 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {MediaSelectorDisplayValue} from './MediaSelectorDisplayValue';
-import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
-import {ContentAndStatusTreeSelectorItem} from '../../../../item/ContentAndStatusTreeSelectorItem';
-import {CompareStatus} from '../../../../content/CompareStatus';
-import {PublishStatus} from '../../../../publish/PublishStatus';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import {ContentIconUrlResolver} from '../../../../content/ContentIconUrlResolver';
 import {ContentSummary} from '../../../../content/ContentSummary';
-import {ContentId} from '../../../../content/ContentId';
-import {ContentPath} from '../../../../content/ContentPath';
+import {ContentTreeSelectorItem, ContentTreeSelectorItemBuilder} from '../../../../item/ContentTreeSelectorItem';
 
 export class MediaTreeSelectorItem
     extends ContentTreeSelectorItem {
 
-    private mediaSelectorDisplayValue: MediaSelectorDisplayValue;
+    private readonly uploadItem?: UploadItem<ContentSummary>;
 
-    private compareStatus: CompareStatus;
+    constructor(builder: MediaTreeSelectorItemBuilder) {
+        super(builder);
 
-    private publishStatus: PublishStatus;
-
-    constructor(content?: ContentSummary, selectable?: boolean, expandable?: boolean) {
-        super(content, selectable, expandable);
-        this.mediaSelectorDisplayValue =
-            content ? MediaSelectorDisplayValue.fromContentSummary(content) : MediaSelectorDisplayValue.makeEmpty();
+        this.uploadItem = builder.uploadItem;
     }
 
-    static createMediaTreeSelectorItemWithStatus(item: ContentAndStatusTreeSelectorItem): MediaTreeSelectorItem {
-        const mediaTreeSelectorItem = new MediaTreeSelectorItem(item.getContent(), item.isSelectable(), item.isExpandable());
-
-        mediaTreeSelectorItem.compareStatus = item.getCompareStatus();
-        mediaTreeSelectorItem.publishStatus = item.getPublishStatus();
-
-        return mediaTreeSelectorItem;
-    }
-
-    getPublishStatus(): PublishStatus {
-        return this.publishStatus;
-    }
-
-    getCompareStatus(): CompareStatus {
-        return this.compareStatus;
-    }
-
-    setDisplayValue(value: MediaSelectorDisplayValue): MediaTreeSelectorItem {
-        this.mediaSelectorDisplayValue = value;
-        return this;
-    }
-
-    setMissingItemId(value: string): MediaTreeSelectorItem {
-        this.mediaSelectorDisplayValue.setMissingItemId(value);
-        return this;
-    }
-
-    getDisplayValue(): MediaSelectorDisplayValue {
-        return this.mediaSelectorDisplayValue;
+    static fromContentTreeSelectorItem(item: ContentTreeSelectorItem): MediaTreeSelectorItem {
+        return MediaTreeSelectorItem.create().setContent(item.getContent()).setSelectable(item.isSelectable()).setExpandable(item.isExpandable()).setAvailabilityStatus(item.getAvailabilityStatus()).build();
     }
 
     getImageUrl(): string {
-        return this.mediaSelectorDisplayValue.getImageUrl();
-    }
-
-    isEmptyContent(): boolean {
-        return this.mediaSelectorDisplayValue.isEmptyContent();
-    }
-
-    getContentSummary(): ContentSummary {
-        return this.mediaSelectorDisplayValue.getContentSummary();
+        return this.isAvailable() ? new ContentIconUrlResolver().setContent(this.getContentSummary()).resolve() : null;
     }
 
     getTypeLocaleName(): string {
-        return this.mediaSelectorDisplayValue.getTypeLocaleName();
+        return this.getContent().getType()?.getLocalName()
     }
 
     getId(): string {
-        return this.mediaSelectorDisplayValue.getId();
+        return this.uploadItem ? this.uploadItem.getId() : this.getContent().getId();
     }
 
-    getContentId(): ContentId {
-        return this.mediaSelectorDisplayValue.getContentId();
-    }
-
-    getMissingItemId(): string {
-        return this.mediaSelectorDisplayValue.getMissingItemId();
-    }
-
-    getContentPath(): ContentPath {
-        return this.mediaSelectorDisplayValue.getContentPath();
-    }
-
-    getPath(): ContentPath {
-        return this.mediaSelectorDisplayValue.getPath();
-    }
 
     getDisplayName(): string {
-        return this.mediaSelectorDisplayValue.getDisplayName();
+        return this.uploadItem ? this.uploadItem.getFileName() : super.getDisplayName();
+    }
+
+    getUploadItem(): UploadItem<ContentSummary> {
+        return this.uploadItem;
+    }
+
+    static create(): MediaTreeSelectorItemBuilder {
+        return new MediaTreeSelectorItemBuilder();
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, ClassHelper.getClass(this))) {
             return false;
         }
@@ -106,12 +55,22 @@ export class MediaTreeSelectorItem
             return false;
         }
 
-        let other = o as MediaTreeSelectorItem;
+        const other = o as MediaTreeSelectorItem;
 
-        if (!ObjectHelper.equals(this.mediaSelectorDisplayValue, other.getDisplayValue())) {
-            return false;
-        }
-
-        return true;
+        return ObjectHelper.equals(this.uploadItem, other.getUploadItem());
     }
+}
+
+export class MediaTreeSelectorItemBuilder extends ContentTreeSelectorItemBuilder {
+    uploadItem: UploadItem<ContentSummary>;
+
+    setUploadItem(uploadItem: UploadItem<ContentSummary>): this {
+        this.uploadItem = uploadItem;
+        return this;
+    }
+
+    build(): MediaTreeSelectorItem {
+        return new MediaTreeSelectorItem(this);
+    }
+
 }

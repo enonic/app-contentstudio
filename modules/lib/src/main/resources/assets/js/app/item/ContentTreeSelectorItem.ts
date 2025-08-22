@@ -1,13 +1,17 @@
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
-import {ContentSummary} from '../content/ContentSummary';
-import {ContentId} from '../content/ContentId';
-import {ContentPath} from '../content/ContentPath';
-import {ContentName} from '../content/ContentName';
 import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {CompareStatus} from '../content/CompareStatus';
+import {ContentId} from '../content/ContentId';
+import {ContentName} from '../content/ContentName';
+import {ContentPath} from '../content/ContentPath';
+import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {ContentAvailabilityStatus} from '../inputtype/selector/ContentAvailabilityStatus';
+import {PublishStatus} from '../publish/PublishStatus';
 
 export class ContentTreeSelectorItemJson {
 
@@ -21,16 +25,19 @@ export class ContentTreeSelectorItemJson {
 export class ContentTreeSelectorItem
     implements Equitable, ViewItem {
 
-    private readonly content: ContentSummary;
+    private readonly content: ContentSummaryAndCompareStatus;
 
     private readonly selectable: boolean;
 
     private readonly expandable: boolean;
 
-    constructor(content: ContentSummary, selectable: boolean = true, expandable: boolean = true) {
-        this.content = content;
-        this.selectable = selectable;
-        this.expandable = expandable;
+    private readonly availabilityStatus: ContentAvailabilityStatus;
+
+    constructor(builder: ContentTreeSelectorItemBuilder) {
+        this.content = builder.content;
+        this.selectable = ObjectHelper.isDefined(builder.selectable) ? builder.selectable : true;
+        this.expandable = ObjectHelper.isDefined(builder.expandable) ? builder.expandable : true;
+        this.availabilityStatus = builder.availabilityStatus || 'OK';
     }
 
     getIconClass(): string {
@@ -38,15 +45,23 @@ export class ContentTreeSelectorItem
     }
 
     public static fromJson(json: ContentTreeSelectorItemJson) {
-        return new ContentTreeSelectorItem(ContentSummary.fromJson(json.content), json.selectable, json.expandable);
+        return new ContentTreeSelectorItemBuilder().fromJson(json).build();
     }
 
-    public static from(content: ContentSummary, selectable: boolean, expandable: boolean) {
-        return new ContentTreeSelectorItem(content, selectable, expandable);
-    }
-
-    getContent(): ContentSummary {
+    getContent(): ContentSummaryAndCompareStatus {
         return this.content;
+    }
+
+    getContentSummary(): ContentSummary {
+        return this.content ? this.content.getContentSummary() : null;
+    }
+
+    getCompareStatus(): CompareStatus {
+        return this.content ? this.content.getCompareStatus() : null;
+    }
+
+    getPublishStatus(): PublishStatus {
+        return this.content ? this.content.getPublishStatus() : null;
     }
 
     getId(): string {
@@ -62,7 +77,7 @@ export class ContentTreeSelectorItem
     }
 
     getName(): ContentName {
-        return this.content ? this.content.getName() : null;
+        return this.content ? this.content.getContentSummary()?.getName() : null;
     }
 
     getDisplayName(): string {
@@ -86,11 +101,11 @@ export class ContentTreeSelectorItem
     }
 
     isImage(): boolean {
-        return this.content ? this.content.isImage() : null;
+        return this.content?.getContentSummary()?.isImage();
     }
 
     isSite(): boolean {
-        return this.content ? this.content.isSite() : null;
+        return this.content?.getContentSummary()?.isSite()
     }
 
     getLanguage(): string {
@@ -103,6 +118,22 @@ export class ContentTreeSelectorItem
 
     isExpandable(): boolean {
         return this.expandable;
+    }
+
+    getAvailabilityStatus(): ContentAvailabilityStatus {
+        return this.availabilityStatus;
+    }
+
+    isAvailable(): boolean {
+        return this.availabilityStatus === 'OK';
+    }
+
+    isNotFound(): boolean {
+        return this.availabilityStatus === 'NOT_FOUND';
+    }
+
+    isNoAccess(): boolean {
+        return this.availabilityStatus === 'NO_ACCESS';
     }
 
     equals(o: Equitable): boolean {
@@ -121,7 +152,55 @@ export class ContentTreeSelectorItem
             return false;
         }
 
-        return this.expandable === other.expandable;
+        if (this.expandable !== other.expandable) {
+            return false;
+        }
+
+        return this.availabilityStatus === other.availabilityStatus;
     }
 
+    static create(): ContentTreeSelectorItemBuilder {
+        return new ContentTreeSelectorItemBuilder();
+    }
+}
+
+export class ContentTreeSelectorItemBuilder {
+
+    content: ContentSummaryAndCompareStatus;
+
+    selectable: boolean = true;
+
+    expandable: boolean = true;
+
+    availabilityStatus: ContentAvailabilityStatus = 'OK';
+
+    setContent(content: ContentSummaryAndCompareStatus): this {
+        this.content = content;
+        return this;
+    }
+
+    setSelectable(selectable: boolean): this {
+        this.selectable = selectable;
+        return this;
+    }
+
+    setExpandable(expandable: boolean): this {
+        this.expandable = expandable;
+        return this;
+    }
+
+    setAvailabilityStatus(availabilityStatus: ContentAvailabilityStatus): this {
+        this.availabilityStatus = availabilityStatus;
+        return this;
+    }
+
+    fromJson(json: ContentTreeSelectorItemJson): ContentTreeSelectorItemBuilder {
+        return new ContentTreeSelectorItemBuilder().setContent(
+            ContentSummaryAndCompareStatus.fromContentSummary(ContentSummary.fromJson(json.content))).setSelectable(
+            json.selectable).setExpandable(json.expandable);
+    }
+
+    build(): ContentTreeSelectorItem {
+        return new ContentTreeSelectorItem(this);
+    }
 }

@@ -1,41 +1,40 @@
-import Q from 'q';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from '@enonic/lib-admin-ui/Class';
 import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
-import {ContentInputTypeManagingAdd} from '../ui/selector/ContentInputTypeManagingAdd';
-import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ui/selector/ContentSummaryOptionDataLoader';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
-import {Reference} from '@enonic/lib-admin-ui/util/Reference';
+import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {ContentSummary, ContentSummaryBuilder} from '../../content/ContentSummary';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Reference} from '@enonic/lib-admin-ui/util/Reference';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import Q from 'q';
+import {MovedContentItem} from '../../browse/MovedContentItem';
+import {CompareStatus} from '../../content/CompareStatus';
 import {ContentId} from '../../content/ContentId';
 import {ContentPath} from '../../content/ContentPath';
-import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
+import {ContentSummary, ContentSummaryBuilder} from '../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
-import {ContentType} from '../schema/ContentType';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {NewContentButton} from './ui/NewContentButton';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentAndStatusTreeSelectorItem} from '../../item/ContentAndStatusTreeSelectorItem';
-import {CompareStatus} from '../../content/CompareStatus';
-import {MovedContentItem} from '../../browse/MovedContentItem';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
-import {ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
+import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {ContentType} from '../schema/ContentType';
+import {ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
+import {ContentInputTypeManagingAdd} from '../ui/selector/ContentInputTypeManagingAdd';
+import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentListBox} from './ContentListBox';
+import {ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
 import {ContentTreeSelectorDropdown, ContentTreeSelectorDropdownOptions} from './ContentTreeSelectorDropdown';
-import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {NewContentButton} from './ui/NewContentButton';
 
 export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelectorItem> = ContentSelectedOptionsView>
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
@@ -159,12 +158,8 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
         this.getSelectedOptionsView().removeOption(selectedOption.getOption(), false);
     }
 
-    protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus): ContentTreeSelectorItem {
-        if (content instanceof ContentSummaryAndCompareStatus) {
-            return new ContentAndStatusTreeSelectorItem(content);
-        }
-
-        return new ContentTreeSelectorItem(content);
+    protected createSelectorItem(content: ContentSummaryAndCompareStatus): ContentTreeSelectorItem {
+        return ContentTreeSelectorItem.create().setContent(content).build();
     }
 
     protected readInputConfig(): void {
@@ -488,21 +483,13 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
 
     private makeNewItemWithUpdatedPath(oldValue: ContentTreeSelectorItem, newPath: ContentPath): ContentTreeSelectorItem {
         const content = oldValue.getContent();
-        const newContentSummary = new ContentSummaryBuilder(content).setPath(newPath).build();
-        const wrappedContent = this.wrapRenamedContentSummary(newContentSummary, oldValue);
+        const newContentSummary = new ContentSummaryBuilder(content.getContentSummary()).setPath(newPath).build();
+        const csacs = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(newContentSummary,
+            oldValue.getCompareStatus(), oldValue.getPublishStatus());
 
-        return this.createSelectorItem(wrappedContent);
+        return this.createSelectorItem(csacs);
     }
 
-    protected wrapRenamedContentSummary(newContentSummary: ContentSummary,
-                                        oldValue: ContentTreeSelectorItem): ContentSummary | ContentSummaryAndCompareStatus {
-        if (oldValue instanceof ContentAndStatusTreeSelectorItem) {
-            return ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(newContentSummary, oldValue.getCompareStatus(),
-                oldValue.getPublishStatus());
-        }
-
-        return newContentSummary;
-    }
 
     protected getNumberOfValids(): number {
         return this.getPropertyArray().getSize();

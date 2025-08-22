@@ -11,7 +11,8 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 
-export class ImageSelectorSelectedOptionView extends BaseGallerySelectedOptionView<MediaTreeSelectorItem> {
+export class ImageSelectorSelectedOptionView
+    extends BaseGallerySelectedOptionView<MediaTreeSelectorItem> {
     private icon: ImgEl;
     private progress: ProgressBar;
     private loadMask: LoadMask;
@@ -49,9 +50,11 @@ export class ImageSelectorSelectedOptionView extends BaseGallerySelectedOptionVi
         super.setOption(option);
 
         const displayValue = option.getDisplayValue();
-        if (displayValue.isEmptyContent()) {
-            this.showImageNotAvailable(displayValue.getId());
-        } else if (displayValue.getContentSummary()) {
+        if (displayValue.isNotFound()) {
+            this.showImageNotAvailable(displayValue.getId(), i18n('text.image.notavailable'));
+        } else if (displayValue.isNoAccess()) {
+            this.showImageNotAvailable(displayValue.getId(), i18n('text.content.no.access'));
+        } else {
             this.updateIconSrc(displayValue);
             this.label.setHtml(displayValue.getDisplayName());
             this.icon.setTitle(displayValue.getPath()?.toString() ?? '');
@@ -95,11 +98,11 @@ export class ImageSelectorSelectedOptionView extends BaseGallerySelectedOptionVi
         this.removeClass('image-not-found');
     }
 
-    showImageNotAvailable(imageId: string) {
+    showImageNotAvailable(imageId: string, text: string) {
         this.progress.hide();
         this.error.addClass('error');
         this.check?.addClass('error');
-        this.error.setMainName(imageId).setSubName(i18n('text.image.notavailable'));
+        this.error.setMainName(imageId).setSubName(text);
         this.error.show();
         this.check?.show();
         this.icon.setSrc('');
@@ -109,8 +112,8 @@ export class ImageSelectorSelectedOptionView extends BaseGallerySelectedOptionVi
 
     updateProportions() {
         let contentHeight = this.getEl().getHeightWithBorder() -
-            this.getEl().getBorderTopWidth() -
-            this.getEl().getBorderBottomWidth();
+                            this.getEl().getBorderTopWidth() -
+                            this.getEl().getBorderBottomWidth();
 
         this.centerVertically(this.icon, contentHeight);
         this.centerVertically(this.progress, contentHeight);

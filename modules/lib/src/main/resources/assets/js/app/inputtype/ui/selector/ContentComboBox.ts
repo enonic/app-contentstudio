@@ -1,19 +1,17 @@
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
 import {ContentPath} from '../../../content/ContentPath';
 import {ContentSummary} from '../../../content/ContentSummary';
-import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../event/EditContentEvent';
-import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
 import {Project} from '../../../settings/data/project/Project';
-import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export class ContentSelectedOptionsView
     extends BaseSelectedOptionsView<ContentTreeSelectorItem> {
@@ -72,8 +70,6 @@ export class ContentSelectedOptionView
 
     private readonly statusEl: SpanEl;
 
-    private isMissing: boolean;
-
     constructor(option: Option<ContentTreeSelectorItem>, project?: Project) {
         super(new RichSelectedOptionViewBuilder<ContentTreeSelectorItem>()
             .setDraggable(true)
@@ -81,17 +77,17 @@ export class ContentSelectedOptionView
             .setOption(option) as RichSelectedOptionViewBuilder<ContentTreeSelectorItem>
         );
 
-        this.updateMissingStatus(option);
+        this.updateMissingStatus();
         this.project = project;
         this.statusEl = new SpanEl();
     }
 
     resolveIconUrl(content: ContentTreeSelectorItem): string {
-        return this.isMissing ? '' : content.getIconUrl();
+        return content.getIconUrl() || '';
     }
 
     resolveTitle(content: ContentTreeSelectorItem): string {
-        if (this.isMissing) {
+        if (!this.hasContent()) {
             return content.getId();
         }
 
@@ -100,7 +96,11 @@ export class ContentSelectedOptionView
     }
 
     resolveSubTitle(content: ContentTreeSelectorItem): string {
-        if (this.isMissing) {
+        if (content.isNoAccess()) {
+            return i18n('text.content.no.access');
+        }
+
+        if (content.isNotFound() || !this.hasContent()) {
             return i18n('text.content.not.found');
         }
 
@@ -109,34 +109,33 @@ export class ContentSelectedOptionView
     }
 
     protected onEditButtonClicked(e: MouseEvent) {
-        let content = this.getOptionDisplayValue().getContent();
-        let model = [ContentSummaryAndCompareStatus.fromContentSummary(content)];
-        new EditContentEvent(model, this.project).fire();
+        const content = this.getOptionDisplayValue().getContent();
+        new EditContentEvent([content], this.project).fire();
 
         return super.onEditButtonClicked(e);
     }
 
     setOption(option: Option<ContentTreeSelectorItem>): void {
-        this.updateMissingStatus(option);
         super.setOption(option);
+        this.updateMissingStatus();
         this.setStatus(this.getOptionDisplayValue());
     }
 
     private setStatus(item: ContentTreeSelectorItem): void {
-        if (item instanceof ContentAndStatusTreeSelectorItem) {
-            const content = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(item.getContent(),
-                item.getCompareStatus(),
-                item.getPublishStatus());
-
-            this.statusEl.addClass(content.getStatusClass());
-            this.statusEl.setHtml(content.getStatusText());
+        if (this.hasContent()) {
+            this.statusEl.addClass(item.getContent().getStatusClass());
+            this.statusEl.setHtml(item.getContent().getStatusText());
         }
     }
 
-    private updateMissingStatus(option: Option<ContentTreeSelectorItem>): void {
-        this.isMissing = option.getDisplayValue() && !option.getDisplayValue().getPath();
-        this.setEditable(!this.isMissing);
-        this.toggleClass('content-not-found', this.isMissing);
+    private updateMissingStatus(): void {
+        const hasContent = this.hasContent();
+        this.setEditable(hasContent);
+        this.toggleClass('content-not-found', !hasContent);
+    }
+
+    private hasContent(): boolean {
+        return this.option.getDisplayValue()?.getAvailabilityStatus() === 'OK';
     }
 
     doRender(): Q.Promise<boolean> {
