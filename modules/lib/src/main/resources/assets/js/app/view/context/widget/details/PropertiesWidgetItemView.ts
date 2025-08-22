@@ -86,11 +86,13 @@ export abstract class PropertiesWidgetItemView
     }
 
     protected layoutProperties(): Q.Promise<void> {
-        this.list.removeChildren();
+        return this.helper.generateProps().then(props => {
+            this.list.removeChildren();
 
-        return this.helper.generateProps().then(props => props.forEach((value: PropertiesWidgetItemViewValue, key: string) => {
-            this.appendKeyValue(key, value);
-        }));
+            props.forEach((value: PropertiesWidgetItemViewValue, key: string) => {
+                this.appendKeyValue(key, value);
+            });
+        });
     }
 
     protected appendKeyValue(key: string, value: PropertiesWidgetItemViewValue) {
