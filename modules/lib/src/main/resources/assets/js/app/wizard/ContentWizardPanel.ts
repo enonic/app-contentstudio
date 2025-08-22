@@ -643,7 +643,7 @@ export class ContentWizardPanel
     }
 
     protected createWizardAndDetailsSplitPanel(leftPanel: Panel): SplitPanel {
-        this.contextView = new ContextView();
+        this.contextView = new ContextView(true);
         this.contextView.setItem(this.getContent());
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
         const contextToggleButton = new NonMobileContextPanelToggleButton();
