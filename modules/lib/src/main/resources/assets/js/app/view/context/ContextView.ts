@@ -61,9 +61,12 @@ export class ContextView
     private widgetsUpdateList: Record<string, (key: string, type: ApplicationEventType) => void> = {};
 
     public static debug: boolean = false;
+    private editorMode: boolean;
 
-    constructor() {
+    constructor(editorMode: boolean = false) {
         super('context-panel-view');
+
+        this.editorMode = editorMode;
 
         this.contextContainer = new DivEl('context-container');
 
@@ -106,7 +109,7 @@ export class ContextView
 
             if (activeWidgetVisible && this.activeWidget.isInternal() && itemSelected &&
                 ContentSummaryAndCompareStatus.isInArray(this.item.getContentId(), contents)) {
-                    this.updateActiveWidget();
+                this.updateActiveWidget();
             }
         });
 
@@ -334,10 +337,11 @@ export class ContextView
             .setWidgetItemViews(this.getDetailsWidgetItemViews()).build();
 
         this.versionsWidgetView = this.createVersionsWidgetView();
-        this.pageEditorWidgetView = this.createPageEditorWidgetView();
-
-        this.addWidgets(
-            [this.pageEditorWidgetView, this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()]);
+        if (this.editorMode) {
+            this.pageEditorWidgetView = this.createPageEditorWidgetView();
+            this.addWidget(this.pageEditorWidgetView);
+        }
+        this.addWidgets([this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()]);
 
         this.defaultWidgetView = this.propertiesWidgetView;
         this.setActiveWidget(this.defaultWidgetView);
@@ -501,8 +505,9 @@ export class ContextView
     }
 
     updateSelectedWidget() {
-        const shouldActivatePageWidget = (this.isPageRenderable && !this.item?.getType()?.isShortcut()) ||
-                                         this.item?.getContentSummary()?.isPage();
+        const shouldActivatePageWidget = this.editorMode &&
+                                         (this.isPageRenderable && !this.item?.getType()?.isShortcut()
+                                          || this.item?.getContentSummary()?.isPage());
         if (shouldActivatePageWidget) {
             this.activatePageEditorWidget();
         } else {
