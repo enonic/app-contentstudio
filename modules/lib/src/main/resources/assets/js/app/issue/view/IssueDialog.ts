@@ -59,14 +59,14 @@ export abstract class IssueDialog
         });
 
         this.form.onContentItemsAdded((items: ContentTreeSelectorItem[]) => {
-            const contents: ContentSummary[] = items.map(item => item.getContent());
+            const contents: ContentSummary[] = items.map(item => item.getContentSummary());
 
             this.addNewItemsHandler(contents);
         });
 
         this.form.onContentItemsRemoved((items: ContentTreeSelectorItem[]) => {
 
-            const contents: ContentSummary[] = items.map(item => item.getContent());
+            const contents: ContentSummary[] = items.map(item => item.getContentSummary());
 
             const filteredItems = this.getItemList().getItems().filter((oldItem: ContentSummaryAndCompareStatus) => {
                 return !ArrayHelper.contains(contents, oldItem.getContentSummary());

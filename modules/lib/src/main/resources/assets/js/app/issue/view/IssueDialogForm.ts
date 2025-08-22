@@ -7,6 +7,7 @@ import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Issue} from '../Issue';
 import {ContentSelectedOptionsView} from '../../inputtype/ui/selector/ContentComboBox';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
@@ -253,7 +254,8 @@ export class IssueDialogForm
         }
         this.toggleContentItemsSelector(contents && contents.length > 0);
         contents.forEach((value) =>
-            this.contentItemsSelector.select(new ContentTreeSelectorItem(value), silent)
+            this.contentItemsSelector.select(
+                ContentTreeSelectorItem.create().setContent(ContentSummaryAndCompareStatus.fromContentSummary(value)).build(), silent)
         );
     }
 
@@ -262,7 +264,8 @@ export class IssueDialogForm
             return;
         }
         contents.forEach((value) =>
-            this.contentItemsSelector.deselect(new ContentTreeSelectorItem(value), silent)
+            this.contentItemsSelector.deselect(
+                ContentTreeSelectorItem.create().setContent(ContentSummaryAndCompareStatus.fromContentSummary(value)).build(), silent)
         );
         this.toggleContentItemsSelector(this.contentItemsSelector.getSelectedOptions().length > 0);
     }

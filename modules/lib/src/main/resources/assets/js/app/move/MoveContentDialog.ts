@@ -178,10 +178,10 @@ export class MoveContentDialog
         }
 
         if (targetContent.isSite()) {
-            return Q(targetContent.getContent());
+            return Q(targetContent.getContentSummary());
         }
 
-        return this.getParentSite(targetContent.getContent());
+        return this.getParentSite(targetContent.getContentSummary());
     }
 
     private getContentParentSite(content: ContentSummary): Q.Promise<ContentSummary | null> {

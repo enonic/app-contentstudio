@@ -1,53 +1,53 @@
-import Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {FormItemEl} from '@enonic/lib-admin-ui/dom/FormItemEl';
+import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
+import {Checkbox, InputAlignment} from '@enonic/lib-admin-ui/ui/Checkbox';
+import {Dropdown} from '@enonic/lib-admin-ui/ui/Dropdown';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
+import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
+import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
+import {NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {UploadStartedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
 import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
 import {HTMLAreaHelper} from '../HTMLAreaHelper';
-import {OverrideNativeDialog} from './OverrideNativeDialog';
-import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
-import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem';
-import {MediaSelectorDisplayValue} from '../../selector/media/MediaSelectorDisplayValue';
-import {ContentSelectedOptionsView} from '../../selector/ContentComboBox';
-import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
-import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../../selector/ContentSummaryOptionDataLoader';
-import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
-import {Content} from '../../../../content/Content';
-import {Site} from '../../../../content/Site';
-import {GetNearestSiteRequest} from '../../../../resource/GetNearestSiteRequest';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {Checkbox, InputAlignment} from '@enonic/lib-admin-ui/ui/Checkbox';
-import {NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
-import {TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
-import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
-import {ContentSummary} from '../../../../content/ContentSummary';
-import {ContentId} from '../../../../content/ContentId';
-import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
+import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import {UploadStartedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
-import {FormItemEl} from '@enonic/lib-admin-ui/dom/FormItemEl';
-import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {Project} from '../../../../settings/data/project/Project';
+import Q from 'q';
+import {Content} from '../../../../content/Content';
+import {ContentId} from '../../../../content/ContentId';
 import {ContentPath} from '../../../../content/ContentPath';
-import {ContentTreeSelectorDropdown, ContentTreeSelectorDropdownOptions} from '../../../selector/ContentTreeSelectorDropdown';
+import {ContentSummary} from '../../../../content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {Site} from '../../../../content/Site';
+import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
+import {GetNearestSiteRequest} from '../../../../resource/GetNearestSiteRequest';
+import {Project} from '../../../../settings/data/project/Project';
 import {ContentListBox} from '../../../selector/ContentListBox';
-import {Dropdown} from '@enonic/lib-admin-ui/ui/Dropdown';
+import {ContentTreeSelectorDropdown, ContentTreeSelectorDropdownOptions} from '../../../selector/ContentTreeSelectorDropdown';
+import {ContentSelectedOptionsView} from '../../selector/ContentComboBox';
+import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../../selector/ContentSummaryOptionDataLoader';
+import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem';
+import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
+import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
+import {OverrideNativeDialog} from './OverrideNativeDialog';
 import eventInfo = CKEDITOR.eventInfo;
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 export interface LinkModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -947,7 +947,7 @@ export class LinkModalDialog
         }
 
         const callHandleSelectorValueChanged = () => {
-            const selected = contentSelector.getSelectedOptions()[0]?.getOption().getDisplayValue()?.getContent();
+            const selected = contentSelector.getSelectedOptions()[0]?.getOption().getDisplayValue()?.getContentSummary();
             this.handleSelectorValueChanged(selected, formItem);
         };
 
@@ -1015,8 +1015,7 @@ export class LinkModalDialog
 
         mediaUploader.onUploadStarted((event: UploadStartedEvent<Content>) => {
             event.getUploadItems().forEach((uploadItem: UploadItem<Content>) => {
-                const value: MediaTreeSelectorItem = new MediaTreeSelectorItem(null).setDisplayValue(
-                    MediaSelectorDisplayValue.fromUploadItem(uploadItem));
+                const value = MediaTreeSelectorItem.create().setUploadItem(uploadItem).build();
 
                 contentSelector.select(value);
             });
@@ -1035,7 +1034,8 @@ export class LinkModalDialog
 
             const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionsView().getById(item.getId());
             const option: Option<ContentTreeSelectorItem> = selectedOption.getOption();
-            const uploadedItem = new MediaTreeSelectorItem(createdContent);
+            const uploadedItem = MediaTreeSelectorItem.create().setContent(
+                ContentSummaryAndCompareStatus.fromContentSummary(createdContent)).build();
 
             if (contentSelector.isSelected(item.getId())) {
                 contentSelector.deselect(selectedOption.getOption().getDisplayValue());

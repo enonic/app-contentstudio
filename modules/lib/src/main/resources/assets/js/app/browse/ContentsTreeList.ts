@@ -1,14 +1,14 @@
-import Q from 'q';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {TreeListBox, TreeListBoxParams, TreeListElement, TreeListElementParams} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
-import {ContentAndStatusSelectorViewer} from '../inputtype/selector/ContentAndStatusSelectorViewer';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
-import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
-import {OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {TreeListBox, TreeListBoxParams, TreeListElement, TreeListElementParams} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import Q from 'q';
+import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
+import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
+import {ContentTreeSelectorItemViewer} from '../item/ContentTreeSelectorItemViewer';
 
 export interface ContentsListParams extends TreeListBoxParams<ContentTreeSelectorItem> {
     loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
@@ -119,7 +119,7 @@ export class ContentListElement extends TreeListElement<ContentTreeSelectorItem>
     }
 
     protected createItemViewer(item: ContentTreeSelectorItem): Element {
-        const viewer = new ContentAndStatusSelectorViewer();
+        const viewer = new ContentTreeSelectorItemViewer();
         viewer.setObject(item);
         return viewer;
     }
