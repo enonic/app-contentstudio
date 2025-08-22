@@ -2,15 +2,15 @@ import {ContentsExistJson} from './json/ContentsExistJson';
 
 export class ContentsExistResult {
 
-    private contentsExistMap: object = {};
+    private contentsExistMap: Map<string, boolean> = new Map<string, boolean>();
 
     constructor(json: ContentsExistJson) {
         json.contentsExistJson.forEach(item => {
-            this.contentsExistMap[item.contentId] = item.exists;
+            this.contentsExistMap.set(item.contentId, item.exists);
         });
     }
 
-    getContentsExistMap(): object {
+    getContentsExistMap(): Map<string, boolean> {
         return this.contentsExistMap;
     }
 }

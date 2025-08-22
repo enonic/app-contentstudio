@@ -1,4 +1,5 @@
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ResultMetadata} from './ResultMetadata';
 import {ContentSelectorRequest} from './ContentSelectorRequest';
@@ -54,7 +55,9 @@ export class ListByIdSelectorRequest<DATA extends ContentTreeSelectorItem>
         if (response.getResult() && response.getResult().contents.length > 0) {
             this.metadata = ResultMetadata.fromJson(response.getResult().metadata);
             return response.getResult().contents.map(json =>
-                ContentTreeSelectorItem.from(ContentSummary.fromJson(json), true, true)) as DATA[];
+                ContentTreeSelectorItem.create().setContent(
+                    ContentSummaryAndCompareStatus.fromContentSummary(ContentSummary.fromJson(json))).setExpandable(true).setSelectable(
+                    true).build()) as DATA[];
         }
 
         this.metadata = new ResultMetadata(0, 0);

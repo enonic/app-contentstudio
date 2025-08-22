@@ -175,6 +175,6 @@ export class ContentWizardDataLoader {
         return new ContentsExistRequest([id])
             .setRequestProjectName(parentProjectName)
             .sendAndParse()
-            .then((result: ContentsExistResult) => !!result.getContentsExistMap()[id]);
+            .then((result: ContentsExistResult) => !!result.getContentsExistMap().get(id));
     }
 }

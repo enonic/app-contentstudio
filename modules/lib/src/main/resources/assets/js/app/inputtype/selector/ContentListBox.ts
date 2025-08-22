@@ -1,11 +1,11 @@
-import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ContentAndStatusSelectorViewer} from './ContentAndStatusSelectorViewer';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {ContentTreeSelectorItemViewer} from '../../item/ContentTreeSelectorItemViewer';
+import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 
 export interface ContentListBoxOptions<T extends ContentTreeSelectorItem> {
     loader: ContentSummaryOptionDataLoader<T>;
@@ -25,7 +25,7 @@ export class ContentListBox<T extends ContentTreeSelectorItem> extends LazyListB
     }
 
     protected createItemView(item: T, readOnly: boolean): Element {
-        const viewer = new ContentAndStatusSelectorViewer();
+        const viewer = new ContentTreeSelectorItemViewer();
 
         viewer.setObject(item);
 
@@ -41,7 +41,7 @@ export class ContentListBox<T extends ContentTreeSelectorItem> extends LazyListB
     }
 
     protected updateItemView(itemView: Element, item: T) {
-        const viewer = itemView as ContentAndStatusSelectorViewer;
+        const viewer = itemView as ContentTreeSelectorItemViewer;
         viewer.setObject(item);
     }
 
