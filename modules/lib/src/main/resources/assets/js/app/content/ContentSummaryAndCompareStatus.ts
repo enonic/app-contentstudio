@@ -51,6 +51,12 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
         return new ContentSummaryAndCompareStatus().setUploadItem(item);
     }
 
+    public static fromId(id: string | ContentId): ContentSummaryAndCompareStatus {
+        const contentId = id instanceof ContentId ? id : new ContentId(id);
+        return ContentSummaryAndCompareStatus.fromContentSummary(
+            new ContentSummary(new ContentSummaryBuilder().setId(contentId.toString()).setContentId(contentId)))
+    }
+
     public static isInArray(contentId: ContentId, array: ContentSummaryAndCompareStatus[]): boolean {
         return array.some((c) => c.getContentId().equals(contentId));
     }

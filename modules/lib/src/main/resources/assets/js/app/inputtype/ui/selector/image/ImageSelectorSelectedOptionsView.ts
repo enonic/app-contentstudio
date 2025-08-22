@@ -18,7 +18,7 @@ export class ImageSelectorSelectedOptionsView
     }
 
     protected getNumberOfEditableOptions(): number {
-        return this.selection.filter(option => !option.getOption().getDisplayValue().isEmptyContent()).length;
+        return this.selection.filter(option => option.getOption().getDisplayValue().isAvailable()).length;
     }
 
     createSelectedOption(option: Option<MediaTreeSelectorItem>): SelectedOption<MediaTreeSelectorItem> {

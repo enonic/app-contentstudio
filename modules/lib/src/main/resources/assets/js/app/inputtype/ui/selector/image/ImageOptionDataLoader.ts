@@ -1,19 +1,17 @@
-import Q from 'q';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {ImageContentLoader} from './ImageContentLoader';
-import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
-import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
-import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
-import {OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
-import {ContentAndStatusTreeSelectorItem} from '../../../../item/ContentAndStatusTreeSelectorItem';
-import {ContentSummary} from '../../../../content/ContentSummary';
-import {ContentId} from '../../../../content/ContentId';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
+import Q from 'q';
+import {ContentId} from '../../../../content/ContentId';
+import {ContentSummary} from '../../../../content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
+import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
+import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
+import {ImageContentLoader} from './ImageContentLoader';
 
 export class ImageOptionDataLoader
     extends ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {
-
-    private preloadedDataListeners: ((data: MediaTreeSelectorItem[]) => void)[] = [];
 
     constructor(builder: ImageOptionDataLoaderBuilder = new ImageOptionDataLoaderBuilder()) {
         super(builder);
@@ -38,35 +36,19 @@ export class ImageOptionDataLoader
             });
 
             const items: MediaTreeSelectorItem[] = contents.map(content => {
-                const item: MediaTreeSelectorItem = new MediaTreeSelectorItem(content, false);
+                const item: MediaTreeSelectorItem = MediaTreeSelectorItem.create().setContent(
+                    ContentSummaryAndCompareStatus.fromContentSummary(content)).setSelectable(false).build();
 
                 if (!content) {
-                    item.setMissingItemId(missingItems.pop());
+                   // item.setMissingItemId(missingItems.pop());
                 }
 
                 return item;
             });
 
-            this.notifyPreloadedData(items);
 
             return items;
         }));
-    }
-
-    onPreloadedData(listener: (data: MediaTreeSelectorItem[]) => void) {
-        this.preloadedDataListeners.push(listener);
-    }
-
-    unPreloadedData(listener: (data: MediaTreeSelectorItem[]) => void) {
-        this.preloadedDataListeners = this.preloadedDataListeners.filter((currentListener: (data: MediaTreeSelectorItem[]) => void) => {
-            return currentListener !== listener;
-        });
-    }
-
-    notifyPreloadedData(data: MediaTreeSelectorItem[]) {
-        this.preloadedDataListeners.forEach((listener: (data: MediaTreeSelectorItem[]) => void) => {
-            listener.call(this, data);
-        });
     }
 
     protected createOptionData(data: ContentTreeSelectorItem[], hits: number, totalHits: number) {
@@ -90,7 +72,7 @@ export class ImageOptionDataLoader
             return null;
         }
 
-        return MediaTreeSelectorItem.createMediaTreeSelectorItemWithStatus(item as ContentAndStatusTreeSelectorItem);
+        return MediaTreeSelectorItem.fromContentTreeSelectorItem(item);
     }
 
     static build(builder: ImageOptionDataLoaderBuilder): ImageOptionDataLoader {
