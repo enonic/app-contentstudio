@@ -198,7 +198,7 @@ export class SortContentDialog
             .setRequestProjectName(parentProject)
             .sendAndParse()
             .then((result: ContentsExistResult) => {
-                if (!!result.getContentsExistMap()[this.selectedContent.getId()]) {
+                if (!!result.getContentsExistMap().get(this.selectedContent.getId())) {
                     return new ContentSummaryAndCompareStatusFetcher().fetch(this.selectedContent.getContentId(), parentProject);
                 } else {
                     return Q(null);

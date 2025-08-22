@@ -15,6 +15,7 @@ import {UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgre
 import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {Content} from '../../../../../content/Content';
+import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
 import {OverrideNativeDialog} from '../OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from '../ModalDialog';
 import {ImageStyleSelector} from './ImageStyleSelector';
@@ -304,7 +305,7 @@ export class ImageModalDialog
                     return;
                 }
 
-                this.previewImage(imageSelectorItem.getContent());
+                this.previewImage(imageSelectorItem.getContentSummary());
                 formItem.addClass('selected-item-preview');
 
                 new GetContentByIdRequest(imageSelectorItem.getContent().getContentId()).setRequestProject(
@@ -599,7 +600,8 @@ export class ImageModalDialog
             const item = event.getUploadItem();
             const createdContent = item.getModel();
 
-            this.imageSelector.select(new MediaTreeSelectorItem(createdContent));
+            this.imageSelector.select(
+                MediaTreeSelectorItem.create().setContent(ContentSummaryAndCompareStatus.fromContentSummary(createdContent)).build());
         });
 
         uploader.onUploadFailed(() => {
@@ -717,7 +719,7 @@ export class ImageModalDialog
         const imageContent = this.imageSelector.getSelectedOptions()[0].getOption().getDisplayValue().getContent();
         const processingStyle = this.imageToolbar.getProcessingStyle();
 
-        const imageUrlBuilder = this.createImageUrlResolver(imageContent, width, processingStyle);
+        const imageUrlBuilder = this.createImageUrlResolver(imageContent.getContentSummary(), width, processingStyle);
 
         imageEl.setAttribute('src', imageUrlBuilder.resolveForPreview());
         imageEl.setAttribute('data-src', imageUrlBuilder.resolveForRender(processingStyle ? processingStyle.getName() : ''));

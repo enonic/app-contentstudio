@@ -1,3 +1,5 @@
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
@@ -7,6 +9,8 @@ import {ContentTreeSelectorItem} from './ContentTreeSelectorItem';
 export class ContentTreeSelectorItemViewer
     extends NamesAndIconViewer<ContentTreeSelectorItem> {
 
+    private statusColumn: DivEl;
+
     constructor() {
         super('content-tree-selector-item-viewer');
     }
@@ -14,8 +18,24 @@ export class ContentTreeSelectorItemViewer
     doLayout(object: ContentTreeSelectorItem) {
         super.doLayout(object);
 
+        if (!this.statusColumn) {
+            this.statusColumn = this.createStatusColumn(object);
+            this.appendChild(this.statusColumn);
+        }
+
         this.toggleClass('fake-root', object?.getPath().isRoot());
     }
+
+    private createStatusColumn(item: ContentTreeSelectorItem): DivEl {
+        const statusElement = new DivEl('status');
+        const statusTextEl = new SpanEl();
+        statusTextEl.addClass(item.getContent().getStatusClass());
+        statusTextEl.setHtml(item.getContent().getStatusText());
+        statusElement.appendChild(statusTextEl);
+
+        return statusElement;
+    }
+
 
     resolveDisplayName(object: ContentTreeSelectorItem): string {
         const contentName = object.getName();
@@ -51,7 +71,7 @@ export class ContentTreeSelectorItemViewer
 
     resolveIconUrl(object: ContentTreeSelectorItem): string {
         if (object) {
-            return new ContentIconUrlResolver().setContent(object.getContent()).resolve();
+            return new ContentIconUrlResolver().setContent(object.getContentSummary()).resolve();
         }
     }
 }

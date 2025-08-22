@@ -6,7 +6,6 @@ import {ContentId} from '../../../content/ContentId';
 import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryJson} from '../../../content/ContentSummaryJson';
-import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
 import {CompareContentRequest} from '../../../resource/CompareContentRequest';
 import {CompareContentResult} from '../../../resource/CompareContentResult';
@@ -89,7 +88,8 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     protected sendPreLoadRequest(ids: string): Q.Promise<DATA[]> {
         const contentIds = ids.split(';').map((id) => new ContentId(id));
         return new GetContentSummaryByIds(contentIds).setRequestProject(this.project).sendAndParse().then(((contents: ContentSummary[]) => {
-            return this.loadStatuses(contents.map(content => new ContentTreeSelectorItem(content)) as DATA[]);
+            return this.loadStatuses(contents.map(content => ContentTreeSelectorItem.create().setContent(
+                ContentSummaryAndCompareStatus.fromContentSummary(content)).build()) as DATA[]);
         }));
     }
 
@@ -105,7 +105,8 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     private sendAndParseFlatRequest(silent: boolean = false, postLoad?: boolean): Q.Promise<DATA[]> {
         return this.flatRequest.sendAndParse().then((contents) => {
             const result =
-                contents.filter(this.postFilterFn).map(content => new ContentTreeSelectorItem(content));
+                contents.filter(this.postFilterFn).map(content => ContentTreeSelectorItem.create().setContent(
+                    ContentSummaryAndCompareStatus.fromContentSummary(content)).build());
 
             if (!silent) {
                 this.isTreeLoadMode = false;
@@ -140,13 +141,13 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
         this.treeRequest.setFrom(from);
         this.treeRequest.setSize(size);
-        this.treeRequest.setChildOrder(data?.getId() ? data.getDisplayValue().getContent().getChildOrder() : null);
+        this.treeRequest.setChildOrder(data?.getId() ? data.getDisplayValue().getContentSummary().getChildOrder() : null);
 
         if (this.smartTreeMode) {
             (this.treeRequest as ContentTreeSelectorQueryRequest<DATA>).setParentPath(
                 data?.getId() ? data.getDisplayValue().getContent().getPath() : null);
         } else {
-            this.treeRequest.setContent(data?.getDisplayValue().getContent() || null);
+            this.treeRequest.setContent(data?.getDisplayValue().getContentSummary() || null);
         }
 
         this.treeRequest.setSearchString(this.treeFilterValue);
@@ -168,7 +169,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
     protected wrapFakeRoot(): DATA {
         const item = ContentSummaryAndCompareStatus.fromContentSummary(this.fakeRoot);
-        return new ContentAndStatusTreeSelectorItem(item, true, false) as ContentTreeSelectorItem as DATA;
+        return ContentTreeSelectorItem.create().setContent(item).setSelectable(true).setExpandable(false).build() as DATA;
     }
 
     protected createRequest(): ContentSelectorRequest<DATA> {
@@ -191,7 +192,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     }
 
     checkReadonly(items: DATA[]): Q.Promise<string[]> {
-        return ContentSummaryFetcher.getReadOnly(items.map(item => item.getContent()));
+        return ContentSummaryFetcher.getReadOnly(items.map(item => item.getContentSummary()));
     }
 
     private loadItems(): Q.Promise<DATA[]> {
@@ -205,17 +206,17 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     }
 
     private loadStatuses(contents: DATA[]): Q.Promise<DATA[]> {
-        return CompareContentRequest.fromContentSummaries(contents.map(item => item.getContent())).setRequestProject(
+        return CompareContentRequest.fromContentSummaries(contents.map(item => item.getContent().getContentSummary())).setRequestProject(
             this.project).sendAndParse().then(
             (compareResults: CompareContentResults) => {
 
                 return contents.map(item => {
-
                     const compareResult: CompareContentResult = compareResults.get(item.getId());
                     const contentAndCompareStatus = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
-                        item.getContent(), compareResult.getCompareStatus(), compareResult.getPublishStatus());
+                        item.getContent().getContentSummary(), compareResult.getCompareStatus(), compareResult.getPublishStatus());
 
-                    return new ContentAndStatusTreeSelectorItem(contentAndCompareStatus, item.isSelectable()) as unknown as DATA;
+                    return ContentTreeSelectorItem.create().setContent(contentAndCompareStatus).setSelectable(
+                        item.isSelectable()).build() as DATA;
                 });
             });
     }

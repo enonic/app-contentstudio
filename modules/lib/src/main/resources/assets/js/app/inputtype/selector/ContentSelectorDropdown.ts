@@ -1,28 +1,34 @@
 import * as Q from 'q';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {ContentSummaryOptionDataHelper} from '../../util/ContentSummaryOptionDataHelper';
-import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
-import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentId} from '../../content/ContentId';
-import {ContentSummary, ContentSummaryBuilder} from '../../content/ContentSummary';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ContentAndStatusTreeSelectorItem} from '../../item/ContentAndStatusTreeSelectorItem';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {
     FilterableListBoxWrapperWithSelectedView,
     ListBoxInputOptions
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {ContentId} from '../../content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {ContentsExistRequest} from '../../resource/ContentsExistRequest';
+import {ContentsExistResult} from '../../resource/ContentsExistResult';
+import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
+import {ContentSummaryOptionDataHelper} from '../../util/ContentSummaryOptionDataHelper';
+import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
+import {ContentAvailabilityStatus} from './ContentAvailabilityStatus';
 
 export interface ContentSelectorDropdownOptions extends ListBoxInputOptions<ContentTreeSelectorItem> {
     loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
     selectedOptionsView: BaseSelectedOptionsView<ContentTreeSelectorItem>;
     getSelectedItems: () => string[];
+}
+
+export interface SelectedContentItem {
+    item: ContentSummaryAndCompareStatus | ContentId;
+    status: ContentAvailabilityStatus;
 }
 
 export class ContentSelectorDropdown
@@ -110,8 +116,8 @@ export class ContentSelectorDropdown
         const ids = this.getSelectedItemsHandler().filter(id => !StringHelper.isBlank(id)).map(id => new ContentId(id));
 
         if (ids.length > 0) {
-            new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(ids).then((contents) => {
-                const items = ids.map((id) => this.createSelectorItem(contents.find((content) => content.getId() === id.toString()), id));
+            this.fetchPreselectedItems(ids).then((contents) => {
+                const items = contents.map((contentItem) => this.createPreselectedItem(contentItem));
                 const options = items.map((item) => this.createSelectedOption(item));
                 this.selectedOptionsView.addOptions(options, true, -1);
                 this.checkSelectionLimitReached();
@@ -119,16 +125,30 @@ export class ContentSelectorDropdown
         }
     }
 
-    protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus, id: ContentId): ContentTreeSelectorItem {
-        if (!content) { // missing option
-            return new ContentTreeSelectorItem(new ContentSummary(new ContentSummaryBuilder().setId(id.toString()).setContentId(id)));
-        }
+    private fetchPreselectedItems(ids: ContentId[]): Q.Promise<SelectedContentItem[]> {
+        return new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(ids).then((contents) => {
+            const missingIds = ids.filter(id => !contents.some(content => content.getId() === id.toString())).map(id => id.toString());
+            const existsReq = missingIds.length > 0 ? new ContentsExistRequest(missingIds).sendAndParse() : Q.resolve({});
 
-        if (content instanceof ContentSummaryAndCompareStatus) {
-            return new ContentAndStatusTreeSelectorItem(content);
-        }
+            return existsReq.then((existsMap: ContentsExistResult) => {
+                return ids.map((contentId) => {
+                    const content = contents.find((c) => c.getId() === contentId.toString());
+                    const status = content ? 'OK' : existsMap.getContentsExistMap().get(contentId.toString()) ? 'NO_ACCESS' : 'NOT_FOUND';
 
-        return new ContentTreeSelectorItem(content);
+                    return {
+                        item: content || contentId,
+                        status: status,
+                    }
+                });
+            });
+        });
+    }
+
+    protected createPreselectedItem(selectedContentItem: SelectedContentItem): ContentTreeSelectorItem {
+        const contentOrId = selectedContentItem.item;
+        const cs = contentOrId instanceof ContentId ? ContentSummaryAndCompareStatus.fromId(contentOrId) : contentOrId;
+
+        return ContentTreeSelectorItem.create().setContent(cs).setAvailabilityStatus(selectedContentItem.status).build();
     }
 
     protected selectLoadedFlatListItems(items: ContentTreeSelectorItem[]): void {

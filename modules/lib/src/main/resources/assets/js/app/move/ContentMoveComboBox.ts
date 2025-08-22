@@ -48,7 +48,7 @@ export class ContentMoveComboBox
 
         this.listBox.onItemsAdded((items: ContentTreeSelectorItem[]) => {
             items.forEach((item: ContentTreeSelectorItem) => {
-                this.listBox.getItemView(item).toggleClass('readonly', this.readonlyChecker.isReadOnly(item.getContent()));
+                this.listBox.getItemView(item).toggleClass('readonly', this.readonlyChecker.isReadOnly(item.getContentSummary()));
             });
         });
     }

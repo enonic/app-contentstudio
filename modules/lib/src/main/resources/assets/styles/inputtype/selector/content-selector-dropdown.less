@@ -124,7 +124,8 @@
         }
 
         &._0-240,
-        &._240-360 {
+        &._240-360,
+        &._360-540 {
           .selected-option {
             grid-template-columns: 5px 1fr 24px 24px;
             grid-template-areas:
@@ -148,11 +149,11 @@
         }
 
         &._0-240,
-        &._240-360 {
+        &._240-360,
+        &._360-540 {
           .selected-option {
-            grid-template-columns: 1fr 24px 24px;
-            grid-template-areas:
-            "data edit remove";
+            grid-template-columns: 1fr;
+            grid-template-areas: "data";
 
             .status {
               display: none;
@@ -163,3 +164,24 @@
     }
   }
 }
+
+.no-modify-permissions {
+  .content-selector-dropdown:not(.gallery-mode) {
+    .selected-options {
+      .selected-option {
+        grid-template-columns: 1fr 90px;
+        grid-template-areas: "data status";
+      }
+
+      &._0-240,
+      &._240-360,
+      &._360-540 {
+        .selected-option {
+          grid-template-columns: 1fr;
+          grid-template-areas: "data";
+        }
+      }
+    }
+  }
+}
+
