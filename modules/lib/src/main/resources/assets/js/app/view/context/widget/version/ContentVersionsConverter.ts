@@ -130,20 +130,6 @@ export abstract class ContentVersionsConverter {
            this.makeCreatedVersionHistoryItem(version)];
     }
 
-    protected filterSameVersions(versions: ContentVersion[]): ContentVersion[] {
-        const filteredVersions: ContentVersion[] = [];
-        let previousVersion: ContentVersion = null;
-
-        versions.forEach((version: ContentVersion) => {
-            if (!previousVersion || !!version.getPublishInfo() || this.isSeparateVersion(version, previousVersion)) {
-                previousVersion = version;
-                filteredVersions.push(version);
-            }
-        });
-
-        return filteredVersions;
-    }
-
     private isSeparateVersion(v1: ContentVersion, v2: ContentVersion): boolean {
         return Math.abs(v1.getTimestamp().getTime() - v2.getTimestamp().getTime()) > ContentVersionsConverter.FILTER_STEP_MS;
     }

@@ -11,7 +11,7 @@ export class BatchedContentVersionsConverter extends ContentVersionsConverter {
 
     public append(versions: ContentVersion[], isMoreVersionsToBeAdded: boolean): VersionHistoryItem[] {
         this.allVersions.push(...versions.slice());
-        return this.makeVersionHistoryItems(this.filterSameVersions(this.allVersions), isMoreVersionsToBeAdded);
+        return this.makeVersionHistoryItems(this.allVersions, isMoreVersionsToBeAdded);
     }
 
 }

@@ -12,6 +12,6 @@ export class NonBatchedContentVersionsConverter extends ContentVersionsConverter
     public convert(versions: ContentVersion[]): VersionHistoryItem[] {
         this.allVersions = versions.slice();
         this.lastDate = null;
-        return this.makeVersionHistoryItems(this.filterSameVersions(this.allVersions), false);
+        return this.makeVersionHistoryItems(this.allVersions, false);
     }
 }
