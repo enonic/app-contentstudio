@@ -1,23 +1,16 @@
-import {ContentSummary} from '../../content/ContentSummary';
+import {ContentId} from '../../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
+import {SelectedContentItem} from './ContentSelectorDropdown';
 import {ContentTreeSelectorDropdown} from './ContentTreeSelectorDropdown';
-import {ContentId} from '../../content/ContentId';
 
 export class ImageSelectorDropdown extends ContentTreeSelectorDropdown {
 
-    protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus, id: ContentId): MediaTreeSelectorItem {
-        if (content instanceof ContentSummaryAndCompareStatus) {
-            return new MediaTreeSelectorItem(content.getContentSummary());
-        }
+    protected createPreselectedItem(selectedContentItem: SelectedContentItem): MediaTreeSelectorItem {
+        const contentOrId = selectedContentItem.item;
+        const cs = contentOrId instanceof ContentId ? ContentSummaryAndCompareStatus.fromId(contentOrId) : contentOrId;
 
-        const mediaItem = new MediaTreeSelectorItem(content);
-
-        if (mediaItem.isEmptyContent()) {
-            mediaItem.setMissingItemId(id?.toString());
-        }
-
-        return mediaItem;
+        return MediaTreeSelectorItem.create().setContent(cs).setAvailabilityStatus(selectedContentItem.status).build();
     }
 
 }

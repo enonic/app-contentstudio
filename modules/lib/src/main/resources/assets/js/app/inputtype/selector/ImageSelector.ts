@@ -1,34 +1,33 @@
-import Q from 'q';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from '@enonic/lib-admin-ui/Class';
 import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
+import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
+import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
-import {MediaSelector} from './MediaSelector';
-import {ImageSelectorSelectedOptionsView} from '../ui/selector/image/ImageSelectorSelectedOptionsView';
-import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
-import {ImageSelectorSelectedOptionView} from '../ui/selector/image/ImageSelectorSelectedOptionView';
-import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
-import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import Q from 'q';
 import {Content} from '../../content/Content';
-import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
-import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from '../ui/selector/image/ImageOptionDataLoader';
-import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
+import {ContentPath} from '../../content/ContentPath';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import {ContentPath} from '../../content/ContentPath';
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {ContentSummary} from '../../content/ContentSummary';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
+import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
+import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from '../ui/selector/image/ImageOptionDataLoader';
+import {ImageSelectorSelectedOptionsView} from '../ui/selector/image/ImageSelectorSelectedOptionsView';
+import {ImageSelectorSelectedOptionView} from '../ui/selector/image/ImageSelectorSelectedOptionView';
+import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
+import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
+import {ContentListBox} from './ContentListBox';
+import {ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
 import {ImageContentListBox} from './ImageContentListBox';
 import {ImageSelectorDropdown} from './ImageSelectorDropdown';
-import {ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
-import {ContentListBox} from './ContentListBox';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {MediaSelector} from './MediaSelector';
 
 export class ImageSelector
     extends MediaSelector<ImageSelectorSelectedOptionsView> {
@@ -133,13 +132,8 @@ export class ImageSelector
         });
     }
 
-    protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus, selectable: boolean = true,
-                                 expandable: boolean = true): MediaTreeSelectorItem {
-        if (content instanceof ContentSummaryAndCompareStatus) {
-            return new MediaTreeSelectorItem(content.getContentSummary(), selectable, expandable);
-        }
-
-        return new MediaTreeSelectorItem(content, selectable, expandable);
+    protected createSelectorItem(content: ContentSummaryAndCompareStatus): MediaTreeSelectorItem {
+        return MediaTreeSelectorItem.create().setContent(content).build();
     }
 
     protected createContentListBox(loader: ContentSummaryOptionDataLoader<MediaTreeSelectorItem>): ImageContentListBox {
@@ -157,7 +151,9 @@ export class ImageSelector
 
     protected handleSelectedOptionDeleted(selectedOption: SelectedOption<ContentTreeSelectorItem>): void {
         const option = selectedOption.getOption();
-        const newValue = new MediaTreeSelectorItem().setMissingItemId(option.getDisplayValue().getId());
+        const contentId = option.getDisplayValue().getContentId();
+        const newValue = MediaTreeSelectorItem.create().setContent(ContentSummaryAndCompareStatus.fromId(contentId)).setAvailabilityStatus(
+            'NOT_FOUND').build();
         option.setDisplayValue(newValue);
         selectedOption.getOptionView().setOption(option);
     }

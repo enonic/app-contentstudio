@@ -1512,7 +1512,7 @@ export class ContentWizardPanel
                     .setRequestProjectName(deletedParent)
                     .sendAndParse()
                     .then((result: ContentsExistResult) => {
-                        this.contentExistsInParentProject = !!result.getContentsExistMap()[thisContentIdAsString];
+                        this.contentExistsInParentProject = !!result.getContentsExistMap().get(thisContentIdAsString);
 
                         if (!this.contentExistsInParentProject) {
                             this.wizardActions.refreshState();
