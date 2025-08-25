@@ -1777,7 +1777,7 @@ export class ContentWizardPanel
         let persistedContent = this.getPersistedItem();
         let extraData = persistedContent.getExtraDataByName(xDataName);
         if (!extraData) { // ensure ExtraData object corresponds to each step form
-            this.enrichWithExtraData(persistedContent, xDataName, xDataPropertyTree);
+           // this.enrichWithExtraData(persistedContent, xDataName, xDataPropertyTree);
         } else {
             let diff = extraData.getData().diff(xDataPropertyTree);
             diff.added.forEach((property: Property) => {
