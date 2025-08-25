@@ -1,4 +1,3 @@
-// app-contentstudio/modules/lib/src/main/resources/assets/app/ui2/list/CheckableListItemWithStatus.ts
 import * as UI from '@enonic/ui';
 import type { ComponentProps } from 'react';
 import Q from 'q';
@@ -36,9 +35,12 @@ export class CheckableListItemWithStatus
 
     private cfg: CheckableListItemWithStatusConfig;
     private enabled = true;
-    private selected = false;                 // internal selection for legacy parity
+    private selected = false;
     private listeners: Array<(s: boolean) => void> = [];
     private readonly checkboxId = `cli-${nanoid(8)}`;
+
+    // NEW: emit once after first render so controller can compute indeterminate
+    private didEmitInitial = false;
 
     constructor(cfg: CheckableListItemWithStatusConfig) {
         const initial = evalBool(cfg.checkbox?.checked, false);
@@ -48,14 +50,9 @@ export class CheckableListItemWithStatus
         super(
             {
                 className: UI.cn('checkable-list-item-with-status', cfg.className),
-
-                // IMPORTANT: mirror checked -> selected so ListItem applies highlight + text colors
                 checked: initial,
-                //selected: initial,
                 readOnly: !enabled,
                 onCheckedChange: (next) => this.handleToggle(next),
-
-                // content
                 label: cfg.label ?? cfg.item?.getDisplayName?.() ?? cfg.item?.getName?.() ?? '',
                 description: cfg.description,
                 metadata: cfg.metadata,
@@ -72,15 +69,14 @@ export class CheckableListItemWithStatus
         this.toggleClass(CLS.READONLY, !enabled);
     }
 
-    /** <-- Needed by the wizard: allow it to read the backing item */
-    getItem(): ItemLike | undefined {
-        return this.cfg.item;
-    }
+    getItem(): ItemLike | undefined { return this.cfg.item; }
 
-    /** Keep input/label ids stable after every render */
     override doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.attachCheckboxId();
+
+            this.notifySelected(this.selected);
+
             return rendered;
         });
     }
@@ -95,16 +91,12 @@ export class CheckableListItemWithStatus
         if (label) label.htmlFor = this.checkboxId;
     }
 
-    /* ---------- Legacy selection API (used by the “All (N)” control) ---------- */
-
     setSelected(next: boolean, force?: boolean, silent?: boolean): void {
         if (!this.isSelectable() && !force) return;
         const val = !!next;
         if (val === this.selected) return;
 
         this.selected = val;
-
-        // mirror to child so background + text colors update
         this.setProps({ checked: val });
 
         if (!silent) this.notifySelected(val);
@@ -123,8 +115,6 @@ export class CheckableListItemWithStatus
         this.listeners.forEach((fn) => fn(val));
     }
 
-    /* ---------- Enable/hidden refresh + content updates ---------- */
-
     refreshSelectable(): void {
         const isHidden = evalBool(this.cfg.hidden, false);
         this.enabled = evalBool(this.cfg.checkbox?.enabled, true) && !isHidden;
@@ -132,6 +122,8 @@ export class CheckableListItemWithStatus
         this.toggleClass(CLS.HIDDEN, isHidden);
         this.toggleClass(CLS.READONLY, !this.enabled);
         this.setProps({ readOnly: !this.enabled });
+
+        this.notifySelected(this.selected);
     }
 
     setObject(item: ItemLike): void {
@@ -140,15 +132,16 @@ export class CheckableListItemWithStatus
             label: this.cfg.label ?? item?.getDisplayName?.() ?? item?.getName?.() ?? '',
             children: this.cfg.statusText ?? item?.getStatusText?.(),
         });
+
+        // NEW: item change can alter enabled/hidden → recompute now
+        this.refreshSelectable();
     }
 
-    /* ---------- Bridge checkbox → selection ---------- */
     private handleToggle(next: boolean | 'indeterminate'): void {
         const val = next === true;
         if (val === this.selected) return;
-
         this.selected = val;
-        this.setProps({ checked: val }); // keep visuals in sync
+        this.setProps({ checked: val });
         this.notifySelected(val);
     }
 }

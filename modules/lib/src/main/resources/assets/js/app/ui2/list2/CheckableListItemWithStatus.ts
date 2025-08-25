@@ -1,210 +1,185 @@
+// app-contentstudio/modules/lib/src/main/resources/assets/app/ui2/list/CheckableListItemWithStatus.ts
 import * as UI from '@enonic/ui';
-import type {ComponentProps} from 'react';
+import type { ComponentProps } from 'react';
+import Q from 'q';
+import { nanoid } from 'nanoid';
+import { LegacyElement } from '@enonic/lib-admin-ui/ui2/LegacyElement';
+import { SelectableListItem } from '@enonic/ui';
 
-// Legacy host (renders React inside lib-admin-ui’s DOM system)
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
-import {SelectableListItem} from '@enonic/ui';
-
-///Users/msk/Documents/EnonicReps/npm-enonic-ui/src/components/selectable-list-item/selectable-list-item.tsx
-// ⚠️ Import the React row from @enonic/ui (adjust path if your package exposes a subpath)
-
-export type CheckboxControllerProps = Pick<UI.CheckboxProps, 'checked' | 'label' | 'align'>
-    & Partial<Pick<UI.CheckboxProps, 'onCheckedChange' | 'name'>>;
-
-//
-// Very small “item-like” surface so we can derive texts & status from ContentSummaryAndCompareStatus,
-// but also let callers pass static strings if needed.
-//
 interface ItemLike {
-    getDisplayName?: () => string;
-    getName?: () => string;
-    getOwnerName?: () => string;
-    getSizeString?: () => string;
-    getStatusText?: () => string;
-    getStatusClass?: () => string;
+    getDisplayName?(): string;
+    getName?(): string;
+    getStatusText?(): string;
 }
 
 export interface CheckableListItemWithStatusConfig {
     item?: ItemLike;
-
-    // Optional explicit content props (overrides values derived from item)
     label?: string;
     description?: string;
     metadata?: string;
-
-    // Optional explicit status (overrides values derived from item)
     statusText?: string;
-    statusClass?: string;
 
-    // Selection & enablement
     checkbox?: {
-        readOnly?: boolean;
+        readOnly?: boolean | (() => boolean);
         checked?: boolean | (() => boolean);
         enabled?: boolean | (() => boolean);
     };
 
-    // Hide + disable row when true
     hidden?: boolean | (() => boolean);
-
     className?: string;
-
-    // Selection callback (parity with older APIs)
     onSelected?: (selected: boolean) => void;
 }
 
-// Props we pass to @enonic/ui SelectableListItem
 type RowProps = ComponentProps<typeof SelectableListItem>;
+const CLS = { READONLY: 'readonly', HIDDEN: 'hidden' } as const;
 
-const CLS = {
-    READONLY: 'readonly',
-    SELECTED: 'selected',
-    HIDDEN: 'hidden',
-} as const;
+export class CheckableListItemWithStatus
+    extends LegacyElement<typeof SelectableListItem, RowProps> {
 
-/**
- * CheckableListItemWithStatus
- * - Pre-JSX wrapper around @enonic/ui SelectableListItem via LegacyElement.
- * - No Tooltip (explicitly dropped).
- * - Controlled checkbox so programmatic setSelected() always syncs UI.
- * - Puts a tiny status text on the Right slot for now (replace with StatusBadge later).
- */
-export class CheckableListItemWithStatus extends LegacyElement<typeof SelectableListItem, RowProps> {
-    private listeners: ((selected: boolean) => void)[] = [];
     private cfg: CheckableListItemWithStatusConfig;
+
+    // CHANGED: track both flags explicitly
+    private selectable = true;    // user may toggle?
+    private readOnly  = false;    // hard lock (never toggle), supersedes selectable
+
     private selected = false;
-    private enabled = true;
+    private listeners: Array<(s: boolean) => void> = [];
+    private readonly checkboxId = `cli-${nanoid(8)}`;
 
     constructor(cfg: CheckableListItemWithStatusConfig) {
+        // derive initial flags
+        const initial   = evalBool(cfg.checkbox?.checked,  false);
+        const isHidden  = evalBool(cfg.hidden,             false);
+        const isRO      = evalBool(cfg.checkbox?.readOnly, false);            // NEW
+        const isEnabled = evalBool(cfg.checkbox?.enabled,  true);
+
+        // selectable = enabled AND not hidden AND not readOnly
+        const selectable = isEnabled && !isHidden && !isRO;                    // NEW
+
         super(
             {
                 className: UI.cn('checkable-list-item-with-status', cfg.className),
-                selected: false,
 
-                // Content (derive from item unless explicitly provided)
-                label: resolveLabel(cfg),
-                description: resolveDescription(cfg),
-                metadata: resolveMetadata(cfg),
+                // checkbox view state
+                checked: initial,
+                readOnly: isRO || !selectable,                                    // NEW (lock UI when readOnly)
+                onCheckedChange: (next) => this.handleToggle(next),
 
-                // Checkbox (controlled)
-                checked: evalBool(cfg.checkbox?.checked, false),
-                readOnly: evalBool(cfg.checkbox?.readOnly, !evalEnabled(cfg)),
-
-                onCheckedChange: (next) => this.onCheckedChange(next),
-
-                // Right slot (temporary text; replace with StatusBadge later)
-                children: resolveStatusText(cfg),
+                // content
+                label: cfg.label ?? cfg.item?.getDisplayName?.() ?? cfg.item?.getName?.() ?? '',
+                description: cfg.description,
+                metadata: cfg.metadata,
+                children: cfg.statusText ?? cfg.item?.getStatusText?.(),
             },
             SelectableListItem
         );
 
         this.cfg = cfg;
-        this.selected = evalBool(cfg.checkbox?.checked, false);
-
-        const isHidden = evalBool(cfg.hidden, false);
-        this.enabled = evalEnabled(cfg) && !isHidden;
+        this.readOnly  = isRO;                                                // NEW
+        this.selectable = selectable;                                         // NEW
+        this.selected   = initial;
 
         this.toggleClass(CLS.HIDDEN, isHidden);
-        this.toggleClass(CLS.READONLY, !this.enabled);
-        this.toggleClass(CLS.SELECTED, this.selected);
+        this.toggleClass(CLS.READONLY, !this.selectable || this.readOnly);    // cosmetic class
+    }
 
-        // Keep props in sync
-        this.setProps({
-            selected: this.selected,
-            checked: this.selected,
-            readOnly: !this.enabled,
+    getItem(): ItemLike | undefined { return this.cfg.item; }
+
+    override doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.attachCheckboxId();
+            // keep controller in sync (counts & indeterminate)
+            this.notifySelected(this.selected);
+            return rendered;
         });
     }
 
-    // ---- Public API (what CS callers need) ----
-
-    setSelected(selected: boolean, force?: boolean, silent?: boolean): void {
-        if (force || this.isSelectable()) {
-            this.selected = !!selected;
-            this.toggleClass(CLS.SELECTED, this.selected);
-            this.setProps({selected: this.selected, checked: this.selected});
-
-            if (!silent) {
-                this.cfg.onSelected?.(this.selected);
-                this.listeners.forEach((fn) => fn(this.selected));
-            }
-        }
+    private attachCheckboxId(): void {
+        const root = this.getHTMLElement();
+        if (!root) return;
+        const input = root.querySelector('input[type="checkbox"]') as HTMLInputElement | null;
+        const label = input?.closest('label') as HTMLLabelElement | null
+                      ?? (root.querySelector('label') as HTMLLabelElement | null);
+        if (input) input.id = this.checkboxId;
+        if (label) label.htmlFor = this.checkboxId;
     }
 
-    isSelected(): boolean {
-        return this.selected;
+    /* ---------- Legacy selection API (used by “All (N)” control) ---------- */
+
+    setSelected(next: boolean, force?: boolean, silent?: boolean): void {
+        // HARD LOCK: read-only items must never change, even with force
+        if (this.readOnly) return;                                           // NEW
+
+        // normal gating: only allow when selectable OR when caller forces it
+        if (!this.selectable && !force) return;
+
+        const val = !!next;
+        if (val === this.selected) return;
+
+        this.selected = val;
+        this.setProps({ checked: val });
+
+        if (!silent) this.notifySelected(val);
     }
 
-    isSelectable(): boolean {
-        return this.enabled;
+    isSelected(): boolean { return this.selected; }
+    isSelectable(): boolean { return this.selectable && !this.readOnly; }  // NEW (clarify)
+
+    onSelected(fn: (s: boolean) => void): void { this.listeners.push(fn); }
+    unSelected(fn: (s: boolean) => void): void {
+        this.listeners = this.listeners.filter((l) => l !== fn);
     }
 
-    onSelected(listener: (selected: boolean) => void): void {
-        this.listeners.push(listener);
+    private notifySelected(val: boolean): void {
+        this.cfg.onSelected?.(val);
+        this.listeners.forEach((fn) => fn(val));
     }
 
-    unSelected(listener: (selected: boolean) => void): void {
-        this.listeners = this.listeners.filter((l) => l !== listener);
-    }
+    /* ---------- Enable/hidden/readOnly recompute + content updates ---------- */
 
-    /** Re-evaluate enabled/hidden flags and refresh UI */
     refreshSelectable(): void {
-        const isHidden = evalBool(this.cfg.hidden, false);
-        const enabled = evalEnabled(this.cfg) && !isHidden;
-        this.enabled = enabled;
+        const isHidden  = evalBool(this.cfg.hidden,             false);
+        const isRO      = evalBool(this.cfg.checkbox?.readOnly, false);      // NEW
+        const isEnabled = evalBool(this.cfg.checkbox?.enabled,  true);
+
+        this.readOnly   = isRO;                                              // NEW
+        this.selectable = isEnabled && !isHidden && !isRO;                   // NEW
 
         this.toggleClass(CLS.HIDDEN, isHidden);
-        this.toggleClass(CLS.READONLY, !enabled);
+        this.toggleClass(CLS.READONLY, !this.selectable || this.readOnly);
 
-        this.setProps({readOnly: !enabled});
+        // lock input whenever not selectable or read-only
+        this.setProps({ readOnly: this.readOnly || !this.selectable });      // NEW
+
+        // tell controller to recompute its tri-state
+        this.notifySelected(this.selected);
     }
 
-    /** Update texts/status from a new "item" (like ContentSummaryAndCompareStatus) */
     setObject(item: ItemLike): void {
-        this.cfg = {...this.cfg, item};
+        this.cfg = { ...this.cfg, item };
         this.setProps({
-            label: resolveLabel(this.cfg),
-            description: resolveDescription(this.cfg),
-            metadata: resolveMetadata(this.cfg),
-            children: resolveStatusText(this.cfg),
+            label: this.cfg.label ?? item?.getDisplayName?.() ?? item?.getName?.() ?? '',
+            children: this.cfg.statusText ?? item?.getStatusText?.(),
         });
+        this.refreshSelectable(); // item may affect enabled/hidden/readOnly
     }
 
-    // ---- Internals ----
+    /* ---------- Bridge checkbox → selection ---------- */
+    private handleToggle(next: boolean | 'indeterminate'): void {
+        // HARD LOCK at the interaction point too (safety)
+        if (this.readOnly || !this.selectable) return;                       // NEW
 
-    private onCheckedChange(next: boolean | 'indeterminate'): void {
-        const nextSel = next === true; // force boolean (old class parity)
-        this.selected = nextSel;
+        const val = next === true;
+        if (val === this.selected) return;
 
-        this.toggleClass(CLS.SELECTED, nextSel);
-        this.setProps({selected: nextSel, checked: nextSel});
-
-        this.cfg.onSelected?.(nextSel);
-        this.listeners.forEach((fn) => fn(nextSel));
+        this.selected = val;
+        this.setProps({ checked: val });
+        this.notifySelected(val);
     }
 }
 
-// ---------- helpers ----------
-
-function evalBool(v: boolean | (() => boolean) | undefined, fallback: boolean): boolean {
-    try {
-        return typeof v === 'function' ? !!v() : v ?? fallback;
-    } catch {
-        return fallback;
-    }
-}
-function evalEnabled(cfg: CheckableListItemWithStatusConfig): boolean {
-    return evalBool(cfg.checkbox?.enabled, true);
-}
-
-function resolveLabel(cfg: CheckableListItemWithStatusConfig): string {
-    return cfg.label ?? cfg.item?.getDisplayName?.() ?? cfg.item?.getName?.() ?? '';
-}
-function resolveDescription(cfg: CheckableListItemWithStatusConfig): string | undefined {
-    return cfg.description ?? cfg.item?.getOwnerName?.() ?? undefined;
-}
-function resolveMetadata(cfg: CheckableListItemWithStatusConfig): string | undefined {
-    return cfg.metadata ?? cfg.item?.getSizeString?.() ?? undefined;
-}
-function resolveStatusText(cfg: CheckableListItemWithStatusConfig): string | undefined {
-    return cfg.statusText ?? cfg.item?.getStatusText?.() ?? undefined;
+/* utils */
+function evalBool(v: boolean | (() => boolean) | undefined, fb: boolean): boolean {
+    try { return typeof v === 'function' ? !!v() : v ?? fb; }
+    catch { return fb; }
 }
