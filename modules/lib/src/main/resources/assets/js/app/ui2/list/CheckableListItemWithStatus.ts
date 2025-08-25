@@ -39,9 +39,6 @@ export class CheckableListItemWithStatus
     private listeners: Array<(s: boolean) => void> = [];
     private readonly checkboxId = `cli-${nanoid(8)}`;
 
-    // NEW: emit once after first render so controller can compute indeterminate
-    private didEmitInitial = false;
-
     constructor(cfg: CheckableListItemWithStatusConfig) {
         const initial = evalBool(cfg.checkbox?.checked, false);
         const isHidden = evalBool(cfg.hidden, false);
@@ -133,7 +130,6 @@ export class CheckableListItemWithStatus
             children: this.cfg.statusText ?? item?.getStatusText?.(),
         });
 
-        // NEW: item change can alter enabled/hidden → recompute now
         this.refreshSelectable();
     }
 
@@ -146,7 +142,6 @@ export class CheckableListItemWithStatus
     }
 }
 
-/* utils */
 function evalBool(v: boolean | (() => boolean) | undefined, fb: boolean): boolean {
     try { return typeof v === 'function' ? !!v() : v ?? fb; }
     catch { return fb; }
