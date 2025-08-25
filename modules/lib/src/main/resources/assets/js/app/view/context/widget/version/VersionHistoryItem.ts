@@ -47,6 +47,8 @@ export class VersionHistoryItem implements Cloneable {
 
     private readonly secondaryId?: string;
 
+    private readonly readonly: boolean;
+
     private static statusClassMap: Map<VersionItemStatus, string> = VersionHistoryItem.initStatusClassMap();
 
     constructor(builder: VersionHistoryItemBuilder) {
@@ -63,6 +65,7 @@ export class VersionHistoryItem implements Cloneable {
         this.version = builder.version;
         this.alias = builder.alias;
         this.secondaryId = builder.secondaryId;
+        this.readonly = !!builder.readonly;
     }
 
     private static initStatusClassMap(): Map<VersionItemStatus, string> {
@@ -209,6 +212,10 @@ export class VersionHistoryItem implements Cloneable {
         return this.secondaryId || `${this.getId()}:${this.getStatus()}`;
     }
 
+    isReadonly(): boolean {
+        return !!this.readonly;
+    }
+
     clone(): VersionHistoryItemBuilder {
         return new VersionHistoryItemBuilder(this);
     }
@@ -242,6 +249,8 @@ export class VersionHistoryItemBuilder {
 
     secondaryId: string;
 
+    readonly: boolean;
+
     constructor(source?: VersionHistoryItem) {
         if (source) {
             this.contentId = source.getContentId();
@@ -256,6 +265,7 @@ export class VersionHistoryItemBuilder {
             this.republished = source.isRepublished();
             this.version = source.getContentVersion()?.clone();
             this.alias = source.getAlias();
+            this.readonly = source.isReadonly();
         }
     }
 
@@ -321,6 +331,11 @@ export class VersionHistoryItemBuilder {
 
     setSecondaryId(value: string): VersionHistoryItemBuilder {
         this.secondaryId = value;
+        return this;
+    }
+
+    setReadonly(value: boolean): VersionHistoryItemBuilder {
+        this.readonly = value;
         return this;
     }
 

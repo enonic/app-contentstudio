@@ -28,6 +28,7 @@ import {GetContentVersionsResult} from '../resource/GetContentVersionsResult';
 import {ContentVersionsConverter} from '../view/context/widget/version/ContentVersionsConverter';
 import {ContentVersionsLoader} from '../view/context/widget/version/ContentVersionsLoader';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
+import {NonBatchedContentVersionsConverter} from '../view/context/widget/version/NonBatchedContentVersionsConverter';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
 import {VersionHistoryHelper} from '../view/context/widget/version/VersionHistoryHelper';
 import {AliasType, VersionHistoryItem} from '../view/context/widget/version/VersionHistoryItem';
@@ -381,11 +382,7 @@ export class CompareContentVersionsDialog
     }
 
     private convertVersionsToHistoryItems(): VersionHistoryItem[] {
-        return ContentVersionsConverter.create()
-            .setContent(this.content)
-            .setContentVersions(this.versions.slice())
-            .build()
-            .toVersionHistoryItems();
+        return new NonBatchedContentVersionsConverter(this.content).convert(this.versions);
     }
 
     private getNewOptionToSelect(dropdown: CompareDropdown, versionId: string): VersionHistoryItem {
@@ -615,7 +612,9 @@ export class CompareContentVersionsDialog
             // and make everything in one go
 
             const view = this.leftDropdown.getList().getItemView(option);
-            const isReadonly = option.isAlias() ? isNextSelectedInRightDropdown && option.getAliasType() === AliasType.PREV : markReadOnly;
+            const isReadonly = option.isAlias()
+                               ? isNextSelectedInRightDropdown && option.getAliasType() === AliasType.PREV
+                               : markReadOnly || option.isReadonly();
 
             if (isReadonly) {
                 view.getParentElement().addClass('readonly');
@@ -635,9 +634,10 @@ export class CompareContentVersionsDialog
         const leftOption = this.leftDropdown.getSelectedItems()[0];
         const isPrevSelectedInLeftDropdown = !!leftOption ? leftOption.getAliasType() === AliasType.PREV : null;
 
-        this.rightDropdown.getList().getItems().filter(option => option.isAlias()).forEach(option => {
+        this.rightDropdown.getList().getItems().filter(option => option.isAlias() || option.isReadonly()).forEach(option => {
             const view = this.rightDropdown.getList().getItemView(option);
-            view.getParentElement().toggleClass('readonly', isPrevSelectedInLeftDropdown && option.getAliasType() === AliasType.NEXT);
+            view.getParentElement().toggleClass('readonly',
+                option.isReadonly() || (isPrevSelectedInLeftDropdown && option.getAliasType() === AliasType.NEXT));
         });
     }
 
