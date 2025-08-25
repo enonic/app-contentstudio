@@ -1364,7 +1364,6 @@ export class ContentWizardPanel
 
         const deleteHandler = (items: ContentServerChangeItem[]) => {
             if (items.some((item: ContentServerChangeItem) => item.getContentId().equals(this.getPersistedItem()?.getContentId()))) {
-                this.contentDeleted = true;
                 this.close();
             }
         };
@@ -1527,7 +1526,6 @@ export class ContentWizardPanel
             }
 
             if (items.some((item: ContentServerChangeItem) => item.getContentId().equals(this.getPersistedItem().getContentId()))) {
-                this.contentDeleted = true;
                 this.close();
             }
         };
@@ -1564,7 +1562,6 @@ export class ContentWizardPanel
 
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
             if (event.getProjectName() === ProjectContext.get().getProject().getName()) {
-                this.contentDeleted = true;
                 this.close();
             }
         });
@@ -2425,8 +2422,8 @@ export class ContentWizardPanel
     }
 
     private updateWizardStepForms(propertyTree: PropertyTree, unchangedOnly: boolean = true): Q.Promise<void> {
-        this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
-        this.contentWizardStepForm.getData().unChanged(this.debouncedEnonicAiDataChangedHandler);
+        this.contentWizardStepForm.getData()?.unChanged(this.dataChangedHandler);
+        this.contentWizardStepForm.getData()?.unChanged(this.debouncedEnonicAiDataChangedHandler);
 
         propertyTree.onChanged(this.dataChangedHandler);
         propertyTree.onChanged(this.debouncedEnonicAiDataChangedHandler);
