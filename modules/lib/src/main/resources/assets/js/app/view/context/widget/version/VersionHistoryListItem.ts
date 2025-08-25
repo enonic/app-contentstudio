@@ -6,7 +6,6 @@ import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentVersionHelper} from '../../../../ContentVersionHelper';
 import {VersionContext} from './VersionContext';

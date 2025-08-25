@@ -14,7 +14,7 @@ import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {Delta, DiffPatcher} from 'jsondiffpatch';
-import {format, showUnchanged} from 'jsondiffpatch/formatters/html';
+import HtmlFormatter, {format, showUnchanged} from 'jsondiffpatch/formatters/html';
 import Q from 'q';
 import {ContentJson} from '../content/ContentJson';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
