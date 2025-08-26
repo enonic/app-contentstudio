@@ -1774,16 +1774,16 @@ export class ContentWizardPanel
     // when rendering form - we may add extra fields from xData;
     // as this is intended action from XP, not user - it should be present in persisted content
     private syncPersistedItemWithXData(xDataName: XDataName, xDataPropertyTree: PropertyTree) {
-        let persistedContent = this.getPersistedItem();
-        let extraData = persistedContent.getExtraDataByName(xDataName);
-        if (!extraData) { // ensure ExtraData object corresponds to each step form
-            this.enrichWithExtraData(persistedContent, xDataName, xDataPropertyTree);
-        } else {
-            let diff = extraData.getData().diff(xDataPropertyTree);
-            diff.added.forEach((property: Property) => {
-                extraData.getData().addProperty(property.getName(), property.getValue());
-            });
-        }
+        // let persistedContent = this.getPersistedItem();
+        // let extraData = persistedContent.getExtraDataByName(xDataName);
+        // if (!extraData) { // ensure ExtraData object corresponds to each step form
+        //     this.enrichWithExtraData(persistedContent, xDataName, xDataPropertyTree);
+        // } else {
+        //     let diff = extraData.getData().diff(xDataPropertyTree);
+        //     diff.added.forEach((property: Property) => {
+        //         extraData.getData().addProperty(property.getName(), property.getValue());
+        //     });
+        // }
     }
 
     private enrichWithExtraData(content: Content, xDataName: XDataName, propertyTree?: PropertyTree): ExtraData {
