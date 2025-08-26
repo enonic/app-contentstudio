@@ -758,7 +758,7 @@ export class ContentWizardPanel
 
     private isWithinSite(): boolean {
         const isSiteOrWithinSite: boolean = !!this.site || this.params.createSite;
-        const isPageTemplate: boolean = this.contentType.isPageTemplate();
+        const isPageTemplate: boolean = this.getContentTypeName().isPageTemplate() ?? false;
 
         return isSiteOrWithinSite || isPageTemplate;
     }
@@ -783,9 +783,9 @@ export class ContentWizardPanel
 
                 this.appendChild(this.getContentWizardToolbarPublishControls().getMobilePublishControls());
 
-                if (this.contentType.hasDisplayNameExpression()) {
-                    this.displayNameResolver.setExpression(this.contentType.getDisplayNameExpression());
-                }
+            if (this.contentType?.hasDisplayNameExpression()) {
+                this.displayNameResolver.setExpression(this.contentType.getDisplayNameExpression());
+            }
 
                 this.addClass('content-wizard-panel');
 
@@ -816,9 +816,9 @@ export class ContentWizardPanel
                     }
                 });
 
-                thumbnailUploader.setEnabled(!this.contentType.isImage());
-                thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
-                thumbnailUploader.toggleClass('icon-variant', this.getPersistedItem().isVariant());
+            thumbnailUploader.setEnabled(this.contentType ? !this.contentType?.isImage() : false);
+            thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
+            thumbnailUploader.toggleClass('icon-variant', this.getPersistedItem().isVariant());
 
                 this.workflowStateManager.onStatusChanged((status: WorkflowStateStatus) => {
                     this.wizardActions.setContentCanBeMarkedAsReady(WorkflowStateManager.isInProgress(status)).refreshState();
@@ -1320,16 +1320,17 @@ export class ContentWizardPanel
     }
 
     private createSteps(): ContentWizardStep[] {
-        if (this.livePanel && this.contentType.getContentTypeName().isFragment()) {
+        if (this.livePanel && this.getContentTypeName().isFragment()) {
             return this.createFragmentSteps();
         }
 
-        if (this.contentType.isPageTemplate()) {
+        if (this.getContentTypeName().isPageTemplate()) {
             return this.createPageTemplateSteps();
         }
 
         const steps: ContentWizardStep[] =
-            [this.dataWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm)];
+            [this.dataWizardStep =
+                new ContentWizardStep(this.contentType?.getDisplayName() || this.getCurrentItem().getType().getLocalName(),this.contentWizardStepForm)];
 
         if (this.isPageComponentsViewRequired()) {
             steps.push(this.initPageComponentsWizardStep());
@@ -1802,10 +1803,9 @@ export class ContentWizardPanel
         const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
         thumbnailUploader.toggleClass('has-origin-project', !!content.getOriginProject());
         const id: string = content.getContentId().toString();
-
         thumbnailUploader
             .setParams({id})
-            .setEnabled(!content.isImage())
+            .setEnabled(this.contentType ? !content.isImage() : false)
             .setValue(new ContentIconUrlResolver().setContent(content).resolve());
         this.workflowStateManager.update();
     }
@@ -1933,9 +1933,9 @@ export class ContentWizardPanel
                     this.addAccessibilityToSteps(steps);
                     this.setSteps(steps);
 
-                    if (this.contentType.isPageTemplate()) {
-                        this.stepNavigator.removeNavigationItem(this.dataWizardStep.getTabBarItem());
-                    }
+            if (this.getContentTypeName().isPageTemplate()) {
+                this.stepNavigator.removeNavigationItem(this.dataWizardStep.getTabBarItem());
+            }
 
                     return this.layoutWizardStepForms(content).then(() => {
                         if (this.params.localized) {
@@ -1984,7 +1984,7 @@ export class ContentWizardPanel
     private createWizardStepForms(): Q.Promise<void> {
         this.contentWizardStepForm = new ContentWizardStepForm();
 
-        if (this.isPageComponentsViewRequired() || this.contentType.isPageTemplate()) {
+        if (this.isPageComponentsViewRequired() || this.getContentTypeName().isPageTemplate()) {
             this.pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
         }
 
@@ -2035,7 +2035,7 @@ export class ContentWizardPanel
 
         const formViewLayoutPromises: Q.Promise<void>[] = [];
         formViewLayoutPromises.push(
-            this.contentWizardStepForm.layout(this.formsContexts.get('content'), contentData, this.contentType.getForm()));
+            this.contentWizardStepForm.layout(this.formsContexts.get('content'), contentData, this.contentType?.getForm()));
         // Must pass FormView from contentWizardStepForm displayNameResolver,
         // since a new is created for each call to renderExisting
         this.displayNameResolver.setFormView(this.contentWizardStepForm.getFormView());
@@ -2162,12 +2162,12 @@ export class ContentWizardPanel
     }
 
     private produceCreateContentRequest(): Q.Promise<CreateContentRequest> {
-        return this.contentType.getContentTypeName().isMedia() ? Q(null) : Q.resolve(this.doCreateContentRequest());
+        return this.getContentTypeName().isMedia() ? Q(null) : Q.resolve(this.doCreateContentRequest());
     }
 
     private doCreateContentRequest(): CreateContentRequest {
         const parentPath: ContentPath = this.parentContent != null ? this.parentContent.getPath() : ContentPath.getRoot();
-        return ContentHelper.makeNewContentRequest(this.contentType.getContentTypeName())
+        return ContentHelper.makeNewContentRequest(this.getContentTypeName())
             .setParent(parentPath)
             .setRequireValid(this.requireValid);
     }
@@ -2526,8 +2526,8 @@ export class ContentWizardPanel
     }
 
     private updateWizardStepForms(propertyTree: PropertyTree, unchangedOnly: boolean = true): Q.Promise<void> {
-        this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
-        this.contentWizardStepForm.getData().unChanged(this.debouncedEnonicAiDataChangedHandler);
+        this.contentWizardStepForm.getData()?.unChanged(this.dataChangedHandler);
+        this.contentWizardStepForm.getData()?.unChanged(this.debouncedEnonicAiDataChangedHandler);
 
         propertyTree.onChanged(this.dataChangedHandler);
         propertyTree.onChanged(this.debouncedEnonicAiDataChangedHandler);
@@ -2553,7 +2553,15 @@ export class ContentWizardPanel
         return this.contentDeleted;
     }
 
+    private getContentTypeName() : ContentTypeName {
+        return this.contentType ? this.contentType.getContentTypeName() : this.getCurrentItem().getType();
+    }
+
     private shouldOpenEditorByDefault(): boolean {
+        if (!this.contentType) {
+            return false;
+        }
+
         const isTemplate: boolean = this.contentType.getContentTypeName().isPageTemplate();
         const isSite: boolean = this.contentType.getContentTypeName().isSite();
 
@@ -2790,11 +2798,11 @@ export class ContentWizardPanel
     }
 
     private getInitialPageWizardStepName(): string {
-        if (this.contentType.getContentTypeName().isFragment()) {
+        if (this.getContentTypeName().isFragment()) {
             return i18n('field.fragment');
         }
 
-        if (this.contentType.isPageTemplate()) {
+        if (this.contentType?.isPageTemplate()) {
             return this.contentType.getDisplayName();
         }
 

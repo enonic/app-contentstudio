@@ -5,6 +5,10 @@
   }
 
   .thumbnail-uploader-el {
+    &.disabled {
+      pointer-events: none;
+    }
+
     &.status-hidden .result-container .workflow-status {
       display: none;
     }
