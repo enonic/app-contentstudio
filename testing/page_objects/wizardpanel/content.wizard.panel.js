@@ -700,8 +700,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.publishDropDownHandle);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_dropdown');
-            throw new Error(`Error occurred after clicking on Publish dropdown handle, ${screenshot} ` + err);
+            await this.handleError('Content wizard, tried to click on Publish menu dropdown handle', 'err_click_on_dropdown', err);
         }
     }
 
@@ -877,8 +876,7 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.publishButton, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_publish_btn');
-            throw new Error(`Content Wizard - 'Publish...' button should be displayed, screenshot:${screenshot} ` + err);
+            await this.handleError(`'Publish...' button should be displayed in the Content Wizard`, 'err_publish_button_displayed', err);
         }
     }
 
@@ -918,8 +916,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.pageEditorTogglerButton);
             return await this.pause(800);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_monitor_icon');
-            throw new Error(`Page Editor toggle, screenshot : ${screenshot}  ` + err);
+            await this.handleError(`Tried to click on Page Editor toggle`, 'err_page_editor_toggle', err);
         }
     }
 
@@ -1090,8 +1087,7 @@ class ContentWizardPanel extends Page {
                 return await this.isFocused(this.displayNameInput);
             }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_focused');
-            throw new Error(`Display Name input is not focused ${screenshot} ` + err);
+            await this.handleError(`Verify if Display Name input is focused`, 'err_display_name_focused', err);
         }
     }
 
@@ -1199,8 +1195,7 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_emulator_dropdown');
-            throw new Error(`Emulator dropdown - error occurred during getting the selected option, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Error during getting the selected option in Emulator dropdown`, 'err_emulator_dropdown');
         }
     }
 

@@ -12,10 +12,10 @@ const XPATH = {
     formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
     removeAreaButton: "//div[contains(@id,'HtmlArea')]//button[@class='remove-button']",
 
-    typeText (id, text) {
+    typeText(id, text) {
         return `CKEDITOR.instances['${id}'].setData('${text}')`;
     },
-    getText (id) {
+    getText(id) {
         return `return CKEDITOR.instances['${id}'].getData()`;
     },
     formatOptionByName: optionName => {
@@ -136,6 +136,16 @@ class HtmlAreaForm extends OccurrencesFormView {
         })
     }
 
+    async getTextFromHtmlArea(index) {
+        try {
+            await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
+            let ids = await this.getIdOfHtmlAreas();
+            return await this.execute(XPATH.getText(ids[index]));
+        } catch (err) {
+            await this.handleError('HtmlArea Form - get text from html area', 'err_get_text_html_area', err);
+        }
+    }
+
     async showToolbar() {
         try {
             await this.clickInTextArea();
@@ -173,20 +183,29 @@ class HtmlAreaForm extends OccurrencesFormView {
         return await this.clickOnElement(XPATH.formatDropDownHandle);
     }
 
+    // Styles dropdown options: Normal, Heading 1, Heading 2, Heading 3, Heading 4, Heading 5, Heading 6, Preformatted Text, Address
     async getFormatOptions() {
-        let selector = `//div[@title='Formatting Styles']//li[contains(@class,'cke_panel_listItem')]//a`;
-        await this.switchToFrame("//iframe[@class='cke_panel_frame']");
-        return await this.getTextInElements(selector);
+        try {
+            let selector = `//div[@title='Formatting Styles']//li[contains(@class,'cke_panel_listItem')]//a`;
+            await this.switchToFrame("//iframe[@class='cke_panel_frame']");
+            return await this.getTextInElements(selector);
+        } catch (err) {
+            await this.handleError('HtmlArea toolbar - Formatting Styles', 'err_format_options', err);
+        }
     }
 
     //switches to cke-frame, click on 'Paragraph Format' option and then switches to the parent frame again
     async selectFormatOption(optionName) {
-        let selector = XPATH.formatOptionByName(optionName);
-        await this.switchToFrame("//iframe[@class='cke_panel_frame']");
-        await this.clickOnElement(selector);
-        await this.pause(700);
-        //switches to the parent frame again
-        return await this.getBrowser().switchToParentFrame();
+        try {
+            let selector = XPATH.formatOptionByName(optionName);
+            await this.switchToFrame("//iframe[@class='cke_panel_frame']");
+            await this.clickOnElement(selector);
+            await this.pause(700);
+            // switches to the parent frame again
+            return await this.getBrowser().switchToParentFrame();
+        } catch (err) {
+            await this.handleError('HtmlArea toolbar - select a Formatting Styles option', 'err_select_format_option', err);
+        }
     }
 
     async showToolbarAndClickOnInsertAnchorButton() {
@@ -267,10 +286,14 @@ class HtmlAreaForm extends OccurrencesFormView {
     }
 
     async clickOnFullScreenButton() {
-        await this.clickOnElement(XPATH.ckeTextArea);
-        await this.waitForElementDisplayed(this.fullScreenButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.fullScreenButton);
-        return await this.pause(200);
+        try {
+            await this.clickOnElement(XPATH.ckeTextArea);
+            await this.waitForElementDisplayed(this.fullScreenButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.fullScreenButton);
+            return await this.pause(200);
+        } catch (err) {
+            await this.handleError('HtmlArea toolbar - Full Screen button', 'err_full_screen_button', err);
+        }
     }
 
     waitForBoldButtonNotDisplayed() {
@@ -285,18 +308,20 @@ class HtmlAreaForm extends OccurrencesFormView {
         return this.waitForElementNotDisplayed(lib.CKE.underlineButton, appConst.mediumTimeout);
     }
 
-    isSuperscriptButtonDisplayed() {
-        return this.waitForElementDisplayed(lib.CKE.superScriptButton, appConst.shortTimeout).catch(err => {
-            console.log('Superscript button is not visible! ' + err);
-            return false;
-        })
+    async waitForSuperscriptButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(lib.CKE.superScriptButton, appConst.shortTimeout)
+        } catch (err) {
+            await this.handleError('HtmlArea toolbar - superscript button should be displayed', 'err_superscript_btn', err);
+        }
     }
 
-    isSubscriptButtonDisplayed() {
-        return this.waitForElementDisplayed(lib.CKE.subscriptButton, appConst.shortTimeout).catch(err => {
-            console.log('Subscript button is not visible! ' + err);
-            return false;
-        })
+    async waitForSubscriptButtonDisplayed() {
+        try {
+            return this.waitForElementDisplayed(lib.CKE.subscriptButton, appConst.shortTimeout)
+        } catch (err) {
+            await this.handleError('HtmlArea toolbar - subscript button should be displayed', 'err_subscript_btn', err);
+        }
     }
 
     isBulletedListButtonDisplayed() {
@@ -374,6 +399,21 @@ class HtmlAreaForm extends OccurrencesFormView {
     async removeTextArea(index) {
         let elems = await this.findElements(XPATH.removeAreaButton);
         await elems[index].click();
+    }
+
+    async switchToHtmlAreaFrame(){
+        return await this.switchToFrame(XPATH.ckeTextArea + "//iframe[contains(@class,'cke_wysiwyg_frame')]");
+    }
+    // returns the class attribute of the inserted image with a specific caption
+    async getInsertedImageStyle(caption) {
+        try {
+            //await this.switchToFrame(XPATH.ckeTextArea + "//iframe[contains(@class,'cke_wysiwyg_frame')]");
+            let locator = `//figure[child::figcaption[contains(.,${caption})]]`;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getAttribute(locator, 'class');
+        } catch (err) {
+            await this.handleError('HtmlArea Form - get inserted image style', 'err_get_image_style', err);
+        }
     }
 }
 
