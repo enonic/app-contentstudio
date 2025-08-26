@@ -136,7 +136,8 @@ class HtmlAreaForm extends OccurrencesFormView {
         })
     }
 
-    async getTextFromHtmlArea(index) {
+    // This method for getting text from a specific html-area by index (occurrences start from 0)
+    async getTextFromHtmlAreaByIndex(index) {
         try {
             await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
             let ids = await this.getIdOfHtmlAreas();
