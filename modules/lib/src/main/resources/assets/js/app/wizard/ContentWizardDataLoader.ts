@@ -20,6 +20,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentsExistRequest} from '../resource/ContentsExistRequest';
 import {ContentsExistResult} from '../resource/ContentsExistResult';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 
 export class ContentWizardDataLoader {
 
@@ -122,7 +123,8 @@ export class ContentWizardDataLoader {
             deferred.resolve(contentType);
         }).catch((reason) => {
             const msg = i18n('notify.wizard.noContentType', name.toString());
-            deferred.reject(new Exception(msg, ExceptionType.WARNING));
+            NotifyManager.get().showWarning(msg);
+            deferred.resolve(null);
         }).done();
         return deferred.promise;
     }
