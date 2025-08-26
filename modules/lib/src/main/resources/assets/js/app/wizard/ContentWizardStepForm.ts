@@ -65,7 +65,7 @@ export class ContentWizardStepForm
                 this.notifyValidityChanged(new WizardStepValidityChangedEvent(event.isValid()));
             });
 
-            if (form.getFormItems().length === 0) {
+            if (!form || form.getFormItems().length === 0) {
                 this.hide();
             }
 
