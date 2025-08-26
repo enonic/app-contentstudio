@@ -7,6 +7,9 @@
             "ES2023",
             "DOM"
         ],
+        "baseUrl": ".",
+        "jsx": "react-jsx",
+        "jsxImportSource": "preact",
         "outDir": "build/resources/main/dev/lib-contentstudio/",
         "declaration": true,
         "declarationDir": "build/resources/main/dev/lib-contentstudio/",

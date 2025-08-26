@@ -26,13 +26,15 @@ module.exports = {
         assetModuleFilename: './[file]'
     },
     resolve: {
-        extensions: ['.ts', '.js', '.less', '.css'],
+        extensions: ['.tsx', '.ts', '.jsx', '.js', '.less', '.css'],
         conditionNames: ['import', 'node', 'default'],
         alias: {
-            "preact": "preact",
-            "preact/hooks": "preact/hooks",
-            "react": "preact/compat",
-            "react-dom": "preact/compat"
+            'preact': 'preact',
+            'preact/hooks': 'preact/hooks',
+            'react': 'preact/compat',
+            "react-dom": 'preact/compat',
+            'react/jsx-runtime': 'preact/jsx-runtime',
+            'react/jsx-dev-runtime': 'preact/jsx-dev-runtime'
         }
     },
     module: {
