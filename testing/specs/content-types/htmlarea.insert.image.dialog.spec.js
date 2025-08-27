@@ -21,7 +21,6 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
     const IMAGE_DISPLAY_NAME_2 = appConst.TEST_IMAGES.POP_02;
     const IMAGE_WIT_ALT_TEXT = appConst.TEST_IMAGES.MONET_004;
     const EXISTING_ALT_TXT = 'alternative test';
-    const HTML_AREA_CONTENT_NAME = appConst.generateRandomName('content');
     const TEST_CAPTION = 'caption 1234567';
     const TEST_CAPTION_2 = 'caption 987654321';
 
@@ -32,6 +31,42 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await studioUtils.doAddSite(SITE);
         });
 
+    // Verify the bug HtmlArea field refuses to save item and display image in preview #8824
+    // https://github.com/enonic/app-contentstudio/issues/8824
+    it(`GIVEN an image with 'Alternative Text' WHEN Update Image dialog has been opened THEN expected alt-text should be displayed in the form`,
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertImageDialog = new InsertImageDialog();
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            // 1. Open Insert Image dialog:
+            await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
+            await insertImageDialog.waitForDialogVisible();
+            // 2. Select an image in the modal dialog
+            await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
+            // 3. Click on align center button in the modal dialog:
+            await insertImageDialog.clickOnParagraphCenterButton();
+            // 3. Click on 'Decorative Text' radio:
+            await insertImageDialog.clickOnDecorativeImageRadioButton();
+            // 7. Click on Insert button and close the dialog:
+            await insertImageDialog.clickOnInsertButton();
+            await insertImageDialog.waitForDialogClosed();
+            await studioUtils.saveScreenshot('insert_image_align_center_html_area');
+            // 8. Verify the image-alignment in html-area:
+            await htmlAreaForm.switchToHtmlAreaFrame();
+            let value = await htmlAreaForm.getInsertedImageStyle();
+            assert.ok(value.includes('editor-align-center'), 'align center style should be applied to the image');
+            await htmlAreaForm.switchToParentFrame();
+            // 9. Save the content:
+            let contentWizard = new ContentWizard();
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+            await studioUtils.saveScreenshot('insert_image_align_center_html_area_2');
+            await htmlAreaForm.switchToHtmlAreaFrame();
+            // 10. Verify the image-alignment in html-area after saving:
+            value = await htmlAreaForm.getInsertedImageStyle();
+            assert.ok(value.includes('editor-align-center'), 'align center style should be applied to the image');
+        });
+
     // Verify issue - https://github.com/enonic/app-contentstudio/issues/7571
     // Content with HtmlArea - Save button remains disabled after modifying image's caption #7571
     it(`GIVEN an image with a caption is inserted in htmlarea WHEN Update image dialog has been opened and the caption has been updated THEN Save button gets enabled after closing the modal dialog`,
@@ -40,7 +75,6 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
-            await contentWizard.pause(500);
             // 1. Open Insert Image dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -73,7 +107,6 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
-            await contentWizard.pause(700);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await studioUtils.saveScreenshot('insert_image_esc_test1');
             await insertImageDialog.waitForDialogVisible();
@@ -84,11 +117,9 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
 
     it(`GIVEN 'Insert Image' dialog is opened WHEN 'Cancel' button has been clicked THEN dialog should be closed`,
         async () => {
-            let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
-            await contentWizard.pause(700);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             await insertImageDialog.clickOnCancelButton();
@@ -97,12 +128,10 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
 
     it(`GIVEN 'Insert Image' dialog is opened WHEN both radio buttons should not be selected`,
         async () => {
-            let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             // 1. Open a content with htmlAre:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
-            await contentWizard.pause(500);
             // 2. Click on 'Insert image' button in the toolbar:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -119,15 +148,13 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
 
     it(`GIVEN 'Insert Image' dialog is opened WHEN 'DecorativeImage' radio button has been selected THEN the AccessibilityForm remains valid`,
         async () => {
-            let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
-            await contentWizard.pause(500);
             // 1. Open Insert Image dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
-            // 2. Select an image
+            // 2. Select an image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME)
             // 3. verify that AccessibilityForm is valid:
             await insertImageDialog.waitForAccessibilityFormValid();
@@ -141,11 +168,9 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
 
     it(`GIVEN 'Insert Image' dialog is opened WHEN 'Alternative Text' radio button has been clicked THEN the form gets invalid`,
         async () => {
-            let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
-            await contentWizard.pause(500);
             // 1. Open Insert Image dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -165,11 +190,9 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
 
     it(`GIVEN an image with 'Alternative Text' WHEN Update Image dialog has been opened THEN expected alt-text should be displayed in the form`,
         async () => {
-            let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
-            await contentWizard.pause(500);
             // 1. Open Insert Image dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -200,11 +223,9 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
 
     it(`GIVEN text has been inserted in 'Alternative Text' input WHEN the image has been replaced in the dialog THEN 'Alternative Text' input should be cleared`,
         async () => {
-            let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
-            await contentWizard.pause(500);
             // 1. Open Insert Image dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -222,8 +243,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             // 8. Verify that Alternative text input is cleared
             let actualText = await insertImageDialog.getTextInAlternativeTextInput();
             assert.equal(actualText, '', 'The input should be cleared after updating an image');
-
-            // 9. Both radio button should be not selected:
+            // 9. Both radio buttons should not be selected:
             let isSelected = await insertImageDialog.isDecorativeImageRadioSelected();
             assert.ok(isSelected === false, `'Decorative image' radio-button is not selected`);
             isSelected = await insertImageDialog.isAlternativeTextRadioSelected();
@@ -233,11 +253,9 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
 
     it(`GIVEN image binary has alt text WHEN Insert image dialog opened THEN expected 'alternative text' should be loaded in the modal dialog`,
         async () => {
-            let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
-            await contentWizard.pause(500);
             // 1. Open Insert Image dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
