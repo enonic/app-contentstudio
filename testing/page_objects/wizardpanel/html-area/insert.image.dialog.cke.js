@@ -11,7 +11,7 @@ const XPATH = {
     updateButton: `//button[contains(@id,'DialogButton') and child::span[text()='Update']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     alignRightButton: "//button[contains(@class,'icon-paragraph-right')]",
-    justifyButton: "//button[contains(@class,'icon-paragraph-justify')]",
+    alignJustifyButton: "//button[contains(@class,'icon-paragraph-justify')]",
     alignLeftButton: "//button[contains(@class,'icon-paragraph-left')]",
     alignCenterButton: "//button[contains(@class,'icon-paragraph-center')]",
     styleSelector: `//div[contains(@id,'ImageStyleSelector')]`,
@@ -28,6 +28,18 @@ class InsertImageDialog extends Page {
 
     get imageStyleSelector() {
         return XPATH.container + XPATH.styleSelector;
+    }
+
+    get paragraphCenterButton() {
+        return XPATH.container + XPATH.alignCenterButton;
+    }
+
+    get paragraphLeftButton() {
+        return XPATH.container + XPATH.alignLeftButton;
+    }
+
+    get paragraphJustifyButton() {
+        return XPATH.container + XPATH.alignJustifyButton;
     }
 
     get removeContentSelectedOptionIcon() {
@@ -53,7 +65,6 @@ class InsertImageDialog extends Page {
     get imageOptionsFilterInput() {
         return XPATH.container + lib.OPTION_FILTER_INPUT;
     }
-
 
     get captionInput() {
         return XPATH.container + XPATH.captionInput;
@@ -103,8 +114,7 @@ class InsertImageDialog extends Page {
             await this.clickOnElement(this.accessibilityDecorativeImageRadioButton);
             return await this.pause(200);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_clicking_on_decorative_radio');
-            throw new Error(`Error occurred after clicking on Decorative Image Radio Button! screenshot: ${screenshot} ` + err);
+            await this.handleError(`Insert Image Dialog, decorative radio...`, 'err_clicking_on_decorative_radio', err);
         }
     }
 
@@ -114,8 +124,7 @@ class InsertImageDialog extends Page {
             await this.clickOnElement(this.accessibilityAlternativeTextRadioButton);
             return await this.pause(200);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_clicking_on_decorative_radio');
-            throw new Error(`Error occurred after clicking on Alternative Text Radio Button! screenshot: ${screenshot} ` + err);
+            await this.handleError(`Insert Image Dialog, alternative text radio...`, 'err_clicking_on_alternative_text_radio', err);
         }
     }
 
@@ -125,8 +134,7 @@ class InsertImageDialog extends Page {
             await this.clickOnElement(this.removeContentSelectedOptionIcon);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_clicking_on_remove_img_icon');
-            throw new Error(`Error occurred after clicking on Remove selected option icon! screenshot: ${screenshot} ` + err);
+            await this.handleError(`Insert Image Dialog, Remove image icon`, 'err_clicking_on_remove_img_icon', err);
         }
     }
 
@@ -238,8 +246,7 @@ class InsertImageDialog extends Page {
             await this.waitForDialogClosed();
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_insert_image_button');
-            throw new Error(`Insert Image Dialog, error occurred after clicking on the Insert button, screenshot:${screenshot}  ` + err);
+            await this.handleError(`Insert Image Dialog`, 'err_click_on_insert_image_button', err);
         }
     }
 
@@ -247,9 +254,8 @@ class InsertImageDialog extends Page {
         try {
             await this.clickOnElement(this.updateButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_update_image_button');
             await this.clickOnCancelButton();
-            throw new Error(`Insert Image Dialog, error occurred after  clicking on the Update button, screenshot:${screenshot}  ` + err);
+            await this.handleError(`Insert Image Dialog, Update button`, 'err_click_on_update_image_button', err);
         }
     }
 
@@ -258,8 +264,7 @@ class InsertImageDialog extends Page {
             await this.waitForElementDisplayed(this.cancelButton, appConst.mediumTimeout)
             await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_insert_image_dialog');
-            throw new Error(`Insert Image Dialog should be opened! screenshot: ${screenshot}   ` + err);
+            await this.handleError(`Insert Image Dialog should be opened`, 'err_insert_image_dialog', err);
         }
     }
 
@@ -267,9 +272,8 @@ class InsertImageDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_close');
             await this.clickOnCancelButton();
-            throw new Error(`Insert image dialog should be closed, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Insert image dialog should be closed`, 'err_close_insert_image_dialog', err);
         }
     }
 
@@ -352,11 +356,11 @@ class InsertImageDialog extends Page {
     }
 
     waitForAlignCenterButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.container + XPATH.alignCenterButton);
+        return this.waitForElementDisplayed(this.paragraphCenterButton);
     }
 
     waitForJustifyButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.container + XPATH.justifyButton);
+        return this.waitForElementDisplayed(this.paragraphJustifyButton);
     }
 
     async selectImageStyle(style) {
@@ -374,6 +378,20 @@ class InsertImageDialog extends Page {
         let imageSelectorDropdown = new ImageSelectorDropdown();
         let images = await imageSelectorDropdown.getOptionsDisplayNameInFlatMode(XPATH.container);
         return images;
+    }
+
+    async scrollDownInOptionsList(deltaY) {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        await imageSelectorDropdown.scrollDownInDropdownList(XPATH.container, deltaY);
+    }
+
+    async clickOnParagraphCenterButton() {
+        try {
+            await this.waitForElementDisplayed(this.paragraphCenterButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.paragraphCenterButton);
+        }catch (err){
+            await this.handleError(`Insert Image Dialog, align center button`, 'err_click_on_paragraph_center_button', err);
+        }
     }
 }
 

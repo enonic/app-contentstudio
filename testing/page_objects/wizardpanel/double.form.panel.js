@@ -53,8 +53,7 @@ class DoubleForm extends OccurrencesFormView {
         try {
             return await this.waitForRedBorderInInput(index, this.doubleInput);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_red_border_double');
-            throw new Error("Double input, screenshot : " + screenshot + ' ' + err);
+            await this.handleError('Red border should be displayed - Double input', 'err_red_border_double', err);
         }
     }
 
@@ -62,8 +61,27 @@ class DoubleForm extends OccurrencesFormView {
         try {
             return await this.waitForRedBorderNotDisplayedInInput(index, this.doubleInput);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_red_border_double_displayed');
-            throw new Error("Double input, screenshot : " + screenshot + ' ' + err);
+            await this.handleError('Red border should not be displayed - Double input', 'err_red_border_not_double', err);
+        }
+    }
+
+    // help-text togler should not be displayed for Double input
+    async waitForHelpTextToggleNotDisplayed() {
+        try {
+            let locator = lib.CONTENT_WIZARD_STEP_FORM + lib.HELP_TEXT.TOGGLE;
+            return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Help texts toggle button should not be displayed for Double input', 'err_help_text_toggle');
+        }
+    }
+
+    async getHelpText(inputLabel) {
+        try {
+            let locator = lib.CONTENT_WIZARD_STEP_FORM + lib.HELP_TEXT.TEXT;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError('getting help-text in double form', 'err_help_text');
         }
     }
 }
