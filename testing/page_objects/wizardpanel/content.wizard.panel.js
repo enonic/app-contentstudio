@@ -712,8 +712,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.publishDropDownHandle);
             return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_dropdown');
-            throw new Error(`Error occurred after clicking on Publish dropdown handle, ${screenshot} ` + err);
+            await this.handleError('Content wizard, tried to click on Publish menu dropdown handle', 'err_click_on_dropdown', err);
         }
     }
 
@@ -888,8 +887,7 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.publishButton, appConst.shortTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_publish_btn'));
-            throw new Error("Content Wizard - 'Publish...' button should be present" + err);
+            await this.handleError(`'Publish...' button should be displayed in the Content Wizard`, 'err_publish_button_displayed', err);
         }
     }
 
@@ -930,8 +928,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.pageEditorTogglerButton);
             return await this.pause(800);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_monitor_icon');
-            throw new Error(`Page Editor toggler, screenshot : ${screenshot}  ` + err);
+            await this.handleError(`Tried to click on Page Editor toggle`, 'err_page_editor_toggle', err);
         }
     }
 
@@ -1105,8 +1102,7 @@ class ContentWizardPanel extends Page {
                 return await this.isFocused(this.displayNameInput);
             }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_focused'));
-            throw new Error(err + "Display Name input was not focused");
+            await this.handleError(`Verify if Display Name input is focused`, 'err_display_name_focused', err);
         }
     }
 
@@ -1193,8 +1189,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(optionSelector);
             await this.pause(200);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_widget');
-            throw new Error(`Content Wizard, Error occurred during selecting option in Preview Widget, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Err occurred during selecting the option in Preview Widget: ${optionName}`, 'err_preview_widget', err);
         }
     }
 
@@ -1210,8 +1205,7 @@ class ContentWizardPanel extends Page {
             await this.waitForPreviewButtonDisplayed();
             await this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_disabled');
-            throw new Error(`Content Wizard - Preview button should be displayed and disabled, screenshot  : ${screenshot} ` + err);
+            await this.handleError(`Preview button should be displayed and disabled in the Wizard`, 'err_preview_btn_disabled', err);
         }
     }
 
@@ -1222,8 +1216,7 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_emulator_dropdown');
-            throw new Error(`Emulator dropdown - error occurred during getting the selected option, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Error during getting the selected option in Emulator dropdown`, 'err_emulator_dropdown');
         }
     }
 
@@ -1238,7 +1231,6 @@ class ContentWizardPanel extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
-
 }
 
 module.exports = ContentWizardPanel;
