@@ -73,7 +73,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             // 2. Revert the previous version:
             await wizard.openVersionsHistoryPanel();
-            await versionPanel.clickAndExpandVersion(1);
+            await versionPanel.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED,1);
             await versionPanel.clickOnRevertButton();
             await studioUtils.saveScreenshot('revert_workflow_state');
             // State in wizard gets 'Work in Progress':
@@ -90,7 +90,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             // 2. Revert the identical version:
             await wizard.openVersionsHistoryPanel();
-            await versionPanel.clickAndExpandVersion(2);
+            await versionPanel.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED,2);
             await versionPanel.clickOnRevertButton();
             // 3. Expected message should appear:
             await studioUtils.saveScreenshot('revert_identical_version');

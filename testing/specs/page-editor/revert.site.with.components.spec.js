@@ -80,8 +80,8 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 1. Open  'Versions Panel':
             await contentWizard.openVersionsHistoryPanel();
-            // 2. Revert the previous version:
-            await versionPanel.clickAndExpandVersion(1);
+            // 2. Revert the previous version: click on the second item on the top (the first one is the current version)
+            await versionPanel.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED,1);
             await versionPanel.clickOnRevertButton();
             await studioUtils.saveScreenshot('site_reverted1');
             await contentWizard.switchToLiveEditFrame();
