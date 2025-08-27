@@ -37,19 +37,15 @@ export class PublishDialogDependantList extends DialogDependantItemsList {
 
 
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): CheckableListItemWithStatus{
-        const view = new CheckableListItemWithStatus({
-            item,
-            checkbox: {
-                readOnly,
-                checked: () => this.mustSelectItem(item),
-                enabled: () => this.isItemExcludable(item),
-            },
-            hidden: () => this.isItemHidden(item),
+    createItemView(content: ContentSummaryAndCompareStatus, readOnly: boolean): CheckableListItemWithStatus {
+        const className = this.isItemHidden(content) ? 'hidden' : undefined;
+        return new CheckableListItemWithStatus({
+            content,
+            className,
+            readOnly: readOnly || !this.isItemExcludable(content),
+            checked: this.mustSelectItem(content),
+            onCheckedChange: () => this.handleSelectionChange(),
         });
-
-        view.onSelected(() => this.handleSelectionChange());
-        return view;
     }
 
     protected initListeners(): void {
