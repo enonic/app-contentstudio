@@ -1731,10 +1731,8 @@ export class ContentWizardPanel
         return this.fetchPersistedContent(summaryAndStatus).then((content: Content) => {
             const viewedContent: Content = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem()), true).build();
 
-            return this.layoutDataAndXData(content).then((data) => {
-                const builder = this.assembleViewedContent(content.newBuilder(), true);
-                builder.setData(data.data).setExtraData(data.xData);
-                this.contentAfterLayout = builder.build();
+            return this.generateDataAndXDataAfterLayout(content).then((data) => {
+                this.contentAfterLayout = content.newBuilder().setData(data.data).setExtraData(data.xData).build();
 
                 if (!viewedContent.equals(this.contentAfterLayout)) {
                     this.updateWithContent(content);
@@ -2093,11 +2091,8 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.validate();
         this.displayValidationErrors(!this.isValid());
 
-        return this.layoutDataAndXData(persistedItem).then((data) => {
-            const builder = this.assembleViewedContent(persistedItem.newBuilder(), true);
-            builder.setData(data.data).setExtraData(data.xData);
-            this.contentAfterLayout = builder.build();
-
+        return this.generateDataAndXDataAfterLayout(persistedItem).then((data) => {
+            this.contentAfterLayout = persistedItem.newBuilder().setData(data.data).setExtraData(data.xData).build();
             return Q.resolve(persistedItem);
         });
 
@@ -2789,11 +2784,10 @@ export class ContentWizardPanel
         return formContext;
     }
 
-    private layoutDataAndXData(content: Content): Q.Promise<{data: PropertyTree, xData:  ExtraData[]}> {
+    private generateDataAndXDataAfterLayout(content: Content): Q.Promise<{data: PropertyTree, xData:  ExtraData[]}> {
         const contentForm = this.createEmptyStepForm();
 
         return this.createEmptyXDataWizardStepForms().then((xDataForms) => {
-
             const formViewLayoutPromises: Q.Promise<void>[] = [];
             formViewLayoutPromises.push(
                 contentForm.layout(this.formsContexts.get('content'), new PropertyTree(content.getContentData().getRoot()), this.contentType.getForm()));
