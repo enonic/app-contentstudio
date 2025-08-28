@@ -48,7 +48,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private componentType: ComponentType;
 
-    private timeoutId: number;
+    private loadingDescriptorKey: DescriptorKey;
 
     protected constructor(config: DescriptorBasedComponentInspectionPanelConfig) {
         super(config);
@@ -146,11 +146,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     private handleComponentUpdated(event: ComponentUpdatedEvent): void {
         // Ensure displayed config form and selector option are removed when descriptor is removed
         if (event.getPath().equals(this.component?.getPath()) && event instanceof ComponentDescriptorUpdatedEvent) {
-            if (event.getDescriptorKey()) {
-                this.updateSelectorValue();
-            } else {
-                this.setSelectorValue(null);
-            }
+            this.updateSelectorValue(event.getDescriptorKey());
         }
     }
 
@@ -165,38 +161,55 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     protected abstract getFormName(): string;
 
     private setSelectorValue(descriptor: Descriptor) {
-        clearTimeout(this.timeoutId);
+        if (this.getSelectedValue()?.equals(descriptor)) {
+            return Q();
+        }
+
         this.selector.setDescriptor(descriptor);
-        this.setupComponentForm(descriptor);
+        return this.setupComponentForm(descriptor);
     }
 
     setComponent(component: COMPONENT): void {
         this.unregisterComponentListeners();
         super.setComponent(component);
-        this.updateSelectorValue();
+        this.updateSelectorValue(component.getDescriptorKey());
         this.registerComponentListeners();
     }
 
-    private updateSelectorValue() {
-        const key: DescriptorKey = this.component.getDescriptorKey();
+    private updateSelectorValue(key: DescriptorKey) {
+        if (key?.equals(this.loadingDescriptorKey)) {
+            // key is already being loaded
+            return Q();
+        }
+        this.loadingDescriptorKey = key;
+        let promise: Q.Promise<void>;
         if (key) {
+            this.mask();
             const descriptor: Descriptor = this.selector.getDescriptorByKey(key);
             if (descriptor) {
-                this.setSelectorValue(descriptor);
+                promise = this.setSelectorValue(descriptor);
             } else {
-                this.createGetDescriptorRequest(key).sendAndParse().then((receivedDescriptor: Descriptor) => {
-                    this.setSelectorValue(receivedDescriptor);
+                promise = this.createGetDescriptorRequest(key).sendAndParse().then((receivedDescriptor: Descriptor) => {
+                    if (receivedDescriptor.getKey().equals(this.loadingDescriptorKey)) {
+                        return this.setSelectorValue(receivedDescriptor);
+                    }
                 }).catch((reason) => {
                     if (this.isNotFoundError(reason)) {
-                        this.setSelectorValue(null);
+                        return this.setSelectorValue(null);
                     } else {
                         DefaultErrorHandler.handle(reason);
+                        return Q();
                     }
-                }).done();
+                })
             }
         } else {
-            this.setSelectorValue(null);
+            promise = this.setSelectorValue(null);
         }
+
+        return promise.finally(() => {
+            this.unmask();
+            this.loadingDescriptorKey = null;
+        });
     }
 
     private initSelectorListeners() {
@@ -213,9 +226,9 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
         if (!this.component || !descriptor) {
             this.notifyLayoutListeners();
-            return;
+            return Q();
         }
-        this.mask();
+
         const form: Form = descriptor.getConfig();
         const config: PropertyTree = this.component.getConfig();
         this.formView = new FormViewExt(this.liveEditModel.getFormContext(), form, config.getRoot());
@@ -223,17 +236,12 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.appendChild(this.formView);
         this.component.setDisableEventForwarding(true);
 
-        this.timeoutId = setTimeout(() =>
-                this.formView.layout(false)
-                    .catch((reason) => DefaultErrorHandler.handle(reason))
-                    .finally(() => {
-                        this.unmask();
-                        this.component.setDisableEventForwarding(false);
-                        this.notifyLayoutListeners();
-                    })
-                    .done(),
-            100);
-
+        return this.formView.layout(false)
+            .catch((reason) => DefaultErrorHandler.handle(reason))
+            .finally(() => {
+                this.component.setDisableEventForwarding(false);
+                this.notifyLayoutListeners();
+            });
     }
 
     private cleanFormView() {
@@ -284,7 +292,8 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     }
 }
 
-class FormViewExt extends FormView {
+class FormViewExt
+    extends FormView {
 
     hasNonDefaultValues(): boolean {
         return this.formItemViews.some((formItem) => formItem.hasNonDefaultValues());
