@@ -130,7 +130,7 @@ class Page {
             }
             return await this.pause(200);
         } catch (err) {
-            throw new Error("Error when set value in input " + err);
+            throw new Error("Tried to set the value in the input " + err);
         }
     }
 
@@ -165,7 +165,7 @@ class Page {
             await inputElement.clearValue();
             return await this.pause(1000);
         } catch (err) {
-            throw new Error("Error when clear value in input" + err);
+            throw new Error('Tried to clear the value in the input' + err);
         }
     }
 
@@ -342,7 +342,7 @@ class Page {
             return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_remove_notif_msg');
-            throw new Error('Error after removing the notification message, screenshot: ' + screenshot + '  ' + err);
+            throw new Error(`Error after removing the notification message, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -356,7 +356,7 @@ class Page {
             return await this.getText(notificationXpath);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_notification');
-            throw new Error('Error when wait for the notification message, screenshot:  ' + screenshot + '  ' + err);
+            throw new Error(`Error when wait for the notification message, screenshot:${screenshot}  `  + err);
         }
     }
 
@@ -376,8 +376,7 @@ class Page {
             await this.pause(300);
             return await this.getTextInDisplayedElements(lib.NOTIFICATION_TEXT);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_notification');
-            throw new Error('Error when wait for notification message, screenshot: ' + screenshot + "  " + err);
+            await this.handleError('Wait for notification messages - ', 'err_notification_messages', err);
         }
     }
 
@@ -658,6 +657,39 @@ class Page {
 
     async getPuppeteer() {
         return await browser.getPuppeteer();
+    }
+
+    async getBrowserStatus() {
+        return await this.getBrowser().status();
+    }
+
+    async performScrollWithWheelActions(element, deltaY) {
+        await this.browser.performActions([
+            {
+                type: 'wheel',
+                id: 'wheel1',
+                actions: [
+                    {
+                        type: 'scroll',
+                        origin: element,
+                        x: 0,
+                        y: 0,
+                        deltaX: 0,  // horizontal scroll
+                        deltaY: deltaY,
+                    },
+                ],
+            },
+        ]);
+    }
+    // Utility method for error handling
+    async handleError(errorMessage, screenshotName, error) {
+        let screenshot = await this.saveScreenshotUniqueName(screenshotName);
+        throw new Error(`${errorMessage}, screenshot: ${screenshot} ` + error);
+    }
+
+    async isMacOS() {
+        const status = await this.getBrowserStatus();
+        return status.os.name.includes('Mac');
     }
 }
 
