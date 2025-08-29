@@ -13,7 +13,7 @@ const xpath = {
     option2NameInput: "//input[contains(@id,'TextInput') and contains(@name,'name2')]",
 };
 
-//Context Window, Inspect tab for Layout Component with cfg file
+// Context Window, Inspect tab for Layout Component with cfg file. Option Set inside
 class LayoutConfigInspectPanel extends LayoutInspectionPanel {
 
     get option1TextInput() {
@@ -24,13 +24,23 @@ class LayoutConfigInspectPanel extends LayoutInspectionPanel {
         return xpath.container + xpath.option2NameInput;
     }
 
+    async getOptionSetSelectedOption() {
+        try {
+            let locator = xpath.container + "//div[contains(@class,'form-occurrence-draggable-label')]";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError('Layout config, Option Set. Default selected option should be displayed', 'err_layout_config_option_set',
+                err);
+        }
+    }
+
     async typeTextInOption1TextInput(text) {
         try {
             await this.waitForElementDisplayed(this.option1TextInput, appConst.mediumTimeout);
             await this.typeTextInInput(this.option1TextInput, text);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_layout_config');
-            throw new Error(`Inspect Panel, Layout config - option1 text input, screenshot: ${screenshot} ` + err);
+            await this.handleError('Layout config, Option_1 text input', 'err_layout_config_option1_input', err);
         }
     }
 
@@ -50,8 +60,7 @@ class LayoutConfigInspectPanel extends LayoutInspectionPanel {
         try {
             await this.waitForElementDisplayed(xpath.header, appConst.mediumTimeout)
         } catch (err) {
-            await this.saveScreenshot('err_layout_cfg_inspect_panel');
-            throw new Error('Live Edit, Inspection was not loaded' + err);
+            await this.handleError('Layout Config, Inspection Panel should be opened', 'err_layout_cfg_inspect_panel', err);
         }
     }
 

@@ -40,7 +40,7 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             // 2. Verify that the site should be saved automatically after selecting a controller
             await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.MAIN_REGION);
             await contentWizard.waitForSaveButtonDisabled();
-            // 3. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            // 3. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_REGION);
             // 4. Insert the layout:
@@ -48,13 +48,16 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             await layoutInspectionPanel.typeNameAndSelectLayout(appConst.LAYOUT_NAME.CENTERED);
             // 5. Site should be saved automatically:
             await contentWizard.waitForNotificationMessage();
-            // 6. Insert a text in the input in Config in Inspect Panel:
+            // 6. Option 1 should be selected by default in the option set in Inspect Panel:
+            let option = await layoutConfigInspectPanel.getOptionSetSelectedOption();
+            assert.strictEqual(option, 'Option 1', `'option 1' should be selected by default in the option-set in Inspect Panel`);
+            // 7. Insert a text in the input in Config in Inspect Panel:
             await layoutConfigInspectPanel.typeTextInOption1TextInput(OPTION_1_TXT);
-            // 7. Click on 'Apply' button in 'Inspect panel'
+            // 8. Click on 'Apply' button in 'Inspect panel'
             await layoutConfigInspectPanel.clickOnApplyButton();
-            // 10. Site should be saved after clicking on Apply:
+            // 9. Site should be saved after clicking on Apply:
             await contentWizard.waitForNotificationMessage();
-            // 11. Verify that there are no duplicated items in PCV:(4 items should be displayed in PCV);
+            // 10. Verify that there are no duplicated items in PCV:(4 items should be displayed in PCV);
             let result = await pageComponentView.getPageComponentsDisplayName();
             await studioUtils.saveScreenshot('layout_config_inspect_panel');
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
