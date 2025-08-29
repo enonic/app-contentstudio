@@ -33,7 +33,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
 
     // Verify the bug HtmlArea field refuses to save item and display image in preview #8824
     // https://github.com/enonic/app-contentstudio/issues/8824
-    it(`GIVEN an image with 'Alternative Text' WHEN Update Image dialog has been opened THEN expected alt-text should be displayed in the form`,
+    it(`GIVEN Align Center button has been pressed in the Insert Image dialog WHEN 'Insert' button has been opened THEN expected styles for the image should be applied in html-area`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
@@ -47,13 +47,14 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await insertImageDialog.clickOnParagraphCenterButton();
             // 3. Click on 'Decorative Text' radio:
             await insertImageDialog.clickOnDecorativeImageRadioButton();
+            await insertImageDialog.typeCaption(TEST_CAPTION);
             // 7. Click on Insert button and close the dialog:
             await insertImageDialog.clickOnInsertButton();
             await insertImageDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('insert_image_align_center_html_area');
             // 8. Verify the image-alignment in html-area:
             await htmlAreaForm.switchToHtmlAreaFrame();
-            let value = await htmlAreaForm.getInsertedImageStyle();
+            let value = await htmlAreaForm.getInsertedImageStyle(TEST_CAPTION);
             assert.ok(value.includes('editor-align-center'), 'align center style should be applied to the image');
             await htmlAreaForm.switchToParentFrame();
             // 9. Save the content:
@@ -63,7 +64,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await studioUtils.saveScreenshot('insert_image_align_center_html_area_2');
             await htmlAreaForm.switchToHtmlAreaFrame();
             // 10. Verify the image-alignment in html-area after saving:
-            value = await htmlAreaForm.getInsertedImageStyle();
+            value = await htmlAreaForm.getInsertedImageStyle(TEST_CAPTION);
             assert.ok(value.includes('editor-align-center'), 'align center style should be applied to the image');
         });
 

@@ -9,7 +9,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentSelectorForm = require('../../page_objects/wizardpanel/content.selector.form');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const ArticleForm = require('../../page_objects/wizardpanel/article.form.panel');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 
 describe(`article.allow.child.cfg.spec: tests for 'allow-child-content-type' in content type schema`, function () {

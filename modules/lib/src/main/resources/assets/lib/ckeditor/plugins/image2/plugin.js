@@ -13,6 +13,10 @@
             template +
             '<figcaption>{captionPlaceholder}</figcaption>' +
             '</figure>'),
+        templateBlockNoCaption = new CKEDITOR.template(
+            '<figure class="{captionedClass}">' +
+            template +
+            '</figure>'),
         alignmentsObj = {left: 0, center: 1, right: 2},
         regexPercent = /^\s*(\d+\%)\s*$/i;
 
@@ -377,7 +381,7 @@
                 var helpers = CKEDITOR.plugins.image2,
                     image = this.parts.image,
                     data = {
-                        hasCaption: !!this.parts.caption,
+                        hasCaption: this.parts.caption,
                         src: image.getAttribute('src'),
                         alt: image.getAttribute('alt') || '',
                         width: image.getAttribute('width') || '',
@@ -541,30 +545,6 @@
                 align: function (shift, oldValue, newValue) {
                     var el = shift.element;
 
-                    // Alignment changed.
-                    if (shift.changed.align) {
-                        // No caption in the new state.
-                        if (!shift.newData.hasCaption) {
-                            // Changed to "center" (non-captioned).
-                            if (newValue == 'center') {
-                                shift.deflate();
-                                shift.element = wrapInCentering(editor, el);
-                            }
-
-                            // Changed to "non-center" from "center" while caption removed.
-                            if (!shift.changed.hasCaption && oldValue == 'center' && newValue != 'center') {
-                                shift.deflate();
-                                shift.element = unwrapFromCentering(el);
-                            }
-                        }
-                    }
-
-                    // Alignment remains and "center" removed caption.
-                    else if (newValue == 'center' && shift.changed.hasCaption && !shift.newData.hasCaption) {
-                        shift.deflate();
-                        shift.element = wrapInCentering(editor, el);
-                    }
-
                     // Finally set display for figure.
                     if (!alignClasses && el.is('figure')) {
                         if (newValue == 'center') {
@@ -593,33 +573,25 @@
                     // Switching hasCaption always destroys the widget.
                     shift.deflate();
 
+                    var figure = newValue ? CKEDITOR.dom.element.createFromHtml(templateBlock.output({
+                        captionedClass: captionedClass,
+                        captionPlaceholder: editor.lang.image2.captionPlaceholder
+                    }), doc) : CKEDITOR.dom.element.createFromHtml(templateBlockNoCaption.output({
+                        captionedClass: captionedClass,
+                    }), doc);
+
                     // There was no caption, but the caption is to be added.
-                    if (newValue) {
-                        // Create new <figure> from widget template.
-                        var figure = CKEDITOR.dom.element.createFromHtml(templateBlock.output({
-                            captionedClass: captionedClass,
-                            captionPlaceholder: editor.lang.image2.captionPlaceholder
-                        }), doc);
 
-                        // Replace element with <figure>.
-                        replaceSafely(figure, shift.element);
+                    // Create new <figure> from widget template.
+                    // Replace element with <figure>.
+                    replaceSafely(figure, shift.element);
 
-                        // Use old <img/> or <a><img/></a> instead of the one from the template,
-                        // so we won't lose additional attributes.
-                        imageOrLink.replace(figure.findOne('img'));
+                    // Use old <img/> or <a><img/></a> instead of the one from the template,
+                    // so we won't lose additional attributes.
+                    imageOrLink.replace(figure.findOne('img'));
 
-                        // Update widget's element.
-                        shift.element = figure;
-                    }
-
-                    // The caption was present, but now it's to be removed.
-                    else {
-                        // Unwrap <img/> or <a><img/></a> from figure.
-                        imageOrLink.replace(shift.element);
-
-                        // Update widget's element.
-                        shift.element = imageOrLink;
-                    }
+                    // Update widget's element.
+                    shift.element = figure;
                 },
 
                 link: function (shift, oldValue, newValue) {
@@ -877,19 +849,7 @@
                 wrapper.removeClass(alignClasses[i]);
             }
 
-            if (align == 'center') {
-                // Avoid touching non-captioned, centered widgets because
-                // they have the class set on the element instead of wrapper:
-                //
-                // 	<div class="cke_widget_wrapper">
-                // 		<p class="center-class">
-                // 			<img />
-                // 		</p>
-                // 	</div>
-                if (hasCaption) {
-                    wrapper.addClass(alignClasses[1]);
-                }
-            } else if (align != 'none') {
+            if (align != 'none') {
                 wrapper.addClass(alignClasses[alignmentsObj[align]]);
             }
         } else {
