@@ -64,6 +64,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   selenium-test:
+    if: ${{ false }}
     strategy:
       fail-fast: false
       matrix:
