@@ -648,7 +648,6 @@ export class ImageModalDialog
     private updateEditorElements() {
         const imageEl: CKEDITOR.dom.element = this.ckeOriginalDialog['widget'].parts.image;
         const figureEl: CKEDITOR.dom.element = imageEl.getAscendant('figure') as CKEDITOR.dom.element;
-        const figureCaptionEl: CKEDITOR.dom.element = figureEl.findOne('figcaption');
 
         figureEl.setAttribute('class', `${this.figure.getClass()}`);
         figureEl.removeAttribute('style');
@@ -662,7 +661,7 @@ export class ImageModalDialog
 
         this.updateImageSrc(imageEl.$, this.editorWidth);
 
-        figureCaptionEl.setText(this.getCaptionFieldValue());
+        figureEl.findOne('figcaption')?.setText(this.getCaptionFieldValue());
     }
 
     private updateOriginalDialogInputValues(): void {
@@ -670,10 +669,11 @@ export class ImageModalDialog
         const src: string = image.getEl().getAttribute('src');
         const altText: string = this.getAltTextFieldValue();
         const alignment: string = this.imageToolbar.getAlignment();
+        const noCaption = StringHelper.isBlank(this.getCaptionFieldValue());
 
         this.getOriginalUrlElem().setValue(src, true);
         this.getOriginalAltTextElem().setValue(altText, false);
-        this.getOriginalHasCaptionElem().setValue(true, false);
+        this.getOriginalHasCaptionElem().setValue(!noCaption, false);
         this.getOriginalAlignmentElem().setValue(alignment, false);
     }
 
