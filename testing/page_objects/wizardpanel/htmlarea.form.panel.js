@@ -402,14 +402,14 @@ class HtmlAreaForm extends OccurrencesFormView {
         await elems[index].click();
     }
 
-    async switchToHtmlAreaFrame(){
+    async switchToHtmlAreaFrame() {
         return await this.switchToFrame(XPATH.ckeTextArea + "//iframe[contains(@class,'cke_wysiwyg_frame')]");
     }
+
     // returns the class attribute of the inserted image with a specific caption
     async getInsertedImageStyle(caption) {
         try {
-            //await this.switchToFrame(XPATH.ckeTextArea + "//iframe[contains(@class,'cke_wysiwyg_frame')]");
-            let locator = `//figure[child::figcaption[contains(.,${caption})]]`;
+            let locator = `//figure[child::figcaption[contains(.,'${caption}')]]`;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getAttribute(locator, 'class');
         } catch (err) {
