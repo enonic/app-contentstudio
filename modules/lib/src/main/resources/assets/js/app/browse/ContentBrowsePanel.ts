@@ -309,6 +309,7 @@ export class ContentBrowsePanel
 
         ProjectContext.get().onProjectChanged(() => {
             this.selectionWrapper.deselectAll(true);
+            this.updateActionsAndPreview();
             this.filterPanel.reset().then(() => {
                 this.hideFilterPanel();
                 this.toggleFilterPanelButton.removeClass('filtered');
