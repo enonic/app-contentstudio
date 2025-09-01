@@ -177,7 +177,8 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             // 2. Switch to the empty project:
             await studioUtils.openProjectSelectionDialogAndSelectContext(emptyProject);
             // 3. Verify that browse toolbar is reset
-            await contentBrowsePanel.waitForNewButtonDisabled();
+            await contentBrowsePanel.waitForEditButtonDisabled();
+            await contentBrowsePanel.waitForArchiveButtonDisabled();
             // 4. Preview panel should be reset as well
             await contentItemPreviewPanel.waitForToolbarNotDisplayed();
         });
