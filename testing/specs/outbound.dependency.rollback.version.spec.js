@@ -80,7 +80,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
             // 2. Open Version widget
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
-            await wizardVersionsWidget.clickAndExpandVersion(1);
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED,1);
             // 3. revert the version with 2 selected image:
             await wizardVersionsWidget.clickOnRevertButton();
             await contentWizard.waitForNotificationMessage();
