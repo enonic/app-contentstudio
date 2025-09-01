@@ -224,9 +224,11 @@ module.exports = Object.freeze({
     VERSIONS_SHOW_CHANGES_BUTTON: `//button[contains(@id,'ActionButton') and @title='Show changes']`,
     LIVE_EDIT_FRAME: "//div[contains(@id,'FrameContainer')]//iframe[contains(@class,'text') or contains(@class,'application')]",
     APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
-    SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and child::span[text()='Settings']]",
-    MODE_CONTENT_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Content']",
 
+    WIDGET_SIDEBAR: {
+        SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and child::span[text()='Settings']]",
+        MODE_CONTENT_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Content']",
+    },
     PUBLISH_DIALOG: {
         EXCLUDE_BTN: "//button[child::span[contains(.,'Exclude')]]",
     },

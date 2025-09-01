@@ -55,12 +55,12 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             // 2. Unlock the LiveEdit- click on 'Customize' menu item:
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToMainFrame();
-            // 3. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 3. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 4. Click on the item and open Context Menu:
             await pageComponentView.openMenu(TEST_TEXT);
             // 5. Remove the text component and save it
-            await pageComponentView.selectMenuItem(['Remove']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE]);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('site_txt_component_customized');
@@ -69,7 +69,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             assert.equal(result1.length, 2, "Number of items in Component View should be reduced after the removing");
             // 7. Expand the controller's menu(the root element) and click on 'Reset' item
             await pageComponentView.openMenu(CONTROLLER_NAME);
-            await pageComponentView.selectMenuItem(['Reset']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             await pageComponentView.pause(4000);
             // 8. Click on 'Customize' menu item in Live Edit frame:
             await contentWizard.doUnlockLiveEditor();

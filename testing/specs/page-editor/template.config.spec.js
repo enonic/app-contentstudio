@@ -138,7 +138,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await contentWizard.switchToMainFrame();
             // 3. Remove the text component and save it
             await pageComponentsWizardStepForm.openMenu(TEST_TEXT);
-            await pageComponentsWizardStepForm.selectMenuItem(['Remove']);
+            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE]);
             await studioUtils.saveScreenshot('component_step_form_txt_removed');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);
@@ -156,7 +156,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await studioUtils.selectAndOpenContentInWizard(ARTICLE_NAME);
             // 2. Click on 'Reset' menu item in the wizard step form:
             await pageComponentsWizardStepForm.openMenu('Page');
-            await pageComponentsWizardStepForm.selectMenuItem(['Reset']);
+            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             await studioUtils.saveScreenshot('component_step_form_reset');
             // 3. The content should be saved automatically:
             await contentWizard.waitForNotificationMessage();
