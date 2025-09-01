@@ -216,13 +216,11 @@ export class PageView
 
             // adding anything except text should exit the text edit mode
             if (itemView.getType().equals(TextItemType.get())) {
-                if (!this.isTextEditMode() && event.isNewlyCreated()) {
-                    PageViewController.get().setTextEditMode(true);
-                } else {
-                    (itemView as TextComponentView).setEditMode(true);
-                    this.closeTextEditModeButton.toggleClass('active', true);
-                }
                 if (event.isNewlyCreated()) {
+                    if (!this.isTextEditMode()) {
+                        PageViewController.get().setTextEditMode(true);
+                    }
+
                     new SelectComponentEvent({itemView, position: null, rightClicked: true}).fire();
                     itemView.giveFocus();
                 }

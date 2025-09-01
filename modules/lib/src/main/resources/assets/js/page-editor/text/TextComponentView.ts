@@ -3,6 +3,7 @@ import 'jquery-simulate/jquery.simulate.js';
 import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
+import {ItemViewContextMenuPosition} from '../ItemViewContextMenuPosition';
 import {TextItemType} from './TextItemType';
 import {TextPlaceholder} from './TextPlaceholder';
 import {LiveEditPageDialogCreatedEvent, LiveEditPageDialogCreatedEventHandler} from '../LiveEditPageDialogCreatedEvent';
@@ -18,7 +19,7 @@ import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {SelectComponentEvent} from '../event/outgoing/navigation/SelectComponentEvent';
+import {ItemViewSelectedEventConfig, SelectComponentEvent} from '../event/outgoing/navigation/SelectComponentEvent';
 import {SelectedHighlighter} from '../SelectedHighlighter';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
@@ -86,6 +87,7 @@ export class TextComponentView
     constructor(builder: TextComponentViewBuilder) {
         super(builder.setPlaceholder(new TextPlaceholder()));
 
+        console.log('TextComponentView.constructor', this.getId());
         this.setInitialValueAndRenderMode(builder.text);
         this.addTextContextMenuActions();
         this.addClassEx('text-view');
@@ -282,8 +284,16 @@ export class TextComponentView
         this.lastClicked = new Date().getTime();
     }
 
+    deselect(silent?: boolean): void {
+        super.deselect(silent);
+
+        if (PageViewController.get().isTextEditMode()) {
+            PageViewController.get().setTextEditMode(false);
+        }
+    }
+
     isEditMode(): boolean {
-        return this.hasClass('edit-mode');
+        return this.editMode;
     }
 
     isActive(): boolean {
@@ -327,7 +337,7 @@ export class TextComponentView
             }
 
             this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
-            this.deselect();
+            super.deselect();
         }
     }
 
@@ -670,11 +680,15 @@ export class TextComponentView
         const contentId = this.getLiveEditParams().contentId;
         const selectedItemViewPath: ComponentPath = SessionStorageHelper.getSelectedPathFromStorage(contentId);
 
-        if (this.getPath().equals(selectedItemViewPath)) {
+        console.log('restoreCursorPosition');
 
+        if (this.getPath().equals(selectedItemViewPath)) {
+            console.log('restoreCursorPosition - paths match');
             const textEditorCursorPos: HtmlEditorCursorPosition = SessionStorageHelper.getSelectedTextCursorPosInStorage(contentId);
 
+
             if (textEditorCursorPos) {
+                console.log('restoreCursorPosition - textEditorCursorPos', this);
                 this.setCursorPositionInTextComponent(textEditorCursorPos);
                 SessionStorageHelper.removeSelectedTextCursorPosInStorage(contentId);
             }
@@ -684,6 +698,11 @@ export class TextComponentView
     private setCursorPositionInTextComponent(textEditorCursorPos: HtmlEditorCursorPosition): void {
         this.getPageView().appendContainerForTextToolbar();
         this.startPageTextEditMode();
+
+        if (!this.isEditMode()) {
+            this.setEditMode(true);
+        }
+
         $(this.getHTMLElement()).simulate('click');
 
         this.setCursorPosition(textEditorCursorPos);

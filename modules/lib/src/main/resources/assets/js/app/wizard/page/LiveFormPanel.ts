@@ -1,25 +1,12 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {showError, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ContentWizardPanel} from '../ContentWizardPanel';
-import {DefaultModels} from './DefaultModels';
-import {LiveEditPageProxy} from './LiveEditPageProxy';
-import {TextInspectionPanel} from './contextwindow/inspect/region/TextInspectionPanel';
-import {RegionInspectionPanel} from './contextwindow/inspect/region/RegionInspectionPanel';
-import {LayoutInspectionPanel} from './contextwindow/inspect/region/LayoutInspectionPanel';
-import {FragmentInspectionPanel} from './contextwindow/inspect/region/FragmentInspectionPanel';
-import {PartInspectionPanel} from './contextwindow/inspect/region/PartInspectionPanel';
-import {PageInspectionPanel} from './contextwindow/inspect/page/PageInspectionPanel';
-import {InspectionsPanel} from './contextwindow/inspect/InspectionsPanel';
-import {InsertablesPanel} from './contextwindow/insert/InsertablesPanel';
-import {ContextWindow, ContextWindowConfig, getInspectParameters} from './contextwindow/ContextWindow';
-import {ShowContentFormEvent} from '../ShowContentFormEvent';
-import {SaveAsTemplateAction} from '../action/SaveAsTemplateAction';
-import {ShowLiveEditEvent} from '../ShowLiveEditEvent';
-import {ShowSplitEditEvent} from '../ShowSplitEditEvent';
+import {Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -36,19 +23,14 @@ import {ContentDeletedEvent} from '../../event/ContentDeletedEvent';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {ContentUpdatedEvent} from '../../event/ContentUpdatedEvent';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import {Component} from '../../page/region/Component';
-import {Page} from '../../page/Page';
-import {PartComponent} from '../../page/region/PartComponent';
-import {LayoutComponent} from '../../page/region/LayoutComponent';
-import {ComponentPath} from '../../page/region/ComponentPath';
-import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
-import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {InspectEvent} from '../../event/InspectEvent';
-import {ContextPanelMode} from '../../view/context/ContextSplitPanel';
 import {ContentType} from '../../inputtype/schema/ContentType';
 import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {HTMLAreaProxy} from '../../inputtype/ui/text/dialog/HTMLAreaProxy';
 import {ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
+import {Descriptor} from '../../page/Descriptor';
+import {Page} from '../../page/Page';
+import {Component} from '../../page/region/Component';
 import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
 import {ComponentDescriptorUpdatedEvent} from '../../page/region/ComponentDescriptorUpdatedEvent';
 import {ComponentDetachedEvent} from '../../page/region/ComponentDetachedEvent';
@@ -56,38 +38,55 @@ import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEve
 import {ComponentFragmentCreatedEvent} from '../../page/region/ComponentFragmentCreatedEvent';
 import {ComponentFragmentUpdatedEvent} from '../../page/region/ComponentFragmentUpdatedEvent';
 import {ComponentImageUpdatedEvent} from '../../page/region/ComponentImageUpdatedEvent';
+import {ComponentPath} from '../../page/region/ComponentPath';
 import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
 import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
+import {FragmentComponentType} from '../../page/region/FragmentComponentType';
+import {LayoutComponent} from '../../page/region/LayoutComponent';
+import {LayoutComponentType} from '../../page/region/LayoutComponentType';
 import {PageItem} from '../../page/region/PageItem';
+import {PageItemType} from '../../page/region/PageItemType';
+import {PartComponent} from '../../page/region/PartComponent';
+import {PartComponentType} from '../../page/region/PartComponentType';
 import {Region} from '../../page/region/Region';
 import {TextComponent} from '../../page/region/TextComponent';
+import {TextComponentType} from '../../page/region/TextComponentType';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {UriHelper} from '../../rendering/UriHelper';
+import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {PageHelper} from '../../util/PageHelper';
 import {ContextPanelState} from '../../view/context/ContextPanelState';
+import {ContextPanelMode} from '../../view/context/ContextSplitPanel';
+import {PreviewWidgetDropdown} from '../../view/toolbar/PreviewWidgetDropdown';
+import {WidgetRenderer} from '../../view/WidgetRenderingHandler';
+import {SaveAsTemplateAction} from '../action/SaveAsTemplateAction';
+import {ContentWizardPanel} from '../ContentWizardPanel';
 import {PageEventsManager} from '../PageEventsManager';
 import {PageNavigationEvent} from '../PageNavigationEvent';
 import {PageNavigationEventData, PageNavigationEventSource} from '../PageNavigationEventData';
 import {PageNavigationEventType} from '../PageNavigationEventType';
 import {PageNavigationHandler} from '../PageNavigationHandler';
 import {PageNavigationMediator} from '../PageNavigationMediator';
-import {PageState} from './PageState';
-import {PageItemType} from '../../page/region/PageItemType';
-import {DescriptorBasedComponentInspectionPanel} from './contextwindow/inspect/region/DescriptorBasedComponentInspectionPanel';
-import {TextComponentType} from '../../page/region/TextComponentType';
-import {PartComponentType} from '../../page/region/PartComponentType';
-import {LayoutComponentType} from '../../page/region/LayoutComponentType';
-import {FragmentComponentType} from '../../page/region/FragmentComponentType';
-import {ComponentInspectionPanel} from './contextwindow/inspect/region/ComponentInspectionPanel';
-import {Descriptor} from '../../page/Descriptor';
-import {FrameContainer} from './FrameContainer';
+import {ShowContentFormEvent} from '../ShowContentFormEvent';
+import {ShowLiveEditEvent} from '../ShowLiveEditEvent';
+import {ShowSplitEditEvent} from '../ShowSplitEditEvent';
 import {WizardWidgetRenderingHandler} from '../WizardWidgetRenderingHandler';
-import {WidgetRenderer} from '../../view/WidgetRenderingHandler';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
-import {PreviewWidgetDropdown} from '../../view/toolbar/PreviewWidgetDropdown';
+import {ContextWindow, ContextWindowConfig, getInspectParameters} from './contextwindow/ContextWindow';
+import {InsertablesPanel} from './contextwindow/insert/InsertablesPanel';
+import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
+import {InspectionsPanel} from './contextwindow/inspect/InspectionsPanel';
+import {PageInspectionPanel} from './contextwindow/inspect/page/PageInspectionPanel';
+import {ComponentInspectionPanel} from './contextwindow/inspect/region/ComponentInspectionPanel';
+import {DescriptorBasedComponentInspectionPanel} from './contextwindow/inspect/region/DescriptorBasedComponentInspectionPanel';
+import {FragmentInspectionPanel} from './contextwindow/inspect/region/FragmentInspectionPanel';
+import {LayoutInspectionPanel} from './contextwindow/inspect/region/LayoutInspectionPanel';
+import {PartInspectionPanel} from './contextwindow/inspect/region/PartInspectionPanel';
+import {RegionInspectionPanel} from './contextwindow/inspect/region/RegionInspectionPanel';
+import {TextInspectionPanel} from './contextwindow/inspect/region/TextInspectionPanel';
+import {FrameContainer} from './FrameContainer';
+import {LiveEditPageProxy} from './LiveEditPageProxy';
+import {PageState} from './PageState';
 
 export interface LiveFormPanelConfig {
 
@@ -112,8 +111,6 @@ export class LiveFormPanel
     implements PageNavigationHandler, WidgetRenderer {
 
     public static debug: boolean = false;
-
-    private defaultModels: DefaultModels;
 
     private content: Content;
 
@@ -587,7 +584,6 @@ export class LiveFormPanel
 
         this.liveEditModel = liveEditModel;
         this.content = liveEditModel.getContent();
-        this.defaultModels = liveEditModel.getDefaultModels();
 
         const site: Site = this.content.isSite()
                            ? this.content as Site
