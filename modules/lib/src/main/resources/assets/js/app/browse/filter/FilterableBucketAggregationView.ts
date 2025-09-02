@@ -5,9 +5,12 @@ import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
 import {BucketView} from '@enonic/lib-admin-ui/aggregation/BucketView';
 import {BucketListBox} from '@enonic/lib-admin-ui/aggregation/BucketListBox';
 import {BucketViewSelectionChangedEvent} from '@enonic/lib-admin-ui/aggregation/BucketViewSelectionChangedEvent';
-import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import Q from 'q';
+import {ProjectContext} from '../../project/ProjectContext';
 
 export class FilterableBucketAggregationView
     extends BucketAggregationView {
@@ -17,6 +20,10 @@ export class FilterableBucketAggregationView
     private bucketListBox: BucketListBox = new BucketListBox();
 
     private idsToKeepOnTop: string[] = [];
+
+    private aggregationResolved: boolean = false;
+
+    private resolver: AggregationsDisplayNamesResolver;
 
     constructor(bucketAggregation: BucketAggregation) {
         super(bucketAggregation);
@@ -35,6 +42,10 @@ export class FilterableBucketAggregationView
         });
     }
 
+    setResolver(resolver: AggregationsDisplayNamesResolver): void {
+        this.resolver = resolver;
+    }
+
     private filterBuckets(bucket: Bucket, searchString: string): boolean {
         const lowerCaseSearchString: string = searchString.toLowerCase();
         return bucket.getKey().toLowerCase().indexOf(lowerCaseSearchString) >= 0 ||
@@ -43,6 +54,10 @@ export class FilterableBucketAggregationView
 
     protected initListeners(): void {
         super.initListeners();
+
+        ProjectContext.get().onProjectChanged(() => {
+            this.aggregationResolved = false;
+        });
 
         this.listBoxDropdown.onSelectionChanged((bucketSelection: SelectionChange<Bucket>) => {
             bucketSelection.selected.forEach((item: Bucket) => {
@@ -68,6 +83,20 @@ export class FilterableBucketAggregationView
             });
 
             this.notifyBucketSelectionChanged(bucketSelection);
+        });
+
+        this.listBoxDropdown.onDropdownVisibilityChanged((visible: boolean) => {
+            if (!visible || this.aggregationResolved || !this.aggregation) {
+                return;
+            }
+            const loadMask = new LoadMask(this.listBoxDropdown);
+            loadMask.show();
+            this.resolver.updateUnknownPrincipals(this.aggregation)
+                .then(() => {
+                    this.aggregationResolved = true;
+                    this.update(this.aggregation);
+                })
+                .finally(() => loadMask.hide());
         });
     }
 
@@ -121,14 +150,17 @@ export class FilterableBucketAggregationView
                 }
             }
         });
-
     }
 
     private isBucketToBeAlwaysOnTop(bucket: Bucket): boolean {
         return this.idsToKeepOnTop.some((id: string) => id === bucket.getKey());
     }
 
-    update(aggregation: Aggregation) {
+    update(aggregation: BucketAggregation): void {
+        this.aggregation = aggregation;
+
+        this.resolver.updateKnownPrincipals(this.aggregation);
+
         super.update(aggregation);
 
         const isEveryListItemOnTop: boolean = this.bucketListBox.getItems().every((bucket: Bucket) => this.isBucketToBeAlwaysOnTop(bucket));

@@ -5,11 +5,14 @@ import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
 import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FilterableBucketAggregationView} from './FilterableBucketAggregationView';
+import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
 
 export class FilterableAggregationGroupView
     extends AggregationGroupView {
 
     private idsToKeepOnToTop: string[];
+
+    private resolver: AggregationsDisplayNamesResolver;
 
     protected createAggregationView(aggregation: Aggregation): AggregationView {
         const aggregationView: FilterableBucketAggregationView = new FilterableBucketAggregationView(aggregation as BucketAggregation);
@@ -18,6 +21,7 @@ export class FilterableAggregationGroupView
             this.notifyBucketViewSelectionChanged(bucketSelection)
         );
 
+        aggregationView.setResolver(this.resolver);
         aggregationView.setIdsToKeepOnToTop(this.idsToKeepOnToTop);
 
         return aggregationView;
@@ -31,6 +35,10 @@ export class FilterableAggregationGroupView
                 item.setIdsToKeepOnToTop(ids);
             }
         });
+    }
+
+    setResolver(resolver: AggregationsDisplayNamesResolver) {
+        this.resolver = resolver;
     }
 
 }
