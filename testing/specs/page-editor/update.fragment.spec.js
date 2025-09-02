@@ -19,7 +19,7 @@ describe('Test for updating text in fragment', function () {
     }
 
     const SITE_NAME = appConst.generateRandomName('site');
-    let CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const GENERATED_TEXT_2 = appConst.generateRandomName('second');
     const GENERATED_TEXT_1 = appConst.generateRandomName('first');
 

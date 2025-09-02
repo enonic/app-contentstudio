@@ -20,7 +20,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
         webDriverHelper.setupBrowser();
     }
     const DISPLAY_NAME = contentBuilder.generateRandomName('site');
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
 
     // Verify issue - Page Component View modal dialog does not appear after selecting a controller #6466
     it(`GIVEN Live Edit frame is maximized WHEN controller has been selected THEN  Page Component View modal dialog should appear`,

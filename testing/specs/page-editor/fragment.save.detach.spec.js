@@ -18,7 +18,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
     }
 
     let SITE;
-    let CONTROLLER_NAME = 'main region';
+    let CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const FRAGMENT_NAME = 'Text';
 
     it(`Preconditions: new site should be created`,

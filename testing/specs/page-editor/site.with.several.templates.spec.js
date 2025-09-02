@@ -22,8 +22,8 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
     let TEMPLATE1;
     let TEMPLATE2;
     const SUPPORT_SITE = 'Site';
-    const CONTROLLER_NAME1 = 'main region';
-    const CONTROLLER_NAME2 = 'default';
+    const CONTROLLER_NAME1 = appConst.CONTROLLER_NAME.MAIN_REGION;
+    const CONTROLLER_NAME2 = appConst.CONTROLLER_NAME.DEFAULT;
 
     it(`Precondition 1: new site should be created`,
         async () => {

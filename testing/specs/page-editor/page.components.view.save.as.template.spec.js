@@ -17,7 +17,7 @@ describe('Save as Template specification', function () {
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let COUNTRY_LIST_CONTROLLER = 'Country List';
+    const COUNTRY_LIST_CONTROLLER = 'Country List';
 
     it("GIVEN site with a controller has been created WHEN Page Component View has been opened and menu in the root element has been opened THEN expected menu items should be present in the menu",
         async () => {

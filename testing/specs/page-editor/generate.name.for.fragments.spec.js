@@ -27,7 +27,7 @@ describe('Generate name for fragments specification', function () {
     }
 
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const TEST_IMAGE_NAME = appConst.TEST_IMAGES.FOSS;
     const FRAGMENT_GENERATED_NAME = 'fragment-text';
 

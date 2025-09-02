@@ -20,7 +20,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
     }
 
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const TEXT_COMPONENT_1 = 'text1';
     const TEXT_COMPONENT_2 = 'text2';
     const TEXT_LEFT_REGION = 'left region txt';

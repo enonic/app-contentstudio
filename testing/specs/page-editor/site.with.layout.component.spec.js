@@ -52,7 +52,7 @@ describe('site.with.layout.component.spec - specification', function () {
             let liveFormPanel = new LiveFormPanel();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME);
@@ -74,7 +74,7 @@ describe('site.with.layout.component.spec - specification', function () {
             let liveFormPanel = new LiveFormPanel();
             // 1. Open existing site with 3-col layout:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME);
@@ -84,9 +84,10 @@ describe('site.with.layout.component.spec - specification', function () {
             await textComponentCke.typeTextInCkeEditor('text center');
             // 5. Save the site:
             await contentWizard.waitAndClickOnSave();
-            // 5. Verify that expected text is displayed in Live Edit panel:
+            // 5. Verify that expected text is displayed in Live Edit panel: both text components should be in Edit mode
             await contentWizard.switchToLiveEditFrame();
             let result = await liveFormPanel.getTextInEditableLayoutComponent();
+            assert.ok(result.length === 2, 'Two text components should be in Edit mode now');
             assert.equal(result[1], 'text center', 'Expected text should be present in the layout component');
         });
 
@@ -98,7 +99,7 @@ describe('site.with.layout.component.spec - specification', function () {
             let liveFormPanel = new LiveFormPanel();
             // 1. Open existing site with 3-col layout:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME);

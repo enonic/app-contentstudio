@@ -14,7 +14,7 @@ describe('site.no.apps.selected: save a site without applications', function () 
         webDriverHelper.setupBrowser();
     }
 
-    let SITE_NAME = contentBuilder.generateRandomName('site');
+    const SITE_NAME = contentBuilder.generateRandomName('site');
 
     it(`Given wizard for new site has been opened WHEN there's no preview or no apps are selected THEN expected message should be shown in Live View`,
         async () => {

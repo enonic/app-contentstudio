@@ -25,7 +25,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
     }
 
     const FRAGMENT_LAYOUT_DESCRIPTION = 'layout';
-    const MAIN_REGION_CONTROLLER = 'main region';
+    const MAIN_REGION_CONTROLLER = appConst.CONTROLLER_NAME.MAIN_REGION;
     const MAIN_COMPONENT_NAME = 'main';
     const SITE_1_NAME = contentBuilder.generateRandomName('site');
     const SITE_2_NAME = contentBuilder.generateRandomName('site');

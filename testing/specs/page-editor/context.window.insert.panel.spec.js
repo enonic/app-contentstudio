@@ -19,7 +19,7 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
 
     it(`GIVEN wizard for new site is opened WHEN 2 applications haven checked in the app-dropdown AND 'Apply' button has been pressed THEN the site should be automatically saved`,
         async () => {

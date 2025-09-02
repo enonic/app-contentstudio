@@ -18,7 +18,7 @@ describe('image.text.component.as.fragment.spec - tests for saving an image as f
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const TEST_IMAGE = appConst.TEST_IMAGES.POP_03;
 
     it(`Preconditions: new site should be created`,

@@ -20,7 +20,7 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
     const TEXT = 'test text';
 
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -36,7 +36,7 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             let textComponentCke = new TextComponentCke();
             let liveFormPanel = new LiveFormPanel();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 1. Click on minimize-toggler, expand 'Live Edit' and open 'Page Component' modal dialog:
+            // 1. Click on minimize-toggle, expand 'Live Edit' and open 'Page Component' modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Open the context menu:
             await pageComponentView.openMenu('main');
@@ -45,8 +45,14 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             await textComponentCke.typeTextInCkeEditor(TEXT);
             await contentWizard.waitAndClickOnSave();
             await textComponentCke.switchToLiveEditFrame();
-            // Verify that text component in edit mode is present:
+            // Verify that text component in 'edit' mode is present:
             await liveFormPanel.waitForEditableTextComponentDisplayed(TEXT);
+            // 'close' edit  mode button should be displayed:
+            await liveFormPanel.waitForCloseEditModeButtonDisplayed();
+            // Click on 'close edit mode' button:
+            await liveFormPanel.clickOnCloseEditModeButton();
+            // Verify that the close-icon  gets not visible:
+            await liveFormPanel.waitForCloseEditModeButtonNotDisplayed();
         });
 
     it(`GIVEN existing site with text component is opened WHEN do right click on the text-component THEN component's context menu should appear`,
@@ -81,7 +87,7 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             // 1. Open  'Versions Panel':
             await contentWizard.openVersionsHistoryPanel();
             // 2. Revert the previous version: click on the second item on the top (the first one is the current version)
-            await versionPanel.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED,1);
+            await versionPanel.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             await versionPanel.clickOnRevertButton();
             await studioUtils.saveScreenshot('site_reverted1');
             await contentWizard.switchToLiveEditFrame();
