@@ -182,7 +182,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             // 2. Select the fragment and open the context-menu:
             await pageComponentView.openMenu('Text');
             // 3. Open this fragment in new browser-tab:
-            await pageComponentView.selectMenuItem(['Edit']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT]);
             await studioUtils.doSwitchToNextTab();
             let result = await contentWizard.isWizardStepPresent('Fragment');
             assert.ok(result, "'Fragment' Wizard Step should be present in the toolbar");

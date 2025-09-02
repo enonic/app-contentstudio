@@ -37,8 +37,8 @@ describe('Text Component with CKE - insert html table', function () {
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text-component:
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
             await textComponentCke.switchToLiveEditFrame();
             // 4. Click on 'Insert Table' menu-button:
             await textComponentCke.clickOnInsertTableButton();

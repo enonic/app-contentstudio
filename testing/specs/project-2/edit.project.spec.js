@@ -9,6 +9,8 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const appConst = require('../../libs/app_const');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('edit.project.spec - ui-tests for editing a project', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -22,6 +24,8 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     const PROJ_IDENTIFIER = studioUtils.generateRandomName('id');
     const PROJECT_WIZARD_TOOLBAR_ROLE = 'toolbar';
     const ARIA_LABEL_TOOLBAR = 'Main menu bar';
+    const IMPORTED_SITE = 'site040269';
+    const IMPORTED_PROJECT = 'Default';
 
     // Verifies:  Project identifier field is editable issue#2923
     it(`WHEN existing project is opened THEN expected identifier, description and language should be displayed`,
@@ -136,7 +140,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectUtils.saveTestProject(PROJECT2_DISPLAY_NAME, null, null, null, appConst.PROJECT_ACCESS_MODE.PRIVATE);
         });
 
-    //Verifies - Access mode should not be changed after canceling changes in Confirmation modal dialog #2295
+    // Verifies - Access mode should not be changed after canceling changes in Confirmation modal dialog #2295
     it("GIVEN access mode has been changed WHEN 'Cancel top' button has been clicked in the 'Confirmation' dialog THEN access mode returns to the initial state",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -152,11 +156,31 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await confirmationDialog.waitForDialogOpened();
             // 4.Click on 'Cancel top' button:
             await confirmationDialog.clickOnCancelTopButton();
-            let isSelected = await projectWizard.isAccessModeRadioSelected("Private");
+            let isSelected = await projectWizard.isAccessModeRadioSelected('Private');
             // 5. Verify that access mode returns to the initial state:
             assert.ok(isSelected, "Private mode should be reverted in the Access Mode form");
             // 6. Verify that 'Save' button is disabled
             await projectWizard.waitForSaveButtonDisabled();
+        });
+
+    // Switching to an empty project doesn't reset Preview/Context panels #8987
+    // https://github.com/enonic/app-contentstudio/issues/8987
+    it("GIVEN a site has been selected in a project WHEN context has been switch to an empty project THEN Preview panel should be reset",
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            const emptyProject = PROJECT2_DISPLAY_NAME;
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await studioUtils.switchToContentMode();
+            // 1. Switch to the imported project and select a site
+            await studioUtils.openProjectSelectionDialogAndSelectContext(IMPORTED_PROJECT);
+            await contentBrowsePanel.clickOnRowByDisplayName(IMPORTED_SITE);
+            // 2. Switch to the empty project:
+            await studioUtils.openProjectSelectionDialogAndSelectContext(emptyProject);
+            // 3. Verify that browse toolbar is reset
+            await contentBrowsePanel.waitForEditButtonDisabled();
+            await contentBrowsePanel.waitForArchiveButtonDisabled();
+            // 4. Preview panel should be reset as well
+            await contentItemPreviewPanel.waitForToolbarNotDisplayed();
         });
 
     it("Layer and its parent project are successively deleted",

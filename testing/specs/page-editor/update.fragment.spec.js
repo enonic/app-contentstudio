@@ -36,7 +36,7 @@ describe('Test for updating text in fragment', function () {
             await siteFormPanel.filterOptionsAndSelectApplication(appConst.TEST_APPS_NAME.SIMPLE_SITE_APP);
             await contentWizard.pause(2000);
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component
             await pageComponentView.openMenu('main');
@@ -48,7 +48,7 @@ describe('Test for updating text in fragment', function () {
             await contentWizard.pause(700);
             // 5. Switch to Fragment wizard:
             await studioUtils.doSwitchToNewWizard();
-            // 6. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 6. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(GENERATED_TEXT_1);
             // 7. Update the text in the fragment

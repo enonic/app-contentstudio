@@ -41,7 +41,7 @@ describe('changing.part.inside.fragment.spec - Tests for changing a part inside 
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on the 'main' item and open Context Menu:
             await pageComponentsWizardStepForm.openMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Part']);
+            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Part']);
             // 3. Select the part with a config
             await liveFormPanel.selectPartByDisplayName(PART_DISPLAY_NAME);
             await contentWizard.switchToMainFrame();

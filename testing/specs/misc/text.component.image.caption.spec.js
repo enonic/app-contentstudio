@@ -40,11 +40,11 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             //automatic template does not exist, so no need to unlock the editor
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
             await contentWizard.switchToLiveEditFrame();
             await textComponent.clickOnInsertImageButton();
             // 4. Insert an image in the text component:
@@ -63,7 +63,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await contentWizard.switchToParentFrame();
             // Remove the text component by caption text
             await pageComponentView.openMenu(CAPTION);
-            await pageComponentView.selectMenuItem(['Remove']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE]);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
         });
@@ -78,11 +78,11 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             let insertImageDialog = new InsertImageDialog();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
             await contentWizard.switchToLiveEditFrame();
             // 4. Open Insert Image modal dialog:
             await textComponent.clickOnInsertImageButton();
@@ -102,11 +102,11 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             let liveFormPanel = new LiveFormPanel();
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
             await textComponentCke.switchToLiveEditFrame();
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
             await textComponentCke.clickOnInsertImageButton();

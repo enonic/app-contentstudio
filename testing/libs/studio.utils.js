@@ -921,8 +921,8 @@ module.exports = {
         try {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             await this.openContentStudioMenu();
-            await this.waitForElementDisplayed(lib.SETTINGS_BUTTON, appConst.mediumTimeout);
-            await this.clickOnElement(lib.SETTINGS_BUTTON);
+            await this.waitForElementDisplayed(lib.WIDGET_SIDEBAR.SETTINGS_BUTTON, appConst.mediumTimeout);
+            await this.clickOnElement(lib.WIDGET_SIDEBAR.SETTINGS_BUTTON);
             await this.getBrowser().pause(300);
             await settingsBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
             return settingsBrowsePanel;
@@ -932,7 +932,7 @@ module.exports = {
         }
     },
     async switchToContentMode() {
-        await this.clickOnElement(lib.MODE_CONTENT_BUTTON);
+        await this.clickOnElement(lib.WIDGET_SIDEBAR.MODE_CONTENT_BUTTON);
         await this.getBrowser().pause(200);
         return new ContentBrowsePanel();
     },

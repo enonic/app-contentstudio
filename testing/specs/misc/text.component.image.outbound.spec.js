@@ -41,11 +41,11 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // automatic template does not exist, so no need to unlock the editor
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
             await contentWizard.switchToLiveEditFrame();
             await textComponent.clickOnInsertImageButton();
             // 4. Insert an image in the text component:
