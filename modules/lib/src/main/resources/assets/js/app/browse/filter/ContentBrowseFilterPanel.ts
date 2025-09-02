@@ -44,6 +44,8 @@ export class ContentBrowseFilterPanel
     private exportElement?: ContentExportElement;
     private targetBranch: Branch = Branch.DRAFT;
 
+    private principalBasedGroupViews: FilterableAggregationGroupView[];
+
     constructor() {
         super();
 
@@ -69,7 +71,7 @@ export class ContentBrowseFilterPanel
     }
 
     private initElementsAndListeners() {
-        this.initAggregationGroupView();
+        this.initAggregationGroupViews();
 
         if (this.isExportAllowed()) {
             this.exportElement = new ContentExportElement().setEnabled(false).setTitle(i18n('action.export')) as ContentExportElement;
@@ -143,7 +145,14 @@ export class ContentBrowseFilterPanel
 
     private createGroupView(name: string): AggregationGroupView {
         if (name === ContentAggregation.OWNER.toString() || name === ContentAggregation.MODIFIED_BY.toString()) {
-            return new FilterableAggregationGroupView(name, i18n(`field.${name}`));
+            const aggregationGroupView = new FilterableAggregationGroupView(name, i18n(`field.${name}`));
+
+            if (!this.principalBasedGroupViews) {
+                this.principalBasedGroupViews = [];
+            }
+
+            this.principalBasedGroupViews.push(aggregationGroupView);
+            return aggregationGroupView;
         }
 
         return new AggregationGroupView(name, i18n(`field.${name}`));
@@ -292,15 +301,19 @@ export class ContentBrowseFilterPanel
         return this.aggregationsFetcher.getAggregations();
     }
 
-    private initAggregationGroupView() {
+    private initAggregationGroupViews() {
         // that is supposed to be cached so response will be fast
         new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             this.userInfo = loginResult;
-            this.displayNamesResolver = new AggregationsDisplayNamesResolver();
-            (this.aggregations.get(ContentAggregation.OWNER) as FilterableAggregationGroupView).setIdsToKeepOnToTop(
-                [this.getCurrentUserKeyAsString()]);
-            (this.aggregations.get(ContentAggregation.MODIFIED_BY) as FilterableAggregationGroupView).setIdsToKeepOnToTop(
-                [this.getCurrentUserKeyAsString()]);
+
+            if (!this.displayNamesResolver) {
+                this.displayNamesResolver = new AggregationsDisplayNamesResolver(this.getCurrentUserKeyAsString());
+            }
+
+            this.principalBasedGroupViews.forEach((groupView: FilterableAggregationGroupView) => {
+                groupView.setIdsToKeepOnToTop([this.getCurrentUserKeyAsString()]);
+                groupView.setResolver(this.displayNamesResolver);
+            });
 
             return this.getAndUpdateAggregations();
         }).catch(DefaultErrorHandler.handle);
