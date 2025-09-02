@@ -18,14 +18,17 @@ export class AggregationsDisplayNamesResolver {
     private principals: Map<string, string> = new Map<string, string>();
     private locales: Locale[];
     private contentTypes: Map<string, string>;
-    private currentUserId?: string;
+    private readonly currentUserId?: string;
+
+    constructor(currentUserId?: string) {
+        this.currentUserId = currentUserId;
+    }
 
     updateAggregationsDisplayNames(aggregations: Aggregation[], userId: string): Q.Promise<void> {
         this.updateWorkflowAggregations(aggregations);
 
         const updatePromises: Q.Promise<void>[] = [];
         updatePromises.push(this.updateLanguageAggregations(aggregations));
-        updatePromises.push(this.updatePrincipalsAggregations(aggregations, userId));
         updatePromises.push(this.updateContentTypeAggregations(aggregations));
 
 
@@ -44,31 +47,12 @@ export class AggregationsDisplayNamesResolver {
         workflowAggr.getBuckets().forEach((bucket: Bucket) => bucket.setDisplayName(i18n(`status.workflow.${bucket.getKey()}`)));
     }
 
-    updatePrincipalsAggregations(aggregations: Aggregation[], userId: string): Q.Promise<void> {
-        this.currentUserId = userId;
-
-        const principalsAggregations: BucketAggregation[] =
-            aggregations.filter((aggr: Aggregation) => this.isPrincipalAggregation(aggr)) as BucketAggregation[];
-
-        return Q.all(principalsAggregations.map((principalAggr: BucketAggregation) => this.updatePrincipalsAggregation(principalAggr)))
-            .thenResolve(null);
-    }
-
-    protected isPrincipalAggregation(aggregation: Aggregation): boolean {
-        return aggregation.getName() === ContentAggregation.MODIFIED_BY.toString() || aggregation.getName() === ContentAggregation.OWNER.toString();
-    }
-
-    private updatePrincipalsAggregation(principalsAggregation: BucketAggregation): Q.Promise<void> {
-        this.updateKnownPrincipals(principalsAggregation);
-        return this.updateUnknownPrincipals(principalsAggregation);
-    }
-
-    private updateKnownPrincipals(principalsAggregation: BucketAggregation): void {
+    updateKnownPrincipals(principalsAggregation: BucketAggregation): void {
         principalsAggregation.getBuckets().forEach((bucket: Bucket) => {
             const displayName: string = bucket.getKey() === this.currentUserId
                                         ? StringHelper.capitalize(i18n('field.me'))
                                         : this.principals.get(bucket.getKey());
-            bucket.setDisplayName(displayName);
+            bucket.setDisplayName(displayName || bucket.getKey());
         });
 
         principalsAggregation.getBuckets().sort(this.sortPrincipalsBuckets.bind(this));
@@ -86,24 +70,24 @@ export class AggregationsDisplayNamesResolver {
         return b.getDocCount() - a.getDocCount();
     }
 
-    private updateUnknownPrincipals(principalsAggregation: BucketAggregation): Q.Promise<void> {
-        // finding keys which display names are not loaded
-        const unknownPrincipals: PrincipalKey[] = principalsAggregation.getBuckets()
-            .filter((bucket: Bucket) => !this.principals.has(bucket.getKey()))
-            .map((bucket: Bucket) => PrincipalKey.fromString(bucket.getKey()));
-
-        if (unknownPrincipals.length === 0) {
-            return Q();
+    getPrincipalsByKeys(keys: PrincipalKey[]): Q.Promise<Principal[]> {
+        if (keys.length === 0) {
+            return Q([]);
         }
 
-        return new GetPrincipalsByKeysRequest(unknownPrincipals).sendAndParse().then((principals: Principal[]) => {
-            unknownPrincipals.forEach((unknownPrincipal: PrincipalKey) => {
-                // if principal is not found (im might be deleted) then using key
-                const principal: Principal = principals.find((p: Principal) => p.getKey().equals(unknownPrincipal));
-                this.principals.set(unknownPrincipal.toString(), principal?.getDisplayName() || unknownPrincipal.toString());
-            });
+        return new GetPrincipalsByKeysRequest(keys).sendAndParse();
+    }
 
-            this.updateKnownPrincipals(principalsAggregation);
+    updateUnknownPrincipals(principalsAggregation: BucketAggregation): Q.Promise<void> {
+        // finding keys which display names are not loaded
+        const unknownPrincipals: PrincipalKey[] = principalsAggregation.getBuckets()
+            .filter((bucket: Bucket) => !this.principals.has(bucket.getKey()) && bucket.getKey() !== this.currentUserId)
+            .map((bucket: Bucket) => PrincipalKey.fromString(bucket.getKey()));
+
+        return this.getPrincipalsByKeys(unknownPrincipals).then((principals: Principal[]) => {
+            principals.forEach((principal: Principal) => {
+                this.principals.set(principal.getKey().toString(), principal.getDisplayName() || principal.getKey().toString());
+            });
         });
     }
 

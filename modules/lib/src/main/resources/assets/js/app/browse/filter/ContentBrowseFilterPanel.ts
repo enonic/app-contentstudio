@@ -66,7 +66,7 @@ export class ContentBrowseFilterPanel
     }
 
     private initElementsAndListeners() {
-        this.initAggregationGroupView();
+        this.getAndUpdateAggregations();
 
         if (this.isExportAllowed()) {
             this.exportElement = new ContentExportElement().setEnabled(false).setTitle(i18n('action.export')) as ContentExportElement;
@@ -140,7 +140,14 @@ export class ContentBrowseFilterPanel
 
     private createGroupView(name: string): AggregationGroupView {
         if (name === ContentAggregation.OWNER.toString() || name === ContentAggregation.MODIFIED_BY.toString()) {
-            return new FilterableAggregationGroupView(name, i18n(`field.${name}`));
+            if (!this.displayNamesResolver) {
+                this.displayNamesResolver = new AggregationsDisplayNamesResolver(this.getCurrentUserKeyAsString());
+            }
+            const aggregationGroupView = new FilterableAggregationGroupView(name, i18n(`field.${name}`));
+            aggregationGroupView.setIdsToKeepOnToTop([this.getCurrentUserKeyAsString()]);
+            aggregationGroupView.setResolver(this.displayNamesResolver);
+
+            return aggregationGroupView;
         }
 
         return new AggregationGroupView(name, i18n(`field.${name}`));
@@ -285,17 +292,6 @@ export class ContentBrowseFilterPanel
         this.aggregationsFetcher.setDependency(this.getDependency());
 
         return this.aggregationsFetcher.getAggregations();
-    }
-
-    private initAggregationGroupView() {
-        // that is supposed to be cached so response will be fast
-        this.displayNamesResolver = new AggregationsDisplayNamesResolver();
-        (this.aggregations.get(ContentAggregation.OWNER) as FilterableAggregationGroupView).setIdsToKeepOnToTop(
-            [this.getCurrentUserKeyAsString()]);
-        (this.aggregations.get(ContentAggregation.MODIFIED_BY) as FilterableAggregationGroupView).setIdsToKeepOnToTop(
-            [this.getCurrentUserKeyAsString()]);
-
-        return this.getAndUpdateAggregations();
     }
 
     protected resetFacets(suppressEvent?: boolean, doResetAll?: boolean): Q.Promise<void> {
