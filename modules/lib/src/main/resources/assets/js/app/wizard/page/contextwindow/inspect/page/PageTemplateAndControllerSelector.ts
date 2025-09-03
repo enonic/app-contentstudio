@@ -15,7 +15,7 @@ import {PageControllerOption} from './PageControllerOption';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ContentServerChangeItem} from '../../../../../event/ContentServerChangeItem';
-import {Descriptor} from '../../../../../page/Descriptor';
+import {Descriptor, DescriptorBuilder} from '../../../../../page/Descriptor';
 import {ComponentDescriptorsLoader} from '../region/ComponentDescriptorsLoader';
 import {PageComponentType} from '../../../../../page/region/PageComponentType';
 import {PageState} from '../../../PageState';
@@ -28,6 +28,7 @@ import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/Fi
 import {PageOptionsList} from './PageOptionsList';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {PageDescriptor} from '../../../../../page/PageDescriptor';
 
 export class PageTemplateAndControllerSelector
     extends FilterableListBoxWrapper<PageTemplateAndControllerOption> {
@@ -72,6 +73,8 @@ export class PageTemplateAndControllerSelector
                 this.optionFilterInput.show();
             }
         });
+
+        this.initPageModelListeners();
     }
 
     protected doShowDropdown(): void {
@@ -101,7 +104,6 @@ export class PageTemplateAndControllerSelector
             this.autoOption = new PageTemplateOption();
         }
 
-        this.initPageModelListeners();
         return this.reload();
     }
 
@@ -275,7 +277,19 @@ export class PageTemplateAndControllerSelector
 
         if (currentPageState?.hasController()) {
             if (currentPageState.getController().toString() !== this.selectedOption?.getKey()) {
-                this.selectOptionByValue(currentPageState.getController().toString());
+                const key = currentPageState.getController().toString();
+                const existingItem = this.getItemById(key);
+                if (!existingItem) {
+                    // The controller set in the page state is not in the list of available controllers.
+                    // This can happen if the controller was deleted or the app stopped or removed from the site
+                    const ctrKey = currentPageState.getController();
+                    const missingControllerOption = new PageControllerOption(
+                        new PageDescriptor(new DescriptorBuilder().setKey(ctrKey).setDisplayName(ctrKey.getName().toString()))
+                    );
+                    this.listBox.addItems(missingControllerOption);
+                    this.selectOptionByValue(key);
+                }
+                this.selectOptionByValue(key);
             }
         } else if (currentPageState?.hasTemplate()) {
             this.selectOptionByValue(currentPageState.getTemplate().toString());
