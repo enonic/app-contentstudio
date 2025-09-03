@@ -16,6 +16,7 @@ import {Descriptor} from '../../../../../page/Descriptor';
 import {PageState} from '../../../PageState';
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 import {PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
+import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 
 export class PageInspectionPanel
     extends BaseInspectionPanel {
@@ -23,6 +24,8 @@ export class PageInspectionPanel
     private pageTemplateAndControllerSelector: PageTemplateAndControllerSelector;
 
     private pageTemplateAndControllerForm: PageTemplateAndControllerForm;
+
+    private noControllerMessage: PEl;
 
     private configForm: FormView;
 
@@ -36,6 +39,8 @@ export class PageInspectionPanel
     private initElements() {
         this.pageTemplateAndControllerSelector = new PageTemplateAndControllerSelector();
         this.pageTemplateAndControllerForm = new PageTemplateAndControllerForm(this.pageTemplateAndControllerSelector);
+        this.noControllerMessage = new PEl('no-controller-message');
+        this.noControllerMessage.setHtml(i18n('text.notemplatesorblocks'));
     }
 
     private initListeners() {
@@ -58,9 +63,13 @@ export class PageInspectionPanel
     setModel(liveEditModel: LiveEditModel) {
         this.liveEditModel = liveEditModel;
 
-        this.pageTemplateAndControllerSelector.setModel(this.liveEditModel);
-        this.saveAsTemplateAction.updateVisibility();
-        this.refreshConfigForm();
+        this.pageTemplateAndControllerSelector.setModel(this.liveEditModel).then((controllerCount) => {
+            this.pageTemplateAndControllerForm.setVisible(controllerCount > 0);
+            this.noControllerMessage.setVisible(controllerCount === 0);
+
+            this.saveAsTemplateAction.updateVisibility();
+            this.refreshConfigForm();
+        });
     }
 
     getName(): string {
@@ -70,6 +79,8 @@ export class PageInspectionPanel
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.insertChild(this.pageTemplateAndControllerForm, 0);
+
+            this.appendChild(this.noControllerMessage);
 
             const saveAsTemplateButton = new ActionButton(this.saveAsTemplateAction);
             saveAsTemplateButton.addClass('blue large save-as-template');
