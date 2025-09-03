@@ -575,6 +575,10 @@ export class LiveFormPanel
         this.liveEditModel?.getSiteModel()?.onApplicationRemoved(this.reloadNeededHandler);
     }
 
+    public getModel(): LiveEditModel {
+        return this.liveEditModel;
+    }
+
     private handleContentUpdatedEvent() {
         if (this.hasContentEventListeners) {
             return;
@@ -674,10 +678,7 @@ export class LiveFormPanel
             if (this.insertablesPanel) {
                 // disable insert tab if there is no page for some reason (i.e. error occurred)
                 // or there is no controller or template set or no automatic template
-                const page = PageState.getState();
-                const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
-                const hasDefaultTemplate = this.liveEditModel?.getDefaultModels()?.hasDefaultPageTemplate();
-                this.contextWindow.setItemVisible(this.insertablesPanel, isPageRenderable || hasDefaultTemplate);
+                this.contextWindow.updateInsertablesPanel();
             }
 
             if (this.content.getPage()?.isFragment()) { // preselection selector's value to make it not empty

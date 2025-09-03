@@ -507,14 +507,16 @@ export class ContextView
     }
 
     updateSelectedWidget() {
-        const shouldActivatePageWidget = this.editorMode &&
-                                         (this.isPageRenderable && !this.item?.getType()?.isShortcut()
-                                          || this.item?.getContentSummary()?.isPage());
+        const shouldActivatePageWidget = this.editorMode;
         if (shouldActivatePageWidget) {
             this.activatePageEditorWidget();
         } else {
             this.deactivatePageEditorWidget();
         }
+    }
+
+    public updateContextWindow(): void {
+        this.contextWindow?.updateInsertablesPanel();
     }
 
     private activatePageEditorWidget(): void {
