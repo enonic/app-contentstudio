@@ -2,6 +2,7 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {PageView, PageViewBuilder} from './PageView';
 import {InitializeLiveEditEvent} from './InitializeLiveEditEvent';
+import {PageViewController} from './PageViewController';
 import {SkipLiveEditReloadConfirmationEvent} from './SkipLiveEditReloadConfirmationEvent';
 import {ComponentLoadedEvent} from './ComponentLoadedEvent';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
@@ -302,7 +303,8 @@ export class LiveEditPage {
                 const itemView: ItemView = this.getItemViewByPath(path);
 
                 if (itemView?.isText()) {
-                    (itemView as TextComponentView).startPageTextEditMode();
+                    (itemView as TextComponentView).setEditMode(true);
+                    itemView.giveFocus();
                 }
             }
         };
@@ -406,7 +408,7 @@ export class LiveEditPage {
             if (selected instanceof ComponentView) {
                 SessionStorageHelper.updateSelectedPathInStorage(contentId, selected.getPath());
 
-                if (this.pageView.isTextEditMode() && selected instanceof TextComponentView) {
+                if (PageViewController.get().isTextEditMode() && selected instanceof TextComponentView) {
                     SessionStorageHelper.updateSelectedTextCursorPosInStorage(contentId, selected.getCursorPosition());
                 }
             } else if (selected instanceof RegionView) {
@@ -577,12 +579,7 @@ export class LiveEditPage {
             componentView.getType(),
             createViewConfig) as ComponentView;
 
-        const isSelected = componentView.isSelected();
         componentView.replaceWith(newComponentView);
-
-        if (isSelected) {
-            newComponentView.getEl().setData(ItemView.LIVE_EDIT_SELECTED, 'true');
-        }
 
         const parentItemView = newComponentView.getParentItemView();
 

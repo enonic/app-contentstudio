@@ -236,10 +236,10 @@ export class RegionView
 
     handleClick(event: MouseEvent) {
         const pageView = this.getPageView();
-        if (pageView.isTextEditMode()) {
+        if (PageViewController.get().isTextEditMode()) {
             event.stopPropagation();
             if (!pageView.hasTargetWithinTextComponent(this.mouseDownLastTarget)) {
-                pageView.setTextEditMode(false);
+                PageViewController.get().setTextEditMode(false);
             }
         } else {
             super.handleClick(event);
