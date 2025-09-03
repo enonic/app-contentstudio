@@ -143,9 +143,9 @@ module.exports = Object.freeze({
         FINISHED: 'Content synchronisation job has finished'
     },
     PASSWORD: {
-        MEDIUM: "userA567$",
-        STRONG: "userA567$=",
-        WEAK: "1q2w3e",
+        MEDIUM: 'AUserA567$',
+        STRONG: '1User%#567$=',
+        WEAK: 'test12345',
     },
     LAST_MODIFIED_ENTRY: {
         WEEK: 'week',
