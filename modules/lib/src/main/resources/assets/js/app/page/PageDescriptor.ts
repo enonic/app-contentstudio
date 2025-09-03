@@ -6,6 +6,10 @@ import {Descriptor, DescriptorBuilder} from './Descriptor';
 export class PageDescriptor
     extends Descriptor {
 
+    constructor(builder: DescriptorBuilder) {
+        super(builder);
+    }
+
     static fromJson(json: DescriptorJson): Descriptor {
         return PageDescriptor.create(DescriptorBuilder.fromJson(json));
     }
