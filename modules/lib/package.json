@@ -31,7 +31,7 @@
     "jquery-ui": "^1.14.1",
     "jsondiffpatch": "^0.7.3",
     "lodash": "^4.17.21",
-    "lucide-react": "^0.533.0",
+    "lucide-react": "^0.542.0",
     "nanoid": "~5.1.5",
     "nanostores": "^0.11.4",
     "q": "^1.5.1",
