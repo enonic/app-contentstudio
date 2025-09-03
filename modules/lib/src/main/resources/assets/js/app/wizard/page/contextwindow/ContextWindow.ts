@@ -62,13 +62,35 @@ export class ContextWindow
     protected initListeners(): void {
         if (this.insertablesPanel) {
             this.liveFormPanel.onHidden((): void => {
-                this.setItemVisible(this.insertablesPanel, false);
+                this.setInsertablesVisible(false);
             });
 
             this.liveFormPanel.onShown((): void => {
-                this.setItemVisible(this.insertablesPanel, true);
+                this.updateInsertablesPanel();
             });
         }
+    }
+
+    private setInsertablesVisible(visible: boolean): void {
+        if (!this.insertablesPanel) {
+            return;
+        }
+        if (this.insertablesPanel.isRendered()) {
+            this.setItemVisible(this.insertablesPanel, visible);
+            if (visible) {
+                this.selectPanel(this.insertablesPanel);
+            }
+        }
+
+        this.toggleClass('no-insertion', !visible);
+    }
+
+    updateInsertablesPanel() {
+        const page = PageState.getState();
+        const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
+        const hasDefaultTemplate = this.liveFormPanel.getModel()?.getDefaultModels()?.hasDefaultPageTemplate() || false;
+
+        this.setInsertablesVisible(isPageRenderable || hasDefaultTemplate);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -78,6 +100,8 @@ export class ContextWindow
 
             if (this.insertablesPanel) {
                 this.addItem(i18n('action.insert'), false, this.insertablesPanel);
+
+                this.setInsertablesVisible(this.insertablesPanel.isVisible());
             }
 
             this.addItem(i18n('action.inspect'), false, this.inspectionsPanel);

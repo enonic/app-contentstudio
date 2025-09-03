@@ -6,15 +6,10 @@
   overflow: visible; // for the ghost-dragger to be visible when dragging outside context window
   z-index: initial;
 
-  &.no-inspection {
+  &.no-inspection,
+  &.no-insertion {
     .tab-bar {
-      cursor: initial;
-
-      .inspect-tab {
-        display: none;
-        pointer-events: none;
-        color: @form-button-font-disabled;
-      }
+      display: none;
     }
   }
 
@@ -32,7 +27,7 @@
     cursor: move;
   }
 
-  & > .deck-panel {
+  &:not(.no-insertion):not(.no-inspection) > .deck-panel {
     top: 44px;
   }
 
