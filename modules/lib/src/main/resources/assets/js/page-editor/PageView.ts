@@ -214,18 +214,19 @@ export class PageView
 
             // adding anything except text should exit the text edit mode
             if (itemView.getType().equals(TextItemType.get())) {
-                if (!this.isTextEditMode() && event.isNewlyCreated()) {
-                    PageViewController.get().setTextEditMode(true);
-                } else {
-                    (itemView as TextComponentView).setEditMode(true);
-                    this.closeTextEditModeButton.toggleClass('active', true);
-                }
                 if (event.isNewlyCreated()) {
                     new SelectComponentEvent({itemView, position: null, rightClicked: true}).fire();
+
+                    if (!PageViewController.get().isTextEditMode()) {
+                        PageViewController.get().setTextEditMode(true);
+                    }
+
                     itemView.giveFocus();
+                } else {
+                    //
                 }
             } else {
-                if (this.isTextEditMode()) {
+                if (PageViewController.get().isTextEditMode()) {
                     PageViewController.get().setTextEditMode(false);
                 }
                 if (event.isNewlyCreated()) {
@@ -245,7 +246,7 @@ export class PageView
         this.listenToMouseEvents();
 
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
-            if (this.isTextEditMode()) {
+            if (PageViewController.get().isTextEditMode()) {
                 this.updateVerticalSpaceForEditorToolbar();
             }
         });
@@ -295,13 +296,13 @@ export class PageView
     }
 
     highlightSelected() {
-        if (!this.isTextEditMode() && !this.isLocked() && !this.isDragging()) {
+        if (!PageViewController.get().isTextEditMode() && !this.isLocked() && !this.isDragging()) {
             super.highlightSelected();
         }
     }
 
     showCursor() {
-        if (!this.isTextEditMode() && !this.isLocked()) {
+        if (!PageViewController.get().isTextEditMode() && !this.isLocked()) {
             super.showCursor();
         }
     }
@@ -390,7 +391,7 @@ export class PageView
     handleClick(event: MouseEvent) {
         event.stopPropagation();
 
-        if (this.isTextEditMode()) {
+        if (PageViewController.get().isTextEditMode()) {
             if (!this.isTextEditorToolbarClicked(event) && !this.isTextEditorDialogClicked(event)) {
                 PageViewController.get().setTextEditMode(false);
             }
@@ -458,29 +459,14 @@ export class PageView
         PageViewController.get().setLocked(locked);
     }
 
-    isTextEditMode(): boolean {
-        return this.hasClass('text-edit-mode');
-    }
+    private setTextEditMode(editMode: boolean): void {
+        this.editorToolbar?.setVisible(editMode);
+        PageViewController.get().setHighlightingDisabled(editMode);
+        this.toggleClass('text-edit-mode', editMode);
+        this.closeTextEditModeButton.toggleClass('active', editMode);
 
-    setTextEditMode(flag: boolean) {
-        this.editorToolbar?.setVisible(flag);
-        PageViewController.get().setHighlightingDisabled(flag);
-        this.toggleClass('text-edit-mode', flag);
-
-        const textItemViews = this.getItemViewsByType(TextItemType.get());
-
-        let textView: TextComponentView;
-        textItemViews.forEach((view: ItemView) => {
-            textView = view as TextComponentView;
-            if (textView.isEditMode() !== flag) {
-                textView.setEditMode(flag);
-                this.closeTextEditModeButton.toggleClass('active', flag);
-            }
-        });
-
-        if (flag) {
+        if (editMode) {
             this.addVerticalSpaceForEditorToolbar();
-
             this.onScrolled(this.scrolledListener);
         } else {
             this.removeVerticalSpaceForEditorToolbar();
