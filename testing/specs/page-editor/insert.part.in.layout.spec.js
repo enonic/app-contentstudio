@@ -18,7 +18,7 @@ describe('insert.part.in.layout.spec - test for parts in a layout', function () 
     }
 
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const LAYOUT_3_COL = appConst.LAYOUT_NAME.COL_3;
 
     it(`Preconditions: new site should be created`,

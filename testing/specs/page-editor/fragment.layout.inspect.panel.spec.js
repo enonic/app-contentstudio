@@ -25,7 +25,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
     }
 
     const FRAGMENT_LAYOUT_DESCRIPTION = 'layout';
-    const MAIN_REGION_CONTROLLER = 'main region';
+    const MAIN_REGION_CONTROLLER = appConst.CONTROLLER_NAME.MAIN_REGION;
     const MAIN_COMPONENT_NAME = 'main';
     const SITE_1_NAME = contentBuilder.generateRandomName('site');
     const SITE_2_NAME = contentBuilder.generateRandomName('site');
@@ -49,10 +49,10 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await contentWizardPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
-            // 2. Click on minimize-toggler  expand Live Edit and open 'Page Component view' modal dialog:
+            // 2. Click on minimize-toggle  expand Live Edit and open 'Page Component view' modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
-            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
+            await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, 'Layout']);
             // 3. Verifies #6393: we keep 'Inspect panel' collapsed (or collapse it if it was expanded).
             // So need to open 'Inspect panel':
             //await contentWizardPanel.clickOnDetailsPanelToggleButton();
@@ -75,6 +75,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             // wait for the description is refreshing:
             await contentWizardPanel.pause(2000);
             await studioUtils.saveScreenshot('fragment_path_updated');
+            await fragmentInspectionPanel.waitForOpened();
             // 7. Fragment Inspection Panel should be loaded automatically in the site wizard. Verify that path is updated in the dropdown:
             let actualPath = await fragmentInspectionPanel.getSelectedOptionPath();
             assert.ok(actualPath.includes(SITE_1_NAME), 'Path should be updated in Fragment Inspection Panel');
@@ -91,10 +92,10 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let contentWizardPanel = new ContentWizardPanel();
             // 1. Open the existing site with a fragment:
             await studioUtils.selectAndOpenContentInWizard(SITE_1_NAME);
-            // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            // 2. Click on minimize-toggle expand Live Edit and show Page Component modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
-            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
+            await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, 'Layout']);
             // Inspect panel should be expanded in this case :
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_3_COL);
             // 3. Verify that the site is automatically saved after selecting a layout in the dropdown:
@@ -121,7 +122,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let contentWizard = new ContentWizardPanel();
             // 1. Open the existing site with a fragment:
             await studioUtils.selectAndOpenContentInWizard(SITE_1_NAME);
-            // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            // 2. Click on minimize-toggle  expand Live Edit and show Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.clickOnComponent(LAYOUT_2_COL);
             await fragmentInspectionPanel.waitForOpened();
@@ -170,7 +171,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let pageComponentView = new PageComponentView();
             // 1. Existing site with 2 fragments is opened:
             await studioUtils.selectContentAndOpenWizard(SITE_1_NAME);
-            // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            // 2. Click on minimize-toggle expand Live Edit and show Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.clickOnComponent(LAYOUT_2_COL);
             await fragmentInspectionPanel.waitForOpened();
@@ -199,8 +200,8 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let contentWizard = new ContentWizardPanel();
             let liveFormPanel = new LiveFormPanel();
             // 1. Open the fragment:
-            await studioUtils.openContentAndSwitchToTabByDisplayName(FRAGMENT_2_COL_GENERATED_NAME, "25/75");
-            // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            await studioUtils.openContentAndSwitchToTabByDisplayName(FRAGMENT_2_COL_GENERATED_NAME, '25/75');
+            // 2. Click on minimize-toggle expand Live Edit and show Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Click on the layout component in Page Components View:
             await pageComponentView.clickOnComponent(LAYOUT_2_COL);
@@ -218,7 +219,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             assert.ok(result.includes('Right'), 'Right region item should be displayed in PCV');
             // 5. Verify that new layout is displayed in the Live Edit:
             let actualColumnNumber = await liveFormPanel.getLayoutColumnNumber();
-            assert.equal(actualColumnNumber, 3, "Three column should be present in the layout");
+            assert.equal(actualColumnNumber, 3, 'Three column should be present in the layout');
         });
 
     it("GIVEN the second site has been saved WHEN fragment component has been inserted THEN fragments from the first site should not be available in the second site",
@@ -234,12 +235,12 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
             await wizardContextPanel.waitForDetailsPanelLoaded();
-            // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            // 2. Click on minimize-toggle expand Live Edit and show Page Component modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             // 3. Insert the fragment-component:
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
             await studioUtils.saveScreenshot('fragment_layout_inspection1');
-            await pageComponentView.selectMenuItem(["Insert", "Fragment"]);
+            await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, 'Fragment']);
             // 4. Verify that 'Edit Fragment' button is disabled
             await studioUtils.saveScreenshot('fragment_layout_inspection2');
             await fragmentInspectionPanel.waitForEditFragmentButtonDisabled();

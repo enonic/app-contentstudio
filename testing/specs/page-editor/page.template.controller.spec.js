@@ -25,7 +25,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
     let SITE;
     let TEMPLATE;
     const SUPPORT_SITE = 'Site';
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const TEST_IMAGE_NAME = appConst.TEST_IMAGES.FOSS;
 
     it(`Preconditions: new site should be created`,

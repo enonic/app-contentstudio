@@ -19,8 +19,8 @@ describe('layot.insert.save.as.fragment.spec - tests for inserting a fragment wi
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const CONTROLLER_NAME = 'main region';
-    const LAYOUT_NAME = "3-col";
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
+    const LAYOUT_NAME = '3-col';
     const TEST_IMAGE = appConst.TEST_IMAGES.POP_03;
     const TEST_IMAGE_2 = appConst.TEST_IMAGES.POP_02;
 

@@ -101,7 +101,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             // 5. Verify that two items should be present in the filtered grid;
             let items = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(items.length, 2, 'Two items should be in the filtered grid');
-            // 6. Number 2  should be displayed in the selection toggler circle:
+            // 6. Number 2  should be displayed in the selection toggle circle:
             let number = await contentBrowsePanel.getNumberInSelectionToggler();
             assert.equal(number, '2', '2 should be displayed in the circle');
         });
