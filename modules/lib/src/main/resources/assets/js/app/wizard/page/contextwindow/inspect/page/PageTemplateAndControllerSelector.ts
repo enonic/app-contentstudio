@@ -91,7 +91,7 @@ export class PageTemplateAndControllerSelector
         }
     }
 
-    setModel(model: LiveEditModel): void {
+    setModel(model: LiveEditModel): Q.Promise<number> {
         this.liveEditModel = model;
         const defaultModels = this.liveEditModel.getDefaultModels();
         if (defaultModels) {
@@ -103,7 +103,7 @@ export class PageTemplateAndControllerSelector
         }
 
         this.initPageModelListeners();
-        this.reload();
+        return this.reload();
     }
 
     getSelectedOption(): PageTemplateAndControllerOption {
@@ -196,18 +196,22 @@ export class PageTemplateAndControllerSelector
                summary.getPath().isDescendantOf(liveEditModel.getSiteModel().getSite().getPath());
     }
 
-    private reload() {
-        Q.all([
+    private reload(): Q.Promise<number> {
+        return Q.all([
             this.loadPageTemplates(),
             this.loadPageControllers()
-        ]).spread((templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]) => {
-            this.handleReloaded(templateOptions, controllerOptions);
-        }).catch(DefaultErrorHandler.handle);
+        ]).spread((templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]) =>
+            this.handleReloaded(templateOptions, controllerOptions)
+        ).catch((e) => {
+            DefaultErrorHandler.handle(e);
+            return 0;
+        });
     }
 
-    private handleReloaded(templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]): void {
+    private handleReloaded(templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]): number {
         this.initOptionsList(templateOptions, controllerOptions);
         this.selectInitialOption();
+        return templateOptions.length + controllerOptions.length;
     }
 
     private loadPageTemplates(): Q.Promise<PageTemplateOption[]> {
