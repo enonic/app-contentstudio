@@ -11,6 +11,7 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
 import {PageState} from '../PageState';
 import {PageNavigationEventSource} from '../../PageNavigationEventData';
+import {PageEventsManager} from '../../PageEventsManager';
 
 export interface ContextWindowConfig {
 
@@ -50,6 +51,8 @@ export class ContextWindow
 
     private inspectTab: TabBarItem;
 
+    private isPageLocked: boolean = false;
+
     constructor(config: ContextWindowConfig) {
         super();
         this.liveFormPanel = config.liveFormPanel;
@@ -60,6 +63,10 @@ export class ContextWindow
     }
 
     protected initListeners(): void {
+        const eventManager = PageEventsManager.get();
+        eventManager.onPageLocked(() => this.isPageLocked = true);
+        eventManager.onPageUnlocked(() => this.isPageLocked = false);
+
         if (this.insertablesPanel) {
             this.liveFormPanel.onHidden((): void => {
                 this.setInsertablesVisible(false);
@@ -86,11 +93,14 @@ export class ContextWindow
     }
 
     updateInsertablesPanel() {
-        const page = PageState.getState();
-        const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
-        const hasDefaultTemplate = this.liveFormPanel.getModel()?.getDefaultModels()?.hasDefaultPageTemplate() || false;
-
-        this.setInsertablesVisible(isPageRenderable || hasDefaultTemplate);
+        let setVisible = false;
+        if (!this.isPageLocked) {
+            const page = PageState.getState();
+            const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
+            const hasDefaultTemplate = this.liveFormPanel.getModel()?.getDefaultModels()?.hasDefaultPageTemplate() || false;
+            setVisible = isPageRenderable || hasDefaultTemplate;
+        }
+        this.setInsertablesVisible(setVisible);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -145,7 +155,7 @@ export class ContextWindow
 
         if (this.inspectTab) {
             const selectDefault = !isPageInspectionPanelSelectable && this.inspectTab.isActive();
-            if (this.insertablesPanel && (showInsertables || selectDefault)) {
+            if (this.insertablesPanel && !this.isPageLocked && (showInsertables || selectDefault)) {
                 this.selectPanel(this.insertablesPanel);
             }
         }
