@@ -15,6 +15,7 @@ import {PageState} from '../../../PageState';
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 import {PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export class PageInspectionPanel
     extends BaseInspectionPanel {
@@ -25,15 +26,15 @@ export class PageInspectionPanel
 
     private configForm: FormView;
 
-    constructor(saveAsTemplateAction: SaveAsTemplateAction) {
+    constructor(saveAsTemplateAction: SaveAsTemplateAction, customizeAction: Action) {
         super();
 
-        this.initElements(saveAsTemplateAction);
+        this.initElements(saveAsTemplateAction, customizeAction);
         this.initListeners();
     }
 
-    private initElements(saveAsTemplateAction: SaveAsTemplateAction) {
-        this.pageTemplateAndControllerForm = new PageTemplateAndControllerForm(saveAsTemplateAction);
+    private initElements(saveAsTemplateAction: SaveAsTemplateAction, customizeAction: Action) {
+        this.pageTemplateAndControllerForm = new PageTemplateAndControllerForm(saveAsTemplateAction, customizeAction);
         this.noControllerMessage = new PEl('no-controller-message');
         this.noControllerMessage.setHtml(i18n('text.notemplatesorblocks'));
     }
@@ -55,8 +56,7 @@ export class PageInspectionPanel
 
         this.pageTemplateAndControllerForm.setModel(liveEditModel).then((controllerCount) => {
 
-            const showForm = (PageState.getState()?.hasController() && !this.liveEditModel.getContent().isPageTemplate())
-                             || controllerCount > 0;
+            const showForm = PageState.getState()?.hasController() || controllerCount > 0;
 
             this.pageTemplateAndControllerForm.setVisible(showForm);
             this.noControllerMessage.setVisible(!showForm);
