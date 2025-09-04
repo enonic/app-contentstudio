@@ -469,7 +469,12 @@ export class LiveFormPanel
     }
 
     private initPagePanels(): void {
-        const pageInspectionPanel = new PageInspectionPanel(SaveAsTemplateAction.get());
+
+        const unlockAction = new Action(i18n('live.view.page.customize'));
+        unlockAction.onExecuted(() => {
+            this.liveEditPageProxy.setLocked(false);
+        });
+        const pageInspectionPanel = new PageInspectionPanel(SaveAsTemplateAction.get(), unlockAction);
 
         this.availableInspectPanels.set('page', pageInspectionPanel);
         this.availableInspectPanels.set(LayoutComponentType.get(), new LayoutInspectionPanel());
