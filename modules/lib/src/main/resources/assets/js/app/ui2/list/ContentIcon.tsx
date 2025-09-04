@@ -75,7 +75,7 @@ export const ContentIcon = ({contentType, imageUrl}: Props): JSX.Element => {
         return (
             <ImgWithFallback
                 src={imageUrl}
-                imgClassName="imageContentIcon"
+                imgClassName="coverContentIcon"
                 fallback={fallbackIconFor(contentType)}
             />
         );
@@ -125,6 +125,7 @@ export const ContentIcon = ({contentType, imageUrl}: Props): JSX.Element => {
         return (
             <ImgWithFallback
                 src={imageUrl}
+                imgClassName="coverContentIcon"
                 fallback={fallbackIconFor(contentType)}
             />
         );
