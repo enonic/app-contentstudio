@@ -9,15 +9,20 @@ import {SaveAsTemplateAction} from '../../../../action/SaveAsTemplateAction';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
 import Q from 'q';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {PageEventsManager} from '../../../../PageEventsManager';
 
 export class PageTemplateAndControllerForm
     extends Form {
 
     private saveAsTemplateButton: ActionButton;
+    private customizeButton: ActionButton;
     private pageTemplateAndControllerSelector: PageTemplateAndControllerSelector;
     private fieldSet: Fieldset;
+    private isPageLocked: boolean;
 
-    constructor(private saveAsTemplateAction: SaveAsTemplateAction) {
+    constructor(private saveAsTemplateAction: SaveAsTemplateAction, private customizeAction: Action) {
         super('page-template-and-controller-form');
 
         this.pageTemplateAndControllerSelector = new PageTemplateAndControllerSelector();
@@ -27,7 +32,10 @@ export class PageTemplateAndControllerForm
         this.fieldSet.add(new FormItemBuilder(wrapper).setLabel(i18n('field.page.template')).build());
 
         this.saveAsTemplateButton = new ActionButton(saveAsTemplateAction);
-        this.saveAsTemplateButton.addClass('blue large save-as-template');
+        this.saveAsTemplateButton.addClass('blue large');
+
+        this.customizeButton = new ActionButton(customizeAction);
+        this.customizeButton.addClass('blue large');
 
         this.initListeners();
     }
@@ -37,18 +45,38 @@ export class PageTemplateAndControllerForm
         return super.doRender().then((rendered) => {
 
             this.add(this.fieldSet);
-            this.appendChild(this.saveAsTemplateButton);
+
+            const div = new DivEl('template-button-bar');
+            div.appendChildren(this.saveAsTemplateButton, this.customizeButton);
+            this.appendChild(div);
 
             return rendered;
         });
     }
 
+    private updateCustomizeActionVisibility() {
+        this.customizeAction.setVisible(this.isPageLocked);
+    }
+
     private initListeners() {
 
+        PageEventsManager.get().onPageLocked(() => {
+            this.isPageLocked = true;
+            this.updateCustomizeActionVisibility();
+        });
+        PageEventsManager.get().onPageUnlocked(() => {
+            this.isPageLocked = false;
+            this.updateCustomizeActionVisibility();
+        });
+
         this.onShown(() => {
+            // https://github.com/enonic/lib-admin-ui/issues/4139
             // sync action with button, because it can go out of sync when changing action for hidden button
             this.saveAsTemplateAction.setVisible(this.saveAsTemplateButton.isVisible());
             this.saveAsTemplateAction.updateVisibility();
+            // sync action with button
+            this.customizeAction.setVisible(this.customizeButton.isVisible());
+            this.updateCustomizeActionVisibility();
         });
 
         this.pageTemplateAndControllerSelector

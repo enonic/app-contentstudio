@@ -87,10 +87,20 @@
         }
       }
 
-      &.page-template-and-controller-form,
+
       &.fragment-dropdown-form {
         fieldset + button {
-          margin: @form-field-spacing auto 0;
+          margin: 0 auto;
+        }
+      }
+
+      &.page-template-and-controller-form {
+        .template-button-bar {
+          justify-content: center;
+          column-gap: 10px;
+          row-gap: 10px;
+          flex-wrap: wrap;
+          display: flex;
         }
       }
 
