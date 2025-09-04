@@ -5,6 +5,8 @@ import {DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependan
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {CheckableListItemWithStatus} from '../ui2/list/CheckableListItemWithStatus';
+import { ContentSummaryViewer } from '../content/ContentSummaryViewer';
+
 
 export class PublishDialogDependantList extends DialogDependantItemsList {
 
@@ -39,8 +41,13 @@ export class PublishDialogDependantList extends DialogDependantItemsList {
 
     createItemView(content: ContentSummaryAndCompareStatus, readOnly: boolean): CheckableListItemWithStatus {
         const className = this.isItemHidden(content) ? 'hidden' : undefined;
+        const viewer = new ContentSummaryViewer();
+        const summary = content.getContentSummary();
+        if (summary) viewer.setObject(summary);
+
         return new CheckableListItemWithStatus({
             content,
+            contentViewer: viewer,
             className,
             readOnly: readOnly || !this.isItemExcludable(content),
             checked: this.mustSelectItem(content),
