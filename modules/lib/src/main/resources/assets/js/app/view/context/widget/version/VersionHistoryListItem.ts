@@ -34,10 +34,13 @@ export class VersionHistoryListItem
         this.content = content;
 
         this.versionViewer = this.createVersionViewer();
+        if (this.isComparableItem()) {
+            this.versionViewer.setTitle(i18n('tooltip.header.expand'));
+        }
     }
 
     public isComparableItem(): boolean {
-        return VersionHistoryHelper.isComparableItem(this.version); //&& this.version.getStatus() !== VersionItemStatus.CREATED;
+        return VersionHistoryHelper.isComparableItem(this.version);
     }
 
     setActiveHandler(handler: (item: VersionHistoryListItem) => void): this {
@@ -49,6 +52,9 @@ export class VersionHistoryListItem
         this.toggleTooltip(active);
         this.toggleClass('expanded', active);
         this.actionButton?.setVisible(active);
+        if (this.isComparableItem()) {
+            this.versionViewer.setTitle(active ? i18n('tooltip.header.collapse') : i18n('tooltip.header.expand'));
+        }
     }
 
     getVersion(): VersionHistoryItem {
@@ -147,10 +153,6 @@ export class VersionHistoryListItem
         return tooltip;
     }
 
-    private createActiveVersionButton(): ActionButton {
-        return new ActionButton(new Action(i18n('text.activeVersion')));
-    }
-
     private createRevertButton(): ActionButton {
         const revertAction = new Action(i18n('field.version.revert'));
 
@@ -205,6 +207,9 @@ export class VersionHistoryListItem
     }
 
     private createCompareCheckbox(): Checkbox {
-        return Checkbox.create().setName('compare-version-checkbox').build();
+        return Checkbox.create()
+            .setName('compare-version-checkbox')
+            .setTooltip(i18n('widget.versionhistory.select'))
+            .build();
     }
 }

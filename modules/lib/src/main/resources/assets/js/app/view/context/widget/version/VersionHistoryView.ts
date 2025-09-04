@@ -84,9 +84,10 @@ export class VersionHistoryView extends WidgetItemView {
             this.resetSelection();
         });
 
-        actionButton.setEnabled(false).addClass('reset-compare-button');
-
-        return actionButton;
+        return actionButton
+            .setEnabled(false)
+            .addClass('reset-compare-button')
+            .setTitle(i18n('widget.versionhistory.cancelSelection')) as ActionButton;
     }
 
     private getContentStatus(content: ContentSummaryAndCompareStatus): string {
