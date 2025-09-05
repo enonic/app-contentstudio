@@ -20,9 +20,12 @@ export class PageTemplateAndControllerForm
     private customizeButton: ActionButton;
     private pageTemplateAndControllerSelector: PageTemplateAndControllerSelector;
     private fieldSet: Fieldset;
-    private isPageLocked: boolean;
+    private isPageLocked: boolean = false;
+    private isPageRenderable: boolean = false;
+    private saveAsTemplateAction: SaveAsTemplateAction;
+    private customizeAction: Action;
 
-    constructor(private saveAsTemplateAction: SaveAsTemplateAction, private customizeAction: Action) {
+    constructor() {
         super('page-template-and-controller-form');
 
         this.pageTemplateAndControllerSelector = new PageTemplateAndControllerSelector();
@@ -31,10 +34,18 @@ export class PageTemplateAndControllerForm
         const wrapper = new PageDropdownWrapper(this.pageTemplateAndControllerSelector);
         this.fieldSet.add(new FormItemBuilder(wrapper).setLabel(i18n('field.page.template')).build());
 
-        this.saveAsTemplateButton = new ActionButton(saveAsTemplateAction);
+
+        const unlockAction = new Action(i18n('live.view.page.customize'));
+        unlockAction.onExecuted(() => {
+            PageEventsManager.get().notifyCustomizePageRequested();
+        });
+        this.saveAsTemplateAction = SaveAsTemplateAction.get();
+        this.customizeAction = unlockAction;
+
+        this.saveAsTemplateButton = new ActionButton(this.saveAsTemplateAction);
         this.saveAsTemplateButton.addClass('blue large');
 
-        this.customizeButton = new ActionButton(customizeAction);
+        this.customizeButton = new ActionButton(this.customizeAction);
         this.customizeButton.addClass('blue large');
 
         this.initListeners();
@@ -54,33 +65,32 @@ export class PageTemplateAndControllerForm
         });
     }
 
-    private updateCustomizeActionVisibility() {
-        this.customizeAction.setVisible(this.isPageLocked);
+    private updateButtonsVisibility() {
+        this.customizeAction.setVisible(this.isPageLocked && this.isPageRenderable);
+        this.saveAsTemplateAction.updateVisibility();
+
+        // https://github.com/enonic/lib-admin-ui/issues/4139
+        this.customizeButton.setVisible(this.customizeAction.isVisible());
+        this.saveAsTemplateButton.setVisible(this.saveAsTemplateAction.isVisible());
     }
 
     private initListeners() {
 
         PageEventsManager.get().onPageLocked(() => {
             this.isPageLocked = true;
-            this.updateCustomizeActionVisibility();
+            this.updateButtonsVisibility();
         });
         PageEventsManager.get().onPageUnlocked(() => {
             this.isPageLocked = false;
-            this.updateCustomizeActionVisibility();
+            this.updateButtonsVisibility();
         });
-
-        this.onShown(() => {
-            // https://github.com/enonic/lib-admin-ui/issues/4139
-            // sync action with button, because it can go out of sync when changing action for hidden button
-            this.saveAsTemplateAction.setVisible(this.saveAsTemplateButton.isVisible());
-            this.saveAsTemplateAction.updateVisibility();
-            // sync action with button
-            this.customizeAction.setVisible(this.customizeButton.isVisible());
-            this.updateCustomizeActionVisibility();
-        });
+        PageEventsManager.get().onRenderableChanged((renderable) => {
+            this.isPageRenderable = renderable;
+            this.updateButtonsVisibility();
+        })
 
         this.pageTemplateAndControllerSelector
-            .onSelectionChanged(() => this.saveAsTemplateAction.updateVisibility());
+            .onSelectionChanged(() => this.updateButtonsVisibility());
     }
 
     public getSelectedTemplateOption(): PageTemplateAndControllerOption {
@@ -90,8 +100,7 @@ export class PageTemplateAndControllerForm
     public setModel(liveEditModel: LiveEditModel): Q.Promise<number> {
         return this.pageTemplateAndControllerSelector.setModel(liveEditModel)
             .then((controllerCount) => {
-                this.saveAsTemplateAction.updateVisibility();
-
+                this.updateButtonsVisibility();
                 return controllerCount;
             });
     }
