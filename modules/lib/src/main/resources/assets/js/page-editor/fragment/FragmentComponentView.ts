@@ -50,14 +50,14 @@ export class FragmentComponentView
         super.addComponentContextMenuActions(inspectActionRequired);
 
         if (!this.empty) {
-            this.addDetachAction();
+            this.addCustomizeAction();
         }
     }
 
-    private addDetachAction() {
+    private addCustomizeAction() {
         const actions: Action[] = [];
 
-        this.detachAction = new Action(i18n('live.view.detach')).onExecuted(() => {
+        this.detachAction = new Action(i18n('live.view.customize')).onExecuted(() => {
             this.deselect();
 
             new DetachFragmentEvent(this.getPath()).fire();
