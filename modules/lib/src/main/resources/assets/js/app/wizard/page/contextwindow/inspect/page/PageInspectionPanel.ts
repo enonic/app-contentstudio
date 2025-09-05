@@ -2,7 +2,6 @@ import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
-import {SaveAsTemplateAction} from '../../../../action/SaveAsTemplateAction';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {PageTemplateAndControllerForm} from './PageTemplateAndControllerForm';
 import {ContentFormContext} from '../../../../../ContentFormContext';
@@ -15,7 +14,6 @@ import {PageState} from '../../../PageState';
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 import {PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export class PageInspectionPanel
     extends BaseInspectionPanel {
@@ -26,15 +24,15 @@ export class PageInspectionPanel
 
     private configForm: FormView;
 
-    constructor(saveAsTemplateAction: SaveAsTemplateAction, customizeAction: Action) {
+    constructor() {
         super();
 
-        this.initElements(saveAsTemplateAction, customizeAction);
+        this.initElements();
         this.initListeners();
     }
 
-    private initElements(saveAsTemplateAction: SaveAsTemplateAction, customizeAction: Action) {
-        this.pageTemplateAndControllerForm = new PageTemplateAndControllerForm(saveAsTemplateAction, customizeAction);
+    private initElements() {
+        this.pageTemplateAndControllerForm = new PageTemplateAndControllerForm();
         this.noControllerMessage = new PEl('no-controller-message');
         this.noControllerMessage.setHtml(i18n('text.notemplatesorblocks'));
     }

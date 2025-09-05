@@ -733,7 +733,7 @@ export class ContentWizardPanel
         });
 
         liveFormPanel.onRenderableChanged((renderable: boolean) => {
-            this.contextView.setIsPageRenderable(renderable);
+            PageEventsManager.get().notifyRenderableChanged(renderable);
         });
 
         this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');

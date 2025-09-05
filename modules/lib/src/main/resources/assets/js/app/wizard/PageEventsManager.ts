@@ -37,6 +37,12 @@ export class PageEventsManager {
 
     private pageUnlockedListeners: ((event: PageUnlockedEvent) => void)[] = [];
 
+    private renderableListeners: ((value: boolean) => void)[] = [];
+
+    private beforeLoadListeners: (() => void)[] = [];
+
+    private loadedListeners: (() => void)[] = [];
+
     // Region events
 
     // Component events
@@ -58,10 +64,6 @@ export class PageEventsManager {
     private createHtmlAreaDialogListeners: ((event: CreateHtmlAreaDialogEvent) => void)[] = [];
 
     private dialogCreatedListeners: ((modalDialog: ModalDialog, config: HtmlAreaDialogConfig) => void)[] = [];
-
-    private beforeLoadListeners: (() => void)[] = [];
-
-    private loadedListeners: (() => void)[] = [];
 
     // Commands
 
@@ -317,6 +319,18 @@ export class PageEventsManager {
 
     notifyEditContent(event: EditContentEvent) {
         this.editContentListeners.forEach((listener) => listener(event));
+    }
+
+    onRenderableChanged(listener: ((renderable: boolean) => void)): void {
+        this.renderableListeners.push(listener);
+    }
+
+    unRenderableChanged(listener: ((renderable: boolean) => void)): void {
+        this.renderableListeners = this.renderableListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifyRenderableChanged(value: boolean) {
+        this.renderableListeners.forEach((listener) => listener(value));
     }
 
     onLoaded(listener: (() => void)): void {

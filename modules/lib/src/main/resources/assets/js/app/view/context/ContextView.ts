@@ -54,7 +54,6 @@ export class ContextView
     protected contextWindow?: ContextWindow;
     protected alreadyFetchedCustomWidgets: boolean;
 
-    protected isPageRenderable: boolean;
     private sizeChangedListeners: (() => void)[] = [];
 
     private widgetsUpdateList: Record<string, (key: string, type: ApplicationEventType) => void> = {};
@@ -500,10 +499,6 @@ export class ContextView
                 break;
             }
         }
-    }
-
-    setIsPageRenderable(value: boolean): void {
-        this.isPageRenderable = value;
     }
 
     updateSelectedWidget() {
