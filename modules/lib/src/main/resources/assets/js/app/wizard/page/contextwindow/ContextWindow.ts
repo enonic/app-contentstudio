@@ -91,10 +91,7 @@ export class ContextWindow
     }
 
     private setInsertablesVisible(visible: boolean): void {
-        if (!this.insertablesPanel) {
-            return;
-        }
-        if (this.insertablesPanel.isRendered()) {
+        if (this.insertablesPanel?.isRendered()) {
             this.setItemVisible(this.insertablesPanel, visible);
             if (visible) {
                 this.selectPanel(this.insertablesPanel);
@@ -107,7 +104,7 @@ export class ContextWindow
     updateInsertablesPanel() {
         let setVisible: boolean;
         // check for renderable because it can have a controller/template but not be renderable (e.g. app is turned off )
-        if (!this.isPageLocked && this.isPageRenderable) {
+        if (this.insertablesPanel && !this.isPageLocked && this.isPageRenderable) {
             const page = PageState.getState();
             const hasControllerOrTemplate = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
             const hasDefaultTemplate = this.liveFormPanel.getModel()?.getDefaultModels()?.hasDefaultPageTemplate() || false;
