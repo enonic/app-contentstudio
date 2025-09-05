@@ -506,7 +506,7 @@ export class PageComponentsView
         const unlockAction = new Action(i18n('live.view.page.customize'));
 
         unlockAction.onExecuted(() => {
-            this.liveEditPage.setLocked(false);
+            PageEventsManager.get().notifyCustomizePageRequested();
         });
 
         return [unlockAction];
