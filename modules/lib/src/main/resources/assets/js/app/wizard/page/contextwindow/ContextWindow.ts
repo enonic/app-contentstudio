@@ -53,6 +53,8 @@ export class ContextWindow
 
     private isPageLocked: boolean = false;
 
+    private isPageRenderable: boolean = false;
+
     constructor(config: ContextWindowConfig) {
         super();
         this.liveFormPanel = config.liveFormPanel;
@@ -64,8 +66,18 @@ export class ContextWindow
 
     protected initListeners(): void {
         const eventManager = PageEventsManager.get();
-        eventManager.onPageLocked(() => this.isPageLocked = true);
-        eventManager.onPageUnlocked(() => this.isPageLocked = false);
+        eventManager.onPageLocked(() => {
+            this.isPageLocked = true;
+            this.setInsertablesVisible(false);
+        });
+        eventManager.onPageUnlocked(() => {
+            this.isPageLocked = false;
+            void this.updateInsertablesPanel();
+        });
+        eventManager.onRenderableChanged((isRenderable) => {
+            this.isPageRenderable = isRenderable;
+            void this.updateInsertablesPanel();
+        })
 
         if (this.insertablesPanel) {
             this.liveFormPanel.onHidden((): void => {
@@ -93,14 +105,17 @@ export class ContextWindow
     }
 
     updateInsertablesPanel() {
-        let setVisible = false;
-        if (!this.isPageLocked) {
+        let setVisible: boolean;
+        // check for renderable because it can have a controller/template but not be renderable (e.g. app is turned off )
+        if (!this.isPageLocked && this.isPageRenderable) {
             const page = PageState.getState();
-            const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
+            const hasControllerOrTemplate = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
             const hasDefaultTemplate = this.liveFormPanel.getModel()?.getDefaultModels()?.hasDefaultPageTemplate() || false;
-            setVisible = isPageRenderable || hasDefaultTemplate;
+            setVisible = hasControllerOrTemplate || hasDefaultTemplate;
+        } else {
+            setVisible = false;
         }
-        this.setInsertablesVisible(setVisible);
+        return this.setInsertablesVisible(setVisible);
     }
 
     doRender(): Q.Promise<boolean> {
