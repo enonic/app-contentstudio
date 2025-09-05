@@ -1,159 +1,94 @@
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName'
+import {useState, useEffect, type JSX} from 'react';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {ContentSummary} from '../../content/ContentSummary';
+import {ContentIconUrlResolver} from '../../content/ContentIconUrlResolver';
+import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
+
 import {
-    FolderOpen,
-    ImageIcon,
-    FileIcon,
-    FileImage,
-    FolderCog,
-    FileText,
-    Shapes,
-    Globe,
-    FileChartPie,
-    SquarePlay,
-    FileCog,
-    SquareArrowOutUpRight,
-    Film,
-    SplinePointer,
-    FileQuestionMark,
-    FileType,
-    FileSpreadsheet,
-    Presentation,
-    FileTerminal,
-    Database,
-    SquareCode,
-    FileMusic,
-    Archive
+    Archive, Database, FileChartPie, FileCog, FileIcon, FileImage, FileMusic, FileQuestionMark,
+    FileSpreadsheet, FileTerminal, FileText, FileType, Film, FolderCog, FolderOpen, Globe,
+    ImageIcon, Presentation, SplinePointer, SquareArrowOutUpRight, SquareCode, SquarePlay, Shapes,
 } from 'lucide-react';
-import {useState, type JSX} from 'react';
+import {Image} from '../images/Image';
 
-const ImgWithFallback = ({
-                             src,
-                             alt = '',
-                             fallback = <FileIcon/>,
-                             imgClassName,
-                         }: {
-    src?: string | null;
-    alt?: string;
-    fallback?: JSX.Element;
-    imgClassName?: string;
-}): JSX.Element => {
-    const [errored, setErrored] = useState(false);
-    if (!src || errored) {
-        return fallback;
-    }
-    return <img className={imgClassName} alt={alt} src={src} onError={() => setErrored(true)}/>;
-};
-
-interface Props {
+type Props = {
     contentType: ContentTypeName;
-    imageUrl?: string | null;
-}
-
-const fallbackIconFor = (contentType: ContentTypeName): JSX.Element => {
-    const key = String(contentType);
-    switch (key) {
-    case String(ContentTypeName.IMAGE):
-        return <FileImage/>;
-    case String(ContentTypeName.MEDIA_IMAGE):
-        return <ImageIcon/>;
-    case String(ContentTypeName.MEDIA_VECTOR):
-        return <SplinePointer/>;
-    default:
-        return <FileIcon/>;
-    }
+    summary?: ContentSummary | null;
+    size?: number;
+    crop?: boolean;
+    imgClassName?: string;
 };
 
-export const ContentIcon = ({contentType, imageUrl}: Props): JSX.Element => {
-    switch (String(contentType)) {
-    case String(ContentTypeName.FOLDER):
-        return <FolderOpen/>;
-
-    case String(ContentTypeName.FRAGMENT):
-        return <FileChartPie/>;
-
-    case String(ContentTypeName.IMAGE):
-        return (
-            <ImgWithFallback
-                src={imageUrl}
-                imgClassName="coverContentIcon"
-                fallback={fallbackIconFor(contentType)}
-            />
-        );
-
-    case String(ContentTypeName.MEDIA):
-        return <SquarePlay/>;
-
-    case String(ContentTypeName.MEDIA_ARCHIVE):
-        return <Archive/>;
-
-    case String(ContentTypeName.MEDIA_AUDIO):
-        return <FileMusic/>;
-
-    case String(ContentTypeName.MEDIA_CODE):
-        return <SquareCode/>;
-
-    case String(ContentTypeName.MEDIA_DATA):
-        return <Database/>;
-
-    case String(ContentTypeName.MEDIA_DOCUMENT):
-        return <FileText/>;
-
-    case String(ContentTypeName.MEDIA_EXECUTABLE):
-        return <FileTerminal/>;
-
-    case String(ContentTypeName.MEDIA_IMAGE):
-        return (
-            <ImgWithFallback
-                src={imageUrl}
-                fallback={fallbackIconFor(contentType)}
-            />
-        );
-
-    case String(ContentTypeName.MEDIA_PRESENTATION):
-        return <Presentation/>;
-
-    case String(ContentTypeName.MEDIA_SPREADSHEET):
-        return <FileSpreadsheet/>;
-
-    case String(ContentTypeName.MEDIA_TEXT):
-        return <FileType/>;
-
-    case String(ContentTypeName.MEDIA_UNKNOWN):
-        return <FileQuestionMark/>;
-
-    case String(ContentTypeName.MEDIA_VECTOR):
-        return (
-            <ImgWithFallback
-                src={imageUrl}
-                imgClassName="coverContentIcon"
-                fallback={fallbackIconFor(contentType)}
-            />
-        );
-
-    case String(ContentTypeName.MEDIA_VIDEO):
-        return <Film/>;
-
-    case String(ContentTypeName.PAGE_TEMPLATE):
-        return <FileCog/>;
-
-    case String(ContentTypeName.SHORTCUT):
-        return <SquareArrowOutUpRight/>;
-
-    case String(ContentTypeName.SITE):
-        return <Globe/>;
-
-    case String(ContentTypeName.TEMPLATE_FOLDER):
-        return <FolderCog/>;
-
-    case String(ContentTypeName.UNSTRUCTURED):
-        return <Shapes/>;
-
-    default:
-        return (
-            <ImgWithFallback
-                src={imageUrl}
-                fallback={fallbackIconFor(contentType)}
-            />
-        );
+const buildIconUrl = (summary: ContentSummary, size = 64, crop?: boolean): string => {
+    const url = new ContentIconUrlResolver().setContent(summary).resolve();
+    const params: Record<string, string | number | boolean> = {size};
+    if (crop) {
+        params.crop = true;
     }
+    return `${UriHelper.trimUrlParams(url)}?${UriHelper.encodeUrlParams(params)}`;
+};
+
+const ICONS: Record<string, JSX.Element> = {
+    [String(ContentTypeName.FOLDER)]: <FolderOpen/>,
+    [String(ContentTypeName.FRAGMENT)]: <FileChartPie/>,
+    [String(ContentTypeName.MEDIA)]: <SquarePlay/>,
+    [String(ContentTypeName.MEDIA_ARCHIVE)]: <Archive/>,
+    [String(ContentTypeName.MEDIA_AUDIO)]: <FileMusic/>,
+    [String(ContentTypeName.MEDIA_CODE)]: <SquareCode/>,
+    [String(ContentTypeName.MEDIA_DATA)]: <Database/>,
+    [String(ContentTypeName.MEDIA_DOCUMENT)]: <FileText/>,
+    [String(ContentTypeName.MEDIA_EXECUTABLE)]: <FileTerminal/>,
+    [String(ContentTypeName.MEDIA_IMAGE)]: <ImageIcon/>,
+    [String(ContentTypeName.MEDIA_PRESENTATION)]: <Presentation/>,
+    [String(ContentTypeName.MEDIA_SPREADSHEET)]: <FileSpreadsheet/>,
+    [String(ContentTypeName.MEDIA_TEXT)]: <FileType/>,
+    [String(ContentTypeName.MEDIA_UNKNOWN)]: <FileQuestionMark/>,
+    [String(ContentTypeName.MEDIA_VECTOR)]: <SplinePointer/>,
+    [String(ContentTypeName.MEDIA_VIDEO)]: <Film/>,
+    [String(ContentTypeName.PAGE_TEMPLATE)]: <FileCog/>,
+    [String(ContentTypeName.SHORTCUT)]: <SquareArrowOutUpRight/>,
+    [String(ContentTypeName.SITE)]: <Globe/>,
+    [String(ContentTypeName.TEMPLATE_FOLDER)]: <FolderCog/>,
+    [String(ContentTypeName.UNSTRUCTURED)]: <Shapes/>,
+    [String(ContentTypeName.IMAGE)]: <FileImage/>,
+};
+
+const IMAGE_TYPES = new Set<string>([
+    String(ContentTypeName.IMAGE),
+    String(ContentTypeName.MEDIA_IMAGE),
+    String(ContentTypeName.MEDIA_VECTOR),
+]);
+
+export const ContentIcon = ({
+                                contentType,
+                                summary,
+                                size = 64,
+                                crop,
+                                imgClassName,
+                            }: Props): JSX.Element => {
+    const [broken, setBroken] = useState(false);
+    const key = String(contentType);
+    const icon = ICONS[key];
+    const src = summary ? buildIconUrl(summary, size, crop) : undefined;
+
+    useEffect(() => {
+        setBroken(false);
+    }, [src]);
+
+    const tryImage = (className?: string) =>
+        src && !broken ? (
+            <Image className={className} alt="" src={src} onError={() => setBroken(true)}/>
+        ) : null;
+
+    const isImageType = IMAGE_TYPES.has(key);
+
+    if (isImageType) {
+        return tryImage(imgClassName) ?? icon ?? <FileIcon/>;
+    }
+
+    if (icon) {
+        return icon;
+    }
+
+    return tryImage() ?? <FileIcon/>;
 };
