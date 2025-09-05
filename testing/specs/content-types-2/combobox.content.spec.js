@@ -139,9 +139,9 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_2);
             await contentWizard.openVersionsHistoryPanel();
             // 2. Revert the previous version:
-            await versionPanel.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED,0);
-            await versionPanel.clickOnRevertButton();
-            await studioUtils.saveScreenshot('revert_combobox_invalid_version');
+            await versionPanel.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            await versionPanel.clickOnRestoreButton();
+            await studioUtils.saveScreenshot('restore_combobox_invalid_version');
             // 3. Verify that no options selected in the form:
             await comboBoxForm.waitForNoOptionsSelected();
             // 4. Verify that the content gets invalid
@@ -150,10 +150,19 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             // 5. Verify the message: 'Min 2 valid occurrence(s) required'
             let actualMessage = await comboBoxForm.getComboBoxValidationMessage();
             assert.equal(actualMessage, 'Min 2 valid occurrence(s) required', 'Expected validation message should appear');
+        });
 
-            await versionPanel.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.MARKED_AS_READY,1);
-            await versionPanel.clickOnRevertButton();
-            await contentWizard.waitForNotificationMessage();
+    // Make 'Marked as Ready' version non-restorable and non-interactable
+    it("GIVEN existing content with Marked as Ready version is opened WHEN 'Marked as Ready' version item has been clicked THEN the version should be non-restorable",
+        async () => {
+            let versionPanel = new WizardVersionsWidget();
+            let contentWizard = new ContentWizard();
+            // 1. open the existing content with Marked as Ready version
+            await studioUtils.openContentAndSwitchToTabByDisplayName(CONTENT_NAME_2,'<Unnamed Combobox2_4>');
+            // 2. Open Version History panel and click on 'Marked as Ready' version item:
+            await contentWizard.openVersionsHistoryPanel();
+            await versionPanel.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.MARKED_AS_READY, 1);
+            await versionPanel.waitForRestoreButtonNotDisplayed();
         });
 
     it("GIVEN the content is selected AND allow-child-content-type is 'base:folder' WHEN New Content dialog is opened THEN only one content type should be present",

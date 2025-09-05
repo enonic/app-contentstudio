@@ -108,7 +108,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             await versionsWidget.waitForVersionsLoaded();
             // 3. Revert the version with disabled x-data:
             await versionsWidget.clickAndExpandVersion(2);
-            await versionsWidget.clickOnRevertButton();
+            await versionsWidget.clickOnRestoreButton();
             await versionsWidget.pause(2000);
             // 4. Verify that x-data step gets not visible:
             await studioUtils.saveScreenshot('site_x_data_rollback_test');
@@ -229,7 +229,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             await wizardContextPanel.openVersionHistory();
             await versionsWidget.clickAndExpandVersion(1);
             // 3. Revert the previous version:
-            await versionsWidget.clickOnRevertButton();
+            await versionsWidget.clickOnRestoreButton();
             await versionsWidget.pause(2000);
             // 4. Verify the reverted text:
             await studioUtils.saveScreenshot('xdata_text_in_textarea_restored');

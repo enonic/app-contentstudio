@@ -34,7 +34,7 @@ describe('tests for Sorted versions item', function () {
             await studioUtils.doAddFolder(CHILD_FOLDER);
         });
 
-    it(`GIVEN existing sorted folder has been sorted WHEN 'Versions Widget' has been opened THEN 'Sorted' version item should be displayed with 'Active version' button`,
+    it(`GIVEN existing sorted folder has been sorted WHEN 'Versions Widget' has been opened THEN 'Sorted' version item should be displayed`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
@@ -55,11 +55,13 @@ describe('tests for Sorted versions item', function () {
             await contentBrowseDetailsPanel.openVersionHistory();
             // 5. Expand the first 'sorted' item:
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
-            // 6.'Active version' button is present in the expanded version item:
-            await browseVersionsWidget.waitForActiveVersionButtonDisplayed();
+            let isDisplayed = await browseVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
+            assert.ok(isDisplayed, `'Compare Version' checkbox should be displayed for the SORTED item `);
+            // Restore button should not be displayed in the first top item:
+            await browseVersionsWidget.waitForRestoreButtonNotDisplayed();
         });
 
-    it(`GIVEN existing sorted folder is selected WHEN 'Compare with current version' has been clicked in the previous item THEN 'Sorted' version item should be displayed with 'Active version' button`,
+    it(`GIVEN existing sorted folder is selected WHEN 'Sorted' and 'Edited' items have been checked AND 'Compare ContentVersions' has been loaded THEN expected property should be displayed in the modal dialog`,
         async () => {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
@@ -68,18 +70,27 @@ describe('tests for Sorted versions item', function () {
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             // 2. open Versions Panel:
             await contentBrowseDetailsPanel.openVersionHistory();
-            // 3. Click on 'Compare with current version' in Sorted-item:
-            await browseVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
-            // 4.Verify that the modal dialog is loaded:
+            // 3. click on 'SORTED' version item:
+            await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
+            // 5. Verify that 'Compare changes' checkbox gets visible in the item:
+            await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.SORTED,0);
+            // 6. Click on 'Compare changes' checkbox in the 'Sorted' item:
+            await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
+            // 7. lick on 'Compare changes' checkbox in the latest 'Edited' item:
+            await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED,0);
+            await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            // 8. Click on 'Compare Versions' button in the widget:
+            await browseVersionsWidget.clickOnCompareVersionsButton();
+            // 9. Verify that the modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot('compare_versions_dlg_sorted_1');
             // 5. Verify that 'childOrder' property is displayed in the modal dialog:
             let result = await compareContentVersionsDialog.getChildOrderProperty();
-            assert.ok(result.includes("\"displayname ASC\""),
-                "Expected current order should be displayed in the dialog -  'displayname ASC'");
+            assert.ok(result.includes(`"displayname ASC"`), `Expected current order should be displayed in the dialog -  'displayname ASC'`);
         });
 
-    it(`GIVEN existing sorted folder is selected WHEN edited-version has been reverted THEN 'Sort' icon gets not visible`,
+    it(`GIVEN existing sorted folder is selected WHEN edited-version has been restored THEN 'Sort' icon gets not visible`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
@@ -91,7 +102,7 @@ describe('tests for Sorted versions item', function () {
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             // 4. Revert the first 'Edited' version item:
-            await browseVersionsWidget.clickOnRevertButton();
+            await browseVersionsWidget.clickOnRestoreButton();
             await browseVersionsWidget.waitForNotificationMessage();
             await studioUtils.saveScreenshot('not_sorted_version_reverted');
             // 5. Verify that sort-icon gets not visible after reverting the version:
@@ -109,7 +120,7 @@ describe('tests for Sorted versions item', function () {
             await contentBrowseDetailsPanel.openVersionHistory();
             // 3. Expand and revert the second 'Sorted' version item - display name ASC:
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 1);
-            await browseVersionsWidget.clickOnRevertButton();
+            await browseVersionsWidget.clickOnRestoreButton();
             await browseVersionsWidget.waitForNotificationMessage();
             await studioUtils.saveScreenshot('sorted_version_reverted');
             // 4. Verify that sort-icon is visible again:
@@ -122,29 +133,40 @@ describe('tests for Sorted versions item', function () {
             assert.equal(byUser, '', "user-name should not be displayed in Sorted version item");
         });
 
-    it(`GIVEN existing folder is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN expected options with 'sorted' icon should be present in the list`,
+    it(`GIVEN 'Edited' and 'Sorted' items are selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN expected options with 'sorted' icon should be present in the list`,
         async () => {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
-            //1. folder that was sorted is selected:
+            // 1. folder that was sorted is selected:
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-            //2. open Versions Panel
+            // 2. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            //3. Click on 'Compare with current versions' button in the previous edit-item:
-            await browseVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            // 4. Click on  'Edited' version item:
+            await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            // 5. Verify that 'Compare changes' checkbox gets visible in the item:
+            await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED,0);
+            // 6. Click on 'Compare changes' checkbox in the 'Edited' item:
+            await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            // 7. Click on the previous 'Edited' version item:
+            await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
+            // 8. Verify that 'Compare changes' checkbox gets visible in the item:
+            await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.SORTED,0);
+            // 8. Click on 'Compare changes' checkbox in the 'Edited' item:
+            await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
+            await browseVersionsWidget.clickOnCompareVersionsButton();
             await compareContentVersionsDialog.waitForDialogOpened();
-            //4. Click on the left dropdown handle:
+            // 4. Click on the left dropdown handle:
             await compareContentVersionsDialog.clickOnLeftDropdownHandle();
             await studioUtils.saveScreenshot('compare_versions_left_dropdown_options');
-            //5. Verify that options with the 'sorted' icon should be present in the left dropdown list:
+            // 5. Verify that options with the 'sorted' icon should be present in the left dropdown list:
             let result = await compareContentVersionsDialog.getSortedOptionsInLeftDropdownList();
             assert.equal(result.length, 3, "3 sorted items should be present in the options selector after the line-divider");
-            //6. Verify that options with the 'sorted' icon should be present in the right dropdown list:
+            // 6. Verify that options with the 'sorted' icon should be present in the right dropdown list:
             await compareContentVersionsDialog.clickOnRightDropdownHandle();
             await studioUtils.saveScreenshot('compare_versions_right_dropdown_options');
             result = await compareContentVersionsDialog.getSortedOptionsInRightDropdownList();
-            assert.equal(result.length, 3, "3 sorted items should be present in the options selector after the line-divider");
+            assert.equal(result.length, 4, "4 sorted items should be present in the options selector after the line-divider");
         });
 
     it("GIVEN existing folder with 'Sorted' version items is opened WHEN the folder has been published THEN 'Sorted' items remain visible in Versions Widget",

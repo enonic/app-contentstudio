@@ -14,7 +14,7 @@ import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {Delta, DiffPatcher} from 'jsondiffpatch';
-import {format, showUnchanged} from 'jsondiffpatch/formatters/html';
+import HtmlFormatter, {format, showUnchanged} from 'jsondiffpatch/formatters/html';
 import Q from 'q';
 import {ContentJson} from '../content/ContentJson';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
@@ -26,7 +26,6 @@ import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
 import {GetContentVersionsResult} from '../resource/GetContentVersionsResult';
 import {ContentVersionsConverter} from '../view/context/widget/version/ContentVersionsConverter';
-import {ContentVersionsLoader} from '../view/context/widget/version/ContentVersionsLoader';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
 import {NonBatchedContentVersionsConverter} from '../view/context/widget/version/NonBatchedContentVersionsConverter';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
@@ -66,13 +65,11 @@ export class CompareContentVersionsDialog
 
     private diffPatcher: DiffPatcher;
 
-    private readonly versionsLoader: ContentVersionsLoader;
+    private htmlFormatter: HtmlFormatter;
 
     private outsideClickListener: (event: MouseEvent) => void;
 
     private versionIdCounters: Record<string, number>;
-
-    private revertVersionCallback: (versionId: string, versionDate: Date) => void;
 
     private readOnly: boolean;
 
@@ -83,7 +80,6 @@ export class CompareContentVersionsDialog
             alwaysFullscreen: true
         } as ModalDialogConfig);
 
-        this.versionsLoader = new ContentVersionsLoader();
         this.diffPatcher = new DiffPatcher();
     }
 
@@ -172,7 +168,7 @@ export class CompareContentVersionsDialog
     private createVersionRevertButton(dropdown: CompareDropdown): Button {
         const revertAction: Action = new Action(i18n('field.version.revert')).onExecuted(() => {
             const version: VersionHistoryItem = dropdown.getSelectedItems()[0];
-            this.revertVersionCallback(version.getId(), version.getContentVersion().getTimestamp());
+            ContentVersionHelper.revert(this.content.getContentId(), version.getId(), version.getContentVersion().getTimestamp());
         });
         revertAction.setTitle(i18n('field.version.makeCurrent'));
 
@@ -285,13 +281,13 @@ export class CompareContentVersionsDialog
         return CompareContentVersionsDialog.INSTANCE;
     }
 
-    setRevertVersionCallback(callback: (versionId: string, versionDate: Date) => void): CompareContentVersionsDialog {
-        this.revertVersionCallback = callback;
+    setRightVersion(version: VersionHistoryItem): CompareContentVersionsDialog {
+        this.rightVersionId = `${version.getId()}:${version.getStatus()}`;
         return this;
     }
 
-    setRightVersion(version: VersionHistoryItem): CompareContentVersionsDialog {
-        this.rightVersionId = `${version.getId()}:${version.getStatus()}`;
+    setLeftVersion(version: VersionHistoryItem): CompareContentVersionsDialog {
+        this.leftVersionId = version.getSecondaryId();
         return this;
     }
 
@@ -302,12 +298,8 @@ export class CompareContentVersionsDialog
 
     setContent(content: ContentSummaryAndCompareStatus): CompareContentVersionsDialog {
         this.content = content;
+        this.readOnly = content.isReadOnly();
         (this.header as CompareContentVersionsDialogHeader).setSubTitle(content ? content.getPath().toString() : null);
-        return this;
-    }
-
-    setReadOnly(value: boolean): CompareContentVersionsDialog {
-        this.readOnly = value;
         return this;
     }
 
@@ -773,6 +765,11 @@ class CompareDropdown
         this.selectedItemViewer = new ContentVersionViewer();
     }
 
+    select(item: VersionHistoryItem[] | VersionHistoryItem, silent?: boolean) {
+        this.deselectAll(true);
+        super.select(item, silent);
+    }
+
     createSelectedOption(item: VersionHistoryItem): Option<VersionHistoryItem> {
         return Option.create<VersionHistoryItem>()
             .setValue(item.getSecondaryId())
@@ -783,13 +780,15 @@ class CompareDropdown
     protected initListeners(): void {
         super.initListeners();
 
-        this.onSelectionChanged(() => {
-            this.selectedItemViewer.setObject(this.getSelectedItems()[0]);
-        });
-
         this.selectedItemViewer.onClicked(() => {
            this.handleDropdownHandleClicked();
         });
+    }
+
+    protected doSelect(itemToSelect: VersionHistoryItem) {
+        super.doSelect(itemToSelect);
+
+        this.selectedItemViewer.setObject(itemToSelect);
     }
 
     hideDropdown(): void {

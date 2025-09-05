@@ -221,8 +221,7 @@ class ContentWizardPanel extends Page {
                 console.log('Content wizard is opened and Details Panel is loaded');
             }
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_details_panel');
-            throw new Error(`Details Panel, screenshot: ${screenshot} ` + err);
+            await this.handleError('Details Panel should be loaded in Wizard', 'err_open_details_panel', err);
         }
     }
 
@@ -326,8 +325,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(XPATH.xDataTogglerByName(name));
             return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_x_data_toggle');
-            throw new Error(`Error occurred during clicking on X-data toggle, screenshot:${screenshot} ` + err);
+            await this.handleError(`Tried to click on X-data toggle`, 'err_x_data_toggle_click', err);
         }
     }
 
@@ -396,22 +394,12 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async waitForShowPageEditorTogglerButtonDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(XPATH.showPageEditorTogglerButton, appConst.mediumTimeout);
-        } catch (err) {
-            await this.saveScreenshot('err_show_page_editor_button_not_displayed');
-            throw new Error(`'Show Page Editor' button should be displayed : ` + err);
-        }
-    }
-
     async waitForOpened() {
         try {
             await this.waitForElementDisplayed(this.displayNameInput, appConst.longTimeout);
             return await this.pause(200);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_open_wizard');
-            throw new Error(`Content wizard was not loaded! screenshot: ${screenshot} ` + err);
+            await this.handleError('Content wizard should be opened', 'err_wizard_opened', err);
         }
     }
 
@@ -662,8 +650,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_controller_filter_input');
-            throw new Error(`Controller selector should be displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError('Controller options filter should be displayed', 'err_controller_filter_input', err);
         }
     }
 
@@ -671,8 +658,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForElementNotDisplayed(this.controllerOptionFilterInput, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_controller_selector');
-            throw new Error(`Controller selector should not be visible, screenshot:${screenshot}  ` + err);
+            await this.handleError('Controller options filter should not be displayed', 'err_controller_filter_input_visible', err);
         }
     }
 
@@ -689,8 +675,7 @@ class ContentWizardPanel extends Page {
             }
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_create_site');
-            throw new Error(`Content Wizard, error during creating the content, screenshot:${screenshot}  ` + err);
+            await this.handleError('Content Wizard, tried to fill in the content data', 'err_type_content_data', err);
         }
     }
 
@@ -924,10 +909,6 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(this.pageEditorTogglerButton, appConst.mediumTimeout);
     }
 
-    waitForPageEditorTogglerNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.pageEditorTogglerButton, appConst.mediumTimeout);
-    }
-
     async getProjectDisplayName() {
         let selector = XPATH.toolbar + `//div[contains(@class,'project-info')]` + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
@@ -1110,19 +1091,7 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getTextInElements(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_collaboration_icon');
-            throw new Error(`Collaboration element should be displayed in the wizard toolbar:${screenshot} ` + err);
-        }
-    }
-
-    async getMessageInLiveFormPanel() {
-        try {
-            let locator = XPATH.pagePlaceholderInfoBlock1;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            return await this.getText(locator);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_site_wizard');
-            throw new Error(`Site wizard, placeholder-note is not displayed, screenshot ${screenshot} ` + err);
+            await this.handleError('Collaboration element should be displayed in the wizard toolbar', 'err_collaboration_icon', err);
         }
     }
 

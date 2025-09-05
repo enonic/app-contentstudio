@@ -91,7 +91,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             await contentWizard.openVersionsHistoryPanel();
             // 3. Revert the previous version:
             await versionsWidget.clickAndExpandVersion(1);
-            await versionsWidget.clickOnRevertButton();
+            await versionsWidget.clickOnRestoreButton();
             await contentWizard.waitForNotificationMessage();
             // 4. Verify the reverted date:
             let result = await dateForm.getValueInDateInput(0);
