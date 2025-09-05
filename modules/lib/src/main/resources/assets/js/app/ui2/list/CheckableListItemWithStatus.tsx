@@ -1,7 +1,7 @@
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {SelectableListItem, type SelectableListItemProps} from '@enonic/ui';
-import {type JSX} from 'react';
+import {useMemo, type JSX} from 'react';
 import {CompareStatusFormatter} from '../../content/CompareStatus';
 import {ContentIcon} from './ContentIcon';
 
@@ -13,18 +13,17 @@ const CheckableListItemWithStatusComponent = ({content, ...props}: Props): JSX.E
     const label = content.getPath().toString();
     const status = CompareStatusFormatter.formatStatusText(content.getCompareStatus());
 
-    const icon = (
-        <ContentIcon
-            contentType={content.getType()}
-            summary={content.getContentSummary?.()}
-            size={64}
-            imgClassName="coverContentIcon"
-        />
+    const contentType = String(content.getType());
+    const url = content.getContentSummary().getIconUrl();
+
+    const Icon = useMemo(
+        () => <ContentIcon contentType={contentType} url={url} size={24} />,
+        [contentType, url],
     );
 
     return (
-        <SelectableListItem {...props} label={label} icon={icon}>
-            <span>{status}</span>
+        <SelectableListItem {...props} label={label} icon={Icon}>
+            <span aria-label={status}>{status}</span>
         </SelectableListItem>
     );
 };

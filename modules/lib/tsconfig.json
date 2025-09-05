@@ -31,13 +31,13 @@
         ],
         "paths": {
             "react": ["node_modules/preact/compat"],
-            "react-dom": ["node_modules/preact/compat"]
+            "react-dom": ["node_modules/preact/compat"],
+            "@enonic/lib-admin-ui": [".xp/dev/lib-admin-ui/"]
         }
     },
     "include": [
         "./src/main/resources/assets/js/types.d.ts",
         "./src/main/resources/assets/js/**/*",
-        "./.xp/dev/lib-admin-ui/**/*.d.ts"
     ],
     "exclude": [
         "build/**/*",
