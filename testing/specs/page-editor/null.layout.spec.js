@@ -19,7 +19,7 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
     }
 
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const LAYOUT_NULL = 'Layout Null';
     const TEST_TEXT = 'test1';
     const PART_WITH_CONFIG = appConst.PART_NAME.MY_FIRST_APP_CITY_LIST;

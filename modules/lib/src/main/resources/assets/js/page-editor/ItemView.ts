@@ -837,9 +837,12 @@ export abstract class ItemView
         this.showContextMenu(config?.position, menuPosition);
     }
 
-    selectWithoutMenu() {
+    selectWithoutMenu(silent?: boolean) {
         this.selectItem();
-        new SelectComponentEvent({itemView: this, position: null}).fire();
+
+        if (!silent) {
+            new SelectComponentEvent({itemView: this, position: null}).fire();
+        }
     }
 
     private selectItem() {

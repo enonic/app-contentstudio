@@ -17,7 +17,7 @@ describe('widget.selector.spec: tests for options in the widget selector', funct
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
 
     it(`GIVEN wizard for new site is opened WHEN page controller has been selected THEN 'Page' option item should be displayed in WidgetSelector dropdown`,
         async () => {

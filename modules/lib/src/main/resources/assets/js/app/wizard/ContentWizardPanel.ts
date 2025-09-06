@@ -898,7 +898,7 @@ export class ContentWizardPanel
                 if (this.getPersistedItem().getPage() || this.isWithinSite()) {
                     this.updateLiveEditModel(content);
 
-                    this.getLivePanel().clearSelectionAndInspect(renderable, false);
+                    // this.getLivePanel().clearSelectionAndInspect(renderable, false);
 
                 }
 

@@ -7,6 +7,7 @@ const lib = require('../../../libs/elements');
 const ContentWizard = require('../content.wizard.panel');
 const FragmentDropdown = require('../../../page_objects/components/selectors/fragment.dropdown');
 const ComponentDescriptorsDropdown = require('../../components/selectors/component.descriptors.dropdown');
+
 const xpath = {
     container: "//div[contains(@id,'LiveFormPanel')]",
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
@@ -18,6 +19,7 @@ const xpath = {
     textComponentType: "//*[@data-portal-component-type='text']",
     previewNotAvailableSpan: "//p[@class='no-preview-message']/span[1]",
     imageInComponent: "//figure/img",
+    closeEditModeButton: "//button[contains(@class,'close-edit-mode-button icon-close')]",
     editableTextComponentByText: text => `//section[contains(@id,'TextComponentView') and @contenteditable='true']//p[contains(.,'${text}')]`,
     textComponentByText: text => `//section[contains(@id,'TextComponentView')]//p[contains(.,'${text}')]`,
     partComponentByName: name => `//div[contains(@id,'PartComponentView') and @data-portal-component-type='part']//h2[contains(text(),'${name}')]`,
@@ -66,7 +68,7 @@ class LiveFormPanel extends Page {
             await componentDescriptorsDropdown.selectFilteredComponent(displayName, parentForComboBox);
             return await this.pause(1000);
         } catch (err) {
-            await this.handleError('Error during selecting the part in Live Edit','err_select_part',err);
+            await this.handleError('Error during selecting the part in Live Edit', 'err_select_part', err);
         }
     }
 
@@ -76,7 +78,7 @@ class LiveFormPanel extends Page {
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getText(selector);
         } catch (err) {
-            await this.handleError('Try to get text from the part component!','err_part_component',err);
+            await this.handleError('Try to get text from the part component!', 'err_part_component', err);
         }
     }
 
@@ -87,7 +89,7 @@ class LiveFormPanel extends Page {
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(selector);
         } catch (err) {
-            await this.handleError('Try to get text from the text component!','err_txt_component',err);
+            await this.handleError('Try to get text from the text component!', 'err_txt_component', err);
         }
     }
 
@@ -98,8 +100,7 @@ class LiveFormPanel extends Page {
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(selector);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_txt_component');
-            throw new Error(`Error, Live Edit frame, text component, screenshot: ${screenshot} ` + err);
+            await this.handleError('Tried to get text from the text component!', 'err_txt_component', err);
         }
     }
 
@@ -140,8 +141,7 @@ class LiveFormPanel extends Page {
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(selector);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_txt_layout');
-            throw new Error('Error when getting text in the layout component! screenshot: ' + screenshot + ' ' + err);
+            await this.handleError('Tried to get the text in the layout component!', 'err_txt_layout', err);
         }
     }
 
@@ -190,9 +190,34 @@ class LiveFormPanel extends Page {
             let selector = xpath.editableTextComponentByText(text);
             return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_txt_comp_edit');
-            throw new Error(`Text component should be visible in Live Editor! screenshot: ${screenshot} ` + err);
+            await this.handleError(`Editable text component should be visible in Live Editor!`, 'err_txt_comp_edit', err);
         }
+    }
+
+    //Close edit-mode icon for text-component
+    async waitForCloseEditModeButtonDisplayed() {
+        try {
+            let locator = xpath.closeEditModeButton;
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(`Close 'Edit mode' button should be displayed in Live Editor!`, 'err_close_edit_mode_btn', err);
+        }
+    }
+
+    // Close edit-mode icon for text-component
+    async waitForCloseEditModeButtonNotDisplayed() {
+        try {
+            let locator = xpath.closeEditModeButton;
+            return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(`Close 'Edit mode' button should not be displayed in Live Editor!`, 'err_close_edit_mode_btn', err);
+        }
+    }
+
+    // Click on lose edit-mode icon for text-component
+    async clickOnCloseEditModeButton() {
+        await this.waitForCloseEditModeButtonDisplayed();
+        await this.clickOnElement(xpath.closeEditModeButton);
     }
 
     async doRightClickOnTextComponent(text, liveFrameX, liveFrameY) {
@@ -223,7 +248,7 @@ class LiveFormPanel extends Page {
             let selector = xpath.itemViewContextMenu;
             return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Item View Context Menu should be displayed in Live Editor!`, 'err_live_frame_item_view_context_menu', err);
+            await this.handleError(`Item View Context Menu should be displayed in Live Editor!`, 'err_liveview_view_context_menu', err);
         }
     }
 

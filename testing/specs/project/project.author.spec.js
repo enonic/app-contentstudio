@@ -34,7 +34,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     const FOLDER_NAME = studioUtils.generateRandomName('folder');
     let USER;
     const PASSWORD = appConst.PASSWORD.MEDIUM;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const SITE_NAME = contentBuilder.generateRandomName('site');
     let SITE;
 

@@ -313,6 +313,10 @@ export class ComponentView
         super.replaceWith(replacement);
         this.unbindMouseListeners();
 
+        if (this.isSelected()) {
+            replacement.selectWithoutMenu(true);
+        }
+
         let parentIsPage = PageItemType.get().equals(this.getParentItemView().getType());
         if (parentIsPage) {
             const pageView = this.getPageView();

@@ -17,7 +17,7 @@ describe('Text Component with CKE - insert html table', function () {
     }
 
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
 
     it(`Precondition: new site should be added`,
         async () => {

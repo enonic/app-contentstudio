@@ -18,7 +18,7 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
     }
 
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const TEXT_COMPONENT_TEXT = appConst.generateRandomName('text');
 
     it(`Preconditions: new site and should be created`,
@@ -37,7 +37,7 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             let liveFormPanel = new LiveFormPanel();
             // 1. Open existing site and insert new text component with the text:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
@@ -98,6 +98,29 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             await contentWizard.switchToLiveEditFrame();
             let actualResult = await liveFormPanel.getTextFromTextComponents();
             assert.ok(actualResult.includes(TEXT_COMPONENT_TEXT), 'expected text should be present in the text component in LiveView');
+        });
+
+    //  Text component switches into edit mode when being edited in the Inspect panel #9065
+    // https://github.com/enonic/app-contentstudio/issues/9065
+    it(`GIVEN start to edit a text component in Inspect Panel WHEN 'Apply' button has been pressed THEN close edit mode button should not be displayed in for this text component inLiveView`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
+            let pageComponentView = new PageComponentView();
+            let liveFormPanel = new LiveFormPanel();
+            // 1. Open existing site and insert new text component with the text:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Click on the text in PCV, insert a text in htmlArea in Inspect Panel and click on Apply button:
+            await pageComponentView.clickOnComponent(TEXT_COMPONENT_TEXT);
+            await textComponentInspectionPanel.typeTextInEditor(' ');
+            await textComponentInspectionPanel.typeTextInEditor('test');
+            await textComponentInspectionPanel.clickOnApplyButton();
+            await studioUtils.saveScreenshot('issue_inspect_panel_close_edit_icon');
+            // 4. Verify that 'Close Edit Mode' icon is not displayed for the text component in LiveEdit:
+            await contentWizard.switchToLiveEditFrame();
+            await liveFormPanel.waitForCloseEditModeButtonNotDisplayed();
         });
 
 

@@ -17,7 +17,7 @@ describe('Swap two Text Component - specification', function () {
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
 
 
     it(`Preconditions: new site should be created`,

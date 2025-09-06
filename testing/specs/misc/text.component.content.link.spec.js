@@ -20,7 +20,7 @@ describe('Text Component with CKE - insert content-link specification', function
     }
 
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const EXPECTED_SRC = '<p><a href="content://';
     const LINK_TITLE = 'test';
 
@@ -43,8 +43,6 @@ describe('Text Component with CKE - insert content-link specification', function
             // 3. Insert text-component:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            // Close the details panel
-            await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
             // 4. Open Insert Link dialog
             await textComponentCke.clickOnInsertLinkButton();

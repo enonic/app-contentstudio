@@ -18,7 +18,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const EXPECTED_QUESTION = 'Switching to a page template will discard all the custom changes made to the page. Are you sure?';
 
     it("GIVEN new site with controller is created WHEN 'Inspect' link has been clicked THEN Inspection tab should be opened",
