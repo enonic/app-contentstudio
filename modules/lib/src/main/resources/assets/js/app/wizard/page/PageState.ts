@@ -232,10 +232,10 @@ export class PageStateEventHandler {
             if (item instanceof DescriptorBasedComponent) {
                 if (descriptorKey) {
                     new GetComponentDescriptorRequest(descriptorKey.toString(), item.getType()).sendAndParse().then((descriptor: Descriptor) => {
-                        item.setDescriptor(descriptor);
+                        return item.setDescriptor(descriptor);
                     }).catch(DefaultErrorHandler.handle);
                 } else {
-                    item.setDescriptor(null);
+                    item.setDescriptor(null).catch(DefaultErrorHandler.handle);
                 }
             }
         });

@@ -13,11 +13,9 @@ class SiteConfiguratorReqInputDialog extends BaseSiteConfiguratorDialog {
 
     async typeInTextInTrackingIdInput(text) {
         try {
-            return this.typeTextInInput(this.trackingIdTextInput, text)
+            return await this.typeTextInInput(this.trackingIdTextInput, text)
         } catch (err) {
-            let screenshot = appConst.generateRandomName('site_conf_err');
-            await this.saveScreenshot(screenshot);
-            throw new Error(`Site Configurator Dialog - screenshot:  ${screenshot}  ` + err);
+            await this.handleError('Site Configurator Dialog - req text input','err_type_tracking_id', err);
         }
     }
 }

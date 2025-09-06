@@ -30,7 +30,7 @@ export class PageHelper {
         }
 
         return this.loadDescriptor(layout.getDescriptorKey(), LayoutComponentType.get()).then((descriptor: Descriptor) => {
-            layout.setDescriptor(descriptor);
+            return layout.setDescriptor(descriptor);
         });
     }
 

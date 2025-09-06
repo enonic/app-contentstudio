@@ -28,10 +28,10 @@ class BaseSiteConfiguratorDialog extends Page {
     async clickOnApplyButton() {
         try {
             await this.clickOnElement(this.applyButton);
-            return await this.waitForDialogClosed();
+            await this.waitForDialogClosed();
+            await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot('err_click_on_apply_dialog');
-            throw new Error('Site Configurator Dialog, error when click on the Apply button  ' + err);
+            await this.handleError('Site Configurator Dialog,should be closed after clicking on Apply button', 'err_close_sfg', err);
         }
     }
 
