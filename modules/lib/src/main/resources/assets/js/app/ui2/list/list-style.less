@@ -4,7 +4,7 @@
   }
 
   .dependants-controls {
-    padding: 0 10px 2px 10px;
+    padding: 14px 10px 14px 10px;
 
     span {
       font-size: 16px;
@@ -12,8 +12,23 @@
     }
   }
 
+  .publish-dialog-dependant-list {
+    display: grid;
+    row-gap: 10px;
+  }
+
   .contents {
     font-size: 14px;
+
+    img, svg {
+      height: 24px;
+      width: 24px;
+      object-fit: contain;
+    }
+
+    .coverContentIcon {
+      object-fit: cover;
+    }
   }
 
   .excluded-items-toggler span {

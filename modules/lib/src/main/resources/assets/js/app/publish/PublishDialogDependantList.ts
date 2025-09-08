@@ -6,10 +6,12 @@ import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {CheckableListItemWithStatus} from '../ui2/list/CheckableListItemWithStatus';
 
-export class PublishDialogDependantList extends DialogDependantItemsList {
+
+export class PublishDialogDependantList
+    extends DialogDependantItemsList {
 
     private requiredIds = ContentIds.empty();
-    private visibleIds  = ContentIds.empty();
+    private visibleIds = ContentIds.empty();
 
     private listChangedListeners: (() => void)[] = [];
     private visibleUpdatedListeners: (() => void)[] = [];
@@ -36,9 +38,9 @@ export class PublishDialogDependantList extends DialogDependantItemsList {
     }
 
 
-
     createItemView(content: ContentSummaryAndCompareStatus, readOnly: boolean): CheckableListItemWithStatus {
         const className = this.isItemHidden(content) ? 'hidden' : undefined;
+
         return new CheckableListItemWithStatus({
             content,
             className,
@@ -55,14 +57,18 @@ export class PublishDialogDependantList extends DialogDependantItemsList {
         const permissionsUpdatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]): void => {
             const updatedIds = updatedItems.map(item => item.getId());
             const touched = this.getItems().some(item => updatedIds.includes(item.getId()));
-            if (touched) this.notifyListChanged();
+            if (touched) {
+                this.notifyListChanged();
+            }
         };
 
         const deletedHandler = (deletedItems: ContentServerChangeItem[]) => {
             const touched = deletedItems.some(del =>
                 this.getItems().some(item => item.getContentId().equals(del.getContentId()))
             );
-            if (touched) this.notifyListChanged();
+            if (touched) {
+                this.notifyListChanged();
+            }
         };
 
         const updatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]) => {

@@ -1,33 +1,40 @@
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
-import {SelectableListItem, SelectableListItemProps} from '@enonic/ui';
-import {type JSX} from 'react';
+import {SelectableListItem, type SelectableListItemProps} from '@enonic/ui';
+import {useMemo, type JSX} from 'react';
 import {CompareStatusFormatter} from '../../content/CompareStatus';
 import {ContentIcon} from './ContentIcon';
 
 type Props = {
     content: ContentSummaryAndCompareStatus;
-} & Pick<SelectableListItemProps, 'className' | 'readOnly' | 'onCheckedChange' | 'checked'>
+} & Pick<SelectableListItemProps, 'className' | 'readOnly' | 'onCheckedChange' | 'checked'>;
 
 const CheckableListItemWithStatusComponent = ({content, ...props}: Props): JSX.Element => {
-
     const label = content.getPath().toString();
     const status = CompareStatusFormatter.formatStatusText(content.getCompareStatus());
-    const icon = <ContentIcon contentType={content.getType()}/>;
+
+    const contentType = String(content.getType());
+    const url = content.getContentSummary().getIconUrl();
+
+    const Icon = useMemo(
+        () => <ContentIcon contentType={contentType} url={url} size={24}/>,
+        [contentType, url],
+    );
 
     return (
-        <SelectableListItem {...props} label={label} icon={icon}>
-            <span>{status}</span>
+        <SelectableListItem {...props} label={label} icon={Icon}>
+            <span aria-label={status}>{status}</span>
         </SelectableListItem>
     );
-}
+};
 
 export class CheckableListItemWithStatus
     extends LegacyElement<typeof CheckableListItemWithStatusComponent, Props> {
 
     constructor(props: Props) {
         super({
-            ...props, onCheckedChange: (checked) => {
+            ...props,
+            onCheckedChange: (checked) => {
                 this.props.setKey('checked', checked);
                 props.onCheckedChange?.(checked);
             },
