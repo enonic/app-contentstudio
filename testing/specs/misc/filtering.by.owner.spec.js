@@ -56,6 +56,8 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             // 3. Open wizard for new child folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            let contentWizard = new ContentWizardPanel();
+            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await studioUtils.saveScreenshot('child_folder_default_language');
             // 4. Verify language in the wizard for new child folder:
@@ -93,7 +95,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             await studioUtils.openFilterPanel();
             // 3. Select the existing user in Owner selector:
             await filterPanel.filterAndSelectOwnerOption(USER.displayName);
-            await filterPanel.pause(2000);
+            await filterPanel.pause(1000);
             await studioUtils.saveScreenshot('owner_selected_in_selector');
             // 4. Verify that only content that were created by the user are displayed in Grid
             let contentNames = await contentBrowsePanel.getDisplayNamesInGrid();
