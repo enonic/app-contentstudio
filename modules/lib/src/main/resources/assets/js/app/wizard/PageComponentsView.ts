@@ -503,10 +503,11 @@ export class PageComponentsView
     }
 
     private getLockedPageActions(): Action[] {
-        const unlockAction = new Action(i18n('live.view.page.customize'));
+        const unlockAction = new Action(i18n('live.view.page.settings'));
 
         unlockAction.onExecuted(() => {
-            PageEventsManager.get().notifyCustomizePageRequested();
+            PageNavigationMediator.get().notify(
+                new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(ComponentPath.root())));
         });
 
         return [unlockAction];
