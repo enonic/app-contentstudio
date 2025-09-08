@@ -69,15 +69,15 @@ describe('widget.selector.spec: tests for options in the widget selector', funct
     it(`GIVEN Select 'Version History' option in the widget selector WHEN ListBox has been expanded THEN 'Version History' option item should be selected in the ListBox options`,
         async () => {
             let contentWizard = new ContentWizard();
-            let wizardContextPanel = new WizardContextPanel();
-            let emulatorWidget = new EmulatorWidget();
+            let wizardContextWindow = new WizardContextPanel();
             // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Select Emulator option in the widget selector
-            await wizardContextPanel.openVersionHistory();
-            await wizardContextPanel.clickOnWidgetSelectorDropdownHandle();
-            // 3. Verify that the only one item is selected in the options list
-            let items = await wizardContextPanel.getSelectedOptionsDisplayName();
+            // 2. Open Versions Widget:
+            await wizardContextWindow.openVersionHistory();
+            // 3. Expand the widget selector ListBox:
+            await wizardContextWindow.clickOnWidgetSelectorDropdownHandle();
+            // 4. Verify that the only one item is selected in the options list
+            let items = await wizardContextWindow.getSelectedOptionsDisplayName();
             assert.equal(items.length, 1, 'The only one item should be selected in the ListBox');
             assert.equal(items[0], 'Version history', "'Version history' option item should be selected in the ListBox");
         });
