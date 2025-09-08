@@ -44,11 +44,12 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             await contentWizard.clickOnPageEditorToggler();
             await studioUtils.saveScreenshot('moved_folder');
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.MOVED);
+            // 5. Verify that status gets 'Moved' in the wizard-toolbar:
             let actualStatus = await contentWizard.getContentStatus();
             assert.equal(actualStatus, appConst.CONTENT_STATUS.MOVED, `Only the one 'Moved' status should appear in the wizard toolbar`);
-
+            // 6. Verify that 'Moved' status gets visible in the status widget in Details Widget Panel:
+            await contentWizard.openDetailsWidget();
             let statusWidget = new StatusWidget();
-            // 5. Verify that 'Moved' status gets visible in the status widget in Details Panel:
             await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.MOVED);
         });
 
@@ -57,6 +58,7 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             let contentWizard = new ContentWizard();
             // 1. open the existing Moved folder:
             await studioUtils.openContentAndSwitchToTabByDisplayName(NEW_NAME, TEST_FOLDER.displayName);
+            await contentWizard.openDetailsWidget();
             // 2. Select a language, the content gets 'moved, modified':
             let editDetailsDialog = await studioUtils.openEditSettingDialog();
             await editDetailsDialog.waitForLoaded();
@@ -71,9 +73,9 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             let actualStatus = await contentWizard.getContentStatus();
             assert.equal(actualStatus, appConst.CONTENT_STATUS.MOVED_MODIFIED,
                 `'Moved, Modified' status should appear in the wizard toolbar`);
-
-            let statusWidget = new StatusWidget();
             // 5. Verify that 'Moved, Modified' status gets visible in the status widget in Details Panel:
+            await contentWizard.openDetailsWidget();
+            let statusWidget = new StatusWidget();
             await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.MOVED_MODIFIED);
         });
 
@@ -97,7 +99,7 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             // 5. Verify that 'Moved' status gets visible in the status widget in Details Panel:
             let actualStatus = await contentWizard.getContentStatus();
             assert.equal(actualStatus, appConst.CONTENT_STATUS.MOVED, `'Moved' status should appear in the wizard toolbar`);
-
+            await contentWizard.openDetailsWidget();
             let statusWidget = new StatusWidget();
             // 5. Verify that 'Moved' status gets visible in the status widget after clicking on Mark as ready:
             await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.MOVED);
