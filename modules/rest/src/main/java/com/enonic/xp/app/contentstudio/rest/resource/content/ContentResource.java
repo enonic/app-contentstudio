@@ -55,7 +55,6 @@ import com.enonic.xp.app.contentstudio.json.content.ContentsExistJson;
 import com.enonic.xp.app.contentstudio.json.content.DependenciesAggregationJson;
 import com.enonic.xp.app.contentstudio.json.content.DependenciesJson;
 import com.enonic.xp.app.contentstudio.json.content.GetActiveContentVersionsResultJson;
-import com.enonic.xp.app.contentstudio.json.content.GetContentVersionsForViewResultJson;
 import com.enonic.xp.app.contentstudio.json.content.GetContentVersionsResultJson;
 import com.enonic.xp.app.contentstudio.json.content.ReorderChildrenResultJson;
 import com.enonic.xp.app.contentstudio.json.content.RootPermissionsJson;
@@ -1466,7 +1465,7 @@ public final class ContentResource
         final FindContentVersionsResult result = contentService.getVersions( FindContentVersionsParams.create()
                                                                                  .contentId( contentId )
                                                                                  .from( params.getFrom() != null ? params.getFrom() : 0 )
-                                                                                 .size( params.getSize() != null ? params.getSize() : 10 )
+                                                                                 .size( params.getSize() != null ? params.getSize() : 50 )
                                                                                  .build() );
 
         return new GetContentVersionsResultJson( result, this.principalsResolver );
@@ -1484,30 +1483,6 @@ public final class ContentResource
                                                                                             .build() );
 
         return new GetActiveContentVersionsResultJson( result, this.principalsResolver );
-    }
-
-    @POST
-    @Path("getVersionsForView")
-    public GetContentVersionsForViewResultJson getContentVersionsForView( final GetContentVersionsJson params )
-    {
-        final ContentId contentId = ContentId.from( params.getContentId() );
-
-        final FindContentVersionsResult allVersions = contentService.getVersions( FindContentVersionsParams.create()
-                                                                                      .contentId( contentId )
-                                                                                      .from(
-                                                                                          params.getFrom() != null ? params.getFrom() : 0 )
-                                                                                      .size(
-                                                                                          params.getSize() != null ? params.getSize() : 50 )
-                                                                                      .build() );
-
-        final GetActiveContentVersionsResult activeVersions = contentService.getActiveVersions( GetActiveContentVersionsParams.create()
-                                                                                                    .branches( Branches.from(
-                                                                                                        ContentConstants.BRANCH_DRAFT,
-                                                                                                        ContentConstants.BRANCH_MASTER ) )
-                                                                                                    .contentId( contentId )
-                                                                                                    .build() );
-
-        return new GetContentVersionsForViewResultJson( allVersions, activeVersions, this.principalsResolver );
     }
 
     @GET
