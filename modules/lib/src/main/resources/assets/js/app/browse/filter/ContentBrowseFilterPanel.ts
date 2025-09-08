@@ -30,28 +30,33 @@ import {ContentDependency} from './ContentDependency';
 import {TextSearchField} from '@enonic/lib-admin-ui/app/browse/filter/TextSearchField';
 import {Branch} from '../../versioning/Branch';
 
-export class ContentBrowseFilterPanel
-    extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
+export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus>
+    extends BrowseFilterPanel<T> {
 
-    private aggregations: Map<string, AggregationGroupView>;
-    private displayNamesResolver: AggregationsDisplayNamesResolver;
-    private aggregationsFetcher: ContentAggregationsFetcher;
+    protected aggregations: Map<string, AggregationGroupView>;
+    protected displayNamesResolver: AggregationsDisplayNamesResolver;
+    protected aggregationsFetcher: ContentAggregationsFetcher;
+    protected searchEventListeners: ((query?: ContentQuery) => void)[] = [];
+
     private userInfo: LoginResult;
-    private searchEventListeners: ((query?: ContentQuery) => void)[] = [];
-
     private dependenciesSection: DependenciesSection;
     private elementsContainer: Element;
     private exportElement?: ContentExportElement;
     private targetBranch: Branch = Branch.DRAFT;
-
     private principalBasedGroupViews: FilterableAggregationGroupView[];
 
     constructor() {
         super();
 
         this.addClass('content-browse-filter-panel');
-        this.aggregationsFetcher = new ContentAggregationsFetcher();
+        this.aggregationsFetcher = this.createAggregationFetcher();
+
+        this.initAggregationGroupViews();
         this.initElementsAndListeners();
+    }
+
+    protected createAggregationFetcher(): ContentAggregationsFetcher {
+        return new ContentAggregationsFetcher();
     }
 
     onSearchEvent(listener: (query?: ContentQuery) => void): void {
@@ -71,8 +76,6 @@ export class ContentBrowseFilterPanel
     }
 
     private initElementsAndListeners() {
-        this.initAggregationGroupViews();
-
         if (this.isExportAllowed()) {
             this.exportElement = new ContentExportElement().setEnabled(false).setTitle(i18n('action.export')) as ContentExportElement;
         }
@@ -81,6 +84,14 @@ export class ContentBrowseFilterPanel
     }
 
     private handleEvents() {
+        this.onRendered(() => {
+            super.appendChild(this.elementsContainer);
+        });
+
+        this.handleEventsForDependenciesSection();
+    }
+
+    private handleEventsForDependenciesSection() {
         const handler = ContentServerEventsHandler.getInstance();
 
         handler.onContentDeleted((data: ContentServerChangeItem[]) => {
@@ -97,7 +108,7 @@ export class ContentBrowseFilterPanel
             }
         });
 
-        const permissionsUpdatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+        const permissionsUpdatedHandler = (data: T[]) => {
             if (!this.dependenciesSection.isActive()) {
                 return;
             }
@@ -107,7 +118,7 @@ export class ContentBrowseFilterPanel
             }
         };
 
-        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => permissionsUpdatedHandler(data);
+        const updatedHandler = (data: T[]) => permissionsUpdatedHandler(data);
 
         handler.onContentUpdated(updatedHandler);
         handler.onContentPermissionsUpdated(permissionsUpdatedHandler);
@@ -116,10 +127,6 @@ export class ContentBrowseFilterPanel
             if (this.dependenciesSection.isActive()) {
                 this.removeDependencyItem();
             }
-        });
-
-        this.onRendered(() => {
-            super.appendChild(this.elementsContainer);
         });
     }
 
@@ -132,19 +139,28 @@ export class ContentBrowseFilterPanel
         return hitsCounterAndClearButtonWrapper;
     }
 
+    protected getAggregationEnum(): Record<string, string> {
+        return ContentAggregation;
+    }
+
     protected getGroupViews(): AggregationGroupView[] {
         this.aggregations = new Map<string, AggregationGroupView>();
 
-        for (let aggrEnum in ContentAggregation) {
-            const name: string = ContentAggregation[aggrEnum];
+        const aggregationEnum = this.getAggregationEnum();
+        for (let aggrEnum in aggregationEnum) {
+            const name: string = aggregationEnum[aggrEnum];
             this.aggregations.set(name, this.createGroupView(name));
         }
 
         return Array.from(this.aggregations.values());
     }
 
-    private createGroupView(name: string): AggregationGroupView {
-        if (name === ContentAggregation.OWNER.toString() || name === ContentAggregation.MODIFIED_BY.toString()) {
+    protected isPrincipalAggregation(name: string): boolean {
+        return name === ContentAggregation.OWNER.toString() || name === ContentAggregation.MODIFIED_BY.toString();
+    }
+
+    protected createGroupView(name: string): AggregationGroupView {
+        if (this.isPrincipalAggregation(name)) {
             const aggregationGroupView = new FilterableAggregationGroupView(name, i18n(`field.${name}`));
 
             if (!this.principalBasedGroupViews) {
@@ -152,6 +168,7 @@ export class ContentBrowseFilterPanel
             }
 
             this.principalBasedGroupViews.push(aggregationGroupView);
+
             return aggregationGroupView;
         }
 
@@ -164,7 +181,7 @@ export class ContentBrowseFilterPanel
         this.appendChild(this.dependenciesSection);
     }
 
-    private isExportAllowed(): boolean {
+    protected isExportAllowed(): boolean {
         // add more checks here if needed
         return true;
     }
@@ -253,7 +270,7 @@ export class ContentBrowseFilterPanel
     }
 
     protected isFilteredOrConstrained() {
-        return super.isFilteredOrConstrained() || this.dependenciesSection.isActive();
+        return super.isFilteredOrConstrained() || (this.dependenciesSection?.isActive() ?? false);
     }
 
     private getAndUpdateAggregations(): Q.Promise<AggregationsQueryResult> {
@@ -345,13 +362,8 @@ export class ContentBrowseFilterPanel
 
     private toggleAggregationsVisibility(aggregations: Aggregation[]) {
         aggregations.forEach((aggregation: BucketAggregation) => {
-            const isAggregationEmpty: boolean = !aggregation.getBuckets().some((bucket: Bucket) => {
-                if (bucket.docCount > 0) {
-                    return true;
-                }
-            });
-
-            this.aggregations.get(aggregation.getName()).setVisible(!isAggregationEmpty);
+            const isAggregationNotEmpty: boolean = aggregation.getBuckets().some((bucket: Bucket) => bucket.docCount > 0);
+            this.aggregations.get(aggregation.getName()).setVisible(isAggregationNotEmpty);
         });
     }
 
