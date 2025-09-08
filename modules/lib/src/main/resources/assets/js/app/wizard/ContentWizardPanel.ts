@@ -901,13 +901,9 @@ export class ContentWizardPanel
     private refreshLivePanel(content: Content): Q.Promise<void> {
 
         return this.isRenderable().then((renderable: boolean) => {
-
             if (renderable) {
                 if (this.getPersistedItem().getPage() || this.isWithinSite()) {
                     this.updateLiveEditModel(content);
-
-                    this.getLivePanel().clearSelectionAndInspect(renderable, false);
-
                 }
 
                 return Q();
