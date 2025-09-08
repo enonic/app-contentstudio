@@ -79,7 +79,6 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.LocaleListJson
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.LocalizeContentsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.MoveContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishContentJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.json.ReorderChildrenJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResetContentInheritJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.RevertContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UnpublishContentJson;
@@ -88,6 +87,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVer
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.attachment.Attachments;
 import com.enonic.xp.attachment.CreateAttachment;
+import com.enonic.xp.blob.BlobKeys;
 import com.enonic.xp.blob.NodeVersionKey;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.CompareContentResult;
@@ -128,13 +128,11 @@ import com.enonic.xp.content.GetPublishStatusesResult;
 import com.enonic.xp.content.HasUnpublishedChildrenParams;
 import com.enonic.xp.content.PublishStatus;
 import com.enonic.xp.content.RenameContentParams;
-import com.enonic.xp.content.ReorderChildContentsParams;
-import com.enonic.xp.content.ReorderChildContentsResult;
-import com.enonic.xp.content.ReorderChildParams;
 import com.enonic.xp.content.ResetContentInheritParams;
 import com.enonic.xp.content.ResolvePublishDependenciesParams;
 import com.enonic.xp.content.ResolveRequiredDependenciesParams;
-import com.enonic.xp.content.SetContentChildOrderParams;
+import com.enonic.xp.content.SortContentParams;
+import com.enonic.xp.content.SortContentResult;
 import com.enonic.xp.content.SyncContentService;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.content.UpdateMediaParams;
@@ -1005,14 +1003,14 @@ public class ContentResourceTest
         throws Exception
     {
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
-        when( contentService.setChildOrder( isA( SetContentChildOrderParams.class ) ) ).thenReturn( content );
+        when( contentService.sort( isA( SortContentParams.class ) ) ).thenReturn( SortContentResult.create().content( content ).build() );
 
         String jsonString = request().path( "content/setChildOrder" )
             .entity( readFromFile( "set_order_params.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post()
             .getAsString();
 
-        verify( contentService, times( 1 ) ).setChildOrder( isA( SetContentChildOrderParams.class ) );
+        verify( contentService, times( 1 ) ).sort( isA( SortContentParams.class ) );
 
         assertJson( "set_order_success.json", jsonString );
     }
@@ -1037,43 +1035,22 @@ public class ContentResourceTest
     }
 
     @Test
-    public void reorderChildrenContents_not_allowed()
-        throws Exception
-    {
-        ContentResource contentResource = getResourceInstance();
-
-        Content rootContent = createContent( "content-id", "content-name", "myapplication:content-type" );
-        Content content = Content.create( rootContent ).childOrder( ChildOrder.defaultOrder() ).build();
-        when( contentService.getById( isA( ContentId.class ) ) ).thenReturn( content );
-        when( contentService.setChildOrder( isA( SetContentChildOrderParams.class ) ) ).thenReturn( content );
-
-        final WebApplicationException ex = assertThrows( WebApplicationException.class, () -> {
-            contentResource.reorderChildContents( new ReorderChildrenJson( false, content.getId().toString(), null, new ArrayList<>() ) );
-        } );
-        assertEquals( "Not allowed to reorder children manually, current parentOrder = [_ts DESC].", ex.getMessage() );
-
-    }
-
-    @Test
     public void reorderChildrenContents()
         throws Exception
     {
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         content = Content.create( content ).childOrder( ChildOrder.defaultOrder() ).build();
         when( contentService.getById( isA( ContentId.class ) ) ).thenReturn( content );
-        when( contentService.setChildOrder( isA( SetContentChildOrderParams.class ) ) ).thenReturn( content );
 
-        final ReorderChildContentsResult result = new ReorderChildContentsResult( 2 );
-        when( contentService.reorderChildren( any( ReorderChildContentsParams.class ) ) ).thenReturn( result );
+        when( contentService.sort( isA( SortContentParams.class ) ) ).thenReturn(
+            SortContentResult.create().content( content ).movedChildren( ContentIds.from( "a", "b" ) ).build() );
 
         String jsonString = request().path( "content/reorderChildren" )
             .entity( readFromFile( "reorder_children_params.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post()
             .getAsString();
 
-        verify( contentService, times( 1 ) ).setChildOrder( isA( SetContentChildOrderParams.class ) );
-
-        verify( contentService, times( 1 ) ).reorderChildren( isA( ReorderChildContentsParams.class ) );
+        verify( contentService, times( 1 ) ).sort( isA( SortContentParams.class ) );
 
         assertJson( "reorder_children_success.json", jsonString );
     }
@@ -1085,19 +1062,14 @@ public class ContentResourceTest
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         content = Content.create( content ).childOrder( ChildOrder.defaultOrder() ).build();
         when( contentService.getById( isA( ContentId.class ) ) ).thenReturn( content );
-        when( contentService.setChildOrder( isA( SetContentChildOrderParams.class ) ) ).thenReturn( content );
-
-        final ReorderChildContentsResult result = new ReorderChildContentsResult( 2 );
-        when( contentService.reorderChildren( any(ReorderChildContentsParams.class) ) ).thenReturn( result );
+        when( contentService.sort( isA( SortContentParams.class ) ) ).thenReturn( SortContentResult.create().content( content ).movedChildren( ContentIds.from( "a", "b" ) ).build() );
 
         String jsonString = request().path( "content/reorderChildren" )
             .entity( readFromFile( "resort_reorder_children_params.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post()
             .getAsString();
 
-        verify( contentService, times( 2 ) ).setChildOrder( isA( SetContentChildOrderParams.class ) );
-
-        verify( contentService, times( 1 ) ).reorderChildren( isA( ReorderChildContentsParams.class ) );
+        verify( contentService, times( 1 ) ).sort( isA( SortContentParams.class ) );
 
         assertJson( "reorder_children_success.json", jsonString );
     }
@@ -2212,6 +2184,7 @@ public class ContentResourceTest
             nodeVersionId( NodeVersionId.from( "nodeVersionNew" ) ).
             nodeVersionKey( nodeVersionKey1 ).
             nodePath( new NodePath( "/content/new" ) ).
+            binaryBlobKeys( BlobKeys.empty() ).
             timestamp( Instant.ofEpochSecond( 1000 ) ).
             build();
 
@@ -2221,6 +2194,7 @@ public class ContentResourceTest
             nodeVersionId( NodeVersionId.from( "nodeVersionOld" ) ).
             nodeVersionKey( nodeVersionKey2 ).
             nodePath( new NodePath( "/content/old" ) ).
+            binaryBlobKeys( BlobKeys.empty() ).
             timestamp( Instant.ofEpochSecond( 500 ) ).
             build();
 
@@ -2510,7 +2484,7 @@ public class ContentResourceTest
         verify( this.contentService, times( 1 ) ).getBinary( any( ContentId.class ), any( ContentVersionId.class ),
                                                              any( BinaryReference.class ) );
         verify( this.contentService, times( 1 ) ).update( any( UpdateContentParams.class ) );
-        verify( this.contentService, times( 1 ) ).setChildOrder( any( SetContentChildOrderParams.class ) );
+        verify( this.contentService, times( 1 ) ).sort( any( SortContentParams.class ) );
         verify( this.contentService, times( 2 ) ).getById( any( ContentId.class ) );
         verifyNoMoreInteractions( contentService );
     }
