@@ -619,7 +619,9 @@ export class CompareContentVersionsDialog
             // and make everything in one go
 
             const view = this.leftDropdown.getList().getItemView(option);
-            const isReadonly = option.isAlias() ? isNextSelectedInRightDropdown && option.getAliasType() === AliasType.PREV : markReadOnly;
+            const isReadonly = option.isAlias()
+                               ? isNextSelectedInRightDropdown && option.getAliasType() === AliasType.PREV
+                               : markReadOnly || option.isReadonly();
 
             if (isReadonly) {
                 view.getParentElement().addClass('readonly');
@@ -639,9 +641,10 @@ export class CompareContentVersionsDialog
         const leftOption = this.leftDropdown.getSelectedItems()[0];
         const isPrevSelectedInLeftDropdown = !!leftOption ? leftOption.getAliasType() === AliasType.PREV : null;
 
-        this.rightDropdown.getList().getItems().filter(option => option.isAlias()).forEach(option => {
+        this.rightDropdown.getList().getItems().filter(option => option.isAlias() || option.isReadonly()).forEach(option => {
             const view = this.rightDropdown.getList().getItemView(option);
-            view.getParentElement().toggleClass('readonly', isPrevSelectedInLeftDropdown && option.getAliasType() === AliasType.NEXT);
+            view.getParentElement().toggleClass('readonly',
+                option.isReadonly() || (isPrevSelectedInLeftDropdown && option.getAliasType() === AliasType.NEXT));
         });
     }
 

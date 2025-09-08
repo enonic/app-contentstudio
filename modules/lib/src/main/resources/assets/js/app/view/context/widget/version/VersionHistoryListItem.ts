@@ -24,12 +24,14 @@ export class VersionHistoryListItem
     private readonly content: ContentSummaryAndCompareStatus;
     private tooltip: Tooltip;
     private actionButton: ActionButton;
+    private hasComparableItemsAfter: boolean;
 
-    constructor(version: VersionHistoryItem, content: ContentSummaryAndCompareStatus) {
+    constructor(version: VersionHistoryItem, content: ContentSummaryAndCompareStatus, hasComparableItemsAfter: boolean) {
         super('version-list-item');
 
         this.version = version;
         this.content = content;
+        this.hasComparableItemsAfter = hasComparableItemsAfter;
     }
 
     private createVersionViewer(): VersionHistoryItemViewer {
@@ -59,7 +61,7 @@ export class VersionHistoryListItem
     }
 
     private isCompareButtonRequired(): boolean {
-        return this.isComparableItem() && this.version.getStatus() !== VersionItemStatus.CREATED;
+        return this.isComparableItem() && this.hasComparableItemsAfter;
     }
 
     private isInteractableItem(): boolean {

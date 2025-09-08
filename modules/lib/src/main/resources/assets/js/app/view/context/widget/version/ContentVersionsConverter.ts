@@ -34,11 +34,16 @@ export class ContentVersionsConverter {
         const result: VersionHistoryItem[] = [];
 
         this.filteredVersions.forEach((version: ContentVersion, index: number) => {
-            const item: VersionHistoryItem = this.versionToHistoryItem(version, index);
-            result.push(item);
+            const previousVersion = this.filteredVersions[index + 1];
 
-            if (this.isSameVersionForDraftAndMaster(version)) {
-                result.push(this.createHistoryItemFromVersion(version));
+            if (version.hasPublishInfo()) {
+                result.push(this.createHistoryItemFromPublishInfo(version, index));
+
+                if (this.isSameVersionForDraftAndMaster(version, previousVersion)) {
+                    result.push(...this.createRegularVersions(version, previousVersion));
+                }
+            } else {
+                result.push(...this.createRegularVersions(version, previousVersion));
             }
         });
 
@@ -61,25 +66,6 @@ export class ContentVersionsConverter {
 
     private isSeparateVersion(v1: ContentVersion, v2: ContentVersion): boolean {
         return Math.abs(v1.getTimestamp().getTime() - v2.getTimestamp().getTime()) > ContentVersionsConverter.FILTER_STEP_MS;
-    }
-
-    private isSameVersionForDraftAndMaster(publishedVersion: ContentVersion): boolean {
-        const publishInfo: ContentVersionPublishInfo = publishedVersion.getPublishInfo();
-
-        if (publishInfo?.isPublished() || publishInfo?.isScheduled()) {
-            return this.getPreviousVersion(publishedVersion)?.hasPublishInfo() || publishedVersion.getTimestamp().getTime() -
-                   publishedVersion.getModified().getTime() < ContentVersionsConverter.FILTER_STEP_MS;
-        }
-
-        return false;
-    }
-
-    private versionToHistoryItem(version: ContentVersion, index: number): VersionHistoryItem {
-        if (version.hasPublishInfo()) {
-            return this.createHistoryItemFromPublishInfo(version, index);
-        }
-
-        return this.createHistoryItemFromVersion(version);
     }
 
     private createHistoryItemFromPublishInfo(version: ContentVersion, index: number): VersionHistoryItem {
@@ -110,6 +96,63 @@ export class ContentVersionsConverter {
         return builder.build();
     }
 
+    private isRepublished(version: ContentVersion, index: number): boolean {
+        if (!version.isPublished()) {
+            return false;
+        }
+
+        const publishedFrom: string = DateHelper.formatDateTime(version.getPublishInfo().getPublishedFrom());
+
+        return this.filteredVersions.some((v: ContentVersion, i: number) => {
+            if (i <= index || !v.isPublished()) {
+                return false;
+            }
+
+            const vPublishedFrom: string = DateHelper.formatDateTime(v.getPublishInfo().getPublishedFrom());
+            return publishedFrom === vPublishedFrom;
+        });
+    }
+
+    private createHistoryItemFromVersion(version: ContentVersion, status: VersionItemStatus, timestamp: Date,
+                                         readonly?: boolean): VersionHistoryItem {
+        const timestampAsString: string = DateHelper.formatDate(timestamp);
+
+        const item: VersionHistoryItem = new VersionHistoryItemBuilder()
+            .setStatus(status)
+            .setDateTime(timestamp)
+            .setVersion(version)
+            .setUser(version.getModifierDisplayName() || version.getModifier())
+            .setSkipDate(timestampAsString === this.lastDate)
+            .setContentId(this.content.getContentId())
+            .setReadonly(!!readonly)
+            .build();
+
+        this.lastDate = timestampAsString;
+
+        return item;
+    }
+
+    private isCreatedVersion(version: ContentVersion): boolean {
+        return version.getTimestamp().getTime() - this.content.getContentSummary().getCreatedTime().getTime() <
+               ContentVersionsConverter.FILTER_STEP_MS;
+    }
+
+    private createRegularVersions(version: ContentVersion, previousVersion?: ContentVersion): VersionHistoryItem[] {
+        if (previousVersion) { // no need to generate additional items
+            return [this.createHistoryItemFromVersion(version,
+                this.getRegularVersionItemStatus(version, previousVersion), version.getTimestamp())];
+        }
+
+        if (this.isCreatedVersion(version)) { // no need to generate additional items
+            return [this.createHistoryItemFromVersion(version, VersionItemStatus.CREATED,
+                this.content.getContentSummary().getCreatedTime())];
+        }
+
+        // last version and it's timestamp is not close to the content creation time -> making a synthetic item for the content creation
+        return [this.createHistoryItemFromVersion(version, VersionItemStatus.EDITED, version.getTimestamp()),
+            this.makeCreatedVersionHistoryItem(version)];
+    }
+
     private getPublishVersionItemStatus(version: ContentVersion): VersionItemStatus {
         const publishInfo: ContentVersionPublishInfo = version.getPublishInfo();
 
@@ -130,71 +173,20 @@ export class ContentVersionsConverter {
         return VersionItemStatus.EDITED;
     }
 
-    private isRepublished(version: ContentVersion, index: number): boolean {
-        if (!version.isPublished()) {
-            return false;
-        }
-
-        const publishedFrom: string = DateHelper.formatDateTime(version.getPublishInfo().getPublishedFrom());
-
-        return this.filteredVersions.some((v: ContentVersion, i: number) => {
-            if (i <= index || !v.isPublished()) {
-                return false;
-            }
-
-            const vPublishedFrom: string = DateHelper.formatDateTime(v.getPublishInfo().getPublishedFrom());
-            return publishedFrom === vPublishedFrom;
-        });
-    }
-
-    private createHistoryItemFromVersion(version: ContentVersion): VersionHistoryItem {
-        const timestampAsString: string = this.getVersionTimestampAsString(version);
-        const isFirstVersion: boolean = version === this.getFirstVersion();
-        const timestamp: Date = isFirstVersion ? this.content.getContentSummary().getCreatedTime() : version.getTimestamp();
-        const status: VersionItemStatus = this.getRegularVersionItemStatus(version);
-
-        const item: VersionHistoryItem = new VersionHistoryItemBuilder()
-            .setStatus(status)
-            .setDateTime(timestamp)
-            .setVersion(version)
-            .setUser(version.getModifierDisplayName() || version.getModifier())
-            .setSkipDate(timestampAsString === this.lastDate)
-            .setContentId(this.content.getContentId())
-            .build();
-
-        this.lastDate = timestampAsString;
-
-        return item;
-    }
-
-    private getVersionTimestampAsString(version: ContentVersion): string {
-        const isFirstVersion: boolean = version === this.getFirstVersion();
-        const timestamp: Date = isFirstVersion ? this.content.getContentSummary().getCreatedTime() : version.getTimestamp();
-        return DateHelper.formatDate(timestamp);
-    }
-
-    private getFirstVersion(): ContentVersion {
-        return this.filteredVersions.slice().pop();
-    }
-
-    private getRegularVersionItemStatus(version: ContentVersion): VersionItemStatus {
-        const isFirstVersion: boolean = version === this.getFirstVersion();
-
-        if (isFirstVersion) {
+    private getRegularVersionItemStatus(version: ContentVersion, previousVersion?: ContentVersion): VersionItemStatus {
+        if (!previousVersion) {
             return VersionItemStatus.CREATED;
         }
 
-        const previousVersion: ContentVersion = this.getPreviousVersion(version);
-        const isSort: boolean = !ObjectHelper.equals(version.getChildOrder(), previousVersion?.getChildOrder());
+        const isSort: boolean = !ObjectHelper.equals(version.getChildOrder(), previousVersion.getChildOrder());
 
         if (isSort) {
             return VersionItemStatus.SORTED;
         }
 
-        const isNonDataChange: boolean = !isFirstVersion &&
-                                         !ContentVersion.equalDates(version.getTimestamp(), version.getModified(), 200);
+        const isNonDataChange: boolean = !ContentVersion.equalDates(version.getTimestamp(), version.getModified(), 200);
 
-        if ((isNonDataChange || previousVersion?.hasPublishInfo()) && this.isPathChanged(version, previousVersion)) {
+        if ((isNonDataChange || previousVersion.hasPublishInfo()) && this.isPathChanged(version, previousVersion)) {
             return this.getMoveOrRenameStatus(version, previousVersion);
         }
 
@@ -211,21 +203,6 @@ export class ContentVersionsConverter {
         return VersionItemStatus.EDITED;
     }
 
-    private getPreviousVersion(version: ContentVersion): ContentVersion {
-        let previousVersion: ContentVersion = null;
-
-        this.filteredVersions.some((v: ContentVersion, index: number) => {
-            if (version === v) {
-                previousVersion = this.filteredVersions[index + 1];
-                return true;
-            }
-
-            return false;
-        });
-
-        return previousVersion;
-    }
-
     private isPathChanged(version: ContentVersion, previousVersion: ContentVersion): boolean {
         if (!previousVersion) {
             return false;
@@ -235,8 +212,8 @@ export class ContentVersionsConverter {
     }
 
     private getMoveOrRenameStatus(version: ContentVersion, previousVersion: ContentVersion): VersionItemStatus {
-        const path: ContentPath = ContentPath.create().fromString(version.getPath()).build();
-        const previousPath: ContentPath = ContentPath.create().fromString(previousVersion.getPath()).build();
+        const path = ContentPath.create().fromString(version.getPath()).build();
+        const previousPath = ContentPath.create().fromString(previousVersion.getPath()).build();
 
         if (path.getParentPath()?.equals(previousPath.getParentPath())) {
             return VersionItemStatus.RENAMED;
@@ -252,6 +229,24 @@ export class ContentVersionsConverter {
 
         return previousVersion.isInheritPermissions() !== version.isInheritPermissions() ||
                !previousVersion.getPermissions().equals(version.getPermissions());
+    }
+
+    private isSameVersionForDraftAndMaster(publishedVersion: ContentVersion, previousVersion?: ContentVersion): boolean {
+        const publishInfo: ContentVersionPublishInfo = publishedVersion.getPublishInfo();
+
+        if (publishInfo?.isPublished() || publishInfo?.isScheduled()) {
+            return previousVersion?.hasPublishInfo() || publishedVersion.getTimestamp().getTime() -
+                   publishedVersion.getModified().getTime() < ContentVersionsConverter.FILTER_STEP_MS;
+        }
+
+        return false;
+    }
+
+    private makeCreatedVersionHistoryItem(version: ContentVersion): VersionHistoryItem {
+        const virtualCreatedVersion = version.newBuilder();
+        virtualCreatedVersion.id = 'generated-created';
+        return this.createHistoryItemFromVersion(virtualCreatedVersion.build(), VersionItemStatus.CREATED,
+            this.content.getContentSummary().getCreatedTime(), true);
     }
 
     static create(): Builder {
