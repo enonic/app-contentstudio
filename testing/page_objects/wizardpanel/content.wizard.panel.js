@@ -6,7 +6,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentStepForm = require('./content.wizard.step.form');
 const ContextWindow = require('./liveform/liveform.context.window');
-const DetailsPanel = require('./details/wizard.context.panel');
+const WizardContextPanel = require('./details/wizard.context.panel');
 const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const VersionsWidget = require('./details/wizard.versions.widget');
@@ -210,12 +210,12 @@ class ContentWizardPanel extends Page {
 
     // opens 'Details Panel' if it is not loaded
     async openDetailsPanel() {
-        let detailsPanel = new DetailsPanel();
+        let wizardContextWindow = new WizardContextPanel();
         try {
-            let result = await detailsPanel.isDetailsPanelLoaded();
+            let result = await wizardContextWindow.isOpened();
             if (!result) {
                 await this.clickOnDetailsPanelToggleButton();
-                return await detailsPanel.isDetailsPanelLoaded();
+                return await wizardContextWindow.isOpened();
             } else {
                 console.log('Content wizard is opened and Details Panel is loaded');
             }
@@ -235,18 +235,18 @@ class ContentWizardPanel extends Page {
 
     async openVersionsHistoryPanel() {
         try {
-            let wizardDetailsPanel = new DetailsPanel();
+            let wizardContextWindow = new WizardContextPanel();
             let versionPanel = new VersionsWidget();
             await this.openDetailsPanel();
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextWindow.openVersionHistory();
             await versionPanel.waitForVersionsLoaded();
             return await this.pause(200);
         } catch (err) {
             //Workaround for issue with empty selector:
             await this.refresh();
             await this.pause(4000);
-            let wizardDetailsPanel = new DetailsPanel();
-            await wizardDetailsPanel.openVersionHistory();
+            let wizardContextWindow = new WizardContextPanel();
+            await wizardContextWindow.openVersionHistory();
             let versionPanel = new VersionsWidget();
             return await versionPanel.waitForVersionsLoaded();
         }
@@ -254,18 +254,18 @@ class ContentWizardPanel extends Page {
 
     async openDependenciesWidget() {
         try {
-            let wizardDetailsPanel = new DetailsPanel();
+            let wizardContextWindow = new WizardContextPanel();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
             await this.openDetailsPanel();
-            await wizardDetailsPanel.openDependencies();
+            await wizardContextWindow.openDependencies();
             return await wizardDependenciesWidget.waitForWidgetLoaded();
         } catch (err) {
             // Workaround for issue with empty selector:
             await this.refresh();
             await this.pause(4000);
             let wizardDependenciesWidget = new WizardDependenciesWidget();
-            let wizardDetailsPanel = new DetailsPanel();
-            await wizardDetailsPanel.openDependencies();
+            let wizardContextWindow = new WizardContextPanel();
+            await wizardContextWindow.openDependencies();
             return await wizardDependenciesWidget.waitForWidgetLoaded();
         }
     }
@@ -670,7 +670,12 @@ class ContentWizardPanel extends Page {
                 await contentStepForm.type(content.data, content.contentType);
             }
             if (content.settings != null) {
-                await this.typeSettings(content.settings);
+                let wizardContextPanel = new WizardContextPanel();
+                let option = await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
+                if (option !== 'Details') {
+                    await this.openDetailsWidget();
+                    await this.typeSettings(content.settings);
+                }
             }
             return await this.pause(300);
         } catch (err) {
@@ -1022,9 +1027,12 @@ class ContentWizardPanel extends Page {
     }
 
     async openDetailsWidget() {
-        let detailsPanel = new DetailsPanel();
+        let wizardContextWindow = new WizardContextPanel();
         await this.openDetailsPanel();
-        await detailsPanel.openDetailsWidget();
+        let option = await wizardContextWindow.getSelectedOptionInWidgetSelectorDropdown();
+        if (option !== 'Details') {
+            await wizardContextWindow.openDetailsWidget();
+        }
     }
 
     async waitForResetButtonDisplayed() {
@@ -1179,6 +1187,17 @@ class ContentWizardPanel extends Page {
         let locator = '//h3';
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
+    }
+
+    async getSelectedWidgetInContextWindow() {
+        try {
+            let wizardContextPanel = new WizardContextPanel();
+            await wizardContextPanel.waitForContextWindowVisible();
+            return await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_selected_widget');
+            throw new Error(`Error when trying to get selected widget in Context Window, screenshot: ${screenshot} ` + err);
+        }
     }
 }
 
