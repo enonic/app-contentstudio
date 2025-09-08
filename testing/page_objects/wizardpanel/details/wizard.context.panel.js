@@ -38,7 +38,7 @@ class WizardContextPanel extends BaseContextWindowPanel {
         }
     }
 
-    isDetailsPanelLoaded() {
+    isOpened() {
         return this.getBrowser().waitUntil(() => {
             return this.findElement(xpath.container).then(el => {
                 return this.getBrowser().getElementCSSValue(el.elementId, 'width');
@@ -67,7 +67,7 @@ class WizardContextPanel extends BaseContextWindowPanel {
     async openDependencies() {
         try {
             await super.openDependencies();
-            await this.pause(1000);
+            await this.pause(700);
         } catch (err) {
             //Workaround for issue with the empty selector:
             await this.saveScreenshotUniqueName('err_dependencies');
