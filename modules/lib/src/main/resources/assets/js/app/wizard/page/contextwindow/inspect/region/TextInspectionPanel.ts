@@ -2,6 +2,7 @@ import Q from 'q';
 import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
+import {BeforeContentSavedEvent} from '../../../../../event/BeforeContentSavedEvent';
 import {ContentRequiresSaveEvent} from '../../../../../event/ContentRequiresSaveEvent';
 import {TextComponent} from '../../../../../page/region/TextComponent';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
@@ -9,7 +10,7 @@ import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {TextComponentType} from '../../../../../page/region/TextComponentType';
 import {ComponentInspectionPanel} from './ComponentInspectionPanel';
-import {HtmlEditor} from '../../../../../inputtype/ui/text/HtmlEditor';
+import {HtmlEditor, HtmlEditorCursorPosition} from '../../../../../inputtype/ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../../../../../inputtype/ui/text/HtmlEditorParams';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
@@ -34,6 +35,10 @@ export class TextInspectionPanel
     private htmlEditor: HtmlEditor;
 
     private modelSetListeners: (() => void)[] = [];
+
+    private cursorPosition: HtmlEditorCursorPosition;
+
+    private isFocused: boolean;
 
     constructor() {
         super({
@@ -61,6 +66,12 @@ export class TextInspectionPanel
                     this.initPageEventsListeners();
                 }).catch(DefaultErrorHandler.handle);
             });
+        });
+
+        BeforeContentSavedEvent.on(() => {
+           if (this.isFocused) {
+                this.cursorPosition = this.htmlEditor.getCursorPosition();
+           }
         });
     }
 
@@ -104,18 +115,25 @@ export class TextInspectionPanel
     }
 
     private initHtmlEditor(editorId: string): Q.Promise<HtmlEditor> {
-        let isFocused = false;
+        this.isFocused = false;
 
         const focusHandler = () => {
-            isFocused = true;
+            this.isFocused = true;
         };
 
         const blurHandler = () => {
-            isFocused = false;
+            this.isFocused = false;
+
+            if (this.cursorPosition) {
+                this.htmlEditor.focus();
+                this.htmlEditor.setSelectionByCursorPosition(this.cursorPosition);
+            }
+
+            this.cursorPosition = null;
         };
 
         const editorValueChangedHandler = () => {
-            if (isFocused) {
+            if (this.isFocused) {
                 PageEventsManager.get().notifyTextComponentUpdateRequested(this.component.getPath(), this.getEditorContent(), 'inspector');
             }
         };
