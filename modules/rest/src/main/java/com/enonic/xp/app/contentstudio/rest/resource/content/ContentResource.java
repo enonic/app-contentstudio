@@ -68,6 +68,7 @@ import com.enonic.xp.app.contentstudio.rest.LimitingInputStream;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.AbstractContentQueryResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ApplyContentPermissionsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.BatchContentJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ChildOrderJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.CompareContentsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentIdsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentIdsPermissionsJson;
@@ -158,12 +159,11 @@ import com.enonic.xp.content.GetPublishStatusesParams;
 import com.enonic.xp.content.GetPublishStatusesResult;
 import com.enonic.xp.content.HasUnpublishedChildrenParams;
 import com.enonic.xp.content.RenameContentParams;
-import com.enonic.xp.content.ReorderChildContentsParams;
-import com.enonic.xp.content.ReorderChildContentsResult;
-import com.enonic.xp.content.ReorderChildParams;
+import com.enonic.xp.content.ReorderChildContentParams;
 import com.enonic.xp.content.ResolvePublishDependenciesParams;
 import com.enonic.xp.content.ResolveRequiredDependenciesParams;
-import com.enonic.xp.content.SetContentChildOrderParams;
+import com.enonic.xp.content.SortContentParams;
+import com.enonic.xp.content.SortContentResult;
 import com.enonic.xp.content.SyncContentService;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.content.UpdateMediaParams;
@@ -820,10 +820,10 @@ public final class ContentResource
     @Path("setChildOrder")
     public ContentJson setChildOrder( final SetChildOrderJson params, @Context HttpServletRequest request )
     {
-        final Content updatedContent = this.contentService.setChildOrder( SetContentChildOrderParams.create()
+        final Content updatedContent = this.contentService.sort( SortContentParams.create()
                                                                               .childOrder( params.getChildOrder().getChildOrder() )
                                                                               .contentId( ContentId.from( params.getContentId() ) )
-                                                                              .build() );
+                                                                              .build() ).getContent();
         return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
 
@@ -831,50 +831,21 @@ public final class ContentResource
     @Path("reorderChildren")
     public ReorderChildrenResultJson reorderChildContents( final ReorderChildrenJson params )
     {
-        Content content = this.contentService.getById( ContentId.from( params.getContentId() ) );
-
-        //If a initial sort is required before the manual reordering
-        if ( params.getChildOrder() != null && !params.getChildOrder().getChildOrder().equals( content.getChildOrder() ) )
-        {
-            content = this.contentService.setChildOrder( SetContentChildOrderParams.create()
-                                                             .childOrder( params.getChildOrder().getChildOrder() )
-                                                             .contentId( ContentId.from( params.getContentId() ) )
-                                                             .build() );
-        }
-
-        //If the content is not already manually ordered, sets it to manually ordered
-        if ( !content.getChildOrder().isManualOrder() )
-        {
-            if ( params.isManualOrder() )
-            {
-
-                this.contentService.setChildOrder( SetContentChildOrderParams.create()
-                                                       .childOrder( ChildOrder.manualOrder() )
-                                                       .contentId( ContentId.from( params.getContentId() ) )
-                                                       .build() );
-            }
-            else
-            {
-                throw new WebApplicationException(
-                    String.format( "Not allowed to reorder children manually, current parentOrder = [%s].", content.getChildOrder() ),
-                    Response.Status.BAD_REQUEST );
-            }
-        }
-
-        //Applies the manual movements
-        final ReorderChildContentsParams.Builder builder =
-            ReorderChildContentsParams.create().contentId( ContentId.from( params.getContentId() ) );
+        final ChildOrderJson childOrder = params.getChildOrder();
+        final SortContentParams.Builder builder = SortContentParams.create()
+            .childOrder( ChildOrder.manualOrder() )
+            .manualOrderSeed( childOrder == null ? null : childOrder.getChildOrder() )
+            .contentId( ContentId.from( params.getContentId() ) );
+        final SortContentResult result = this.contentService.sort( builder.build() );
 
         for ( final ReorderChildJson reorderChildJson : params.getReorderChildren() )
         {
             final String moveBefore = reorderChildJson.getMoveBefore();
-            builder.add( ReorderChildParams.create()
-                             .contentToMove( ContentId.from( reorderChildJson.getContentId() ) )
-                             .contentToMoveBefore( nullToEmpty( moveBefore ).isBlank() ? null : ContentId.from( moveBefore ) )
-                             .build() );
+            builder.addManualOrder( ReorderChildContentParams.create()
+                                        .contentToMove( ContentId.from( reorderChildJson.getContentId() ) )
+                                        .contentToMoveBefore( nullToEmpty( moveBefore ).isBlank() ? null : ContentId.from( moveBefore ) )
+                                        .build() );
         }
-
-        final ReorderChildContentsResult result = this.contentService.reorderChildren( builder.build() );
 
         return new ReorderChildrenResultJson( result );
     }
@@ -1608,10 +1579,8 @@ public final class ContentResource
 
         if ( !currentContent.getChildOrder().equals( versionedContent.getChildOrder() ) )
         {
-            contentService.setChildOrder( SetContentChildOrderParams.create()
-                                              .contentId( currentContent.getId() )
-                                              .childOrder( versionedContent.getChildOrder() )
-                                              .build() );
+            contentService.sort(
+                SortContentParams.create().contentId( currentContent.getId() ).childOrder( versionedContent.getChildOrder() ).build() );
         }
 
         final Content revertedContent = contentService.update( prepareUpdateContentParams( versionedContent, contentVersionId ) );

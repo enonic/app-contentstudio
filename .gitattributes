@@ -1,0 +1,5 @@
+gradlew eol=lf
+*.sh eol=lf
+*.bat eol=crlf
+
+**/pnpm-lock.yaml eol=lf
