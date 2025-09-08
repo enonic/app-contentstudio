@@ -1,34 +1,44 @@
 import {RenderingMode} from '../rendering/RenderingMode';
 import {WidgetRenderingHandler, WidgetRenderer, PREVIEW_TYPE} from '../view/WidgetRenderingHandler';
-import {LiveEditPagePlaceholder} from './page/LiveEditPagePlaceholder';
-import {Content} from '../content/Content';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {ContentType} from '../inputtype/schema/ContentType';
 import {ContentSummary} from '../content/ContentSummary';
 import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
+import {PageNavigationMediator} from './PageNavigationMediator';
+import {PageNavigationEvent} from './PageNavigationEvent';
+import {PageNavigationEventType} from './PageNavigationEventType';
+import {PageNavigationEventData} from './PageNavigationEventData';
+import {ComponentPath} from '../page/region/ComponentPath';
 
 export class WizardWidgetRenderingHandler
     extends WidgetRenderingHandler {
 
-    private placeholderView: LiveEditPagePlaceholder;
+    private placeholderView: DivEl;
+    private pageSettingsLink: AEl;
     private enabled: boolean;
     private hasControllersDeferred: Q.Deferred<boolean>;
     private hasPageDeferred: Q.Deferred<boolean>;
 
-    constructor(renderer: WidgetRenderer, content: Content, contentType: ContentType) {
+    constructor(renderer: WidgetRenderer) {
         super(renderer);
         this.mode = RenderingMode.EDIT;
-
-        this.placeholderView.setContentType(contentType);
-        this.placeholderView.setContentId(content.getContentId());
     }
 
     protected createEmptyView(): DivEl {
-        this.placeholderView = new LiveEditPagePlaceholder();
-        this.placeholderView.setEnabled(this.enabled);
-        this.placeholderView.addClass('no-selection-message');
+        this.placeholderView = super.createMessageView(this.getDefaultMessage(), 'no-selection-message');
+
+        this.pageSettingsLink = new AEl('page-settings-link');
+        this.pageSettingsLink.setHtml(i18n('action.pageSettings.open'));
+        this.pageSettingsLink.onClicked((e) => {
+            PageNavigationMediator.get().notify(
+                new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(ComponentPath.root())));
+        })
+        this.setEnabled(this.enabled);
+
+        this.placeholderView.appendChild(this.pageSettingsLink);
+
         return this.placeholderView;
     }
 
@@ -51,7 +61,7 @@ export class WizardWidgetRenderingHandler
 
     protected handlePreviewFailure(response?: Response, data?: Record<string, never>) {
         if (data?.hasControllers && !data.hasPage) {
-            // special handling for site engine to show controller dropdown
+            // special handling for site engine to link to page settings
             super.setPreviewType(PREVIEW_TYPE.EMPTY);
             this.hideMask();
         } else {
@@ -64,16 +74,12 @@ export class WizardWidgetRenderingHandler
     }
 
     public reset() {
-        this.placeholderView?.deselectOptions();
-    }
-
-    public refreshPlaceholder() {
-        this.placeholderView?.setReloadNeeded();
+        // this.placeholderView?.deselectOptions();
     }
 
     public setEnabled(enabled: boolean) {
         this.enabled = enabled;
-        this.placeholderView?.setEnabled(enabled);
+        this.pageSettingsLink.setVisible(enabled);
     }
 
     public hasControllers(): Q.Promise<boolean> {
