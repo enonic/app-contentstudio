@@ -754,15 +754,12 @@ export class LiveFormPanel
     }
 
     private inspectPage(params: InspectPageParams): void {
-        const unlocked = !this.liveEditPageProxy?.isLocked();
-        const canShowWidget = unlocked && params.showWidget;
-        const canShowPanel = unlocked && params.showPanel;
         const pagePanel = this.availableInspectPanels.get('page') as PageInspectionPanel;
         this.contextWindow?.showInspectionPanel(
             getInspectParameters({
                 panel: pagePanel,
-                showWidget: canShowWidget,
-                showPanel: canShowPanel,
+                showWidget: params.showWidget,
+                showPanel: params.showPanel,
                 source: params.source,
                 keepPanelSelection: params.keepPanelSelection
             })
