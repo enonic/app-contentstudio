@@ -32,7 +32,7 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 const DateTimeRange = require('../page_objects/components/datetime.range');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
-const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.panel');
 const fs = require('fs');
 const path = require('path');
 const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
@@ -41,6 +41,7 @@ const EditSettingDialog = require('../page_objects/details_panel/edit.settings.d
 const EditScheduleDialog = require('../page_objects/details_panel/edit.schedule.dialog');
 const InsertLinkDialogContentPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
 const InsertLinkDialogUrlPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
+const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 module.exports = {
 
@@ -344,13 +345,13 @@ module.exports = {
     },
     async doAddSite(site, noControllers) {
         let contentWizardPanel = new ContentWizardPanel();
+        let pageInspectionPanel = new PageInspectionPanel();
         // 1. Open new site-wizard:
         await this.openContentWizard(appConst.contentTypes.SITE);
         await contentWizardPanel.typeData(site);
         // 2. Type the data and save:
         if (site.data.controller) {
-            //await contentWizardPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
-            await contentWizardPanel.selectPageDescriptor(site.data.controller);
+            await pageInspectionPanel.selectPageTemplateOrController(site.data.controller);
         }
         if (noControllers) {
             await contentWizardPanel.waitAndClickOnSave();
@@ -1120,9 +1121,9 @@ module.exports = {
     async openWizardDependencyWidget() {
         let contentWizard = new ContentWizardPanel();
         let wizardDependenciesWidget = new WizardDependenciesWidget();
-        let wizardDetailsPanel = new WizardDetailsPanel();
+        let wizardContextWindow = new WizardContextPanel();
         await contentWizard.openDetailsPanel();
-        await wizardDetailsPanel.openDependencies();
+        await wizardContextWindow.openDependencies();
         await wizardDependenciesWidget.waitForWidgetLoaded();
         return wizardDependenciesWidget;
     },
