@@ -44,8 +44,9 @@ exports.canRender = function (req) {
     try {
         const params = widgetLib.validateParams(req.params);
 
-        const canRender = params.mode !== 'edit' &&
-                          __.toNativeObject(bean.canRender(params.id, params.repository, params.branch, params.archive));
+        // don't show images preview in edit mode, because image editor is part of the form
+        const canRender = __.toNativeObject(
+            bean.canRender(params.id, params.repository, params.branch, params.archive, params.mode === 'edit'));
 
         log.debug(`Media [CAN_RENDER]: ${canRender}`);
 
