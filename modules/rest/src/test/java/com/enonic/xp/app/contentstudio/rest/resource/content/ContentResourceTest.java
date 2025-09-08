@@ -54,7 +54,6 @@ import com.enonic.xp.app.contentstudio.json.content.ContentVersionViewJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentsExistByPathJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentsExistJson;
 import com.enonic.xp.app.contentstudio.json.content.GetActiveContentVersionsResultJson;
-import com.enonic.xp.app.contentstudio.json.content.GetContentVersionsForViewResultJson;
 import com.enonic.xp.app.contentstudio.json.content.GetContentVersionsResultJson;
 import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentJson;
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
@@ -2276,51 +2275,6 @@ public class ContentResourceTest
         assertContentVersionJsonsEquality( new ContentVersionJson( contentVersion, contentPrincipalsResolver ),
                                            ( (ActiveContentVersionEntryJson) result.getActiveContentVersions()
                                                .toArray()[0] ).getContentVersion() );
-    }
-
-    @Test
-    public void getContentVersionsForView()
-    {
-        ContentResource contentResource = getResourceInstance();
-
-        Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
-        ContentVersion contentVersion = ContentVersion.create()
-            .id( ContentVersionId.from( "a" ) )
-            .modified( Instant.now() )
-            .modifier( PrincipalKey.ofAnonymous() )
-            .publishInfo( ContentVersionPublishInfo.create()
-                              .message( "My version" )
-                              .publisher( PrincipalKey.ofAnonymous() )
-                              .timestamp( Instant.ofEpochSecond( 1562056003L ) )
-                              .build() )
-            .build();
-
-        Mockito.when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) ).thenReturn( (Optional) Optional.of( User.ANONYMOUS ) );
-
-        FindContentVersionsParams params = FindContentVersionsParams.create().contentId( content.getId() ).from( 0 ).size( 10 ).build();
-        FindContentVersionsResult getVersionsResult = FindContentVersionsResult.create()
-            .contentVersions( ContentVersions.create().contentId( content.getId() ).add( contentVersion ).build() )
-            .build();
-
-        final ContentPrincipalsResolver contentPrincipalsResolver = new ContentPrincipalsResolver( securityService );
-        Mockito.when( securityService.getUser( PrincipalKey.ofAnonymous() ) ).thenReturn( Optional.of( User.ANONYMOUS ) );
-
-        Mockito.when( contentService.getVersions( params ) ).thenReturn( getVersionsResult );
-
-        Mockito.when( contentService.getActiveVersions( Mockito.any( GetActiveContentVersionsParams.class ) ) )
-            .thenReturn( GetActiveContentVersionsResult.create()
-                             .add( ActiveContentVersionEntry.from( ContentConstants.BRANCH_DRAFT, contentVersion ) )
-                             .build() );
-
-        GetContentVersionsForViewResultJson result =
-            contentResource.getContentVersionsForView( new GetContentVersionsJson( 0, 10, content.getId().toString() ) );
-
-        assertContentVersionJsonsEquality( new ContentVersionJson( contentVersion, contentPrincipalsResolver ),
-                                           result.getActiveVersion().getContentVersion() );
-        assertContentVersionViewJsonsEquality( new ContentVersionViewJson( contentVersion, contentPrincipalsResolver,
-                                                                           Collections.singletonList(
-                                                                               ContentConstants.BRANCH_DRAFT.toString() ) ),
-                                               (ContentVersionViewJson) result.getContentVersions().toArray()[0] );
     }
 
     @Test

@@ -17,6 +17,7 @@ import {InspectEvent} from '../../event/InspectEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
 import {ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
+import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 import {ShowLiveEditEvent} from '../../wizard/ShowLiveEditEvent';
 import {ShowSplitEditEvent} from '../../wizard/ShowSplitEditEvent';
 import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
@@ -30,12 +31,10 @@ import {StatusWidgetItemView} from './widget/details/StatusWidgetItemView';
 import {EmulatorDevice} from './widget/emulator/EmulatorDevice';
 import {EmulatorWidgetItemView} from './widget/emulator/EmulatorWidgetItemView';
 import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
-import {VersionContext} from './widget/version/VersionContext';
 import {VersionHistoryView} from './widget/version/VersionHistoryView';
 import {WidgetItemView} from './WidgetItemView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {InternalWidgetType, WidgetView} from './WidgetView';
-import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 
 export class ContextView
     extends DivEl {
@@ -98,12 +97,6 @@ export class ContextView
         const handleApplicationEvents = (e) => this.handleApplicationEvents(e);
         ApplicationEvent.on(handleApplicationEvents);
         this.onRemoved(() => ApplicationEvent.un(handleApplicationEvents));
-
-        VersionContext.onActiveVersionChanged((contentId: string, version: string) => {
-            if (this.item?.getId() === contentId && this.isVisible() && this.activeWidget === this.versionsWidgetView) {
-                this.updateActiveWidget();
-            }
-        });
 
         const createPageEditorVisibilityChangedHandler = (visible: boolean) => () => {
             this.updateSelectedWidget();
