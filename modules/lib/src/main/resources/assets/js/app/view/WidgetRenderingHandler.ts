@@ -123,7 +123,7 @@ export class WidgetRenderingHandler {
         return this.createMessageView(this.getDefaultMessage(), 'no-preview-message');
     }
 
-    private createMessageView(message: string, className?: string): DivEl {
+    protected createMessageView(message: string, className?: string): DivEl {
         const previewText: SpanEl = new SpanEl();
         previewText.setHtml(message);
         const previewMessage = new DivEl(className);
