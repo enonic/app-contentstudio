@@ -10,6 +10,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import Q from 'q';
+import {ProjectContext} from '../../project/ProjectContext';
 
 export class FilterableBucketAggregationView
     extends BucketAggregationView {
@@ -53,6 +54,10 @@ export class FilterableBucketAggregationView
 
     protected initListeners(): void {
         super.initListeners();
+
+        ProjectContext.get().onProjectChanged(() => {
+            this.aggregationResolved = false;
+        });
 
         this.listBoxDropdown.onSelectionChanged((bucketSelection: SelectionChange<Bucket>) => {
             bucketSelection.selected.forEach((item: Bucket) => {
