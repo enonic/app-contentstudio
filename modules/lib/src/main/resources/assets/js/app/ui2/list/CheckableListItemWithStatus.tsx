@@ -17,7 +17,7 @@ const CheckableListItemWithStatusComponent = ({content, ...props}: Props): JSX.E
     const url = content.getContentSummary().getIconUrl();
 
     const Icon = useMemo(
-        () => <ContentIcon contentType={contentType} url={url} size={24} />,
+        () => <ContentIcon contentType={contentType} url={url} size={24}/>,
         [contentType, url],
     );
 

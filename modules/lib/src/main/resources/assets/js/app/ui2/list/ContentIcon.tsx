@@ -53,7 +53,7 @@ const CONTENT_TYPE_ICON_MAP = new Map<string, LucideIcon>([
 
 const BuiltInIcon = ({contentType, size}: BuiltInIconProps): JSX.Element => {
     const Icon = CONTENT_TYPE_ICON_MAP.get(contentType) ?? FileIcon;
-    return <Icon size={size} />;
+    return <Icon size={size}/>;
 };
 
 export const ContentIcon = ({
@@ -62,7 +62,7 @@ export const ContentIcon = ({
     size = 64,
     crop,
 }: Props): JSX.Element => {
-    const src = url ? createImageUrl(url, {size, crop}) : undefined;
+    const src = url ? createImageUrl(url, {size: size * 2, crop}) : undefined;
 
     const [isImageBroken, setImageBroken] = useState(false);
 
@@ -78,14 +78,16 @@ export const ContentIcon = ({
     if (canShowImage && src) {
         // 2x size for better quality
         return <Image
-            className={isImageType ? 'object-fill' : 'object-contain'}
-            width={size * 2}
-            height={size * 2}
+            // TODO: Uncomment when Tailwind is ready
+            // className={isImageType ? 'object-cover' : 'object-contain'}
+            className={isImageType && 'coverContentIcon'}
+            width={size}
+            height={size}
             alt={contentType}
             src={src}
             onError={() => setImageBroken(true)}
         />;
     }
 
-    return <BuiltInIcon contentType={contentType} size={size} />;
+    return <BuiltInIcon contentType={contentType} size={size}/>;
 };
