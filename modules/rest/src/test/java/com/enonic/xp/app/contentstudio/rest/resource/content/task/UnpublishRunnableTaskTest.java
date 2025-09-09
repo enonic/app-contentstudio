@@ -74,7 +74,7 @@ public class UnpublishRunnableTaskTest
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( contents ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
             .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.from( ids ) ).build() );
-        Mockito.when( contentService.unpublishContent( Mockito.isA( UnpublishContentParams.class ) ) ).thenReturn( result );
+        Mockito.when( contentService.unpublish( Mockito.isA( UnpublishContentParams.class ) ) ).thenReturn( result );
         Mockito.when( contentService.compare( Mockito.isA( CompareContentsParams.class ) ) ).
             thenReturn(
                 CompareContentResults.create().add( new CompareContentResult( CompareStatus.EQUAL, ContentId.from( "id4" ) ) ).build() );
@@ -108,7 +108,7 @@ public class UnpublishRunnableTaskTest
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( contents ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
             .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.from( ids ) ).build() );
-        Mockito.when( contentService.unpublishContent( Mockito.isA( UnpublishContentParams.class ) ) ).thenReturn( result );
+        Mockito.when( contentService.unpublish( Mockito.isA( UnpublishContentParams.class ) ) ).thenReturn( result );
         Mockito.when( contentService.compare( Mockito.isA( CompareContentsParams.class ) ) ).
             thenReturn( CompareContentResults.create().build() );
 
@@ -133,7 +133,7 @@ public class UnpublishRunnableTaskTest
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( contents ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
             .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.from( ids ) ).build() );
-        Mockito.when( contentService.unpublishContent( Mockito.isA( UnpublishContentParams.class ) ) ).thenReturn( result );
+        Mockito.when( contentService.unpublish( Mockito.isA( UnpublishContentParams.class ) ) ).thenReturn( result );
         Mockito.when( contentService.compare( Mockito.isA( CompareContentsParams.class ) ) ).
             thenReturn( CompareContentResults.create().build() );
 

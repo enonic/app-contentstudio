@@ -60,7 +60,7 @@ public class UnpublishRunnableTask
 
         try
         {
-            final UnpublishContentsResult result = this.contentService.unpublishContent( UnpublishContentParams.create().
+            final UnpublishContentsResult result = this.contentService.unpublish( UnpublishContentParams.create().
                 contentIds( contentIds ).
                 pushListener( listener ).
                 build() );
