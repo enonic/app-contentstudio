@@ -6,15 +6,31 @@ import {ContentId} from '../content/ContentId';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {ArchiveCheckableItem} from './ArchiveCheckableItem';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import Q from 'q';
-import {ArchiveSelectableItem} from './ArchiveSelectableItem';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
 import {DialogWithRefsDependantList} from '../remove/DialogWithRefsDependantList';
 import {DialogWithRefsItemList, DialogWithRefsItemListConfig} from '../remove/DialogWithRefsItemList';
+
+
+
+interface InboundAwareView {
+    setHasInbound: (b: boolean) => void;
+    getItem: () => ContentSummaryAndCompareStatus;
+}
+
+function isInboundAwareViewOf<T>(v: T): v is T & InboundAwareView {
+    if (v === null || typeof v !== 'object') return false;
+
+    const m = v as Partial<InboundAwareView>;
+    return typeof m.setHasInbound === 'function'
+           && typeof m.getItem === 'function';
+}
+
+
+
 
 export abstract class DependantItemsWithReferencesDialog extends DependantItemsWithProgressDialog {
 
@@ -42,11 +58,17 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
     protected initListeners(): void {
         super.initListeners();
 
-        const itemsAddedHandler = (items: ContentSummaryAndCompareStatus[], itemList: ListBox<ContentSummaryAndCompareStatus>) => {
-            if (this.resolveDependenciesResult) {
-                this.updateItemViewsWithInboundDependencies(items.map(item => itemList.getItemView(item) as ArchiveCheckableItem));
-            }
+        const itemsAddedHandler = (
+            items: ContentSummaryAndCompareStatus[],
+            itemList: ListBox<ContentSummaryAndCompareStatus>
+        ) => {
+            if (!this.resolveDependenciesResult) return;
+
+            const rawViews = items.map(item => itemList.getItemView(item));        // Element[]
+            const inboundAware = rawViews.filter(isInboundAwareViewOf);            // (Element & InboundAwareView)[]
+            this.updateItemViewsWithInboundDependencies(inboundAware);             // OK (assignable to InboundAwareView[])
         };
+
 
         this.getItemList().onItemsAdded(items => itemsAddedHandler(items, this.getItemList()));
         this.getDependantList().onItemsAdded(items => itemsAddedHandler(items, this.getDependantList()));
@@ -59,15 +81,14 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         ContentServerEventsHandler.getInstance().onContentDeleted(handleRefsChange);
     }
 
-    private updateItemViewsWithInboundDependencies(itemViews: (ArchiveCheckableItem | ArchiveSelectableItem)[]) {
-        itemViews.forEach((itemView) => {
-            const hasInbound = this.hasInboundRef(itemView.getItem().getId());
-            itemView.setHasInbound(hasInbound);
-        });
+    private updateItemViewsWithInboundDependencies(views: readonly InboundAwareView[]): void {
+        for (const v of views) {
+            v.setHasInbound(this.hasInboundRef(v.getItem().getId()));
+        }
     }
 
     private hasInboundRef(id: string): boolean {
-        return this.resolveDependenciesResult?.hasInboundDependency(id);
+        return !!this.resolveDependenciesResult?.hasInboundDependency(id);
     }
 
     private handleRefsChange(items: ContentSummaryAndCompareStatus[] | ContentServerChangeItem[]): void {
@@ -116,8 +137,12 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
 
         if (hasInboundDeps || forceUpdate) {
-            const views = [...this.getItemList().getItemViews(), ...this.getDependantList().getItemViews()];
-            this.updateItemViewsWithInboundDependencies(views);
+            const rawViews = [
+                ...this.getItemList().getItemViews(),
+                ...this.getDependantList().getItemViews(),
+            ];
+            const inboundAware = rawViews.filter(isInboundAwareViewOf);
+            this.updateItemViewsWithInboundDependencies(inboundAware);
         }
     }
 
