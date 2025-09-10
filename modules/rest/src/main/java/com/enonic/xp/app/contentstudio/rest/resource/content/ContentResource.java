@@ -836,7 +836,6 @@ public final class ContentResource
             .childOrder( ChildOrder.manualOrder() )
             .manualOrderSeed( childOrder == null ? null : childOrder.getChildOrder() )
             .contentId( ContentId.from( params.getContentId() ) );
-        final SortContentResult result = this.contentService.sort( builder.build() );
 
         for ( final ReorderChildJson reorderChildJson : params.getReorderChildren() )
         {
@@ -846,6 +845,8 @@ public final class ContentResource
                                         .contentToMoveBefore( nullToEmpty( moveBefore ).isBlank() ? null : ContentId.from( moveBefore ) )
                                         .build() );
         }
+
+        final SortContentResult result = this.contentService.sort( builder.build() );
 
         return new ReorderChildrenResultJson( result );
     }
