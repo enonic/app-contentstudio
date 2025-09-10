@@ -4,7 +4,7 @@
   }
 
   .dependants-controls {
-    padding: 14px 10px 14px 10px;
+    padding: 14px 10px 0 10px;
 
     span {
       font-size: 16px;
@@ -12,9 +12,10 @@
     }
   }
 
-  .publish-dialog-dependant-list {
+  .dialog-dependant-items-list {
     display: grid;
-    row-gap: 10px;
+    row-gap: 5px;
+    margin-top: 14px
   }
 
   .contents {
@@ -31,4 +32,16 @@
     font-weight: 400;
   }
 
+}
+
+.show-ref {
+  font-size: 14px;
+  font-weight: 400;
+  text-decoration: underline;
+  background-color: transparent;
+  height: auto;
+
+  &:hover {
+    background-color: transparent;
+  }
 }
