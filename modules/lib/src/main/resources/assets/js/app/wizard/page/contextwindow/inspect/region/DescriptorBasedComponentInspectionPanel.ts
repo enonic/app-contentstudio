@@ -1,3 +1,4 @@
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import Q from 'q';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -165,9 +166,13 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     protected abstract getFormName(): string;
 
     private setSelectorValue(descriptor: Descriptor) {
-        clearTimeout(this.timeoutId);
-        this.selector.setDescriptor(descriptor);
-        this.setupComponentForm(descriptor);
+        if (!ObjectHelper.equals(descriptor, this.selector.getSelectedDescriptor())) {
+            clearTimeout(this.timeoutId);
+            this.selector.setDescriptor(descriptor);
+            this.setupComponentForm(descriptor);
+        } else {
+            this.notifyLayoutListeners(); // content is already selected, but we need to notify that layout is done
+        }
     }
 
     setComponent(component: COMPONENT): void {

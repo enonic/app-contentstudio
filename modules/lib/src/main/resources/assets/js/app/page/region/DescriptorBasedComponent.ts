@@ -1,13 +1,17 @@
+import {FormState} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {ComponentName} from './ComponentName';
-import {DescriptorBasedComponentJson} from './DescriptorBasedComponentJson';
-import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {DescriptorKey} from '../DescriptorKey';
+import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import Q from 'q';
 import {Descriptor} from '../Descriptor';
+import {DescriptorKey} from '../DescriptorKey';
 import {ComponentDescriptorUpdatedEvent} from './ComponentDescriptorUpdatedEvent';
-import {ComponentConfigUpdatedEvent} from './ComponentConfigUpdatedEvent';
+import {ComponentName} from './ComponentName';
+import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
+import {DescriptorBasedComponentJson} from './DescriptorBasedComponentJson';
 
 export abstract class DescriptorBasedComponent
     extends ConfigBasedComponent {
@@ -28,37 +32,33 @@ export abstract class DescriptorBasedComponent
         return this.descriptorKey;
     }
 
-    setDescriptor(descriptor: Descriptor) {
+    setDescriptor(descriptor: Descriptor): Q.Promise<void> {
         this.setName(descriptor ? new ComponentName(descriptor.getDisplayName()) : this.getType().getDefaultName());
-        this.setDescriptorKey(descriptor?.getKey());
-    }
 
-    private setDescriptorKey(descriptorKey: DescriptorKey) {
         const oldDescriptorKeyValue = this.descriptorKey;
 
-        this.descriptorKey = descriptorKey;
+        if (ObjectHelper.equals(oldDescriptorKeyValue, descriptor?.getKey())) {
+            return Q.resolve();
+        }
 
-        if (!ObjectHelper.equals(oldDescriptorKeyValue, this.descriptorKey)) {
-            this.setConfig(new PropertyTree(), true);
+        this.descriptorKey = descriptor?.getKey();
+
+        // populating config before saving with values from form view after layout
+        const propertyTree = new PropertyTree();
+        const layoutPromise = !!descriptor ? new FormView(FormContext.create().setFormState(new FormState(true)).build(),
+            descriptor.getConfig(), propertyTree.getRoot()).layout(false) : Q.resolve(null);
+
+        return layoutPromise.catch(DefaultErrorHandler.handle).finally(() => {
+            this.config?.unChanged(this.configChangedHandler);
+            this.config = propertyTree;
+            this.config.onChanged(this.configChangedHandler);
             this.notifyComponentUpdated(new ComponentDescriptorUpdatedEvent(this.getPath(), this.descriptorKey));
-        }
-    }
-
-    setConfig(config: PropertyTree, silent?: boolean): void {
-        const oldValue: PropertyTree = this.config;
-        if (oldValue) {
-            this.config.unChanged(this.configChangedHandler);
-        }
-        this.config = config;
-        this.config.onChanged(this.configChangedHandler);
-
-        if (!silent && !ObjectHelper.equals(oldValue, config)) {
-            this.notifyComponentUpdated(new ComponentConfigUpdatedEvent(this.getPath(), config));
-        }
+            return Q.resolve();
+        });
     }
 
     doReset() {
-        this.setDescriptor(null);
+        this.setDescriptor(null).catch(DefaultErrorHandler.handle);
     }
 
     toComponentJson(): DescriptorBasedComponentJson {

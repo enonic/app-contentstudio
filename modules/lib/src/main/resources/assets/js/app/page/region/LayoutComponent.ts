@@ -14,6 +14,7 @@ import {ComponentAddedEvent} from './ComponentAddedEvent';
 import {ComponentRemovedEvent} from './ComponentRemovedEvent';
 import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
 import {ComponentAddedEventHandler, ComponentRemovedEventHandler, ComponentUpdatedEventHandler} from './Component';
+import Q from 'q';
 
 export class LayoutComponent
     extends DescriptorBasedComponent {
@@ -46,14 +47,16 @@ export class LayoutComponent
         return this.regions;
     }
 
-    setDescriptor(descriptor: Descriptor) {
-        super.setDescriptor(descriptor);
+    setDescriptor(descriptor: Descriptor): Q.Promise<void> {
+        return super.setDescriptor(descriptor).then(() => {
+            if (descriptor?.getRegions().length > 0) {
+                this.mergeDescriptorRegions(descriptor);
+            } else {
+                this.getRegions().removeAllRegions();
+            }
 
-        if (descriptor?.getRegions().length > 0) {
-            this.mergeDescriptorRegions(descriptor);
-        } else {
-            this.getRegions().removeAllRegions();
-        }
+            return Q.resolve();
+        });
     }
 
     // preserving this merging logic for now for the sake of backward compatibility

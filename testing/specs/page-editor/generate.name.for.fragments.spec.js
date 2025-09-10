@@ -19,6 +19,8 @@ const FragmentInspectionPanel = require('../../page_objects/wizardpanel/liveform
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
+const SiteConfiguratorReqInputDialog = require('../../page_objects/wizardpanel/site_configurator/site.configurator.req.input');
 
 describe('Generate name for fragments specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -45,9 +47,16 @@ describe('Generate name for fragments specification', function () {
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
             let insertImageDialog = new InsertImageDialog();
+            let siteFormPanel = new SiteFormPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            //await siteFormPanel.openSiteConfiguratorDialog(appConst.TEST_APPS_NAME.SIMPLE_SITE_APP);
+            //let siteConfiguratorDialog = new SiteConfiguratorReqInputDialog();
+            //await studioUtils.saveScreenshot('site_configurator_invalid');
+            // Fill in the required input in the site-configurator! The site should be valid!:
+            //await siteConfiguratorDialog.typeInTextInTrackingIdInput('test');
+            //await siteConfiguratorDialog.clickOnApplyButton();
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Insert new text-component
@@ -188,7 +197,7 @@ describe('Generate name for fragments specification', function () {
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             // 4. Save the empty layout-component as fragment:
-            await pageComponentView.openMenu("Layout");
+            await pageComponentView.openMenu('Layout');
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.pause(1000);
             await studioUtils.doSwitchToNewWizard();
@@ -232,7 +241,8 @@ describe('Generate name for fragments specification', function () {
             let contentPublishDialog = new ContentPublishDialog();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await studioUtils.saveScreenshot('issue_valid_site');
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component
             await pageComponentView.openMenu('main');
@@ -243,6 +253,7 @@ describe('Generate name for fragments specification', function () {
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
+            await studioUtils.saveScreenshot('issue_valid_site_2');
             // 5. Click on Mark as ready button and save all:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.waitForNotificationMessage();

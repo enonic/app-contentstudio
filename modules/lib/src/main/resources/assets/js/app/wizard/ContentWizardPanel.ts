@@ -1205,7 +1205,7 @@ export class ContentWizardPanel
         });
 
         PageEventsManager.get().onPageReloadRequested(() => {
-            this.getLivePanel()?.loadPage();
+            this.getLivePanel()?.loadPage(false);
         });
 
         let firstLoad = true;
