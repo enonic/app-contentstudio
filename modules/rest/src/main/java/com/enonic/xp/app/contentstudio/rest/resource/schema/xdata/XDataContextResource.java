@@ -48,6 +48,7 @@ import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
+import com.enonic.xp.site.SiteDescriptor;
 import com.enonic.xp.site.SiteService;
 import com.enonic.xp.site.XDataMappings;
 
@@ -102,6 +103,24 @@ public final class XDataContextResource
         return result;
     }
 
+    @GET
+    @Path("getApplicationXDataForContentType")
+    public XDataListJson getApplicationXDataForContentType( @QueryParam("contentTypeName") final String contentTypeName,
+                                                            @QueryParam("applicationKey") final String key,
+                                                            @Context HttpServletRequest request )
+    {
+        final XDataListJson result = new XDataListJson();
+
+        final SiteDescriptor siteDescriptor = siteService.getDescriptor( ApplicationKey.from( key ) );
+
+        final Map<XData, Boolean> siteXData =
+            this.getXDatasByContentType( siteDescriptor.getXDataMappings(), ContentTypeName.from( contentTypeName ) );
+
+        result.addXDatas( createXDataListJson( siteXData, request ) );
+
+        return result;
+    }
+
     private SiteConfigs getSiteOrProjectConfigs( final Content content )
     {
         final Site nearestSite = this.contentService.getNearestSite( content.getId() );
@@ -145,12 +164,14 @@ public final class XDataContextResource
 
     private Map<XData, Boolean> getXDataByApps( final Collection<ApplicationKey> applicationKeys, final ContentTypeName contentType )
     {
-        return applicationKeys.stream()
+        final XDataMappings.Builder builder = XDataMappings.create();
+
+        applicationKeys.stream()
             .map( applicationKey -> siteService.getDescriptor( applicationKey ) )
             .filter( Objects::nonNull )
-            .map( siteDescriptor -> this.getXDatasByContentType( siteDescriptor.getXDataMappings(), contentType ) )
-            .flatMap( xDataBooleanMap -> xDataBooleanMap.entrySet().stream() )
-            .collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue ) );
+            .forEach( siteDescriptor -> builder.addAll( siteDescriptor.getXDataMappings() ) );
+
+        return getXDatasByContentType( builder.build(), contentType );
     }
 
     private Map<XData, Boolean> getXDatasByContentType( final XDataMappings xDataMappings, final ContentTypeName contentTypeName )

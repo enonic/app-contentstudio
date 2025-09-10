@@ -14,7 +14,7 @@ import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {Delta, DiffPatcher} from 'jsondiffpatch';
-import HtmlFormatter, {format, showUnchanged} from 'jsondiffpatch/formatters/html';
+import {format, showUnchanged} from 'jsondiffpatch/formatters/html';
 import Q from 'q';
 import {ContentJson} from '../content/ContentJson';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
@@ -25,7 +25,6 @@ import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
 import {GetContentVersionsResult} from '../resource/GetContentVersionsResult';
-import {ContentVersionsConverter} from '../view/context/widget/version/ContentVersionsConverter';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
 import {NonBatchedContentVersionsConverter} from '../view/context/widget/version/NonBatchedContentVersionsConverter';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
@@ -64,8 +63,6 @@ export class CompareContentVersionsDialog
     private contentCache: Record<string, object>;
 
     private diffPatcher: DiffPatcher;
-
-    private htmlFormatter: HtmlFormatter;
 
     private outsideClickListener: (event: MouseEvent) => void;
 
