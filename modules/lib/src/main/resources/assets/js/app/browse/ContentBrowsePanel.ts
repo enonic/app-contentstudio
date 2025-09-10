@@ -306,7 +306,7 @@ export class ContentBrowsePanel
         });
 
         ProjectContext.get().onProjectChanged(() => {
-            this.selectionWrapper.deselectAll(true);
+            this.selectionWrapper.deselectAll();
             this.updateActionsAndPreview();
             this.filterPanel.reset().then(() => {
                 this.hideFilterPanel();
