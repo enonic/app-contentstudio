@@ -17,7 +17,7 @@ describe('default.error.page.spec tests for Default error page', function () {
     }
 
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const ERROR_PART_NAME = appConst.PART_NAME.PART_WITH_ERROR;
 
     it(`Preconditions: test site should be created`, async () => {

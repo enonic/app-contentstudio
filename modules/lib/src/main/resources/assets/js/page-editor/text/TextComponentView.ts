@@ -1,38 +1,38 @@
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
+import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
+import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
-import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ComponentView, ComponentViewBuilder} from '../ComponentView';
-import {TextItemType} from './TextItemType';
-import {TextPlaceholder} from './TextPlaceholder';
-import {LiveEditPageDialogCreatedEvent, LiveEditPageDialogCreatedEventHandler} from '../LiveEditPageDialogCreatedEvent';
-import {Highlighter} from '../Highlighter';
-import {ItemView} from '../ItemView';
-import {PageViewController} from '../PageViewController';
-import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
-import {ModalDialog} from '../../app/inputtype/ui/text/dialog/ModalDialog';
-import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
-import {HtmlEditor, HtmlEditorCursorPosition} from '../../app/inputtype/ui/text/HtmlEditor';
-import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
-import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {SelectComponentEvent} from '../event/outgoing/navigation/SelectComponentEvent';
-import {SelectedHighlighter} from '../SelectedHighlighter';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
-import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig} from '../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import {UpdateTextComponentEvent} from '../event/outgoing/manipulation/UpdateTextComponentEvent';
-import {ContentContext} from '../../app/wizard/ContentContext';
-import {CreateTextComponentViewConfig} from '../CreateTextComponentViewConfig';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {PageUnlockedEvent} from '../event/outgoing/manipulation/PageUnlockedEvent';
-import {PageState} from '../../app/wizard/page/PageState';
+import {ModalDialog} from '../../app/inputtype/ui/text/dialog/ModalDialog';
+import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
+import {HtmlEditor, HtmlEditorCursorPosition} from '../../app/inputtype/ui/text/HtmlEditor';
+import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
+import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
 import {ComponentPath} from '../../app/page/region/ComponentPath';
 import {SessionStorageHelper} from '../../app/util/SessionStorageHelper';
+import {ContentContext} from '../../app/wizard/ContentContext';
+import {PageState} from '../../app/wizard/page/PageState';
+import {ComponentView, ComponentViewBuilder} from '../ComponentView';
+import {CreateTextComponentViewConfig} from '../CreateTextComponentViewConfig';
+import {PageUnlockedEvent} from '../event/outgoing/manipulation/PageUnlockedEvent';
+import {UpdateTextComponentEvent} from '../event/outgoing/manipulation/UpdateTextComponentEvent';
+import {SelectComponentEvent} from '../event/outgoing/navigation/SelectComponentEvent';
+import {Highlighter} from '../Highlighter';
+import {ItemView} from '../ItemView';
+import {LiveEditPageDialogCreatedEvent, LiveEditPageDialogCreatedEventHandler} from '../LiveEditPageDialogCreatedEvent';
+import {PageViewController} from '../PageViewController';
+import {SelectedHighlighter} from '../SelectedHighlighter';
+import {TextItemType} from './TextItemType';
+import {TextPlaceholder} from './TextPlaceholder';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder {
@@ -107,19 +107,26 @@ export class TextComponentView
             this.initialize();
         });
 
-        this.onRemoved(() => {
-            this.destroyEditor();
-        });
-
         const handleDialogCreated: LiveEditPageDialogCreatedEventHandler = (event: LiveEditPageDialogCreatedEvent) => {
             if (this.currentDialogConfig === event.getConfig()) {
                 this.modalDialog = event.getModalDialog() as ModalDialog;
             }
         };
 
+        const editModeChangedHandler = (editMode: boolean) => {
+            this.setEditMode(editMode);
+        };
+
         this.onEditorReady(() => {
             this.refreshEmptyState();
             this.restoreCursorPosition();
+
+            PageViewController.get().onTextEditModeChanged(editModeChangedHandler);
+        });
+
+        this.onRemoved(() => {
+            this.destroyEditor();
+            PageViewController.get().unTextEditModeChanged(editModeChangedHandler);
         });
 
         this.bindWindowFocusEvents();
@@ -219,7 +226,7 @@ export class TextComponentView
         }
 
         this.focusOnInit = true;
-        this.startPageTextEditMode();
+        this.setEditMode(true);
         this.focusEditor();
         Highlighter.get().hide();
     }
@@ -283,7 +290,7 @@ export class TextComponentView
     }
 
     isEditMode(): boolean {
-        return this.hasClass('edit-mode');
+        return this.editMode;
     }
 
     isActive(): boolean {
@@ -291,6 +298,10 @@ export class TextComponentView
     }
 
     setEditMode(edit: boolean): void {
+        if (edit && !PageViewController.get().isTextEditMode()) {
+            PageViewController.get().setTextEditMode(true);
+        }
+
         if (edit === this.editMode) {
             return;
         }
@@ -327,16 +338,16 @@ export class TextComponentView
             }
 
             this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
-            this.deselect();
+
+            if (this.isSelected()) {
+                this.unhighlight();
+                this.highlightSelected();
+            }
         }
     }
 
     getCursorPosition(): HtmlEditorCursorPosition {
         return this.htmlAreaEditor.getCursorPosition();
-    }
-
-    setCursorPosition(pos: HtmlEditorCursorPosition): void {
-        this.htmlAreaEditor.setSelectionByCursorPosition(pos);
     }
 
     private onMouseLeftHandler(e: MouseEvent, mousePressed?: boolean) {
@@ -353,7 +364,7 @@ export class TextComponentView
     private onBlurHandler(e: FocusEvent) {
         if (this.winBlurred) {
             // don't turn off edit mode if whole window has lost focus
-            return;
+            //   return;
         }
 
         this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
@@ -471,8 +482,8 @@ export class TextComponentView
     }
 
     private forceEditorFocus(): void {
+        this.setEditMode(true);
         this.focusEditor();
-        this.startPageTextEditMode();
     }
 
     private isEditorReady(): boolean {
@@ -553,16 +564,6 @@ export class TextComponentView
         this.htmlAreaEditor = null;
     }
 
-    startPageTextEditMode() {
-        let pageView = this.getPageView();
-
-        if (!pageView.isTextEditMode()) {
-            PageViewController.get().setTextEditMode(true);
-        }
-
-        this.giveFocus();
-    }
-
     giveFocus(): boolean {
         if (!this.isEditMode()) {
             return false;
@@ -582,7 +583,7 @@ export class TextComponentView
     private addTextContextMenuActions() {
         this.addContextMenuActions([
             new Action(i18n('action.edit')).onExecuted(() => {
-                this.startPageTextEditMode();
+                this.setEditMode(true);
                 this.focusOnInit = true;
                 this.forceEditorFocus();
             })
@@ -594,7 +595,7 @@ export class TextComponentView
     }
 
     scrollComponentIntoView() {
-        if (!this.getPageView().isTextEditMode()) {
+        if (!PageViewController.get().isTextEditMode()) {
             super.scrollComponentIntoView();
         }
     }
@@ -671,21 +672,15 @@ export class TextComponentView
         const selectedItemViewPath: ComponentPath = SessionStorageHelper.getSelectedPathFromStorage(contentId);
 
         if (this.getPath().equals(selectedItemViewPath)) {
-
-            const textEditorCursorPos: HtmlEditorCursorPosition = SessionStorageHelper.getSelectedTextCursorPosInStorage(contentId);
+            const textEditorCursorPos = SessionStorageHelper.getSelectedTextCursorPosInStorage(contentId);
 
             if (textEditorCursorPos) {
-                this.setCursorPositionInTextComponent(textEditorCursorPos);
+                this.setEditMode(true);
+                this.getPageView().appendContainerForTextToolbar();
+                $(this.getHTMLElement()).simulate('click');
+                this.htmlAreaEditor.setSelectionByCursorPosition(textEditorCursorPos);
                 SessionStorageHelper.removeSelectedTextCursorPosInStorage(contentId);
             }
         }
-    }
-
-    private setCursorPositionInTextComponent(textEditorCursorPos: HtmlEditorCursorPosition): void {
-        this.getPageView().appendContainerForTextToolbar();
-        this.startPageTextEditMode();
-        $(this.getHTMLElement()).simulate('click');
-
-        this.setCursorPosition(textEditorCursorPos);
     }
 }

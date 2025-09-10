@@ -21,7 +21,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     let CONTENT_NAME;
     const PART_DESCRIPTION = 'Html Area Example';
     const PART_FRAGMENT_NAME = 'fragment-html-area-example'
