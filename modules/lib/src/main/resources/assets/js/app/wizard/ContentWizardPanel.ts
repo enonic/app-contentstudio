@@ -745,7 +745,7 @@ export class ContentWizardPanel
     }
 
     private isLivePanelAllowed(): Q.Promise<boolean> {
-        if (this.contentType.isShortcut()) {
+        if (this.getContentTypeName().isShortcut()) {
             return Q.resolve(false);
         }
 
@@ -2570,7 +2570,7 @@ export class ContentWizardPanel
 
     private isEditorEnabled(): boolean {
         return !!this.site || (this.shouldOpenEditorByDefault() && !ArrayHelper.contains(ContentWizardPanel.EDITOR_DISABLED_TYPES,
-            this.contentType.getContentTypeName()));
+            this.getContentTypeName()));
     }
 
     private updateButtonsState(): Q.Promise<void> {
@@ -2777,7 +2777,7 @@ export class ContentWizardPanel
         if (this.pageComponentsWizardStepForm) {
             this.pageComponentsView.dock();
 
-            if (this.contentType.isPageTemplate()) {
+            if (this.getContentTypeName().isPageTemplate()) {
                 this.pageComponentsWizardStepForm.removeChild(this.pageComponentsView);
             } else {
                 this.removeStepWithForm(this.pageComponentsWizardStepForm);
