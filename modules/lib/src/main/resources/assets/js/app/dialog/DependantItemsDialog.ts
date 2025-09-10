@@ -250,6 +250,14 @@ export abstract class DependantItemsDialog
         this.ignoreItemsChanged = value;
     }
 
+    protected isIgnoredElementClicked(element: HTMLElement): boolean {
+        if (super.isIgnoredElementClicked(element)) {
+            return true;
+        }
+
+        return (element?.className || []).indexOf('notification-container') > -1;
+    }
+
     close() {
         super.close();
         this.remove();
