@@ -146,6 +146,7 @@ export class TextInspectionPanel
                 .setSaveHandler(() => {
                     new ContentRequiresSaveEvent(this.liveEditModel.getContent().getContentId()).fire();
                 })
+                .setEnabledTools(['Strike', 'Superscript', 'Subscript'])
                 .setInline(false)
                 .setFocusHandler(focusHandler)
                 .setBlurHandler(blurHandler)
