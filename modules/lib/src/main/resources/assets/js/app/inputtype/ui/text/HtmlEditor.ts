@@ -1013,12 +1013,12 @@ class HtmlEditorConfigBuilder {
         const toolsToAdd: string[] = [];
 
         this.enabledTools.forEach((tool: string) => {
-            toolsToAdd.push(tool);
+            if (tool === 'Strike' || tool === 'Superscript' || tool === 'Subscript') {
+                this.tools[0].push(tool);
+            } else {
+                toolsToAdd.push(tool);
+            }
         });
-
-        if (this.editorParams.isInline()) {
-            this.tools[0].push('Strike', 'Superscript', 'Subscript');
-        }
 
         this.tools.push(toolsToAdd);
     }

@@ -430,6 +430,7 @@ export class TextComponentView
                 .setEditorContainerId(this.getId())
                 .setAssetsUri(CONFIG.getString('assetsUri'))
                 .setInline(true)
+                .setEnabledTools(['Strike', 'Superscript', 'Subscript'])
                 .setCreateDialogHandler(createDialogHandler)
                 .setFocusHandler(this.onFocusHandler.bind(this))
                 .setBlurHandler(this.onBlurHandler.bind(this))
