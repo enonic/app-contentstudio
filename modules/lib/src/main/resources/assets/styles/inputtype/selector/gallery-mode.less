@@ -6,6 +6,10 @@
 
   > .selection-toolbar {
     display: flex;
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.8);
     width: 100%;
     padding: 10px 0;
     text-align: center;
@@ -18,16 +22,6 @@
       &:disabled {
         opacity: 0.5;
       }
-    }
-
-    &.sticky-toolbar {
-      float: none;
-      position: fixed;
-      bottom: 0;
-      z-index: @z-index-toolbar-element;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 10px 0;
-      box-sizing: content-box;
     }
   }
 
