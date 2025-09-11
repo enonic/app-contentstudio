@@ -6,8 +6,6 @@ import * as $ from 'jquery';
 export class SelectionToolbar
     extends DivEl {
 
-    static stickyCls: string = 'sticky-toolbar';
-
     private editButton: Button;
 
     private removeButton: Button;
@@ -42,44 +40,6 @@ export class SelectionToolbar
     private initListeners(): void {
         this.editButton?.onClicked(() => this.notifyEditClicked());
         this.removeButton.onClicked(() => this.notifyRemoveClicked());
-
-        this.onShown(() => this.update());
-        this.onHidden(() => this.removeClass(SelectionToolbar.stickyCls));
-    }
-
-    update(afterResize: boolean = false) {
-        if (!this.isVisible()) {
-            return;
-        }
-
-        const selectedOptionsViewRect = this.getHTMLElement().getBoundingClientRect();
-        const windowHeight = (window.innerHeight || document.documentElement.clientHeight);
-
-        if (this.hasClass(SelectionToolbar.stickyCls)) {
-            const toolbarHeight = this.getEl().getHeightWithBorder();
-
-            if (selectedOptionsViewRect.bottom + toolbarHeight <= windowHeight ||
-                selectedOptionsViewRect.top + 10 >= windowHeight) {
-                this.removeClass(SelectionToolbar.stickyCls);
-                this.getEl().setWidth('100%');
-            } else if (afterResize) {
-                this.getEl().setWidthPx(this.getEl().getWidth());
-            }
-        } else {
-
-            const toolbarRect = this.getHTMLElement().getBoundingClientRect();
-
-            if (toolbarRect.bottom > windowHeight &&
-                selectedOptionsViewRect.top + 10 < windowHeight) {
-                this.unstickOtherToolbars();
-                this.addClass(SelectionToolbar.stickyCls);
-                this.getEl().setWidthPx(this.getEl().getWidth());
-            }
-        }
-    }
-
-    private unstickOtherToolbars() {
-        $('.' + SelectionToolbar.stickyCls).removeClass(SelectionToolbar.stickyCls);
     }
 
     setSelectionCount(removableCount: number, editableCount: number) {
