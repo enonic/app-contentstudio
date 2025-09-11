@@ -17,7 +17,6 @@ import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView'
 import {ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
 import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 import {ShowLiveEditEvent} from '../../wizard/ShowLiveEditEvent';
-import {ShowSplitEditEvent} from '../../wizard/ShowSplitEditEvent';
 import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
 import {AttachmentsWidgetItemView} from './widget/details/AttachmentsWidgetItemView';
@@ -98,7 +97,6 @@ export class ContextView
         };
 
         ShowLiveEditEvent.on(createPageEditorVisibilityChangedHandler(true));
-        ShowSplitEditEvent.on(createPageEditorVisibilityChangedHandler(true));
         ShowContentFormEvent.on(createPageEditorVisibilityChangedHandler(false));
 
         const contentServerEventsHandler = ContentServerEventsHandler.getInstance();
@@ -341,10 +339,14 @@ export class ContextView
             this.pageEditorWidgetView = this.createPageEditorWidgetView();
             this.addWidget(this.pageEditorWidgetView);
         }
-        this.addWidgets([this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()]);
+        this.addWidgets(this.getInitialWidgets());
 
         this.defaultWidgetView = this.propertiesWidgetView;
         this.setActiveWidget(this.defaultWidgetView);
+    }
+
+    protected getInitialWidgets(): WidgetView[] {
+        return [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
     }
 
     private createPageEditorWidgetView(): WidgetView {

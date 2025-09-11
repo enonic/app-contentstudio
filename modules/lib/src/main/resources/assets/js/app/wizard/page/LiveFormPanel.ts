@@ -70,7 +70,6 @@ import {PageNavigationHandler} from '../PageNavigationHandler';
 import {PageNavigationMediator} from '../PageNavigationMediator';
 import {ShowContentFormEvent} from '../ShowContentFormEvent';
 import {ShowLiveEditEvent} from '../ShowLiveEditEvent';
-import {ShowSplitEditEvent} from '../ShowSplitEditEvent';
 import {WizardWidgetRenderingHandler} from '../WizardWidgetRenderingHandler';
 import {ContextWindow, ContextWindowConfig, getInspectParameters} from './contextwindow/ContextWindow';
 import {InsertablesPanel} from './contextwindow/insert/InsertablesPanel';
@@ -232,7 +231,6 @@ export class LiveFormPanel
         this.initContentUpdatedHandler();
 
         ShowLiveEditEvent.on(this.showLoadMaskHandler);
-        ShowSplitEditEvent.on(this.showLoadMaskHandler);
         ShowContentFormEvent.on(this.hideLoadMaskHandler);
         ContentServerEventsHandler.getInstance().onContentUpdated(this.contentUpdatedHandler);
         ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(this.contentPermissionsUpdatedHandler);
@@ -543,7 +541,6 @@ export class LiveFormPanel
 
     remove(): LiveFormPanel {
         ShowLiveEditEvent.un(this.showLoadMaskHandler);
-        ShowSplitEditEvent.un(this.showLoadMaskHandler);
         ShowContentFormEvent.un(this.hideLoadMaskHandler);
 
         this.liveEditPageProxy.remove();
