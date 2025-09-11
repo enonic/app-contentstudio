@@ -36,10 +36,6 @@ export abstract class BaseGallerySelectedOptionsView<T> extends BaseSelectedOpti
 
         this.onRendered(() => {
             this.toolbar.insertAfterEl(this);
-
-            const scrollableParentEl = $(this.getHTMLElement()).scrollParent()[0];
-            const scrollableParent = Element.fromHtmlElement(scrollableParentEl);
-            scrollableParent.onScroll(() => this.toolbar.update());
         });
     }
 
