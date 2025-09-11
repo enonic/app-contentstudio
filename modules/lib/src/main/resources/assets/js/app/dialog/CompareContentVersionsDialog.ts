@@ -7,7 +7,7 @@ import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
+import {Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {Menu} from '@enonic/lib-admin-ui/ui/menu/Menu';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
@@ -63,6 +63,8 @@ export class CompareContentVersionsDialog
     private revertLeftButton: Button;
 
     private revertRightButton: Button;
+
+    private showFullContentCheckbox: Checkbox;
 
     private contentCache: Record<string, object>;
 
@@ -247,11 +249,11 @@ export class CompareContentVersionsDialog
             const bottomContainer = new DivEl('container bottom');
             this.htmlFormatter = formatters.html;
             this.htmlFormatter.showUnchanged(false, null, 0);
-            const changesCheckbox = new CheckboxBuilder().setLabelText(i18n('field.content.showEntire')).build();
-            changesCheckbox.onValueChanged(event => {
+            this.showFullContentCheckbox = new CheckboxBuilder().setLabelText(i18n('field.content.showEntire')).build();
+            this.showFullContentCheckbox.onValueChanged(event => {
                 this.htmlFormatter.showUnchanged(event.getNewValue() === 'true', null, 0);
             });
-            bottomContainer.appendChild(changesCheckbox);
+            bottomContainer.appendChild(this.showFullContentCheckbox);
             this.appendChildToFooter(bottomContainer);
 
             return this.reloadVersions().then(() => {
@@ -310,6 +312,7 @@ export class CompareContentVersionsDialog
     open() {
         super.open();
         this.contentCache = {};
+        this.showFullContentCheckbox?.setChecked(false, true);
 
         if (!this.isRendered()) {
             return;
