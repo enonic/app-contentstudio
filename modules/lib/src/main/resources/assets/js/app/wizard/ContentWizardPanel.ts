@@ -1868,6 +1868,10 @@ export class ContentWizardPanel
                 this.pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             }
 
+            if (!this.contentType) {
+                return Q(null);
+            }
+
             return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this));
         });
     }
@@ -1939,23 +1943,25 @@ export class ContentWizardPanel
     private initSiteModel(site: Site): SiteModel {
         this.siteModel = new SiteModel(site);
 
-        const handler = AppHelper.debounce(() => {
-            return this.fetchContentXData().then((xDatas: XData[]) => {
-                this.removeXDataSteps(this.getXDatasToRemove(xDatas));
-                return this.addXDataSteps(this.getXDatasToAdd(xDatas)).then(() => {
-                    this.notifyDataChanged();
+        if (this.contentType) {
+            const handler = AppHelper.debounce(() => {
+                return this.fetchContentXData().then((xDatas: XData[]) => {
+                    this.removeXDataSteps(this.getXDatasToRemove(xDatas));
+                    return this.addXDataSteps(this.getXDatasToAdd(xDatas)).then(() => {
+                        this.notifyDataChanged();
+                    });
+                }).finally(() => {
+                    this.formMask.hide();
                 });
-            }).finally(() => {
-                this.formMask.hide();
-            });
-        }, 100, false);
+            }, 100, false);
 
-        this.siteModel.onSiteModelUpdated(() => {
-            if (this.wizardFormUpdatedDuringSave) {
-                this.formMask.show();
-                handler();
-            }
-        });
+            this.siteModel.onSiteModelUpdated(() => {
+                if (this.wizardFormUpdatedDuringSave) {
+                    this.formMask.show();
+                    handler();
+                }
+            });
+        }
 
         this.initSiteModelListeners();
 
@@ -2662,7 +2668,7 @@ export class ContentWizardPanel
         if (this.pageComponentsWizardStepForm) {
             this.pageComponentsView.dock();
 
-            if (this.contentType.isPageTemplate()) {
+            if (this.getContentTypeName().isPageTemplate()) {
                 this.pageComponentsWizardStepForm.removeChild(this.pageComponentsView);
             } else {
                 this.removeStepWithForm(this.pageComponentsWizardStepForm);
@@ -2793,7 +2799,7 @@ export class ContentWizardPanel
         return this.createEmptyXDataWizardStepForms().then((xDataForms) => {
             const formViewLayoutPromises: Q.Promise<void>[] = [];
             formViewLayoutPromises.push(
-                contentForm.layout(this.formsContexts.get('content'), new PropertyTree(content.getContentData().getRoot()), this.contentType.getForm()));
+                contentForm.layout(this.formsContexts.get('content'), new PropertyTree(content.getContentData().getRoot()), this.contentType?.getForm()));
             // Must pass FormView from contentWizardStepForm displayNameResolver,
             // since a new is created for each call to renderExisting
 
