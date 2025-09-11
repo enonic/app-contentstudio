@@ -2662,7 +2662,7 @@ export class ContentWizardPanel
         if (this.pageComponentsWizardStepForm) {
             this.pageComponentsView.dock();
 
-            if (this.contentType.isPageTemplate()) {
+            if (this.getContentTypeName().isPageTemplate()) {
                 this.pageComponentsWizardStepForm.removeChild(this.pageComponentsView);
             } else {
                 this.removeStepWithForm(this.pageComponentsWizardStepForm);
@@ -2793,7 +2793,7 @@ export class ContentWizardPanel
         return this.createEmptyXDataWizardStepForms().then((xDataForms) => {
             const formViewLayoutPromises: Q.Promise<void>[] = [];
             formViewLayoutPromises.push(
-                contentForm.layout(this.formsContexts.get('content'), new PropertyTree(content.getContentData().getRoot()), this.contentType.getForm()));
+                contentForm.layout(this.formsContexts.get('content'), new PropertyTree(content.getContentData().getRoot()), this.contentType?.getForm()));
             // Must pass FormView from contentWizardStepForm displayNameResolver,
             // since a new is created for each call to renderExisting
 
