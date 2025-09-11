@@ -2676,7 +2676,7 @@ export class ContentWizardPanel
         if (this.pageComponentsWizardStepForm) {
             this.pageComponentsView.dock();
 
-            if (this.contentType.isPageTemplate()) {
+            if (this.getContentTypeName().isPageTemplate()) {
                 this.pageComponentsWizardStepForm.removeChild(this.pageComponentsView);
             } else {
                 this.removeStepWithForm(this.pageComponentsWizardStepForm);
