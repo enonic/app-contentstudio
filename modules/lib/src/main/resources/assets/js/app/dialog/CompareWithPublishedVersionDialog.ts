@@ -1,8 +1,7 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
+import {Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Delta, DiffPatcher} from 'jsondiffpatch';
@@ -12,7 +11,6 @@ import {ActiveContentVersion} from '../ActiveContentVersion';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentVersion} from '../ContentVersion';
 import {ContentVersionHelper} from '../ContentVersionHelper';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
@@ -31,11 +29,11 @@ export class CompareWithPublishedVersionDialog
 
     private publishedVersionId: string;
 
-    private versions: ContentVersion[];
-
     private content: ContentSummaryAndCompareStatus;
 
     private comparisonContainer: DivEl;
+
+    private showFullContentCheckbox: Checkbox;
 
     private contentCache: Record<string, ContentJson>;
 
@@ -110,11 +108,11 @@ export class CompareWithPublishedVersionDialog
             this.appendChildToContentPanel(this.comparisonContainer);
 
             const bottomContainer = new DivEl('container bottom');
-            const changesCheckbox = new CheckboxBuilder().setLabelText(i18n('field.content.showEntire')).build();
-            changesCheckbox.onValueChanged(event => {
+            this.showFullContentCheckbox = new CheckboxBuilder().setLabelText(i18n('field.content.showEntire')).build();
+            this.showFullContentCheckbox.onValueChanged(event => {
                 showUnchanged(event.getNewValue() === 'true', null, 0);
             });
-            bottomContainer.appendChild(changesCheckbox);
+            bottomContainer.appendChild(this.showFullContentCheckbox);
             this.appendChildToFooter(bottomContainer);
 
             return rendered;
@@ -137,6 +135,7 @@ export class CompareWithPublishedVersionDialog
     open() {
         super.open();
         this.contentCache = {};
+        this.showFullContentCheckbox?.setChecked(false, true);
         showUnchanged(false, null, 0);
 
         this.loadVersionHistory();
@@ -156,7 +155,6 @@ export class CompareWithPublishedVersionDialog
             (versionsResult: GetContentVersionsResult, activeVersions: ActiveContentVersion[]) => {
                 const versions = versionsResult.getContentVersions();
                 const activeVersionId = activeVersions.shift()?.getContentVersion().getId();
-                this.versions = versions;
                 const publishedVersionId = ContentVersionHelper.findPublishedVersionId(versions);
                 const pubIdChanged = publishedVersionId !== this.publishedVersionId;
                 const actIdChanged = activeVersionId !== this.activeVersionId;
