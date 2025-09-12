@@ -48,6 +48,7 @@ import com.enonic.xp.schema.xdata.XDatas;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
+import com.enonic.xp.site.SiteDescriptor;
 import com.enonic.xp.site.SiteService;
 import com.enonic.xp.site.XDataMappings;
 
@@ -86,6 +87,23 @@ public final class XDataContextResource
     public void activate( final AdminRestConfig config )
     {
         contentTypeParseMode = ApplicationWildcardMatcher.Mode.valueOf( config.contentTypePatternMode() );
+    }
+
+    @GET
+    @Path("getApplicationXDataForContentType")
+    public XDataListJson getApplicationXDataForContentType( @QueryParam("contentTypeName") final String contentTypeName,
+                                                            @QueryParam("applicationKey") final String key )
+    {
+        final XDataListJson result = new XDataListJson();
+
+        final SiteDescriptor siteDescriptor = siteService.getDescriptor( ApplicationKey.from( key ) );
+
+        final Map<XData, Boolean> siteXData =
+            this.getXDatasByContentType( siteDescriptor.getXDataMappings(), ContentTypeName.from( contentTypeName ) );
+
+        result.addXDatas( createXDataListJson( siteXData ) );
+
+        return result;
     }
 
     @GET
@@ -153,13 +171,14 @@ public final class XDataContextResource
 
     private Map<XData, Boolean> getXDataByApps( final Collection<ApplicationKey> applicationKeys, final ContentTypeName contentType )
     {
+        final XDataMappings.Builder builder = XDataMappings.create();
 
-        return applicationKeys.stream()
+        applicationKeys.stream()
             .map( applicationKey -> siteService.getDescriptor( applicationKey ) )
             .filter( Objects::nonNull )
-            .map( siteDescriptor -> this.getXDatasByContentType( siteDescriptor.getXDataMappings(), contentType ) )
-            .flatMap( xDataBooleanMap -> xDataBooleanMap.entrySet().stream() )
-            .collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue ) );
+            .forEach( siteDescriptor -> builder.addAll( siteDescriptor.getXDataMappings() ) );
+
+        return getXDatasByContentType( builder.build(), contentType );
     }
 
     private Map<XData, Boolean> getXDatasByContentType( final XDataMappings xDataMappings, final ContentTypeName contentTypeName )

@@ -13,7 +13,6 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.page.PageTemplateRe
 import com.enonic.xp.app.contentstudio.rest.resource.content.page.fragment.FragmentResource;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeResource;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.FilterByContentResource;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.xdata.XDataResource;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 
 public class CmsResourceFilterTest
@@ -45,7 +44,6 @@ public class CmsResourceFilterTest
         checkResource( FragmentResource.class );
         checkResource( FilterByContentResource.class );
         checkResource( ContentTypeResource.class );
-        checkResource( XDataResource.class );
     }
 
     @Test
