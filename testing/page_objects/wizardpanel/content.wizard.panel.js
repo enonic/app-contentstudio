@@ -176,8 +176,7 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.wizardToolbarHelpButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_help_textx_button');
-            throw new Error(`Help texts toggle button is not displayed in the wizard! screenshot: ${screenshot} ` + err);
+            await this.handleError(`'Help texts' toggle button is not displayed in the Content Wizard`, 'err_help_text_button', err);
         }
     }
 

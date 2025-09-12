@@ -30,9 +30,13 @@ class PageInspectionPanel extends Page {
     }
 
     async clickOnSaveAsTemplateButton() {
-        await this.waitForSaveAsTemplateButtonDisplayed();
-        await this.clickOnElement(this.saveAsTemplateButton);
-        return await this.pause(3000);
+        try {
+            await this.waitForSaveAsTemplateButtonDisplayed();
+            await this.clickOnElement(this.saveAsTemplateButton);
+            return await this.pause(3000);
+        }catch (err){
+            await this.handleError('Page Inspection, tried to click on Save as Template button', 'err_click_save_as_template', err);
+        }
     }
 
     async clickOnPageControllerDropdownHandle() {
@@ -40,8 +44,7 @@ class PageInspectionPanel extends Page {
             await this.clickOnElement(this.pageTemplateDropdownHandle);
             return await this.pause(700);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_page_inspection_dropdown');
-            throw new Error(`Error occurred in page template selector: screenshot:${screenshot} ` + err);
+            await this.handleError('Page Inspection, tried to click on page template dropdown handle', 'err_page_inspection_dropdown', err);
         }
     }
 
@@ -65,8 +68,7 @@ class PageInspectionPanel extends Page {
             await inspectPanelControllerSelector.clickOnOptionByDisplayName(displayName, xpath.container);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_select_option');
-            throw new Error(`Error occurred in Page Inspection Panel, controller dropdown, screenshot: ${screenshot}` + err);
+            await this.handleError('Page Inspection Panel, tried to select a option in controller-dropdown', 'err_select_option', err);
         }
     }
 
@@ -75,9 +77,13 @@ class PageInspectionPanel extends Page {
     }
 
     async getSelectedPageController() {
-        let locator = xpath.container + xpath.pageTemplateSelector + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
+        try {
+            let locator = xpath.container + xpath.pageTemplateSelector + lib.H6_DISPLAY_NAME;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError('Page Inspection Panel, selected controller in the controller-dropdown', 'err_selected_controller', err);
+        }
     }
 
     waitForNotDisplayed() {

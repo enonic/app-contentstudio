@@ -41,7 +41,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             await pageInspectionPanel.waitForSaveAsTemplateButtonDisplayed();
             // 5. Click on dropdown handle and expand options:
             let actualController = await pageInspectionPanel.getSelectedPageController();
-            assert.equal(actualController, CONTROLLER_NAME, "Expected page controller should be selected");
+            assert.equal(actualController, CONTROLLER_NAME, 'Expected page controller should be selected');
         });
 
     it("GIVEN 'Page Inspection' tab is opened WHEN another ('Automatic') option has been selected THEN 'Confirmation Dialog' with the question should appear",
@@ -57,7 +57,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             await pageInspectionPanel.selectPageTemplateOrController('Automatic');
             // 4. Confirmation dialog should appear:
             await confirmationDialog.waitForDialogOpened();
-            // 5. Verify the question:
+            // 5. Verify the question: 'Switching to a page template will discard all the custom changes made to the page. Are you sure?'
             let question = await confirmationDialog.getQuestion();
             assert.equal(question, EXPECTED_QUESTION, 'Expected question should be displayed in the dialog');
         });
@@ -84,10 +84,9 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             await contentWizard.waitForNotificationMessage();
             // Verify - 'Save' button remains enabled after switching templates #6484
             await contentWizard.waitForSaveButtonDisabled();
-            // 6. Details Panel should be loaded
-            // TODO #8203 add test for new functionality:
-            //await pageInspectionPanel.waitForNotDisplayed();
-            //await wizardContextPanel.waitForDetailsPanelLoaded();
+            // 6. Automatic option should be selected in the dropdown:
+            let option  = await pageInspectionPanel.getSelectedPageController();
+            assert.equal(option, 'Automatic', 'Automatic page controller should be selected in Page inspection panel');
             // 7. Controller selector should be loaded in Live Edit:
             await contentWizard.waitForControllerOptionFilterInputVisible();
         });

@@ -130,7 +130,7 @@ class Page {
             }
             return await this.pause(200);
         } catch (err) {
-            throw new Error("Error when set value in input " + err);
+            throw new Error("Tried to set the value in the input " + err);
         }
     }
 
@@ -165,7 +165,7 @@ class Page {
             await inputElement.clearValue();
             return await this.pause(1000);
         } catch (err) {
-            throw new Error("Error when clear value in input" + err);
+            throw new Error('Tried to clear the value in the input' + err);
         }
     }
 
@@ -376,8 +376,7 @@ class Page {
             await this.pause(300);
             return await this.getTextInDisplayedElements(lib.NOTIFICATION_TEXT);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_notification');
-            throw new Error('Error when wait for notification message, screenshot: ' + screenshot + "  " + err);
+            await this.handleError('Wait for notification messages - ', 'err_notification_messages', err);
         }
     }
 

@@ -7,7 +7,7 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
-const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
+const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const MobileContentBrowsePanel = require('../../page_objects/browsepanel/mobile.content.browse.panel');
 const MobileContentWizardPanel = require('../../page_objects/wizardpanel/mobile.content.wizard.panel');
 
