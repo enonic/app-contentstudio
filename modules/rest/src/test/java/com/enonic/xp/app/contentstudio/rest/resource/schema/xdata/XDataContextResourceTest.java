@@ -219,6 +219,89 @@ public class XDataContextResourceTest
         assertJson( "get_content_x_data.json", result );
     }
 
+    @Test
+    public void getApplicationXDataForContentType()
+        throws Exception
+    {
+        final XDataName myXdataQualifiedName1 = XDataName.from( "myapplication:input_text_1" );
+        final String myMixinInputName1 = "input_text_1";
+        final XDataName myXdataQualifiedName2 = XDataName.from( "myapplication:text_area_2" );
+        final String myMixinInputName2 = "text_area_2";
+        final ContentTypeName contentTypeName = ContentTypeName.from( "app:testContentType" );
+
+        final XData xdata1 = XData.create().
+            createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).
+            toInstant( ZoneOffset.UTC ) ).
+            name( myXdataQualifiedName1 ).
+            addFormItem( Input.create().
+            name( myMixinInputName1 ).
+            inputType( InputTypeName.TEXT_LINE ).
+            label( "Line Text 1" ).
+            required( true ).
+            helpText( "Help text line 1" ).
+            required( true ).
+            build() ).
+            build();
+
+        final XData xdata2 = XData.create().
+            createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).
+            toInstant( ZoneOffset.UTC ) ).
+            name( myXdataQualifiedName2 ).
+            addFormItem( Input.create().
+            name( myMixinInputName2 ).
+            inputType( InputTypeName.TEXT_AREA ).
+            label( "Text Area" ).
+            required( true ).
+            helpText( "Help text area" ).
+            required( true ).
+            build() ).
+            build();
+
+        final XData xdata3 = XData.create().
+            createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).
+            toInstant( ZoneOffset.UTC ) ).
+            name( XDataName.from( "myapplication:text_area_3" ) ).
+            addFormItem( Input.create().
+            name( "input_name_3" ).
+            inputType( InputTypeName.TEXT_AREA ).
+            label( "Text Area" ).
+            required( true ).
+            helpText( "Help text area" ).
+            required( true ).
+            build() ).
+            build();
+
+        final SiteDescriptor siteDescriptor = SiteDescriptor.create().
+            xDataMappings( XDataMappings.from( XDataMapping.create().
+            allowContentTypes( contentTypeName.toString() ).
+            xDataName( xdata1.getName() ).build(), XDataMapping.create().
+            xDataName( xdata3.getName() ).
+            allowContentTypes( "app:anotherContentType" ).
+            build() ) ).
+            build();
+
+        Mockito.when( siteService.getDescriptor( contentTypeName.getApplicationKey() ) ).thenReturn( siteDescriptor );
+
+        Mockito.when( mixinService.getByNames( Mockito.any() ) ).thenReturn( Mixins.empty() );
+        Mockito.when( xDataService.getByNames( XDataNames.from( xdata2.getName().toString(), xdata3.getName().toString() ) ) )
+            .thenReturn( XDatas.from( xdata2 ) );
+
+        Mockito.when( xDataService.getByName( xdata1.getName() ) ).thenReturn( xdata1 );
+        Mockito.when( xDataService.getByName( xdata2.getName() ) ).thenReturn( xdata2 );
+        Mockito.when( xDataService.getByName( xdata3.getName() ) ).thenReturn( xdata3 );
+
+        Mockito.when( xDataService.getByApplication( Mockito.any() ) ).thenReturn( XDatas.from( xdata2 ) );
+
+        String result = request().path( "cms/default/content/schema/xdata/getApplicationXDataForContentType" ).
+            queryParam( "contentTypeName", contentTypeName.toString() ).
+            queryParam( "applicationKey", contentTypeName.getApplicationKey().toString() ).
+            get().
+            getAsString();
+
+        assertJson( "get_content_x_data_for_content_type.json", result );
+
+    }
+
     private XData generateXData1()
     {
         return XData.create()
