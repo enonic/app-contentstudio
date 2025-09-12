@@ -78,9 +78,7 @@ export const ContentIcon = ({
     if (canShowImage && src) {
         // 2x size for better quality
         return <Image
-            // TODO: Uncomment when Tailwind is ready
-            // className={isImageType ? 'object-cover' : 'object-contain'}
-            className={isImageType && 'coverContentIcon'}
+            className={isImageType ? 'object-cover' : 'object-contain'}
             width={size}
             height={size}
             alt={contentType}
