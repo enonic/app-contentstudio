@@ -16,7 +16,7 @@ const CreateIssueDialog = require('../page_objects/issue/create.issue.dialog');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const InsertLinkDialog = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
-const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
+const BrowseContextWindowPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
@@ -202,12 +202,12 @@ module.exports = {
     },
     async openBrowseDetailsPanel() {
         let browsePanel = new BrowsePanel();
-        let browseDetailsPanel = new BrowseDetailsPanel();
-        let result = await browseDetailsPanel.isPanelVisible();
+        let browseContextWindow = new BrowseContextWindowPanel();
+        let result = await browseContextWindow.isPanelVisible();
         if (!result) {
             await browsePanel.clickOnDetailsPanelToggleButton();
         }
-        await browseDetailsPanel.waitForDetailsPanelLoaded();
+        await browseContextWindow.waitForLoaded();
         await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
         return await browsePanel.pause(1000);
     },
@@ -478,7 +478,7 @@ module.exports = {
             return await browsePanel.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_item');
-            throw new Error("Select a item, error screenshot:" + screenshot + ' ' + err);
+            throw new Error(`Select the item in grid, screenshot:${screenshot} ` + err);
         }
     },
     async saveScreenshotUniqueName(namePart) {
@@ -497,7 +497,7 @@ module.exports = {
             return await browsePanel.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_item');
-            throw new Error("Select a item, error screenshot:" + screenshot + ' ' + err);
+            throw new Error(`Select the item in grid, screenshot:${screenshot} ` + err);
         }
     },
 
@@ -664,7 +664,7 @@ module.exports = {
         if (result) {
             await launcherPanel.clickOnContentStudioLink();
         } else {
-            console.log("Login Page is opened, type a password and name...");
+            console.log('Login Page is opened, type a password and name...');
             return await this.doLoginAndClickOnContentStudio(userName, password);
         }
     },
@@ -876,9 +876,9 @@ module.exports = {
     async openDependencyWidgetInBrowsePanel() {
         let browsePanel = new BrowsePanel();
         let browseDependenciesWidget = new BrowseDependenciesWidget();
-        let browseDetailsPanel = new BrowseDetailsPanel();
+        let browseContextWindow = new BrowseContextWindowPanel();
         await browsePanel.openDetailsPanel();
-        await browseDetailsPanel.openDependencies();
+        await browseContextWindow.openDependencies();
         return await browseDependenciesWidget.waitForWidgetLoaded();
     },
     isStringEmpty(str) {
@@ -1181,4 +1181,7 @@ module.exports = {
         await appBrowsePanel.waitForSpinnerNotVisible();
         return await appBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
     },
+    async saveScreen(name){
+        await this.getBrowser().saveScreen();
+    }
 };

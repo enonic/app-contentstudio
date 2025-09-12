@@ -10,9 +10,10 @@ const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/prope
 const StatusWidget = require('../page_objects/browsepanel/detailspanel/status.widget.itemview');
 const BrowseContentWidgetItemView = require('../page_objects/browsepanel/detailspanel/browse.content.widget.item.view');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
+const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const PublishContentDialog = require('../page_objects/content.publish.dialog');
-const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
+const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
+const ContentWidgetView = require('../page_objects/browsepanel/detailspanel/content.widget.item.view');
 
 describe('Browse panel, properties widget, language spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -45,6 +46,15 @@ describe('Browse panel, properties widget, language spec', function () {
 
             let statusWidget = new StatusWidget();
             await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.NEW);
+        });
+
+    it(`WHEN the folder has been selected THEN expected workflow state should be displayed in ContentWidgetItemView`,
+        async () => {
+            let contentWidget = new ContentWidgetView();
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            // 2. Verify that expected worflow should be displayed in Details Panel
+            let actualState = await contentWidget.getContentWorkflowState();
+            assert.equal(actualState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,)
         });
 
     it(`WHEN existing folder has been published THEN 'First Published' date gets visible in Properties Widget`,
