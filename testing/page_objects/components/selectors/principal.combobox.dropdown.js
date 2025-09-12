@@ -20,8 +20,7 @@ class PrincipalComboBox extends BasDropdown {
         try {
             await this.clickOnFilteredByDisplayNameItem(userDisplayName, parentElement);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Principal Comboboox selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError('Principal Comboboox selector','err_principal_dropdown',err );
         }
     }
 
