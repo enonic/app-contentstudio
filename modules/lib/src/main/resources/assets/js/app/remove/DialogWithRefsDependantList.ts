@@ -1,5 +1,4 @@
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {DependantArchiveItemViewer} from '../dialog/DependantArchiveItemViewer';
 import {compareItems, DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
 import {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
 import {ContentItem} from '../ui2/list/ContentItem';
@@ -19,8 +18,6 @@ export class DialogWithRefsDependantList
     }
 
     createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentItem {
-        const viewer = new DependantArchiveItemViewer();
-        viewer.setObject(item);
 
         const view = new ContentItem({
             content: item,

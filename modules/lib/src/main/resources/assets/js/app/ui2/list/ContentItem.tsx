@@ -1,6 +1,6 @@
-import {useMemo, type JSX, type ReactNode} from 'react';
+import {useMemo, type JSX, type ReactNode, KeyboardEvent} from 'react';
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
-import {ListItem} from '@enonic/ui';
+import {ListItem, type ListItemProps} from '@enonic/ui';
 import {CompareStatusFormatter} from '../../content/CompareStatus';
 import type {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentIcon} from './ContentIcon';
@@ -17,7 +17,7 @@ type Props = {
     showReferences?: boolean;
     target?: Branch;
     hasInbound?: boolean;
-};
+} & Pick<ListItemProps, 'className' | 'selected'>;
 
 const statusBadgeClass =
     'text-xs px-1.5 py-0.5 rounded bg-surface-tertiary group-[.bg-surface-primary-selected]:bg-surface-secondary text-subtle';
@@ -45,19 +45,35 @@ const ContentItemComponent = ({
         [contentType, url]
     );
 
+    const isInteractive = clickable && typeof onClick === 'function';
+
+    const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+        if (!isInteractive) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick?.();
+        }
+    };
+
     return (
         <ListItem
-            className={['archive-item', clickable ? 'clickable' : '', className].join(' ').trim()}
+            className={['archive-item', isInteractive ? 'clickable' : '', className].join(' ').trim()}
             selected={selected}
-            onClick={clickable ? onClick : undefined}
-            role={clickable ? 'button' : undefined}
-            aria-disabled={!clickable || undefined}
+            onClick={isInteractive ? onClick : undefined}
+            onKeyDown={onKeyDown}
+            role={isInteractive ? 'button' : undefined}
+            aria-disabled={isInteractive ? undefined : true}
+            tabIndex={isInteractive ? 0 : undefined}
         >
             <ListItem.Content label={label} icon={Icon} />
             <ListItem.Right>
                 {children}
                 {showReferences && hasInbound && (
-                    <ShowReferencesButton contentId={contentId} target={target} className="show-references-btn" />
+                    <ShowReferencesButton
+                        contentId={contentId}
+                        target={target}
+                        className="show-references-btn"
+                    />
                 )}
                 <span aria-label={status} className={statusBadgeClass}>
           {status}
