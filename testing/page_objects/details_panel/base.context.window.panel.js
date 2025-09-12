@@ -10,7 +10,7 @@ const xpath = {
     scheduleWidgetItem: "//div[contains(@id,'OnlinePropertiesWidgetItemView')]",
 };
 
-class BaseDetailsPanel extends Page {
+class BaseContextWindowPanel extends Page {
 
     async waitForScheduleWidgetItemNotDisplayed() {
         return this.waitForElementNotDisplayed(xpath.scheduleWidgetItem, appConst.mediumTimeout);
@@ -34,8 +34,7 @@ class BaseDetailsPanel extends Page {
             await this.clickOnElement(this.widgetSelectorDropdownHandle);
             await this.pause(700);
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_widget_dropdown');
-            throw new Error('Error when clicking on Widget Selector dropdown handle  ' + err);
+            await this.handleError('Tried to click on Widget Selector dropdown handle.', 'err_widget_selector_dropdown_handle', err);
         }
     }
 
@@ -98,7 +97,7 @@ class BaseDetailsPanel extends Page {
             await this.clickOnWidgetSelectorDropdownHandle();
             await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.LAYERS);
         } catch (err) {
-            throw new Error("Error during opening 'Layers widget'" + err);
+            await this.handleError('Tried to open Layers widget', 'err_open_layers_widget', err);
         }
     }
 
@@ -108,7 +107,7 @@ class BaseDetailsPanel extends Page {
             await this.clickOnWidgetSelectorDropdownHandle();
             await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
         } catch (err) {
-            throw new Error("Error occurred during opening 'Details widget'" + err);
+            await this.handleError('Tried to open Details widget', 'err_open_details_widget', err);
         }
     }
 
@@ -128,4 +127,4 @@ class BaseDetailsPanel extends Page {
     }
 }
 
-module.exports = BaseDetailsPanel;
+module.exports = BaseContextWindowPanel;

@@ -23,9 +23,9 @@ class ContentWidgetItemView extends Page {
     async getContentWorkflowState() {
         let selector = xpath.container + xpath.contentSummary;
         let atrClass = await this.getAttribute(selector, 'class');
-        if (atrClass.includes("in-progress")) {
+        if (atrClass.includes('in-progress')) {
             return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
-        } else if (atrClass.includes("ready")) {
+        } else if (atrClass.includes('ready')) {
             return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
         }
     }
@@ -38,8 +38,7 @@ class ContentWidgetItemView extends Page {
         try {
             return await this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
         } catch (err) {
-            this.saveScreenshot("err_widget_item_is_visible");
-            throw new Error("Widget Item should not be displayed " + err);
+            await this.handleError('Widget Item should not be displayed', 'err_widget_item_is_visible', err);
         }
     }
 
@@ -47,8 +46,7 @@ class ContentWidgetItemView extends Page {
         try {
             return await this.waitForElementNotDisplayed(xpath.workInProgressIcon, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot("err_widget_item_workflow");
-            throw new Error("Workflow state should not be displayed in the widget item " + err);
+            await this.handleError('Workflow state should not be displayed in the widget item', 'err_widget_item_workflow', err);
         }
     }
 }

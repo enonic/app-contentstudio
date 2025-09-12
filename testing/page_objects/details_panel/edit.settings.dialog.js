@@ -5,7 +5,7 @@ const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
 const LocaleSelectorDropdown = require('../components/selectors/locale.selector.dropdown');
-const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdon')
+const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown')
 
 const xpath = {
     container: `//div[contains(@id,'EditPropertiesDialog')]`,
@@ -33,7 +33,6 @@ class EditSettingDialog extends Page {
     get applyButton() {
         return xpath.container + lib.dialogButton('Apply');
     }
-
 
     get languageFilterInput() {
         return xpath.container + xpath.localeCombobox + lib.OPTION_FILTER_INPUT;
@@ -66,8 +65,12 @@ class EditSettingDialog extends Page {
     }
 
     async waitForLoaded() {
-        await this.waitForElementDisplayed(xpath.settingsStepFormDiv);
-        await this.waitForApplyButtonDisplayed();
+        try {
+            await this.waitForElementDisplayed(xpath.settingsStepFormDiv, appConst.mediumTimeout);
+            await this.waitForApplyButtonDisplayed();
+        }catch (err){
+            await this.handleError('Edit Setting dialog was not loaded','err_edit_settings_loaded', err)
+        }
     }
 
     waitForClosed() {
@@ -87,8 +90,7 @@ class EditSettingDialog extends Page {
             let localeSelectorDropdown = new LocaleSelectorDropdown();
             await localeSelectorDropdown.clickOnFilteredLanguage(language);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_option');
-            throw new Error(`Error occurred in Edit Setting dialog, language selector , screenshot: ${screenshot} ` + err);
+            await this.handleError('Edit Setting dialog, language selector','err_lang_option', err);
         }
     }
 
@@ -98,8 +100,7 @@ class EditSettingDialog extends Page {
             await principalComboBox.selectFilteredUser(owner, xpath.container);
             return await this.pause(200);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_option');
-            throw new Error(`Error occurred in Settings form, language selector, screenshot : ${screenshot}` + err);
+            await this.handleError('Edit Setting dialog, owner selector','err_owner_option', err);
         }
     }
 
@@ -109,8 +110,7 @@ class EditSettingDialog extends Page {
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getText(selector);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_lang');
-            throw new Error('Error occurred in Edit Setting dialog, the selected language. screenshot: ' + screenshot + ' ' + err);
+            await this.handleError('Edit Setting dialog, the selected language is not displayed','err_lang_display', err);
         }
     }
 
@@ -134,8 +134,7 @@ class EditSettingDialog extends Page {
             await this.clickOnElement(this.removeLanguageButton);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot("err_click_on_remove_language_icon");
-            throw new Error('Error when removing the language! ' + err);
+            await this.handleError('Edit Setting dialog, error when removing the language','err_click_remove_lang', err);
         }
     }
 
@@ -144,8 +143,7 @@ class EditSettingDialog extends Page {
             await this.clickOnElement(this.removeOwnerButton);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot("err_click_on_remove_owner_icon");
-            throw new Error('Error when removing the owner! ' + err);
+            await this.handleError('Edit Setting dialog, error when removing the owner','err_click_remove_owner', err);
         }
     }
 

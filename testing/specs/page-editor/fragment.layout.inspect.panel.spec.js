@@ -234,7 +234,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await contentWizardPanel.typeDisplayName(SITE_2_NAME);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
-            await wizardContextPanel.waitForDetailsPanelLoaded();
+            await wizardContextPanel.waitForOpened();
             // 2. Click on minimize-toggle expand Live Edit and show Page Component modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             // 3. Insert the fragment-component:

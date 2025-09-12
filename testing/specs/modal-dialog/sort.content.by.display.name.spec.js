@@ -7,7 +7,7 @@ const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
 const studioUtils = require('../../libs/studio.utils.js');
-const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
+const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 
 describe('sort.content.by.display.name.spec, tests for ascending/descending order', function () {

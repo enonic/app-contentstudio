@@ -54,8 +54,8 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 2. Click on 'Customize' menu item:
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToMainFrame();
-            // 3. Inspection Panel should be loaded:
-            await wizardContextPanel.waitForDetailsPanelLoaded();
+            // 3. Inspection Panel should be loaded in the Context Window:
+            await wizardContextPanel.waitForOpened();
             await studioUtils.saveScreenshot('article_details_panel');
             // 4. Verify that the 'title' text input is displayed in the Page Inspection panel(config):
             await homePageInspectionPanel.waitForTitleInputDisplayed();

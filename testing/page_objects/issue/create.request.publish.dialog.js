@@ -1,7 +1,7 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('./../../libs/elements');
-const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdon');
+const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown');
 const DependantsControls = require('./dependant.controls');
 
 const xpath = {

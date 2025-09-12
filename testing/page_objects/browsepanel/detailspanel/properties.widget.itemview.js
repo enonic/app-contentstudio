@@ -64,9 +64,7 @@ class PropertiesItemView extends Page {
             await this.clickOnElement(this.editSettingsButton);
             await this.pause(300);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_prop_widget_edit');
-            await this.saveScreenshot(screenshot);
-            throw new Error(`Properties Widget, Edit button is not displayed ${screenshot} ` + err);
+            await this.handleError('Properties Widget, Edit button is not displayed','err_click_edit_settings', err, );
         }
     }
 
@@ -74,9 +72,7 @@ class PropertiesItemView extends Page {
         try {
             await this.waitForElementDisplayed(this.languageProperty, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('prop_widget_lang');
-            await this.saveScreenshot(screenshot);
-            throw new Error(`Properties Widget, language is not displayed ${screenshot} ` + err);
+            await this.handleError('Properties Widget, language is not displayed','err_edit_settings_lang', err, );
         }
     }
 
@@ -116,9 +112,7 @@ class PropertiesItemView extends Page {
         try {
             await this.waitForElementDisplayed(this.ownerProperty, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('prop_widget');
-            await this.saveScreenshot(screenshot);
-            throw new Error(`Properties Widget, owner is not displayed ${screenshot} ` + err);
+            await this.handleError('Properties Widget, owner is not displayed','err_owner_displayed', err,);
         }
     }
 

@@ -6,7 +6,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
 const CreateRequestPublishDialog = require('../issue/create.request.publish.dialog');
-const BrowseDetailsPanel = require('../browsepanel/detailspanel/browse.details.panel');
+const BrowseDetailsPanel = require('./detailspanel/browse.context.window.panel');
 const BaseBrowsePanel = require('../base.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const ContentUnpublishDialog = require('../content.unpublish.dialog');
@@ -753,7 +753,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         if (!result) {
             await this.clickOnDetailsPanelToggleButton();
         }
-        await browseDetailsPanel.waitForDetailsPanelLoaded();
+        await browseDetailsPanel.waitForLoaded();
         await browseDetailsPanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
         await this.pause(500);
         return browseDetailsPanel;
