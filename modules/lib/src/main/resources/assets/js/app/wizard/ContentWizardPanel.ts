@@ -990,7 +990,7 @@ export class ContentWizardPanel
             this.contentUpdateDisabled = false;
             this.isRename = false;
             if (this.isRendered()) {
-                this.updateContextView();
+                this.contextView.updateContextWindow();
                 this.updateButtonsState();
             }
             this.wizardHeader.toggleEnabled(true);
@@ -1214,7 +1214,8 @@ export class ContentWizardPanel
                     firstLoad = false;
                     this.toggleLiveEdit();
                     this.updateButtonsState();
-                    this.updateContextView();
+                    this.contextView.updateSelectedWidget();
+                    this.contextView.updateContextWindow();
                     this.toggleClass('rendered', true);
                 }
             });
@@ -2447,11 +2448,6 @@ export class ContentWizardPanel
         }
 
         return this.wizardActions.refreshActions();
-    }
-
-    private updateContextView() {
-        this.contextView.updateSelectedWidget();
-        this.contextView.updateContextWindow();
     }
 
     private updatePublishStatusOnDataChange() {
