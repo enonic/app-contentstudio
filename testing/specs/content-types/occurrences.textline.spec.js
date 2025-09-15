@@ -79,7 +79,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             let result1 = await textLine.getTexLineValues();
             assert.equal(result1[0], TEXT, 'Expected text should be saved');
             // 3. Open Versions Panel
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 4. Revert the previous version:

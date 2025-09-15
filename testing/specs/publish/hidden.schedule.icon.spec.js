@@ -43,7 +43,7 @@ describe('hidden.schedule.icon.spec:  tests for archiving content', function () 
             let contentWizard = new ContentWizard();
             // 1. Open the published folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Select a language
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
