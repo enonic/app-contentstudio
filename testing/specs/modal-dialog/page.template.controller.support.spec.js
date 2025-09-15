@@ -8,6 +8,7 @@ const PageTemplateForm = require('../../page_objects/wizardpanel/page.template.f
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('page.template.controller.support.spec tests for page template wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -32,7 +33,8 @@ describe('page.template.controller.support.spec tests for page template wizard',
             await contentWizard.typeDisplayName(TEMPLATE_NAME);
             await contentWizard.pause(500);
             // 3. Select a page descriptor
-            await contentWizard.selectPageDescriptor(COUNTRY_LIST_CONTROLLER);
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(COUNTRY_LIST_CONTROLLER);
             await contentWizard.waitForSaveButtonDisabled();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(500);

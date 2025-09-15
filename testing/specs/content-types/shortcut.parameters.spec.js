@@ -129,7 +129,7 @@ describe('Shortcut parameters specification', function () {
             let wizardContextPanel = new WizardContextPanel();
             // Open existing shortcut:
             await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // Expand the previous version:

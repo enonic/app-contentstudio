@@ -14,6 +14,7 @@ const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detail
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 
 describe('folder.content.revert.permissions.spec: tests for reverting of permissions in folder content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -33,38 +34,40 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
+            let wizardContextPanel = new WizardContextPanel();
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             // 1. open the existing folder:
             await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME);
-            // 2. Open Edit Permissions dialog,  click on 'Access' button in WizardStepNavigatorAndToolbar
+            // 2. Open Details Panel widget:
+            await contentWizard.openContextWindow();
+            await wizardContextPanel.openDetailsWidget();
+            // 3. Open 'Edit Permissions dialog',  click on 'Access' button in WizardStepNavigatorAndToolbar
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            // 3.
             await editPermissionsGeneralStep.waitForLoaded();
-            // 4. Update the permissions and click on Apply:
+            // 4. Update the permissions and click on 'Apply Changes' button:
             await editPermissionsGeneralStep.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
             await editPermissionsGeneralStep.clickOnNextButton();
-            //
             let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
             await editPermissionsSummaryStep.waitForLoaded();
-            // 7. click on 'Apply Changes' button in Summary step:
+            // 5. click on 'Apply Changes' button in Summary step:
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
             await editPermissionsSummaryStep.waitForDialogClosed();
             let expectedMessage = appConst.NOTIFICATION_MESSAGES.PERMISSIONS_APPLIED;
             let actualMessage = await contentWizard.waitForNotificationMessage();
             assert.equal(actualMessage, expectedMessage, `Permissions for 'contentName' are applied -  Message should appear`);
-            // 5. open Versions Widget:
+            // 6. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
-            // 6. Verify that the number of version-items with (Revert button) is not changed:
+            // 7. Verify that the number of version-items with (Revert button) is not changed:
             let result = await wizardVersionsWidget.countVersionItems();
             await studioUtils.saveScreenshot('number_versions_items_permissions_updated');
             assert.equal(result, 4, 'the number of versions items should be increased by 1');
 
-            // 7. Verify that 'Permissions updated' item gets visible in the widget
+            // 8. Verify that 'Permissions updated' item gets visible in the widget
             let numberItems = await wizardVersionsWidget.countPermissionsUpdatedItems();
             assert.equal(numberItems, 1, `One 'Permissions updated'  item should be present in the widget`);
 
-            // 8. Verify 'Compare Version' checkbox in each version item:
+            // 9. Verify 'Compare Version' checkbox in each version item:
             // The checkbox should be visible only for expanded version item:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             let isDisplayed = await wizardVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
