@@ -76,6 +76,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openContextWindow();
             await contentWizard.openDetailsWidget();
+            await contentWizard.openContextWindow();
             // 2. Open Version History panel:
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
