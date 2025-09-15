@@ -41,9 +41,9 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('shortcut_target_site_with_controller');
-            // 4. Details option should be selected in the widget selector dropdown:
+            // 4. 'Page' option should be selected in the widget selector dropdown:
             let selectedOption = await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
-            assert.equal(selectedOption, 'Details', "'Details' selected option should be in the widget selector");
+            assert.equal(selectedOption, appConst.WIDGET_SELECTOR_OPTIONS.PAGE, "'Page' selected option should be in the widget selector");
         });
 
     it(`GIVEN existing shortcut has been opened WHEN Show Page Editor button has been clicked THEN 'Preview' button should be disabled in the Preview Item toolbar`,
