@@ -1122,7 +1122,7 @@ module.exports = {
         let contentWizard = new ContentWizardPanel();
         let wizardDependenciesWidget = new WizardDependenciesWidget();
         let wizardContextWindow = new WizardContextPanel();
-        await contentWizard.openDetailsPanel();
+        await contentWizard.openContextWindow();
         await wizardContextWindow.openDependencies();
         await wizardDependenciesWidget.waitForWidgetLoaded();
         return wizardDependenciesWidget;

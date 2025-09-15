@@ -116,7 +116,7 @@ describe("Shortcut's target specification", function () {
             // 1. Open existing shortcut:
             await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
             // 2. Open versions widget
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Expand the previous version and click on 'Revert' button:

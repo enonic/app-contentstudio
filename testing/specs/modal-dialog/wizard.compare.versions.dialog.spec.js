@@ -34,7 +34,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Open Version panel:
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
@@ -57,7 +57,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
             await editSettingsDialog.clickOnApplyButton();
@@ -73,7 +73,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Open Version History panel:
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
@@ -107,7 +107,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let wizardContextPanel = new WizardContextPanel();
             // 1. Open the existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Open 'Version History' panel:
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
@@ -145,7 +145,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Open Version History panel:
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
@@ -179,7 +179,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Open Version History panel:
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
@@ -207,7 +207,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let wizardContextPanel = new WizardContextPanel();
             // 1. Open Comparing Versions Dialog:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 2. Click on the Edited version item and click on its checkbox:
@@ -232,7 +232,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let wizardContextPanel = new WizardContextPanel();
             // 1. Open Comparing Versions Dialog:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 2. Click on the Edited version item and click on its checkbox:

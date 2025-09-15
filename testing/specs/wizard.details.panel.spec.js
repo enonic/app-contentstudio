@@ -23,7 +23,7 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check the 
             let contentWizard = new ContentWizard();
             // 1. Open new wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Version history widget should not be displayed by default!
             let isLoaded = await wizardVersionsWidget.isWidgetLoaded();
             assert.ok(isLoaded === false, `'Versions Widget' should not be displayed`);
@@ -44,7 +44,7 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check the 
             let wizardDependenciesWidget = new WizardDependenciesWidget();
             // 1. Open new wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Click on dropdown handle and select Dependencies menu item:
             await wizardContextPanel.openDependencies();
             await studioUtils.saveScreenshot("wizard_dependencies_widget");

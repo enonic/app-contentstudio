@@ -12,6 +12,7 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const appConst = require('../../libs/app_const');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('context.window.insert.panel: tests for insertables panel and wizard toolbar', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -61,7 +62,8 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             // 3. Verify that 'Page Component' wizard step form is not visible, because page controller is not selected:
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             // 4. Select a page descriptor:
-            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 5.  Verify that 'Page Component' wizard step form gets visible in the wizard panel:
             await pageComponentsWizardStepForm.waitForLoaded();
             // 6. Verify that 'Page' wizard step is displayed in  Wizard Step Toolbar:
@@ -115,7 +117,7 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Open Versions widget:
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();

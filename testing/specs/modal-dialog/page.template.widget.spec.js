@@ -9,6 +9,7 @@ const PageTemplateWidget = require('../../page_objects/browsepanel/detailspanel/
 const contentBuilder = require('../../libs/content.builder');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const PageTemplateForm = require('../../page_objects/wizardpanel/page.template.form.panel');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('page.template.widget.spec: Tests for page template widget in Details Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -58,7 +59,8 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
             await contentWizard.typeDisplayName(TEMPLATE_NAME);
             // 4.Select 'Site' in support selector:
             await pageTemplateForm.filterOptionsAndSelectSupport(appConst.TEMPLATE_SUPPORT.SITE);
-            await contentWizard.selectPageDescriptor(COUNTRY_LIST_CONTROLLER);
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(COUNTRY_LIST_CONTROLLER);
             await contentWizard.waitForSaveButtonDisabled();
 
             await studioUtils.doCloseCurrentBrowserTab();

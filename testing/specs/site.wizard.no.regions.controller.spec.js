@@ -7,6 +7,7 @@ const contentBuilder = require("../libs/content.builder");
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const appConst = require('../libs/app_const');
+const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('site.wizard.no.regions.controller.spec: checks Save button after selecting a template with `no region` ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -28,7 +29,8 @@ describe('site.wizard.no.regions.controller.spec: checks Save button after selec
             await contentWizard.typeDisplayName(SITE.displayName);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             //site should be automatically saved after selecting the controller
-            await contentWizard.selectPageDescriptor(CONTROLLER_NO_REGIONS);
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NO_REGIONS);
             // Save button gets disabled after selecting 'no regions':
             await contentWizard.waitForSaveButtonDisabled();
         });

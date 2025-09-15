@@ -10,6 +10,8 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 
 describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolbar', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -73,7 +75,8 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             // 4. Click on No button in confirmation dialog:
             await confirmationDialog.clickOnNoButton();
             await confirmationDialog.waitForDialogClosed();
-            // 2. Open 'Edit Setting' modal dialog:
+            // 2. Open 'Details widget' then open 'Edit Setting' modal dialog:
+            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             let language = await editSettingsDialog.getSelectedLanguage();
             await editSettingsDialog.clickOnCancelButton();
@@ -97,6 +100,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await confirmationDialog.waitForDialogClosed();
             await contentWizard.pause(3000);
             // 4. Open 'Edit Details' modal dialog:
+            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await studioUtils.saveScreenshot('reset_language_confirmed');
             // 5. Verify that  content is reverted to the inherited state (no languages is selected in the parent project):
@@ -136,23 +140,35 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
         });
 
     // Verifies: https://github.com/enonic/app-contentstudio/issues/2604
+    // Widget Selector is not correctly updated after resetting changes in inherited site. #2604
     it("GIVEN controller has been selected in the inherited site WHEN 'Reset' button has been pressed THEN the site should be reverted to the inherited state",
         async () => {
             // 1. layer's context should be loaded automatically.
-            // 2. Open the inherited site and select the controller - click on 'Localize' button:
+            // 2. Open the inherited site  - click on 'Localize' button:
             let contentWizard = await studioUtils.selectContentAndClickOnLocalize(SITE_NAME);
-            await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.MAIN_REGION);
-            // 3. Click on Reset button:
+            let pageInspectionPanel = new PageInspectionPanel();
+            let liveFormPanel = new LiveFormPanel();
+            // 3. Select the controller in 'Page inspection' panel:
+            await pageInspectionPanel.selectPageTemplateOrController(appConst.CONTROLLER_NAME.MAIN_REGION);
+            // 4. Click on 'Reset' button in the wizard toolbar:
             let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();
-            // 4. Click on 'Yes' button in confirmation dialog:
+            // 5. Click on 'Yes' button in confirmation dialog:
             await confirmationDialog.clickOnYesButton();
-            // Verify that 'Save' button is disabled:
-            await contentWizard.waitForSaveButtonDisabled()
-            // 5. Verify that option filter input for controller gets visible:
-            await contentWizard.waitForControllerOptionFilterInputVisible();
+            // Verify that 'Localize' button get visible and enabled again:
+            await contentWizard.waitForLocalizeButtonEnabled();
+            await contentWizard.waitForSaveButtonDisabled();
+            // 6. Verify that 'Editing not available' message gets visible:
+            let result = await liveFormPanel.waitForEditingNotAvailableMessageDisplayed();
+            // 7. Verify that 'Page settings' link is not displayed in the 'Live form' panel:
+            await liveFormPanel.waitForPageSettingsLinkNotDisplayed();
+            // 8. Verify that 'Preview' button is disabled:
+            await contentWizard.waitForPreviewButtonDisabled();
+            // 9. Verify that controller in 'Page inspection' panel is set to 'Automatic':
+            let controllerActual = await pageInspectionPanel.getSelectedPageController();
+            assert.equal(controllerActual,'Automatic' ,'Automatic controller should be selected after the resetting');
         });
 
-    it("Post conditions: the project should be deleted",
+    it('Post conditions: the project should be deleted',
         async () => {
             await studioUtils.openSettingsPanel();
             await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);

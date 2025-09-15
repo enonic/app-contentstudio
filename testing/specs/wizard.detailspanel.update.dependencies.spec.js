@@ -96,7 +96,7 @@ describe('Content with image-selector, select images and verify that Outbound de
                 // 4. Reopen the content again:
                 await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME2, false);
                 // Details Panel should be automatically opened if the width is more than 1920px
-                await contentWizard.openDetailsPanel();
+                await contentWizard.openContextWindow();
                 await studioUtils.saveScreenshot('image_selector_reopened');
                 // Verify that the content is valid:
                 let isInvalid = await wizardContentWidgetItemView.isContentInvalid();
@@ -117,7 +117,7 @@ function openWizardDependencyWidget() {
     let contentWizard = new ContentWizard();
     let wizardContextPanel = new WizardContextPanel();
     let wizardDependenciesWidget = new WizardDependenciesWidget();
-    return contentWizard.openDetailsPanel().then(() => {
+    return contentWizard.openContextWindow().then(() => {
         return wizardContextPanel.openDependencies();
     }).then(() => {
         return wizardDependenciesWidget.waitForWidgetLoaded();

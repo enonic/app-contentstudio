@@ -144,7 +144,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             let detailsPanel = new DetailsPanel();
             //1. Open existing content and open versions widget:
             await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await detailsPanel.openVersionHistory();
             await versionsWidget.waitForVersionsLoaded();
             //2. Revert the previous version:

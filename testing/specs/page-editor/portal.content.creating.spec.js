@@ -13,6 +13,7 @@ const CityCreationPage = require('../../page_objects/wizardpanel/city.creation.p
 const LauncherPanel = require('../../page_objects/launcher.panel');
 const CityFormPanel = require('../../page_objects/wizardpanel/city.form.panel');
 const appConst = require('../../libs/app_const');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('portal.content.creating.spec - tests for portal creating', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -43,7 +44,8 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
             // 1. Expand the site and open wizard for new page-template:
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
-            await contentWizard.selectPageDescriptor(TEMPLATE.data.controllerDisplayName);
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE.data.controllerDisplayName);
             // 2. Click on minimize-toggle  expand Live Edit and show Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3.Click on the country item and open Context Menu:

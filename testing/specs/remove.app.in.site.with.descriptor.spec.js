@@ -9,6 +9,8 @@ const contentBuilder = require("../libs/content.builder");
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const appConst = require('../libs/app_const');
 const PageComponentsWizardStepForm = require('../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const LiveFormPanel = require('../page_objects/wizardpanel/liveform/live.form.panel');
+const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('remove_app.in.site.with.descriptor.spec: replace an application and check the selected controller', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -53,7 +55,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             await studioUtils.saveScreenshot('app_replaced_in_site_wizard');
             // 7. Verify that 'Controller Options Filter' input gets visible in the wizard-page:
-            await contentWizard.waitForControllerOptionFilterInputVisible();
+            let controller = await pageInspectionPanel.getSelectedPageController();
             // 8 Verify that PCV gets not visible after the resetting:
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             // 9. 'Save' button should be disabled after the resetting:
@@ -61,11 +63,15 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             // 10 'Preview' button gets disabled in the Preview item toolbar:
             await contentWizard.waitForPreviewButtonDisabled();
             // 11. Select the page descriptor from the new selected application
-            await contentWizard.selectPageDescriptor(CONTROLLER_APP_2);
-            // 12. Verify that Preview button gets displayed again:
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_APP_2);
+            // 12. Verify that 'Preview' button gets displayed again:
             await contentWizard.waitForPreviewButtonDisplayed();
             // 13. PCV gets visible and contains items from the second application:
             await pageComponentsWizardStepForm.waitForComponentItemDisplayed(CONTROLLER_APP_2);
+
+            assert.equal(controller, 'Automatic', 'Automatic controller should be displayed after resetting');
+
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/7390
@@ -86,7 +92,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await siteFormPanel.clickOnApplySelectionButtonInApplications();
             // 6. Verify that the selected option is removed in the form:
             let selectedApps = await siteFormPanel.getSelectedAppDisplayNames();
-            assert.equal(selectedApps.length, 0, "App selected options view should be empty");
+            assert.equal(selectedApps.length, 0, 'No selected apps should be in app-selector dropdown');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

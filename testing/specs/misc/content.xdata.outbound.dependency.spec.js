@@ -56,7 +56,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             let wizardContextPanel = new WizardContextPanel();
             // 1. Existing content with x-data(image) is opened:
             await studioUtils.selectContentAndOpenWizard(CONTENT_WITH_XDATA);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await contentWizard.pause(500);
             // 2. Dependencies widget is opened:
             await wizardContextPanel.openDependencies();

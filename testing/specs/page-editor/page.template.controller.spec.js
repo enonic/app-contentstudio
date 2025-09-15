@@ -16,6 +16,7 @@ const TextComponentCke = require('../../page_objects/components/text.component')
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('page.template.controller: select a controller in a template-wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -60,7 +61,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             // 2. fill in the name input and select the controller:
             await contentWizard.typeDisplayName(TEMPLATE.displayName);
-            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 3. Verify the issue - Verifies xp-apps#686 - 'Context Window should be loaded automatically':
             await liveContextWindow.waitForOpened();
             await contentWizard.clickOnMinimizeLiveEditToggler();

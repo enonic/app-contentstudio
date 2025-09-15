@@ -9,6 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const AttachmentsForm = require('../../page_objects/wizardpanel/attachments.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const WizardAttachmentsItemWidget = require('../../page_objects/wizardpanel/details/wizard.attachments.item.widget');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 
 describe('attachments.wizard.spec: tests for attachments content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -36,25 +37,29 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
         async () => {
             let attachmentsForm = new AttachmentsForm();
             let contentWizard = new ContentWizard();
+            let wizardContextPanel = new WizardContextPanel();
             let wizardAttachmentsItemWidget = new WizardAttachmentsItemWidget();
             // 1. open the existing imported attachment(1:1) content:
             await studioUtils.selectAndOpenContentInWizard(IMPORTED_ATTACHMENT_1_1);
-            // 2. Remove the item:
+            // 2. Remove the selected item in attachments form:
             await attachmentsForm.clickOnRemoveItemIcon(0);
             // 3. Verify that the content is automatically saved
             let message = await contentWizard.waitForNotificationMessage();
-            assert.equal(message, NOTIFICATION_MESSAGE, "Expected notification message should appear");
-            // 4. Verify that Validation Recording for attachments gets visible now:
+            assert.equal(message, NOTIFICATION_MESSAGE, 'Expected notification message should appear');
+            // 4. Verify that Validation Recording for attachments gets visible now:  'This field is required'
             let actualRecording = await attachmentsForm.getFormValidationRecording();
-            assert.equal(actualRecording, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "Validation recording should be displayed");
+            assert.equal(actualRecording, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, 'Validation recording should be displayed');
             // 5. Verify that the content is invalid
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid, 'Content should be invalid');
-            // 6. Verify that attachments item is not visible now:
+            await contentWizard.openContextWindow();
+            // 6. Open Details Panel widget:
+            await wizardContextPanel.openDetailsWidget();
+            // 7. Verify that attachments item is not visible now in the widget:
             await wizardAttachmentsItemWidget.waitForAttachmentItemsNotDisplayed();
-            // 7. Verify the message in the widget:
+            // 8. Verify the message in the widget:
             let placeholder = await wizardAttachmentsItemWidget.getAttachmentsPlaceholder();
-            assert.equal(placeholder, 'This item has no attachments', "Expected message should be displayed in the widget")
+            assert.equal(placeholder, 'This item has no attachments', 'Expected message should be displayed in the widget')
         });
 
     // https://github.com/enonic/app-contentstudio/issues/7152
@@ -63,11 +68,14 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
         async () => {
             let attachmentsForm = new AttachmentsForm();
             let contentWizard = new ContentWizard();
+            let wizardContextPanel = new WizardContextPanel();
             let wizardAttachmentsItemWidget = new WizardAttachmentsItemWidget();
             // 1. open the existing imported attachment(2:4) content:
             await studioUtils.selectAndOpenContentInWizard(IMPORTED_ATTACHMENT_2_4);
+            await contentWizard.openContextWindow();
+            await wizardContextPanel.openDetailsWidget();
             let result = await wizardAttachmentsItemWidget.getAttachmentsName();
-            assert.equal(result.length, 2, "2 attachment items should be displayed in the widget")
+            assert.equal(result.length, 2, '2 attachment items should be displayed in the widget')
             // 2. Remove one attachment item:
             await attachmentsForm.clickOnRemoveItemIcon(0);
             // 3. Verify that the content is automatically saved
@@ -75,7 +83,7 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
             // 4. Verify that the number of attachments item is reduced:
             await wizardAttachmentsItemWidget.getAttachmentsName();
             result = await wizardAttachmentsItemWidget.getAttachmentsName();
-            assert.equal(result.length, 1, "One attachment item should be displayed in the widget")
+            assert.equal(result.length, 1, 'One attachment item should be displayed in the widget')
         });
 
     it("WHEN new wizard with required 'attachment' is opened THEN 'Upload' button should be displayed",

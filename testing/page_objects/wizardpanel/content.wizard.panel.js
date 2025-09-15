@@ -208,28 +208,32 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(XPATH.shaderPage, appConst.mediumTimeout);
     }
 
-    // opens 'Details Panel' if it is not loaded
-    async openDetailsPanel() {
+    // opens 'Context Window' if it is not loaded
+    async openContextWindow() {
         let wizardContextWindow = new WizardContextPanel();
         try {
             let result = await wizardContextWindow.isOpened();
+            await wizardContextWindow.waitForOpened();
             if (!result) {
-                await this.clickOnDetailsPanelToggleButton();
-                return await wizardContextWindow.isOpened();
+                await this.clickOnContextWindowPanelToggleButton();
+                result = await wizardContextWindow.waitForOpened();
+                if (!result) {
+                    throw new Error('Context Window Panel was not opened after clicking on toggle button');
+                }
             } else {
-                console.log('Content wizard is opened and Details Panel is loaded');
+                console.log('Content wizard, Context Window is loaded');
             }
         } catch (err) {
-            await this.handleError('Details Panel should be loaded in Wizard', 'err_open_details_panel', err);
+            await this.handleError('Context Window should be loaded in Wizard', 'err_open_context_panel', err);
         }
     }
 
-    async clickOnDetailsPanelToggleButton() {
+    async clickOnContextWindowPanelToggleButton() {
         try {
             await this.clickOnElement(this.detailsPanelToggleButton);
             return await this.pause(500);
         } catch (err) {
-            throw new Error('Error when trying to open Details Panel in Wizard');
+            await this.handleError('Content Wizard- Context Window Panel toggle button', 'err_click_context_win_toggle', err);
         }
     }
 
@@ -237,7 +241,7 @@ class ContentWizardPanel extends Page {
         try {
             let wizardContextWindow = new WizardContextPanel();
             let versionPanel = new VersionsWidget();
-            await this.openDetailsPanel();
+            await this.openContextWindow();
             await wizardContextWindow.openVersionHistory();
             await versionPanel.waitForVersionsLoaded();
             return await this.pause(200);
@@ -256,7 +260,7 @@ class ContentWizardPanel extends Page {
         try {
             let wizardContextWindow = new WizardContextPanel();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
-            await this.openDetailsPanel();
+            await this.openContextWindow();
             await wizardContextWindow.openDependencies();
             return await wizardDependenciesWidget.waitForWidgetLoaded();
         } catch (err) {
@@ -425,6 +429,14 @@ class ContentWizardPanel extends Page {
             return await this.waitForElementDisplayed(this.saveButton, appConst.mediumTimeout)
         } catch (err) {
             await this.handleError(`'Save' button is not visible in the Content Wizard`, 'err_save_button_not_visible', err);
+        }
+    }
+
+    async waitForSaveButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.saveButton, appConst.mediumTimeout)
+        } catch (err) {
+            await this.handleError(`'Save' button is still visible in the Content Wizard`, 'err_save_button_visible', err);
         }
     }
 
@@ -645,21 +657,21 @@ class ContentWizardPanel extends Page {
         return this.getBrowser().switchToParentFrame();
     }
 
-    async waitForControllerOptionFilterInputVisible() {
-        try {
-            await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.mediumTimeout);
-        } catch (err) {
-            await this.handleError('Controller options filter should be displayed', 'err_controller_filter_input', err);
-        }
-    }
-
-    async waitForControllerOptionFilterInputNotVisible() {
-        try {
-            await this.waitForElementNotDisplayed(this.controllerOptionFilterInput, appConst.mediumTimeout);
-        } catch (err) {
-            await this.handleError('Controller options filter should not be displayed', 'err_controller_filter_input_visible', err);
-        }
-    }
+    // async waitForControllerOptionFilterInputVisible() {
+    //     try {
+    //         await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.mediumTimeout);
+    //     } catch (err) {
+    //         await this.handleError('Controller options filter should be displayed', 'err_controller_filter_input', err);
+    //     }
+    // }
+    //
+    // async waitForControllerOptionFilterInputNotVisible() {
+    //     try {
+    //         await this.waitForElementNotDisplayed(this.controllerOptionFilterInput, appConst.mediumTimeout);
+    //     } catch (err) {
+    //         await this.handleError('Controller options filter should not be displayed', 'err_controller_filter_input_visible', err);
+    //     }
+    // }
 
     async typeData(content) {
         try {
@@ -1028,7 +1040,7 @@ class ContentWizardPanel extends Page {
 
     async openDetailsWidget() {
         let wizardContextWindow = new WizardContextPanel();
-        await this.openDetailsPanel();
+        await this.openContextWindow();
         let option = await wizardContextWindow.getSelectedOptionInWidgetSelectorDropdown();
         if (option !== 'Details') {
             await wizardContextWindow.openDetailsWidget();
@@ -1192,7 +1204,7 @@ class ContentWizardPanel extends Page {
     async getSelectedWidgetInContextWindow() {
         try {
             let wizardContextPanel = new WizardContextPanel();
-            await wizardContextPanel.waitForContextWindowVisible();
+            await wizardContextPanel.waitFoOpened();
             return await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_selected_widget');

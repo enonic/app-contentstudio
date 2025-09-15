@@ -79,8 +79,8 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 2. Verify that the wizard step is loaded:
             await pageComponentsWizardStepForm.waitForLoaded();
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 3. Open details panel:
-            await contentWizard.openDetailsPanel();
+            // 3. Open Context panel:
+            await contentWizard.openContextWindow();
             // 4. Open versions widget:
             await detailsPanel.openVersionHistory();
             await versionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);

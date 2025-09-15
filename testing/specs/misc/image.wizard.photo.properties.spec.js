@@ -36,7 +36,7 @@ describe("image.wizard.photo.properties.spec: Open an image and update photo pro
             await imageFormPanel.pause(1000);
             await contentWizard.waitAndClickOnSave();
             // 3. open Versions widget in wizard-details panel
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await wizardContextPanel.openVersionHistory();
             let wizardVersionsWidget = new WizardVersionsWidget();
             await wizardVersionsWidget.waitForVersionsLoaded();

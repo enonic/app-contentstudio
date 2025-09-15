@@ -9,6 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const TextComponentCke = require('../../page_objects/components/text.component');
 const appConst = require('../../libs/app_const');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('site.reset.template.menu.item.spec - resets a site to default template', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -35,8 +36,9 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, "Site", CONTROLLER_NAME);
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
-            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3.Click on the item and open Context Menu:
             await pageComponentView.openMenu('country');

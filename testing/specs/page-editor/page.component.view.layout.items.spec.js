@@ -141,8 +141,8 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             // 2. Verify that the wizard step is loaded:
             await pageComponentsWizardStepForm.waitForLoaded();
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 3. Open details panel:
-            await contentWizard.openDetailsPanel();
+            // 3. Open Context Window panel:
+            await contentWizard.openContextWindow();
             // 4. Open versions widget:
             await detailsPanel.openVersionHistory();
             await versionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED);

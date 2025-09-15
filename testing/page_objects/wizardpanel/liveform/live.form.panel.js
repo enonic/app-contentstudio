@@ -20,6 +20,8 @@ const xpath = {
     previewNotAvailableSpan: "//p[@class='no-preview-message']/span[1]",
     imageInComponent: "//figure/img",
     closeEditModeButton: "//button[contains(@class,'close-edit-mode-button icon-close')]",
+    noSelectionDiv: "//div[contains(@class,'no-selection-message')]",
+    pageSettingsLink: "//a[contains(@class,'page-settings-link')]",
     editableTextComponentByText: text => `//section[contains(@id,'TextComponentView') and @contenteditable='true']//p[contains(.,'${text}')]`,
     textComponentByText: text => `//section[contains(@id,'TextComponentView')]//p[contains(.,'${text}')]`,
     partComponentByName: name => `//div[contains(@id,'PartComponentView') and @data-portal-component-type='part']//h2[contains(text(),'${name}')]`,
@@ -339,6 +341,36 @@ class LiveFormPanel extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
         return await this.pause(500);
+    }
+
+    async waitForEditingNotAvailableMessageDisplayed() {
+        let locator = xpath.container + xpath.noSelectionDiv + "//span";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
+    async waitForPageSettingsLinkNotDisplayed() {
+        try {
+            let locator = xpath.container + xpath.pageSettingsLink;
+            return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Page Settings link should not be displayed in Live Edit', 'err_page_settings_link', err);
+        }
+    }
+
+    async waitForPageSettingsLinkDisplayed() {
+        try {
+            let locator = xpath.container + xpath.pageSettingsLink;
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Page Settings link should be displayed in Live Edit', 'err_page_settings_link', err);
+        }
+    }
+
+    async clickOnPageSettingsLink() {
+        let locator = xpath.container + xpath.pageSettingsLink;
+        await this.waitForPageSettingsLinkDisplayed();
+        return await this.clickOnElement(locator);
     }
 }
 

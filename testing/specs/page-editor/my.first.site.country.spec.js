@@ -15,6 +15,7 @@ const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('my.first.site.country.spec - Create a site with country content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -48,8 +49,9 @@ describe('my.first.site.country.spec - Create a site with country content', func
             TEMPLATE = contentBuilder.buildPageTemplate(COUNTRY_TEMPLATE_NAME, 'Country', PAGE_CONTROLLER_COUNTRY);
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
-            await contentWizard.selectPageDescriptor(TEMPLATE.data.controllerDisplayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE.data.controllerDisplayName);
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3.Click on the country item and open Context Menu:
             await pageComponentView.openMenu('country');

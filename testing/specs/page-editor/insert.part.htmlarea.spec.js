@@ -14,6 +14,7 @@ const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const PartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/part.inspection.panel');
 const InsertablesPanel = require('../../page_objects/wizardpanel/liveform/insertables.panel');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -48,10 +49,11 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await contentWizard.typeDisplayName(CONTENT_NAME);
             await htmlAreaForm.typeTextInHtmlArea('test1');
             await studioUtils.saveScreenshot('issue_1');
-            // 1 Click on the toggler and open 'Page Editor'
+            // 1 Click on the toggle and open 'Page Editor'
             await contentWizard.clickOnPageEditorToggler();
             // 2 Select the page descriptor
-            await contentWizard.selectPageDescriptor('main region');
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 3 Open the context menu
             await pageComponentsWizardStepForm.openMenu('main');
             // 4 click on the 'Insert Part' menu item:
@@ -194,7 +196,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             let insertablesPanel = new InsertablesPanel();
             // 1. Open the content:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
-            // 2. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Select the 'Html area' part:
             await pageComponentView.clickOnComponent(PART_DESCRIPTION);
@@ -223,8 +225,9 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
             await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
-            await contentWizard.selectPageDescriptor(TEMPLATE.data.controllerDisplayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE.data.controllerDisplayName);
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3.Click on the item and open Context Menu:
             await pageComponentView.openMenu('main');

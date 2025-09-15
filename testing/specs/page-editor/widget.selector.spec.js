@@ -10,6 +10,7 @@ const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const EmulatorWidget = require('../../page_objects/wizardpanel/details/emulator.widget');
 const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const appConst = require('../../libs/app_const');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('widget.selector.spec: tests for options in the widget selector', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -39,7 +40,8 @@ describe('widget.selector.spec: tests for options in the widget selector', funct
             assert.ok(actualOptions1.includes(appConst.WIDGET_SELECTOR_OPTIONS.PAGE) === true,
                 "'Page' option should be displayed in the dropdown list");
             // 5. Select a controller:
-            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 6. Verify that 'Components' option appears in options after selecting a controller:
             await wizardContextPanel.clickOnWidgetSelectorDropdownHandle();
             await studioUtils.saveScreenshot('controller_selected_widget_menu_1');

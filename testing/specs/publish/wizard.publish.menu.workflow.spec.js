@@ -70,7 +70,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             let  editScheduleDialog = new EditScheduleDialog();
             // 1. Open the published folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Open 'Edit Schedule' dialog
             await scheduleWidgetItem.clickOnEditScheduleButton();
             // 3. Verify that actual dateTime is correct in Online From input
@@ -113,7 +113,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             assert.equal(status, appConst.CONTENT_STATUS.MODIFIED);
             // 4. Verify that 'Mark as ready' button gets visible:
             await contentWizard.waitForMarkAsReadyButtonVisible();
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 5. Open Edit Schedule modal dialog:
             let scheduleWidgetItem = new ScheduleWidgetItem();
             let editScheduleDialog = new EditScheduleDialog();
