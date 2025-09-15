@@ -34,7 +34,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             // 2. Verify that the site should be automatically saved after selecting an application:
             await contentWizard.waitForNotificationMessage();
             // 3. Verify that the site should be saved automatically after selecting a controller
-            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             await contentWizard.waitForSaveButtonDisabled();
             // 4. Click on the Inspect tab in Inspect Panel
             await contextWindow.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);

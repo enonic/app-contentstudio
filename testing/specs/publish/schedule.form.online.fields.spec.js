@@ -54,7 +54,7 @@ describe(`schedule.form.online.fields.spec:  tests for schedule form and Edit Sc
             // 7. Click on Schedule button in Publish dialog, and close it
             await contentPublishDialog.clickOnScheduleButton();
             // 8. Verify the 'Online TO' date in Schedule Widget:
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await studioUtils.saveScreenshot('wizard_schedule_widget_item');
             await wizardContextPanel.waitForScheduleWidgetItemDisplayed();
             let actualOnlineToDate = await scheduleWidgetItem.getOnlineToDateTime();
@@ -78,7 +78,7 @@ describe(`schedule.form.online.fields.spec:  tests for schedule form and Edit Sc
             let dateRangeInput = new DateRangeInput();
             // 1. Add the published folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. 'Edit Schedule' has been clicked
             await scheduleWidgetItem.clickOnEditScheduleButton();
             await editScheduleDialog.waitForLoaded();
