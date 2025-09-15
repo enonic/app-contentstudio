@@ -29,7 +29,6 @@ import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/Fi
 import {PageOptionsList} from './PageOptionsList';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {PageDescriptor} from '../../../../../page/PageDescriptor';
 
 export class PageTemplateAndControllerSelector
     extends FilterableListBoxWrapper<PageTemplateAndControllerOption> {
@@ -285,7 +284,11 @@ export class PageTemplateAndControllerSelector
                     // This can happen if the controller was deleted or the app stopped or removed from the site
                     const ctrKey = currentPageState.getController();
                     const missingControllerOption = new PageControllerOption(
-                        new PageDescriptor(new DescriptorBuilder().setKey(ctrKey).setDisplayName(ctrKey.getName().toString()))
+                        new Descriptor(
+                            new DescriptorBuilder().setKey(ctrKey)
+                                .setIconCls(PageComponentType.get().getIconCls())
+                                .setDisplayName(ctrKey.getName().toString())
+                        )
                     );
                     this.listBox.addItems(missingControllerOption);
                     this.selectOptionByValue(key);
