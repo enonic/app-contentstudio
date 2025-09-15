@@ -158,7 +158,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await contentWizard.waitForLocalizeButtonEnabled();
             await contentWizard.waitForSaveButtonDisabled();
             // 6. Verify that 'Editing not available' message gets visible:
-            let result = await liveFormPanel.waitForEditingNotAvailableMessageDisplayed();
+            let msg = await liveFormPanel.waitForEditingNotAvailableMessageDisplayed();
             // 7. Verify that 'Page settings' link is not displayed in the 'Live form' panel:
             await liveFormPanel.waitForPageSettingsLinkNotDisplayed();
             // 8. Verify that 'Preview' button is disabled:
@@ -166,6 +166,8 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             // 9. Verify that controller in 'Page inspection' panel is set to 'Automatic':
             let controllerActual = await pageInspectionPanel.getSelectedPageController();
             assert.equal(controllerActual,'Automatic' ,'Automatic controller should be selected after the resetting');
+            assert.equal(msg, 'Editing not available', "'Editing not available' message should be displayed");
+            await liveFormPanel.waitForPageSettingsLinkDisplayed();
         });
 
     it('Post conditions: the project should be deleted',

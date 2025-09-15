@@ -657,22 +657,6 @@ class ContentWizardPanel extends Page {
         return this.getBrowser().switchToParentFrame();
     }
 
-    // async waitForControllerOptionFilterInputVisible() {
-    //     try {
-    //         await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.mediumTimeout);
-    //     } catch (err) {
-    //         await this.handleError('Controller options filter should be displayed', 'err_controller_filter_input', err);
-    //     }
-    // }
-    //
-    // async waitForControllerOptionFilterInputNotVisible() {
-    //     try {
-    //         await this.waitForElementNotDisplayed(this.controllerOptionFilterInput, appConst.mediumTimeout);
-    //     } catch (err) {
-    //         await this.handleError('Controller options filter should not be displayed', 'err_controller_filter_input_visible', err);
-    //     }
-    // }
-
     async typeData(content) {
         try {
             let contentStepForm = new ContentStepForm();
