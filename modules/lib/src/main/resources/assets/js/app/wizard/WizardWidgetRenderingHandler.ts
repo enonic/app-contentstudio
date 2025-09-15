@@ -16,8 +16,6 @@ export class WizardWidgetRenderingHandler
     extends WidgetRenderingHandler {
 
     private placeholderView: DivEl;
-    private pageSettingsLink: AEl;
-    private enabled: boolean;
     private hasControllersDeferred: Q.Deferred<boolean>;
     private hasPageDeferred: Q.Deferred<boolean>;
 
@@ -29,15 +27,14 @@ export class WizardWidgetRenderingHandler
     protected createEmptyView(): DivEl {
         this.placeholderView = super.createMessageView(this.getDefaultMessage(), 'no-selection-message');
 
-        this.pageSettingsLink = new AEl('page-settings-link');
-        this.pageSettingsLink.setHtml(i18n('action.pageSettings.open'));
-        this.pageSettingsLink.onClicked((e) => {
+        const settingsLink = new AEl('page-settings-link');
+        settingsLink.setHtml(i18n('action.pageSettings.open'));
+        settingsLink.onClicked((e) => {
             PageNavigationMediator.get().notify(
                 new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(ComponentPath.root())));
-        })
-        this.setEnabled(this.enabled);
+        });
 
-        this.placeholderView.appendChild(this.pageSettingsLink);
+        this.placeholderView.appendChild(settingsLink);
 
         return this.placeholderView;
     }
@@ -71,15 +68,6 @@ export class WizardWidgetRenderingHandler
 
     protected handleWidgetEvent(event: ViewWidgetEvent) {
         // do nothing, we want to handle it in LiveFormPanel
-    }
-
-    public reset() {
-        // this.placeholderView?.deselectOptions();
-    }
-
-    public setEnabled(enabled: boolean) {
-        this.enabled = enabled;
-        this.pageSettingsLink.setVisible(enabled);
     }
 
     public hasControllers(): Q.Promise<boolean> {
