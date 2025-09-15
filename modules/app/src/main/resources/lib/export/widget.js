@@ -42,7 +42,7 @@ function widgetResponse(status, data) {
 
 function redirectResponse(url, data) {
     const response = {
-        redirect: url,
+        redirect: encodeURI(url),
         contentType: 'text/html'
     }
 
