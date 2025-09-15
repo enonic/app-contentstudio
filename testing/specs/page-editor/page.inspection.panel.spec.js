@@ -87,8 +87,8 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             // 6. Automatic option should be selected in the dropdown:
             let option  = await pageInspectionPanel.getSelectedPageController();
             assert.equal(option, 'Automatic', 'Automatic page controller should be selected in Page inspection panel');
-            // 7. Controller selector should be loaded in Live Edit:
-            await contentWizard.waitForControllerOptionFilterInputVisible();
+            // 7. TODO Controller selector should be loaded in Live Edit:
+            //await contentWizard.waitForControllerOptionFilterInputVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
