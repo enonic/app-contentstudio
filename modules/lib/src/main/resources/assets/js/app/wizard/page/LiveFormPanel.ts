@@ -881,7 +881,6 @@ export class LiveFormPanel
 
     setEnabled(enabled: boolean): void {
         this.modifyPermissions = enabled;
-        this.widgetRenderingHandler.setEnabled(enabled);
 
         this.insertablesPanel?.setModifyPermissions(enabled);
         this.liveEditPageProxy?.setModifyPermissions(enabled);
@@ -908,8 +907,6 @@ export class LiveFormPanel
         this.availableInspectPanels.forEach(
             (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.unbindSiteModelListeners());
         this.liveEditModel = null;
-
-        this.widgetRenderingHandler.reset();
 
         this.removeContentEventListeners();
     }
