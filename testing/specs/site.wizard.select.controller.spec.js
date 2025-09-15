@@ -9,6 +9,7 @@ const contentBuilder = require("../libs/content.builder");
 const appConst = require('../libs/app_const');
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
+const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('site.wizard.select.controller.spec: Saves site-data and selects a controller', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -31,7 +32,8 @@ describe('site.wizard.select.controller.spec: Saves site-data and selects a cont
             // 3. Click on remove-icon and close the current notification message:
             await contentWizard.removeNotificationMessage();
             // 4. switch to 'LiveEdit' and select the controller
-            await contentWizard.selectPageDescriptor('Page');
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController('Page');
             // The notification message should appear, because the site automatically saved after the selecting a page-controller.
             await studioUtils.saveScreenshot('site_page_descriptor_selected1');
             let result = await contentWizard.waitForNotificationMessage();
@@ -60,7 +62,8 @@ describe('site.wizard.select.controller.spec: Saves site-data and selects a cont
             let workflow = await contentWizard.getContentWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content gets 'Ready for publishing'");
             // 5. select the controller
-            await contentWizard.selectPageDescriptor('Page');
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController('Page');
             // 6. Verify that status gets Work in progress after selecting a page descriptor:
             await studioUtils.saveScreenshot('site_page_descriptor_work_in_progress');
             workflow = await contentWizard.getContentWorkflowState();

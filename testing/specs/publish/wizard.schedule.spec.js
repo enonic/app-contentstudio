@@ -57,7 +57,7 @@ describe('Wizard page - verify schedule form', function () {
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.openPublishMenuAndPublish();
             await contentWizard.waitForNotificationMessage();
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Open Page Editor with Preview Widget, Verify that status gets  Published
             await contentWizard.clickOnPageEditorToggler();
             // 3. Published status should be displayed in the wizard toolbar
@@ -82,7 +82,7 @@ describe('Wizard page - verify schedule form', function () {
             let scheduleWidgetItem = new ScheduleWidgetItem();
             // 1. Open the folder and publish it:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Verify the 'Online from' date in Schedule Widget:
             await studioUtils.saveScreenshot('wizard_schedule_widget_item');
             await wizardContextPanel.waitForScheduleWidgetItemDisplayed();
@@ -98,7 +98,7 @@ describe('Wizard page - verify schedule form', function () {
             let editScheduleDialog = new EditScheduleDialog();
             // 1. Open the 'published' folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 3. Open Edit Properties modal dialog:
             await scheduleWidgetItem.clickOnEditScheduleButton();
             await editScheduleDialog.typeOnlineTo(DATE_TIME_IN_PAST);
@@ -113,7 +113,7 @@ describe('Wizard page - verify schedule form', function () {
             let contentWizard = new ContentWizard();
             // 1. Open the 'published' folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Open Edit Schedule modal dialog:
             let editScheduleDialog = await studioUtils.openEditScheduleDialog();
             // 3. 'Online from' input has been cleared and 'Online to' has been set in future
@@ -134,7 +134,7 @@ describe('Wizard page - verify schedule form', function () {
             let wizardContextPanel = new WizardContextPanel();
             // 1. Select and open the folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Unpublish the folder:
             await studioUtils.doUnPublishInWizard();
             await contentWizard.pause(500);

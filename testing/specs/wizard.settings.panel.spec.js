@@ -34,7 +34,7 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             let propertiesWidget = new PropertiesWidget();
             // 1. Open new folder wizard
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await contentWizard.typeDisplayName(FOLDER_DISPLAY_NAME);
             // 2. Open 'Edit Settings' modal dialog and select the language:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
@@ -92,7 +92,7 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             // 1. Open wizard for new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             // 2. Verify the owner property in the widget
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await propertiesWidget.waitForOwnerDisplayed();
             // 3. default owner has been removed
             let editSettingsDialog = await studioUtils.openEditSettingDialog();

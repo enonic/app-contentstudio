@@ -138,9 +138,8 @@ describe('Text Component with CKE - insert download-link specification', functio
             let contentWizard = new ContentWizard();
             // 1. open the existing moved content:
             await studioUtils.openContentAndSwitchToTabByDisplayName(TEST_CONTENT_NAME, TEST_CONTENT_DISPLAY_NAME);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. open Versions Widget:
-            await contentWizard.openDetailsPanel();
             await contentWizard.openVersionsHistoryPanel();
             // 3. Click on the latest 'Moved' version item:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
@@ -160,7 +159,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             // 1. open the existing moved content:
             await studioUtils.openContentAndSwitchToTabByDisplayName(TEST_CONTENT_NAME, TEST_CONTENT_DISPLAY_NAME);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
@@ -202,7 +201,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             // 1. open the existing moved content:
             await studioUtils.openContentAndSwitchToTabByDisplayName(TEST_CONTENT_NAME, TEST_CONTENT_DISPLAY_NAME);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
             // 3. Open Compare versions dialog in the latest 'Moved' version item:
