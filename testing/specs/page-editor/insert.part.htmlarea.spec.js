@@ -177,9 +177,9 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 3. Expand the menu and click on "Detach from fragment" menu item
+            // 3. Expand the menu and click on "Customize" menu item
             await pageComponentView.openMenuByDescription('part');
-            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
+            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.CUSTOMIZE);
             // 4. Verify that custom icon should be displayed after the part detached from fragment:
             let isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 0);
             assert.ok(isDefaultIcon === false, 'The part should be displayed with the custom icon');

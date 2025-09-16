@@ -23,7 +23,7 @@ describe('Move Fragment specification', function () {
     }
 
     let SITE, FOLDER;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const FRAGMENT_TEXT_DESCRIPTION = 'text';
     const TEST_TEXT_FRAGMENT = appConst.generateRandomName('text');
 
@@ -215,7 +215,7 @@ describe('Move Fragment specification', function () {
             await pageComponentsWizardStepForm.openMenu('Fragment');
             await studioUtils.saveScreenshot('removed_fragment_context_menu');
             await pageComponentsWizardStepForm.waitForContextMenuItemDisabled(appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT);
-            await pageComponentsWizardStepForm.waitForContextMenuItemDisabled(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
+            await pageComponentsWizardStepForm.waitForContextMenuItemDisabled(appConst.COMPONENT_VIEW_MENU_ITEMS.CUSTOMIZE);
             // Verify - These menu items should be enabled: Remove, Duplicate, Reset, Inspect, Insert, Select Parent
             await pageComponentsWizardStepForm.waitForContextMenuItemEnabled(appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE);
             await pageComponentsWizardStepForm.waitForContextMenuItemEnabled(appConst.COMPONENT_VIEW_MENU_ITEMS.DUPLICATE);
