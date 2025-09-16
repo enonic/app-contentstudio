@@ -54,8 +54,7 @@ class BaseDropdown extends Page {
             await this.waitForElementDisplayed(parentElement + this.modeTogglerButton);
             return await this.clickOnElement(parentElement + this.modeTogglerButton);
         }catch (err){
-            let screenshot = await this.saveScreenshotUniqueName('err_click_mode_toggle');
-            throw new Error(`Error during clicking on mode-toggle icon, screenshot: ${screenshot} ` + err);
+            await this.handleError('Dropdown, clicked on mode toggle icon.', 'err_click_mode_toggle', err);
         }
     }
 
@@ -64,8 +63,14 @@ class BaseDropdown extends Page {
         try {
             return await this.waitForElementNotDisplayed(parentElement + this.modeTogglerButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_toggle_mode_icon');
-            throw new Error(`Toggle-mode icon should be displayed in the selector, screenshot: ${screenshot} ` + err);
+            await this.handleError('Dropdown,  mode-toggle icon should not be displayed.', 'err_toggle_mode_icon', err);
+        }
+    }
+    async waitForToggleIconDisplayed(parentElement) {
+        try {
+            return await this.waitForElementDisplayed(parentElement + this.modeTogglerButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Dropdown,  mode-toggle icon should be displayed.', 'err_toggle_mode_icon', err);
         }
     }
 

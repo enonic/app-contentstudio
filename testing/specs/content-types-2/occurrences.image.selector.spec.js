@@ -28,6 +28,20 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             await studioUtils.doAddSite(SITE);
         });
 
+    // allowPath config doesn't work in image selectors #9137
+    // https://github.com/enonic/app-contentstudio/issues/9137
+    it("GIVEN wizard for content with Image Selector-content is opened WHEN allowPath set to ${site}/* THEN only all children of the site should be present in the dropdown selector",
+        async () => {
+            let imageSelectorForm = new ImageSelectorForm();
+            // 1. Open wizard for new content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_ALLOW_SITE);
+            await imageSelectorForm.clickOnDropdownHandle();
+            await studioUtils.saveScreenshot('img_sel_allow_path_site');
+            //  This new site doesn't contain any images, so the selector should be empty:
+            // 2. Verify that the message: "No matching items - this message should appear"
+            await imageSelectorForm.waitForEmptyOptionsMessage();
+        });
+
     // verifies the "Path-search in selectors doesn't work #4786'
     it("GIVEN wizard for Image Selector-content (0:0) is opened WHEN path to an image has been typed THEN the image should be filtered",
         async () => {
@@ -35,11 +49,11 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             // 1. Open wizard for new content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_0_0);
             // 2. Type a path to an existing image and select the image:
-            let pathToImage = "all-content-types-images/" + 'renault.jpg';
+            let pathToImage = 'all-content-types-images/' + 'renault.jpg';
             await imageSelectorForm.selectOptionByImagePath(pathToImage, appConst.TEST_IMAGES.RENAULT);
             // 3. Verify that the image is selected:
             let result = await imageSelectorForm.getSelectedImages();
-            assert.equal(result[0], appConst.TEST_IMAGES.RENAULT, "Expected image should be displayed in the selected options");
+            assert.equal(result[0], appConst.TEST_IMAGES.RENAULT, 'Expected image should be displayed in the selected options');
         });
 
     it(`GIVEN wizard for content with not required image-selector(0:0) is opened WHEN only name input has been filled THEN the content gets valid`,
@@ -51,7 +65,7 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             // 3. The content should be valid:
             let result = await contentWizard.isContentInvalid();
-            assert.ok(result === false, "The content should be valid");
+            assert.ok(result === false, 'The content should be valid');
         });
 
     it(`GIVEN wizard for content with required image-selector(1:1) is opened WHEN only name input has been filled THEN the content remains invalid`,
@@ -64,7 +78,7 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
             // 3. The content should be invalid even before a clicking on 'Save' button:
             let result = await contentWizard.isContentInvalid();
-            assert.ok(result, "The content should be invalid");
+            assert.ok(result, 'The content should be invalid');
             await contentWizard.waitAndClickOnSave();
             // 4. Validation message should appear after clicking on Save button:
             let actualMessage = await imageSelectorForm.getSelectorValidationMessage();
@@ -81,7 +95,7 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             await imageSelectorForm.filterOptionsAndSelectImage(appConst.TEST_IMAGES.SPUMANS);
             // 3. The content gets valid now:
             let result = await contentWizard.isContentInvalid();
-            assert.ok(result === false, "The content should be valid");
+            assert.ok(result === false, 'The content should be valid');
             await contentWizard.waitAndClickOnSave();
             // 4. Options filter input gets not visible:
             await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();
@@ -106,7 +120,7 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             // 4. Verify that the content should be with red-icon in the grid, because 2 images are required:
             await contentBrowsePanel.waitForContentDisplayed(IMG_SEL_2_4.displayName);
             let isDisplayed = await contentBrowsePanel.isRedIconDisplayed(IMG_SEL_2_4.displayName);
-            assert.ok(isDisplayed, "The content should be invalid");
+            assert.ok(isDisplayed, 'The content should be invalid');
         });
 
     it(`GIVEN existing image-selector(2:4) is opened WHEN the second image has been selected THEN the content gets valid`,
@@ -116,7 +130,7 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             await studioUtils.selectAndOpenContentInWizard(IMG_SEL_2_4.displayName);
             // 2. One image is selected, so validation recording should be displayed:
             let validationRecording = await imageSelectorForm.getSelectorValidationMessage();
-            assert.equal(validationRecording, "Min 2 valid occurrence(s) required", "Expected validation message should be displayed");
+            assert.equal(validationRecording, 'Min 2 valid occurrence(s) required', "Expected validation message should be displayed");
             // 3. The second image has been selected:
             await imageSelectorForm.filterOptionsSelectImageAndClickOnApply(appConst.TEST_IMAGES.SPUMANS);
             // 4. Validation recording gets not visible:
@@ -126,13 +140,13 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             await imageSelectorForm.clickOnCheckboxInSelectedImage(appConst.TEST_IMAGES.RENAULT);
             let numberItemsToRemove = await imageSelectorForm.getNumberItemInRemoveButton();
             // 6. Verify the "Remove (2)" label in the button
-            assert.equal(numberItemsToRemove, "Remove (2)", "2 should be displayed in 'Remove' button");
+            assert.equal(numberItemsToRemove, 'Remove (2)', `2 should be displayed in 'Remove' button`);
             // 7. Remove 2 selected options:
             await imageSelectorForm.clickOnRemoveButton();
             await studioUtils.saveScreenshot('img_sel_validation_1')
             // 8. Verify the validation recording:
             let actualMessage = await imageSelectorForm.getSelectorValidationMessage();
-            assert.equal(actualMessage, "Min 2 valid occurrence(s) required", "Expected validation recording should be displayed");
+            assert.equal(actualMessage, 'Min 2 valid occurrence(s) required', "Expected validation recording should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
