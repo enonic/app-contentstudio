@@ -35,7 +35,7 @@ public class PublishRunnableTask
     {
         final ContentIds contentIds = ContentIds.from( params.getIds() );
         final ContentIds excludeContentIds = ContentIds.from( params.getExcludedIds() );
-        final ContentIds excludeChildrenIds = ContentIds.from( params.getExcludeChildrenIds() );
+        final ContentIds excludeDescendantsOf = ContentIds.from( params.getExcludeChildrenIds() );
         final ContentPublishInfo contentPublishInfo = params.getSchedule() == null ? null : ContentPublishInfo.create().
             from( params.getSchedule().getPublishFrom() ).
             to( params.getSchedule().getPublishTo() ).
@@ -50,7 +50,7 @@ public class PublishRunnableTask
             final PublishContentResult result = contentService.publish( PushContentParams.create().
                 contentIds( contentIds ).
                 excludedContentIds( excludeContentIds ).
-                excludeChildrenIds( excludeChildrenIds ).
+                excludeDescendantsOf( excludeDescendantsOf ).
                 contentPublishInfo( contentPublishInfo ).
                 includeDependencies( true ).
                 pushListener( new PublishContentProgressListener( progressReporter ) ).
