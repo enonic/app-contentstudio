@@ -164,7 +164,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         try {
             return await this.waitForElementDisplayed(XPATH.container + lib.EMPTY_OPTIONS_H5, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError("Image Selector - Empty options text should appear visible", 'err_img_sel_empty_opt', err);
+            await this.handleError(`Image Selector - 'No matching items' text should appear`, 'err_img_sel_empty_opt', err);
         }
     }
 
@@ -233,7 +233,7 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async getNumberItemInRemoveButton() {
         await this.waitForRemoveButtonDisplayed();
-        let locator = this.removeButton + "/span";
+        let locator = this.removeButton + '/span';
         return await this.getText(locator);
     }
 
