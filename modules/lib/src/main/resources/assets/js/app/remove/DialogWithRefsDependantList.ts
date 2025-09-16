@@ -1,8 +1,8 @@
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {compareItems, DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
+import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
 import {ContentItem} from '../ui2/list/ContentItem';
-import {EditContentEvent} from '../event/EditContentEvent';
 
 export class DialogWithRefsDependantList
     extends DialogDependantItemsList {
@@ -18,18 +18,17 @@ export class DialogWithRefsDependantList
     }
 
     createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentItem {
+        const hasInbound = !!this.resolveDependenciesResult?.hasInboundDependency(item.getId());
 
-        const view = new ContentItem({
+        return new ContentItem({
             content: item,
             selected: false,
             className: 'archive-item',
             clickable: !readOnly,
             onClick: readOnly ? undefined : () => new EditContentEvent([item]).fire(),
             showReferences: true,
+            hasInbound,
         });
-
-        view.setHasInbound(this.resolveDependenciesResult?.hasInboundDependency(item.getId()) ?? false);
-        return view;
     }
 
     setResolveDependenciesResult(resolveDependenciesResult: ContentWithRefsResult) {

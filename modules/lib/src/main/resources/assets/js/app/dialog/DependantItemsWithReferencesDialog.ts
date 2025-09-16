@@ -5,7 +5,6 @@ import {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
 import {ContentId} from '../content/ContentId';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import Q from 'q';
@@ -13,33 +12,14 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
 import {DialogWithRefsDependantList} from '../remove/DialogWithRefsDependantList';
 import {DialogWithRefsItemList, DialogWithRefsItemListConfig} from '../remove/DialogWithRefsItemList';
+import {ContentItem} from '../ui2/list/ContentItem';
 
-
-
-interface InboundAwareView {
-    setHasInbound: (b: boolean) => void;
-    getItem: () => ContentSummaryAndCompareStatus;
-}
-
-function isInboundAwareViewOf<T>(v: T): v is T & InboundAwareView {
-    if (v === null || typeof v !== 'object') return false;
-
-    const m = v as Partial<InboundAwareView>;
-    return typeof m.setHasInbound === 'function'
-           && typeof m.getItem === 'function';
-}
-
-
-
-
-export abstract class DependantItemsWithReferencesDialog extends DependantItemsWithProgressDialog {
-
+export abstract class DependantItemsWithReferencesDialog
+    extends DependantItemsWithProgressDialog {
     protected stateBar: DialogStateBar;
-
     protected inboundErrorsEntry: DialogStateEntry;
 
     protected resolveDependenciesResult: ContentWithRefsResult;
-
     protected referenceIds: ContentId[];
 
     protected initElements(): void {
@@ -48,40 +28,48 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         this.stateBar = new DialogStateBar({hideIfResolved: true});
         this.inboundErrorsEntry = this.stateBar.addErrorEntry({
             text: i18n('dialog.archive.warning.text'),
-            actionButtons: [{
-                label: i18n('dialog.archive.warning.ignore'),
-                markIgnored: true,
-            }],
+            actionButtons: [
+                {
+                    label: i18n('dialog.archive.warning.ignore'),
+                    markIgnored: true,
+                },
+            ],
         });
     }
 
     protected initListeners(): void {
         super.initListeners();
 
-        const itemsAddedHandler = (
-            items: ContentSummaryAndCompareStatus[],
-            itemList: ListBox<ContentSummaryAndCompareStatus>
-        ) => {
-            if (!this.resolveDependenciesResult) return;
+        const mainList = this.getItemList();
+        const depList = this.getDependantList();
 
-            const rawViews = items.map(item => itemList.getItemView(item));        // Element[]
-            const inboundAware = rawViews.filter(isInboundAwareViewOf);            // (Element & InboundAwareView)[]
-            this.updateItemViewsWithInboundDependencies(inboundAware);             // OK (assignable to InboundAwareView[])
+        const onItemsAdded = (
+            items: ContentSummaryAndCompareStatus[],
+            list: DialogWithRefsItemList | DialogWithRefsDependantList
+        ) => {
+            if (!this.resolveDependenciesResult) {
+                return;
+            }
+
+            const views = items.map(
+                (item) => list.getItemView(item) as unknown as ContentItem
+            );
+            this.updateItemViewsWithInboundDependencies(views);
         };
 
+        mainList.onItemsAdded((items) => onItemsAdded(items, mainList));
+        depList.onItemsAdded((items) => onItemsAdded(items, depList));
 
-        this.getItemList().onItemsAdded(items => itemsAddedHandler(items, this.getItemList()));
-        this.getDependantList().onItemsAdded(items => itemsAddedHandler(items, this.getDependantList()));
-        this.getItemList().onItemsRemoved(() => this.onListItemsRemoved());
+        mainList.onItemsRemoved(() => this.onListItemsRemoved());
 
-        this.stateBar.onResolvedStateChange(resolved => this.toggleControls(resolved));
+        this.stateBar.onResolvedStateChange((resolved) => this.toggleControls(resolved));
 
         const handleRefsChange = this.handleRefsChange.bind(this);
         ContentServerEventsHandler.getInstance().onContentUpdated(handleRefsChange);
         ContentServerEventsHandler.getInstance().onContentDeleted(handleRefsChange);
     }
 
-    private updateItemViewsWithInboundDependencies(views: readonly InboundAwareView[]): void {
+    private updateItemViewsWithInboundDependencies(views: readonly ContentItem[]): void {
         for (const v of views) {
             v.setHasInbound(this.hasInboundRef(v.getItem().getId()));
         }
@@ -95,8 +83,11 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         if (!this.isOpen()) {
             return;
         }
-        const contentIds = items.map(item => item.getContentId());
-        const referringWasUpdated = this.referenceIds.find(id => contentIds.some(contentId => contentId.equals(id)));
+
+        const contentIds = items.map((item) => item.getContentId());
+        const referringWasUpdated = this.referenceIds.find((id) =>
+            contentIds.some((contentId) => contentId.equals(id))
+        );
         if (referringWasUpdated) {
             this.refreshInboundRefs();
         }
@@ -109,16 +100,19 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
                 if (!this.resolveDependenciesResult.hasInboundDependencies()) {
                     this.unlockMenu();
                 }
-            }).catch(DefaultErrorHandler.handle);
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     protected resolveDescendants(): Q.Promise<ContentId[]> {
-        const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
-        return this.createResolveRequest(ids).sendAndParse().then((result: ContentWithRefsResult) => {
-            this.resolveDependenciesResult = result;
-            this.resolveReferanceIds();
-            return result.getContentIds();
-        });
+        const ids: ContentId[] = this.getItemList().getItems().map((c) => c.getContentId());
+        return this.createResolveRequest(ids)
+            .sendAndParse()
+            .then((result: ContentWithRefsResult) => {
+                this.resolveDependenciesResult = result;
+                this.resolveReferanceIds();
+                return result.getContentIds();
+            });
     }
 
     protected abstract createResolveRequest(ids: ContentId[]): CmsContentResourceRequest<ContentWithRefsResult>;
@@ -127,8 +121,8 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         this.getDependantList().setResolveDependenciesResult(this.resolveDependenciesResult);
 
         const itemsWithInboundRefs: ContentId[] =
-            this.dependantIds.filter((id: ContentId) => this.hasInboundRef(id.toString()));
-        this.dependantIds = this.dependantIds.filter((contentId: ContentId) => !this.hasInboundRef(contentId.toString()));
+            this.dependantIds.filter((id) => this.hasInboundRef(id.toString()));
+        this.dependantIds = this.dependantIds.filter((id) => !this.hasInboundRef(id.toString()));
         this.dependantIds.unshift(...itemsWithInboundRefs);
 
         const inboundCount = this.resolveDependenciesResult.getInboundDependencies().length;
@@ -137,19 +131,18 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
 
         if (hasInboundDeps || forceUpdate) {
-            const rawViews = [
-                ...this.getItemList().getItemViews(),
-                ...this.getDependantList().getItemViews(),
+            const allViews: ContentItem[] = [
+                ...(this.getItemList().getItemViews() as unknown as ContentItem[]),
+                ...(this.getDependantList().getItemViews() as unknown as ContentItem[]),
             ];
-            const inboundAware = rawViews.filter(isInboundAwareViewOf);
-            this.updateItemViewsWithInboundDependencies(inboundAware);
+            this.updateItemViewsWithInboundDependencies(allViews);
         }
     }
 
     private resolveReferanceIds(): void {
-        this.referenceIds = this.resolveDependenciesResult.getInboundDependencies().reduce((prev, curr) => {
-            return prev.concat(curr.getInboundDependencies());
-        }, [] as ContentId[]);
+        this.referenceIds = this.resolveDependenciesResult
+            .getInboundDependencies()
+            .reduce((prev, curr) => prev.concat(curr.getInboundDependencies()), [] as ContentId[]);
     }
 
     private updateWarningLine(inboundCount: number): void {
@@ -162,9 +155,7 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         this.inboundErrorsEntry.updateCount(inboundCount);
 
         if (dependenciesExist) {
-            setTimeout(() => {
-                this.stateBar.markChecking(false);
-            }, 1000);
+            setTimeout(() => this.stateBar.markChecking(false), 1000);
         }
     }
 
@@ -180,9 +171,8 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         this.stateBar.setEnabled(true);
     }
 
-    close() {
+    close(): void {
         super.close();
-
         this.stateBar.reset();
         this.resolveDependenciesResult = null;
     }
@@ -216,27 +206,31 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
         this.showLoadMask();
         this.lockControls();
 
-        this.loadDescendantIds().then(() => {
-            this.resolveItemsWithInboundRefs();
+        this.loadDescendantIds()
+            .then(() => {
+                this.resolveItemsWithInboundRefs();
 
-            return this.cleanLoadDescendants().then((descendants: ContentSummaryAndCompareStatus[]) => {
-                this.setDependantItems(descendants);
-            }).finally(() => {
-                this.notifyResize();
-                this.hideLoadMask();
-                this.unlockControls();
-                this.handleDescendantsLoaded();
-                this.updateTabbable();
-                this.actionButton.giveFocus();
+                return this.cleanLoadDescendants()
+                    .then((descendants: ContentSummaryAndCompareStatus[]) => {
+                        this.setDependantItems(descendants);
+                    })
+                    .finally(() => {
+                        this.notifyResize();
+                        this.hideLoadMask();
+                        this.unlockControls();
+                        this.handleDescendantsLoaded();
+                        this.updateTabbable();
+                        this.actionButton.giveFocus();
 
-                const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
-                if (hasInboundDeps) {
-                    this.lockMenu();
-                }
+                        const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
+                        if (hasInboundDeps) {
+                            this.lockMenu();
+                        }
+                    });
+            })
+            .catch((reason: unknown) => {
+                DefaultErrorHandler.handle(reason);
             });
-        }).catch((reason: unknown) => {
-            DefaultErrorHandler.handle(reason);
-        });
     }
 
     protected onListItemsRemoved(): void {
@@ -246,14 +240,13 @@ export abstract class DependantItemsWithReferencesDialog extends DependantItemsW
     }
 
     protected handleDescendantsLoaded(): void {
-        //
+        // hook
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addCancelButtonToBottom();
             this.prependChildToContentPanel(this.stateBar);
-
             return rendered;
         });
     }

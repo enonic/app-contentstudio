@@ -1,31 +1,34 @@
-import {useEffect, useRef} from 'react';
-import {ArchiveDialogHelper} from '../../dialog/ArchiveDialogHelper';
+import {Button} from '@enonic/ui';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DependencyParams} from '../../browse/DependencyParams';
+import {DependencyType} from '../../browse/DependencyType';
+import {ShowDependenciesEvent} from '../../browse/ShowDependenciesEvent';
 import type {Branch} from '../../versioning/Branch';
 import type {ContentId} from '../../content/ContentId';
 
 export type ShowReferencesButtonProps = {
     contentId: ContentId;
     target?: Branch;
-    className?: string;
 };
 
-export function ShowReferencesButton({contentId, target, className}: ShowReferencesButtonProps) {
-    const mountRef = useRef<HTMLDivElement | null>(null);
-
-    useEffect(() => {
-        if (!mountRef.current) {
-            return;
-        }
-        const dispose = ArchiveDialogHelper.mountShowReferences(mountRef.current, contentId, target);
-        return () => dispose();
-    }, [contentId, target]);
+export function ShowReferencesButton({
+                                         contentId,
+                                         target,
+                                     }: ShowReferencesButtonProps) {
+    const fire = () => {
+        const params = DependencyParams.create()
+            .setContentId(contentId)
+            .setDependencyType(DependencyType.INBOUND)
+            .setBranch(target)
+            .build();
+        new ShowDependenciesEvent(params).fire();
+    };
 
     return (
-        <div
-            ref={mountRef}
-            className={className}
-            onClick={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
+        <Button
+            className={'show-ref'}
+            label={i18n('action.showReferences')}
+            onClick={fire}
         />
     );
 }

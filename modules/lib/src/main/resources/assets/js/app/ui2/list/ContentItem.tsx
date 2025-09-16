@@ -1,4 +1,4 @@
-import {useMemo, type JSX, type ReactNode, KeyboardEvent} from 'react';
+import {useMemo, type JSX, type ReactNode} from 'react';
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {ListItem, type ListItemProps} from '@enonic/ui';
 import {CompareStatusFormatter} from '../../content/CompareStatus';
@@ -26,8 +26,6 @@ const ContentItemComponent = ({
                                   content,
                                   children,
                                   onClick,
-                                  clickable = true,
-                                  className = '',
                                   selected = false,
                                   showReferences = false,
                                   target,
@@ -45,34 +43,15 @@ const ContentItemComponent = ({
         [contentType, url]
     );
 
-    const isInteractive = clickable && typeof onClick === 'function';
-
-    const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-        if (!isInteractive) return;
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onClick?.();
-        }
-    };
-
     return (
-        <ListItem
-            className={['archive-item', isInteractive ? 'clickable' : '', className].join(' ').trim()}
-            selected={selected}
-            onClick={isInteractive ? onClick : undefined}
-            onKeyDown={onKeyDown}
-            role={isInteractive ? 'button' : undefined}
-            aria-disabled={isInteractive ? undefined : true}
-            tabIndex={isInteractive ? 0 : undefined}
-        >
-            <ListItem.Content label={label} icon={Icon} />
+        <ListItem selected={selected}>
+            <ListItem.Content label={label} icon={Icon} onClick={onClick} className="cursor-pointer"/>
             <ListItem.Right>
                 {children}
                 {showReferences && hasInbound && (
                     <ShowReferencesButton
                         contentId={contentId}
                         target={target}
-                        className="show-references-btn"
                     />
                 )}
                 <span aria-label={status} className={statusBadgeClass}>
@@ -84,7 +63,6 @@ const ContentItemComponent = ({
 };
 
 export class ContentItem extends LegacyElement<typeof ContentItemComponent, Props> {
-    private hasInboundClass = false;
 
     constructor(props: Props) {
         super({clickable: true, ...props}, ContentItemComponent);
@@ -106,17 +84,10 @@ export class ContentItem extends LegacyElement<typeof ContentItemComponent, Prop
         this.props.setKey('selected', selected);
     }
 
-    setOnClick(callback: () => void): void {
-        this.props.setKey('onClick', callback);
-    }
+
 
     setHasInbound(hasInbound: boolean): void {
-        this.hasInboundClass = hasInbound;
-        this.toggleClass('has-inbound', hasInbound);
         this.props.setKey('hasInbound', hasInbound);
     }
 
-    hasInbound(): boolean {
-        return this.hasInboundClass;
-    }
 }

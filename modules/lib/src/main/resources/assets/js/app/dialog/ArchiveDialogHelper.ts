@@ -20,22 +20,4 @@ export class ArchiveDialogHelper {
 
         return new ActionButton({action, className: 'show-ref'});
     }
-
-    static mountShowReferences(
-        host: HTMLElement,
-        contentId: ContentId,
-        branch?: Branch
-    ): () => void {
-        const btn = ArchiveDialogHelper.createShowReferences(contentId, branch);
-        const el = btn.getHTMLElement();
-        host.appendChild(el);
-
-        return () => {
-            try {
-                btn.remove();
-            } catch {
-                el.parentNode?.removeChild(el);
-            }
-        };
-    }
 }
