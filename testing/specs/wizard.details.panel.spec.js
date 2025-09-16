@@ -24,6 +24,7 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check the 
             // 1. Open new wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.openContextWindow();
+            await wizardContextPanel.openDetailsWidget();
             // 2. Version history widget should not be displayed by default!
             let isLoaded = await wizardVersionsWidget.isWidgetLoaded();
             assert.ok(isLoaded === false, `'Versions Widget' should not be displayed`);

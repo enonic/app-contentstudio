@@ -25,6 +25,8 @@ describe('Revert published content spec', function () {
             await studioUtils.doAddFolder(FOLDER);
             // 2. reopen the folder and select a language
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             // 3. Open 'Edit Settings' modal dialog:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
@@ -44,6 +46,7 @@ describe('Revert published content spec', function () {
             let wizardVersionsWidget = new WizardVersionsWidget();
             // 1. Open the folder and revert the previous version:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentWizard.openContextWindow();
             await contentWizard.openVersionsHistoryPanel();
             // 2. Revert the latest 'Edited' version:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
