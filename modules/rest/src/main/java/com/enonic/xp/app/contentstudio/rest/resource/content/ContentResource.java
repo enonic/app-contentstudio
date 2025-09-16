@@ -667,13 +667,13 @@ public final class ContentResource
         //Resolved the requested ContentPublishItem
         final ContentIds requestedContentIds = ContentIds.from( params.getIds() );
         final ContentIds excludeContentIds = ContentIds.from( params.getExcludedIds() );
-        final ContentIds excludeChildrenIds = ContentIds.from( params.getExcludeChildrenIds() );
+        final ContentIds excludeDescendantsOf = ContentIds.from( params.getExcludeChildrenIds() );
 
         //Resolves publish dependencies
         final ResolvePublishDependenciesParams resolveParams = ResolvePublishDependenciesParams.create()
             .contentIds( requestedContentIds )
             .excludedContentIds( excludeContentIds )
-            .excludeChildrenIds( excludeChildrenIds )
+            .excludeDescendantsOf( excludeDescendantsOf )
             .build();
         final CompareContentResults compareResults = contentService.resolvePublishDependencies( resolveParams );
 
