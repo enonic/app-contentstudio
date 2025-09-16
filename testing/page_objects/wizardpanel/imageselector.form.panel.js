@@ -34,9 +34,6 @@ class ImageSelectorForm extends BaseSelectorForm {
         return XPATH.container + XPATH.uploaderButton;
     }
 
-    get validationRecord() {
-        return lib.FORM_VIEW + lib.inputView + lib.validationRecording;
-    }
 
     // Edit image button - SelectionToolbar
     get editButton() {
@@ -62,8 +59,7 @@ class ImageSelectorForm extends BaseSelectorForm {
             await this.clickOnElement(this.imageComboBoxDropdownHandle);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_img_sel_dropdown_handle');
-            throw new Error(`image combobox dropdown handle not found , screenshot:${screenshot} ` + err);
+            await this.handleError('Image selector -  clicked on dropdown handle', 'err_img_sel_dropdown_handle', err);
         }
     }
 
@@ -79,7 +75,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let imagesEl = await this.findElements(locator);
         if (index > imagesEl.length) {
-            throw new Error("Image selector form, the number of selected options less than the index");
+            throw new Error('Image selector form, the number of selected options less than the index');
         }
         return await this.doTouchActionOnElement(imagesEl[index]);
     }
@@ -145,8 +141,7 @@ class ImageSelectorForm extends BaseSelectorForm {
             await this.typeTextInInput(this.optionsFilterInput, displayName);
             return await imageSelectorDropdown.clickOnFilteredByDisplayNameItem(displayName, XPATH.container);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_option');
-            throw new Error(`Image -Selector , error during selecting the option: screenshot ${screenshot} ` + err);
+            await this.handleError('Image -Selector , tried to click on filtered option', 'err_img_selector_option', err)
         }
     }
 
@@ -156,8 +151,7 @@ class ImageSelectorForm extends BaseSelectorForm {
             await this.typeTextInInput(this.optionsFilterInput, displayName);
             return await imageSelectorDropdown.clickOnFilteredByDisplayNameItemAndClickOnApply(displayName, XPATH.container);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_option');
-            throw new Error(`Image -Selector , error during selecting the option: screenshot ${screenshot} ` + err);
+            await this.handleError('Image -Selector , tried to select the filtered option', 'err_img_selector_option', err);
         }
     }
 
@@ -170,8 +164,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         try {
             return await this.waitForElementDisplayed(XPATH.container + lib.EMPTY_OPTIONS_H5, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_empty_opt');
-            throw new Error("Image Selector - Empty options text should appear visible, screenshot: " + screenshot + ' ' + err);
+            await this.handleError(`Image Selector - 'No matching items' text should appear`, 'err_img_sel_empty_opt', err);
         }
     }
 
@@ -214,8 +207,7 @@ class ImageSelectorForm extends BaseSelectorForm {
             await imageSelectorDropdown.clickOnDropdownHandle();
             await imageSelectorDropdown.clickOnOptionByDisplayName(displayName);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_option');
-            throw new Error('Image -Selector , error during selecting the option: screenshot ' + screenshot + ' ' + err);
+            await this.handleError('Tried to click on the option in the expanded dropdown', 'err_img_selector_option', err);
         }
     }
 
@@ -241,7 +233,7 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async getNumberItemInRemoveButton() {
         await this.waitForRemoveButtonDisplayed();
-        let locator = this.removeButton + "/span";
+        let locator = this.removeButton + '/span';
         return await this.getText(locator);
     }
 
@@ -256,8 +248,7 @@ class ImageSelectorForm extends BaseSelectorForm {
             let imageSelectorDropdown = new ImageSelectorDropdown();
             await imageSelectorDropdown.waitForToggleIconNotDisplayed(XPATH.container);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_toggle_icon');
-            throw new Error(`Image Selector - toggle icon should not be displayed!  screenshot: ${screenshot} ` + err);
+            await this.handleError('Image Selector - toggle icon should not be displayed', 'err_img_selector_toggle_icon', err);
         }
     }
 
@@ -276,8 +267,8 @@ class ImageSelectorForm extends BaseSelectorForm {
             let imageSelectorDropdown = new ImageSelectorDropdown();
             await imageSelectorDropdown.clickOnImageInDropdownListTreeMode(displayName, XPATH.container);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_option');
-            throw new Error(`Error occurred in Image -Selector , tree mode,  screenshot: ${screenshot} ` + err);
+            await this.handleError('Tried to click on the option in the expanded dropdown in tree mode',
+                'err_img_selector_option_tree_mode', err);
         }
     }
 
@@ -286,8 +277,7 @@ class ImageSelectorForm extends BaseSelectorForm {
             let imageSelectorDropdown = new ImageSelectorDropdown();
             await imageSelectorDropdown.clickOnOptionByDisplayName(displayName);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_img_selector_option');
-            throw new Error(`Error occurred in Image -Selector ,  screenshot: ${screenshot} ` + err);
+            await this.handleError('ImageSelector - Tried to click on the option in filtered dropdown', 'err_img_selector_option', err);
         }
     }
 
@@ -296,8 +286,7 @@ class ImageSelectorForm extends BaseSelectorForm {
             let imageSelectorDropdown = new ImageSelectorDropdown();
             await imageSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-            throw new Error(`Error occurred in Content combobobox, OK button, screenshot: ${screenshot} ` + err);
+            await this.handleError('Tried to click on Apply button in Image Selector dropdown', 'err_img_selector_apply_btn', err);
         }
     }
 
