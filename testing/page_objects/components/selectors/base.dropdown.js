@@ -50,8 +50,28 @@ class BaseDropdown extends Page {
     }
 
     async clickOnModeTogglerButton(parentElement) {
-        await this.waitForElementDisplayed(parentElement + this.modeTogglerButton);
-        return await this.clickOnElement(parentElement + this.modeTogglerButton);
+        try {
+            await this.waitForElementDisplayed(parentElement + this.modeTogglerButton);
+            return await this.clickOnElement(parentElement + this.modeTogglerButton);
+        }catch (err){
+            await this.handleError('Dropdown, clicked on mode toggle icon.', 'err_click_mode_toggle', err);
+        }
+    }
+
+    // wait for toggle-mode(flat/tree) icon is not displayed
+    async waitForToggleIconNotDisplayed(parentElement) {
+        try {
+            return await this.waitForElementNotDisplayed(parentElement + this.modeTogglerButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Dropdown,  mode-toggle icon should not be displayed.', 'err_toggle_mode_icon', err);
+        }
+    }
+    async waitForToggleIconDisplayed(parentElement) {
+        try {
+            return await this.waitForElementDisplayed(parentElement + this.modeTogglerButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Dropdown,  mode-toggle icon should be displayed.', 'err_toggle_mode_icon', err);
+        }
     }
 
     async clickOnDropdownHandle(parentLocator) {
