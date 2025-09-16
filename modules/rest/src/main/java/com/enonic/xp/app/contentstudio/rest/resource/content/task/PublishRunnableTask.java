@@ -54,7 +54,6 @@ public class PublishRunnableTask
                 contentPublishInfo( contentPublishInfo ).
                 includeDependencies( true ).
                 pushListener( new PublishContentProgressListener( progressReporter ) ).
-                deleteContentListener( new DeleteContentProgressListener( progressReporter ) ).
                 message( message ).
                 build() );
 
