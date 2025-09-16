@@ -16,7 +16,6 @@ const CreateRequestPublishDialog = require('../../page_objects/issue/create.requ
 const CreateTaskDialog = require('../../page_objects/issue/create.issue.dialog');
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const IssueDetailsDialogAssigneesTab = require('../../page_objects/issue/issue.details.dialog.assignees.tab');
-const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const appConst = require('../../libs/app_const');
 const projectUtils = require('../../libs/project.utils');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
@@ -24,7 +23,6 @@ const ProjectWizardDialogParentProjectStep = require('../../page_objects/project
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
-const csConst = require('../../libs/app_const');
 
 describe('project.owner.spec - ui-tests for user with Owner role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -216,6 +214,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.saveScreenshot('project_owner_5');
             // 3. Verify that 'Mark as Ready' button is available in the wizard:
             await contentWizard.waitForMarkAsReadyButtonVisible();
+            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             let isVisible = await editSettingsDialog.isLanguageOptionsFilterVisible();
             assert.ok(isVisible, 'Language comboBox should be visible for Owner role');
