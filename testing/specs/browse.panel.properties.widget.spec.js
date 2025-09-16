@@ -14,6 +14,7 @@ const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/bro
 const PublishContentDialog = require('../page_objects/content.publish.dialog');
 const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const ContentWidgetView = require('../page_objects/browsepanel/detailspanel/content.widget.item.view');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 
 describe('Browse panel, properties widget, language spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -52,7 +53,7 @@ describe('Browse panel, properties widget, language spec', function () {
         async () => {
             let contentWidget = new ContentWidgetView();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            // 2. Verify that expected worflow should be displayed in Details Panel
+            // 2. Verify that expected workflow should be displayed in Details Panel
             let actualState = await contentWidget.getContentWorkflowState();
             assert.equal(actualState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,)
         });
@@ -135,9 +136,12 @@ describe('Browse panel, properties widget, language spec', function () {
     it(`GIVEN existing folder with language is opened WHEN the language has been removed in 'Edit Settings Dialog' THEN language should not be displayed in the widget`,
         async () => {
             let propertiesWidget = new PropertiesWidget();
+            let contentWizard = new ContentWizard();
             // 1. Open the folder:
             await studioUtils.selectContentAndOpenWizard(TEST_FOLDER.displayName);
             // 2. Open 'Edit Settings' modal dialog:
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             let editDetailsDialog = await studioUtils.openEditSettingDialog();
             // 3. Remove the language:
             await editDetailsDialog.clickOnRemoveLanguage();
