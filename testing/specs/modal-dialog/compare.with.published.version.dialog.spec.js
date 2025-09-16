@@ -34,6 +34,8 @@ describe("compare.with.published.version.dialog.spec tests for 'Show changes' mo
             let compareWithPublishedVersionDialog = new CompareWithPublishedVersionDialog();
             // 1. Open the folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             // 2. Open Edit Setting modal dialog and select the language:
             let editDetailsDialog = await studioUtils.openEditSettingDialog();
             await editDetailsDialog.waitForLoaded();
@@ -63,6 +65,8 @@ describe("compare.with.published.version.dialog.spec tests for 'Show changes' mo
             let compareWithPublishedVersionDialog = new CompareWithPublishedVersionDialog();
             // 1. Select the folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             // 2. remove the language:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await editSettingsDialog.clickOnRemoveLanguage();

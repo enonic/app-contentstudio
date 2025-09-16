@@ -41,6 +41,8 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             await contentWizard.typeDisplayName(SHORTCUT_DE_NAME);
             await shortcutForm.filterOptionsAndSelectTarget(TARGET_1);
             // 2. Open 'Edit Settings' modal dialog and select the language:
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             let editDetailsDialog = await studioUtils.openEditSettingDialog();
             await editDetailsDialog.waitForLoaded();
             await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.DEUTSCH_DE);
@@ -90,6 +92,8 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             await filterPanel.waitForCheckboxDisplayed('Language', 'Deutsch');
             // 3. Open the folder with Deutsch language:
             await studioUtils.selectAndOpenContentInWizard(SHORTCUT_DE_NAME);
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             // 4. Click on remove language icon and save:
             await editSettingsDialog.clickOnRemoveLanguage();
