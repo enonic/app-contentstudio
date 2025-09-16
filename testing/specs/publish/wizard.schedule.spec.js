@@ -57,7 +57,7 @@ describe('Wizard page - verify schedule form', function () {
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.openPublishMenuAndPublish();
             await contentWizard.waitForNotificationMessage();
-            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             // 2. Open Page Editor with Preview Widget, Verify that status gets  Published
             await contentWizard.clickOnPageEditorToggler();
             // 3. Published status should be displayed in the wizard toolbar

@@ -114,7 +114,7 @@ describe('tests for Sorted versions item', function () {
             assert.equal(numberOfSortedItems, 2, "Two sorted items should be present in the versions widget");
             // 6. Verify that user-name should not be displayed in Sorted version item
             let byUser = await browseVersionsWidget.getUserNameInItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 1);
-            assert.equal(byUser, '', "user-name should not be displayed in Sorted version item");
+            assert.equal(byUser, '', 'user-name should not be displayed in Sorted version item');
         });
 
     it(`GIVEN 'Edited' and 'Sorted' items are selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN expected options with 'sorted' icon should be present in the list`,
@@ -168,7 +168,7 @@ describe('tests for Sorted versions item', function () {
             await wizardVersionsWidget.waitForPublishedItemDisplayed();
             await studioUtils.saveScreenshot('sorted_versions_after_publishing');
             let publishedItems = await wizardVersionsWidget.countPublishedItems();
-            assert.equal(publishedItems, 1, 'One Published items should be displayed');
+            assert.equal(publishedItems, 1, 'One Published items should be displayed in the Versions Widget');
             // 4. Verify that Sorted version items remain visible:
             let sortedItems = await wizardVersionsWidget.countSortedItems();
             assert.equal(sortedItems, 2, '2 Sorted items remain visible');
