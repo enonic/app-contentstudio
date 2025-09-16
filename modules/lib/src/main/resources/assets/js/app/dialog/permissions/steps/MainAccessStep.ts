@@ -134,6 +134,7 @@ export class MainAccessStep
     }
 
     reset(): void {
+        this.principalsCombobox.cleanInput();
         this.setup(this.originalValues, this.parentPermissions, this.isTopLevelItem);
     }
 
