@@ -1237,6 +1237,9 @@ export class ContentWizardPanel
             }
 
             if (event instanceof PageControllerUpdatedEvent) {
+                if (this.liveEditPage?.isLocked()) {
+                    this.unLockPage();
+                }
                 this.pageComponentsView.setLocked(false);
                 this.pageComponentsView.reload();
 

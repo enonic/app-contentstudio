@@ -88,9 +88,6 @@ export class PageTemplateAndControllerForm
             this.isPageRenderable = renderable;
             this.updateButtonsVisibility();
         })
-
-        this.pageTemplateAndControllerSelector
-            .onSelectionChanged(() => this.updateButtonsVisibility());
     }
 
     public getSelectedTemplateOption(): PageTemplateAndControllerOption {
