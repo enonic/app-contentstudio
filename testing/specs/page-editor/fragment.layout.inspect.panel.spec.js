@@ -17,6 +17,7 @@ const ContentFilterPanel = require('../../page_objects/browsepanel/content.filte
 const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('fragment.layout.inspect.panel.spec - Select a site with invalid child and try to publish it', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -40,6 +41,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
         async () => {
             let pageComponentView = new PageComponentView();
             let fragmentInspectionPanel = new FragmentInspectionPanel();
+            let pageInspectionPanel = new PageInspectionPanel();
             let siteFormPanel = new SiteFormPanel();
             let layoutInspectionPanel = new LayoutInspectionPanel();
             let contentWizardPanel = new ContentWizardPanel();
@@ -48,7 +50,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await contentWizardPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
-            await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
+            await pageInspectionPanel.selectPageTemplateOrController(MAIN_REGION_CONTROLLER);
             // 2. Click on minimize-toggle  expand Live Edit and open 'Page Component view' modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
@@ -148,7 +150,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let contentFilterPanel = new ContentFilterPanel();
             // 1. Existing content with x-data(image) is opened:
             await studioUtils.selectContentAndOpenWizard(SITE_1_NAME);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Dependencies widget is opened:
             await wizardContextPanel.openDependencies();
             // 3. Click on 'Show outbound' button
@@ -247,6 +249,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
     it("GIVEN the second site has been saved WHEN fragment component has been inserted THEN fragments from the first site should not be available in the second site",
         async () => {
             let pageComponentView = new PageComponentView();
+            let pageInspectionPanel = new PageInspectionPanel();
             let fragmentInspectionPanel = new FragmentInspectionPanel();
             let siteFormPanel = new SiteFormPanel();
             let wizardContextPanel = new WizardContextPanel();
@@ -255,7 +258,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizardPanel.typeDisplayName(SITE_2_NAME);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
-            await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
+            await pageInspectionPanel.selectPageTemplateOrController(MAIN_REGION_CONTROLLER);
             await wizardContextPanel.waitForOpened();
             // 2. Click on minimize-toggle expand Live Edit and show Page Component modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();

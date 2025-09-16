@@ -10,6 +10,7 @@ const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.
 const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../../libs/app_const');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions and remove 'Create' operation", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -59,9 +60,12 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
     it(`GIVEN existing folder with 'Custom' permissions is opened WHEN 'Edit Permissions dialog' has been opened THEN expected operations should be allowed`,
         async () => {
             let userAccessWidget = new UserAccessWidget();
+            let contentWizard = new ContentWizard();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             // 2. Click on Edit Permissions button:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             // 3. Verify that operations are 'allowed':
