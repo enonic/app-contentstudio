@@ -151,14 +151,14 @@ export class PageTemplateAndControllerSelector
 
             // Selection type changes:
             // controller -> template
-            if (!previousIsTemplate && selectedIsTemplate) {
+            if (previousOption && !previousIsTemplate && selectedIsTemplate) {
                 const selectionHandler = () => this.doSelectTemplate(selectedOption as PageTemplateOption);
                 this.openConfirmationDialog(i18n('dialog.template.change'), selectionHandler);
                 // template -> template
             } else if (previousIsTemplate && selectedIsTemplate) {
                 this.doSelectTemplate(selectedOption as PageTemplateOption);
                 // controller -> controller
-            } else if (!previousIsTemplate && !selectedIsTemplate) {
+            } else if (previousOption && !previousIsTemplate && !selectedIsTemplate) {
                 const selectionHandler = () => this.doSelectController(selectedOption as PageControllerOption);
                 this.openConfirmationDialog(i18n('dialog.controller.change'), selectionHandler);
                 // template -> controller
