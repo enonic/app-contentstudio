@@ -398,7 +398,8 @@ module.exports = {
         await this.doOpenPageTemplateWizard(siteName);
         await contentWizardPanel.typeData(template);
         // auto saving should be here:
-        await contentWizardPanel.selectPageDescriptor(template.data.controllerDisplayName);
+        let pageInspectionPanel = new PageInspectionPanel();
+        await pageInspectionPanel.selectPageTemplateOrController(template.data.controllerDisplayName);
         await this.saveScreenshot(template.displayName + '_created');
         await this.doCloseCurrentBrowserTab();
         await this.doSwitchToContentBrowsePanel();
