@@ -1,44 +1,87 @@
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
-import {SelectableListItem, type SelectableListItemProps} from '@enonic/ui';
 import {useMemo, type JSX} from 'react';
+import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
+import {ListItem} from '@enonic/ui';
+import {Checkbox} from '@enonic/ui'; // if not exported, swap to the internal path you already saw
 import {CompareStatusFormatter} from '../../content/CompareStatus';
 import {ContentIcon} from './ContentIcon';
+import type {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
 type Props = {
     content: ContentSummaryAndCompareStatus;
-} & Pick<SelectableListItemProps, 'className' | 'readOnly' | 'onCheckedChange' | 'checked'>;
+    onClick?: () => void;
+    className?: string;
+    selected?: boolean;
+    readOnly?: boolean;
+    checked?: boolean;
+    defaultChecked?: boolean;
+    onCheckedChange?: (checked: boolean) => void;
+};
 
-const ContentItemCheckableComponent = ({content, ...props}: Props): JSX.Element => {
+const statusBadgeClass =
+    'min-w-[4.5rem] text-xs px-1.5 py-0.5 rounded bg-surface-tertiary group-[.bg-surface-primary-selected]:bg-surface-secondary text-subtle';
+
+const ContentItemCheckableComponent = ({
+                                           content,
+                                           onClick,
+                                           className = '',
+                                           selected = false,
+                                           readOnly,
+                                           checked,
+                                           defaultChecked,
+                                           onCheckedChange,
+                                       }: Props): JSX.Element => {
     const label = content.getPath().toString();
     const status = CompareStatusFormatter.formatStatusText(content.getCompareStatus());
 
-    const contentType = String(content.getType());
-    const url = content.getContentSummary().getIconUrl();
-
     const Icon = useMemo(
-        () => <ContentIcon contentType={contentType} url={url} size={24}/>,
-        [contentType, url],
+        () => (
+            <ContentIcon
+                contentType={String(content.getType())}
+                url={content.getContentSummary().getIconUrl()}
+                size={24}
+            />
+        ),
+        [content]
     );
 
     return (
-        <SelectableListItem {...props} label={label} icon={Icon}>
-            <span aria-label={status}>{status}</span>
-        </SelectableListItem>
+        <ListItem
+            className={['archive-item clickable', className].join(' ').trim()}
+            selected={selected}
+        >
+            <ListItem.Left>
+                <Checkbox
+                    checked={checked}
+                    defaultChecked={defaultChecked}
+                    onCheckedChange={onCheckedChange}
+                    readOnly={readOnly}
+                />
+            </ListItem.Left>
+
+            <ListItem.Content label={label} icon={Icon} onClick={onClick}/>
+
+            <ListItem.Right>
+        <span aria-label={status} className={statusBadgeClass}>
+          {status}
+        </span>
+            </ListItem.Right>
+        </ListItem>
     );
 };
 
 export class ContentItemCheckable
     extends LegacyElement<typeof ContentItemCheckableComponent, Props> {
-
     constructor(props: Props) {
-        super({
-            ...props,
-            onCheckedChange: (checked) => {
-                this.props.setKey('checked', checked);
-                props.onCheckedChange?.(checked);
+        super(
+            {
+                ...props,
+                onCheckedChange: (checked) => {
+                    this.props.setKey('checked', checked);
+                    props.onCheckedChange?.(checked);
+                },
             },
-        }, ContentItemCheckableComponent);
+            ContentItemCheckableComponent
+        );
     }
 
     getItem(): ContentSummaryAndCompareStatus {
@@ -46,7 +89,7 @@ export class ContentItemCheckable
     }
 
     isSelected(): boolean {
-        return this.props.get().checked === true;
+        return this.props.get().selected === true || this.props.get().checked === true;
     }
 
     isSelectable(): boolean {
@@ -54,6 +97,9 @@ export class ContentItemCheckable
     }
 
     setSelected(selected: boolean): void {
-        this.props.setKey('checked', selected);
+        this.props.setKey('selected', selected);
+        if (typeof this.props.get().checked === 'boolean') {
+            this.props.setKey('checked', selected);
+        }
     }
 }

@@ -5,7 +5,7 @@ import {DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependan
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentItemCheckable} from '../ui2/list/ContentItemCheckable';
-
+import {EditContentEvent} from '../event/EditContentEvent';
 
 export class PublishDialogDependantList
     extends DialogDependantItemsList {
@@ -47,6 +47,7 @@ export class PublishDialogDependantList
             readOnly: readOnly || !this.isItemExcludable(content),
             checked: this.mustSelectItem(content),
             onCheckedChange: () => this.handleSelectionChange(),
+            onClick: () => new EditContentEvent([content]).fire(),
         });
     }
 

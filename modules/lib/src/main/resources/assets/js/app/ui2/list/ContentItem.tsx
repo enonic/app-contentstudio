@@ -1,4 +1,4 @@
-import {useMemo, type JSX, type ReactNode, KeyboardEvent} from 'react';
+import {useMemo, type JSX} from 'react';
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {ListItem, type ListItemProps} from '@enonic/ui';
 import {CompareStatusFormatter} from '../../content/CompareStatus';
@@ -9,7 +9,6 @@ import {ShowReferencesButton} from './ShowReferencesButton';
 
 type Props = {
     content: ContentSummaryAndCompareStatus;
-    children?: ReactNode;
     onClick?: () => void;
     clickable?: boolean;
     className?: string;
@@ -20,13 +19,11 @@ type Props = {
 } & Pick<ListItemProps, 'className' | 'selected'>;
 
 const statusBadgeClass =
-    'text-xs px-1.5 py-0.5 rounded bg-surface-tertiary group-[.bg-surface-primary-selected]:bg-surface-secondary text-subtle';
+    'min-w-[4.5rem] text-xs px-1.5 py-0.5 rounded bg-surface-tertiary group-[.bg-surface-primary-selected]:bg-surface-secondary text-subtle';
 
 const ContentItemComponent = ({
                                   content,
-                                  children,
                                   onClick,
-                                  clickable = true,
                                   className = '',
                                   selected = false,
                                   showReferences = false,
@@ -41,33 +38,16 @@ const ContentItemComponent = ({
     const contentId = content.getContentSummary().getContentId();
 
     const Icon = useMemo(
-        () => <ContentIcon contentType={contentType} url={url} size={24} />,
+        () => <ContentIcon contentType={contentType} url={url} size={24}/>,
         [contentType, url]
     );
 
-    const isInteractive = clickable && typeof onClick === 'function';
-
-    const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-        if (!isInteractive) return;
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onClick?.();
-        }
-    };
-
     return (
         <ListItem
-            className={['archive-item', isInteractive ? 'clickable' : '', className].join(' ').trim()}
-            selected={selected}
-            onClick={isInteractive ? onClick : undefined}
-            onKeyDown={onKeyDown}
-            role={isInteractive ? 'button' : undefined}
-            aria-disabled={isInteractive ? undefined : true}
-            tabIndex={isInteractive ? 0 : undefined}
-        >
-            <ListItem.Content label={label} icon={Icon} />
+            className={['archive-item clickable', '', className].join(' ').trim()}
+            selected={selected}>
+            <ListItem.Content label={label} icon={Icon} onClick={onClick}/>
             <ListItem.Right>
-                {children}
                 {showReferences && hasInbound && (
                     <ShowReferencesButton
                         contentId={contentId}
@@ -76,14 +56,15 @@ const ContentItemComponent = ({
                     />
                 )}
                 <span aria-label={status} className={statusBadgeClass}>
-          {status}
-        </span>
+                {status}
+                </span>
             </ListItem.Right>
         </ListItem>
     );
 };
 
-export class ContentItem extends LegacyElement<typeof ContentItemComponent, Props> {
+export class ContentItem
+    extends LegacyElement<typeof ContentItemComponent, Props> {
     private hasInboundClass = false;
 
     constructor(props: Props) {
