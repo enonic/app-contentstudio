@@ -18,7 +18,10 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
     it(`WHEN folder-wizard is opened THEN the owner should be "Super User" and a language should not be selected`,
         async () => {
             // 1. Open new wizard for folder:
+            let contentWizard = new ContentWizard();
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             // 2. Open 'Edit Settings' modal dialog:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             let actualOwner = await editSettingsDialog.getSelectedOwner();
@@ -35,6 +38,7 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             // 1. Open new folder wizard
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             await contentWizard.typeDisplayName(FOLDER_DISPLAY_NAME);
             // 2. Open 'Edit Settings' modal dialog and select the language:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
@@ -59,6 +63,8 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             // 1. Select the existing folder with En language
             await studioUtils.findAndSelectItem(FOLDER_DISPLAY_NAME);
             // 2. Open 'Edit Settings' modal dialog in Browse Panel:
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             // 3. Remove then Select de-language, click on Apply button and close the dialog:
             await editSettingsDialog.clickOnRemoveLanguage();
@@ -74,9 +80,12 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
     it(`WHEN existing folder is opened WHEN the selected language has been removed THEN the language should not be displayed in the properties widget`,
         async () => {
             let propertiesWidget = new PropertiesWidget();
+            let contentWizard = new ContentWizard();
             // 1. existing folder is opened:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_DISPLAY_NAME);
             // 2. Open 'Edit Settings' modal dialog and select the language:
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             // 3. Remove the selected language:
             await editSettingsDialog.clickOnRemoveLanguage();
@@ -93,6 +102,7 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             // 2. Verify the owner property in the widget
             await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             await propertiesWidget.waitForOwnerDisplayed();
             // 3. default owner has been removed
             let editSettingsDialog = await studioUtils.openEditSettingDialog();

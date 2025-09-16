@@ -41,6 +41,8 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
             // 2. Open 'Edit Details' modal dialog:
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             let editDetailsDialog = await studioUtils.openEditSettingDialog();
             await editDetailsDialog.waitForLoaded();
             // 3. Remove the default owner
@@ -68,10 +70,13 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
 
     it("GIVEN user owner was deleted WHEN the folder is reopened THEN the user should be displayed as 'removed' in the wizard form",
         async () => {
+            let contentWizard = new ContentWizard();
             await studioUtils.navigateToContentStudioApp();
             // 1. Open the folder
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
             // 2. Click on 'Edit Setting':
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             // 3. Verify that 'This user is deleted' text appears in the settings form:
             let actualText = await editSettingsDialog.waitForOwnerRemoved();

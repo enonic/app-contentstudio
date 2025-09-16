@@ -56,6 +56,8 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             let contentWizard = new ContentWizard();
             //1. open the folder and select a language:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             // 3. Open 'Edit Setting' modal dialog:
             let editDetailsDialog = await studioUtils.openEditSettingDialog();
             await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
@@ -79,6 +81,8 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             let contentWizard = new ContentWizard();
             // 1. open the folder and remove the language:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await editSettingsDialog.clickOnRemoveLanguage();
             await editSettingsDialog.clickOnApplyButton();

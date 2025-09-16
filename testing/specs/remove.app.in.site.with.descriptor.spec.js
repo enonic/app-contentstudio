@@ -55,6 +55,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             await studioUtils.saveScreenshot('app_replaced_in_site_wizard');
             // 7. Verify that 'Controller Options Filter' input gets visible in the wizard-page:
+            let pageInspectionPanel = new PageInspectionPanel();
             let controller = await pageInspectionPanel.getSelectedPageController();
             // 8 Verify that PCV gets not visible after the resetting:
             await pageComponentsWizardStepForm.waitForNotDisplayed();
@@ -63,7 +64,6 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             // 10 'Preview' button gets disabled in the Preview item toolbar:
             await contentWizard.waitForPreviewButtonDisabled();
             // 11. Select the page descriptor from the new selected application
-            let pageInspectionPanel = new PageInspectionPanel();
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_APP_2);
             // 12. Verify that 'Preview' button gets displayed again:
             await contentWizard.waitForPreviewButtonDisplayed();

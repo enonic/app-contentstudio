@@ -58,6 +58,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
             await editSettingsDialog.clickOnApplyButton();
@@ -74,6 +75,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             // 2. Open Version History panel:
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();

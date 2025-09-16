@@ -51,7 +51,9 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
             await contentWizard.typeData(SITE);
             // 3. The site should be automatically saved
             await contentWizard.waitForNotificationMessage();
-            await contentWizard.pause(1000);
+            await contentWizard.pause(500);
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             // 4. Add 'Full access' permissions for the just created user and click on Apply button:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             await editPermissionsGeneralStep.filterAndSelectPrincipal(USER.displayName);

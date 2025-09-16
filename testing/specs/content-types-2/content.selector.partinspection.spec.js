@@ -38,7 +38,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let cityListPartInspectionPanel = new CityListPartInspectionPanel();
             // 1. Open the site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3.Click on the 'Main' region-item and open Context Menu:
             await pageComponentView.openMenu('main');
