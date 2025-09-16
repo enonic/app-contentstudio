@@ -127,10 +127,10 @@ describe('tests for Sorted versions item', function () {
             await contentBrowsePanel.waitForSortIconDisplayed(PARENT_FOLDER.displayName);
             // 5. Verify that 3 sorted items are displayed:
             let numberOfSortedItems = await browseVersionsWidget.countSortedItems();
-            assert.equal(numberOfSortedItems, 3, "Three sorted items should be present in the versions widget");
+            assert.equal(numberOfSortedItems, 3, 'Three sorted items should be present in the versions widget');
             // 6. Verify that user-name should not be displayed in Sorted version item
             let byUser = await browseVersionsWidget.getUserNameInItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 1);
-            assert.equal(byUser, '', "user-name should not be displayed in Sorted version item");
+            assert.equal(byUser, '', 'user-name should not be displayed in Sorted version item');
         });
 
     it(`GIVEN 'Edited' and 'Sorted' items are selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN expected options with 'sorted' icon should be present in the list`,
@@ -161,12 +161,12 @@ describe('tests for Sorted versions item', function () {
             await studioUtils.saveScreenshot('compare_versions_left_dropdown_options');
             // 5. Verify that options with the 'sorted' icon should be present in the left dropdown list:
             let result = await compareContentVersionsDialog.getSortedOptionsInLeftDropdownList();
-            assert.equal(result.length, 3, "3 sorted items should be present in the options selector after the line-divider");
+            assert.equal(result.length, 3, '3 sorted items should be present in the options selector after the line-divider');
             // 6. Verify that options with the 'sorted' icon should be present in the right dropdown list:
             await compareContentVersionsDialog.clickOnRightDropdownHandle();
             await studioUtils.saveScreenshot('compare_versions_right_dropdown_options');
             result = await compareContentVersionsDialog.getSortedOptionsInRightDropdownList();
-            assert.equal(result.length, 4, "4 sorted items should be present in the options selector after the line-divider");
+            assert.equal(result.length, 4, '4 sorted items should be present in the options selector after the line-divider');
         });
 
     it("GIVEN existing folder with 'Sorted' version items is opened WHEN the folder has been published THEN 'Sorted' items remain visible in Versions Widget",
@@ -184,7 +184,7 @@ describe('tests for Sorted versions item', function () {
             await wizardVersionsWidget.waitForPublishedItemDisplayed();
             await studioUtils.saveScreenshot('sorted_versions_after_publishing');
             let publishedItems = await wizardVersionsWidget.countPublishedItems();
-            assert.equal(publishedItems, 1, "One Published items should be displayed");
+            assert.equal(publishedItems, 1, 'One Published items should be displayed in the Versions Widget');
             // 4. Verify that Sorted version items remain visible:
             let sortedItems = await wizardVersionsWidget.countSortedItems();
             assert.equal(sortedItems, 3, '3 Sorted items remain visible');
