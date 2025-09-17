@@ -93,14 +93,14 @@ export abstract class BaseGallerySelectedOptionsView<T> extends BaseSelectedOpti
         );
 
         super.removeOption(optionToRemove, silent);
+
+        this.updateSelectionToolbarLayout();
     }
 
     removeSelectedOptions(options: SelectedOption<T>[]) {
         options
             .map((option: SelectedOption<T>) => option.getOption())
             .forEach((option) => this.removeOption(option));
-        this.selection.length = 0;
-        this.updateSelectionToolbarLayout();
         this.resetActiveOption();
     }
 
