@@ -67,6 +67,7 @@ import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
 import {UrlAction} from 'lib-contentstudio/app/UrlAction';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
+import {VersionHelper} from 'lib-contentstudio/app/util/VersionHelper';
 import * as Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
@@ -542,6 +543,8 @@ async function startContentBrowser() {
     const path: Path = Store.instance().get('application').getPath();
     const action: string = path?.getElement(1);
     const baseAppToBeOpened = action !== 'widget';
+
+    VersionHelper.checkAndNotifyIfNewerVersionExists();
 
     if (baseAppToBeOpened) {
         commonWrapper.selectDefaultWidget();
