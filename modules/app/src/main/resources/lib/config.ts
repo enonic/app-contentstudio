@@ -1,10 +1,13 @@
 import * as adminLib from '/lib/xp/admin';
 import * as authLib from '/lib/xp/auth';
-import * as contextLib from '/lib/xp/context';
 import * as i18nLib from '/lib/xp/i18n';
 import * as portalLib from '/lib/xp/portal';
 
 export const configJsonId = 'contentstudio-config-json';
+
+interface GetMarketConfigBean {
+    getMarketUrl(): string;
+}
 
 function getPhrases(locales: string[]): Record<string, string> {
     const phrases: Record<string, string> = {};
@@ -50,10 +53,12 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
         toolUri: toolUri,
         appId: app.name,
         appVersion: app.version,
+        xpVersion: adminLib.getVersion(),
         branch: 'draft',
         enableCollaboration,
         defaultPublishFromTime,
         locale: locales[0],
+        marketUrl: getMarketUrl(),
         services: {
             contentUrl: portalLib.apiUrl({
                 api: 'content'
@@ -104,6 +109,7 @@ function parseTime(value: string): Optional<string> {
     return /^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/.test(value) ? value : null;
 }
 
-export function generateScriptConfigId(): string {
-    return Math.random().toString(36).substring(2, 15);
+export function getMarketUrl() {
+    const marketConfigBean = __.newBean('com.enonic.xp.app.main.GetMarketConfigBean') as GetMarketConfigBean;
+    return __.toNativeObject(marketConfigBean.getMarketUrl());
 }
