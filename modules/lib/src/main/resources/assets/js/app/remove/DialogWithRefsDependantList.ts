@@ -5,15 +5,17 @@ import {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
 import {ContentItem} from '../ui2/list/ContentItem';
 
 export class DialogWithRefsDependantList
-    extends DialogDependantItemsList {
+    extends DialogDependantItemsList<ContentItem> {
     private resolveDependenciesResult: ContentWithRefsResult;
 
     constructor(observer: Omit<ObserverConfig, 'sort'>) {
+        const className = 'gap-y-0';
         super({
             observer: {
                 ...observer,
                 sort: (items) => [...items].sort((a, b) => this.itemsWithRefsOnTop(a, b)),
             },
+            className,
         });
     }
 

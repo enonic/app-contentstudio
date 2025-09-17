@@ -6,6 +6,7 @@ import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {CompareWithPublishedVersionDialog} from './dialog/CompareWithPublishedVersionDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
+import {cn} from '@enonic/ui';
 
 export class ContentStatusToolbar<C extends ToolbarConfig = ToolbarConfig>
     extends ItemPreviewToolbar<ContentSummaryAndCompareStatus, C> {

@@ -84,7 +84,9 @@ export class ContentItem extends LegacyElement<typeof ContentItemComponent, Prop
         this.props.setKey('selected', selected);
     }
 
-
+    onSelected(listener: () => void): void {
+        // Backwards compatibility
+    }
 
     setHasInbound(hasInbound: boolean): void {
         this.props.setKey('hasInbound', hasInbound);

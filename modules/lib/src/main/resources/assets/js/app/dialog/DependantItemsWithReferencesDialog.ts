@@ -13,9 +13,10 @@ import {CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
 import {DialogWithRefsDependantList} from '../remove/DialogWithRefsDependantList';
 import {DialogWithRefsItemList, DialogWithRefsItemListConfig} from '../remove/DialogWithRefsItemList';
 import {ContentItem} from '../ui2/list/ContentItem';
+import {ArchiveSelectableItem} from './ArchiveSelectableItem';
 
 export abstract class DependantItemsWithReferencesDialog
-    extends DependantItemsWithProgressDialog {
+    extends DependantItemsWithProgressDialog<ContentItem> {
     protected stateBar: DialogStateBar;
     protected inboundErrorsEntry: DialogStateEntry;
 
@@ -51,9 +52,7 @@ export abstract class DependantItemsWithReferencesDialog
                 return;
             }
 
-            const views = items.map(
-                (item) => list.getItemView(item) as unknown as ContentItem
-            );
+            const views = items.map((item) => list.getItemView(item));
             this.updateItemViewsWithInboundDependencies(views);
         };
 
@@ -69,7 +68,7 @@ export abstract class DependantItemsWithReferencesDialog
         ContentServerEventsHandler.getInstance().onContentDeleted(handleRefsChange);
     }
 
-    private updateItemViewsWithInboundDependencies(views: readonly ContentItem[]): void {
+    private updateItemViewsWithInboundDependencies(views: readonly (ContentItem | ArchiveSelectableItem)[]): void {
         for (const v of views) {
             v.setHasInbound(this.hasInboundRef(v.getItem().getId()));
         }
