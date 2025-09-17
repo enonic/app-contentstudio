@@ -3,6 +3,7 @@ const mustache = require('/lib/mustache');
 const portal = require('/lib/xp/portal');
 const i18n = require('/lib/xp/i18n');
 const aiLib = require('/lib/ai');
+const configHelper = require('/services/config/config');
 
 const AI_TRANSLATOR_APP_KEY = 'com.enonic.app.ai.translator';
 const AI_CONTENT_OPERATOR_APP_KEY = 'com.enonic.app.ai.contentoperator';
@@ -19,9 +20,11 @@ exports.renderTemplate = function (params) {
 
     if (enableSecurityPolicy) {
         let securityPolicy = app.config['contentSecurityPolicy.header'];
+        const marketUrl = configHelper.getMarketUrl();
+        const baseMarketUrl = marketUrl.substring(0, marketUrl.indexOf('/', 9));
 
         if (!securityPolicy) {
-            securityPolicy = 'default-src \'self\'; connect-src \'self\' ws: wss:; script-src \'self\' \'unsafe-inline\'; object-src \'none\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:';
+            securityPolicy = `default-src 'self'; connect-src 'self' ws: wss: ${baseMarketUrl}; script-src 'self' 'unsafe-inline'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:`;
         }
         response.headers = {
             'Content-Security-Policy': securityPolicy

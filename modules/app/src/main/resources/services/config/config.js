@@ -4,6 +4,7 @@ const admin = require('/lib/xp/admin');
 const aiLib = require('/lib/ai');
 const portal = require('/lib/xp/portal');
 const contextLib = require('/lib/xp/context');
+const authLib = require('/lib/xp/auth');
 
 function handleGet(request) {
     const context = contextLib.get();
@@ -17,6 +18,7 @@ function handleGet(request) {
 
     const isBrowseMode = request.path === admin.getToolUrl(app.name, 'main');
     const aiEnabled = !isBrowseMode && (aiLib.aiContentOperatorRunning || aiLib.aiTranslatorRunning);
+    const user = authLib.getUser();
 
     return {
         status: 200,
@@ -35,11 +37,13 @@ function handleGet(request) {
             ),
             appId: app.name,
             appVersion: app.version,
+            xpVersion: admin.getVersion(),
             branch,
             hideDefaultProject,
             enableCollaboration,
             defaultPublishFromTime,
             locale: admin.getLocale(),
+            marketUrl: exports.getMarketUrl(),
             services: {
                 contentUrl: portal.serviceUrl({service: 'content'}),
                 i18nUrl: portal.serviceUrl({service: 'i18n'}),
@@ -48,6 +52,7 @@ function handleGet(request) {
                 eventsUrl: portal.serviceUrl({service: 'events'}),
                 appServiceUrl: portal.serviceUrl({service: 'applications'}),
                 exportServiceUrl: portal.serviceUrl({service: 'export'}),
+                dismissNotificationUrl: portal.serviceUrl({service: 'dismiss-notification'}),
                 aiContentOperatorWsServiceUrl: portal.serviceUrl({service: 'ws', application: 'com.enonic.app.ai.contentoperator', type: 'websocket'}),
                 aiTranslatorLicenseServiceUrl: portal.serviceUrl({service: 'license', application: 'com.enonic.app.ai.translator'}),
                 aiTranslatorWsServiceUrl: portal.serviceUrl(
@@ -59,7 +64,8 @@ function handleGet(request) {
             /* Remove in CS/lib-admin-ui 5.0 */
             launcher: {
                 theme: 'light'
-            }
+            },
+            lastDismissedVersion: getLastDismissedVersion(user.key)
         }
     };
 }
@@ -68,5 +74,29 @@ function parseTime(value) {
     const timeRegex = /^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/;
     return timeRegex.test(value) ? value : null;
 }
+
+function getLastDismissedVersion(principalKey) {
+    const userProfile = authLib.getProfile({
+        key: principalKey,
+        scope: exports.profileScope
+    });
+
+    if (!userProfile || !userProfile[exports.getUnderscoredAppName()]) {
+        return '';
+    }
+
+    return userProfile[exports.getUnderscoredAppName()]['upgrade']['version'] || '';
+}
+
+exports.profileScope = 'notifications';
+
+exports.getMarketUrl = function() {
+    const marketConfigBean = __.newBean('com.enonic.xp.app.main.GetMarketConfigBean');
+    return __.toNativeObject(marketConfigBean.getMarketUrl());
+};
+
+exports.getUnderscoredAppName = function () {
+    return app.name.replace(/\./g, '_');
+};
 
 exports.get = handleGet;
