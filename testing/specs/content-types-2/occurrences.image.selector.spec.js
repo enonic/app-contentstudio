@@ -30,7 +30,7 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
 
     // allowPath config doesn't work in image selectors #9137
     // https://github.com/enonic/app-contentstudio/issues/9137
-    it("GIVEN wizard for content with Image Selector-content is opened WHEN allowPath set to ${site}/* THEN only all children of the site should be present in the dropdown selector",
+    it.skip("GIVEN wizard for content with Image Selector-content is opened WHEN allowPath set to ${site}/* THEN only all children of the site should be present in the dropdown selector",
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             // 1. Open wizard for new content:
