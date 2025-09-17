@@ -55,5 +55,5 @@ function createUrl(req, params) {
     const project = params.repository.substring('com.enonic.cms.'.length);
     const baseUri = adminLib.getBaseUri();
     const normalizedBaseUri = baseUri === '/' ? '' : baseUri;
-    return `${normalizedBaseUri}/site/${params.mode}/${project}/${params.branch}${params.path}`;
+    return `${normalizedBaseUri}/site/${params.mode}/${project}/${params.branch}${encodeURI(params.path)}`;
 }
