@@ -1,17 +1,21 @@
-import * as adminLib from '/lib/xp/admin';
-import * as authLib from '/lib/xp/auth';
-import * as contextLib from '/lib/xp/context';
-import * as i18nLib from '/lib/xp/i18n';
-import * as portalLib from '/lib/xp/portal';
+import {widgetUrl, getToolUrl, getHomeToolUrl, getVersion} from '/lib/xp/admin';
+import {User, UserKey, getUser, getProfile, getMemberships} from '/lib/xp/auth';
+import {getPhrases} from '/lib/xp/i18n';
+import {assetUrl, apiUrl, serviceUrl} from '/lib/xp/portal';
 
 export const configJsonId = 'contentstudio-config-json';
+export const profileScope = 'notifications';
 
-function getPhrases(locales: string[]): Record<string, string> {
+interface GetMarketConfigBean {
+    getMarketUrl(): string;
+}
+
+function geti18nPhrases(locales: string[]): Record<string, string> {
     const phrases: Record<string, string> = {};
     const bundles = ['i18n/common', 'i18n/phrases', 'i18n/cs-plus', 'i18n/dialogs', 'i18n/page-editor', 'i18n/wcag'];
 
     bundles.forEach(function (bundle) {
-        const bundlePhrases = i18nLib.getPhrases(locales, [bundle]);
+        const bundlePhrases = getPhrases(locales, [bundle]);
         for (const key in bundlePhrases) {
             if (Object.prototype.hasOwnProperty.call(bundlePhrases, key)) {
                 phrases[key] = bundlePhrases[key];
@@ -28,65 +32,72 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
     const defaultPublishFromTime = parseTime(app.config['publishingWizard.defaultPublishFromTime'] || '12:00');
-    const toolUri = adminLib.getToolUrl(
+    const toolUri = getToolUrl(
         app.name,
         'main'
     );
     const theme = 'light';
-    const user = authLib.getUser();
+    const user: User | null = getUser();
 
     if (!user) {
         throw new Error('User not found');
     }
 
+    const lastDismissedVersion = getLastDismissedVersion(user.key);
+
     return {
         allowContentUpdate,
         excludeDependencies,
         allowPathTransliteration,
-        adminUrl: adminLib.getHomeToolUrl(),
-        assetsUri: portalLib.assetUrl({
+        adminUrl: getHomeToolUrl(),
+        assetsUri: assetUrl({
             path: ''
         }),
         toolUri: toolUri,
         appId: app.name,
         appVersion: app.version,
+        xpVersion: getVersion(),
         branch: 'draft',
         enableCollaboration,
         defaultPublishFromTime,
         locale: locales[0],
+        marketUrl: getMarketUrl(),
         services: {
-            contentUrl: portalLib.apiUrl({
+            contentUrl: apiUrl({
                 api: 'content'
             }),
-            stylesUrl: portalLib.apiUrl({
+            stylesUrl: apiUrl({
                 api: 'styles'
             }),
-            exportServiceUrl: portalLib.apiUrl({
+            exportServiceUrl: apiUrl({
                 api: 'export'
             }),
-            eventsUrl: portalLib.apiUrl({
+            eventsUrl: apiUrl({
                 api: 'events'
             }),
-            aiContentOperatorWsServiceUrl: portalLib.serviceUrl({service: 'ws', application: 'com.enonic.app.ai.contentoperator', type: 'websocket'}),
-            aiTranslatorLicenseServiceUrl: portalLib.serviceUrl({service: 'license', application: 'com.enonic.app.ai.translator'}),
-            aiTranslatorWsServiceUrl: portalLib.serviceUrl(
+            dismissNotificationUrl: apiUrl({
+                api: 'dismiss-notification'
+            }),
+            aiContentOperatorWsServiceUrl: serviceUrl({service: 'ws', application: 'com.enonic.app.ai.contentoperator', type: 'websocket'}),
+            aiTranslatorLicenseServiceUrl: serviceUrl({service: 'license', application: 'com.enonic.app.ai.translator'}),
+            aiTranslatorWsServiceUrl: serviceUrl(
                 {service: 'ws', application: 'com.enonic.app.ai.translator', type: 'websocket'}),
         },
         theme,
-        widgetApiUrl: portalLib.apiUrl({
+        widgetApiUrl: apiUrl({
             api: 'admin:widget'
         }),
-        statusApiUrl: portalLib.apiUrl({
+        statusApiUrl: apiUrl({
             api: 'admin:status'
         }),
-        eventApiUrl: portalLib.apiUrl({
+        eventApiUrl: apiUrl({
             api: 'admin:event'
         }),
-        phrasesAsJson: JSON.stringify(getPhrases(locales)),
-        sharedSocketUrl: portalLib.assetUrl({
+        phrasesAsJson: JSON.stringify(geti18nPhrases(locales)),
+        sharedSocketUrl: assetUrl({
             path: 'shared-socket.js'
         }),
-        launcherUrl: adminLib.widgetUrl({
+        launcherUrl: widgetUrl({
             application: 'com.enonic.xp.app.main',
             widget: 'launcher',
             params: {
@@ -95,8 +106,9 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
             }
         }),
         user,
-        principals: authLib.getMemberships(user.key, true),
+        principals: getMemberships(user.key, true),
         aiEnabled,
+        lastDismissedVersion
     };
 }
 
@@ -104,6 +116,20 @@ function parseTime(value: string): Optional<string> {
     return /^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/.test(value) ? value : null;
 }
 
-export function generateScriptConfigId(): string {
-    return Math.random().toString(36).substring(2, 15);
+export function getMarketUrl() {
+    const marketConfigBean = __.newBean('com.enonic.xp.app.main.GetMarketConfigBean') as GetMarketConfigBean;
+    return __.toNativeObject(marketConfigBean.getMarketUrl());
+}
+
+function getLastDismissedVersion(principalKey: UserKey): string {
+    const userProfile = getProfile({
+        key: principalKey,
+        scope: profileScope
+    }) as Record<string, any>;
+
+    return userProfile?.[getUnderscoredAppName()]?.['upgrade']?.['version'] || '';
+}
+
+export function getUnderscoredAppName(): string {
+    return app.name.replace(/\./g, '_');
 }
