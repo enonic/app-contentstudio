@@ -8,6 +8,7 @@
   <apis>
     <api>chartdata</api>
     <api>content</api>
+    <api>dismiss-notification</api>
     <api>events</api>
     <api>export</api>
     <api>styles</api>
