@@ -18,6 +18,8 @@ import {DependantItemViewer} from './DependantItemViewer';
 import {DialogDependantItemsList, ObserverConfig, SelectionType} from './DialogDependantItemsList';
 import {DialogMainItemsList} from './DialogMainItemsList';
 import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
+import {StatusCheckableItem} from './StatusCheckableItem';
+import {ContentItem} from '../ui2/list/ContentItem';
 
 enum DependantsStatus {
     HAS_EXCLUDED = 'has-excluded',
@@ -36,7 +38,7 @@ export interface DependantItemsDialogConfig
     controls?: boolean;
 }
 
-export abstract class DependantItemsDialog
+export abstract class DependantItemsDialog<Item extends StatusCheckableItem | ContentItem>
     extends ModalDialogWithConfirmation {
 
     protected actionButton: ActionButton;
@@ -46,7 +48,7 @@ export abstract class DependantItemsDialog
     private subTitle: DivEl;
     private itemList: DialogMainItemsList;
     private dependantsContainer: DivEl;
-    private dependantList: DialogDependantItemsList;
+    private dependantList: DialogDependantItemsList<Item>;
 
     protected dependantsControls: DivEl;
     protected allCheckBox: Checkbox;
@@ -211,7 +213,7 @@ export abstract class DependantItemsDialog
         return controls;
     }
 
-    protected createDependantList(): DialogDependantItemsList {
+    protected createDependantList(): DialogDependantItemsList<Item> {
         return new DialogDependantItemsList({
             createViewer: () => new DependantItemViewer(),
             observer: this.createObserverConfig(),
@@ -229,7 +231,7 @@ export abstract class DependantItemsDialog
         return this.itemList;
     }
 
-    protected getDependantList(): DialogDependantItemsList {
+    protected getDependantList(): DialogDependantItemsList<Item> {
         return this.dependantList;
     }
 

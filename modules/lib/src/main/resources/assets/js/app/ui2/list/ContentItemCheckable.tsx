@@ -9,7 +9,7 @@ type Props = {
     content: ContentSummaryAndCompareStatus;
 } & Pick<SelectableListItemProps, 'className' | 'readOnly' | 'onCheckedChange' | 'checked'>;
 
-const CheckableListItemWithStatusComponent = ({content, ...props}: Props): JSX.Element => {
+const ContentItemCheckableComponent = ({content, ...props}: Props): JSX.Element => {
     const label = content.getPath().toString();
     const status = CompareStatusFormatter.formatStatusText(content.getCompareStatus());
 
@@ -28,8 +28,8 @@ const CheckableListItemWithStatusComponent = ({content, ...props}: Props): JSX.E
     );
 };
 
-export class CheckableListItemWithStatus
-    extends LegacyElement<typeof CheckableListItemWithStatusComponent, Props> {
+export class ContentItemCheckable
+    extends LegacyElement<typeof ContentItemCheckableComponent, Props> {
 
     constructor(props: Props) {
         super({
@@ -38,7 +38,7 @@ export class CheckableListItemWithStatus
                 this.props.setKey('checked', checked);
                 props.onCheckedChange?.(checked);
             },
-        }, CheckableListItemWithStatusComponent);
+        }, ContentItemCheckableComponent);
     }
 
     getItem(): ContentSummaryAndCompareStatus {
