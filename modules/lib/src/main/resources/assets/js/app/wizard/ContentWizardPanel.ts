@@ -67,6 +67,7 @@ import {XData} from '../content/XData';
 import {XDataName} from '../content/XDataName';
 import {ContentFormContext} from '../ContentFormContext';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
+import {ContentLanguageUpdatedEvent} from '../event/ContentLanguageUpdatedEvent';
 import {ContentNamedEvent} from '../event/ContentNamedEvent';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
@@ -455,6 +456,10 @@ export class ContentWizardPanel
         this.getWizardActions().getMarkAsReadyAction().onExecuted(updateSaveInLivePanel);
         saveAction.onExecuted(updateSaveInLivePanel);
         this.onPageStateChanged(updateSaveInLivePanel);
+
+        ContentLanguageUpdatedEvent.on((event: ContentLanguageUpdatedEvent) => {
+            this.renderAndOpenTranslatorDialog(event.getLanguage());
+        });
     }
 
     toggleMinimize(navigationIndex: number = -1) {
@@ -2783,9 +2788,13 @@ export class ContentWizardPanel
         this.formsContexts.set('live', liveFormContext);
     }
 
-    renderAndOpenTranslatorDialog(): void {
-        if (!this.isTranslatable() || !AI.get().hasTranslator()) {
+    renderAndOpenTranslatorDialog(language?: string): void {
+        if ((!language && !this.isTranslatable()) || !AI.get().hasTranslator()) {
             return;
+        }
+
+        if (language) {
+            AI.get().setLanguage(language);
         }
 
         const isAlreadyRendered = document.querySelector('.ai-translator-container');
