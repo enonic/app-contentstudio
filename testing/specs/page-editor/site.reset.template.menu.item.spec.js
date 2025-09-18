@@ -51,12 +51,14 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
     it(`GIVEN text component has been removed in 'Page Component View' WHEN 'Reset' menu item has been clicked in 'Page Component View' THEN site should be reset to default template`,
         async () => {
             let contentWizard = new ContentWizard();
+            let pageInspectionPanel = new PageInspectionPanel();
             let pageComponentView = new PageComponentView();
             // 1. Open the site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Unlock the LiveEdit- click on 'Customize' menu item:
-            await contentWizard.doUnlockLiveEditor();
+            // 2. Unlock the LiveEdit- click on 'Page Settings' menu item:
+            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await contentWizard.switchToMainFrame();
+            await pageInspectionPanel.clickOnCustomizeButton();
             // 3. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 4. Click on the item and open Context Menu:
@@ -73,8 +75,10 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             await pageComponentView.openMenu(CONTROLLER_NAME);
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             await pageComponentView.pause(4000);
-            // 8. Click on 'Customize' menu item in Live Edit frame:
-            await contentWizard.doUnlockLiveEditor();
+            // 8. Click on 'Page Settings' menu item in Live Edit frame:
+            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await contentWizard.switchToMainFrame();
+            await pageInspectionPanel.clickOnCustomizeButton();
             // 9 Switch to main frame:
             await contentWizard.switchToMainFrame();
             await studioUtils.saveScreenshot('site_reset_to_template');

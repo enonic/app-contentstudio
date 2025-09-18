@@ -19,8 +19,8 @@ describe('datetime.config.spec: tests for datetime content ', function () {
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const VALID_DATE_TIME1 = "2015-02-28 19:01";
-    const NOT_VALID_DATE_TIME1 = "2015-42-28 19:01";
+    const VALID_DATE_TIME1 = '2015-02-28 19:01';
+    const NOT_VALID_DATE_TIME1 = '2015-42-28 19:01';
     const DATE_TIME_NAME_1 = contentBuilder.generateRandomName('datetime');
     const DATE_TIME_NAME_2 = contentBuilder.generateRandomName('datetime');
     const DATE_TIME_NAME_3 = contentBuilder.generateRandomName('datetime');
@@ -49,8 +49,8 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             await studioUtils.saveScreenshot('date_time_configured_now');
             let expectedDate = new Date().toISOString().substring(0, 10);
             // 3. Verify the values:
-            assert.ok(values.length === 2, "Two dateTime values should be present in the wizard page");
-            assert.equal(values[0], values[1], "Both values must be the same");
+            assert.ok(values.length === 2, 'Two dateTime values should be present in the wizard page');
+            assert.equal(values[0], values[1], 'Both values must be the same');
             assert.ok(values[0].includes(expectedDate), "Expected date time should be displayed");
         });
 
@@ -71,9 +71,9 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             // 4. Verify the saved date:
             await studioUtils.selectAndOpenContentInWizard(DATE_NAME);
             let actualDAte = await dateForm.getValueInDateInput(0);
-            assert.equal(actualDAte, DATE_IN_DECEMBER, "Expected and actual dates should be equal");
+            assert.equal(actualDAte, DATE_IN_DECEMBER, 'Expected and actual dates should be equal');
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid === false, "The date content should be valid");
+            assert.ok(isInvalid === false, 'The date content should be valid');
         });
 
     it("GIVEN existing Date(1:1) content is opened AND the date has been updated WHEN the previous version has been reverted THEN expected date should appear",
@@ -90,12 +90,12 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             await studioUtils.saveScreenshot('date_updated');
             await contentWizard.openVersionsHistoryPanel();
             // 3. Revert the previous version:
-            await versionsWidget.clickAndExpandVersion(1);
+            await versionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED,1);
             await versionsWidget.clickOnRestoreButton();
             await contentWizard.waitForNotificationMessage();
             // 4. Verify the reverted date:
             let result = await dateForm.getValueInDateInput(0);
-            assert.equal(result, DATE_IN_DECEMBER, "the previous date should be reverted");
+            assert.equal(result, DATE_IN_DECEMBER, 'The previous date should be displayed after reverting');
         });
 
     it("GIVEN wizard for new Date(1:1) is opened WHEN incorrect date has been typed THEN date content should be invalid",
@@ -111,7 +111,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             // 3. Verify the red border in the date input
             await dateForm.waitForRedBorderInDateInput(0);
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid, "The date content should be invalid");
+            assert.ok(isInvalid, 'The date content should be invalid');
             let validationMessage = await dateForm.getOccurrenceValidationRecording(0);
             assert.equal(validationMessage, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'validation recording should appear');
         });
@@ -145,7 +145,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             assert.equal(actualMessage, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, 'expected validation recording should appear');
             //4. Verify that the content is not valid:
             let isInValid = await contentWizard.isContentInvalid();
-            assert.ok(isInValid, 'the content should be invalid, because the input is required');
+            assert.ok(isInValid, 'The content should be invalid, because the input is required');
         });
 
     it("GIVEN wizard for new DateTime(1:1) opened WHEN name and valid date time have been typed in AND 'Save' button has been pressed THEN the content should be valid",
@@ -163,7 +163,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             await dateTimeForm.waitForFormValidationRecordingNotDisplayed();
             // 4. Verify that the content is valid:
             let isInValid = await contentWizard.isContentInvalid();
-            assert.ok(isInValid === false, 'the content should be valid, because correct value inserted in the required input');
+            assert.ok(isInValid === false, 'The content should be valid, because correct value inserted in the required input');
             // 5. Verify that default action is 'Mark as Ready' now
             await contentWizard.waitForMarkAsReadyButtonVisible();
         });
@@ -182,7 +182,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             assert.equal(validationMessage, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'validation recording should appear');
             // 4. Verify that the content is not valid:
             let isInValid = await contentWizard.isContentInvalid();
-            assert.ok(isInValid, 'the content should be invalid, because invalid value inserted in the required input');
+            assert.ok(isInValid, 'The content should be invalid, because invalid value inserted in the required input');
             // 5. Verify that datetime input has red border(the value is not valid)
             await dateTimeForm.waitForRedBorderDisplayedInDateTimeInput(0);
         });
