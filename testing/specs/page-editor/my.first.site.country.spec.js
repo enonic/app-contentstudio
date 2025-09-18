@@ -202,16 +202,18 @@ describe('my.first.site.country.spec - Create a site with country content', func
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
+            let pageInspectionPanel = new PageInspectionPanel();
             await studioUtils.selectAndOpenContentInWizard(USA_CONTENT_NAME);
             // 1. Open USA country content:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await contentWizard.pause(1000);
             // 2. 'Page Component View' modal dialog should not be displayed, because the content is not customized:
             await pageComponentView.waitForNotDisplayed();
-            // 3. Click on 'Customize' menu item in Live Edit frame:
-            await contentWizard.doUnlockLiveEditor();
-            // 4 Switch to main frame:
-            await contentWizard.switchToMainFrame();
+            // 3. Switch to LiveEdit frame and click on 'Page Settings' menu item in Live Edit frame:
+            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            // 4. Switch to parent frame:
+            await contentWizard.switchToParentFrame();
+            await pageInspectionPanel.clickOnCustomizeButton();
             // 5. Verify that Page Component View modal dialog loads automatically after clicking on 'customize'
             await pageComponentView.waitForLoaded();
             await studioUtils.saveScreenshot('country_pcv');
@@ -224,13 +226,15 @@ describe('my.first.site.country.spec - Create a site with country content', func
     it("WHEN USA content has been opened THEN expected components should be displayed in the dialog in Page Component wizard step",
         async () => {
             let contentWizard = new ContentWizard();
+            let pageInspectionPanel = new PageInspectionPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open USA country content:
             await studioUtils.selectAndOpenContentInWizard(USA_CONTENT_NAME);
-            // 2. Click on 'Customize' menu item in 'Live Edit' frame:
-            await contentWizard.doUnlockLiveEditor();
+            // 2. Click on 'Page settings' menu item in 'Live Edit' frame:
+            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             // 3 Switch to main frame:
             await contentWizard.switchToMainFrame();
+            await pageInspectionPanel.clickOnCustomizeButton();
             // 4. Verify that 'Page Component View' wizard step is displayed:
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes(PAGE_CONTROLLER_COUNTRY), 'template(top component)  should be present in the dialog');
