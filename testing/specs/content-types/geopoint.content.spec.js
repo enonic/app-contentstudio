@@ -8,6 +8,7 @@ const contentBuilder = require("../../libs/content.builder");
 const GeoPointForm = require('../../page_objects/wizardpanel/geopoint.form.panel');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const appConst = require('../../libs/app_const');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('geopoint.content.spec: tests for geo point content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -19,6 +20,7 @@ describe('geopoint.content.spec: tests for geo point content', function () {
     const VALID_GEO_LOCATION = '1,1';
     const GEO_POINT_CONTENT_NAME_1 = contentBuilder.generateRandomName('geopoint');
     const GEO_POINT_CONTENT_NAME_2 = contentBuilder.generateRandomName('geopoint');
+    const AUTOMATIC_CONTROLLER = appConst.INSPECT_PANEL_TEMPLATE_CONTROLLER.AUTOMATIC;
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -63,16 +65,19 @@ describe('geopoint.content.spec: tests for geo point content', function () {
         async () => {
             let geoPoint = new GeoPointForm();
             let contentWizard = new ContentWizardPanel();
-            // 1. reopen the content with saved not valid geo point:
+            let pageInspectionPanel = new PageInspectionPanel();
+            // 1. reopen the content with saved invalid geo point:
             await studioUtils.selectAndOpenContentInWizard(GEO_POINT_CONTENT_NAME_1);
+            await contentWizard.openContextWindow();
             await studioUtils.saveScreenshot('geo_point_content_invalid_reopened');
             // 2. Verify that not correct geo point was not saved, the input is empty:
             let actualText = await geoPoint.getValueInGeoPoint(0);
             assert.equal(actualText, '', 'Geo point input should be empty');
-            // 3. Controller selector should not be displayed because Page Editor is hidden for this content:
-            await contentWizard.waitForControllerOptionFilterInputNotVisible();
-            // 4. Verify that 'Add' button is displayed
+            // 3. Verify that 'Add' button is displayed
             await geoPoint.waitForAddButtonDisplayed();
+            // 4. Automatic controller should be selected in the Page Inspection Panel:
+            let controllerActual = await pageInspectionPanel.getSelectedPageController();
+            assert.equal(controllerActual, AUTOMATIC_CONTROLLER, 'Automatic controller should be selected after the resetting');
         });
 
     it(`GIVEN wizard for 'GeoPoint 1:1' is opened WHEN not correct geo point has been typed THEN validation record should appear`,
