@@ -53,7 +53,9 @@ export class ContextWindow
 
     private isPageLocked: boolean = false;
 
-    private isPageRenderable: boolean = false;
+    private isPageRenderable: boolean = undefined;
+
+    private isPageReady: boolean = false;
 
     constructor(config: ContextWindowConfig) {
         super();
@@ -68,15 +70,36 @@ export class ContextWindow
         const eventManager = PageEventsManager.get();
         eventManager.onPageLocked(() => {
             this.isPageLocked = true;
-            this.setInsertablesVisible(false);
+            if (this.isPageReady) {
+                this.setInsertablesVisible(false);
+            }
         });
         eventManager.onPageUnlocked(() => {
             this.isPageLocked = false;
-            void this.updateInsertablesPanel();
+            if (this.isPageReady) {
+                void this.updateInsertablesPanel();
+            }
         });
         eventManager.onRenderableChanged((isRenderable) => {
+            const wasRenderable = this.isPageRenderable;
             this.isPageRenderable = isRenderable;
-            void this.updateInsertablesPanel();
+
+            if (this.isPageReady) {
+                // don't select insertables when renderable was set for the first time (undefined -> true/false)
+                this.updateInsertablesPanel(isRenderable && wasRenderable !== undefined);
+            }
+        })
+        eventManager.onLiveEditPageViewReady((event) => {
+            const wasReady = this.isPageReady;
+
+            // NB: thrown 2 times for renderable page!
+
+            if (!wasReady) {
+                this.isPageReady = true;
+                // disable insert tab if there is no page for some reason (i.e. error occurred)
+                // or there is no controller or template set or no automatic template
+                this.updateInsertablesPanel();
+            }
         })
 
         if (this.insertablesPanel) {
@@ -90,10 +113,10 @@ export class ContextWindow
         }
     }
 
-    private setInsertablesVisible(visible: boolean): void {
+    private setInsertablesVisible(visible: boolean, selectInsertables = false): void {
         if (this.insertablesPanel?.isRendered()) {
             this.setItemVisible(this.insertablesPanel, visible);
-            if (visible) {
+            if (selectInsertables) {
                 this.selectPanel(this.insertablesPanel);
             }
         }
@@ -101,7 +124,7 @@ export class ContextWindow
         this.toggleClass('no-insertion', !visible);
     }
 
-    updateInsertablesPanel() {
+    updateInsertablesPanel(selectInsertables?: boolean) {
         let setVisible: boolean;
         // check for renderable because it can have a controller/template but not be renderable (e.g. app is turned off )
         if (this.insertablesPanel && !this.isPageLocked && this.isPageRenderable) {
@@ -112,7 +135,7 @@ export class ContextWindow
         } else {
             setVisible = false;
         }
-        return this.setInsertablesVisible(setVisible);
+        return this.setInsertablesVisible(setVisible, selectInsertables);
     }
 
     doRender(): Q.Promise<boolean> {
