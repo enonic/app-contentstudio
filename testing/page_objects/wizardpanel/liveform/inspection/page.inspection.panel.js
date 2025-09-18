@@ -13,6 +13,10 @@ const xpath = {
 
 class PageInspectionPanel extends Page {
 
+    get customizePageButton() {
+        return xpath.container + lib.actionButton('Customize Page');
+    }
+
     get templateAndControllerOptionFilterInput() {
         return xpath.container + xpath.pageTemplateSelector + lib.DROPDOWN_OPTION_FILTER_INPUT;
     }
@@ -34,7 +38,7 @@ class PageInspectionPanel extends Page {
             await this.waitForSaveAsTemplateButtonDisplayed();
             await this.clickOnElement(this.saveAsTemplateButton);
             return await this.pause(3000);
-        }catch (err){
+        } catch (err) {
             await this.handleError('Page Inspection, tried to click on Save as Template button', 'err_click_save_as_template', err);
         }
     }
@@ -88,6 +92,25 @@ class PageInspectionPanel extends Page {
 
     waitForNotDisplayed() {
         return this.waitForElementNotDisplayed(xpath.container, appConst.mediumTimeout);
+    }
+
+    async waitForPageTemplateAndControllerSelectorDisabled() {
+        let locator = xpath.container + xpath.pageTemplateSelector;
+        return this.waitForElementDisabled(locator, appConst.mediumTimeout);
+    }
+
+    async waitForCustomizeButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.customizePageButton, appConst.mediumTimeout);
+    }
+
+    async clickOnCustomizeButton() {
+        try {
+            await this.waitForElementDisplayed(this.customizePageButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.customizePageButton);
+            return await this.pause(1000);
+        } catch (err) {
+            await this.handleError('Page Inspection, tried to click on Customize button', 'err_click_customize', err);
+        }
     }
 }
 

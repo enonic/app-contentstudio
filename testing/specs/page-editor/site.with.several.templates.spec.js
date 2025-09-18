@@ -93,8 +93,9 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             let confirmationDialog = new ConfirmationDialog();
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.doUnlockLiveEditor();
+            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await contentWizard.switchToParentFrame();
+            await pageInspectionPanel.clickOnCustomizeButton();
             // 2. Select the controller:
             await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE1.displayName);
             // 3. Confirmation dialog appears:
@@ -120,8 +121,9 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on Customize menu item::
-            await contentWizard.doUnlockLiveEditor();
+            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await contentWizard.switchToParentFrame();
+            await pageInspectionPanel.clickOnCustomizeButton();
             // 3. Check the items in PCV:
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
@@ -135,8 +137,9 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 7. Verify that notification message appears:
             await contentWizard.waitForNotificationMessage();
             // 8. Live Edit gets locked again, click on 'Customize' menu item:
-            await contentWizard.doUnlockLiveEditor();
+            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await contentWizard.switchToParentFrame();
+            await pageInspectionPanel.clickOnCustomizeButton();
             // 9. Verify that items in PCV are updated after switching a template:
             result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes('default'), 'default item should be displayed in the modal dialog');

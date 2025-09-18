@@ -21,6 +21,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
     const SITE_NAME = contentBuilder.generateRandomName('site');
+    const AUTOMATIC_CONTROLLER = appConst.INSPECT_PANEL_TEMPLATE_CONTROLLER.AUTOMATIC;
     let SITE;
 
     it(`Precondition 1 - parent project with private access mode should be created`,
@@ -82,7 +83,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await editSettingsDialog.clickOnCancelButton();
             await studioUtils.saveScreenshot('reset_not_confirmed');
             // 5. Verify that site is not reverted to initial inherited state:
-            assert.equal(language, appConst.LANGUAGES.EN, "layer's data should not be reset");
+            assert.equal(language, appConst.LANGUAGES.EN, `layer's data should not be reset`);
             // 6. Verify that Reset button still displayed in the wizard toolbar:
             await contentWizard.waitForResetButtonDisplayed();
         });
@@ -165,7 +166,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await contentWizard.waitForPreviewButtonDisabled();
             // 9. Verify that controller in 'Page inspection' panel is set to 'Automatic':
             let controllerActual = await pageInspectionPanel.getSelectedPageController();
-            assert.equal(controllerActual,'Automatic' ,'Automatic controller should be selected after the resetting');
+            assert.equal(controllerActual, AUTOMATIC_CONTROLLER, 'Automatic controller should be selected after the resetting');
             assert.equal(msg, 'Editing not available', "'Editing not available' message should be displayed");
             await liveFormPanel.waitForPageSettingsLinkDisplayed();
         });

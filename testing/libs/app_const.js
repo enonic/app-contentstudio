@@ -542,6 +542,9 @@ module.exports = Object.freeze({
         MEDIA: 'Media',
         JSON: 'JSON'
     },
+    INSPECT_PANEL_TEMPLATE_CONTROLLER:{
+        AUTOMATIC: 'Automatic',
+    },
     LIVE_VIEW_IFRAME_CLASS: {
         IMAGE: 'image',
         APPLICATION: 'application',

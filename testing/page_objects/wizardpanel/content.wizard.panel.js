@@ -611,10 +611,10 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async doUnlockLiveEditor() {
+    async openLockedSiteContextMenuClickOnPageSettings() {
         await this.doOpenItemViewContextMenu();
         await this.saveScreenshot(appConst.generateRandomName('unlock_context_menu'));
-        return await this.clickOnCustomizeMenuItem();
+        return await this.clickOnPageSettingsMenuItem();
     }
 
     // Opens context menu with 'Customize Page' item
@@ -632,8 +632,8 @@ class ContentWizardPanel extends Page {
     }
 
     // wait for 'Customize Page' context menu item and click on it:
-    async clickOnCustomizeMenuItem() {
-        let locator = XPATH.itemViewContextMenu + `//dl//dt[text()='Customize Page']`;
+    async clickOnPageSettingsMenuItem() {
+        let locator = XPATH.itemViewContextMenu + `//dl//dt[text()='Page settings']`;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
         return await this.pause(1000);

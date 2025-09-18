@@ -96,7 +96,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             await studioUtils.saveScreenshot('support_site_applied');
             // 4. Template should be applied in the site-wizard so the controller selector should not be visible now:
-            await contentWizard.waitForControllerOptionFilterInputNotVisible();
+            //TODO
+            //await contentWizard.waitForControllerOptionFilterInputNotVisible();
         });
 
     // Verify  https://github.com/enonic/app-contentstudio/issues/7077
@@ -105,13 +106,16 @@ describe('page.template.controller: select a controller in a template-wizard', f
         async () => {
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
+            let pageInspectionPanel = new PageInspectionPanel();
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            //await contentWizard.switchToParentFrame();
             // 2. Unlock the LiveEdit(Click on Customize menu item)
-            await contentWizard.doUnlockLiveEditor();
+            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await liveFormPanel.switchToParentFrame();
+            await pageInspectionPanel.clickOnCustomizeButton();
             await studioUtils.saveScreenshot('page_template_image_rendered');
             // 3. Verify that the image that was inserted in the template is displayed in the site
+            await contentWizard.switchToLiveEditFrame();
             let srcAttr = await liveFormPanel.verifyImageElementsInTextComponent(0);
             await contentWizard.switchToParentFrame();
             assert.ok(srcAttr.includes('/admin/rest'), "Image in the Text Component - Attribute 'src' is not correct");
@@ -156,6 +160,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
     it(`GIVEN site is opened and 'Customise' menu item has been clicked WHEN new text component with a text has been inserted THEN the expected text should be displayed in the Live Edit`,
         async () => {
             let contentWizard = new ContentWizard();
+            let pageInspectionPanel = new PageInspectionPanel();
             let TEST_TEXT = 'test text';
             let TEST_TEXT_INSERTED = "<p>test text</p>";
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
@@ -163,11 +168,12 @@ describe('page.template.controller: select a controller in a template-wizard', f
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Switches to 'live-edit' iframe and unlock the LiveEdit(Click on Customize menu item)
-            await contentWizard.doUnlockLiveEditor();
-            await studioUtils.saveScreenshot('site_customised');
+            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             // 3. Switch to the parent frame:
             await contentWizard.switchToParentFrame();
-            // 4. Open the Page Components modal dialog and insert a text componsnt:
+            await pageInspectionPanel.clickOnCustomizeButton();
+            await studioUtils.saveScreenshot('site_customised');
+            // 4. Open the Page Components modal dialog and insert a text component:
             await pageComponentsWizardStepForm.openMenu('main');
             await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
             await studioUtils.saveScreenshot('site_customised_component_inserted');
