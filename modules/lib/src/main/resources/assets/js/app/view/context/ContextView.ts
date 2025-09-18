@@ -15,8 +15,6 @@ import {InspectEvent} from '../../event/InspectEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
 import {ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
-import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
-import {ShowLiveEditEvent} from '../../wizard/ShowLiveEditEvent';
 import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
 import {AttachmentsWidgetItemView} from './widget/details/AttachmentsWidgetItemView';
@@ -30,6 +28,7 @@ import {VersionHistoryView} from './widget/version/VersionHistoryView';
 import {WidgetItemView} from './WidgetItemView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {InternalWidgetType, WidgetView} from './WidgetView';
+import {PageEventsManager} from '../../wizard/PageEventsManager';
 
 export class ContextView
     extends DivEl {
@@ -58,8 +57,11 @@ export class ContextView
 
     private widgetsUpdateList: Record<string, (key: string, type: ApplicationEventType) => void> = {};
 
-    public static debug: boolean = false;
     private editorMode: boolean;
+
+    private isPageRenderable: boolean = undefined;
+
+    public static debug: boolean = false;
 
     constructor(editorMode: boolean = false) {
         super('context-panel-view');
@@ -91,12 +93,15 @@ export class ContextView
         ApplicationEvent.on(handleApplicationEvents);
         this.onRemoved(() => ApplicationEvent.un(handleApplicationEvents));
 
-        const createPageEditorVisibilityChangedHandler = (visible: boolean) => () => {
-            this.updateSelectedWidget();
-        };
+        PageEventsManager.get().onRenderableChanged((renderable: boolean) => {
+            const wasRenderable: boolean = this.isPageRenderable;
+            this.isPageRenderable = renderable;
 
-        ShowLiveEditEvent.on(createPageEditorVisibilityChangedHandler(true));
-        ShowContentFormEvent.on(createPageEditorVisibilityChangedHandler(false));
+            if (wasRenderable !== undefined && renderable) {
+                // only switch the widget when the page becomes renderable
+                this.updateSelectedWidget();
+            }
+        });
 
         const contentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
@@ -502,16 +507,14 @@ export class ContextView
     }
 
     updateSelectedWidget() {
-        const shouldActivatePageWidget = this.editorMode;
+        const shouldActivatePageWidget = this.editorMode &&
+                                         (this.isPageRenderable && !this.item?.getType()?.isShortcut()
+                                          || this.item?.getContentSummary()?.isPage());
         if (shouldActivatePageWidget) {
             this.activatePageEditorWidget();
         } else {
             this.deactivatePageEditorWidget();
         }
-    }
-
-    public updateContextWindow(): void {
-        this.contextWindow?.updateInsertablesPanel();
     }
 
     private activatePageEditorWidget(): void {
