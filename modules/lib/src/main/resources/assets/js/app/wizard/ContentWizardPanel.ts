@@ -995,7 +995,6 @@ export class ContentWizardPanel
             this.contentUpdateDisabled = false;
             this.isRename = false;
             if (this.isRendered()) {
-                this.contextView.updateContextWindow();
                 this.updateButtonsState();
             }
             this.wizardHeader.toggleEnabled(true);
@@ -1219,8 +1218,6 @@ export class ContentWizardPanel
                     firstLoad = false;
                     this.toggleLiveEdit();
                     this.updateButtonsState();
-                    this.contextView.updateSelectedWidget();
-                    this.contextView.updateContextWindow();
                     this.toggleClass('rendered', true);
                 }
             });
