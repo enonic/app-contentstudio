@@ -269,8 +269,8 @@ importers:
         specifier: file:../lib-admin-ui
         version: link:../lib-admin-ui
       '@enonic/ui':
-        specifier: ~0.6.0
-        version: 0.6.0(preact@10.27.1)(react@19.1.1)
+        specifier: ~0.7.0
+        version: 0.7.0(preact@10.27.1)(react@19.1.1)
       d3:
         specifier: ^7.9.0
         version: 7.9.0
@@ -477,6 +477,27 @@ packages:
   '@enonic/ui@0.6.0':
     resolution: {integrity: sha512-JdrbThgclt9XoTswBR3/sIsA/oANmjG3VRKYOKBcXp1/t3uGWURF+H8TIufZIu7xiLgPd8BowZB61yUwIFNHMw==}
     engines: {node: '>=22.17.1', npm: '>=9.15.9', pnpm: '>= 10.11.0'}
+    peerDependencies:
+      '@preact/compat': '>=17.0.0 || >=18.0.0'
+      lucide-preact: '*'
+      preact: '>=10.0.0'
+      react: '>=18.0.0 || >=19.0.0'
+      react-dom: '>=18.0.0 || >=19.0.0'
+    peerDependenciesMeta:
+      '@preact/compat':
+        optional: true
+      lucide-preact:
+        optional: true
+      preact:
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
+  '@enonic/ui@0.7.0':
+    resolution: {integrity: sha512-ccasjLwSYwVzZDNm4udlyT/IgHUl0gjdCNh3h23X/UBZddaFZ0EQzl0rXQZPGntk9vboODqWcLyoZs2WeLXx7Q==}
+    engines: {node: '>=22.19.5', npm: '>=10.9.3', pnpm: '>=10.17.0'}
     peerDependencies:
       '@preact/compat': '>=17.0.0 || >=18.0.0'
       lucide-preact: '*'
@@ -3498,6 +3519,18 @@ snapshots:
       typescript-eslint: 8.40.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2)
 
   '@enonic/ui@0.6.0(preact@10.27.1)(react@19.1.1)':
+    dependencies:
+      '@radix-ui/react-slot': 1.2.3(react@19.1.1)
+      class-variance-authority: 0.7.1
+      clsx: 2.1.1
+      tailwind-merge: 3.3.1
+    optionalDependencies:
+      preact: 10.27.1
+      react: 19.1.1
+    transitivePeerDependencies:
+      - '@types/react'
+
+  '@enonic/ui@0.7.0(preact@10.27.1)(react@19.1.1)':
     dependencies:
       '@radix-ui/react-slot': 1.2.3(react@19.1.1)
       class-variance-authority: 0.7.1

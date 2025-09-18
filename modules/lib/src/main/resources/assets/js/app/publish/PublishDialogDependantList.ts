@@ -1,3 +1,4 @@
+import {cn} from '@enonic/ui';
 import {ContentId} from '../content/ContentId';
 import {ContentIds} from '../content/ContentIds';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
@@ -17,7 +18,8 @@ export class PublishDialogDependantList
     private visibleUpdatedListeners: (() => void)[] = [];
 
     constructor(observer: ObserverConfig) {
-        super({className: 'publish-dialog-dependant-list', observer});
+        const className = 'publish-dialog-dependant-list gap-y-1.5';
+        super({className, observer});
     }
 
     hasExcluded(): boolean {

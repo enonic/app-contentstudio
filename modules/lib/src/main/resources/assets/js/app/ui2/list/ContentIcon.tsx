@@ -53,7 +53,7 @@ const CONTENT_TYPE_ICON_MAP = new Map<string, LucideIcon>([
 
 const BuiltInIcon = ({contentType, size}: BuiltInIconProps): JSX.Element => {
     const Icon = CONTENT_TYPE_ICON_MAP.get(contentType) ?? FileIcon;
-    return <Icon size={size}/>;
+    return <Icon size={size} strokeWidth={1.5} />;
 };
 
 export const ContentIcon = ({

@@ -9,7 +9,7 @@ export class DialogWithRefsDependantList
     private resolveDependenciesResult: ContentWithRefsResult;
 
     constructor(observer: Omit<ObserverConfig, 'sort'>) {
-        const className = 'gap-y-0';
+        const className = 'gap-y-1.5';
         super({
             observer: {
                 ...observer,
