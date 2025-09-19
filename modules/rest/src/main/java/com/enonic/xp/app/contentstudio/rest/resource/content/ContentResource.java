@@ -1621,9 +1621,7 @@ public final class ContentResource
             edit.page = versionedContent.getPage();
             edit.language = versionedContent.getLanguage();
             edit.owner = versionedContent.getOwner();
-            edit.thumbnail = versionedContent.getThumbnail();
             edit.workflowInfo = WorkflowInfo.inProgress();
-//            edit.permissions = versionedContent.getPermissions();   // check - Do not copy permissions
         } );
 
         updateAttachments( versionedContent, contentVersionId, updateParams );

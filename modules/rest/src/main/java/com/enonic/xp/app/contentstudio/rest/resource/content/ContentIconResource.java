@@ -20,11 +20,11 @@ import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.Response;
 
 import com.enonic.xp.attachment.Attachment;
+import com.enonic.xp.attachment.AttachmentNames;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Media;
-import com.enonic.xp.icon.Thumbnail;
 import com.enonic.xp.image.Cropping;
 import com.enonic.xp.image.ImageService;
 import com.enonic.xp.image.ReadImageParams;
@@ -97,7 +97,7 @@ public final class ContentIconResource
 
     private ResolvedImage resolveResponseFromThumbnail( final Content content, final int size, final boolean crop )
     {
-        final Thumbnail contentThumbnail = content.getThumbnail();
+        final Attachment contentThumbnail = content.getAttachments().byName( AttachmentNames.THUMBNAIL );
 
         if ( contentThumbnail != null )
         {
@@ -238,7 +238,7 @@ public final class ContentIconResource
         }
     }
 
-    private ImageOrientation getThumbnailOrientation( final Thumbnail thumbnail, final Content content )
+    private ImageOrientation getThumbnailOrientation( final Attachment thumbnail, final Content content )
     {
         if ( SKIP_IMAGE_MIME_TYPES.contains( thumbnail.getMimeType() ) )
         {

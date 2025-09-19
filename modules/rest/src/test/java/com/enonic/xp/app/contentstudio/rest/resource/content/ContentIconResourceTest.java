@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.CacheControl;
 
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.attachment.Attachment;
+import com.enonic.xp.attachment.AttachmentNames;
 import com.enonic.xp.attachment.Attachments;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
@@ -22,7 +23,6 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.ExtraData;
 import com.enonic.xp.content.Media;
 import com.enonic.xp.data.PropertyTree;
-import com.enonic.xp.icon.Thumbnail;
 import com.enonic.xp.image.ImageService;
 import com.enonic.xp.image.ReadImageParams;
 import com.enonic.xp.jaxrs.impl.MockRestResponse;
@@ -31,7 +31,6 @@ import com.enonic.xp.media.MediaInfoService;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.xdata.XDataName;
 import com.enonic.xp.security.PrincipalKey;
-import com.enonic.xp.util.BinaryReference;
 import com.enonic.xp.web.HttpStatus;
 
 import static com.enonic.xp.media.MediaInfo.IMAGE_INFO_IMAGE_HEIGHT;
@@ -40,7 +39,9 @@ import static com.enonic.xp.media.MediaInfo.IMAGE_INFO_PIXEL_SIZE;
 import static com.enonic.xp.media.MediaInfo.MEDIA_INFO_BYTE_SIZE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ContentIconResourceTest
     extends AdminResourceTestSupport
@@ -70,9 +71,11 @@ public class ContentIconResourceTest
     public void get_from_thumbnail()
         throws Exception
     {
-        Thumbnail thumbnail = Thumbnail.from( BinaryReference.from( "thumbnail.png" ), "image/png", 128 );
-
-        Content content = createContent( "content-id", thumbnail, "my-content-type" );
+        Content content = createContent( "content-id", ContentTypeName.from( "my-content-type" ), Attachment.create()
+            .mimeType( "image/png" )
+            .size( 128 )
+            .name( AttachmentNames.THUMBNAIL )
+            .build() );
 
         when( contentService.getById( content.getId() ) ).thenReturn( content );
 
@@ -99,7 +102,10 @@ public class ContentIconResourceTest
     public void get_empty_thumbnail_for_a_media()
         throws Exception
     {
-        Content content = createContent( "content-id", ContentTypeName.imageMedia().toString() );
+        Content content = createContent( "content-id", ContentTypeName.imageMedia(), Attachment.create().
+            name( "logo.png" ).
+            mimeType( "image/png" ).
+            build() );
 
         when( contentService.getById( content.getId() ) ).thenReturn( content );
 
@@ -118,7 +124,10 @@ public class ContentIconResourceTest
     public void get_empty_thumbnail_for_a_svg()
         throws Exception
     {
-        Content content = createContent( "content-id", null, ContentTypeName.vectorMedia(), "image/svg+xml" );
+        Content content = createContent( "content-id", ContentTypeName.vectorMedia(), Attachment.create().
+            name( "logo.svg" ).
+            mimeType( "image/svg+xml" ).
+            build() );
 
         when( contentService.getById( content.getId() ) ).thenReturn( content );
 
@@ -138,7 +147,7 @@ public class ContentIconResourceTest
     public void get_empty_thumbnail_for_not_a_media()
         throws Exception
     {
-        Content content = createContent( "content-id" );
+        Content content = this.createContent( "content-id" );
 
         when( contentService.getById( content.getId() ) ).thenReturn( content );
 
@@ -165,9 +174,11 @@ public class ContentIconResourceTest
     public void read_image_error()
         throws Exception
     {
-        Thumbnail thumbnail = Thumbnail.from( BinaryReference.from( "thumbnail.png" ), "image/png", 128 );
-
-        Content content = createContent( "content-id", thumbnail, "my-content-type" );
+        Content content = createContent( "content-id", ContentTypeName.from( "my-content-type" ), Attachment.create()
+            .mimeType( "image/png" )
+            .size( 128 )
+            .name( AttachmentNames.THUMBNAIL )
+            .build() );
 
         when( contentService.getById( content.getId() ) ).thenReturn( content );
 
@@ -185,7 +196,10 @@ public class ContentIconResourceTest
     public void get_empty_image_media()
         throws Exception
     {
-        Content content = createContent( "content-id", ContentTypeName.imageMedia().toString() );
+        Content content = createContent( "content-id", ContentTypeName.imageMedia(), Attachment.create().
+            name( "logo.png" ).
+            mimeType( "image/png" ).
+            build() );
         content = Content.create( content ).attachments( Attachments.create().build() ).build();
 
         when( contentService.getById( content.getId() ) ).thenReturn( content );
@@ -197,31 +211,15 @@ public class ContentIconResourceTest
         assertEquals( HttpStatus.NOT_FOUND.value(), result.getStatus() );
     }
 
-    private Content createContent( final String id, final Thumbnail thumbnail, final String contentTypeName )
-    {
-        return this.createContent( id, thumbnail, ContentTypeName.from( contentTypeName ), "image/png" );
-    }
-
-    private Content createContent( final String id, final String contentTypeName )
-    {
-        return this.createContent( id, null, contentTypeName );
-    }
-
-
     private Content createContent( final String id )
     {
-        return this.createContent( id, "my-content-type" );
+        return this.createContent( id,  ContentTypeName.from( "my-content-type" ), null );
     }
 
-    private Media.Builder createMediaBuilder( final String attachmentType )
+    private Media.Builder createMediaBuilder( final Attachment attachment )
     {
         Media.Builder result = Media.create();
 
-        final Attachment attachment = Attachment.create().
-            name( "logo.png" ).
-            mimeType( attachmentType ).
-            label( "small" ).
-            build();
         final PropertyTree data = new PropertyTree();
         data.addString( "media", attachment.getName() );
 
@@ -238,14 +236,15 @@ public class ContentIconResourceTest
             addExtraData( mediaExtraData );
     }
 
-    private Content createContent( final String id, final Thumbnail thumbnail, final ContentTypeName contentType,
-                                   final String attachmentType )
+    private Content createContent( final String id, final ContentTypeName contentType,
+                                   final Attachment attachment )
     {
         final PropertyTree metadata = new PropertyTree();
         metadata.setLong( "myProperty", 1L );
 
-        Content.Builder builder =
-            contentType.isMedia() || contentType.isDescendantOfMedia() ? createMediaBuilder( attachmentType ) : Content.create();
+        Content.Builder builder = contentType.isMedia() || contentType.isDescendantOfMedia()
+            ? createMediaBuilder( attachment )
+            : Content.create().attachments( attachment == null ? Attachments.empty() : Attachments.from( attachment ) );
 
         return builder.
             id( ContentId.from( id ) ).
@@ -266,7 +265,6 @@ public class ContentIconResourceTest
                 to( Instant.parse( "2016-11-22T10:36:00Z" ) ).
                 first( Instant.parse( "2016-11-02T10:36:00Z" ) ).
                 build() ).
-            thumbnail( thumbnail ).
             build();
     }
 
