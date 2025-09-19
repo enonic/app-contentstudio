@@ -109,7 +109,7 @@ public class ApplyPermissionsRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
-        assertEquals("{\"state\":\"SUCCESS\",\"message\":\"Permissions for \\\"id1\\\" are applied.\"}", resultMessage);
+        assertEquals("{\"state\":\"SUCCESS\",\"message\":\"Permissions are applied.\"}", resultMessage);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class ApplyPermissionsRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
-        assertEquals( "{\"state\":\"ERROR\",\"message\":\"Permissions for \\\"id1\\\" could not be applied.\"}", resultMessage );
+        assertEquals("{\"state\":\"ERROR\",\"message\":\"Permissions could not be applied.\"}", resultMessage);
     }
 
     @Test
@@ -150,7 +150,7 @@ public class ApplyPermissionsRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
-        assertEquals( "{\"state\":\"ERROR\",\"message\":\"Permissions for \\\"root-content-id\\\" could not be applied.\"}",
+        assertEquals("{\"state\":\"ERROR\",\"message\":\"Permissions could not be applied.\"}",
                       resultMessage );
     }
 
@@ -177,7 +177,7 @@ public class ApplyPermissionsRunnableTaskTest
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
         assertEquals(
-                "{\"state\":\"WARNING\",\"message\":\"Permissions for \\\"id1\\\" are applied. Failed to apply permissions for 2 items. \"}",
+                "{\"state\":\"WARNING\",\"message\":\"Permissions are applied. Failed to apply permissions for 2 items. \"}",
             resultMessage );
     }
 
