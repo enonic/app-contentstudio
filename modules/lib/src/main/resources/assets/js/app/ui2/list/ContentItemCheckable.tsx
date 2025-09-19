@@ -7,11 +7,9 @@ import {ContentIcon} from './ContentIcon';
 import {EditContentEvent} from '../../event/EditContentEvent';
 
 export type Props = {
-    // children?: ReactNode;
-    // readOnly?: boolean;
+    content: ContentSummaryAndCompareStatus;
     checked: boolean;
     onCheckedChange: (checked: boolean) => void;
-    content: ContentSummaryAndCompareStatus;
 } & Pick<CheckboxProps, 'className' | 'readOnly'>;
 
 
@@ -47,12 +45,12 @@ const ContentItemCheckableComponent = ({
             <ListItem.Content>
                 <Button onClick={() => {
                     new EditContentEvent([content]).fire();
-                }} className="block h-8 -mx-1.5 -my-1 px-1.5 py-1">
+                }} className="block flex-1 w-[calc(100%+10px)] h-8 -mx-1.25 -my-1 px-1.25 py-1">
                     <ListItem.DefaultContent label={label} icon={Icon} />
                 </Button>
             </ListItem.Content>
             <ListItem.Right>
-                <span aria-label={status} className={'text-xs px-1.5 py-0.5 rounded bg-surface-tertiary group-[.bg-surface-primary-selected]:bg-surface-secondary text-subtle'}>
+                <span aria-label={status} className="text-xs px-1.5 py-0.5 rounded bg-surface-tertiary group-[.bg-surface-primary-selected]:bg-surface-secondary text-subtle">
                     {status}
                 </span>
             </ListItem.Right>

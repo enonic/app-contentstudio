@@ -43,7 +43,7 @@ const ContentItemComponent = ({
     return (
         <ListItem selected={selected}>
             <ListItem.Content>
-                <Button onClick={onClick} className="block h-8 -mx-2 -my-1 px-2 py-1">
+                <Button onClick={onClick} className="block flex-1 w-[calc(100%+10px)] h-8 -mx-1.25 -my-1 px-1.25 py-1">
                     <ListItem.DefaultContent label={label} icon={Icon} />
                 </Button>
             </ListItem.Content>
@@ -55,7 +55,7 @@ const ContentItemComponent = ({
                         target={target}
                     />
                 )}
-                <span aria-label={status} className={'text-xs px-1.5 py-0.5 rounded bg-surface-tertiary group-[.bg-surface-primary-selected]:bg-surface-secondary text-subtle'}>
+                <span aria-label={status} className="text-xs px-1.5 py-0.5 rounded bg-surface-tertiary group-[.bg-surface-primary-selected]:bg-surface-secondary text-subtle">
                     {status}
                 </span>
             </ListItem.Right>

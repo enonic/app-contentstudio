@@ -5,3 +5,8 @@
 @import "tw-animate-css";
 
 @source "../../../../../node_modules/@enonic/ui/";
+
+@theme {
+  /* SIZINGS */
+  --sizing-1\.25: calc(var(--spacing) * 1.25);
+}
