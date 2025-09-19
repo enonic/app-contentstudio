@@ -79,7 +79,7 @@ function collectResponseData(req, params, url) {
 
     const hasControllers = hasAvailableControllers(params, appKeys);
     if (!hasControllers) {
-        messages.push(i18n('text.addapplications'));
+        // messages.push(i18n('text.addapplications'));
     }
 
     return {
