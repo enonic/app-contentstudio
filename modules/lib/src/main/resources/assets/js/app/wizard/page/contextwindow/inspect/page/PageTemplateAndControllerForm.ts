@@ -24,6 +24,7 @@ export class PageTemplateAndControllerForm
     private isPageRenderable: boolean = false;
     private saveAsTemplateAction: SaveAsTemplateAction;
     private customizeAction: Action;
+    private liveEditModel: LiveEditModel;
 
     constructor() {
         super('page-template-and-controller-form');
@@ -66,7 +67,8 @@ export class PageTemplateAndControllerForm
     }
 
     private updateButtonsVisibility() {
-        this.customizeAction.setVisible(this.isPageLocked && this.isPageRenderable);
+        const isInherited = this.liveEditModel?.getContent().isInherited();
+        this.customizeAction.setVisible(!isInherited && this.isPageLocked && this.isPageRenderable);
         this.saveAsTemplateAction.updateVisibility();
 
         // https://github.com/enonic/lib-admin-ui/issues/4139
@@ -95,6 +97,7 @@ export class PageTemplateAndControllerForm
     }
 
     public setModel(liveEditModel: LiveEditModel): Q.Promise<number> {
+        this.liveEditModel = liveEditModel;
         return this.pageTemplateAndControllerSelector.setModel(liveEditModel)
             .then((controllerCount) => {
                 this.updateButtonsVisibility();
