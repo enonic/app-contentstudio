@@ -6,6 +6,7 @@ import type {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryA
 import type {Branch} from '../../versioning/Branch';
 import {ContentIcon} from './ContentIcon';
 import {ShowReferencesButton} from './ShowReferencesButton';
+import {StatusBadge} from './StatusBadge';
 
 type Props = {
     content: ContentSummaryAndCompareStatus;
@@ -28,9 +29,7 @@ const ContentItemComponent = ({
     target,
     hasInbound = false,
 }: Props): JSX.Element => {
-    const label = content.getPath().toString();
-    const status = CompareStatusFormatter.formatStatusText(content.getCompareStatus());
-
+    const label = String(content.getPath());
     const contentType = String(content.getType());
     const url = content.getContentSummary().getIconUrl();
     const contentId = content.getContentSummary().getContentId();
@@ -55,9 +54,7 @@ const ContentItemComponent = ({
                         target={target}
                     />
                 )}
-                <span aria-label={status} className="text-xs px-1.5 py-0.5 rounded bg-surface-tertiary group-[.bg-surface-primary-selected]:bg-surface-secondary text-subtle">
-                    {status}
-                </span>
+                <StatusBadge status={content.getCompareStatus()} />
             </ListItem.Right>
         </ListItem>
     );

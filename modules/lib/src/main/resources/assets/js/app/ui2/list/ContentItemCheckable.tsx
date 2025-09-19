@@ -1,10 +1,10 @@
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {Button, Checkbox, CheckboxProps, ListItem} from '@enonic/ui';
 import {useMemo, type JSX} from 'react';
-import {CompareStatusFormatter} from '../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentIcon} from './ContentIcon';
+import {StatusBadge} from './StatusBadge';
 
 export type Props = {
     content: ContentSummaryAndCompareStatus;
@@ -19,9 +19,7 @@ const ContentItemCheckableComponent = ({
     onCheckedChange,
     readOnly,
 }: Props): JSX.Element => {
-    const label = content.getPath().toString();
-    const status = CompareStatusFormatter.formatStatusText(content.getCompareStatus());
-
+    const label = String(content.getPath());
     const contentType = String(content.getType());
     const url = content.getContentSummary().getIconUrl();
 
@@ -50,9 +48,7 @@ const ContentItemCheckableComponent = ({
                 </Button>
             </ListItem.Content>
             <ListItem.Right>
-                <span aria-label={status} className="text-xs px-1.5 py-0.5 rounded bg-surface-tertiary group-[.bg-surface-primary-selected]:bg-surface-secondary text-subtle">
-                    {status}
-                </span>
+                <StatusBadge status={content.getCompareStatus()} />
             </ListItem.Right>
         </ListItem>
     );
