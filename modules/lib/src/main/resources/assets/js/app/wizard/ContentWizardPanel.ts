@@ -1988,6 +1988,10 @@ export class ContentWizardPanel
             this.pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
         }
 
+        if (!this.contentType) {
+            return Q(null);
+        }
+
         return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this));
     }
 
@@ -2067,23 +2071,25 @@ export class ContentWizardPanel
     private initSiteModel(site: Site): SiteModel {
         this.siteModel = new SiteModel(site);
 
-        const handler = AppHelper.debounce(() => {
-            return this.fetchContentXData().then((xDatas: XData[]) => {
-                this.removeXDataSteps(this.getXDatasToRemove(xDatas));
-                return this.addXDataSteps(this.getXDatasToAdd(xDatas)).then(() => {
-                    this.notifyDataChanged();
+        if (this.contentType) {
+            const handler = AppHelper.debounce(() => {
+                return this.fetchContentXData().then((xDatas: XData[]) => {
+                    this.removeXDataSteps(this.getXDatasToRemove(xDatas));
+                    return this.addXDataSteps(this.getXDatasToAdd(xDatas)).then(() => {
+                        this.notifyDataChanged();
+                    });
+                }).finally(() => {
+                    this.formMask.hide();
                 });
-            }).finally(() => {
-                this.formMask.hide();
-            });
-        }, 100, false);
+            }, 100, false);
 
-        this.siteModel.onSiteModelUpdated(() => {
-            if (this.wizardFormUpdatedDuringSave) {
-                this.formMask.show();
-                handler();
-            }
-        });
+            this.siteModel.onSiteModelUpdated(() => {
+                if (this.wizardFormUpdatedDuringSave) {
+                    this.formMask.show();
+                    handler();
+                }
+            });
+        }
 
         this.initSiteModelListeners();
 
