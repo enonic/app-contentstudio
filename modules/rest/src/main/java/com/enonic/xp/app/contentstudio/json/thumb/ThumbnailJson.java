@@ -1,7 +1,7 @@
 package com.enonic.xp.app.contentstudio.json.thumb;
 
 
-import com.enonic.xp.icon.Thumbnail;
+import com.enonic.xp.attachment.Attachment;
 
 @SuppressWarnings("UnusedDeclaration")
 public class ThumbnailJson
@@ -12,7 +12,7 @@ public class ThumbnailJson
 
     private final String mimeType;
 
-    public ThumbnailJson( final Thumbnail thumbnail )
+    public ThumbnailJson( final Attachment thumbnail )
     {
         this.binaryReference = thumbnail.getBinaryReference().toString();
         this.size = thumbnail.getSize();

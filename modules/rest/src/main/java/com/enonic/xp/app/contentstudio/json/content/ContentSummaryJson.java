@@ -3,6 +3,7 @@ package com.enonic.xp.app.contentstudio.json.content;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.enonic.xp.app.contentstudio.json.ChangeTraceableJson;
@@ -11,6 +12,7 @@ import com.enonic.xp.app.contentstudio.json.thumb.ThumbnailJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentIconUrlResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentListTitleResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ChildOrderJson;
+import com.enonic.xp.attachment.AttachmentNames;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentInheritType;
 
@@ -54,7 +56,8 @@ public class ContentSummaryJson
         this.content = content;
         this.iconUrl = iconUrlResolver.resolve( content );
         this.listTitle = contentListTitleResolver.resolve( content );
-        this.thumbnailJson = content.hasThumbnail() ? new ThumbnailJson( content.getThumbnail() ) : null;
+        this.thumbnailJson =
+            Optional.ofNullable( content.getAttachments().byName( AttachmentNames.THUMBNAIL ) ).map( ThumbnailJson::new ).orElse( null );
         this.isSite = content.isSite();
         this.isPage = content.getPage() != null;
         this.inherit = content.getInherit().stream().sorted().collect( Collectors.toList() );
