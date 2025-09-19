@@ -265,10 +265,10 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
 
             // 2.  Add default permissions for 'Anonymous user' and click on Apply button:
             await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
-            await editPermissionsDialog.clickOnApplyButton();
+            //await editPermissionsDialog.clickOnApplyButton();
             await editPermissionsDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('option_set_permissions_updated');
-            let expectedMessage = appConst.permissionsAppliedNotificationMessage(OPTION_SET_NAME);
+            let expectedMessage =  appConst.NOTIFICATION_MESSAGES.PERMISSIONS_APPLIED;
             await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
             // 3. Verify that 'Save' button remains visible and disabled after applying permissions:
             await contentWizard.waitForSaveButtonDisabled();

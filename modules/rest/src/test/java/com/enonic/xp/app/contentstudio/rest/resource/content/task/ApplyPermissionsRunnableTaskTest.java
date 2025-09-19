@@ -1,19 +1,6 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 
-import java.util.concurrent.Callable;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import com.enonic.xp.content.ApplyContentPermissionsParams;
-import com.enonic.xp.content.ApplyContentPermissionsResult;
-import com.enonic.xp.content.ContentConstants;
-import com.enonic.xp.content.ContentId;
-import com.enonic.xp.content.ContentIds;
-import com.enonic.xp.content.FindContentByParentParams;
-import com.enonic.xp.content.FindContentIdsByParentResult;
-import com.enonic.xp.content.UpdateContentParams;
+import com.enonic.xp.content.*;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.security.PrincipalKey;
@@ -21,6 +8,11 @@ import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
 import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.util.concurrent.Callable;
 
 import static com.enonic.xp.security.acl.Permission.READ;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -85,8 +77,8 @@ public class ApplyPermissionsRunnableTaskTest
     {
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( this.contents.get( 0 ).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get( 0 ) )
-                             .addResult( this.contents.get( 1 ).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get( 1 ) )
+                    .addResult(this.contents.get(0).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get(0).getPermissions())
+                    .addResult(this.contents.get(1).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get(1).getPermissions())
                              .build() );
 
         final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
@@ -106,7 +98,7 @@ public class ApplyPermissionsRunnableTaskTest
     {
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( this.contents.get( 0 ).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get( 0 ) )
+                    .addResult(this.contents.get(0).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get(0).getPermissions())
                              .build() );
 
         final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
@@ -117,7 +109,7 @@ public class ApplyPermissionsRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
-        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Permissions for \\\"content1\\\" are applied.\"}", resultMessage );
+        assertEquals("{\"state\":\"SUCCESS\",\"message\":\"Permissions are applied.\"}", resultMessage);
     }
 
     @Test
@@ -137,7 +129,7 @@ public class ApplyPermissionsRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
-        assertEquals( "{\"state\":\"ERROR\",\"message\":\"Permissions for \\\"id1\\\" could not be applied.\"}", resultMessage );
+        assertEquals("{\"state\":\"ERROR\",\"message\":\"Permissions could not be applied.\"}", resultMessage);
     }
 
     @Test
@@ -158,7 +150,7 @@ public class ApplyPermissionsRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
-        assertEquals( "{\"state\":\"ERROR\",\"message\":\"Permissions for \\\"root-content-id\\\" could not be applied.\"}",
+        assertEquals("{\"state\":\"ERROR\",\"message\":\"Permissions could not be applied.\"}",
                       resultMessage );
     }
 
@@ -170,7 +162,7 @@ public class ApplyPermissionsRunnableTaskTest
 
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) ).
             thenReturn( ApplyContentPermissionsResult.
-                create().addResult( this.contents.get( 0 ).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get( 0 ) )
+                    create().addResult(this.contents.get(0).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get(0).getPermissions())
                             .addResult( this.contents.get( 1 ).getId(), ContentConstants.BRANCH_DRAFT, null )
                             .addResult( this.contents.get( 2 ).getId(), ContentConstants.BRANCH_DRAFT, null )
                             .
@@ -185,7 +177,7 @@ public class ApplyPermissionsRunnableTaskTest
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
 
         assertEquals(
-            "{\"state\":\"WARNING\",\"message\":\"Permissions for \\\"content1\\\" are applied. Failed to apply permissions for 2 items. \"}",
+                "{\"state\":\"WARNING\",\"message\":\"Permissions are applied. Failed to apply permissions for 2 items. \"}",
             resultMessage );
     }
 

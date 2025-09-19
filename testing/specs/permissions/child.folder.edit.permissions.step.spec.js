@@ -176,7 +176,7 @@ describe('Child and parent content, replace existing permissions in child conten
             await editPermissionsSummaryStep.waitForDialogClosed();
             // 8. Verify that 'Permissions applied' message appears:
             let message = await userAccessWidget.waitForNotificationMessage();
-            assert.strictEqual(message, appConst.NOTIFICATION_MESSAGES.permissionsAppliedNotificationMessage(CHILD_FOLDER.displayName),
+            assert.strictEqual(message, appConst.NOTIFICATION_MESSAGES.PERMISSIONS_APPLIED,
                 `'Permissions applied' - message should appears`);
         });
 
@@ -281,7 +281,7 @@ describe('Child and parent content, replace existing permissions in child conten
             await editPermissionsSummaryStep.clickOnReplaceAllPermissionsButton();
             // 10. Verify that 'Permissions applied' message appears:
             let msg = await userAccessWidget.waitForNotificationMessage();
-            assert.strictEqual(msg, appConst.NOTIFICATION_MESSAGES.permissionsAppliedNotificationMessage(CHILD_FOLDER.displayName),
+            assert.strictEqual(msg, appConst.NOTIFICATION_MESSAGES.PERMISSIONS_APPLIED,
                 `'Permissions applied' - message should appears`);
             // 11. Verify that the parent folder remains with 'Published' status:
             let status = await contentBrowsePanel.getContentStatus(PARENT_FOLDER.displayName);

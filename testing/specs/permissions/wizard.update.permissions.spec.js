@@ -114,7 +114,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             // 6. click on 'Apply Changes' button:
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
             await editPermissionsSummaryStep.waitForDialogClosed();
-            let expectedMessage = appConst.permissionsAppliedNotificationMessage(DISPLAY_NAME);
+            let expectedMessage = appConst.NOTIFICATION_MESSAGES.PERMISSIONS_APPLIED;
             await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
             // 7. Verify that 'Saved' button remains visible after applying the permissions:
             await contentWizard.waitForSavedButtonVisible();
