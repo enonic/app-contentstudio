@@ -39,10 +39,6 @@ export class WizardWidgetRenderingHandler
         return this.placeholderView;
     }
 
-    protected getDefaultMessage(): string {
-        return i18n('field.editing.notAvailable');
-    }
-
     async render(summary: ContentSummary, widget): Promise<boolean> {
         this.hasControllersDeferred = Q.defer<boolean>();
         this.hasPageDeferred = Q.defer<boolean>();
