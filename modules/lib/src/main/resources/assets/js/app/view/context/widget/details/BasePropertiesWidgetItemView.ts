@@ -1,3 +1,4 @@
+import {ContentLanguageUpdatedEvent} from '../../../../event/ContentLanguageUpdatedEvent';
 import {PropertiesWidgetItemView} from './PropertiesWidgetItemView';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
@@ -76,6 +77,10 @@ export class BasePropertiesWidgetItemView
             title: i18n('widget.properties.edit.settings.text'),
             updatedHandler: (updatedContent: Content) => {
                 NotifyManager.get().showFeedback(i18n('notify.properties.settings.updated', updatedContent.getName()));
+
+                if (updatedContent.getLanguage() && updatedContent.getLanguage() !== this.item.getLanguage()) {
+                    new ContentLanguageUpdatedEvent(updatedContent.getLanguage()).fire();
+                }
             }
         };
     }

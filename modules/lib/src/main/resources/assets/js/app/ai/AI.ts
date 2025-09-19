@@ -121,8 +121,7 @@ export class AI {
             ProjectContext.get().whenInitialized(() => {
                 new AiUpdateDataEvent({language: this.createContentLanguage()}).fire();
 
-                const tag = ProjectContext.get().getProject().getLanguage();
-                void new GetLocalesRequest().setSearchQuery(tag).sendAndParse().then((locales) => {
+                void new GetLocalesRequest().sendAndParse().then((locales) => {
                     this.setLocales(locales);
                 }).catch(DefaultErrorHandler.handle);
             });
@@ -185,7 +184,12 @@ export class AI {
 
     setLocales(locales: Locale[]): void {
         this.locales = locales;
+
         new AiUpdateDataEvent({language: this.createContentLanguage()}).fire();
+    }
+
+    setLanguage(language: string): void {
+        new AiUpdateDataEvent({language: this.createContentLanguage(language)}).fire();
     }
 
     updateInstructions(configs: ApplicationConfig[]): void {
@@ -212,12 +216,12 @@ export class AI {
 
     private notifyInstructionsChanged(plugin: EnonicAiPlugin, instructions: string): void {
         switch (plugin) {
-            case 'contentOperator':
-                new AiContentOperatorConfigureEvent({instructions}).fire();
-                break;
-            case 'translator':
-                new AiTranslatorConfigureEvent({instructions}).fire();
-                break;
+        case 'contentOperator':
+            new AiContentOperatorConfigureEvent({instructions}).fire();
+            break;
+        case 'translator':
+            new AiTranslatorConfigureEvent({instructions}).fire();
+            break;
         }
     }
 
@@ -305,9 +309,9 @@ export class AI {
         const pathWithGroup = `${AiContentDataHelper.DATA_PREFIX}${event.path.startsWith('/') ? '' : '/'}${event.path}`;
 
         switch (event.interaction) {
-            case 'click':
-                this.handleClickInteractionEvent(pathWithGroup);
-                break;
+        case 'click':
+            this.handleClickInteractionEvent(pathWithGroup);
+            break;
         }
     }
 
@@ -325,8 +329,9 @@ export class AI {
         });
     }
 
-    private createContentLanguage(): ContentLanguage | undefined {
-        const tag = ProjectContext.get().getProject().getLanguage() ?? this.content?.getLanguage();
+    private createContentLanguage(language?: string): ContentLanguage | undefined {
+        const tag = language ?? this.content?.getLanguage();
+
         if (!tag) {
             return;
         }
