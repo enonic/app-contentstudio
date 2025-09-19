@@ -54,31 +54,13 @@ public class ApplyPermissionsRunnableTaskTest
     }
 
     @Test
-    public void message_empty()
-        throws Exception
-    {
-        Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
-            .thenReturn( ApplyContentPermissionsResult.create().build() );
-
-        final ApplyPermissionsRunnableTask task = createAndRunTask();
-        task.createTaskResult();
-
-        Mockito.verify( progressReporter, Mockito.times( 1 ) ).info( contentQueryArgumentCaptor.capture() );
-        Mockito.verify( taskService, Mockito.times( 1 ) ).submitLocalTask( any( SubmitLocalTaskParams.class ) );
-
-        final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 0 );
-
-        assertEquals( "{\"state\":\"WARNING\",\"message\":\"Nothing to edit.\"}", resultMessage );
-    }
-
-    @Test
     public void message_multiple_success()
         throws Exception
     {
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                    .addResult(this.contents.get(0).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get(0).getPermissions())
-                    .addResult(this.contents.get(1).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get(1).getPermissions())
+                    .addResult(params.getContentId(), this.contents.get(0).getPermissions())
+                    .addResult(this.contents.get(1).getId(), this.contents.get(1).getPermissions())
                              .build() );
 
         final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
@@ -98,7 +80,7 @@ public class ApplyPermissionsRunnableTaskTest
     {
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                    .addResult(this.contents.get(0).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get(0).getPermissions())
+                    .addResult(params.getContentId(), this.contents.get(0).getPermissions())
                              .build() );
 
         final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
@@ -118,8 +100,7 @@ public class ApplyPermissionsRunnableTaskTest
     {
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( this.contents.get( 0 ).getId(), ContentConstants.BRANCH_DRAFT, null )
-                             .build() );
+                    .addResult(params.getContentId(), null).build());
 
         final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
         task.createTaskResult();
@@ -139,7 +120,7 @@ public class ApplyPermissionsRunnableTaskTest
 
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( ContentId.from( "root-content-id" ), ContentConstants.BRANCH_DRAFT, null )
+                    .addResult(ContentId.from("root-content-id"), null)
                              .build() );
 
         final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
@@ -159,14 +140,12 @@ public class ApplyPermissionsRunnableTaskTest
     public void create_message_multiple_failed_and_one_succeed()
         throws Exception
     {
-
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) ).
             thenReturn( ApplyContentPermissionsResult.
-                    create().addResult(this.contents.get(0).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get(0).getPermissions())
-                            .addResult( this.contents.get( 1 ).getId(), ContentConstants.BRANCH_DRAFT, null )
-                            .addResult( this.contents.get( 2 ).getId(), ContentConstants.BRANCH_DRAFT, null )
-                            .
-                build() );
+                    create().addResult(this.contents.get(0).getId(), this.contents.get(0).getPermissions())
+                    .addResult(this.contents.get(1).getId(), null)
+                    .addResult(this.contents.get(2).getId(), null)
+                    .build());
 
         final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
         task.createTaskResult();

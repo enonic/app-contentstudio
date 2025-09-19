@@ -3,7 +3,6 @@ package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 import com.enonic.xp.app.contentstudio.json.task.AbstractRunnableTask;
 import com.enonic.xp.app.contentstudio.rest.resource.content.ApplyPermissionsProgressListener;
 import com.enonic.xp.content.*;
-import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
@@ -53,21 +52,13 @@ public class ApplyPermissionsRunnableTask
     {
         final ApplyPermissionsRunnableTaskResult.Builder builder = ApplyPermissionsRunnableTaskResult.create();
 
-        result.getResults().entrySet().forEach( branchResultEntry -> {
-            branchResultEntry.getValue().forEach( branchResult -> {
-                if ( ContextAccessor.current().getBranch().equals( branchResult.branch() ) )
-                {
-                    if (branchResult.permissions() != null)
-                    {
-                        builder.succeeded(ContentIds.from(branchResultEntry.getKey()));
-                    }
-                    else
-                    {
-                        builder.failed( ContentIds.from( branchResultEntry.getKey() ) );
-                    }
-                }
-            } );
-        } );
+        result.getResults().forEach((contentId, permissions) -> {
+            if (permissions != null) {
+                builder.succeeded(ContentIds.from(contentId));
+            } else {
+                builder.failed(ContentIds.from(contentId));
+            }
+        });
 
         return builder.build();
     }
