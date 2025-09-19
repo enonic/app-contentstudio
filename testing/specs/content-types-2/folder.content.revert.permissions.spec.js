@@ -50,7 +50,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             // 7. click on 'Apply Changes' button in Summary step:
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
             await editPermissionsSummaryStep.waitForDialogClosed();
-            let expectedMessage = appConst.permissionsAppliedNotificationMessage(FOLDER_NAME);
+            let expectedMessage = appConst.NOTIFICATION_MESSAGES.PERMISSIONS_APPLIED;
             let actualMessage = await contentWizard.waitForNotificationMessage();
             assert.equal(actualMessage, expectedMessage, `Permissions for 'contentName' are applied -  Message should appear`);
             // 5. open Versions Widget:
