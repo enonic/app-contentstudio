@@ -39,7 +39,6 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
             await studioUtils.openBrowseDetailsPanel();
             // 2. Open Edit Permissions dialog and uncheck the 'Inherit' checkbox:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            //await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
             // 3. Go to 'Content Manager App' entry and open ACE-menu then select 'Custom...' menu item:
             await editPermissionsGeneralStep.showAceMenuAndSelectItem(ROLE_NAME, appConst.permissions.CUSTOM);
             await editPermissionsGeneralStep.pause(500);
@@ -52,9 +51,9 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
 
             // 6. Verify the notification message:
-            let expectedMessage = appConst.permissionsAppliedNotificationMessage(FOLDER.displayName);
+            let expectedMessage = appConst.NOTIFICATION_MESSAGES.PERMISSIONS_APPLIED;
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(actualMessage, expectedMessage, "'Permissions for 'name' are applied.' - Is expected message");
+            assert.equal(actualMessage, expectedMessage, "'Permissions are applied.' - Is expected message");
         });
 
     it(`GIVEN existing folder with 'Custom' permissions is opened WHEN 'Edit Permissions dialog' has been opened THEN expected operations should be allowed`,

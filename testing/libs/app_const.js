@@ -25,9 +25,6 @@ module.exports = Object.freeze({
     sortOrderTitle(by, order) {
         return `Sorted by \"${by}\" in ${order} order`
     },
-    permissionsAppliedNotificationMessage: (name) => {
-        return `Permissions for \"${name}\" are applied.`
-    },
     projectModifiedMessage: displayName => `Project \"${displayName}\" is modified.`,
     markedAsReadyMessage: function (name) {
         return `Item \"${name}\" is marked as ready`;
@@ -79,11 +76,12 @@ module.exports = Object.freeze({
 
     },
     NOTIFICATION_MESSAGES: {
+        PERMISSIONS_APPLIED:'Permissions are applied.',
         YOUR_COMMENT_ADDED: 'Your comment is added to the issue.',
         LOCALIZED_MESSAGE_1: 'Language was copied from current project.',
         LOCALIZED_MESSAGE_2: 'Inherited content is localized',
-        NO_CHANGES_TO_REVERT_MESSAGE: "No changes to revert.",
-        ISSUE_CREATED_MESSAGE: "A new issue is successfully created.",
+        NO_CHANGES_TO_REVERT_MESSAGE: 'No changes to revert.',
+        ISSUE_CREATED_MESSAGE: 'A new issue is successfully created.',
         ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
         REQUEST_CREATED_MESSAGE: 'A new Publish Request is successfully created.',
         PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request is Closed.',
@@ -165,13 +163,13 @@ module.exports = Object.freeze({
 
     VALIDATION_MESSAGE: {
         TEXT_IS_TOO_LONG: 'Text is too long',
-        INVALID_VALUE_ENTERED: "Invalid value entered",
+        INVALID_VALUE_ENTERED: 'Invalid value entered',
         SCHEDULE_FORM_ONLINE_PAST: "Online to cannot be in the past",
         SCHEDULE_FORM_ONLINE_FROM_EMPTY: "Online to cannot be set without Online from",
         THIS_FIELD_IS_REQUIRED: 'This field is required',
         SINGLE_SELECTION_OPTION_SET: "At least one option must be selected",
-        LINK_PARAMETERS: "All parameters must have a name",
-        PROJECT_IS_OCCUPIED: "Project identifier is occupied",
+        LINK_PARAMETERS: 'All parameters must have a name',
+        PROJECT_IS_OCCUPIED: 'Project identifier is occupied',
     },
     ISSUES: {
         TASK_CLOSED: 'Task is closed',
@@ -344,11 +342,11 @@ module.exports = Object.freeze({
         SHORTCUT: 'Shortcut',
         FOLDER: `Folder`,
         SITE: 'Site',
-        PAGE_TEMPLATE: `Page Template`,
-        HTML_AREA_0_0: `htmlarea0_0`,
+        PAGE_TEMPLATE: 'Page Template',
+        HTML_AREA_0_0: 'htmlarea0_0',
         HTML_AREA_0_2: 'htmlarea0_2',
-        HTML_AREA_0_1: `htmlarea0_1`,
-        HTML_AREA_1_1: `htmlarea1_1`,
+        HTML_AREA_0_1: 'htmlarea0_1',
+        HTML_AREA_1_1: 'htmlarea1_1',
         HTML_AREA_2_4: 'htmlarea2_4',
         IMG_SELECTOR_0_0: 'imageselector0_0',
         IMG_SELECTOR_ALLOW_SITE: 'imageselector_site',
@@ -391,8 +389,8 @@ module.exports = Object.freeze({
         COMBOBOX_2_4: 'combobox2_4',
         RADIOBUTTON_1_1: 'radiobutton1_1',
         RADIOBUTTON_0_1: 'radiobutton0_1',
-        TAG_2_5: "tag2_5",
-        TAG_0_5: "tag0_5",
+        TAG_2_5: 'tag2_5',
+        TAG_0_5: 'tag0_5',
         CUSTOM_SELECTOR_0_2: 'custom-selector0_2',
         CUSTOM_SELECTOR_1_1: 'custom-selector1_1',
         CONTENT_SELECTOR_2_8: 'content-selector2_8',
@@ -424,7 +422,7 @@ module.exports = Object.freeze({
     },
     permissionOperation: {
         READ: 'Read',
-        CREATE: `Create`,
+        CREATE: 'Create',
         MODIFY: 'Modify',
         DELETE: 'Delete',
         PUBLISH: 'Publish',
@@ -443,7 +441,7 @@ module.exports = Object.freeze({
         ANONYMOUS_USER: 'Anonymous User',
         EVERYONE: 'Everyone',
         SUPER_USER: 'Super User',
-        ME: "Me",
+        ME: 'Me',
     },
     GRID_SORTING: {
         DATE_ASC: 'Date ascending',
