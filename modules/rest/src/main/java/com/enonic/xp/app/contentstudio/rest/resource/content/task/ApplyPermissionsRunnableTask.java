@@ -1,15 +1,9 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 
-import com.enonic.xp.app.contentstudio.rest.resource.content.ApplyPermissionsProgressListener;
-import com.enonic.xp.content.ApplyContentPermissionsParams;
-import com.enonic.xp.content.ApplyContentPermissionsResult;
-import com.enonic.xp.content.ApplyPermissionsListener;
-import com.enonic.xp.content.ContentIds;
-import com.enonic.xp.content.ContentService;
-import com.enonic.xp.content.FindContentByParentParams;
-import com.enonic.xp.content.FindContentIdsByParentResult;
-import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.app.contentstudio.json.task.AbstractRunnableTask;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ApplyPermissionsProgressListener;
+import com.enonic.xp.content.*;
+import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
@@ -63,9 +57,9 @@ public class ApplyPermissionsRunnableTask
             branchResultEntry.getValue().forEach( branchResult -> {
                 if ( ContextAccessor.current().getBranch().equals( branchResult.branch() ) )
                 {
-                    if ( branchResult.content() != null )
+                    if (branchResult.permissions() != null)
                     {
-                        builder.succeeded( branchResult.content().getPath() );
+                        builder.succeeded(ContentIds.from(branchResultEntry.getKey()));
                     }
                     else
                     {
