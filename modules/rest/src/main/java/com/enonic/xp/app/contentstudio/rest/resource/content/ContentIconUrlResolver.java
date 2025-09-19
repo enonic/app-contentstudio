@@ -6,6 +6,7 @@ import com.enonic.xp.app.ApplicationNotFoundException;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
+import com.enonic.xp.attachment.AttachmentNames;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.Media;
 import com.enonic.xp.context.ContextAccessor;
@@ -28,7 +29,7 @@ public final class ContentIconUrlResolver
 
     public String resolve( final Content content )
     {
-        if ( content.hasThumbnail() )
+        if ( content.getAttachments().byName( AttachmentNames.THUMBNAIL ) != null )
         {
             return makeIconPath( content );
         }
