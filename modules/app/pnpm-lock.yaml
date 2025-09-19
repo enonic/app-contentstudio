@@ -269,8 +269,8 @@ importers:
         specifier: file:../lib-admin-ui
         version: link:../lib-admin-ui
       '@enonic/ui':
-        specifier: ~0.7.0
-        version: 0.7.0(preact@10.27.1)(react@19.1.1)
+        specifier: ~0.7.2
+        version: 0.7.2(preact@10.27.1)(react@19.1.1)
       d3:
         specifier: ^7.9.0
         version: 7.9.0
@@ -495,8 +495,8 @@ packages:
       react-dom:
         optional: true
 
-  '@enonic/ui@0.7.0':
-    resolution: {integrity: sha512-ccasjLwSYwVzZDNm4udlyT/IgHUl0gjdCNh3h23X/UBZddaFZ0EQzl0rXQZPGntk9vboODqWcLyoZs2WeLXx7Q==}
+  '@enonic/ui@0.7.2':
+    resolution: {integrity: sha512-RFF2WXZ2nGyzADf3xx5kcjReVyjfRqnmeIVMHVXf01h4znr6cxDteSe8ZMH1hVGulEPGwtTa+fI4zmeZkoOLIQ==}
     engines: {node: '>=22.19.5', npm: '>=10.9.3', pnpm: '>=10.17.0'}
     peerDependencies:
       '@preact/compat': '>=17.0.0 || >=18.0.0'
@@ -3530,7 +3530,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@enonic/ui@0.7.0(preact@10.27.1)(react@19.1.1)':
+  '@enonic/ui@0.7.2(preact@10.27.1)(react@19.1.1)':
     dependencies:
       '@radix-ui/react-slot': 1.2.3(react@19.1.1)
       class-variance-authority: 0.7.1
