@@ -16,8 +16,11 @@ export abstract class ContentVersionsConverter {
 
     protected lastDate: string;
 
-    protected constructor(content: ContentSummaryAndCompareStatus) {
+    protected creatorDisplayName: string;
+
+    protected constructor(content: ContentSummaryAndCompareStatus, creatorDisplayName: string) {
         this.content = content;
+        this.creatorDisplayName = creatorDisplayName;
     }
 
     protected makeVersionHistoryItems(versions: ContentVersion[], isMoreVersionsToBeAdded: boolean): VersionHistoryItem[] {
@@ -218,6 +221,9 @@ export abstract class ContentVersionsConverter {
     private makeCreatedVersionHistoryItem(version: ContentVersion): VersionHistoryItem {
         const virtualCreatedVersion = version.newBuilder();
         virtualCreatedVersion.id = 'generated-created';
+        virtualCreatedVersion.modifier = this.content.getContentSummary().getCreator().toString();
+        virtualCreatedVersion.modifierDisplayName = this.creatorDisplayName;
+
         return this.createHistoryItemFromVersion(virtualCreatedVersion.build(), VersionItemStatus.CREATED,
             this.content.getContentSummary().getCreatedTime(), true);
     }

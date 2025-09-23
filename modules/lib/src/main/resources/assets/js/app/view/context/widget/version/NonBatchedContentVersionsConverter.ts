@@ -5,8 +5,8 @@ import {VersionHistoryItem} from './VersionHistoryItem';
 
 export class NonBatchedContentVersionsConverter extends ContentVersionsConverter {
 
-    constructor(content: ContentSummaryAndCompareStatus) {
-        super(content);
+    constructor(content: ContentSummaryAndCompareStatus, creatorDisplayName: string) {
+        super(content, creatorDisplayName);
     }
 
     public convert(versions: ContentVersion[]): VersionHistoryItem[] {
