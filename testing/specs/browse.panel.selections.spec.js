@@ -152,7 +152,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             // 3. Click on 'Selection Controller' checkbox:
             await contentBrowsePanel.clickOnSelectionControllerCheckbox();
             await studioUtils.saveScreenshot('after_sel_controller');
-            // 4. Verify that no selected rows now: (the row gets unselected)
+            // 4. Verify that there are no selected rows in the browse panel at the moment. : (the row gets unselected)
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(number2, 0, 'There should be no selected rows');
             // 5. Verify that Selection toggle(circle) gets not visible:
@@ -173,7 +173,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.waitForNewButtonEnabled();
             await contentBrowsePanel.waitForArchiveButtonDisabled();
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
-            // PreviewPanel toolbar gets not visible!
+            // 4 . Verify that PreviewPanel toolbar gets not visible!
             await contentItemPreviewPanel.waitForPreviewToolbarNotDisplayed();
             await contentBrowsePanel.waitForSortButtonDisabled();
             await contentBrowsePanel.waitForMoveButtonDisabled();
@@ -205,12 +205,12 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             // 2. expected content should be highlighted:
             assert.equal(actualName, appConst.TEST_FOLDER_WITH_IMAGES, "expected content should be highlighted");
             let number = await contentBrowsePanel.getNumberOfSelectedRows();
-            assert.equal(number, 1, "One row should be highlighted");
+            assert.equal(number, 1, 'One row should be highlighted');
             // 3. But there are no any checked rows:
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.equal(number2, 0, "the number of checked rows is 0");
+            assert.equal(number2, 0, 'The number of checked rows is 0');
             let isVisible = await contentBrowsePanel.waitForSelectionTogglerVisible();
-            assert.ok(isVisible === false, "'Selection Toggler' should not be visible in the toolbar");
+            assert.ok(isVisible === false, `'Selection Toggle' should not be visible in the toolbar`);
         });
 
     it("WHEN one row with content has been checked THEN the row gets checked AND 'Selection Toggler' gets visible",
@@ -221,9 +221,9 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
             let number1 = await contentBrowsePanel.getNumberOfSelectedRows();
             await studioUtils.saveScreenshot('one_row_checked');
-            assert.equal(number1, 0, "no one row should be highlighted");
+            assert.equal(number1, 0, 'no one row should be highlighted');
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.ok(number2 === 1, "One row should be checked");
+            assert.ok(number2 === 1, 'One row should be checked');
             let isVisible = await contentBrowsePanel.waitForSelectionTogglerVisible();
             assert.ok(isVisible, "Selection Toggle should appear in the toolbar");
         });
@@ -238,7 +238,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.pause(500);
             let number = await contentBrowsePanel.getNumberOfSelectedRows();
             await studioUtils.saveScreenshot('two_rows_checked');
-            assert.equal(number, 0, 'the number of highlighted rows should be 0');
+            assert.equal(number, 0, 'The number of highlighted rows should be 0');
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(number2, 2, 'Two rows should be checked');
         });
@@ -255,9 +255,9 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.pause(1000);
             let numberOfHighlighted = await contentBrowsePanel.getNumberOfSelectedRows();
             await studioUtils.saveScreenshot('check_row_unselected');
-            assert.equal(numberOfHighlighted, 0, 'number of highlighted rows should be 0');
+            assert.equal(numberOfHighlighted, 0, 'The number of highlighted rows should be 0');
             let numberOfChecked = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.equal(numberOfChecked, 0, "number of checked rows should be 0");
+            assert.equal(numberOfChecked, 0, 'The number of checked rows should be 0');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
