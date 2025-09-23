@@ -77,8 +77,8 @@ public class ApplyPermissionsRunnableTaskTest
     {
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                    .addResult(this.contents.get(0).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get(0).getPermissions())
-                    .addResult(this.contents.get(1).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get(1).getPermissions())
+                    .addResult(this.contents.get(0).getId(), this.contents.get(0).getPermissions())
+                    .addResult(this.contents.get(1).getId(), this.contents.get(1).getPermissions())
                              .build() );
 
         final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
@@ -98,7 +98,7 @@ public class ApplyPermissionsRunnableTaskTest
     {
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                    .addResult(this.contents.get(0).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get(0).getPermissions())
+                    .addResult(this.contents.get(0).getId(), this.contents.get(0).getPermissions())
                              .build() );
 
         final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
@@ -118,7 +118,7 @@ public class ApplyPermissionsRunnableTaskTest
     {
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( this.contents.get( 0 ).getId(), ContentConstants.BRANCH_DRAFT, null )
+                    .addResult(this.contents.get(0).getId(), null)
                              .build() );
 
         final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
@@ -139,7 +139,7 @@ public class ApplyPermissionsRunnableTaskTest
 
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) )
             .thenReturn( ApplyContentPermissionsResult.create()
-                             .addResult( ContentId.from( "root-content-id" ), ContentConstants.BRANCH_DRAFT, null )
+                    .addResult(ContentId.from("root-content-id"), null)
                              .build() );
 
         final ApplyPermissionsRunnableTask task = executeInContext( this::createAndRunTask );
@@ -162,9 +162,9 @@ public class ApplyPermissionsRunnableTaskTest
 
         Mockito.when( this.contentService.applyPermissions( Mockito.isA( ApplyContentPermissionsParams.class ) ) ).
             thenReturn( ApplyContentPermissionsResult.
-                    create().addResult(this.contents.get(0).getId(), ContentConstants.BRANCH_DRAFT, this.contents.get(0).getPermissions())
-                            .addResult( this.contents.get( 1 ).getId(), ContentConstants.BRANCH_DRAFT, null )
-                            .addResult( this.contents.get( 2 ).getId(), ContentConstants.BRANCH_DRAFT, null )
+                    create().addResult(this.contents.get(0).getId(), this.contents.get(0).getPermissions())
+                    .addResult(this.contents.get(1).getId(), null)
+                    .addResult(this.contents.get(2).getId(), null)
                             .
                 build() );
 
