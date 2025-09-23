@@ -1,8 +1,10 @@
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
@@ -25,6 +27,8 @@ import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
 import {GetContentVersionsResult} from '../resource/GetContentVersionsResult';
+import {GetPrincipalByKeyRequest} from '../resource/GetPrincipalByKeyRequest';
+import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
 import {NonBatchedContentVersionsConverter} from '../view/context/widget/version/NonBatchedContentVersionsConverter';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
@@ -43,6 +47,8 @@ export class CompareContentVersionsDialog
     private versions: ContentVersion[];
 
     private content: ContentSummaryAndCompareStatus;
+
+    private creatorDisplayName: string;
 
     private toolbar: DivEl;
 
@@ -322,8 +328,17 @@ export class CompareContentVersionsDialog
 
         ContentVersionHelper.fetchAndSetActiveVersion(this.content.getContentId());
 
-        return new GetContentVersionsRequest(this.content.getContentId()).sendAndParse().then((result: GetContentVersionsResult) => {
+        const getContentVersions = new GetContentVersionsRequest(this.content.getContentId()).sendAndParse();
+        const creator = this.content.getContentSummary().getCreator();
+        const getPrincipalByKey = new GetPrincipalsByKeysRequest([creator]).sendAndParse().catch(
+            (e) => {
+                DefaultErrorHandler.handle(e);
+                return [];
+            });
+
+        return Q.all([getContentVersions, getPrincipalByKey]).spread((result: GetContentVersionsResult, principals: Principal[]) => {
             this.versions = result.getContentVersions();
+            this.creatorDisplayName = principals[0]?.getDisplayName() ?? creator.toString();
             this.versionIdCounters = {};
 
             const items: VersionHistoryItem[] = this.convertVersionsToHistoryItems();
@@ -374,7 +389,7 @@ export class CompareContentVersionsDialog
     }
 
     private convertVersionsToHistoryItems(): VersionHistoryItem[] {
-        return new NonBatchedContentVersionsConverter(this.content).convert(this.versions);
+        return new NonBatchedContentVersionsConverter(this.content, this.creatorDisplayName).convert(this.versions);
     }
 
     private getNewOptionToSelect(dropdown: CompareDropdown, versionId: string): VersionHistoryItem {
