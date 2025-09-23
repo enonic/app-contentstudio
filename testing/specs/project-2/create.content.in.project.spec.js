@@ -19,8 +19,8 @@ describe('create.content.in.project.spec - create new content in the selected co
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let TEST_FOLDER_NAME = studioUtils.generateRandomName('folder');
 
+    let TEST_FOLDER_NAME = studioUtils.generateRandomName('folder');
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
     let TEST_DESCRIPTION = 'test description';
 
@@ -67,7 +67,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             assert.equal(actualProjectName, PROJECT_DISPLAY_NAME + '(no)', 'Actual and expected display name should be equal');
         });
 
-    it(`WHEN new folder wizard has been saved THEN expected project-ACL entries should be present in Access form`,
+    it(`WHEN Edit Permissions modal dialog has been opened THEN expected project-ACL entries should be present in Access form`,
         async () => {
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let contentWizardPanel = new ContentWizardPanel();
@@ -82,7 +82,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             // 3. Open Edit Permissions Dialog:
             await userAccessWidget.clickOnEditPermissionsLink();
             await editPermissionsGeneralStep.waitForLoaded();
-            // 4. Open Edit Permissions Dialog
+            // 4. Verify the list of principals:
             let result = await editPermissionsGeneralStep.getDisplayNameOfSelectedPrincipals();
             assert.ok(result.includes(PROJECT_DISPLAY_NAME + ' - Owner'), 'Expected Acl should be present');
             assert.ok(result.includes(PROJECT_DISPLAY_NAME + ' - Editor'), 'Expected Acl should be present');
@@ -102,7 +102,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             await studioUtils.openBrowseDetailsPanel();
             let actualHeader = await userAccessWidget.getHeader();
             assert.equal(actualHeader, appConst.ACCESS_WIDGET_HEADER.RESTRICTED_ACCESS,
-                "'Restricted access to item' - header should be displayed");
+                `'Restricted access to item' - header should be displayed`);
 
         });
 
@@ -129,6 +129,29 @@ describe('create.content.in.project.spec - create new content in the selected co
             await studioUtils.saveScreenshot('switch_to_default_context');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(result.length, 0, 'Filtered grid should be empty');
+        });
+
+    // Selection controller is not updated after switching projects #8922
+    // https://github.com/enonic/app-contentstudio/issues/8922
+    it(`GIVEN existing folder is checked in new created project is selected WHEN the context has been switched to 'Default' project THEN 'Selection Toggle' should not be not be visible in tree-grid-toolbar`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let browseDetailsPanel = new BrowseDetailsPanel();
+            let contentWidget = new ContentWidgetView();
+            // 1. Select the just created project in 'Select Context' dialog:
+            await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
+            // 2. Check the folder in the current context:
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(TEST_FOLDER_NAME);
+            // 3. Verify that 'Selection Toggle' gets visible in tree-grid-toolbar
+            await contentBrowsePanel.waitForSelectionTogglerVisible();
+            // 4. Switch to 'Default' project:
+            await contentBrowsePanel.selectContext('Default');
+            // 5. Verify that 'Selection Toggle' is not visible in another context:
+            await contentBrowsePanel.waitForSelectionTogglerNotVisible();
+            // 6. Switch to the new crated project's context again:
+            await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
+            // 7. Verify that 'Selection Toggle' was reset as well:
+            await contentBrowsePanel.waitForSelectionTogglerNotVisible();
         });
 
     it('Post conditions: the project should be deleted',
