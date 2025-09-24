@@ -12,6 +12,7 @@ import Q from 'q';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {PageEventsManager} from '../../../../PageEventsManager';
+import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 
 export class PageTemplateAndControllerForm
     extends Form {
@@ -35,10 +36,12 @@ export class PageTemplateAndControllerForm
         const wrapper = new PageDropdownWrapper(this.pageTemplateAndControllerSelector);
         this.fieldSet.add(new FormItemBuilder(wrapper).setLabel(i18n('field.page.template')).build());
 
-
         const unlockAction = new Action(i18n('live.view.page.customize'));
         unlockAction.onExecuted(() => {
-            PageEventsManager.get().notifyCustomizePageRequested();
+            new ConfirmationDialog()
+                .setQuestion(i18n('dialog.page.customize.confirmation'))
+                .setYesCallback(() => () => PageEventsManager.get().notifyCustomizePageRequested())
+                .open();
         });
         this.saveAsTemplateAction = SaveAsTemplateAction.get();
         this.customizeAction = unlockAction;
