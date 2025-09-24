@@ -152,18 +152,16 @@ export class PageTemplateAndControllerSelector
             // Selection type changes:
             // controller -> template
             if (previousOption && !previousIsTemplate && selectedIsTemplate) {
-                const selectionHandler = () => this.doSelectTemplate(selectedOption as PageTemplateOption);
-                this.openConfirmationDialog(i18n('dialog.template.change'), selectionHandler);
+                this.doSelectTemplate(selectedOption as PageTemplateOption);
                 // template -> template
             } else if (previousIsTemplate && selectedIsTemplate) {
-                this.doSelectTemplate(selectedOption as PageTemplateOption);
+                this.doSelectTemplate(selectedOption as PageTemplateOption, true);
                 // controller -> controller
             } else if (previousOption && !previousIsTemplate && !selectedIsTemplate) {
-                const selectionHandler = () => this.doSelectController(selectedOption as PageControllerOption);
-                this.openConfirmationDialog(i18n('dialog.controller.change'), selectionHandler);
+                this.doSelectController(selectedOption as PageControllerOption);
                 // template -> controller
             } else {
-                this.doSelectController(selectedOption as PageControllerOption);
+                this.doSelectController(selectedOption as PageControllerOption, true);
             }
         });
     }
@@ -178,18 +176,29 @@ export class PageTemplateAndControllerSelector
             .open();
     }
 
-    private doSelectTemplate(selectedOption: PageTemplateOption) {
+    private doSelectTemplate(selectedOption: PageTemplateOption, skipDialog: boolean = false) {
         const pageTemplate: PageTemplate = selectedOption.getData();
 
-        if (pageTemplate) {
-            PageEventsManager.get().notifyPageTemplateSetRequested(pageTemplate.getKey());
-        } else {
+        if (!pageTemplate) {
             PageEventsManager.get().notifyPageResetRequested();
+            return;
+        }
+
+        const yesCallback = () => PageEventsManager.get().notifyPageTemplateSetRequested(pageTemplate.getKey());
+        if (skipDialog) {
+            yesCallback();
+        } else {
+            this.openConfirmationDialog(i18n('dialog.template.change'), yesCallback);
         }
     }
 
-    private doSelectController(selectedOption: PageControllerOption) {
-        PageEventsManager.get().notifyPageControllerSetRequested(selectedOption.getData().getKey());
+    private doSelectController(selectedOption: PageControllerOption, skipDialog: boolean = false) {
+        const yesCallback = () => PageEventsManager.get().notifyPageControllerSetRequested(selectedOption.getData().getKey());
+        if (skipDialog) {
+            yesCallback();
+        } else {
+            this.openConfirmationDialog(i18n('dialog.controller.change'), yesCallback);
+        }
     }
 
     private static isDescendantTemplate(summary: ContentSummaryAndCompareStatus, liveEditModel: LiveEditModel): boolean {
