@@ -29,9 +29,14 @@ import {WidgetItemView} from './WidgetItemView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {InternalWidgetType, WidgetView} from './WidgetView';
 import {PageEventsManager} from '../../wizard/PageEventsManager';
+import {PageNavigationMediator} from '../../wizard/PageNavigationMediator';
+import {PageNavigationEvent} from '../../wizard/PageNavigationEvent';
+import {PageNavigationEventType} from '../../wizard/PageNavigationEventType';
+import {PageNavigationHandler} from '../../wizard/PageNavigationHandler';
 
 export class ContextView
-    extends DivEl {
+    extends DivEl
+    implements PageNavigationHandler {
 
     protected widgetViews: WidgetView[] = [];
     protected contextContainer: DivEl;
@@ -139,6 +144,25 @@ export class ContextView
                 this.activeWidget.updateWidgetItemViews().catch(DefaultErrorHandler.handle);
             }
         });
+
+        PageNavigationMediator.get().addPageNavigationHandler(this);
+    }
+
+    handle(event: PageNavigationEvent): void {
+        if (event.getType() === PageNavigationEventType.DESELECT) {
+            this.deactivatePageEditorWidget();
+            return;
+        }
+
+        if (event.getType() === PageNavigationEventType.SELECT) {
+            this.activatePageEditorWidget();
+            return;
+        }
+
+        if (event.getType() === PageNavigationEventType.INSPECT) {
+            this.activatePageEditorWidget();
+            return;
+        }
     }
 
     private initDivForNoSelection() {
@@ -518,13 +542,9 @@ export class ContextView
     }
 
     private activatePageEditorWidget(): void {
-        const isVersionsWidgetActive: boolean = this.isActiveWidgetByType(this.versionsWidgetView);
-
         this.defaultWidgetView = this.pageEditorWidgetView;
 
-        if (!isVersionsWidgetActive) {
-            this.activateDefaultWidget();
-        }
+        this.activateDefaultWidget();
     }
 
     private deactivatePageEditorWidget(): void {
