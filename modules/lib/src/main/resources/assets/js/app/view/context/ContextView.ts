@@ -365,7 +365,6 @@ export class ContextView
         this.versionsWidgetView = this.createVersionsWidgetView();
         if (this.editorMode) {
             this.pageEditorWidgetView = this.createPageEditorWidgetView();
-            this.addWidget(this.pageEditorWidgetView);
         }
         this.addWidgets(this.getInitialWidgets());
 
@@ -374,7 +373,12 @@ export class ContextView
     }
 
     protected getInitialWidgets(): WidgetView[] {
-        return [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
+        const result = [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
+        if (this.pageEditorWidgetView) {
+            // add page editor widget as second item
+            result.splice(1, 0, this.pageEditorWidgetView);
+        }
+        return result;
     }
 
     private createPageEditorWidgetView(): WidgetView {
