@@ -6,6 +6,7 @@ import type {Branch} from '../../versioning/Branch';
 import {ContentReferencesLink} from './ContentReferencesLink';
 import {ContentIcon} from './ContentIcon';
 import {StatusBadge} from './StatusBadge';
+import {WorkflowBadge} from './WorkflowBadge';
 
 type Props = {
     content: ContentSummaryAndCompareStatus;
@@ -32,10 +33,15 @@ const ContentItemComponent = ({
     const contentType = String(content.getType());
     const url = content.getContentSummary().getIconUrl();
     const contentId = content.getContentSummary().getContentId();
+    const summary = content.getContentSummary();
 
     const Icon = useMemo(
-        () => <ContentIcon contentType={contentType} url={url} size={24} />,
-        [contentType, url]
+        () => (
+            <WorkflowBadge summary={summary} overlaySize={12}>
+                <ContentIcon contentType={contentType} url={url} size={24} />
+            </WorkflowBadge>
+        ),
+        [contentType, url, summary]
     );
 
     return (

@@ -5,6 +5,7 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentIcon} from './ContentIcon';
 import {StatusBadge} from './StatusBadge';
+import {WorkflowBadge} from './WorkflowBadge';
 
 export type Props = {
     content: ContentSummaryAndCompareStatus;
@@ -22,10 +23,15 @@ const ContentItemCheckableComponent = ({
     const label = String(content.getPath());
     const contentType = String(content.getType());
     const url = content.getContentSummary().getIconUrl();
+    const summary = content.getContentSummary();
 
     const Icon = useMemo(
-        () => <ContentIcon contentType={contentType} url={url} size={24} />,
-        [contentType, url],
+        () => (
+            <WorkflowBadge summary={summary} overlaySize={12}>
+                <ContentIcon contentType={contentType} url={url} size={24} />
+            </WorkflowBadge>
+        ),
+        [contentType, url, summary]
     );
 
     return (
