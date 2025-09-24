@@ -76,7 +76,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
             PageEventsManager.get().notifyComponentCreateFragmentRequested(this.getPath());
         })
         this.saveAsFragmentButton = new ActionButton(action);
-        this.saveAsFragmentButton.addClass('blue large');
+        this.saveAsFragmentButton.addClass('large');
 
         this.form.appendChild(this.saveAsFragmentButton);
     }
@@ -120,7 +120,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     }
 
     private updateSaveAsFragmentButtonVisibility(): void {
-        const show = !PageState.getState().isFragment();
+        const show = !PageState.getState().isFragment() && !!this.component?.getDescriptorKey();
         this.saveAsFragmentButton.setVisible(show);
     }
 
