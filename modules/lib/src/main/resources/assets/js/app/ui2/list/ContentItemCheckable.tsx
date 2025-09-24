@@ -3,9 +3,9 @@ import {Button, Checkbox, CheckboxProps, ListItem} from '@enonic/ui';
 import {useMemo, type JSX} from 'react';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import {ContentIcon} from './ContentIcon';
+import {calcWorkflowStateStatus} from '../util/content';
 import {StatusBadge} from './StatusBadge';
-import {WorkflowBadge} from './WorkflowBadge';
+import {WorkflowContentIcon} from './WorkflowContentIcon';
 
 export type Props = {
     content: ContentSummaryAndCompareStatus;
@@ -23,15 +23,18 @@ const ContentItemCheckableComponent = ({
     const label = String(content.getPath());
     const contentType = String(content.getType());
     const url = content.getContentSummary().getIconUrl();
-    const summary = content.getContentSummary();
+    const status = calcWorkflowStateStatus(content.getContentSummary());
 
     const Icon = useMemo(
         () => (
-            <WorkflowBadge summary={summary} overlaySize={12}>
-                <ContentIcon contentType={contentType} url={url} size={24} />
-            </WorkflowBadge>
+            <WorkflowContentIcon
+                status={status}
+                contentType={contentType}
+                url={url}
+                size={24}
+            />
         ),
-        [contentType, url, summary]
+        [contentType, url, status]
     );
 
     return (

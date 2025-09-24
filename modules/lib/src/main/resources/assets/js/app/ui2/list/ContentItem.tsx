@@ -4,9 +4,9 @@ import {useMemo, type JSX, type ReactNode} from 'react';
 import type {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import type {Branch} from '../../versioning/Branch';
 import {ContentReferencesLink} from './ContentReferencesLink';
-import {ContentIcon} from './ContentIcon';
 import {StatusBadge} from './StatusBadge';
-import {WorkflowBadge} from './WorkflowBadge';
+import {calcWorkflowStateStatus} from '../util/content';
+import {WorkflowContentIcon} from './WorkflowContentIcon';
 
 type Props = {
     content: ContentSummaryAndCompareStatus;
@@ -33,15 +33,18 @@ const ContentItemComponent = ({
     const contentType = String(content.getType());
     const url = content.getContentSummary().getIconUrl();
     const contentId = content.getContentSummary().getContentId();
-    const summary = content.getContentSummary();
+    const status = calcWorkflowStateStatus(content.getContentSummary());
 
     const Icon = useMemo(
         () => (
-            <WorkflowBadge summary={summary} overlaySize={12}>
-                <ContentIcon contentType={contentType} url={url} size={24} />
-            </WorkflowBadge>
+    <WorkflowContentIcon
+        status={status}
+        contentType={contentType}
+        url={url}
+        size={24}
+    />
         ),
-        [contentType, url, summary]
+        [contentType, url, status]
     );
 
     return (
