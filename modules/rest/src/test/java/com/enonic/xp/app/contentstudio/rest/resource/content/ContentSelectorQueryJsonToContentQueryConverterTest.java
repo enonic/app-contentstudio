@@ -265,7 +265,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
             .modifiedTime( Instant.parse( this.currentTime ) )
             .modifier( PrincipalKey.from( "user:system:admin" ) )
             .type( contentTypeName )
-            .addExtraData( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) )
+            .extraDatas( ExtraDatas.create().add( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).build() )
             .build();
 
         final Content parent2 = Content.create()
@@ -281,7 +281,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
             .modifiedTime( Instant.parse( this.currentTime ) )
             .modifier( PrincipalKey.from( "user:system:admin" ) )
             .type( contentTypeName )
-            .addExtraData( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) )
+            .extraDatas( ExtraDatas.create().add( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).build() )
             .build();
 
         return Content.create()
@@ -297,7 +297,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
             .modifiedTime( Instant.parse( this.currentTime ) )
             .modifier( PrincipalKey.from( "user:system:admin" ) )
             .type( contentTypeName )
-            .addExtraData( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) )
+            .extraDatas( ExtraDatas.create().add( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).build() )
             .build();
     }
 

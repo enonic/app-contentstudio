@@ -16,7 +16,6 @@ import jakarta.ws.rs.core.MediaType;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.app.contentstudio.rest.resource.content.JsonObjectsFactory;
-import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentName;
@@ -25,6 +24,7 @@ import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.ExtraData;
+import com.enonic.xp.content.ExtraDatas;
 import com.enonic.xp.core.impl.schema.content.BuiltinContentTypesAccessor;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.page.CreatePageTemplateParams;
@@ -329,7 +329,7 @@ public class PageTemplateResourceTest
             modifiedTime( Instant.parse( this.currentTime ) ).
             modifier( PrincipalKey.from( "user:system:admin" ) ).
             type( ContentTypeName.from( contentTypeName ) ).
-            addExtraData( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).
+            extraDatas( ExtraDatas.create().add( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).build() ).
             publishInfo( ContentPublishInfo.create().
                 from( Instant.parse( "2016-11-02T10:36:00Z" ) ).
                 to( Instant.parse( "2016-11-22T10:36:00Z" ) ).

@@ -116,6 +116,7 @@ import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.CreateContentParams;
 import com.enonic.xp.content.CreateMediaParams;
 import com.enonic.xp.content.ExtraData;
+import com.enonic.xp.content.ExtraDatas;
 import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentByParentResult;
 import com.enonic.xp.content.FindContentIdsByParentResult;
@@ -2639,7 +2640,7 @@ public class ContentResourceTest
             .modifiedTime( this.fixedTime )
             .modifier( PrincipalKey.from( "user:system:admin" ) )
             .type( ContentTypeName.from( contentTypeName ) )
-            .addExtraData( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) )
+            .extraDatas( ExtraDatas.create().add( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).build() )
             .publishInfo( ContentPublishInfo.create()
                               .from( Instant.parse( "2016-11-02T10:36:00Z" ) )
                               .to( Instant.parse( "2016-11-22T10:36:00Z" ) )

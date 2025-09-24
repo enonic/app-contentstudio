@@ -21,6 +21,7 @@ import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.ExtraData;
+import com.enonic.xp.content.ExtraDatas;
 import com.enonic.xp.content.Media;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.image.ImageService;
@@ -231,9 +232,9 @@ public class ContentIconResourceTest
 
         final ExtraData mediaExtraData = new ExtraData( MediaInfo.IMAGE_INFO_METADATA_NAME, mediaData );
 
-        return result.attachments( Attachments.from( attachment ) ).
-            data( data ).
-            addExtraData( mediaExtraData );
+        return result.attachments(Attachments.from(attachment)).
+                data(data).
+                extraDatas(ExtraDatas.create().add(mediaExtraData).build());
     }
 
     private Content createContent( final String id, final ContentTypeName contentType,
@@ -259,7 +260,7 @@ public class ContentIconResourceTest
             modifiedTime( Instant.now() ).
             modifier( PrincipalKey.from( "user:system:admin" ) ).
             type( contentType ).
-            addExtraData( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).
+            extraDatas( ExtraDatas.create().add( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).build() ).
             publishInfo( ContentPublishInfo.create().
                 from( Instant.parse( "2016-11-02T10:36:00Z" ) ).
                 to( Instant.parse( "2016-11-22T10:36:00Z" ) ).
