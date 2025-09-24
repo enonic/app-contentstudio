@@ -36,15 +36,8 @@ const ContentItemComponent = ({
     const status = calcWorkflowStateStatus(content.getContentSummary());
 
     const Icon = useMemo(
-        () => (
-    <WorkflowContentIcon
-        status={status}
-        contentType={contentType}
-        url={url}
-        size={24}
-    />
-        ),
-        [contentType, url, status]
+        () => <WorkflowContentIcon status={status} contentType={contentType} url={url} />,
+        [status, contentType, url]
     );
 
     return (

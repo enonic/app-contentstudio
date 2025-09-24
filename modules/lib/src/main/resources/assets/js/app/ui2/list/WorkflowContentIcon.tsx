@@ -1,4 +1,4 @@
-import type {JSX, ReactNode} from 'react';
+import type {JSX} from 'react';
 import {cva} from 'class-variance-authority';
 import {cn} from '@enonic/ui';
 import {CircleAlert, CircleCheck, CircleX, type LucideIcon} from 'lucide-react';
@@ -9,7 +9,6 @@ type Props = {
     status: WorkflowStateStatus | null;
     contentType: string;
     url?: string | null;
-    size?: number;
 };
 
 const statusIconVariants = cva(
@@ -20,56 +19,46 @@ const statusIconVariants = cva(
         '[&>line]:[transform-box:fill-box] [&>line]:[transform-origin:center]',
         '[&>path]:scale-[1.5]',
     ],
+
     {
         variants: {
             status: {
-                [WorkflowStateStatus.READY]:
-                    'text-[var(--color-success)] [&>circle]:fill-current [&>path]:stroke-white',
-                [WorkflowStateStatus.IN_PROGRESS]:
-                    cn(
-                        'text-[var(--color-warn)] [&>circle]:fill-current [&>path]:stroke-white [&>line]:stroke-white',
-                        '[&>line:first-of-type]:scale-y-[0.9] [&>line:first-of-type]:-translate-y-[0.25px]',
-                        '[&>line:last-of-type]:translate-y-[0.45px] [&>line]:[stroke-linecap:round]'
-                    ),
-                [WorkflowStateStatus.INVALID]:
-                    '[&>path]:scale-[1.25] text-[var(--color-danger)] [&>circle]:fill-current [&>path]:stroke-white',
+                'ready':
+                    'text-success [&>circle]:fill-current [&>path]:stroke-white',
+                'in-progress': [
+                    'text-warn [&>circle]:fill-current [&>path]:stroke-white [&>line]:stroke-white',
+                    '[&>line:first-of-type]:scale-y-[0.9] [&>line:first-of-type]:-translate-y-[0.25px]',
+                    '[&>line:last-of-type]:translate-y-[0.45px] [&>line]:[stroke-linecap:round]'
+                ],
+                'invalid':
+                    '[&>path]:scale-[1.25] text-error [&>circle]:fill-current [&>path]:stroke-white',
             },
         },
     }
 );
 
-function iconByStatus(status: WorkflowStateStatus): LucideIcon {
+type StatusIconProps = Pick<Props, 'status'> & React.ComponentProps<LucideIcon>;
+
+const StatusIcon = ({status, className,...props}: StatusIconProps): JSX.Element => {
+    const classNames = cn(className, statusIconVariants({status}));
     switch (status) {
     case WorkflowStateStatus.READY:
-        return CircleCheck;
+        return <CircleCheck className={classNames} aria-label={status} {...props} />;
     case WorkflowStateStatus.IN_PROGRESS:
-        return CircleAlert;
+        return <CircleAlert className={classNames} aria-label={status} {...props} />;
     case WorkflowStateStatus.INVALID:
-        return CircleX;
+        return <CircleX className={classNames} aria-label={status} {...props} />;
     }
 }
 
 export function WorkflowContentIcon({
-                                        status,
-                                        contentType,
-                                        url,
-                                        size = 24,
-                                    }: Props): JSX.Element {
-
-    let statusIcon: ReactNode = null;
-    if (status !== null) {
-        const Icon = iconByStatus(status);
-        statusIcon = <Icon
-            className={cn(statusIconVariants({status}), 'absolute -top-0.5 -right-0.5')}
-            strokeWidth={2}
-            aria-label={status}
-        />
-
-    }
+    status,
+    ...props
+}: Props): JSX.Element {
     return (
-        <span className="relative inline-flex items-center h-7.5 w-7.5">
-            <ContentIcon contentType={contentType} url={url} size={size}/>
-            {statusIcon}
+        <span className='relative inline-flex items-center'>
+            <ContentIcon className='w-6 h-6' size={24} {...props} />
+            {status && <StatusIcon status={status} className='absolute -top-0.75 -right-0.75' />}
         </span>
     );
 }
