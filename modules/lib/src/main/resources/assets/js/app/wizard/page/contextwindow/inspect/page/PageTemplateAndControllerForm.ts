@@ -44,10 +44,10 @@ export class PageTemplateAndControllerForm
         this.customizeAction = unlockAction;
 
         this.saveAsTemplateButton = new ActionButton(this.saveAsTemplateAction);
-        this.saveAsTemplateButton.addClass('blue large');
+        this.saveAsTemplateButton.addClass('large');
 
         this.customizeButton = new ActionButton(this.customizeAction);
-        this.customizeButton.addClass('blue large');
+        this.customizeButton.addClass('large');
 
         this.initListeners();
     }
