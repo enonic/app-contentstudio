@@ -78,7 +78,7 @@ export const ContentIcon = ({
     if (canShowImage && src) {
         // 2x size for better quality
         return <Image
-            className={`w-[24px] h-[24px] ${isImageType ? 'object-cover' : 'object-contain'}`}
+            className={`w-6 h-6 ${isImageType ? 'object-cover' : 'object-contain'}`}
             width={size}
             height={size}
             alt={contentType}
