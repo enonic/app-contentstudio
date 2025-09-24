@@ -10,15 +10,17 @@ import {
 } from 'lucide-react';
 import {Image} from '../images/Image';
 import {createImageUrl} from '../util/url';
+import {cn} from '@enonic/ui';
 
 type Props = {
+    className?: string;
     contentType: string;
     url?: string | null;
     size?: number;
     crop?: boolean;
 };
 
-type BuiltInIconProps = Pick<Props, 'contentType' | 'size'>;
+type BuiltInIconProps = Pick<Props, 'className' | 'contentType' | 'size'>;
 
 const IMAGE_TYPES = new Set<string>([
     String(ContentTypeName.IMAGE),
@@ -51,12 +53,13 @@ const CONTENT_TYPE_ICON_MAP = new Map<string, LucideIcon>([
     [String(ContentTypeName.UNSTRUCTURED), Shapes],
 ]);
 
-const BuiltInIcon = ({contentType, size}: BuiltInIconProps): JSX.Element => {
+const BuiltInIcon = ({className, contentType, size}: BuiltInIconProps): JSX.Element => {
     const Icon = CONTENT_TYPE_ICON_MAP.get(contentType) ?? FileIcon;
-    return <Icon size={size} strokeWidth={1.5} />;
+    return <Icon size={size} strokeWidth={2} className={className} />;
 };
 
 export const ContentIcon = ({
+    className,
     contentType,
     url,
     size = 64,
@@ -78,9 +81,7 @@ export const ContentIcon = ({
     if (canShowImage && src) {
         // 2x size for better quality
         return <Image
-            className={`w-6 h-6 ${isImageType ? 'object-cover' : 'object-contain'}`}
-            width={size}
-            height={size}
+            className={cn('w-6 h-6', isImageType ? 'object-cover' : 'object-contain', className)}
             alt={contentType}
             src={src}
             onError={() => setImageBroken(true)}

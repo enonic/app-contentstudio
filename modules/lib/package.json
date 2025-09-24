@@ -22,7 +22,8 @@
   },
   "dependencies": {
     "@enonic/lib-admin-ui": "workspace:*",
-    "@enonic/ui": "~0.8.1",
+    "@enonic/ui": "~0.10.1",
+    "class-variance-authority": "^0.7.1",
     "d3": "^7.9.0",
     "d3-dag": "^0.11.5",
     "dompurify": "^3.2.6",
