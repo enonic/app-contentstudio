@@ -5,7 +5,7 @@ import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {ContentSummary} from '../content/ContentSummary';
 import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {PageNavigationMediator} from './PageNavigationMediator';
 import {PageNavigationEvent} from './PageNavigationEvent';
 import {PageNavigationEventType} from './PageNavigationEventType';
@@ -27,8 +27,8 @@ export class WizardWidgetRenderingHandler
     protected createEmptyView(): DivEl {
         this.placeholderView = super.createMessageView(this.getDefaultMessage(), 'no-selection-message');
 
-        const settingsLink = new AEl('page-settings-link');
-        settingsLink.setHtml(i18n('action.pageSettings.open'));
+        const settingsLink = new Button(i18n('live.view.page.settings'));
+        settingsLink.addClass('transparent small page-settings-link');
         settingsLink.onClicked((e) => {
             PageNavigationMediator.get().notify(
                 new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(ComponentPath.root())));
