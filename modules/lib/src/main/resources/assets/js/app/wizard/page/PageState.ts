@@ -221,7 +221,7 @@ export class PageStateEventHandler {
         PageEventsManager.get().onPageResetRequested(() => {
             new ConfirmationDialog()
                 .setQuestion(i18n('dialog.page.reset.confirmation'))
-                .setYesCallback(() => () => {
+                .setYesCallback(() => {
                     PageState.setState(null);
                     this.pageEventsHolder.notifyPageReset();
                 })

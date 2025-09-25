@@ -37,7 +37,7 @@ export class PageTemplateAndControllerForm
         unlockAction.onExecuted(() => {
             new ConfirmationDialog()
                 .setQuestion(i18n('dialog.page.customize.confirmation'))
-                .setYesCallback(() => () => PageEventsManager.get().notifyCustomizePageRequested())
+                .setYesCallback(() => PageEventsManager.get().notifyCustomizePageRequested())
                 .open();
         });
         this.customizeAction = unlockAction;
