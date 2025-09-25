@@ -12,12 +12,14 @@ export class VersionHelper {
     private static checkAttempts = 5; // Retry checks every 30 seconds
 
     static checkAndNotifyIfNewerVersionExists() {
-
         setTimeout(() => {
             VersionHelper.executeWithRetry(VersionHelper.fetchNewerVersion, VersionHelper.checkInterval, (version: string) => !!version)
-                .then((version: string) => {
-                    if (version.trim()) {
-                        VersionHelper.notifyAboutNewerVersion(version);
+                .then((newestVersion: string) => {
+                    if (newestVersion.trim()) {
+                        const lastDismissedVersion = CONFIG.getString('lastDismissedVersion');
+                        if (!lastDismissedVersion || VersionHelper.isVersionGreater(newestVersion, lastDismissedVersion)) {
+                            VersionHelper.notifyAboutNewerVersion(newestVersion);
+                        }
                     }
                 })
                 .catch(error => {
@@ -29,8 +31,8 @@ export class VersionHelper {
     private static async fetchNewerVersion(): Promise<string> {
         const appVersion = CONFIG.getString('appVersion');
         const marketUrl = CONFIG.getString('marketUrl');
-        //const xpVersion = CONFIG.getString('xpVersion');
-        const xpVersion = "7.15.0";
+        //const xpVersion = "7.15.0";
+        const xpVersion = CONFIG.getString('xpVersion');
         const appId = CONFIG.getString('appId');
 
         try {
@@ -60,8 +62,8 @@ export class VersionHelper {
                 return ' ';
             }
 
+            //return VersionHelper.findNextGreaterVersion(responseAsJson.hits[appId].versions, "5.3.1") || ' ';
             return VersionHelper.findNextGreaterVersion(responseAsJson.hits[appId].versions, appVersion) || ' ';
-            //return VersionHelper.findNextGreaterVersion(responseAsJson.hits[appId].versions, "5.0.0") || ' ';
         } catch (error) {
             if (error.name === 'AbortError') {
                 console.error('Request timed out');
@@ -173,12 +175,30 @@ export class VersionHelper {
 
     private static notifyAboutNewerVersion(version: string) {
         const message = new Message(MessageType.WARNING, i18n('notify.newerVersion', version), false);
-        message.addAction(i18n('text.dismiss'), () => VersionHelper.dismissVersion(version));
+        message.addAction(i18n('text.dismiss'), () => VersionHelper.dismissNotification(version));
 
         NotifyManager.get().notify(message);
     }
 
-    private static dismissVersion(version: string) {
-        console.log('Dismiss clicked: ' + version);
+    private static dismissNotification(version: string) {
+        fetch(
+            `${CONFIG.getString('services.dismissNotificationUrl')}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json;charset=UTF-8",
+                },
+                body: JSON.stringify({version: version})
+            })
+        .then((response) => {
+            if (!response.ok) {
+                response.json().then((errorBody) => {
+                    const errorMessage = errorBody?.error || 'Unknown error';
+                    NotifyManager.get().showError(errorMessage);
+                });
+            }
+        })
+        .catch((error) => {
+            throw error;
+        });
     }
 }
