@@ -15,8 +15,8 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0
       enonic-admin-artifacts:
-        specifier: ^2.3.2
-        version: 2.3.2
+        specifier: ^2.4.0
+        version: 2.4.0
       jquery:
         specifier: ^3.7.1
         version: 3.7.1
@@ -254,8 +254,8 @@ importers:
         specifier: ^3.2.6
         version: 3.2.6
       enonic-admin-artifacts:
-        specifier: ^2.3.2
-        version: 2.3.2
+        specifier: ^2.4.0
+        version: 2.4.0
       flag-icons:
         specifier: ^7.5.0
         version: 7.5.0
@@ -1687,6 +1687,9 @@ packages:
 
   enonic-admin-artifacts@2.3.2:
     resolution: {integrity: sha512-O2+/u0zO8IhRyRGACvnBbCYzQ2bjgLKTtnmmEq73o4lOA8miGu0wREiBd7Ey9oNdQ1Wujb8w9zOZJayJhyTgEA==}
+
+  enonic-admin-artifacts@2.4.0:
+    resolution: {integrity: sha512-3nS9r7zj5tv6Una5v9Cz1I83Kk7TcxGkf4nFBX2WxdwZBxmFwlBju4OBy4hK4sPYHk6i2RLW5ehF2quHRgJcLA==}
 
   entities@4.5.0:
     resolution: {integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==}
@@ -4319,6 +4322,8 @@ snapshots:
       tapable: 2.2.2
 
   enonic-admin-artifacts@2.3.2: {}
+
+  enonic-admin-artifacts@2.4.0: {}
 
   entities@4.5.0: {}
 
