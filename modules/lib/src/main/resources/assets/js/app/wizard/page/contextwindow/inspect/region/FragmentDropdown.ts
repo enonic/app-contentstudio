@@ -1,3 +1,4 @@
+import {Descriptor} from '../../../../../page/Descriptor';
 import {FragmentContentSummaryLoader} from './FragmentContentSummaryLoader';
 import {ContentSummaryViewer} from '../../../../../content/ContentSummaryViewer';
 import {ContentSummary} from '../../../../../content/ContentSummary';
@@ -147,6 +148,14 @@ export class FragmentDropdown
         if (this.selectedFragment) {
             this.selectedViewer.show();
             this.optionFilterInput.hide();
+        }
+    }
+
+    protected handleUserToggleAction(item: ContentSummary): void {
+        const itemId = this.listBox.getIdOfItem(item);
+
+        if (!this.isSelected(itemId)) {
+            super.handleUserToggleAction(item); // can't deselect the only selected item
         }
     }
 }
