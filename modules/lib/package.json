@@ -23,7 +23,7 @@
     "d3": "^7.9.0",
     "d3-dag": "^0.11.5",
     "dompurify": "^3.2.6",
-    "enonic-admin-artifacts": "^2.3.2",
+    "enonic-admin-artifacts": "^2.4.0",
     "flag-icons": "^7.5.0",
     "hasher": "^1.2.0",
     "jquery-simulate": "^1.0.2",

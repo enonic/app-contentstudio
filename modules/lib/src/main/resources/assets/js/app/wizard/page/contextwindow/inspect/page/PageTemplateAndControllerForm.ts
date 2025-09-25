@@ -5,7 +5,6 @@ import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {SaveAsTemplateAction} from '../../../../action/SaveAsTemplateAction';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
 import Q from 'q';
@@ -17,14 +16,12 @@ import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDia
 export class PageTemplateAndControllerForm
     extends Form {
 
-    private saveAsTemplateButton: ActionButton;
-    private customizeButton: ActionButton;
-    private pageTemplateAndControllerSelector: PageTemplateAndControllerSelector;
-    private fieldSet: Fieldset;
+    private readonly customizeButton: ActionButton;
+    private readonly pageTemplateAndControllerSelector: PageTemplateAndControllerSelector;
+    private readonly fieldSet: Fieldset;
+    private readonly customizeAction: Action;
     private isPageLocked: boolean = false;
     private isPageRenderable: boolean = false;
-    private saveAsTemplateAction: SaveAsTemplateAction;
-    private customizeAction: Action;
     private liveEditModel: LiveEditModel;
 
     constructor() {
@@ -43,11 +40,7 @@ export class PageTemplateAndControllerForm
                 .setYesCallback(() => () => PageEventsManager.get().notifyCustomizePageRequested())
                 .open();
         });
-        this.saveAsTemplateAction = SaveAsTemplateAction.get();
         this.customizeAction = unlockAction;
-
-        this.saveAsTemplateButton = new ActionButton(this.saveAsTemplateAction);
-        this.saveAsTemplateButton.addClass('large');
 
         this.customizeButton = new ActionButton(this.customizeAction);
         this.customizeButton.addClass('large');
@@ -55,14 +48,13 @@ export class PageTemplateAndControllerForm
         this.initListeners();
     }
 
-
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
 
             this.add(this.fieldSet);
 
             const div = new DivEl('template-button-bar');
-            div.appendChildren(this.saveAsTemplateButton, this.customizeButton);
+            div.appendChildren(this.customizeButton);
             this.appendChild(div);
 
             return rendered;
@@ -72,11 +64,9 @@ export class PageTemplateAndControllerForm
     private updateButtonsVisibility() {
         const isInherited = this.liveEditModel?.getContent().isInherited();
         this.customizeAction.setVisible(!isInherited && this.isPageLocked && this.isPageRenderable);
-        this.saveAsTemplateAction.updateVisibility();
 
         // https://github.com/enonic/lib-admin-ui/issues/4139
         this.customizeButton.setVisible(this.customizeAction.isVisible());
-        this.saveAsTemplateButton.setVisible(this.saveAsTemplateAction.isVisible());
     }
 
     private initListeners() {
