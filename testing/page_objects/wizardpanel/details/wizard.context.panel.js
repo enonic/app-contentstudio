@@ -12,6 +12,10 @@ const xpath = {
 
 class WizardContextPanel extends BaseContextWindowPanel {
 
+    get container() {
+        return xpath.container;
+    }
+
     get widgetSelectorDropdown() {
         return xpath.container + lib.DROPDOWN_SELECTOR.WIDGET_FILTER_DROPDOWN;
     }

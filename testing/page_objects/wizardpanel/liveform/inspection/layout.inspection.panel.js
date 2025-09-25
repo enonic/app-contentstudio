@@ -1,10 +1,10 @@
 /**
  * Created on 19.02.2020.
  */
-const Page = require('../../../page');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const ComponentDescriptorsDropdown = require('../../../components/selectors/component.descriptors.dropdown');
+const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 
 const xpath = {
     container: `//div[contains(@id,'LayoutInspectionPanel')]`,
@@ -12,7 +12,7 @@ const xpath = {
 };
 
 //Context Window, Inspect tab for Layout Component
-class LayoutInspectionPanel extends Page {
+class LayoutInspectionPanel extends BaseComponentInspectionPanel {
 
     get layoutDropdown() {
         return xpath.container + xpath.layoutDropdown;
@@ -50,6 +50,11 @@ class LayoutInspectionPanel extends Page {
         let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
         await componentDescriptorsDropdown.clickOnOptionByDisplayName(optionDisplayName, xpath.container);
         return await this.pause(1000);
+    }
+
+    async waitForApplyButtonInComponentsDescriptorNotDisplayed(optionDisplayName) {
+        let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
+        await componentDescriptorsDropdown.waitForApplySelectionButtonNotDisplayed(optionDisplayName, xpath.container);
     }
 
     async getSelectedOption() {

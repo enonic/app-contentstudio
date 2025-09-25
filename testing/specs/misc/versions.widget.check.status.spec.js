@@ -38,7 +38,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             //3. Verify that 'publish menu' is available:
             await contentBrowsePanel.waitForShowPublishMenuDropDownVisible();
             //4. Open version panel and verify status in the top version-item:
-            await contentBrowsePanel.openDetailsPanel();
+            await contentBrowsePanel.openContextWindow();
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();
             //5. Verify that 'Published' list-item appears in the widget:
@@ -64,7 +64,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await contentWizard.waitForNotificationMessage();
             await studioUtils.doCloseWindowTabAndSwitchToBrowsePanel();
             //2. Open version panel and verify status in the latest version-item:
-            await contentBrowsePanel.openDetailsPanel();
+            await contentBrowsePanel.openContextWindow();
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();
             let status = await browseVersionsWidget.getContentStatus();
@@ -86,7 +86,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await contentWizard.waitForNotificationMessage();
             await studioUtils.doCloseWizardAndSwitchToGrid();
             // 2. Open version panel and verify status in the latest version-item:
-            await contentBrowsePanel.openDetailsPanel();
+            await contentBrowsePanel.openContextWindow();
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();
             let status = await browseVersionsWidget.getContentStatus();
@@ -109,7 +109,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await contentPublishDialog.clickOnPublishNowButton();
             await contentBrowsePanel.pause(500);
             // 4. Open version panel and verify status in the top version-item:
-            await contentBrowsePanel.openDetailsPanel();
+            await contentBrowsePanel.openContextWindow();
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();
             let status = await browseVersionsWidget.getContentStatus();

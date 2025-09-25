@@ -788,7 +788,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async openDetailsPanel() {
+    async openContextWindow() {
         let browseContextWindow = new BrowseContextWindowPanel();
         let result = await browseContextWindow.isPanelVisible();
         if (!result) {
