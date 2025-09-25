@@ -49,7 +49,7 @@ export class FragmentInspectionPanel
         this.fragmentSelector = new FragmentDropdown();
         this.fragmentForm = new FragmentSelectorForm(this.fragmentSelector, i18n('field.fragment'));
         this.editFragmentButton = new Button(i18n('action.editFragment'));
-        this.editFragmentButton.addClass('blue large');
+        this.editFragmentButton.addClass('large');
     }
 
     private initListeners() {
