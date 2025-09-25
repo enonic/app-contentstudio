@@ -274,6 +274,7 @@ class ContentPublishDialog extends Page {
 
     async clickOnPublishNowButton() {
         try {
+            await this.waitForElementDisplayed(this.publishNowButton, appConst.mediumTimeout);
             await this.waitForElementEnabled(this.publishNowButton, appConst.longTimeout);
             await this.clickOnElement(this.publishNowButton);
             return await this.pause(1000);

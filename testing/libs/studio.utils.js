@@ -289,11 +289,12 @@ module.exports = {
     },
     async doAddPublishedShortcut(shortcut) {
         let contentWizardPanel = new ContentWizardPanel();
-        //Open new shortcut-wizard:
+        // Open new shortcut-wizard:
         await this.openContentWizard(appConst.contentTypes.SHORTCUT);
         await contentWizardPanel.typeData(shortcut);
         await contentWizardPanel.clickOnMarkAsReadyButton();
         let contentPublishDialog = new ContentPublishDialog();
+        await contentPublishDialog.waitForDialogOpened();
         await contentPublishDialog.clickOnPublishNowButton();
         await contentPublishDialog.waitForDialogClosed();
         await contentWizardPanel.waitForNotificationMessage();
@@ -313,6 +314,7 @@ module.exports = {
         await contentWizardPanel.typeData(folder);
         await contentWizardPanel.clickOnMarkAsReadyButton();
         let contentPublishDialog = new ContentPublishDialog();
+        await contentPublishDialog.waitForDialogOpened();
         await contentPublishDialog.clickOnPublishNowButton();
         await contentPublishDialog.waitForDialogClosed();
         await contentWizardPanel.waitForNotificationMessage();
@@ -877,7 +879,7 @@ module.exports = {
         let browsePanel = new BrowsePanel();
         let browseDependenciesWidget = new BrowseDependenciesWidget();
         let browseContextWindow = new BrowseContextWindowPanel();
-        await browsePanel.openDetailsPanel();
+        await browsePanel.openContextWindow();
         await browseContextWindow.openDependencies();
         return await browseDependenciesWidget.waitForWidgetLoaded();
     },
@@ -1177,7 +1179,7 @@ module.exports = {
         let appBrowsePanel = new AppBrowsePanel();
         console.log('testUtils:switching to Applications app...');
         await this.getBrowser().switchWindow(appConst.BROWSER_XP_TITLES.APPLICATIONS_TITLE);
-        console.log("switched to Applications app...");
+        console.log('switched to Applications app...');
         await appBrowsePanel.waitForSpinnerNotVisible();
         return await appBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
     },

@@ -48,6 +48,22 @@ class BaseContextWindowPanel extends Page {
         }
     }
 
+    async clickOnWidgetSelectorDropdownOption(option) {
+        try {
+            let widgetSelectorDropdown = new WidgetSelectorDropdown();
+            await this.clickOnWidgetSelectorDropdownHandle();
+            await widgetSelectorDropdown.clickOnOptionByDisplayName(option);
+            await this.pause(900);
+        } catch (err) {
+            await this.handleError(`Error occurred in widget selector dropdown, option ${option}`, 'err_click_widget_option', err);
+        }
+    }
+
+    async waitForApplyButtonInWidgetSelectorNotDisplayed() {
+        let widgetSelectorDropdown = new WidgetSelectorDropdown();
+        return await widgetSelectorDropdown.waitForApplySelectionButtonNotDisplayed(this.container);
+    }
+
     //clicks on dropdown handle and select the 'Version History' menu item
     async openVersionHistory() {
         try {

@@ -28,6 +28,10 @@ class BaseComponentInspectionPanel extends Page {
         return this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
     }
 
+    waitForApplyButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.applyButton, appConst.mediumTimeout);
+    }
+
     async waitForApplyButtonEnabled() {
         try {
             await this.waitForElementEnabled(this.applyButton, appConst.mediumTimeout);
@@ -40,7 +44,6 @@ class BaseComponentInspectionPanel extends Page {
     async waitForApplyButtonDisabled() {
         try {
             await this.waitForElementDisabled(this.applyButton, appConst.mediumTimeout);
-            await this.pause(400);
         } catch (err) {
             await this.handleError('Inspection Panel, Apply button should be disabled', 'err_apply_button', err)
         }

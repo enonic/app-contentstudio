@@ -10,10 +10,12 @@ const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/prope
 const StatusWidget = require('../page_objects/browsepanel/detailspanel/status.widget.itemview');
 const BrowseContentWidgetItemView = require('../page_objects/browsepanel/detailspanel/browse.content.widget.item.view');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
+const BrowseContextWindow = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const PublishContentDialog = require('../page_objects/content.publish.dialog');
 const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const ContentWidgetView = require('../page_objects/browsepanel/detailspanel/content.widget.item.view');
+const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.panel');
+const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 
 describe('Browse panel, properties widget, language spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -51,8 +53,9 @@ describe('Browse panel, properties widget, language spec', function () {
     it(`WHEN the folder has been selected THEN expected workflow state should be displayed in ContentWidgetItemView`,
         async () => {
             let contentWidget = new ContentWidgetView();
+            // 1. Select existing folder
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            // 2. Verify that expected worflow should be displayed in Details Panel
+            // 2. Verify that expected workflow should be displayed in Details Widget
             let actualState = await contentWidget.getContentWorkflowState();
             assert.equal(actualState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,)
         });
@@ -91,7 +94,7 @@ describe('Browse panel, properties widget, language spec', function () {
 
     it(`GIVEN existing folder is selected WHEN 'Hide Context Panel' button has been clicked THEN Context panel should be hidden`,
         async () => {
-            let browseDetailsPanel = new BrowseDetailsPanel();
+            let browseContextWindow = new BrowseContextWindow();
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             // 1. Click on Hide Context Panel button:
@@ -103,11 +106,11 @@ describe('Browse panel, properties widget, language spec', function () {
 
     it(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,
         async () => {
-            let browseDetailsPanel = new BrowseDetailsPanel();
+            let browseContextWindow = new BrowseContextWindow();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             // 1. Click on the dropdown handler:
-            await browseDetailsPanel.clickOnWidgetSelectorDropdownHandle();
-            let actualOptions = await browseDetailsPanel.getWidgetSelectorDropdownOptions();
+            await browseContextWindow.clickOnWidgetSelectorDropdownHandle();
+            let actualOptions = await browseContextWindow.getWidgetSelectorDropdownOptions();
             await studioUtils.saveScreenshot('details_panel_widget_options');
             // 2. Verify the options:
             assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DEPENDENCIES), 'Dependencies option should be displayed');
@@ -116,7 +119,20 @@ describe('Browse panel, properties widget, language spec', function () {
             assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS), `'Details' option should be displayed`);
             assert.equal(actualOptions.length, 4, 'Four options should be in the selector');
             // 3. Verify the accessibility attribute in Widget Selector:
-            await browseDetailsPanel.waitForWidgetDropdownRoleAttribute('button');
+            await browseContextWindow.waitForWidgetDropdownRoleAttribute('button');
+        });
+
+    // Verifies - Component dropdown: don't allow deselecting single selected item #8759
+    it(`GIVEN existing folder is opened WHEN tried to deselect the single selected item THEN the same widgets are displayed after clicking on the selected option in the list`,
+        async () => {
+            let wizardContextWindow = new WizardContextPanel();
+            let propertiesWidgetItem = new PropertiesWidgetItem();
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            // 1. Click on the dropdown handler and expand the list and try to deselect the single selected item
+            await wizardContextWindow.clickOnWidgetSelectorDropdownOption(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
+            // 2. Verify that 'Apply' button is not displayed and 'Edit Settings' button remains visible in the context window:
+            await wizardContextWindow.waitForApplyButtonInWidgetSelectorNotDisplayed();
+            await propertiesWidgetItem.waitForEditSettingsButtonDisplayed();
         });
 
     it("GIVEN existing folder is selected WHEN test widget item has been selected in widget-selector THEN expected text gets visible in the widget-view",
@@ -124,7 +140,7 @@ describe('Browse panel, properties widget, language spec', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             let browseDetailsPanel = new ContentBrowseDetailsPanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            await contentBrowsePanel.openDetailsPanel();
+            await contentBrowsePanel.openContextWindow();
             // 1. Select the widget in the dropdown selector:
             await browseDetailsPanel.selectItemInWidgetSelector(TEST_WIDGET_TITLE);
             await studioUtils.saveScreenshot('test_widget_opened');

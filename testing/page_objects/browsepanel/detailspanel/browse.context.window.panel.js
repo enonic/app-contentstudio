@@ -11,6 +11,10 @@ const xpath = {
 
 class BrowseContextWindowPanel extends BaseContextWindowPanel {
 
+    get container() {
+        return xpath.container;
+    }
+
     get widgetSelectorDropdownHandle() {
         return xpath.container + lib.DROPDOWN_SELECTOR.WIDGET_FILTER_DROPDOWN + lib.DROP_DOWN_HANDLE;
     }
