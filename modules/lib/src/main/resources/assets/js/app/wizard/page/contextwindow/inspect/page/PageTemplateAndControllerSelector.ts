@@ -3,6 +3,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ContentSummary} from '../../../../../content/ContentSummary';
 import {PageTemplateOption} from './PageTemplateOption';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {GetPageTemplatesByCanRenderRequest} from './GetPageTemplatesByCanRenderRequest';
@@ -358,6 +359,14 @@ export class PageTemplateAndControllerSelector
 
             return rendered;
         });
+    }
+
+    protected handleUserToggleAction(item: PageTemplateAndControllerOption): void {
+        const itemId = this.listBox.getIdOfItem(item);
+
+        if (!this.isSelected(itemId)) {
+            super.handleUserToggleAction(item); // can't deselect the only selected item
+        }
     }
 
     private static filterFunction(item: PageTemplateAndControllerOption, searchString: string): boolean {
