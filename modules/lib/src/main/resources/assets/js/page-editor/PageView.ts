@@ -191,7 +191,7 @@ export class PageView
         }
 
         if (!this.liveEditParams.isPageTemplate) {
-            actions.push(new Action(i18n('live.view.saveAs.template')).onExecuted(() => {
+            actions.push(new Action(i18n('action.saveAsTemplate')).onExecuted(() => {
                 new SaveAsTemplateEvent().fire();
             }));
         }

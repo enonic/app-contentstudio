@@ -90,7 +90,7 @@
       &.descriptor-based-dropdown-form,
       &.fragment-dropdown-form {
         fieldset + button {
-          margin: 0 auto;
+          margin: 5px auto;
         }
       }
 
@@ -101,6 +101,10 @@
           row-gap: 10px;
           flex-wrap: wrap;
           display: flex;
+
+          .action-button:first-child {
+            margin: 5px 0;
+          }
         }
       }
 
@@ -117,6 +121,10 @@
       fieldset {
         display: table-cell; //fix for FF - width of a fieldset is never less than the intrinsic width of its content
         text-align: left;
+
+        > .input-view {
+          margin-bottom: 10px;
+        }
       }
     }
 

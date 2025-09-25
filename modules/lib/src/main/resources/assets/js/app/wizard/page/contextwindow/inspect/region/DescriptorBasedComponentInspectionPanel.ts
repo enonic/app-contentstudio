@@ -23,10 +23,6 @@ import {ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdated
 import {ComponentDescriptorUpdatedEvent} from '../../../../../page/region/ComponentDescriptorUpdatedEvent';
 import {PageEventsManager} from '../../../../PageEventsManager';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ComponentPath} from '../../../../../page/region/ComponentPath';
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {
@@ -55,8 +51,6 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private timeoutId: number;
 
-    private saveAsFragmentButton: ActionButton;
-
     protected constructor(config: DescriptorBasedComponentInspectionPanelConfig) {
         super(config);
 
@@ -70,20 +64,6 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.formView = null;
         this.selector = this.createSelector(componentType);
         this.form = new DescriptorBasedDropdownForm(this.selector, this.getFormName());
-
-        const action = new Action(i18n('live.view.saveAs.fragment'));
-        action.onExecuted(() => {
-            PageEventsManager.get().notifyComponentCreateFragmentRequested(this.getPath());
-        })
-        this.saveAsFragmentButton = new ActionButton(action);
-        this.saveAsFragmentButton.addClass('large');
-
-        this.form.appendChild(this.saveAsFragmentButton);
-    }
-
-    private getPath(): ComponentPath {
-        const parent = this.component.getParent();
-        return new ComponentPath(parent.getComponentIndex(this.component), parent.getPath());
     }
 
     private initListeners() {
@@ -117,11 +97,6 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
             this.bindSiteModelListeners();
         }
-    }
-
-    private updateSaveAsFragmentButtonVisibility(): void {
-        const show = !PageState.getState().isFragment() && !!this.component?.getDescriptorKey();
-        this.saveAsFragmentButton.setVisible(show);
     }
 
     unbindSiteModelListeners() {
@@ -205,7 +180,6 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.unregisterComponentListeners();
         super.setComponent(component);
         this.updateSelectorValue();
-        this.updateSaveAsFragmentButtonVisibility();
         this.registerComponentListeners();
     }
 
@@ -309,7 +283,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.appendChild(this.form);
+            this.insertChild(this.form, 0);
 
             return rendered;
         });

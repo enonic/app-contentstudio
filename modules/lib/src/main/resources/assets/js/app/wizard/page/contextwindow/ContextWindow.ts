@@ -98,7 +98,7 @@ export class ContextWindow
                 this.isPageReady = true;
                 // disable insert tab if there is no page for some reason (i.e. error occurred)
                 // or there is no controller or template set or no automatic template
-                this.updateInsertablesPanel();
+                this.updateInsertablesPanel(this.isPageRenderable);
             }
         })
 

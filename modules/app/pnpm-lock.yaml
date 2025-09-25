@@ -15,8 +15,8 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0
       enonic-admin-artifacts:
-        specifier: ^2.3.2
-        version: 2.3.2
+        specifier: ^2.4.0
+        version: 2.4.0
       jquery:
         specifier: ^3.7.1
         version: 3.7.1
@@ -254,8 +254,8 @@ importers:
         specifier: ^3.2.6
         version: 3.2.6
       enonic-admin-artifacts:
-        specifier: ^2.3.2
-        version: 2.3.2
+        specifier: ^2.4.0
+        version: 2.4.0
       flag-icons:
         specifier: ^7.5.0
         version: 7.5.0
