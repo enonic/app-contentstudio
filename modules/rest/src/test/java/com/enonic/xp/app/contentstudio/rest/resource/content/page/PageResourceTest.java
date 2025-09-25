@@ -17,6 +17,8 @@ import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.content.ContentService;
+import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.jaxrs.impl.MockRestResponse;
@@ -34,6 +36,7 @@ import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.SecurityService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,11 +46,14 @@ public class PageResourceTest
 {
     private PageService pageService;
 
+    private ContentService contentService;
+
     @Override
     protected Object getResourceInstance()
     {
         final ContentTypeService contentTypeService = mock( ContentTypeService.class );
         this.pageService = mock( PageService.class );
+        this.contentService = mock( ContentService.class );
 
         final PageResource resource = new PageResource();
         resource.setPageService( pageService );
@@ -60,6 +66,7 @@ public class PageResourceTest
         final JsonObjectsFactory jsonObjectsFactory = new JsonObjectsFactory();
         jsonObjectsFactory.setContentTypeService( contentTypeService );
         jsonObjectsFactory.setSecurityService( securityService );
+        jsonObjectsFactory.setContentService( contentService );
         resource.setJsonObjectsFactory( jsonObjectsFactory );
 
         final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
@@ -79,6 +86,7 @@ public class PageResourceTest
         final Content content = createPage( "content-id", "content-name", "myapplication:content-type" );
 
         when( this.pageService.update( isA( UpdatePageParams.class ) ) ).thenReturn( content );
+        when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
 
         final String jsonString = request().path( "content/page/update" )
             .entity( readFromFile( "update_page_params.json" ), MediaType.APPLICATION_JSON_TYPE )
@@ -96,6 +104,7 @@ public class PageResourceTest
 
         when( this.pageService.update( isA( UpdatePageParams.class ) ) ).thenThrow(
             ContentNotFoundException.create().contentId( content.getId() ).build() );
+        when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
 
         final MockRestResponse post = request().path( "content/page/update" )
             .entity( readFromFile( "update_page_params.json" ), MediaType.APPLICATION_JSON_TYPE )
@@ -112,6 +121,7 @@ public class PageResourceTest
         Content content = createPage( "content-id", "content-name", "myapplication:content-type" );
 
         when( this.pageService.create( isA( CreatePageParams.class ) ) ).thenReturn( content );
+        when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
 
         String jsonString = request().path( "content/page/create" )
             .entity( readFromFile( "update_page_params.json" ), MediaType.APPLICATION_JSON_TYPE )

@@ -25,6 +25,7 @@ import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.ExtraData;
 import com.enonic.xp.content.ExtraDatas;
+import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.core.impl.schema.content.BuiltinContentTypesAccessor;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.page.CreatePageTemplateParams;
@@ -52,6 +53,7 @@ import com.enonic.xp.site.mapping.ControllerMappingDescriptor;
 import com.enonic.xp.site.mapping.ControllerMappingDescriptors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
@@ -98,6 +100,7 @@ public class PageTemplateResourceTest
         final JsonObjectsFactory jsonObjectsFactory = new JsonObjectsFactory();
         jsonObjectsFactory.setContentTypeService( contentTypeService );
         jsonObjectsFactory.setSecurityService( securityService );
+        jsonObjectsFactory.setContentService( contentService );
 
         final PageTemplateResource resource = new PageTemplateResource();
         resource.setPageTemplateService( pageTemplateService );
@@ -273,6 +276,7 @@ public class PageTemplateResourceTest
         when( pageTemplateService.create( argThat(
             ( CreatePageTemplateParams params ) -> ContentName.from( "template-myapplication-2" ).equals( params.getName() ) ) ) )
             .thenReturn( template );
+        when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
 
         String response = request().path( "content/page/template/create" ).
             entity( readFromFile( "create_template_params.json" ), MediaType.APPLICATION_JSON_TYPE ).
