@@ -1,10 +1,10 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
-import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {GetContentVersionsRequest} from '../../../../resource/GetContentVersionsRequest';
 import {GetContentVersionsResult} from '../../../../resource/GetContentVersionsResult';
+import {GetPrincipalsByKeysRequest} from '../../../../security/GetPrincipalsByKeysRequest';
 import {BatchedContentVersionsConverter} from './BatchedContentVersionsConverter';
 import {VersionHistoryItem} from './VersionHistoryItem';
 import {VersionHistoryListItem} from './VersionHistoryListItem';
@@ -28,6 +28,8 @@ export class VersionHistoryList
 
     private versionsConverter: BatchedContentVersionsConverter;
 
+    private creatorDisplayName: string;
+
     constructor() {
         super('version-list');
     }
@@ -39,6 +41,7 @@ export class VersionHistoryList
         }
 
         this.content = content;
+        this.creatorDisplayName = null;
         this.loadedCount = 0;
         this.clearItems();
         this.versionsConverter = null;
@@ -85,7 +88,7 @@ export class VersionHistoryList
 
         this.doLoad().then((result: GetContentVersionsResult) => {
             if (!this.versionsConverter) {
-                this.versionsConverter = new BatchedContentVersionsConverter(this.content);
+                this.versionsConverter = new BatchedContentVersionsConverter(this.content, this.creatorDisplayName);
                 this.totalCount = result.getMetadata().totalHits;
             }
 
@@ -106,9 +109,41 @@ export class VersionHistoryList
     }
 
     private doLoad(): Q.Promise<GetContentVersionsResult> {
-        return new GetContentVersionsRequest(this.content.getContentId())
-            .setFrom(this.loadedCount)
-            .setSize(VersionHistoryList.LOAD_SIZE)
-            .sendAndParse();
+        return this.fetchCreatorDisplayNameOnDemand().then(() => {
+            return new GetContentVersionsRequest(this.content.getContentId())
+                .setFrom(this.loadedCount)
+                .setSize(VersionHistoryList.LOAD_SIZE)
+                .sendAndParse();
+        });
+    }
+
+    private fetchCreatorDisplayNameOnDemand(): Q.Promise<void> {
+        if (this.creatorDisplayName) {
+            return Q();
+        }
+
+        const creatorKey = this.content.getContentSummary().getCreator();
+        const creatorKeyAsString = creatorKey.toString();
+
+        this.getItems().some((item: VersionHistoryItem) => {
+            if (item.getContentVersion().getModifier() === creatorKeyAsString)  {
+                this.creatorDisplayName = item.getContentVersion().getModifierDisplayName();
+                return true;
+            }
+
+            return false;
+        });
+
+        if (this.creatorDisplayName) {
+            return Q();
+        }
+
+        return new GetPrincipalsByKeysRequest([creatorKey]).sendAndParse().then((principals) => {
+            this.creatorDisplayName = principals.length > 0 ? principals[0].getDisplayName() : creatorKeyAsString;
+            return Q();
+        }).catch((e) => {
+            this.creatorDisplayName = creatorKeyAsString;
+            DefaultErrorHandler.handle(e)
+        });
     }
 }
