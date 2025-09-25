@@ -128,11 +128,9 @@ describe('Browse panel, properties widget, language spec', function () {
             let wizardContextWindow = new WizardContextPanel();
             let propertiesWidgetItem = new PropertiesWidgetItem();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            // 1. Click on the dropdown handler and expand the list
-            await wizardContextWindow.clickOnWidgetSelectorDropdownHandle();
-            // 2. Click on the items that is default option in the selector - try to deselect it:
+            // 1. Click on the dropdown handler and expand the list and try to deselect the single selected item
             await wizardContextWindow.clickOnWidgetSelectorDropdownOption(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
-            // 3. Verify that Apply button is not displayed and Edit Settings button is visible in the widget:
+            // 2. Verify that 'Apply' button is not displayed and 'Edit Settings' button remains visible in the context window:
             await wizardContextWindow.waitForApplyButtonInWidgetSelectorNotDisplayed();
             await propertiesWidgetItem.waitForEditSettingsButtonDisplayed();
         });
