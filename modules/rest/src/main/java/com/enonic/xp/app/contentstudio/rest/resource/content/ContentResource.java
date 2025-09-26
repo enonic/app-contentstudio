@@ -1075,20 +1075,6 @@ public final class ContentResource
         return doGetByParent( expandParam, params, request );
     }
 
-    @POST
-    @Path("batch")
-    public ContentListJson<ContentSummaryJson> listBatched( final BatchContentJson json, @Context HttpServletRequest request )
-    {
-        final ContentPaths contentsToBatch = ContentPaths.from( json.getContentPaths() );
-
-        final Contents contents = contentService.getByPaths( contentsToBatch );
-
-        final ContentListMetaData metaData =
-            ContentListMetaData.create().totalHits( contents.getSize() ).hits( contents.getSize() ).build();
-
-        return new ContentListJson<>( contents, metaData, c -> jsonObjectsFactory.createContentSummaryJson(c, request) );
-    }
-
     private ContentListJson<?> doGetByParent( final String expandParam, final FindContentByParentParams params,
                                               final HttpServletRequest request )
     {

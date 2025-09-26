@@ -34,12 +34,12 @@ public final class ContentJson
 
     private final AccessControlEntriesJson accessControlList;
 
-    public ContentJson( final Content content, final ContentIconUrlResolver iconUrlResolver,
+    public ContentJson( final Content content, final Boolean hasChildren, final ContentIconUrlResolver iconUrlResolver,
                         final ContentPrincipalsResolver contentPrincipalsResolver,
                         final ComponentDisplayNameResolver componentDisplayNameResolver,
                         final ContentListTitleResolver contentListTitleResolver, final List<ValidationErrorJson> localizedValidationErrors )
     {
-        super( content, iconUrlResolver, contentListTitleResolver );
+        super( content, hasChildren, iconUrlResolver, contentListTitleResolver );
         this.data = PropertyTreeJson.toJson( content.getData() );
         this.attachments = AttachmentListJson.toJson( content.getAttachments() );
 

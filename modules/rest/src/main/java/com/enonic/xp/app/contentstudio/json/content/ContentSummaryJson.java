@@ -49,7 +49,9 @@ public class ContentSummaryJson
 
     private final String variantOf;
 
-    public ContentSummaryJson( final Content content, final ContentIconUrlResolver iconUrlResolver,
+    private final Boolean hasChildren;
+
+    public ContentSummaryJson( final Content content, Boolean hasChildren, final ContentIconUrlResolver iconUrlResolver,
                                ContentListTitleResolver contentListTitleResolver )
     {
         super( content.getId() );
@@ -68,6 +70,7 @@ public class ContentSummaryJson
         this.originalParentPath = Objects.toString( content.getOriginalParentPath(), null );
         this.originalName = Objects.toString( content.getOriginalName(), null );
         this.variantOf = Objects.toString( content.getVariantOf(), null );
+        this.hasChildren = hasChildren;
     }
 
     public String getIconUrl()
@@ -164,9 +167,9 @@ public class ContentSummaryJson
         return content.getArchivedBy() != null ? content.getArchivedBy().toString() : null;
     }
 
-    public boolean getHasChildren()
+    public Boolean getHasChildren()
     {
-        return content.hasChildren();
+        return hasChildren;
     }
 
     public boolean getIsValid()

@@ -24,6 +24,8 @@ import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeI
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentService;
+import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.ValidationErrors;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.page.PageDescriptor;
@@ -42,6 +44,8 @@ public class JsonObjectsFactory
     private MixinService mixinService;
 
     private ContentTypeService contentTypeService;
+
+    private ContentService contentService;
 
     private ContentPrincipalsResolver principalsResolver;
 
@@ -91,16 +95,24 @@ public class JsonObjectsFactory
                                                                                 request.getLocales() ) ) )
             .collect( Collectors.toList() );
 
-        return new ContentJson( content, new ContentIconUrlResolver( contentTypeService, request ), principalsResolver,
+        return new ContentJson( content, hasChildren( content ), new ContentIconUrlResolver( contentTypeService, request ), principalsResolver,
                                 componentDisplayNameResolver, new ContentListTitleResolver( contentTypeService ),
                                 localizedValidationErrors );
     }
 
     public ContentSummaryJson createContentSummaryJson( final Content content, final HttpServletRequest request )
     {
-        return new ContentSummaryJson( content, new ContentIconUrlResolver( contentTypeService, request ),
+        return new ContentSummaryJson( content, hasChildren( content ), new ContentIconUrlResolver( contentTypeService, request ),
                                        new ContentListTitleResolver( contentTypeService ) );
     }
+
+    private boolean hasChildren( final Content c )
+    {
+        return
+            contentService.findIdsByParent( FindContentByParentParams.create().parentPath( c.getPath() ).size( 0 ).build() ).getTotalHits() >
+                0;
+    }
+
 
     @Reference
     public void setLocaleService( final LocaleService localeService )
@@ -130,5 +142,11 @@ public class JsonObjectsFactory
     public void setComponentNameResolver( final ComponentDisplayNameResolver componentDisplayNameResolver )
     {
         this.componentDisplayNameResolver = componentDisplayNameResolver;
+    }
+
+    @Reference
+    public void setContentService( final ContentService contentService )
+    {
+        this.contentService = contentService;
     }
 }
