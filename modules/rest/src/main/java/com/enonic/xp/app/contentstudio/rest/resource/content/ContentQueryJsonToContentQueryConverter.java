@@ -93,7 +93,7 @@ public class ContentQueryJsonToContentQueryConverter
 
     private ContentIds getExistingContentIds( final ContentIds contentIds )
     {
-        final Contents contents = this.contentService.getByIds( new GetContentByIdsParams( contentIds ) );
+        final Contents contents = this.contentService.getByIds( GetContentByIdsParams.create().contentIds( contentIds ).build() );
         final List<ContentId> existingContentIds = new ArrayList<>();
         contents.forEach( content -> existingContentIds.add( content.getId() ) );
         return ContentIds.from( existingContentIds );

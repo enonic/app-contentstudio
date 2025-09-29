@@ -1425,13 +1425,17 @@ public class ContentResourceTest
         Content content4 =
             createContent( "content-id4", content3.getPath(), "content-name4", "myapplication:content-type", AccessControlList.empty() );
 
-        when( this.contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content1.getId() ) ) ) ).thenReturn(
+        when( this.contentService.getByIds(
+            GetContentByIdsParams.create().contentIds( ContentIds.from( content1.getId() ) ).build() ) ).thenReturn(
             Contents.from( content1 ) );
-        when( this.contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content2.getId() ) ) ) ).thenReturn(
+        when( this.contentService.getByIds(
+            GetContentByIdsParams.create().contentIds( ContentIds.from( content2.getId() ) ).build() ) ).thenReturn(
             Contents.from( content2 ) );
-        when( this.contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content3.getId() ) ) ) ).thenReturn(
+        when( this.contentService.getByIds(
+            GetContentByIdsParams.create().contentIds( ContentIds.from( content3.getId() ) ).build() ) ).thenReturn(
             Contents.from( content3 ) );
-        when( this.contentService.getByIds( new GetContentByIdsParams( ContentIds.from( content4.getId() ) ) ) ).thenReturn(
+        when( this.contentService.getByIds(
+            GetContentByIdsParams.create().contentIds( ContentIds.from( content4.getId() ) ).build() ) ).thenReturn(
             Contents.from( content4 ) );
 
         when( this.contentService.findPaths( isA( ContentQuery.class ) ) ).thenReturn( FindContentPathsByQueryResult.create()

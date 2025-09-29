@@ -51,14 +51,16 @@ public class DuplicateRunnableTask
 
         final int parentIdsCount = params.getContents().size();
 
-        final int childIdsCount = contentToDuplicateWithChildrenList.stream().map( parentId -> ContentQueryWithChildren.create().
-            contentService( this.contentService ).
-            contentsPaths( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( parentId ) ) ).getPaths() ).
-            build().
-            find().
-            getTotalHits() ).
-            mapToInt( Long::intValue ).
-            sum();
+        final int childIdsCount = contentToDuplicateWithChildrenList.stream()
+            .map( parentId -> ContentQueryWithChildren.create()
+                .contentService( this.contentService )
+                .contentsPaths(
+                    contentService.getByIds( GetContentByIdsParams.create().contentIds( ContentIds.from( parentId ) ).build() ).getPaths() )
+                .build()
+                .find()
+                .getTotalHits() )
+            .mapToInt( Long::intValue )
+            .sum();
 
         listener.setTotal( parentIdsCount + childIdsCount );
 

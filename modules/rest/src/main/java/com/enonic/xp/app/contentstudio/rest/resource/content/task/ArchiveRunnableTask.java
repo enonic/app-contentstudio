@@ -42,7 +42,8 @@ public class ArchiveRunnableTask
         final ArchiveContentProgressListener listener = new ArchiveContentProgressListener( progressReporter );
         listener.setTotal( contentToArchiveIds.getSize() );
 
-        final Contents contentsToArchive = contentService.getByIds( new GetContentByIdsParams( contentToArchiveIds ) );
+        final Contents contentsToArchive =
+            contentService.getByIds( GetContentByIdsParams.create().contentIds( contentToArchiveIds ).build() );
 
         ArchiveRunnableTaskResult.Builder result = ArchiveRunnableTaskResult.create();
 

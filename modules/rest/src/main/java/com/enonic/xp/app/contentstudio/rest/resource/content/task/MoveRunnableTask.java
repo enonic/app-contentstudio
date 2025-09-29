@@ -38,12 +38,12 @@ public class MoveRunnableTask
 
         final MoveContentProgressListener listener = new MoveContentProgressListener( progressReporter );
 
-        final long childrenIds = ContentQueryWithChildren.create().
-            contentService( this.contentService ).
-            contentsPaths( contentService.getByIds( new GetContentByIdsParams( contentToMoveList ) ).getPaths() ).
-            build().
-            find().
-            getTotalHits();
+        final long childrenIds = ContentQueryWithChildren.create()
+            .contentService( this.contentService )
+            .contentsPaths( contentService.getByIds( GetContentByIdsParams.create().contentIds( contentToMoveList ).build() ).getPaths() )
+            .build()
+            .find()
+            .getTotalHits();
         final int contentIds = contentToMoveList.getSize();
 
         listener.setTotal( Math.toIntExact( childrenIds + contentIds ) );

@@ -1,7 +1,6 @@
 [versions]
 
 junit = "5.12.2"
-junit-launcher = "1.12.2"
 mockito = "5.17.0"
 assertj = "3.23.1"
 enonicDefaults = "2.1.5"
@@ -25,12 +24,12 @@ jacksonJrObjects = "2.19.0"
 [libraries]
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
-junit-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-launcher" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 
 mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "mockito" }
-mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
-mockito-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
+mockito-core = { module = "org.mockito:mockito-core" }
+mockito-jupiter = { module = "org.mockito:mockito-junit-jupiter" }
 
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 

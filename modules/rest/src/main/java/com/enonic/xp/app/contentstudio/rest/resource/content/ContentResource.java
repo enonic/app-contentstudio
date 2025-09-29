@@ -891,7 +891,7 @@ public final class ContentResource
     @Path("resolveByIds")
     public ContentListJson<ContentSummaryJson> getByIds( final ContentIdsJson params, @Context HttpServletRequest request )
     {
-        final Contents contents = contentService.getByIds( new GetContentByIdsParams( params.getContentIds() ) );
+        final Contents contents = contentService.getByIds( GetContentByIdsParams.create().contentIds( params.getContentIds() ).build() );
 
         final ContentListMetaData metaData =
             ContentListMetaData.create().totalHits( contents.getSize() ).hits( contents.getSize() ).build();
@@ -903,7 +903,7 @@ public final class ContentResource
     @Path("isReadOnlyContent")
     public List<String> checkContentsReadOnly( final ContentIdsJson params )
     {
-        final Contents contents = contentService.getByIds( new GetContentByIdsParams( params.getContentIds() ) );
+        final Contents contents = contentService.getByIds( GetContentByIdsParams.create().contentIds( params.getContentIds() ).build() );
 
         final AuthenticationInfo authInfo = ContextAccessor.current().getAuthInfo();
 
@@ -1012,11 +1012,11 @@ public final class ContentResource
             return permissions.stream().map( Enum::name ).collect( Collectors.toList() );
         }
 
-        final List<AccessControlList> contentsPermissions =
-            params.getContentIds().getSize() > 0 ? contentService.getByIds( new GetContentByIdsParams( params.getContentIds() ) )
-                .stream()
-                .map( Content::getPermissions )
-                .collect( Collectors.toList() ) : Collections.singletonList( contentService.getRootPermissions() );
+        final List<AccessControlList> contentsPermissions = params.getContentIds().getSize() > 0 ? contentService.getByIds(
+                GetContentByIdsParams.create().contentIds( params.getContentIds() ).build() )
+            .stream()
+            .map( Content::getPermissions )
+            .collect( Collectors.toList() ) : Collections.singletonList( contentService.getRootPermissions() );
 
         final List<String> result = new ArrayList<>();
 
@@ -1144,7 +1144,7 @@ public final class ContentResource
 
     private ContentWithRefsResultJson doResolveReferences( final ContentIds contentIds )
     {
-        final Contents parents = contentService.getByIds( new GetContentByIdsParams( contentIds ) );
+        final Contents parents = contentService.getByIds( GetContentByIdsParams.create().contentIds( contentIds ).build() );
 
         final FindContentIdsByQueryResult children = ContentQueryWithChildren.create()
             .contentService( this.contentService )
@@ -1242,7 +1242,8 @@ public final class ContentResource
 
         return ContextBuilder.from( ContextAccessor.current() ).branch( branch ).build().callWith( () -> {
             final FindContentIdsByQueryResult findResult = contentService.find( contentQuery );
-            final Contents contents = contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) );
+            final Contents contents =
+                contentService.getByIds( GetContentByIdsParams.create().contentIds( findResult.getContentIds() ).build() );
 
             return FindContentByQuertResultJsonFactory.create()
                 .contents( contents )
@@ -1271,7 +1272,8 @@ public final class ContentResource
         final FindContentIdsByQueryResult queryResult =
             contentService.find( ContentQuery.create().queryExpr( queryExpr ).size( sizeParam ).from( fromParam ).build() );
 
-        final Contents contents = contentService.getByIds( new GetContentByIdsParams( queryResult.getContentIds() ) );
+        final Contents contents =
+            contentService.getByIds( GetContentByIdsParams.create().contentIds( queryResult.getContentIds() ).build() );
 
         final ContentListMetaData metaData =
             ContentListMetaData.create().totalHits( contents.getSize() ).hits( contents.getSize() ).build();
@@ -1296,7 +1298,7 @@ public final class ContentResource
         }
 
         return FindContentByQuertResultJsonFactory.create()
-            .contents( this.contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) )
+            .contents( this.contentService.getByIds( GetContentByIdsParams.create().contentIds( findResult.getContentIds() ).build() ) )
             .aggregations( findResult.getAggregations() )
             .jsonObjectsFactory( jsonObjectsFactory )
             .request( request )

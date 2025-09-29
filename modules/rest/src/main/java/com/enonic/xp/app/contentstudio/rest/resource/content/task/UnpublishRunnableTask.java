@@ -44,13 +44,13 @@ public class UnpublishRunnableTask
 
         final PushContentListener listener = new UnpublishContentProgressListener( progressReporter );
 
-        final ContentIds childrenIds = ContentQueryWithChildren.create().
-            contentService( this.contentService ).
-            contentsPaths( contentService.getByIds( new GetContentByIdsParams( contentIds ) ).getPaths() ).
-            size( -1 ).
-            build().
-            find().
-            getContentIds();
+        final ContentIds childrenIds = ContentQueryWithChildren.create()
+            .contentService( this.contentService )
+            .contentsPaths( contentService.getByIds( GetContentByIdsParams.create().contentIds( contentIds ).build() ).getPaths() )
+            .size( -1 )
+            .build()
+            .find()
+            .getContentIds();
 
         final ContentIds filteredChildrenIds = this.filterIdsByStatus( childrenIds );
 
@@ -65,16 +65,7 @@ public class UnpublishRunnableTask
                 pushListener( listener ).
                 build() );
 
-            final ContentIds unpublishedContents = result.getUnpublishedContents();
-
-            if ( unpublishedContents.getSize() == 1 )
-            {
-                resultBuilder.succeeded( result.getContentPath() );
-            }
-            else
-            {
-                resultBuilder.succeeded( result.getUnpublishedContents() );
-            }
+            resultBuilder.succeeded( result.getUnpublishedContents() );
         }
         catch ( Exception e )
         {

@@ -45,7 +45,8 @@ public class RestoreRunnableTask
         final RestoreContentProgressListener listener = new RestoreContentProgressListener( progressReporter );
         listener.setTotal( contentToRestoreIds.getSize() );
 
-        final Contents contentsToRestore = contentService.getByIds( new GetContentByIdsParams( contentToRestoreIds ) );
+        final Contents contentsToRestore =
+            contentService.getByIds( GetContentByIdsParams.create().contentIds( contentToRestoreIds ).build() );
 
         RestoreRunnableTaskResult.Builder result = RestoreRunnableTaskResult.create();
 

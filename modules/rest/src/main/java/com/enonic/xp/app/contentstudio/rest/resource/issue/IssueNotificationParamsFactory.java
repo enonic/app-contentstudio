@@ -117,7 +117,7 @@ public class IssueNotificationParamsFactory
         final User creatorOrModifier = securityService.getUser( creatorOrModifierKey ).orElse( null );
         final ContentIds contentIds = ContentIds.from(
             issue.getPublishRequest().getItems().stream().map( PublishRequestItem::getId ).collect( Collectors.toList() ) );
-        final Contents contents = contentService.getByIds( new GetContentByIdsParams( contentIds ) );
+        final Contents contents = contentService.getByIds( GetContentByIdsParams.create().contentIds( contentIds ).build() );
         final CompareContentResults compareResults =
             contentService.compare( CompareContentsParams.create().contentIds( contentIds ).build() );
         final List<User> approvers = ( recipients != null ? recipients : issue.getApproverIds() ).
