@@ -107,7 +107,7 @@ function openWizardDependencyWidget() {
     let wizardDependenciesWidget = new WizardDependenciesWidget();
     let wizardContextPanel = new WizardContextPanel();
     return contentWizard.openContextWindow().then(() => {
-        return wizardContextPanel.openDependencies();
+        return wizardContextPanel.openDependenciesWidget();
     }).then(() => {
         return wizardDependenciesWidget.waitForWidgetLoaded();
     })

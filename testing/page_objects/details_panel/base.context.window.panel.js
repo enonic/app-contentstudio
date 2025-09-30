@@ -81,18 +81,23 @@ class BaseContextWindowPanel extends Page {
     async filterAndOpenVersionHistory() {
         try {
             let widgetSelectorDropdown = new WidgetSelectorDropdown();
+            // Expand the dropdown
             await widgetSelectorDropdown.clickOnDropdownHandle();
+            // Insert the text in the options filter input:
             await widgetSelectorDropdown.selectFilteredWidgetItem(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_open_versions');
-            throw new Error(`Error occurred in widget selector dropdown, Version History, screenshot ${screenshot}: ` + err);
+            await this.handleError(`Widget selector dropdown - Tried to open Versions Widget `, 'err_open_versions', err);
         }
     }
 
     async selectItemInWidgetSelector(itemName) {
-        let widgetSelectorDropdown = new WidgetSelectorDropdown();
-        await this.clickOnWidgetSelectorDropdownHandle();
-        await widgetSelectorDropdown.clickOnOptionByDisplayName(itemName);
+        try {
+            let widgetSelectorDropdown = new WidgetSelectorDropdown();
+            await this.clickOnWidgetSelectorDropdownHandle();
+            await widgetSelectorDropdown.clickOnOptionByDisplayName(itemName);
+        } catch (err) {
+            await this.handleError(`Widget selector dropdown - tried to open ${itemName} : `, 'err_open_widget', err);
+        }
     }
 
     getWidgetSelectorDropdownOptions() {
@@ -101,7 +106,7 @@ class BaseContextWindowPanel extends Page {
     }
 
     //clicks on dropdown handle and select the 'Dependencies' menu item
-    async openDependencies() {
+    async openDependenciesWidget() {
         let widgetSelectorDropdown = new WidgetSelectorDropdown();
         await this.clickOnWidgetSelectorDropdownHandle();
         await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.DEPENDENCIES);
@@ -120,8 +125,11 @@ class BaseContextWindowPanel extends Page {
     async openDetailsWidget() {
         try {
             let widgetSelectorDropdown = new WidgetSelectorDropdown();
-            await this.clickOnWidgetSelectorDropdownHandle();
-            await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
+            let option = await this.getSelectedOptionInWidgetSelectorDropdown();
+            if (option !== 'Details') {
+                await this.clickOnWidgetSelectorDropdownHandle();
+                await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
+            }
         } catch (err) {
             await this.handleError('Tried to open Details widget', 'err_open_details_widget', err);
         }
@@ -140,6 +148,11 @@ class BaseContextWindowPanel extends Page {
             return false;
         }
         return parsed;
+    }
+
+    async waitForWidgetSelected(optionName) {
+        let selector = this.widgetSelectorDropdown + lib.itemByDisplayName(optionName);
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 }
 
