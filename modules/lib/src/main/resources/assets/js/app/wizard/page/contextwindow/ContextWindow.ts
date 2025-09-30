@@ -114,12 +114,12 @@ export class ContextWindow
     }
 
     private setInsertablesVisible(visible: boolean, selectInsertables = false): void {
-        if (this.insertablesPanel?.isRendered()) {
+        this.insertablesPanel?.whenRendered(() => {
             this.setItemVisible(this.insertablesPanel, visible);
             if (selectInsertables) {
                 this.selectPanel(this.insertablesPanel);
             }
-        }
+        });
 
         this.toggleClass('no-insertion', !visible);
     }
