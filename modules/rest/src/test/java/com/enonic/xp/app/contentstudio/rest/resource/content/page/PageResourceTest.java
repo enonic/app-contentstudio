@@ -1,39 +1,27 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.page;
 
-import java.time.Instant;
-import java.util.Collections;
-import java.util.Locale;
-
-import org.jboss.resteasy.core.ResteasyContext;
-import org.junit.jupiter.api.Test;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.core.MediaType;
-
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.app.contentstudio.rest.resource.content.JsonObjectsFactory;
-import com.enonic.xp.branch.Branch;
-import com.enonic.xp.content.Content;
-import com.enonic.xp.content.ContentId;
-import com.enonic.xp.content.ContentNotFoundException;
-import com.enonic.xp.content.ContentPath;
-import com.enonic.xp.content.ContentService;
-import com.enonic.xp.content.FindContentIdsByParentResult;
+import com.enonic.xp.content.*;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.jaxrs.impl.MockRestResponse;
-import com.enonic.xp.page.CreatePageParams;
-import com.enonic.xp.page.Page;
-import com.enonic.xp.page.PageRegions;
-import com.enonic.xp.page.PageService;
-import com.enonic.xp.page.PageTemplateKey;
-import com.enonic.xp.page.UpdatePageParams;
+import com.enonic.xp.page.*;
+import com.enonic.xp.region.Regions;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.SecurityService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.MediaType;
+import org.jboss.resteasy.core.ResteasyContext;
+import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -140,7 +128,7 @@ public class PageResourceTest
         Page page = Page.create()
             .template( PageTemplateKey.from( "my-page" ) )
             .config( rootDataSet )
-            .regions( PageRegions.create().build() )
+                .regions(Regions.create().build())
             .build();
 
         return Content.create()
