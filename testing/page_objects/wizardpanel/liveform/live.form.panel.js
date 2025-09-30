@@ -21,7 +21,7 @@ const xpath = {
     imageInComponent: "//figure/img",
     closeEditModeButton: "//button[contains(@class,'close-edit-mode-button icon-close')]",
     noSelectionDiv: "//div[contains(@class,'no-selection-message')]",
-    pageSettingsLink: "//a[contains(@class,'page-settings-link')]",
+    pageSettingsLink: "//button[contains(@class,'page-settings-link')]",
     editableTextComponentByText: text => `//section[contains(@id,'TextComponentView') and @contenteditable='true']//p[contains(.,'${text}')]`,
     textComponentByText: text => `//section[contains(@id,'TextComponentView')]//p[contains(.,'${text}')]`,
     partComponentByName: name => `//div[contains(@id,'PartComponentView') and @data-portal-component-type='part']//h2[contains(text(),'${name}')]`,
@@ -370,7 +370,8 @@ class LiveFormPanel extends Page {
     async clickOnPageSettingsLink() {
         let locator = xpath.container + xpath.pageSettingsLink;
         await this.waitForPageSettingsLinkDisplayed();
-        return await this.clickOnElement(locator);
+        await this.clickOnElement(locator);
+        await this.pause(200);
     }
 }
 

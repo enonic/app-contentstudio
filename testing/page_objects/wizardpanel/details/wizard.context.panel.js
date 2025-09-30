@@ -68,16 +68,16 @@ class WizardContextPanel extends BaseContextWindowPanel {
         }
     }
 
-    async openDependencies() {
+    async openDependenciesWidget() {
         try {
-            await super.openDependencies();
+            await super.openDependenciesWidget();
             await this.pause(700);
         } catch (err) {
             //Workaround for issue with the empty selector:
             await this.saveScreenshotUniqueName('err_dependencies');
             await this.refresh();
-            await this.pause(4000);
-            await super.openDependencies();
+            await this.pause(3000);
+            await super.openDependenciesWidget();
         }
     }
 }

@@ -42,6 +42,7 @@ const EditScheduleDialog = require('../page_objects/details_panel/edit.schedule.
 const InsertLinkDialogContentPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
 const InsertLinkDialogUrlPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
 const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const LiveFormPanel = require('../page_objects/wizardpanel/liveform/live.form.panel');
 
 module.exports = {
 
@@ -346,11 +347,17 @@ module.exports = {
     async doAddSite(site, noControllers) {
         let contentWizardPanel = new ContentWizardPanel();
         let pageInspectionPanel = new PageInspectionPanel();
+        let liveFormPanel = new LiveFormPanel();
         // 1. Open new site-wizard:
         await this.openContentWizard(appConst.contentTypes.SITE);
         await contentWizardPanel.typeData(site);
         // 2. Type the data and save:
         if (site.data.controller) {
+           // let wizardContextWindow =  await contentWizardPanel.openContextWindow();
+            //await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            //await contentWizardPanel.switchToEmptyLiveEditFrame();
+            await liveFormPanel.clickOnPageSettingsLink();
+            //await liveFormPanel.switchToParentFrame();
             await pageInspectionPanel.selectPageTemplateOrController(site.data.controller);
         }
         if (noControllers) {
@@ -367,6 +374,7 @@ module.exports = {
         await contentWizardPanel.typeData(site);
 
         if (site.data.controller) {
+            // TODO 8607
             await contentWizardPanel.selectPageDescriptor(site.data.controller);
         } else {
             await contentWizardPanel.clickOnMarkAsReadyButton();
@@ -395,10 +403,12 @@ module.exports = {
 
     async doAddPageTemplate(siteName, template) {
         let contentWizardPanel = new ContentWizardPanel();
+        let liveFormPanel = new LiveFormPanel();
         await this.doOpenPageTemplateWizard(siteName);
         await contentWizardPanel.typeData(template);
-        // auto saving should be here:
+        // auto-saving of template should be after selecting a controller:
         let pageInspectionPanel = new PageInspectionPanel();
+        await liveFormPanel.clickOnPageSettingsLink();
         await pageInspectionPanel.selectPageTemplateOrController(template.data.controllerDisplayName);
         await this.saveScreenshot(template.displayName + '_created');
         await this.doCloseCurrentBrowserTab();

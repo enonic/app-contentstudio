@@ -60,7 +60,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             // 1. Select the content and open dependencies widget:
             await studioUtils.selectContentAndOpenWizard(CONTENT_NAME);
             await contentWizard.openContextWindow();
-            await wizardContextPanel.openDependencies();
+            await wizardContextPanel.openDependenciesWidget();
             await studioUtils.saveScreenshot('htmlarea_with_image');
             // 2. Verify that 'Show outbound' button gets visible in the widget, because an image was inserted in htmlarea
             await wizardDependenciesWidget.waitForOutboundButtonVisible();
@@ -79,7 +79,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             // 1. Open the content:
             await studioUtils.selectContentAndOpenWizard(CONTENT_NAME);
             await contentWizard.openContextWindow();
-            await wizardContextPanel.openDependencies();
+            await wizardContextPanel.openDependenciesWidget();
             // 2. Clear the html area:
             await htmlAreaForm.clearHtmlArea(0);
             // 3. Save the changes!

@@ -72,7 +72,7 @@ class PropertiesItemView extends Page {
         try {
             await this.waitForElementDisplayed(this.languageProperty, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Properties Widget, language is not displayed','err_edit_settings_lang', err, );
+            await this.handleError('Properties Widget, language is not displayed','err_edit_settings_lang', err );
         }
     }
 

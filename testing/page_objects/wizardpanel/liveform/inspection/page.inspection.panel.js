@@ -72,7 +72,7 @@ class PageInspectionPanel extends Page {
             await inspectPanelControllerSelector.clickOnOptionByDisplayName(displayName, xpath.container);
             return await this.pause(500);
         } catch (err) {
-            await this.handleError('Page Inspection Panel, tried to select a option in controller-dropdown', 'err_select_option', err);
+            await this.handleError('Page Inspection Panel, tried to select a controller', 'err_select_option', err);
         }
     }
 

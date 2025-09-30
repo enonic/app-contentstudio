@@ -41,8 +41,8 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
             // 2. Open 'Edit Details' modal dialog:
-            await contentWizard.openContextWindow();
-            await contentWizard.openDetailsWidget();
+            let contextWindow = await contentWizard.openContextWindow();
+            await contextWindow.waitForWidgetSelected(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
             let editDetailsDialog = await studioUtils.openEditSettingDialog();
             await editDetailsDialog.waitForLoaded();
             // 3. Remove the default owner
