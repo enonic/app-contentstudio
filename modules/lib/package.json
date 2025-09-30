@@ -15,7 +15,7 @@
     "build:dev:client": "tsc --pretty --inlineSourceMap --inlineSources",
     "build:dev:lib": "webpack --color --stats-error-details",
     "check": "pnpm --color /^check:.*$/",
-    "check:types": "tsc --skipLibCheck --emitDeclarationOnly --declaration",
+    "check:types": "tsc --skipLibCheck --declaration --noEmit",
     "check:lint": "eslint **/*.ts --quiet --cache"
   },
   "dependencies": {

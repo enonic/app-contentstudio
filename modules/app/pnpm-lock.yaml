@@ -26,6 +26,9 @@ importers:
       jquery-ui:
         specifier: ^1.14.1
         version: 1.14.1
+      jsondiffpatch:
+        specifier: ^0.7.3
+        version: 0.7.3
       lib-contentstudio:
         specifier: workspace:*
         version: link:.xp/dev/lib-contentstudio
