@@ -1470,7 +1470,7 @@ public final class ContentResource
             edit.data = versionedContent.getData();
             edit.displayName = versionedContent.getDisplayName();
             edit.extraDatas = versionedContent.getAllExtraData();
-            edit.page = new EditablePage(versionedContent.getPage());
+            edit.page = versionedContent.getPage() != null ? new EditablePage(versionedContent.getPage()) : null;
             edit.language = versionedContent.getLanguage();
             edit.owner = versionedContent.getOwner();
             edit.workflowInfo = WorkflowInfo.inProgress();
