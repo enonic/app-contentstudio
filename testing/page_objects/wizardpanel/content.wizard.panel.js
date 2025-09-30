@@ -223,6 +223,7 @@ class ContentWizardPanel extends Page {
             } else {
                 console.log('Content wizard, Context Window is loaded');
             }
+            return wizardContextWindow;
         } catch (err) {
             await this.handleError('Context Window should be loaded in Wizard', 'err_open_context_panel', err);
         }
@@ -253,24 +254,6 @@ class ContentWizardPanel extends Page {
             await wizardContextWindow.openVersionHistory();
             let versionPanel = new VersionsWidget();
             return await versionPanel.waitForVersionsLoaded();
-        }
-    }
-
-    async openDependenciesWidget() {
-        try {
-            let wizardContextWindow = new WizardContextPanel();
-            let wizardDependenciesWidget = new WizardDependenciesWidget();
-            await this.openContextWindow();
-            await wizardContextWindow.openDependencies();
-            return await wizardDependenciesWidget.waitForWidgetLoaded();
-        } catch (err) {
-            // Workaround for issue with empty selector:
-            await this.refresh();
-            await this.pause(4000);
-            let wizardDependenciesWidget = new WizardDependenciesWidget();
-            let wizardContextWindow = new WizardContextPanel();
-            await wizardContextWindow.openDependencies();
-            return await wizardDependenciesWidget.waitForWidgetLoaded();
         }
     }
 
@@ -451,6 +434,10 @@ class ContentWizardPanel extends Page {
 
     switchToLiveEditFrame() {
         return this.switchToFrame(lib.LIVE_EDIT_FRAME);
+    }
+
+    switchToEmptyLiveEditFrame() {
+        return this.switchToFrame(lib.LIVE_VIEW.EMPTY_LIVE_FRAME_DIV);
     }
 
     waitForLiveEditVisible() {
@@ -644,6 +631,7 @@ class ContentWizardPanel extends Page {
     }
 
     // Select a page descriptor and wait for Context Window is loaded
+    // // TODO 8607
     async selectPageDescriptor(pageControllerDisplayName, checkContextPanel) {
         let pageDescriptorDropdown = new PageDescriptorDropdown();
         await pageDescriptorDropdown.selectFilteredControllerAndClickOnOk(pageControllerDisplayName)
@@ -670,8 +658,8 @@ class ContentWizardPanel extends Page {
                 let option = await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
                 if (option !== 'Details') {
                     await this.openDetailsWidget();
-                    await this.typeSettings(content.settings);
                 }
+                    await this.typeSettings(content.settings);
             }
             return await this.pause(300);
         } catch (err) {
