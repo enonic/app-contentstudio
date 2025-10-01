@@ -9,7 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const InsertablesPanel = require('../../page_objects/wizardpanel/liveform/insertables.panel');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextWindowPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const appConst = require('../../libs/app_const');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
@@ -70,15 +70,18 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             await contentWizard.waitForWizardStepDisplayed('Page');
         });
 
-    it("WHEN existing site is opened THEN 'Insertables' panel should be loaded AND all expected components should be present",
+    it("WHEN existing site is opened THEN 'Insert tab' panel should be loaded AND all expected components should be present",
         async () => {
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            let insertablesPanel = new InsertablesPanel();
-            // 1. Verify that Insertables Panel is loaded automatically:
-            await insertablesPanel.waitForOpened();
+            let contentWizard = new ContentWizard();
+            let contextWindow = await contentWizard.openContextWindow();
+            await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            let insertTabPanel = new InsertablesPanel();
+            // 1. Verify that Insert tab Panel is loaded automatically:
+            await insertTabPanel.waitForOpened();
             // 2. Verify items in the panel:
-            let items = await insertablesPanel.getItems();
-            await studioUtils.saveScreenshot('insertables_options');
+            let items = await insertTabPanel.getItems();
+            await studioUtils.saveScreenshot('insert_tab_options');
             assert.equal(items.length, 4, 'Four items should be present in the panel');
             assert.ok(items.includes('Part'), "'Part' item should be displayed");
             assert.ok(items.includes('Layout'), "'Layout' item should be displayed");
@@ -114,12 +117,12 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
         async () => {
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardContextPanel = new WizardContextPanel();
+            let wizardContextWindow = new WizardContextWindowPanel();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.openContextWindow();
             // 2. Open Versions widget:
-            await wizardContextPanel.openVersionHistory();
+            await wizardContextWindow.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Expand the version item and click on Restore:
             await wizardVersionsWidget.clickAndExpandVersion(1);

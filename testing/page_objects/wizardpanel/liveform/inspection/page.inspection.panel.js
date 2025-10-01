@@ -1,17 +1,18 @@
 /**
  * Created on 15.02.2018.
  */
-const Page = require('../../../page');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const InspectPanelControllerSelector = require('../../../../page_objects/components/selectors/inspect.panel.controller.selector');
+const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 
 const xpath = {
     container: "//div[contains(@id,'InspectionsPanel')]",
     pageTemplateSelector: `//div[contains(@id,'PageTemplateAndControllerSelector')]`,
 };
 
-class PageInspectionPanel extends Page {
+// Inspect tab for controller and template of a Page
+class PageInspectionPanel extends BaseComponentInspectionPanel {
 
     get customizePageButton() {
         return xpath.container + lib.actionButton('Customize Page');
@@ -110,6 +111,32 @@ class PageInspectionPanel extends Page {
             return await this.pause(1000);
         } catch (err) {
             await this.handleError('Page Inspection, tried to click on Customize button', 'err_click_customize', err);
+        }
+    }
+
+    async waitForCustomizeButtonDisplayed(){
+        try {
+            return await this.waitForElementDisplayed(this.customizePageButton, appConst.mediumTimeout);
+        }catch (err){
+            await this.handleError('Page Inspection Tab, Customize button was not displayed', 'err_customize_button_not_displayed', err);
+        }
+    }
+
+    async waitForCustomizeButtonEnabled(){
+        try {
+            return await this.waitForElementEnabled(this.customizePageButton, appConst.mediumTimeout);
+        }catch (err){
+            await this.handleError('Page Inspection Tab, Customize button should be enabled', 'err_customize_button', err);
+        }
+    }
+
+    async clickOnCustomizePageButton(){
+        try {
+            await this.waitForCustomizeButtonEnabled();
+            await this.clickOnElement(this.customizePageButton);
+            return await this.pause(200);
+        }catch (err){
+            await this.handleError('Page Inspection Tab, tried to click on Customize Page button', 'err_click_customize_button', err);
         }
     }
 }

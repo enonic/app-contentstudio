@@ -87,6 +87,9 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             // 1. Select and open the site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Update the site - select the 'main region' controller:
+            let contextWindow = await contentWizard.openContextWindow();
+            // Select the Page in widget dropdown
+            await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             let pageInspectionPanel = new PageInspectionPanel();
             await pageInspectionPanel.selectPageTemplateOrController(appConst.CONTROLLER_NAME.MAIN_REGION);
             // 3. Click on 'Publish...' menu item

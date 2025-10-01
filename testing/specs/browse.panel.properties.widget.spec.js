@@ -15,7 +15,7 @@ const PublishContentDialog = require('../page_objects/content.publish.dialog');
 const ContentBrowseContextWindow = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const ContentWidgetView = require('../page_objects/browsepanel/detailspanel/content.widget.item.view');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
-const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
 const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 
 describe('Browse panel, properties widget, language spec', function () {

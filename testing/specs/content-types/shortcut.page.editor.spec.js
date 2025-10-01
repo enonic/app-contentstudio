@@ -9,7 +9,7 @@ const appConst = require('../../libs/app_const');
 const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 
 describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortcuts', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -43,12 +43,11 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             await studioUtils.saveScreenshot('shortcut_target_site_with_controller');
             // 4. 'Page' option should be selected in the widget selector dropdown:
             let selectedOption = await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
-            assert.equal(selectedOption, appConst.WIDGET_SELECTOR_OPTIONS.PAGE, "'Page' selected option should be in the widget selector");
+            assert.equal(selectedOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, "'Details' selected option should be in the widget selector");
         });
 
     it(`GIVEN existing shortcut has been opened WHEN Show Page Editor button has been clicked THEN 'Preview' button should be disabled in the Preview Item toolbar`,
         async () => {
-            let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(SHORTCUT_NAME);
             // 1. 'Show page editor' toggle should be displayed, click on it and open the Editor
