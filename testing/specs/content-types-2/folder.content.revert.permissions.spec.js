@@ -14,7 +14,7 @@ const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detail
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 
 describe('folder.content.revert.permissions.spec: tests for reverting of permissions in folder content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

@@ -8,7 +8,7 @@ const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
-const DetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextWindow = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const appConst = require('../../libs/app_const');
 
@@ -141,11 +141,11 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             let insertImageDialog = new InsertImageDialog();
             let contentWizard = new ContentWizard();
             let versionsWidget = new VersionsWidget();
-            let detailsPanel = new DetailsPanel();
+            let wizardContextWindow = new WizardContextWindow();
             //1. Open existing content and open versions widget:
             await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME);
             await contentWizard.openContextWindow();
-            await detailsPanel.openVersionHistory();
+            await wizardContextWindow.openVersionHistory();
             await versionsWidget.waitForVersionsLoaded();
             //2. Revert the previous version:
             await versionsWidget.clickAndExpandVersion(1);

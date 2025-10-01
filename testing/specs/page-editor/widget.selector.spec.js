@@ -8,7 +8,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const EmulatorWidget = require('../../page_objects/wizardpanel/details/emulator.widget');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const appConst = require('../../libs/app_const');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 

@@ -9,7 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const ScheduleWidgetItem = require('../../page_objects/browsepanel/detailspanel/schedule.widget.itemview');
 const EditScheduleDialog = require('../../page_objects/details_panel/edit.schedule.dialog');
 

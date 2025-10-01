@@ -7,7 +7,7 @@ const appConst = require('../../libs/app_const');
 const contentBuilder = require("../../libs/content.builder");
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 

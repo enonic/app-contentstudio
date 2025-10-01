@@ -64,6 +64,8 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Select a controller:
+            await contentWizard.openContextWindow();
+            //let wizardContextWindow = await contentWizard.openContextWindow();
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             await contentWizard.pause(700);
             // 3. Verify that Preview button gets visible in the preview toolbar:
