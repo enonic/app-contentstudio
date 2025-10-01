@@ -1,19 +1,19 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.page;
 
 
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.enonic.xp.app.contentstudio.json.content.page.region.PageRegionsJson;
 import com.enonic.xp.app.contentstudio.json.content.page.region.RegionJson;
+import com.enonic.xp.content.ContentName;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTreeJson;
 import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.schema.content.ContentTypeNames;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.List;
 
 public class CreatePageTemplateJson
 {
@@ -29,10 +29,10 @@ public class CreatePageTemplateJson
         this.createTemplate = new com.enonic.xp.page.CreatePageTemplateParams().
             controller( pageDescriptorKey != null ? DescriptorKey.from( pageDescriptorKey ) : null ).
             pageConfig( config != null ? PropertyTreeJson.fromJson( config ) : null ).
-            pageRegions( regions != null ? new PageRegionsJson( regions ).getPageRegions() : null ).
+                regions(regions != null ? new PageRegionsJson(regions).getPageRegions() : null).
             supports( ContentTypeNames.from( supports ) ).
             site( ContentPath.from( site ) ).
-            name( "template-" + name ).
+                name(ContentName.from("template-" + name)).
             displayName( displayName );
     }
 

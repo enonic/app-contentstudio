@@ -1,12 +1,6 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.page;
 
 
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.enonic.xp.app.contentstudio.json.content.page.region.ComponentJson;
 import com.enonic.xp.app.contentstudio.json.content.page.region.PageRegionsJson;
 import com.enonic.xp.app.contentstudio.json.content.page.region.RegionJson;
@@ -16,6 +10,11 @@ import com.enonic.xp.data.PropertyTreeJson;
 import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.page.PageTemplateKey;
 import com.enonic.xp.page.UpdatePageParams;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.List;
 
 public class UpdatePageJson
 {
@@ -31,7 +30,7 @@ public class UpdatePageJson
         this.updatePage = new UpdatePageParams().
             content( ContentId.from( contentId ) ).
             editor( toBeEdited -> {
-                toBeEdited.controller = pageDescriptorKey != null ? DescriptorKey.from( pageDescriptorKey ) : null;
+                toBeEdited.descriptor = pageDescriptorKey != null ? DescriptorKey.from(pageDescriptorKey) : null;
                 toBeEdited.template = pageTemplateKey != null ? PageTemplateKey.from( pageTemplateKey ) : null;
                 toBeEdited.regions = regions != null ? new PageRegionsJson( regions ).getPageRegions() : null;
                 toBeEdited.fragment = fragment != null ? fragment.getComponent() : null;
