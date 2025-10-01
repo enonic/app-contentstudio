@@ -58,8 +58,12 @@ dependencies {
 }
 
 // Use task configuration avoidance
-tasks.named('copyDevResources').configure {
+tasks.named( 'copyDevResources' ).configure {
     dependsOn project(':lib-contentstudio').tasks.named('devJar')
+}
+
+tasks.named( 'pnpmInstall' ).configure {
+    mustRunAfter project(':lib-contentstudio').tasks.named('pnpmInstall')
 }
 
 tasks.register( 'checkTypes', PnpmTask ) {
