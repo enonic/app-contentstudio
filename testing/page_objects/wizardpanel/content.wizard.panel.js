@@ -6,7 +6,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentStepForm = require('./content.wizard.step.form');
 const ContextWindow = require('./liveform/liveform.context.window');
-const WizardContextPanel = require('./details/wizard.context.panel');
+const WizardContextPanel = require('./details/wizard.context.window.panel');
 const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const VersionsWidget = require('./details/wizard.versions.widget');
@@ -157,7 +157,7 @@ class ContentWizardPanel extends Page {
 
     // Preview button on the previewItemToolbar
     get previewButton() {
-        return this.previewItemToolbar + lib.actionButtonStrict('Open in new tab');
+        return this.previewItemToolbar + lib.actionButtonStrict('Preview');
     }
 
     get controllerOptionFilterInput() {
@@ -1176,7 +1176,7 @@ class ContentWizardPanel extends Page {
     async getSelectedWidgetInContextWindow() {
         try {
             let wizardContextPanel = new WizardContextPanel();
-            await wizardContextPanel.waitFoOpened();
+            await wizardContextPanel.waitForOpened();
             return await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_selected_widget');

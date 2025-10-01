@@ -21,7 +21,6 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             let contentWizard = new ContentWizard();
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.openContextWindow();
-            await contentWizard.openDetailsWidget();
             // 2. Open 'Edit Settings' modal dialog:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             let actualOwner = await editSettingsDialog.getSelectedOwner();
@@ -38,7 +37,6 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             // 1. Open new folder wizard
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.openContextWindow();
-            await contentWizard.openDetailsWidget();
             await contentWizard.typeDisplayName(FOLDER_DISPLAY_NAME);
             // 2. Open 'Edit Settings' modal dialog and select the language:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
@@ -61,10 +59,9 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             let contentWizard = new ContentWizard();
             let propertiesWidget = new PropertiesWidget();
             // 1. Select the existing folder with En language
-            await studioUtils.findAndSelectItem(FOLDER_DISPLAY_NAME);
+            await studioUtils.openContentWizard(FOLDER_DISPLAY_NAME);
             // 2. Open 'Edit Settings' modal dialog in Browse Panel:
             await contentWizard.openContextWindow();
-            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             // 3. Remove then Select de-language, click on Apply button and close the dialog:
             await editSettingsDialog.clickOnRemoveLanguage();

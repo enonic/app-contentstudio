@@ -9,7 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const AttachmentsForm = require('../../page_objects/wizardpanel/attachments.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const WizardAttachmentsItemWidget = require('../../page_objects/wizardpanel/details/wizard.attachments.item.widget');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 
 describe('attachments.wizard.spec: tests for attachments content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

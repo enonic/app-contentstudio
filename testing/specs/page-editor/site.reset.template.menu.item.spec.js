@@ -10,6 +10,8 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const appConst = require('../../libs/app_const');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
+const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('site.reset.template.menu.item.spec - resets a site to default template', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -30,14 +32,15 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.MY_FIRST_APP]);
             await studioUtils.doAddSite(SITE);
-
             //1. Expand the site and add a template:
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, "Site", CONTROLLER_NAME);
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
-            let pageInspectionPanel = new PageInspectionPanel();
-            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
+            let pageInspectTab = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageInspectTab.selectPageTemplateOrController(CONTROLLER_NAME);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3.Click on the item and open Context Menu:
@@ -47,6 +50,30 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             await textComponentCke.typeTextInCkeEditor(TEST_TEXT);
             await contentWizard.waitAndClickOnSave();
         });
+
+    // TODO 8607
+    it(`GIVEN open a site with a template WHEN  THEN `,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let wizardContextPanel = new WizardContextPanel();
+            let pageComponentView = new PageComponentView();
+            let pageInspectionPanel = new PageInspectionPanel();
+            // 1. Open the site
+
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            let selectedWidgetOption = await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
+            assert.equal(selectedWidgetOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, "'Details' selected option should be in the widget selector");
+            await wizardContextPanel.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            let selectedControllerOption = await pageInspectionPanel.getSelectedPageController();
+            assert.equal(selectedControllerOption, 'Automatic', `'Automatic' controller should be selected in the controller selector`);
+            await pageInspectionPanel.waitForCustomizeButtonDisplayed();
+            await pageInspectionPanel.clickOnCustomizeButton();
+            let confirmationDialog = new ConfirmationDialog();
+            let question = await confirmationDialog.getQuestion();
+            assert.equal(question, '', 'Confirmation dialog question is incorrect');
+
+        });
+
 
     it(`GIVEN text component has been removed in 'Page Component View' WHEN 'Reset' menu item has been clicked in 'Page Component View' THEN site should be reset to default template`,
         async () => {

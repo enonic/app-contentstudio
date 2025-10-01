@@ -10,7 +10,7 @@ const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.
 const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 
 describe('wizard.update.permissions.spec: update permissions and check the state of Save button on toolbar', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
