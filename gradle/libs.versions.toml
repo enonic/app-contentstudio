@@ -4,13 +4,9 @@ junit = "5.12.2"
 mockito = "5.17.0"
 assertj = "3.23.1"
 enonicDefaults = "2.1.5"
-xpApp = "3.2.0"
-# xpApp = "3.6.1"
-xpBase = "3.2.0"
-# xpBase = "3.6.1"
+xpApp = "3.6.1"
+
 nodeGradle = "7.1.0"
-asciidoctor = "3.3.2"
-htmlSanityCheck = "1.1.6"
 
 # App
 commonsText = "1.13.1"
@@ -45,7 +41,4 @@ jackson-jr-objects = { module = "com.fasterxml.jackson.jr:jackson-jr-objects", v
 [plugins]
 enonic-defaults = { id = "com.enonic.defaults", version.ref = "enonicDefaults" }
 enonic-xp-app = { id = "com.enonic.xp.app", version.ref = "xpApp" }
-enonic-xp-base = { id = "com.enonic.xp.base", version.ref = "xpBase" }
 node-gradle = { id = "com.github.node-gradle.node", version.ref = "nodeGradle" }
-asciidoctor-jvm = { id = "org.asciidoctor.jvm.convert", version.ref = "asciidoctor" }
-htmlSanityCheck = { id = "org.aim42.htmlSanityCheck", version.ref = "htmlSanityCheck" }

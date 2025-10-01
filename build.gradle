@@ -1,14 +1,7 @@
 plugins {
     alias(libs.plugins.enonic.defaults) apply false
     alias(libs.plugins.enonic.xp.app) apply false
-    alias(libs.plugins.enonic.xp.base) apply false
     alias(libs.plugins.node.gradle) apply false
-    alias(libs.plugins.asciidoctor.jvm)
-    alias(libs.plugins.htmlSanityCheck)
-}
-
-repositories {
-    mavenCentral()
 }
 
 subprojects {
@@ -27,8 +20,6 @@ subprojects {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = sourceCompatibility
     }
-
-
 
     dependencies {
         testImplementation platform(libs.junit.bom)
@@ -51,36 +42,3 @@ subprojects {
         useJUnitPlatform()
     }
 }
-
-asciidoctor {
-    sourceDir = file('docs')
-    outputDir = file('build/docs')
-    attributes 'source-highlighter': 'coderay',
-               idseparator: '-'
-
-    resources {
-        from(sourceDir) {
-            include '**/images/**'
-            include '**/code/**'
-            include '**/*.*'
-        }
-    }
-}
-
-htmlSanityCheck {
-    dependsOn tasks.named('asciidoctor')
-    sourceDir = tasks.asciidoctor.outputDir
-
-    sourceDocuments = fileTree(sourceDir) {
-        include "index.html"
-    }
-
-    // where to put results of sanityChecks...
-    checkingResultsDir = new File( "$buildDir/report/htmlchecks" )
-    //checkExternalLinks = false
-
-    // fail build on errors?
-    failOnErrors = true
-}
-
-build.enabled = false
