@@ -13,13 +13,15 @@ import com.enonic.xp.app.contentstudio.json.content.page.region.RegionJson;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTreeJson;
-import com.enonic.xp.page.CreatePageParams;
 import com.enonic.xp.descriptor.DescriptorKey;
+import com.enonic.xp.page.Page;
 import com.enonic.xp.page.PageTemplateKey;
 
 public class CreatePageJson
 {
-    private final CreatePageParams createPage;
+    private final Page page;
+
+    private final ContentId contentId;
 
     @JsonCreator
     public CreatePageJson( @JsonProperty("contentId") final String contentId, @JsonProperty("controller") String pageDescriptorKey,
@@ -28,18 +30,26 @@ public class CreatePageJson
                            @JsonProperty("regions") final List<RegionJson> regions,
                            @JsonProperty("fragment") final ComponentJson fragment )
     {
-        this.createPage = new CreatePageParams().
-            content( ContentId.from( contentId ) ).
-            controller( pageDescriptorKey != null ? DescriptorKey.from( pageDescriptorKey ) : null ).
-            pageTemplate( pageTemplateKey != null ? PageTemplateKey.from( pageTemplateKey ) : null ).
+        this.contentId = ContentId.from( contentId );
+        this.page = Page.create()
+            .descriptor( pageDescriptorKey != null ? DescriptorKey.from( pageDescriptorKey ) : null )
+            .template( pageTemplateKey != null ? PageTemplateKey.from( pageTemplateKey ) : null )
+            .
             config( config != null ? PropertyTreeJson.fromJson( config ) : null ).
-            regions( regions != null ? new PageRegionsJson( regions ).getPageRegions() : null ).
-            fragment( fragment != null ? fragment.getComponent() : null );
+            regions( regions != null ? new PageRegionsJson( regions ).getPageRegions() : null ).fragment(
+                fragment != null ? fragment.getComponent() : null )
+            .build();
     }
 
     @JsonIgnore
-    public CreatePageParams getCreatePage()
+    public Page getPage()
     {
-        return createPage;
+        return this.page;
+    }
+
+    @JsonIgnore
+    public ContentId getContentId()
+    {
+        return this.contentId;
     }
 }

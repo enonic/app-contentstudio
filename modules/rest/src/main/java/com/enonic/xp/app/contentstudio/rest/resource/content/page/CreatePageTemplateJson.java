@@ -1,5 +1,10 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.page;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.enonic.xp.app.contentstudio.json.content.page.region.PageRegionsJson;
 import com.enonic.xp.app.contentstudio.json.content.page.region.RegionJson;
@@ -9,11 +14,6 @@ import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTreeJson;
 import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.schema.content.ContentTypeNames;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.List;
 
 public class CreatePageTemplateJson
 {

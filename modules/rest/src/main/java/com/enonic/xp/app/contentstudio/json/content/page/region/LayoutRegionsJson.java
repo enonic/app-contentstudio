@@ -1,13 +1,14 @@
 package com.enonic.xp.app.contentstudio.json.content.page.region;
 
-import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentDisplayNameResolver;
-import com.enonic.xp.region.Region;
-import com.enonic.xp.region.Regions;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ComponentDisplayNameResolver;
+import com.enonic.xp.region.Region;
+import com.enonic.xp.region.Regions;
 
 @SuppressWarnings("UnusedDeclaration")
 public class LayoutRegionsJson
