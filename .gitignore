@@ -26,4 +26,5 @@ testing/allure-results
 .enonic
 .eslintcache
 .bin
-
+.pnpm-store
+**/.webpack-cache
