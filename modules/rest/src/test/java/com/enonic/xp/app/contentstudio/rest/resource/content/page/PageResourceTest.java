@@ -1,12 +1,29 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.page;
 
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Locale;
+
+import org.jboss.resteasy.core.ResteasyContext;
+import org.junit.jupiter.api.Test;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.MediaType;
+
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.app.contentstudio.rest.resource.content.JsonObjectsFactory;
-import com.enonic.xp.content.*;
+import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentNotFoundException;
+import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.content.ContentService;
+import com.enonic.xp.content.FindContentIdsByParentResult;
+import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.jaxrs.impl.MockRestResponse;
-import com.enonic.xp.page.*;
+import com.enonic.xp.page.Page;
+import com.enonic.xp.page.PageTemplateKey;
 import com.enonic.xp.region.Regions;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
@@ -14,14 +31,6 @@ import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.SecurityService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.core.MediaType;
-import org.jboss.resteasy.core.ResteasyContext;
-import org.junit.jupiter.api.Test;
-
-import java.time.Instant;
-import java.util.Collections;
-import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,19 +41,16 @@ import static org.mockito.Mockito.when;
 public class PageResourceTest
     extends AdminResourceTestSupport
 {
-    private PageService pageService;
-
     private ContentService contentService;
 
     @Override
     protected Object getResourceInstance()
     {
         final ContentTypeService contentTypeService = mock( ContentTypeService.class );
-        this.pageService = mock( PageService.class );
         this.contentService = mock( ContentService.class );
 
         final PageResource resource = new PageResource();
-        resource.setPageService( pageService );
+        resource.setContentService( contentService );
 
         when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn(
             createContentType( "myapplication:my_type" ) );
@@ -73,7 +79,7 @@ public class PageResourceTest
     {
         final Content content = createPage( "content-id", "content-name", "myapplication:content-type" );
 
-        when( this.pageService.update( isA( UpdatePageParams.class ) ) ).thenReturn( content );
+        when( this.contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
         when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
 
         final String jsonString = request().path( "content/page/update" )
@@ -90,7 +96,7 @@ public class PageResourceTest
     {
         Content content = createPage( "content-id", "content-name", "myapplication:content-type" );
 
-        when( this.pageService.update( isA( UpdatePageParams.class ) ) ).thenThrow(
+        when( this.contentService.update( isA( UpdateContentParams.class ) ) ).thenThrow(
             ContentNotFoundException.create().contentId( content.getId() ).build() );
         when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
 
@@ -108,7 +114,7 @@ public class PageResourceTest
     {
         Content content = createPage( "content-id", "content-name", "myapplication:content-type" );
 
-        when( this.pageService.create( isA( CreatePageParams.class ) ) ).thenReturn( content );
+        when( this.contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
         when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
 
         String jsonString = request().path( "content/page/create" )
