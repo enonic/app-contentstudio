@@ -60,6 +60,9 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
             // 4.Select 'Site' in support selector:
             await pageTemplateForm.filterOptionsAndSelectSupport(appConst.TEMPLATE_SUPPORT.SITE);
             let pageInspectionPanel = new PageInspectionPanel();
+            // Open 'Page' widget:
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(COUNTRY_LIST_CONTROLLER);
             await contentWizard.waitForSaveButtonDisabled();
 
@@ -72,7 +75,7 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
             // 6. Verify that the template's name is displayed in the link
             let templateName = await pageTemplateWidget.getControllerLink();
             assert.equal(templateName, TEMPLATE_NAME, "Expected template name should be displayed in the template widget");
-            // 7. Verify that Automatic controller type is displayed:
+            // 7. Verify that 'Automatic' controller type is displayed:
             let type = await pageTemplateWidget.getControllerType();
             assert.equal(type, 'Automatic', "Automatic template should be present in the widget");
         });

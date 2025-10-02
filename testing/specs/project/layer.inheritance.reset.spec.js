@@ -150,6 +150,8 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             let pageInspectionPanel = new PageInspectionPanel();
             let liveFormPanel = new LiveFormPanel();
             // 3. Select the controller in 'Page inspection' panel:
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(appConst.CONTROLLER_NAME.MAIN_REGION);
             // 4. Click on 'Reset' button in the wizard toolbar:
             let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();
