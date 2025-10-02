@@ -95,7 +95,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await contentWizard.switchToParentFrame();
-            await pageInspectionPanel.clickOnCustomizeButton();
+            await pageInspectionPanel.clickOnCustomizePageButton();
             // 2. Select the controller:
             await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE1.displayName);
             // 3. Confirmation dialog appears:
@@ -123,7 +123,8 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 2. Click on Customize menu item::
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await contentWizard.switchToParentFrame();
-            await pageInspectionPanel.clickOnCustomizeButton();
+            // Click on 'Customize' Page button:
+            await pageInspectionPanel.clickOnCustomizePageButton();
             // 3. Check the items in PCV:
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
@@ -139,7 +140,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 8. Live Edit gets locked again, click on 'Customize' menu item:
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await contentWizard.switchToParentFrame();
-            await pageInspectionPanel.clickOnCustomizeButton();
+            await pageInspectionPanel.clickOnCustomizePageButton();
             // 9. Verify that items in PCV are updated after switching a template:
             result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes('default'), 'default item should be displayed in the modal dialog');
