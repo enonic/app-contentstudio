@@ -154,7 +154,7 @@ describe('Generate name for fragments specification', function () {
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             //TODO check this behavior:
-            await wizardContextPanel.openDependencies();
+            await wizardContextPanel.openDependenciesWidget();
             // 5. Verify that there are no fragments in Page Component View:
             let result = await pageComponentView.getFragmentsDisplayName();
             assert.equal(result.length, 0, 'Fragment should not be present in Page Component View');

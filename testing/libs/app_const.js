@@ -214,6 +214,7 @@ module.exports = Object.freeze({
         DEFAULT: 'default',
         MAIN_REGION: 'main region',
         APP_CONTENT_TYPES_PAGE: 'Page',
+        CONTROLLER_NO_REGIONS : 'no regions',
     },
     LAYOUT_NAME: {
         COL_3: '3-col',

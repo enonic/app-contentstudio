@@ -16,6 +16,7 @@ const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wiz
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('my.first.site.country.spec - Create a site with country content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -50,6 +51,8 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
             let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE.data.controllerDisplayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
@@ -109,7 +112,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('sf_saved');
             // 3. Open USA-country content in 'draft'
-            await studioUtils.openResourceInDraft(SITE.displayName + "/" + USA_CONTENT_NAME);
+            await studioUtils.openResourceInDraft(SITE.displayName + '/' + USA_CONTENT_NAME);
             let pageSource = await studioUtils.getPageSource();
             // 4. Verify that expected population of San Francisco is loaded in the browser tab:
             assert.ok(pageSource.includes(SF_POPULATION), 'San Francisco population should be loaded');
@@ -213,7 +216,10 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             // 4. Switch to parent frame:
             await contentWizard.switchToParentFrame();
-            await pageInspectionPanel.clickOnCustomizeButton();
+            await pageInspectionPanel.clickOnCustomizePageButton();
+            let confirmationDialog = new ConfirmationDialog();
+            await confirmationDialog.clickOnNoButton();
+            await confirmationDialog.waitForDialogClosed();
             // 5. Verify that Page Component View modal dialog loads automatically after clicking on 'customize'
             await pageComponentView.waitForLoaded();
             await studioUtils.saveScreenshot('country_pcv');
@@ -232,9 +238,13 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.selectAndOpenContentInWizard(USA_CONTENT_NAME);
             // 2. Click on 'Page settings' menu item in 'Live Edit' frame:
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
-            // 3 Switch to main frame:
+            // 3. Switch to main frame:
             await contentWizard.switchToMainFrame();
-            await pageInspectionPanel.clickOnCustomizeButton();
+            // 4. Click on 'Customize Page' button and click 'No' in confirmation dialog:
+            await pageInspectionPanel.clickOnCustomizePageButton();
+            let confirmationDialog = new ConfirmationDialog();
+            await confirmationDialog.clickOnNoButton();
+            await confirmationDialog.waitForDialogClosed();
             // 4. Verify that 'Page Component View' wizard step is displayed:
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes(PAGE_CONTROLLER_COUNTRY), 'template(top component)  should be present in the dialog');

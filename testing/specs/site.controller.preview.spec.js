@@ -12,6 +12,7 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const PageComponentView = require("../page_objects/wizardpanel/liveform/page.components.view");
 const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
 const appConst = require('../libs/app_const');
+const ConfirmationDialog = require('../page_objects/confirmation.dialog');
 
 describe('site.controller.preview.spec: checks Preview button and options in selector for Page Templates and Controllers', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -33,7 +34,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             // 2. Controller is not selected in the wizard
             await contentWizard.typeData(SITE);
             // 3. Verify that 'Preview' button is disabled in the Preview toolbar:
-            //await contentWizard.waitForPreviewButtonDisabled();
+            await contentWizard.waitForPreviewButtonDisabled();
             // 4. Verify that 'Automatic' should be selected in Content Item Preview panel:
             let actualOption = await contentWizard.getSelectedOptionInPreviewWidget();
             assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC, 'Automatic option should be selected for the new site');
@@ -64,8 +65,8 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Select a controller:
-            await contentWizard.openContextWindow();
-            //let wizardContextWindow = await contentWizard.openContextWindow();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             await contentWizard.pause(700);
             // 3. Verify that Preview button gets visible in the preview toolbar:
@@ -104,15 +105,23 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             let pageComponentView = new PageComponentView();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             // 1. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Expand the menu:
             await pageComponentView.openMenu(CONTROLLER_NAME);
             // 3. Click on the 'Reset' menu item:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
-            // 4. Verify that 'Preview' button gets disabled in the Preview wizard toolbar:
+            let confirmationDialog = new ConfirmationDialog();
+            // 4. Click on 'Yes' button in the confirmation dialog:
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
+            await contentWizard.waitForSaveButtonDisabled();
+            // 5. Verify that 'Preview' button gets disabled in the Preview wizard toolbar:
             await contentWizard.waitForPreviewButtonDisabled();
-            let pageInspectionPanel = new PageInspectionPanel();
+
             let controller = await pageInspectionPanel.getSelectedPageController();
             // 6. Verify that 'Preview' button is disabled in browse-toolbar:
             await studioUtils.doSwitchToContentBrowsePanel();
@@ -133,8 +142,10 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Select a controller:
             let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
-            await contentWizard.pause(700);
+            await contentWizard.pause(500);
             // 6. go to Browse Panel:
             await studioUtils.doSwitchToContentBrowsePanel();
             // 7. Verify that 'Preview' button is enabled in ItemPreviewPanel-toolbar:

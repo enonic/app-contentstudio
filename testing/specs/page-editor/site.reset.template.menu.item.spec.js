@@ -22,6 +22,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
     let CONTROLLER_NAME = 'Country Region';
     let TEST_TEXT = 'test text';
     let TEMPLATE;
+    const CONFIRMATION_QUESTION='This will detach the page from its template. Are you sure?'
 
     it(`Preconditions: new site and a page template with a text component should be added`,
         async () => {
@@ -32,9 +33,9 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.MY_FIRST_APP]);
             await studioUtils.doAddSite(SITE);
-            //1. Expand the site and add a template:
+            // 1. Expand the site and add a template:
             let templateName = contentBuilder.generateRandomName('template');
-            TEMPLATE = contentBuilder.buildPageTemplate(templateName, "Site", CONTROLLER_NAME);
+            TEMPLATE = contentBuilder.buildPageTemplate(templateName, 'Site', CONTROLLER_NAME);
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
             let pageInspectTab = new PageInspectionPanel();
@@ -51,29 +52,38 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             await contentWizard.waitAndClickOnSave();
         });
 
-    // TODO 8607
-    it(`GIVEN open a site with a template WHEN  THEN `,
+    // New test for  8607 Universal Editor
+    it(`GIVEN open a site with a template WHEN Customize button has been pressed in Inspect tab THEN Confirmation modal dialog should be opened`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardContextPanel = new WizardContextPanel();
             let pageComponentView = new PageComponentView();
             let pageInspectionPanel = new PageInspectionPanel();
             // 1. Open the site
-
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            // 2. Details widget should be opened by default:
             let selectedWidgetOption = await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
             assert.equal(selectedWidgetOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, "'Details' selected option should be in the widget selector");
+            // 3. Select 'Page' option in the widget selector:
             await wizardContextPanel.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            // 4. Verify that Automatic option is selected in the controller selector:
             let selectedControllerOption = await pageInspectionPanel.getSelectedPageController();
             assert.equal(selectedControllerOption, 'Automatic', `'Automatic' controller should be selected in the controller selector`);
-            await pageInspectionPanel.waitForCustomizeButtonDisplayed();
-            await pageInspectionPanel.clickOnCustomizeButton();
+            // 5. Verify the 'Customize Page' button is displayed and enabled:
+            await pageInspectionPanel.waitForCustomizePageButtonDisplayed();
+            // 6. Click on 'Customize Page' button:
+            await pageInspectionPanel.clickOnCustomizePageButton();
             let confirmationDialog = new ConfirmationDialog();
-            let question = await confirmationDialog.getQuestion();
-            assert.equal(question, '', 'Confirmation dialog question is incorrect');
-
+            let questionActual = await confirmationDialog.getQuestion();
+            // 7. Verify that confirmation dialog is opened with correct question:
+            assert.equal(questionActual, CONFIRMATION_QUESTION, 'Confirmation dialog question is incorrect');
+            // 8. Click on 'No' button in the confirmation dialog:
+            await confirmationDialog.clickOnNoButton();
+            await confirmationDialog.waitForDialogClosed();
+            await contentWizard.waitForSaveButtonDisabled();
+            // 9. 'Page Component View' modal dialog should not be displayed, because the site was not customized:
+            await pageComponentView.waitForNotDisplayed();
         });
-
 
     it(`GIVEN text component has been removed in 'Page Component View' WHEN 'Reset' menu item has been clicked in 'Page Component View' THEN site should be reset to default template`,
         async () => {
@@ -82,10 +92,14 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             let pageComponentView = new PageComponentView();
             // 1. Open the site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Unlock the LiveEdit- click on 'Page Settings' menu item:
+            // 2. Click on Customize button and confirm the action
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await contentWizard.switchToMainFrame();
-            await pageInspectionPanel.clickOnCustomizeButton();
+            await pageInspectionPanel.clickOnCustomizePageButton();
+            let confirmationDialog = new ConfirmationDialog();
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
             // 3. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 4. Click on the item and open Context Menu:
@@ -97,17 +111,22 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             await studioUtils.saveScreenshot('site_txt_component_customized');
             // 6. Verify that  number of components is reduced:
             let result1 = await pageComponentView.getPageComponentsDisplayName();
-            assert.equal(result1.length, 2, "Number of items in Component View should be reduced after the removing");
+            assert.equal(result1.length, 2, 'Number of items in Component View should be reduced after the removing');
             // 7. Expand the controller's menu(the root element) and click on 'Reset' item
             await pageComponentView.openMenu(CONTROLLER_NAME);
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
-            await pageComponentView.pause(4000);
+            await pageComponentView.pause(1000);
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
             // 8. Click on 'Page Settings' menu item in Live Edit frame:
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await contentWizard.switchToMainFrame();
-            await pageInspectionPanel.clickOnCustomizeButton();
-            // 9 Switch to main frame:
-            await contentWizard.switchToMainFrame();
+            // 9. Click on 'Customize' button in Inspect tab
+            await pageInspectionPanel.clickOnCustomizePageButton();
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('site_reset_to_template');
             // 10. Verify that the site is reset to default template:
             let result2 = await pageComponentView.getPageComponentsDisplayName();

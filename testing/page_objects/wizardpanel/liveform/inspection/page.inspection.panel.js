@@ -104,7 +104,7 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
         return this.waitForElementNotDisplayed(this.customizePageButton, appConst.mediumTimeout);
     }
 
-    async clickOnCustomizeButton() {
+    async clickOnCustomizePageButton() {
         try {
             await this.waitForElementDisplayed(this.customizePageButton, appConst.mediumTimeout);
             await this.clickOnElement(this.customizePageButton);
@@ -114,7 +114,7 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
         }
     }
 
-    async waitForCustomizeButtonDisplayed(){
+    async waitForCustomizePageButtonDisplayed(){
         try {
             return await this.waitForElementDisplayed(this.customizePageButton, appConst.mediumTimeout);
         }catch (err){
@@ -122,7 +122,7 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
         }
     }
 
-    async waitForCustomizeButtonEnabled(){
+    async waitForCustomizePageButtonEnabled(){
         try {
             return await this.waitForElementEnabled(this.customizePageButton, appConst.mediumTimeout);
         }catch (err){
@@ -132,7 +132,7 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
 
     async clickOnCustomizePageButton(){
         try {
-            await this.waitForCustomizeButtonEnabled();
+            await this.waitForCustomizePageButtonEnabled();
             await this.clickOnElement(this.customizePageButton);
             return await this.pause(200);
         }catch (err){

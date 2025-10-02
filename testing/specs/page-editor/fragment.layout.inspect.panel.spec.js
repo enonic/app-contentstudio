@@ -152,7 +152,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await studioUtils.selectContentAndOpenWizard(SITE_1_NAME);
             await contentWizard.openContextWindow();
             // 2. Dependencies widget is opened:
-            await wizardContextPanel.openDependencies();
+            await wizardContextPanel.openDependenciesWidget();
             // 3. Click on 'Show outbound' button
             await wizardDependenciesWidget.clickOnShowOutboundButton();
             await studioUtils.doSwitchToNextTab();
