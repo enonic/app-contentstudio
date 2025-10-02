@@ -598,6 +598,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    // Switches to the live edit frame, opens context menu and clicks on 'Page settings' item
     async openLockedSiteContextMenuClickOnPageSettings() {
         await this.doOpenItemViewContextMenu();
         await this.saveScreenshot(appConst.generateRandomName('unlock_context_menu'));
@@ -618,7 +619,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    // wait for 'Customize Page' context menu item and click on it:
+    // wait for 'Page settings' context menu item and click on it:
     async clickOnPageSettingsMenuItem() {
         let locator = XPATH.itemViewContextMenu + `//dl//dt[text()='Page settings']`;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -700,7 +701,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForMinimizeLiveEditTogglerDisplayed();
             await this.clickOnElement(this.minimizeLiveEditToggler);
-            await this.pause(300);
+            await this.pause(400);
         } catch (err) {
             await this.handleError('Content wizard, tried to click on minimize live edit toggle', 'err_minimize_icon', err);
         }
@@ -884,7 +885,7 @@ class ContentWizardPanel extends Page {
         return result;
     }
 
-    // Clicks on Page Editor toggler (monitor icon)
+    // Clicks on Page Editor toggle (monitor icon)
     async clickOnPageEditorToggler() {
         try {
             await this.waitForElementDisplayed(this.pageEditorTogglerButton, appConst.mediumTimeout);

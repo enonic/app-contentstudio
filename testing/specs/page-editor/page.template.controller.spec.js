@@ -112,7 +112,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             // 2. Unlock the LiveEdit(Click on Customize menu item)
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await liveFormPanel.switchToParentFrame();
-            await pageInspectionPanel.clickOnCustomizeButton();
+            await pageInspectionPanel.clickOnCustomizePageButton();
             await studioUtils.saveScreenshot('page_template_image_rendered');
             // 3. Verify that the image that was inserted in the template is displayed in the site
             await contentWizard.switchToLiveEditFrame();
@@ -171,7 +171,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             // 3. Switch to the parent frame:
             await contentWizard.switchToParentFrame();
-            await pageInspectionPanel.clickOnCustomizeButton();
+            await pageInspectionPanel.clickOnCustomizePageButton();
             await studioUtils.saveScreenshot('site_customised');
             // 4. Open the Page Components modal dialog and insert a text component:
             await pageComponentsWizardStepForm.openMenu('main');
