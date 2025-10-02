@@ -11,6 +11,7 @@ const appConst = require('../libs/app_const');
 const PageComponentsWizardStepForm = require('../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const LiveFormPanel = require('../page_objects/wizardpanel/liveform/live.form.panel');
 const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const ConfirmationDialog = require('../page_objects/confirmation.dialog');
 
 describe('remove_app.in.site.with.descriptor.spec: replace an application and check the selected controller', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -53,6 +54,11 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             // 6. Verify that the controller from the previous application remains visible in PCV:
             await pageComponentsWizardStepForm.openMenu(CONTROLLER_APP_1);
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
+            let confirmationDialog = new ConfirmationDialog();
+            // 4. Click on 'Yes' button in the confirmation dialog:
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
+            await contentWizard.waitForSaveButtonDisabled();
             await studioUtils.saveScreenshot('app_replaced_in_site_wizard');
             // 7. Verify that 'Controller Options Filter' input gets visible in the wizard-page:
             let pageInspectionPanel = new PageInspectionPanel();
@@ -69,9 +75,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await contentWizard.waitForPreviewButtonDisplayed();
             // 13. PCV gets visible and contains items from the second application:
             await pageComponentsWizardStepForm.waitForComponentItemDisplayed(CONTROLLER_APP_2);
-
             assert.equal(controller, 'Automatic', 'Automatic controller should be displayed after resetting');
-
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/7390
