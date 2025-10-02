@@ -1,5 +1,5 @@
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {useEffect, useState, type JSX} from 'react';
+import {useEffect, useState} from 'react';
 
 import {
     Archive, Database, FileChartPie, FileCog, FileIcon, FileImage, FileMusic, FileQuestionMark,
@@ -16,11 +16,11 @@ type Props = {
     className?: string;
     contentType: string;
     url?: string | null;
-    size?: number;
+    imageSize?: number;
     crop?: boolean;
 };
 
-type BuiltInIconProps = Pick<Props, 'className' | 'contentType' | 'size'>;
+type BuiltInIconProps = Pick<Props, 'contentType'> & React.ComponentProps<LucideIcon>;
 
 const IMAGE_TYPES = new Set<string>([
     String(ContentTypeName.IMAGE),
@@ -53,19 +53,19 @@ const CONTENT_TYPE_ICON_MAP = new Map<string, LucideIcon>([
     [String(ContentTypeName.UNSTRUCTURED), Shapes],
 ]);
 
-const BuiltInIcon = ({className, contentType, size}: BuiltInIconProps): JSX.Element => {
+const BuiltInIcon = ({contentType, ...props}: BuiltInIconProps): React.ReactElement => {
     const Icon = CONTENT_TYPE_ICON_MAP.get(contentType) ?? FileIcon;
-    return <Icon size={size} strokeWidth={2} className={className} />;
+    return <Icon {...props} />;
 };
 
 export const ContentIcon = ({
     className,
     contentType,
     url,
-    size = 64,
+    imageSize = 64,
     crop,
-}: Props): JSX.Element => {
-    const src = url ? createImageUrl(url, {size: size * 2, crop}) : undefined;
+}: Props): React.ReactElement => {
+    const src = url ? createImageUrl(url, {size: imageSize * 2, crop}) : undefined;
 
     const [isImageBroken, setImageBroken] = useState(false);
 
@@ -88,5 +88,5 @@ export const ContentIcon = ({
         />;
     }
 
-    return <BuiltInIcon contentType={contentType} size={size}/>;
+    return <BuiltInIcon className={cn('w-6 h-6', className)} contentType={contentType} />;
 };

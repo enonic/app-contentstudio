@@ -6,7 +6,7 @@ import type {Branch} from '../../versioning/Branch';
 import {ContentReferencesLink} from './ContentReferencesLink';
 import {StatusBadge} from './StatusBadge';
 import {calcWorkflowStateStatus} from '../util/content';
-import {WorkflowContentIcon} from './WorkflowContentIcon';
+import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
 
 type Props = {
     content: ContentSummaryAndCompareStatus;
@@ -28,7 +28,7 @@ const ContentItemComponent = ({
     showReferences = false,
     target,
     hasInbound = false,
-}: Props): JSX.Element => {
+}: Props): React.ReactElement => {
     const label = String(content.getPath());
     const contentType = String(content.getType());
     const url = content.getContentSummary().getIconUrl();

@@ -5,7 +5,7 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {calcWorkflowStateStatus} from '../util/content';
 import {StatusBadge} from './StatusBadge';
-import {WorkflowContentIcon} from './WorkflowContentIcon';
+import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
 
 export type Props = {
     content: ContentSummaryAndCompareStatus;
@@ -19,7 +19,7 @@ const ContentItemCheckableComponent = ({
     checked,
     onCheckedChange,
     readOnly,
-}: Props): JSX.Element => {
+}: Props): React.ReactElement => {
     const label = String(content.getPath());
     const contentType = String(content.getType());
     const url = content.getContentSummary().getIconUrl();

@@ -1,5 +1,3 @@
-import type {JSX} from 'react';
-
 type ImageProps = {
     className?: string;
     src: string;
@@ -15,7 +13,7 @@ export const Image = ({
     decoding = 'async',
     referrerPolicy = 'no-referrer',
     onError,
-}: ImageProps): JSX.Element => (
+}: ImageProps): React.ReactElement => (
     <img
         className={className}
         alt={alt}
