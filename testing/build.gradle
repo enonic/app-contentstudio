@@ -1,6 +1,4 @@
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
-import java.net.HttpURLConnection
-import java.net.URL
 
 group = 'com.enonic.app.contentstudio.js_testing'
 
@@ -15,14 +13,9 @@ configurations {
     }
 }
 
-def unpackDir = layout.buildDirectory.dir("install").get()
+def unpackDir = layout.buildDirectory.dir( 'install' ).get()
 def distroDir = unpackDir.dir("enonic-xp-generic-$xpVersion")
-def deployDir = distroDir.dir("home/deploy")
-def appDir = "$projectDir/test-applications"
-def xpHome = "$distroDir/home"
-def configDir = "$xpHome/config"
-def contentStudioFile = "$deployDir/contentstudio-${version}.jar"
-def contentStudioAppUrl = project.hasProperty('contentStudioAppUrl') ? contentStudioAppUrl : "file:///$projectDir/../modules/app/build/libs/contentstudio.jar"
+def xpHome = distroDir.dir('home')
 
 dependencies {
     distro "com.enonic.xp:enonic-xp-generic:$xpVersion@tgz"
@@ -34,191 +27,178 @@ dependencies {
     apps "com.enonic.uitest:test-application:1.0.0-SNAPSHOT"
 }
 
-tasks.register('downloadDistro', Copy) {
-    println '*********************************************************'
-    println '* downloadDistro  *'
-    println '*********************************************************'
-
-    configurations.distro.each { file ->
-        println "Downloading ${file.name}"
-    }
-
-    description = 'Download XP distribution'
-    group = 'setup'
+// Setup tasks
+tasks.register( 'unpackDistro', Copy ) {
+    description = 'Unpacks the XP distribution for testing'
+    group = 'Test Setup'
 
     from {
-        configurations.distro.collect { tarTree(it) }
+        configurations.distro.collect { tarTree( it ) }
     }
     into unpackDir
-
-    doLast {
-        println 'Task downloadDistro completed successfully.'
-        println 'XP distro was downloaded to ' + unpackDir
-    }
 }
 
-tasks.register('copyConfig', Copy) {
-    println "$appDir${File.separator}common-config"
+tasks.register( 'copyConfig', Copy ) {
     description = 'Copy common configuration files'
-    group = 'setup'
+    group = 'Test Setup'
 
-    from "$appDir${File.separator}common-config"
+    from layout.projectDirectory.dir('test-config/common-config')
     include '**.*.cfg'
     include '*.properties'
-    into file(configDir)
-    mustRunAfter tasks.named('downloadDistro')
+    into xpHome.dir('config')
+    mustRunAfter tasks.named( 'unpackDistro' )
 }
 
 tasks.register('copyCustomConfig', Copy) {
-    println "$appDir${File.separator}custom-config"
     description = 'Copy custom configuration files'
-    group = 'setup'
+    group = 'Test Setup'
 
-    from "$appDir${File.separator}custom-config"
+    from layout.projectDirectory.dir('test-config/custom-config')
     include '**.*.cfg'
-    into file(configDir)
-    mustRunAfter tasks.named('downloadDistro')
+    include '*.properties'
+    into xpHome.dir('config')
+    dependsOn tasks.named( 'copyConfig' )
 }
 
 tasks.register('copyProjectMultiConfig', Copy) {
-    println "$appDir${File.separator}project-multi-config"
     description = 'Copy project multi configuration files'
-    group = 'setup'
+    group = 'Test Setup'
 
-    from "$appDir${File.separator}project-multi-config"
+    from layout.projectDirectory.dir('test-config/project-multi-config')
     include '**.*.cfg'
-    into file(configDir)
-    mustRunAfter tasks.named('downloadDistro')
+    include '*.properties'
+    into xpHome.dir('config')
+    dependsOn tasks.named( 'copyConfig' )
 }
 
-tasks.register('downloadApps', Copy) {
-    println '*********************************************************'
-    println '* downloadApps  *'
-    println '*********************************************************'
-    println 'Downloading test data to ' + deployDir
-
+tasks.register( 'downloadApps', Copy ) {
     description = 'Download test applications'
-    group = 'setup'
+    group = 'Test Setup'
 
     from {
         configurations.apps
     }
-    into deployDir
-    mustRunAfter tasks.named('startServer')
-
-    doLast {
-        println 'Task downloadApps completed successfully.'
-        println 'Downloaded artifacts:'
-        configurations.apps.files.each { file ->
-            println "- ${file.name}"
-        }
-    }
+    into xpHome.dir( 'deploy' )
+    mustRunAfter tasks.named( 'unpackDistro' )
 }
 
-tasks.register('deployContentStudio', DefaultTask) {
-    println '*********************************************************'
-    println '* deployContentStudio  *'
-    println '*********************************************************'
+tasks.register( 'deployApp', DefaultTask ) {
+    description = 'Deploy Content Studio'
+    group = 'Test Setup'
 
-    println 'Downloading Content Studio App from ' + contentStudioAppUrl + ' to ' + contentStudioFile
+    def appFile = xpHome.dir( 'deploy' ).file("contentstudio-${version}.jar").asFile
 
-    description = 'Deploy Content Studio application'
-    group = 'setup'
-
-    outputs.files(contentStudioFile)
-    mustRunAfter tasks.named('downloadDistro')
-
+    outputs.files( appFile )
+    outputs.upToDateWhen { false }
     doLast {
-        println 'Task deployContentStudio completed successfully.'
-        def f = new File(contentStudioFile)
-        if (!f.exists()) {
-            new URL(contentStudioAppUrl as String).withInputStream { i ->
-                f.withOutputStream { it << i }
-            }
-            println 'Content Studio App is downloaded.'
-        } else {
-            println 'Content Studio App already exists.'
-        }
+        def appUrl = (findProperty('appUrl') ?: "file:///$rootDir/modules/app/build/libs/contentstudio.jar" ) as String
+
+        println "Deleting ${appFile}. Exists ${appFile.exists()}"
+        appFile.delete()
+
+        println "Copying from ${appUrl} to ${appFile}"
+        uri( appUrl ).toURL().withInputStream { i -> appFile.withOutputStream { it << i } }
     }
+    mustRunAfter tasks.named( 'unpackDistro' )
 }
 
+// Server management tasks
 def process
+tasks.register( 'startServer' ) {
+    description = 'Starts the XP server for testing'
+    group = 'Test Setup'
 
-tasks.register('startServer') {
-    println '*********************************************************'
-    println '* startServer  *'
-    println '*********************************************************'
-
-    description = 'Start XP server'
-    group = 'server'
-
-    dependsOn(tasks.named('downloadDistro'), tasks.named('deployContentStudio'))
-
+    dependsOn tasks.named( 'unpackDistro' )
     doLast {
-        sleep(5000)
-        println 'Starting XP Server...'
-
+        logger.lifecycle( 'Starting XP Server at: {}', xpHome )
+        logger.lifecycle( 'Server logs will be written to: build/reports/logs/xp.log' )
         def pb
-        if (DefaultNativePlatform.getCurrentOperatingSystem().windows) {
-            pb = new ProcessBuilder('cmd', '/c', "${distroDir}\\bin\\server.bat")
-        } else {
-            pb = new ProcessBuilder("${distroDir}/bin/server.sh")
+        if ( DefaultNativePlatform.getCurrentOperatingSystem().windows ) {
+            pb = new ProcessBuilder( 'cmd', '/c', "${distroDir}\\bin\\server.bat" )
         }
-
+        else {
+            pb = new ProcessBuilder( "${distroDir}/bin/server.sh" )
+        }
         Map<String, String> env = pb.environment()
-        env.put("XP_HOME", "${xpHome}".toString())
+        env.put( 'XP_HOME', "${xpHome}".toString() )
 
-        def logsPath = layout.buildDirectory.dir("reports/logs").get()
+        def logsPath = layout.buildDirectory.dir( 'reports/logs' ).get()
         mkdir logsPath.asFile
-        pb.redirectOutput(logsPath.file("xp.log").asFile)
-        pb.redirectErrorStream(true)
+        pb.redirectOutput( logsPath.file( 'xp.log' ).asFile )
+        pb.redirectErrorStream( true )
         process = pb.start()
-
-        // Check if the server is up
-        def retryCount = 10
-        def serverUp = false
-        def serverUrl = "http://localhost:2609/health"
-
-        while (retryCount > 0 && !serverUp) {
-            try {
-                def url = new URL(serverUrl)
-                def connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = 'GET'
-                connection.connectTimeout = 5000
-                connection.readTimeout = 5000
-
-                if (connection.responseCode == 200) {
-                    println 'Server is up and running!'
-                    serverUp = true
-                } else {
-                    println "Server response: ${connection.responseCode}"
-                }
-            } catch (Exception e) {
-                println 'Waiting for server to start...'
-            }
-
-            if (!serverUp) {
-                sleep(5000) // Retry every 5 seconds
-                retryCount--
-            }
-        }
-
-        if (!serverUp) {
-            throw new GradleException("Server failed to start within the expected time!")
-        }
     }
 }
 
-tasks.register('stopServer') {
-    description = 'Stop XP server'
-    group = 'server'
+tasks.register( 'waitForServer') {
+    description = 'Waits for the XP server'
+    group = 'Test Setup'
 
     doLast {
-        if (DefaultNativePlatform.getCurrentOperatingSystem().windows) {
-            Runtime.getRuntime().exec("taskkill /F /T /PID " + process.pid())
-        } else {
-            process.destroy()
+        long maxWaitMs = 60000
+        long deadline = System.nanoTime() + maxWaitMs * 1_000_000L
+
+        boolean ready = false
+        while (!ready && System.nanoTime() < deadline) {
+            logger.lifecycle("Waiting for server server...")
+
+            try {
+                HttpURLConnection conn = (HttpURLConnection) uri("http://localhost:2609/ready").toURL().openConnection()
+                conn.setConnectTimeout(1000)
+                conn.setReadTimeout(1000)
+                conn.connect()
+                int code = conn.getResponseCode()
+                if (code == 200) {
+                    ready = true
+                    break
+                }
+            } catch (IOException ignored) {
+                // Not up yet; retry
+            }
+            sleep(1000)
+
         }
+        if (ready) {
+            logger.lifecycle('Server is ready.')
+        } else {
+            throw new GradleException("Server not ready after ${maxWaitMs} ms.")
+        }
+
+        sleep(1000)
+    }
+
+    mustRunAfter tasks.named( 'startServer' )
+}
+
+tasks.register( 'stopServer' ) {
+    description = 'Stops the XP server'
+    group = 'Test Setup'
+
+    doLast {
+        if ( !project.hasProperty( 'process' ) ) {
+            logger.warn( 'Server process not found - it might already be stopped' )
+            return
+        }
+
+        def os = DefaultNativePlatform.currentOperatingSystem
+        def pid = process.pid()
+
+        if ( os.isWindows() ) {
+            logger.lifecycle( "Stopping server process (PID: ${pid})..." )
+            exec {
+                commandLine 'taskkill', '/F', '/T', '/PID', pid.toString()
+                ignoreExitValue = true // Don't fail if the process is already gone
+            }
+        } else { // For macOS, Linux, and other Unix-like systems
+            logger.lifecycle( "Stopping server process (PID: ${pid})..." )
+            exec {
+                commandLine 'kill', '-9', pid.toString()
+                ignoreExitValue = true // Don't fail if the process is already gone
+            }
+        }
+
+        // Clean up the process property
+        project.ext.process = null
     }
 }
 
@@ -226,29 +206,33 @@ tasks.register('cleanup', Delete) {
     description = 'Clean up Allure reports'
     group = 'verification'
 
-    delete './build/reports/allure'
+    delete layout.buildDirectory.dir('reports/allure')
 }
 
-tasks.register('generateReportAndStopServer', PnpmTask) {
-    description = 'Generate Allure report and stop server'
+tasks.register('generateReport', PnpmTask) {
+    description = 'Generate Allure report'
     group = 'verification'
 
     args = ['run-script', 'allure-report']
     finalizedBy tasks.named('cleanup')
-    finalizedBy tasks.named('stopServer')
 }
 
 // Test tasks
 tasks.register('w_testInputTypes', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-    dependsOn tasks.named('downloadApps')
-    dependsOn tasks.named('copyConfig')
-    dependsOn tasks.named('startServer')
-
     group = 'verification'
     description = 'Run input types tests'
+
     args = ['run-script', 'test_input_types:wdio_chrome']
-    finalizedBy tasks.named('generateReportAndStopServer')
+
+    dependsOn tasks.named( 'pnpmInstall' )
+    dependsOn tasks.named( 'unpackDistro' )
+    dependsOn tasks.named( 'copyConfig' )
+    dependsOn tasks.named( 'downloadApps' )
+    dependsOn tasks.named( 'deployApp' )
+    dependsOn tasks.named( 'startServer' )
+    dependsOn tasks.named( 'waitForServer' )
+    finalizedBy tasks.named('generateReport')
+    finalizedBy tasks.named('stopServer')
 }
 
 tasks.register('w_testInputTypesLocal', PnpmTask) {
@@ -260,15 +244,19 @@ tasks.register('w_testInputTypesLocal', PnpmTask) {
 }
 
 tasks.register('w_testInputTypes_2', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-    dependsOn tasks.named('downloadApps')
-    dependsOn tasks.named('copyConfig')
-    dependsOn tasks.named('startServer')
-
     group = 'verification'
     description = 'Run input types 2 tests'
     args = ['run-script', 'test_input_types_2:wdio_chrome']
-    finalizedBy tasks.named('generateReportAndStopServer')
+
+    dependsOn tasks.named( 'pnpmInstall' )
+    dependsOn tasks.named( 'unpackDistro' )
+    dependsOn tasks.named( 'copyConfig' )
+    dependsOn tasks.named( 'downloadApps' )
+    dependsOn tasks.named( 'deployApp' )
+    dependsOn tasks.named( 'startServer' )
+    dependsOn tasks.named( 'waitForServer' )
+    finalizedBy tasks.named('generateReport')
+    finalizedBy tasks.named('stopServer')
 }
 
 tasks.register('w_testInputTypes_2_Local', PnpmTask) {
@@ -280,15 +268,20 @@ tasks.register('w_testInputTypes_2_Local', PnpmTask) {
 }
 
 tasks.register('w_testModalDialog', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-    dependsOn tasks.named('downloadApps')
-    dependsOn tasks.named('copyConfig')
-    dependsOn tasks.named('startServer')
-
     group = 'verification'
     description = 'Run modal dialog tests'
+
     args = ['run-script', 'test_modal_dialog:wdio_chrome']
-    finalizedBy tasks.named('generateReportAndStopServer')
+
+    dependsOn tasks.named( 'pnpmInstall' )
+    dependsOn tasks.named( 'unpackDistro' )
+    dependsOn tasks.named( 'copyConfig' )
+    dependsOn tasks.named( 'downloadApps' )
+    dependsOn tasks.named( 'deployApp' )
+    dependsOn tasks.named( 'startServer' )
+    dependsOn tasks.named( 'waitForServer' )
+    finalizedBy tasks.named('generateReport')
+    finalizedBy tasks.named('stopServer')
 }
 
 tasks.register('w_testModalDialogLocal', PnpmTask) {
@@ -300,15 +293,20 @@ tasks.register('w_testModalDialogLocal', PnpmTask) {
 }
 
 tasks.register('w_testWizardsGrid', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-    dependsOn tasks.named('downloadApps')
-    dependsOn tasks.named('copyConfig')
-    dependsOn tasks.named('startServer')
-
     group = 'verification'
     description = 'Run wizards grid tests'
+
     args = ['run-script', 'test_wizards_grid:wdio_chrome']
-    finalizedBy tasks.named('generateReportAndStopServer')
+
+    dependsOn tasks.named( 'pnpmInstall' )
+    dependsOn tasks.named( 'unpackDistro' )
+    dependsOn tasks.named( 'copyConfig' )
+    dependsOn tasks.named( 'downloadApps' )
+    dependsOn tasks.named( 'deployApp' )
+    dependsOn tasks.named( 'startServer' )
+    dependsOn tasks.named( 'waitForServer' )
+    finalizedBy tasks.named('generateReport')
+    finalizedBy tasks.named('stopServer')
 }
 
 tasks.register('w_testWizardsGridLocal', PnpmTask) {
@@ -320,72 +318,105 @@ tasks.register('w_testWizardsGridLocal', PnpmTask) {
 }
 
 tasks.register('w_testPublishIssues', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-    dependsOn tasks.named('downloadApps')
-    dependsOn tasks.named('copyConfig')
-    dependsOn tasks.named('startServer')
-
     group = 'verification'
     description = 'Run publish issues tests'
+
     args = ['run-script', 'test_publish_issues:wdio_chrome']
-    finalizedBy tasks.named('generateReportAndStopServer')
+
+    dependsOn tasks.named( 'pnpmInstall' )
+    dependsOn tasks.named( 'unpackDistro' )
+    dependsOn tasks.named( 'copyConfig' )
+    dependsOn tasks.named( 'downloadApps' )
+    dependsOn tasks.named( 'deployApp' )
+    dependsOn tasks.named( 'startServer' )
+    dependsOn tasks.named( 'waitForServer' )
+    finalizedBy tasks.named('generateReport')
+    finalizedBy tasks.named('stopServer')
 }
 
 tasks.register('w_testPublishIssuesLocal', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-
     group = 'verification'
     description = 'Run publish issues tests locally'
+
     args = ['run-script', 'test_publish_issues:wdio_chrome']
+
+    dependsOn tasks.named( 'pnpmInstall' )
+    dependsOn tasks.named( 'unpackDistro' )
+    dependsOn tasks.named( 'copyConfig' )
+    dependsOn tasks.named( 'downloadApps' )
+    dependsOn tasks.named( 'deployApp' )
+    dependsOn tasks.named( 'startServer' )
+    dependsOn tasks.named( 'waitForServer' )
+    finalizedBy tasks.named('generateReport')
+    finalizedBy tasks.named('stopServer')
 }
 
 tasks.register('w_testProjects', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-    dependsOn tasks.named('downloadApps')
-    dependsOn tasks.named('copyConfig')
-    dependsOn tasks.named('startServer')
-
     group = 'verification'
     description = 'Run project tests'
+
     args = ['run-script', 'test_project:wdio_chrome']
-    finalizedBy tasks.named('generateReportAndStopServer')
+
+    dependsOn tasks.named( 'pnpmInstall' )
+    dependsOn tasks.named( 'unpackDistro' )
+    dependsOn tasks.named( 'copyConfig' )
+    dependsOn tasks.named( 'downloadApps' )
+    dependsOn tasks.named( 'deployApp' )
+    dependsOn tasks.named( 'startServer' )
+    dependsOn tasks.named( 'waitForServer' )
+    finalizedBy tasks.named('generateReport')
+    finalizedBy tasks.named('stopServer')
 }
 
 tasks.register('w_miscTests', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-    dependsOn tasks.named('downloadApps')
-    dependsOn tasks.named('copyConfig')
-    dependsOn tasks.named('startServer')
-
     group = 'verification'
     description = 'Run miscellaneous tests'
+
     args = ['run-script', 'test_misc:wdio_chrome']
-    finalizedBy tasks.named('generateReportAndStopServer')
+
+    dependsOn tasks.named( 'pnpmInstall' )
+    dependsOn tasks.named( 'unpackDistro' )
+    dependsOn tasks.named( 'copyConfig' )
+    dependsOn tasks.named( 'downloadApps' )
+    dependsOn tasks.named( 'deployApp' )
+    dependsOn tasks.named( 'startServer' )
+    dependsOn tasks.named( 'waitForServer' )
+    finalizedBy tasks.named('generateReport')
+    finalizedBy tasks.named('stopServer')
 }
 
 tasks.register('w_testProjects_2', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-    dependsOn tasks.named('downloadApps')
-    dependsOn tasks.named('copyConfig')
-    dependsOn tasks.named('startServer')
-
     group = 'verification'
     description = 'Run project 2 tests'
+
     args = ['run-script', 'test_project_2:wdio_chrome']
-    finalizedBy tasks.named('generateReportAndStopServer')
+
+    dependsOn tasks.named( 'pnpmInstall' )
+    dependsOn tasks.named( 'unpackDistro' )
+    dependsOn tasks.named( 'copyConfig' )
+    dependsOn tasks.named( 'downloadApps' )
+    dependsOn tasks.named( 'deployApp' )
+    dependsOn tasks.named( 'startServer' )
+    dependsOn tasks.named( 'waitForServer' )
+    finalizedBy tasks.named('generateReport')
+    finalizedBy tasks.named('stopServer')
 }
 
 tasks.register('testProjects_multi', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-    dependsOn tasks.named('downloadApps')
-    dependsOn tasks.named('copyConfig')
-    dependsOn tasks.named('copyProjectMultiConfig')
-    dependsOn tasks.named('startServer')
-
     group = 'verification'
     description = 'Run multi-project tests'
+
     args = ['run-script', 'test_project_multi:wdio_chrome']
-    finalizedBy tasks.named('generateReportAndStopServer')
+
+    dependsOn tasks.named( 'pnpmInstall' )
+    dependsOn tasks.named( 'unpackDistro' )
+    dependsOn tasks.named('copyProjectMultiConfig')
+    dependsOn tasks.named( 'downloadApps' )
+    dependsOn tasks.named( 'deployApp' )
+    dependsOn tasks.named( 'startServer' )
+    dependsOn tasks.named( 'waitForServer' )
+    finalizedBy tasks.named('generateReport')
+    finalizedBy tasks.named('stopServer')
 }
 
 tasks.register('w_testProjectsLocal', PnpmTask) {
@@ -397,15 +428,20 @@ tasks.register('w_testProjectsLocal', PnpmTask) {
 }
 
 tasks.register('w_testPageEditor', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-    dependsOn tasks.named('downloadApps')
-    dependsOn tasks.named('copyConfig')
-    dependsOn tasks.named('startServer')
-
     group = 'verification'
     description = 'Run page editor tests'
+
     args = ['run-script', 'test_page_editor:wdio_chrome']
-    finalizedBy tasks.named('generateReportAndStopServer')
+
+    dependsOn tasks.named( 'pnpmInstall' )
+    dependsOn tasks.named( 'unpackDistro' )
+    dependsOn tasks.named( 'copyConfig' )
+    dependsOn tasks.named( 'downloadApps' )
+    dependsOn tasks.named( 'deployApp' )
+    dependsOn tasks.named( 'startServer' )
+    dependsOn tasks.named( 'waitForServer' )
+    finalizedBy tasks.named('generateReport')
+    finalizedBy tasks.named('stopServer')
 }
 
 tasks.register('w_testPageEditorLocal', PnpmTask) {
@@ -417,16 +453,20 @@ tasks.register('w_testPageEditorLocal', PnpmTask) {
 }
 
 tasks.register('w_testExcludeDependencies', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-    dependsOn tasks.named('downloadApps')
-    dependsOn tasks.named('copyConfig')
-    dependsOn tasks.named('copyCustomConfig')
-    dependsOn tasks.named('startServer')
-
     group = 'verification'
     description = 'Run exclude dependencies tests'
+
     args = ['run-script', 'test_exclude_dependencies:wdio_chrome']
-    finalizedBy tasks.named('generateReportAndStopServer')
+
+    dependsOn tasks.named( 'pnpmInstall' )
+    dependsOn tasks.named( 'unpackDistro' )
+    dependsOn tasks.named( 'copyCustomConfig' )
+    dependsOn tasks.named( 'downloadApps' )
+    dependsOn tasks.named( 'deployApp' )
+    dependsOn tasks.named( 'startServer' )
+    dependsOn tasks.named( 'waitForServer' )
+    finalizedBy tasks.named('generateReport')
+    finalizedBy tasks.named('stopServer')
 }
 
 tasks.register( 'yolo' ) {
