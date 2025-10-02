@@ -201,7 +201,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             assert.ok(pageSource.includes('404 - Not Found'), 'expected error page with should be loaded');
         });
 
-    it("GIVEN USA content has been opened WHEN 'Page Component View' has been opened THEN expected components should be displayed in the dialog",
+    it("GIVEN USA content has been opened AND 'Customize Page' button has been pressed WHEN 'Page Component View' has been opened THEN expected components should be displayed in the dialog",
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
@@ -216,9 +216,10 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             // 4. Switch to parent frame:
             await contentWizard.switchToParentFrame();
+            // 4. Click on 'Customize Page' button and click 'Yes' in confirmation dialog:
             await pageInspectionPanel.clickOnCustomizePageButton();
             let confirmationDialog = new ConfirmationDialog();
-            await confirmationDialog.clickOnNoButton();
+            await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
             // 5. Verify that Page Component View modal dialog loads automatically after clicking on 'customize'
             await pageComponentView.waitForLoaded();
@@ -229,7 +230,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             assert.ok(result.includes('Country'), "'Country part' should be present in the dialog");
         });
 
-    it("WHEN USA content has been opened THEN expected components should be displayed in the dialog in Page Component wizard step",
+    it("WHEN USA content has been opened AND 'Customize Page' button has been pressed THEN expected components should be displayed in the 'Wizard Page Component step'",
         async () => {
             let contentWizard = new ContentWizard();
             let pageInspectionPanel = new PageInspectionPanel();
@@ -243,7 +244,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 4. Click on 'Customize Page' button and click 'No' in confirmation dialog:
             await pageInspectionPanel.clickOnCustomizePageButton();
             let confirmationDialog = new ConfirmationDialog();
-            await confirmationDialog.clickOnNoButton();
+            await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
             // 4. Verify that 'Page Component View' wizard step is displayed:
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();

@@ -18,7 +18,7 @@ describe('page.template.controller.support.spec tests for page template wizard',
 
     let SITE;
     const TEMPLATE_NAME = contentBuilder.generateRandomName('template');
-    const COUNTRY_LIST_CONTROLLER = "Country List";
+    const COUNTRY_LIST_CONTROLLER = 'Country List';
 
     it("GIVEN a controller has been selected in template-wizard WHEN an option has been selected in support dropdown selector THEN 'Save' button gets enabled",
         async () => {
@@ -34,6 +34,8 @@ describe('page.template.controller.support.spec tests for page template wizard',
             await contentWizard.pause(500);
             // 3. Select a page descriptor
             let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(COUNTRY_LIST_CONTROLLER);
             await contentWizard.waitForSaveButtonDisabled();
             await contentWizard.waitForNotificationMessage();
