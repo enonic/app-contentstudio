@@ -109,6 +109,8 @@ describe('Text Component with CKE - insert email link  specification', function 
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await siteFormPanel.addApplications([appConst.APP_CONTENT_TYPES]);
             let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();

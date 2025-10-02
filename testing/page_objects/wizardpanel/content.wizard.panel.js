@@ -275,8 +275,12 @@ class ContentWizardPanel extends Page {
     }
 
     async waitForWizardStepDisplayed(stepName) {
-        let locator = XPATH.wizardStepByTitle(stepName);
-        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        try {
+            let locator = XPATH.wizardStepByTitle(stepName);
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(`Wizard step: ${stepName} was not displayed`, 'err_wizard_step_displayed', err);
+        }
     }
 
     async waitForWizardStepNotDisplayed(stepName) {
@@ -660,7 +664,7 @@ class ContentWizardPanel extends Page {
                 if (option !== 'Details') {
                     await this.openDetailsWidget();
                 }
-                    await this.typeSettings(content.settings);
+                await this.typeSettings(content.settings);
             }
             return await this.pause(300);
         } catch (err) {
@@ -1066,6 +1070,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    // Check for editor-shader in style attribute:
     async isLiveEditLocked() {
         await this.switchToLiveEditFrame();
         let shaderElement = await this.findElement(XPATH.shaderPage);

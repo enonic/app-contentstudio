@@ -354,7 +354,7 @@ class LiveFormPanel extends Page {
             let locator = xpath.container + xpath.pageSettingsLink;
             return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Page Settings link should not be displayed in Live Edit', 'err_page_settings_link', err);
+            await this.handleError('Page Settings button should not be displayed in Live Edit', 'err_page_settings_link', err);
         }
     }
 

@@ -77,7 +77,6 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await confirmationDialog.clickOnNoButton();
             await confirmationDialog.waitForDialogClosed();
             // 2. Open 'Details widget' then open 'Edit Setting' modal dialog:
-            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             let language = await editSettingsDialog.getSelectedLanguage();
             await editSettingsDialog.clickOnCancelButton();
@@ -100,8 +99,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
             await contentWizard.pause(3000);
-            // 4. Open 'Edit Details' modal dialog:
-            await contentWizard.openDetailsWidget();
+            // 4. Open 'Edit Settings' modal dialog:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await studioUtils.saveScreenshot('reset_language_confirmed');
             // 5. Verify that  content is reverted to the inherited state (no languages is selected in the parent project):
@@ -160,16 +158,17 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             // Verify that 'Localize' button get visible and enabled again:
             await contentWizard.waitForLocalizeButtonEnabled();
             await contentWizard.waitForSaveButtonDisabled();
-            // 6. Verify that 'Editing not available' message gets visible:
+            // 6. Verify that 'Preview not available' message gets visible:
             let msg = await liveFormPanel.waitForEditingNotAvailableMessageDisplayed();
-            // 7. Verify that 'Page settings' link is not displayed in the 'Live form' panel:
-            await liveFormPanel.waitForPageSettingsLinkNotDisplayed();
+            // 7. Verify that 'Page settings' button is displayed in the 'Live form' panel: - no controller is selected
+            await liveFormPanel.waitForPageSettingsLinkDisplayed();
             // 8. Verify that 'Preview' button is disabled:
             await contentWizard.waitForPreviewButtonDisabled();
             // 9. Verify that controller in 'Page inspection' panel is set to 'Automatic':
             let controllerActual = await pageInspectionPanel.getSelectedPageController();
             assert.equal(controllerActual, AUTOMATIC_CONTROLLER, 'Automatic controller should be selected after the resetting');
-            assert.equal(msg, 'Editing not available', "'Editing not available' message should be displayed");
+            // Preview not available should be displayed in the Live form panel
+            assert.equal(msg, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, "'Editing not available' message should be displayed");
             await liveFormPanel.waitForPageSettingsLinkDisplayed();
         });
 

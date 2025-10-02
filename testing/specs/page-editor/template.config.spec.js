@@ -14,6 +14,8 @@ const TextComponent = require('../../page_objects/components/text.component');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
 const ContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -49,13 +51,21 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let homePageInspectionPanel = new HomePageInspectionPanel();
             let wizardContextPanel = new WizardContextPanel();
             let contentWizard = new ContentWizard();
+            let pageInspectionPanel = new PageInspectionPanel();
+            let confirmationDialog = new ConfirmationDialog();
             // 1. Open new wizard for Article content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
-            // 2. Click on 'Customize' menu item:
-            await contentWizard.doUnlockLiveEditor();
-            await contentWizard.switchToMainFrame();
-            // 3. Inspection Panel should be loaded in the Context Window:
+            // 2. Inspection Panel should be loaded in the Context Window:
             await wizardContextPanel.waitForOpened();
+            // 3. Click on 'Customize' menu item:
+            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await contentWizard.switchToMainFrame();
+            //4. Click on 'Customize Page' button in the Page Inspection panel:
+            await pageInspectionPanel.clickOnCustomizePageButton();
+            await confirmationDialog.waitForDialogOpened();
+            // 5. Confirm the action in the Confirmation dialog:
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('article_details_panel');
             // 4. Verify that the 'title' text input is displayed in the Page Inspection panel(config):
             await homePageInspectionPanel.waitForTitleInputDisplayed();
@@ -68,7 +78,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             assert.equal(result, TITLE_TEXT, 'expected and actual title should be equal');
         });
 
-    it(`WHEN wizard for new article content is opened THEN 'Page Component wizard' step should not be displayed because 'Customize' menu item is not clicked yet`,
+    it(`WHEN wizard for new article content is opened THEN 'Page Component wizard' step should not be displayed because 'Customize Page' button was not clicked yet`,
         async () => {
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let pageComponentView = new PageComponentView();
@@ -83,17 +93,25 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await pageComponentView.waitForNotDisplayed();
         });
 
-    it(`WHEN 'Customize' menu item has been clicked in article wizard THEN 'Insert' tab should be visible in Components widget in Context Window`,
+    it(`WHEN 'Customize Page' button has been clicked in Insert tab THEN 'Insert' tab should be visible in Components widget in Context Window`,
         async () => {
             let contentWizard = new ContentWizard();
             let contextWindow = new ContextWindow();
+            let pageInspectionPanel = new PageInspectionPanel();
+            let confirmationDialog = new ConfirmationDialog();
             // 1. Open new wizard for Article content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
             await contentWizard.typeDisplayName(ARTICLE_NAME);
             // 2. Click on 'Customize' menu item:
-            await contentWizard.doUnlockLiveEditor();
+            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await contentWizard.switchToMainFrame();
+            // 3. Click on 'Customize Page' button in the Page Inspection panel:
+            await pageInspectionPanel.clickOnCustomizePageButton();
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
             await contextWindow.switchToParentFrame();
-            // 3. Verify that Insert tab is displayed in the Context Window:
+            // 4. Verify that Insert tab is displayed in the Context Window:
             await contextWindow.waitForTabBarItemDisplayed('Insert');
             await contentWizard.waitForSaveButtonEnabled();
         });
@@ -104,12 +122,19 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let textComponent = new TextComponent();
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
+            let pageInspectionPanel = new PageInspectionPanel();
+            let confirmationDialog = new ConfirmationDialog();
             // 1. Open new wizard for Article content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
             await contentWizard.typeDisplayName(ARTICLE_NAME);
             // 2. Click on 'Customize' menu item:
-            await contentWizard.doUnlockLiveEditor();
+            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await contentWizard.switchToMainFrame();
+            // 3. Click on 'Customize Page' button in the Page Inspection panel:
+            await pageInspectionPanel.clickOnCustomizePageButton();
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
             // 3. Verify that Page item is displayed in the WizardStepNavigator
             await contentWizard.waitForWizardStepDisplayed('Page');
             // 4. Insert text component in Page Component wizard step
@@ -151,12 +176,17 @@ describe('template.config.spec: template config should be displayed in the Inspe
         async () => {
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let contentWizard = new ContentWizard();
-            let contextWindow = new ContextWindow();
+            let pageInspectionPanel = new PageInspectionPanel();
+            let confirmationDialog = new ConfirmationDialog();
             // 1. Open the existing customized Article-content:
             await studioUtils.selectAndOpenContentInWizard(ARTICLE_NAME);
+            let contextWindow = await contentWizard.openContextWindow();
             // 2. Click on 'Reset' menu item in the wizard step form:
             await pageComponentsWizardStepForm.openMenu('Page');
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('component_step_form_reset');
             // 3. The content should be saved automatically:
             await contentWizard.waitForNotificationMessage();
@@ -165,12 +195,9 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             // 5. Verify that 'Page' item is not displayed in the WizardStepNavigator
             await contentWizard.waitForWizardStepNotDisplayed('Page');
-            // 6. Verify that 'Insert' tab is present in the 'Components widget' in Context window
-            await contextWindow.waitForTabBarItemDisplayed('Insert');
-            // 7. Save button should be disabled:
-            await contentWizard.waitForSaveButtonDisabled();
-            // 6. Verify that 'Insert' tab is present in the Components widget in Context window
-            await contextWindow.waitForTabBarItemDisplayed('Insert');
+            // 6. Verify that 'Customize Page' button is displayed in the Inspection Panel:
+            await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageInspectionPanel.waitForCustomizePageButtonDisplayed();
             // 7. Save button should be disabled:
             await contentWizard.waitForSaveButtonDisabled();
         });
