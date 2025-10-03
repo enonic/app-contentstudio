@@ -65,6 +65,7 @@ import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
 import {UrlAction} from 'lib-contentstudio/app/UrlAction';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
+import {VersionHelper} from 'lib-contentstudio/app/util/VersionHelper';
 import Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
@@ -522,6 +523,8 @@ async function startContentBrowser() {
     const AppWrapper = (await import('lib-contentstudio/app/AppWrapper')).AppWrapper;
     const url: string = window.location.href;
     const commonWrapper = new AppWrapper(getTheme());
+
+    VersionHelper.checkAndNotifyIfNewerVersionExists();
 
     if (isDefaultAppUrl(url)) {
         commonWrapper.selectDefaultWidget();
