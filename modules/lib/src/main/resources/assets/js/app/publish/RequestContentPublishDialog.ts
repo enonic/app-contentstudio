@@ -144,7 +144,7 @@ export class RequestContentPublishDialog
             const issueIcon: DivEl = new DivEl('icon-publish-request opened');
             this.prependChildToHeader(issueIcon);
 
-            this.appendChildToContentPanel(this.stateBar);
+            this.appendChildToContentPanel(this.statusBar);
 
             this.detailsForm.addClass('details-form-view');
 
@@ -292,7 +292,7 @@ export class RequestContentPublishDialog
             return;
         }
 
-        super.updateSubTitle(itemsToPublish);
+        super.updateSubTitle();
     }
 
     protected updateControls(itemsToPublish: number = this.countTotal()): void {

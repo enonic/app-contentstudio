@@ -49,10 +49,9 @@ function getIcon(status: Status): LucideIcon {
     }
 };
 
-export const StatusIcon = ({status, className, ...props}: Props): React.ReactElement => {
-    const newStatus = status === 'ready' ? 'info' : status;
-    const classNames = cn(className, statusIconVariants({status: newStatus}));
-    const Icon = getIcon(newStatus);
+export const StatusIcon = ({className, status, ...props}: Props): React.ReactElement => {
+    const classNames = cn(statusIconVariants({status}), className);
+    const Icon = getIcon(status);
 
-    return <Icon className={classNames} aria-label={newStatus} {...props} />;
+    return <Icon className={classNames} aria-label={status} {...props} />;
 };
