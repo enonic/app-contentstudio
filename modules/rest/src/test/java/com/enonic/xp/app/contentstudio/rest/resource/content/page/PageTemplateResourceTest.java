@@ -1,37 +1,66 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.page;
 
-import com.enonic.xp.app.ApplicationKey;
-import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
-import com.enonic.xp.app.contentstudio.rest.resource.content.JsonObjectsFactory;
-import com.enonic.xp.content.*;
-import com.enonic.xp.core.impl.schema.content.BuiltinContentTypesAccessor;
-import com.enonic.xp.data.PropertyTree;
-import com.enonic.xp.descriptor.DescriptorKey;
-import com.enonic.xp.page.*;
-import com.enonic.xp.region.Regions;
-import com.enonic.xp.resource.ResourceKey;
-import com.enonic.xp.schema.content.*;
-import com.enonic.xp.schema.xdata.XDataName;
-import com.enonic.xp.security.PrincipalKey;
-import com.enonic.xp.security.SecurityService;
-import com.enonic.xp.site.*;
-import com.enonic.xp.site.mapping.ControllerMappingDescriptor;
-import com.enonic.xp.site.mapping.ControllerMappingDescriptors;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.core.MediaType;
-import org.jboss.resteasy.core.ResteasyContext;
-import org.junit.jupiter.api.Test;
-import org.mockito.stubbing.Answer;
-
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import org.jboss.resteasy.core.ResteasyContext;
+import org.junit.jupiter.api.Test;
+import org.mockito.stubbing.Answer;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.MediaType;
+
+import com.enonic.xp.app.ApplicationKey;
+import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
+import com.enonic.xp.app.contentstudio.rest.resource.content.JsonObjectsFactory;
+import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentName;
+import com.enonic.xp.content.ContentNotFoundException;
+import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.content.ContentPublishInfo;
+import com.enonic.xp.content.ContentService;
+import com.enonic.xp.content.ExtraData;
+import com.enonic.xp.content.ExtraDatas;
+import com.enonic.xp.content.FindContentIdsByParentResult;
+import com.enonic.xp.core.impl.schema.content.BuiltinContentTypesAccessor;
+import com.enonic.xp.data.PropertyTree;
+import com.enonic.xp.descriptor.DescriptorKey;
+import com.enonic.xp.page.CreatePageTemplateParams;
+import com.enonic.xp.page.Page;
+import com.enonic.xp.page.PageTemplate;
+import com.enonic.xp.page.PageTemplateService;
+import com.enonic.xp.page.PageTemplates;
+import com.enonic.xp.region.Regions;
+import com.enonic.xp.resource.ResourceKey;
+import com.enonic.xp.schema.content.ContentType;
+import com.enonic.xp.schema.content.ContentTypeName;
+import com.enonic.xp.schema.content.ContentTypeNames;
+import com.enonic.xp.schema.content.ContentTypeService;
+import com.enonic.xp.schema.content.GetContentTypeParams;
+import com.enonic.xp.schema.xdata.XDataName;
+import com.enonic.xp.security.PrincipalKey;
+import com.enonic.xp.security.SecurityService;
+import com.enonic.xp.site.Site;
+import com.enonic.xp.site.SiteConfig;
+import com.enonic.xp.site.SiteConfigs;
+import com.enonic.xp.site.SiteConfigsDataSerializer;
+import com.enonic.xp.site.SiteDescriptor;
+import com.enonic.xp.site.SiteService;
+import com.enonic.xp.site.mapping.ControllerMappingDescriptor;
+import com.enonic.xp.site.mapping.ControllerMappingDescriptors;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PageTemplateResourceTest
     extends AdminResourceTestSupport
@@ -332,8 +361,10 @@ public class PageTemplateResourceTest
 
     private Site createSite( final String id, final String name, SiteConfigs siteConfigs )
     {
-        return Site.create().
-            siteConfigs( siteConfigs ).
+        final PropertyTree dataSet = new PropertyTree();
+        SiteConfigsDataSerializer.toData( siteConfigs, dataSet.getRoot() );
+
+        return Site.create().data( dataSet ).
             id( ContentId.from( id ) ).
             parentPath( ContentPath.ROOT ).
             name( name ).

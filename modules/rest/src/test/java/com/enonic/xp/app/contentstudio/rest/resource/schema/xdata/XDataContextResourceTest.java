@@ -37,6 +37,8 @@ import com.enonic.xp.schema.xdata.XDataService;
 import com.enonic.xp.schema.xdata.XDatas;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
+import com.enonic.xp.site.SiteConfigs;
+import com.enonic.xp.site.SiteConfigsDataSerializer;
 import com.enonic.xp.site.SiteDescriptor;
 import com.enonic.xp.site.SiteService;
 import com.enonic.xp.site.XDataMapping;
@@ -352,6 +354,9 @@ public class XDataContextResourceTest
         final SiteConfig siteConfig =
             SiteConfig.create().config( new PropertyTree() ).application( applicationKey ).build();
 
-        return Site.create().name( "site" ).parentPath( ContentPath.ROOT ).addSiteConfig( siteConfig ).build();
+        final PropertyTree dataSet = new PropertyTree();
+        SiteConfigsDataSerializer.toData( SiteConfigs.from( siteConfig ), dataSet.getRoot() );
+
+        return Site.create().name( "site" ).parentPath( ContentPath.ROOT ).data( dataSet ).build();
     }
 }

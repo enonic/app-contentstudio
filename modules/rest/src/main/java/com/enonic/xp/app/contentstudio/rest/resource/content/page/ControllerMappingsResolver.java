@@ -7,6 +7,7 @@ import java.util.Objects;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
+import com.enonic.xp.site.SiteConfigsDataSerializer;
 import com.enonic.xp.site.SiteService;
 import com.enonic.xp.site.mapping.ContentMappingConstraint;
 import com.enonic.xp.site.mapping.ControllerMappingDescriptor;
@@ -34,7 +35,7 @@ final class ControllerMappingsResolver
     private List<ControllerMappingDescriptor> getMappingDescriptors( final Site site )
     {
         final List<ControllerMappingDescriptor> descriptors = new ArrayList<>();
-        site.getSiteConfigs().stream().
+        SiteConfigsDataSerializer.fromData( site.getData().getRoot() ).stream().
             map( SiteConfig::getApplicationKey ).
             map( siteService::getDescriptor ).
             filter( Objects::nonNull ).
