@@ -19,9 +19,8 @@ import {PublishScheduleForm} from '../publish/PublishScheduleForm';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
-import {DialogStateBar} from './DialogStateBar';
-import {DialogStateEntry} from './DialogStateEntry';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {SelectionStatusBarElement} from '../ui2/dialog/SelectionStatusBar';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
@@ -34,13 +33,7 @@ export abstract class BasePublishDialog
 
     protected scheduleFormToggle: ButtonEl;
 
-    protected stateBar: DialogStateBar;
-
-    private invalidErrorEntry: DialogStateEntry;
-
-    private inProgressErrorEntry: DialogStateEntry;
-
-    private noPermissionsErrorEntry: DialogStateEntry;
+    protected statusBar: SelectionStatusBarElement;
 
     private isLoading: boolean = false;
 
@@ -93,64 +86,48 @@ export abstract class BasePublishDialog
     }
 
     protected initStateBar(): void {
-        this.stateBar = new DialogStateBar({
-            failText: i18n('dialog.publish.error.loadFailed'),
-            resolvedText: i18n('dialog.publish.error.resolved'),
-            edit: {
-                applyHandler: () => {
-                    this.getDependantList().saveExclusions();
-                    this.markEditing(false);
-                },
-                cancelHandler: () => {
-                    this.getDependantList().restoreExclusions();
-                    this.markEditing(false);
-                },
-            }
-        });
-
-        this.invalidErrorEntry = this.stateBar.addErrorEntry({
-            text: i18n('dialog.publish.error.invalid'),
-            icon: 'icon-state-invalid',
-            actionButtons: [{
-                label: i18n('dialog.publish.exclude'),
-                handler: () => {
-                    this.stateBar.markChecking(true);
-                    this.publishProcessor.excludeInvalid();
-                },
-            }],
-        });
-
         const allowContentUpdate = CONFIG.isTrue('allowContentUpdate');
-        this.inProgressErrorEntry = this.stateBar.addErrorEntry({
-            text: i18n('dialog.publish.error.inProgress'),
-            icon: 'icon-state-in-progress',
-            actionButtons: [{
-                label: i18n('dialog.publish.exclude'),
-                handler: () => {
-                    this.stateBar.markChecking(true);
-                    this.publishProcessor.excludeInProgress();
-                },
-            }, ...(!allowContentUpdate ? [] : [{
-                label: i18n('action.markAsReady'),
-                handler: () => {
-                    this.stateBar.markChecking(true);
-                    this.markAllAsReady();
-                },
-            }])],
-        });
 
-        this.noPermissionsErrorEntry = this.stateBar.addErrorEntry({
-            text: i18n('dialog.publish.error.noPermissions'),
-            actionButtons: [{
-                label: i18n('dialog.publish.exclude.noPermissions'),
-                handler: () => {
-                    this.stateBar.markChecking(true);
-                    this.publishProcessor.excludeNotPublishable();
+        this.statusBar = new SelectionStatusBarElement({
+            loading: true,
+            onApply: () => {
+                this.getDependantList().saveExclusions();
+                this.statusBar.setEditing(false);
+                this.markEditing(false);
+            },
+            onCancel: () => {
+                this.getDependantList().restoreExclusions();
+                this.statusBar.setEditing(false);
+                this.markEditing(false);
+            },
+            errors: {
+                inProgress: {
+                    count: this.publishProcessor.getInProgressCount(),
+                    disabled: !this.publishProcessor.canExcludeInProgress(),
+                    onExclude: () => {
+                        this.publishProcessor.excludeInProgress();
+                    },
+                    onMarkAsReady: allowContentUpdate ? () => {
+                        this.markAllAsReady();
+                    } : undefined,
                 },
-            }],
-        });
+                invalid: {
+                    count: this.publishProcessor.getInvalidCount(),
+                    disabled: !this.publishProcessor.canExcludeInvalid(),
+                    onExclude: () => {
+                        this.publishProcessor.excludeInvalid();
+                    },
+                },
+                noPermissions: {
+                    count: this.publishProcessor.getNotPublishableCount(),
+                    disabled: !this.publishProcessor.canExcludeNotPublishable(),
+                    onExclude: () => {
+                        this.publishProcessor.excludeNotPublishable();
+                    },
+                },
 
-        this.stateBar.markChecking(true);
+            },
+        });
     }
 
     protected postInitElements() {
@@ -185,7 +162,7 @@ export abstract class BasePublishDialog
         this.handleIssueGlobalEvents();
 
         this.getDependantList().onSelectionChanged((original) => {
-            this.stateBar.markEditing(!original);
+            this.statusBar.setEditing(!original);
             this.markEditing(!original);
         });
 
@@ -201,8 +178,8 @@ export abstract class BasePublishDialog
         this.lockControls();
         if (checking) {
             this.setSubTitle(i18n('dialog.publish.resolving'));
-            this.stateBar.markChecking(true);
-            this.stateBar.reset();
+            this.statusBar.setLoading(true);
+            this.statusBar.reset();
         }
     }
 
@@ -212,22 +189,20 @@ export abstract class BasePublishDialog
 
         // updateCount
         const itemsToPublish = this.countTotal();
-        const isNoItems = itemsToPublish === 0;
-        this.stateBar.toggleHideIfResolved(isNoItems);
 
-        this.updateSubTitle(itemsToPublish);
+        this.updateSubTitle();
         this.updateButtonCount(null, itemsToPublish);
         this.unlockControls();
         this.updateControls(itemsToPublish);
 
         if (this.isVisible()) {
-            this.stateBar.markChecking(false);
+            this.statusBar.setLoading(false);
         }
     }
 
     private handleLoadFailed() {
         this.isLoading = false;
-        this.stateBar.markErrored();
+        this.statusBar.setFailed(true);
         this.scheduleFormToggle.setEnabled(false);
     }
 
@@ -248,23 +223,22 @@ export abstract class BasePublishDialog
         });
     }
 
-    protected updateSubTitle(itemsToPublish: number) {
+    protected updateSubTitle() {
         const isAllValid = this.areItemsAndDependantsValid();
         const hasInProgress = this.containsItemsInProgress();
         const isNeedPublish = this.publishProcessor.isCheckPublishable();
         const isAllPublishable = this.isAllPublishable();
 
         if ((!isNeedPublish || isAllPublishable) && isAllValid && !hasInProgress) {
-            this.stateBar.reset();
+            this.statusBar.reset();
         } else {
-            this.invalidErrorEntry.updateCount(this.publishProcessor.getInvalidCount());
-            this.invalidErrorEntry.markNonInteractive(!this.publishProcessor.canExcludeInvalid());
+            this.statusBar.setErrorCount('invalid', this.publishProcessor.getInvalidCount());
+            this.statusBar.setErrorCount('inProgress', this.publishProcessor.getInProgressCount());
+            this.statusBar.setErrorCount('noPermissions', this.publishProcessor.getNotPublishableCount());
 
-            this.inProgressErrorEntry.updateCount(this.publishProcessor.getInProgressCount());
-            this.inProgressErrorEntry.markNonInteractive(!this.publishProcessor.canExcludeInProgress(), 0);
-
-            this.noPermissionsErrorEntry.updateCount(this.publishProcessor.getNotPublishableCount());
-            this.noPermissionsErrorEntry.markNonInteractive(!this.publishProcessor.canExcludeNotPublishable());
+            this.statusBar.setErrorDisabled('invalid', !this.publishProcessor.canExcludeInvalid());
+            this.statusBar.setErrorDisabled('inProgress', !this.publishProcessor.canExcludeInProgress());
+            this.statusBar.setErrorDisabled('noPermissions', !this.publishProcessor.canExcludeNotPublishable());
         }
     }
 
@@ -380,7 +354,7 @@ export abstract class BasePublishDialog
 
     open(): void {
         this.publishProcessor.setIgnoreDependantItemsChanged(false);
-        this.stateBar.markChecking(true);
+        this.statusBar.setLoading(true);
         CreateIssueDialog.get().reset();
 
         super.open();
@@ -389,7 +363,7 @@ export abstract class BasePublishDialog
     close(): void {
         super.close();
         this.publishProcessor.reset();
-        this.stateBar.reset();
+        this.statusBar.reset();
         CreateIssueDialog.get().reset();
     }
 
@@ -402,18 +376,18 @@ export abstract class BasePublishDialog
             .then(() => showFeedback(i18n('notify.item.markedAsReady.multiple', ids.length)))
             .catch(e => {
                 DefaultErrorHandler.handle(e);
-                this.stateBar.markChecking(false);
+                this.statusBar.setLoading(false);
                 this.unlockControls();
             });
     }
 
     protected lockControls(): void {
         super.lockControls();
-        this.stateBar.setEnabled(false);
+        this.statusBar.setLoading(false);
     }
 
     protected unlockControls(): void {
         super.unlockControls();
-        this.stateBar.setEnabled(true);
+        this.statusBar.setLoading(true);
     }
 }

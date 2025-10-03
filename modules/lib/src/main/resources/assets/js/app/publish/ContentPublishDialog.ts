@@ -115,7 +115,7 @@ export class ContentPublishDialog
 
             this.prependChildToContentPanel(this.publishScheduleForm);
 
-            this.prependChildToContentPanel(this.stateBar);
+            this.prependChildToContentPanel(this.statusBar);
 
             return rendered;
         });
@@ -211,7 +211,7 @@ export class ContentPublishDialog
             this.message = null;
         }
 
-        super.updateSubTitle(itemsToPublish);
+        super.updateSubTitle();
     }
 
 

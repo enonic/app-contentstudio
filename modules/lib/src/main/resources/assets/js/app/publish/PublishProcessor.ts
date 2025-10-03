@@ -783,12 +783,6 @@ export class PublishProcessor {
         this.loadingStartedListeners.push(listener);
     }
 
-    unLoadingStarted(listener: LoadingStartedListener) {
-        this.loadingStartedListeners = this.loadingStartedListeners.filter((curr) => {
-            return listener !== curr;
-        });
-    }
-
     private notifyLoadingStarted(checking: boolean) {
         this.loadingStartedListeners.forEach((listener) => {
             listener(checking);
@@ -799,12 +793,6 @@ export class PublishProcessor {
         this.loadingFinishedListeners.push(listener);
     }
 
-    unLoadingFinished(listener: () => void) {
-        this.loadingFinishedListeners = this.loadingFinishedListeners.filter((curr) => {
-            return listener !== curr;
-        });
-    }
-
     private notifyLoadingFinished() {
         this.loadingFinishedListeners.forEach((listener) => {
             listener();
@@ -813,12 +801,6 @@ export class PublishProcessor {
 
     onLoadingFailed(listener: () => void) {
         this.loadingFailedListeners.push(listener);
-    }
-
-    unLoadingFailed(listener: () => void) {
-        this.loadingFailedListeners = this.loadingFailedListeners.filter((curr) => {
-            return listener !== curr;
-        });
     }
 
     private notifyLoadingFailed() {
