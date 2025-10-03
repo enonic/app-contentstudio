@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Activate;
@@ -48,6 +47,7 @@ import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
+import com.enonic.xp.site.SiteConfigsDataSerializer;
 import com.enonic.xp.site.SiteDescriptor;
 import com.enonic.xp.site.SiteService;
 import com.enonic.xp.site.XDataMappings;
@@ -125,7 +125,7 @@ public final class XDataContextResource
     {
         final Site nearestSite = this.contentService.getNearestSite( content.getId() );
 
-        return nearestSite == null ? getProjectSiteConfigs() : nearestSite.getSiteConfigs();
+        return nearestSite == null ? getProjectSiteConfigs() : SiteConfigsDataSerializer.fromData( nearestSite.getData().getRoot() );
     }
 
     private SiteConfigs getProjectSiteConfigs()

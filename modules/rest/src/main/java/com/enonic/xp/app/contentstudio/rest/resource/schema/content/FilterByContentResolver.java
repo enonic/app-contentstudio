@@ -22,6 +22,7 @@ import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.inputtype.InputTypeProperty;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.page.PageDescriptorService;
@@ -38,9 +39,9 @@ import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
 import com.enonic.xp.schema.content.GetContentTypeParams;
-import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
+import com.enonic.xp.site.SiteConfigsDataSerializer;
 
 @Component(service = FilterByContentResolver.class)
 public class FilterByContentResolver
@@ -204,7 +205,9 @@ public class FilterByContentResolver
     private ApplicationKeys getNearestSiteApps( final ContentId contentId )
     {
         return Optional.ofNullable( contentService.getNearestSite( contentId ) )
-            .map( Site::getSiteConfigs )
+            .map( Content::getData )
+            .map( PropertyTree::getRoot )
+            .map( SiteConfigsDataSerializer::fromData )
             .map( this::getSiteConfigsApplicationKeys )
             .map( ApplicationKeys::from )
             .orElse( ApplicationKeys.empty() );

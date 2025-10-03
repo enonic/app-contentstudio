@@ -21,6 +21,7 @@ import com.enonic.xp.script.bean.ScriptBean;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
+import com.enonic.xp.site.SiteConfigsDataSerializer;
 import com.enonic.xp.style.StyleDescriptorService;
 import com.enonic.xp.style.StyleDescriptors;
 
@@ -67,8 +68,7 @@ public final class StyleHandler
 
         final Site nearestSite = this.contentService.getNearestSite( contentId );
 
-        final SiteConfigs siteConfigs = nearestSite != null
-        ? nearestSite.getSiteConfigs()
+        final SiteConfigs siteConfigs = nearestSite != null ? SiteConfigsDataSerializer.fromData( nearestSite.getData().getRoot() )
         : projectService.get( ProjectName.from( ContextAccessor.current().getRepositoryId() ) ).getSiteConfigs();
 
         final Set<ApplicationKey> contentApps = this.getSiteConfigsApplicationKeys( siteConfigs );
