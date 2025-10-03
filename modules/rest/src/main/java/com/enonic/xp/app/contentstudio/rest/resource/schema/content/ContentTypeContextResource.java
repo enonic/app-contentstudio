@@ -29,6 +29,7 @@ import com.enonic.xp.schema.content.ContentTypes;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
+import com.enonic.xp.site.SiteConfigsDataSerializer;
 import com.enonic.xp.support.AbstractImmutableEntityList;
 
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
@@ -56,7 +57,7 @@ public final class ContentTypeContextResource
         final ContentTypes contentTypes;
         if ( site != null )
         {
-            final List<ContentType> types = site.getSiteConfigs()
+            final List<ContentType> types = SiteConfigsDataSerializer.fromData( site.getData().getRoot() )
                 .stream()
                 .map( SiteConfig::getApplicationKey )
                 .map( ( appKey ) -> contentTypeService.getByApplication( appKey ) )

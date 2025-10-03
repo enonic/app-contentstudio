@@ -24,11 +24,11 @@ import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.core.impl.schema.content.BuiltinContentTypesAccessor;
 import com.enonic.xp.data.PropertyTree;
+import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.inputtype.InputTypeConfig;
 import com.enonic.xp.inputtype.InputTypeProperty;
-import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.page.PageDescriptorService;
 import com.enonic.xp.page.PageDescriptors;
@@ -50,6 +50,7 @@ import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
+import com.enonic.xp.site.SiteConfigsDataSerializer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -505,18 +506,21 @@ class FilterByContentResolverTest
 
     private Site someSite()
     {
+        final PropertyTree dataSet = new PropertyTree();
+        SiteConfigsDataSerializer.toData( SiteConfigs.create()
+                                              .add( SiteConfig.create()
+                                                        .config( new PropertyTree() )
+                                                        .application( ApplicationKey.from( "application" ) )
+                                                        .build() )
+                                              .build(), dataSet.getRoot() );
+
         final Site.Builder builder = Site.create();
 
         builder.id( ContentId.from( "456" ) );
         builder.name( "someName" );
         builder.parentPath( ContentPath.ROOT );
         builder.displayName( "displayName" );
-        builder.siteConfigs( SiteConfigs.create()
-                                 .add( SiteConfig.create()
-                                           .config( new PropertyTree() )
-                                           .application( ApplicationKey.from( "application" ) )
-                                           .build() )
-                                 .build() );
+        builder.data( dataSet );
 
         return builder.build();
     }

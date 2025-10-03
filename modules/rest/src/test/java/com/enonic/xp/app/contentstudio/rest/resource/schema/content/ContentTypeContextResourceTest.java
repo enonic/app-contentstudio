@@ -28,6 +28,7 @@ import com.enonic.xp.schema.content.ContentTypes;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
+import com.enonic.xp.site.SiteConfigsDataSerializer;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
@@ -116,9 +117,12 @@ public class ContentTypeContextResourceTest
             config( siteConfigConfig ).
             build();
 
+        final PropertyTree dataSet = new PropertyTree();
+        SiteConfigsDataSerializer.toData( SiteConfigs.from( siteConfig ), dataSet.getRoot() );
+
         final Site.Builder site = Site.create();
         site.id( ContentId.from( "1004242" ) );
-        site.siteConfigs( SiteConfigs.from( siteConfig ) );
+        site.data( dataSet );
         site.name( "my-content" );
         site.parentPath( ContentPath.ROOT );
         return site.build();
