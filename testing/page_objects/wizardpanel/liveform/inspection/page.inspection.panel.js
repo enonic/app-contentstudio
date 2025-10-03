@@ -100,8 +100,12 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
         return this.waitForElementDisabled(locator, appConst.mediumTimeout);
     }
 
-    async waitForCustomizeButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.customizePageButton, appConst.mediumTimeout);
+    async waitForCustomizePageButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.customizePageButton, appConst.mediumTimeout);
+        }catch (err){
+            await this.handleError('Page Inspection Tab, Customize button is still displayed', 'err_customize_button_displayed', err);
+        }
     }
 
     async clickOnCustomizePageButton() {

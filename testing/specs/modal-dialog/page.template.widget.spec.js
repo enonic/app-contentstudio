@@ -73,8 +73,8 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
             await studioUtils.findAndSelectItem(SITE.displayName);
             await studioUtils.saveScreenshot('template_widget_site_with_template');
             // 6. Verify that the template's name is displayed in the link
-            let templateName = await pageTemplateWidget.getControllerLink();
-            assert.equal(templateName, TEMPLATE_NAME, "Expected template name should be displayed in the template widget");
+            let actualName = await pageTemplateWidget.getControllerLink();
+            assert.equal(actualName, TEMPLATE_NAME, "Expected template name should be displayed in the template widget");
             // 7. Verify that 'Automatic' controller type is displayed:
             let type = await pageTemplateWidget.getControllerType();
             assert.equal(type, 'Automatic', "Automatic template should be present in the widget");

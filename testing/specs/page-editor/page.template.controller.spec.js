@@ -7,7 +7,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
-const LiveContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
+const PageWidgetPanel = require('../../page_objects/wizardpanel/liveform/page.widget.context.window');
 const PageTemplateForm = require('../../page_objects/wizardpanel/page.template.form.panel');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const appConst = require('../../libs/app_const');
@@ -17,6 +17,8 @@ const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/inse
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const PageTemplateWidget = require('../../page_objects/browsepanel/detailspanel/page.template.widget');
 
 describe('page.template.controller: select a controller in a template-wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -51,7 +53,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
     it(`GIVEN template wizard is opened WHEN controller has been selected THEN Live Context Window should be loaded automatically`,
         async () => {
             let contentWizard = new ContentWizard();
-            let liveContextWindow = new LiveContextWindow();
+            let pageWidgetPanel = new PageWidgetPanel();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
             let insertImageDialog = new InsertImageDialog();
@@ -62,9 +64,11 @@ describe('page.template.controller: select a controller in a template-wizard', f
             // 2. fill in the name input and select the controller:
             await contentWizard.typeDisplayName(TEMPLATE.displayName);
             let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 3. Verify the issue - Verifies xp-apps#686 - 'Context Window should be loaded automatically':
-            await liveContextWindow.waitForOpened();
+            await pageWidgetPanel.waitForOpened();
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 4. Click on the item and open Context Menu:
             await pageComponentView.openMenu('main');
@@ -85,19 +89,32 @@ describe('page.template.controller: select a controller in a template-wizard', f
         async () => {
             let contentWizard = new ContentWizard();
             let pageTemplateForm = new PageTemplateForm();
+            let pageInspectionTab = new PageInspectionPanel();
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await studioUtils.doSwitchToContentBrowsePanel();
             // 2. Open the template:
             await studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
-            // 3. 'site' has been selected in 'support' and the template has been saved
+            // 3. 'site' option has been selected in 'support' and the template has been saved:
             await pageTemplateForm.filterOptionsAndSelectSupport(appConst.TEMPLATE_SUPPORT.SITE);
+            // 4. Save the template
             await contentWizard.waitAndClickOnSave();
+            // 5. Switch to the site again:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
+            let pageTemplateWidget = new PageTemplateWidget();
+            // 6. Verify that 'Automatic' controller type is displayed in pageTemplateWidget:
+            let actualName = await pageTemplateWidget.getControllerLink();
+            assert.equal(actualName, TEMPLATE.displayName, 'Expected template name should be displayed in the template widget');
+            let type = await pageTemplateWidget.getControllerType();
+            assert.equal(type, 'Automatic', `'Automatic' template should be present in the widget`);
             await studioUtils.saveScreenshot('support_site_applied');
-            // 4. Template should be applied in the site-wizard so the controller selector should not be visible now:
-            //TODO
-            //await contentWizard.waitForControllerOptionFilterInputNotVisible();
+            // 7. Template should be applied in the site-wizard Preview button gets enabled:
+            await contentWizard.waitForPreviewButtonEnabled();
+            let contextWindow = await contentWizard.openContextWindow();
+            // 8. Select 'Page' in widget selector:
+            await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            // 9. Verify that the template is applied in the site - 'Customize Page' button gets visible in the Inspect panel:
+            await pageInspectionTab.waitForCustomizePageButtonDisplayed();
         });
 
     // Verify  https://github.com/enonic/app-contentstudio/issues/7077
@@ -112,7 +129,11 @@ describe('page.template.controller: select a controller in a template-wizard', f
             // 2. Unlock the LiveEdit(Click on Customize menu item)
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await liveFormPanel.switchToParentFrame();
+            // 3. Click on Customize Page button in Inspect panel:
             await pageInspectionPanel.clickOnCustomizePageButton();
+            let confirmationDialog = new ConfirmationDialog();
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('page_template_image_rendered');
             // 3. Verify that the image that was inserted in the template is displayed in the site
             await contentWizard.switchToLiveEditFrame();
@@ -127,6 +148,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
         async () => {
             let pageTemplateForm = new PageTemplateForm();
             let contentWizard = new ContentWizard();
+            let pageInspectionTab = new PageInspectionPanel();
             //1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await studioUtils.doSwitchToContentBrowsePanel();
@@ -136,11 +158,12 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await pageTemplateForm.clickOnRemoveSupportIcon('Site');
             //4. Save the template
             await contentWizard.waitAndClickOnSave();
+            // 5. Switch to the site again:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             await studioUtils.saveScreenshot('template_support_removed');
-            // 5. Verify - site wizard should be updated: Options filter input must be visible, because the `support` option has been removed in the page template
-            // TODO
-            //await contentWizard.waitForControllerOptionFilterInputVisible();
+            // 5. Verify - site wizard should be updated: Preview button gets disabled, because the `support` option has been removed in the page template
+            await pageInspectionTab.waitForCustomizePageButtonNotDisplayed();
+            await contentWizard.waitForPreviewButtonDisabled();
         });
 
     it(`Precondition - select 'site' option in Support selector`,
@@ -171,19 +194,23 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             // 3. Switch to the parent frame:
             await contentWizard.switchToParentFrame();
+            // 4. Click on Customize Page button in Inspect panel:
             await pageInspectionPanel.clickOnCustomizePageButton();
+            let confirmationDialog = new ConfirmationDialog();
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('site_customised');
-            // 4. Open the Page Components modal dialog and insert a text component:
+            // 5. Open the Page Components modal dialog and insert a text component:
             await pageComponentsWizardStepForm.openMenu('main');
             await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
             await studioUtils.saveScreenshot('site_customised_component_inserted');
-            // 5. Switches to 'live-edit' iframe and insert a text:
+            // 6. Switches to 'live-edit' iframe and insert a text:
             await textComponentCke.typeTextInCkeEditor(TEST_TEXT);
-            // 6. Switches to 'live-edit' iframe and gets the just inserted text:
+            // 7. Switches to 'live-edit' iframe and gets the just inserted text:
             await textComponentCke.switchToLiveEditFrame();
             await studioUtils.saveScreenshot('site_customised_text_inserted');
             let result = await textComponentCke.getTextFromEditor();
-            // 7. Verify that the text expected text is displayed in the text component:
+            // 8. Verify that the text expected text is displayed in the text component:
             assert.equal(result, TEST_TEXT_INSERTED, "Expected text should be displayed in the text component");
         });
 

@@ -50,12 +50,15 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await contentWizardPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
+            // 2. Select the Page widget in the dropdown
+            let wizardContextWindow = await contentWizardPanel.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(MAIN_REGION_CONTROLLER);
-            // 2. Click on minimize-toggle  expand Live Edit and open 'Page Component view' modal dialog:
+            // 3. Click on minimize-toggle  expand Live Edit and open 'Page Component view' modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
             await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, 'Layout']);
-            // 3. Verifies #6393: we keep 'Inspect panel' collapsed (or collapse it if it was expanded).
+            // 4. Verifies #6393: we keep 'Inspect panel' collapsed (or collapse it if it was expanded).
             // So need to open 'Inspect panel':
             //await contentWizardPanel.clickOnDetailsPanelToggleButton();
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_2_COL);
@@ -258,6 +261,9 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizardPanel.typeDisplayName(SITE_2_NAME);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
+            // Select the Page widget in the dropdown
+            let wizardContextWindow = await contentWizardPanel.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(MAIN_REGION_CONTROLLER);
             await wizardContextPanel.waitForOpened();
             // 2. Click on minimize-toggle expand Live Edit and show Page Component modal dialog:
