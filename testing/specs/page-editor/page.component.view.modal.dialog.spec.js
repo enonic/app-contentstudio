@@ -37,6 +37,8 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 2. Expand the Live Edit frame
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             // 3. Select a page descriptor:
+            let wizardContextWindow = await contentWizardPanel.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 4. Verify that the modal dialog is loaded:
             await pageComponentView.waitForLoaded();

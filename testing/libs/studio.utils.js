@@ -892,7 +892,7 @@ module.exports = {
         let browseDependenciesWidget = new BrowseDependenciesWidget();
         let browseContextWindow = new BrowseContextWindowPanel();
         await browsePanel.openContextWindow();
-        await browseContextWindow.openDependencies();
+        await browseContextWindow.openDependenciesWidget();
         return await browseDependenciesWidget.waitForWidgetLoaded();
     },
     isStringEmpty(str) {

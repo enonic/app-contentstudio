@@ -11,7 +11,7 @@ const xpath = {
         name => `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']]`,
 };
 
-class LiveContextWindow extends Page {
+class PageWidgetPanel extends Page {
 
     get insertTabBarItem() {
         return xpath.container + xpath.insertTabBarItem;
@@ -22,8 +22,7 @@ class LiveContextWindow extends Page {
             let selector = xpath.container + xpath.tabBarItemByName(tabName);
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_context_window_tab');
-            throw new Error("Context Window, TabBar item was not found, screenshot:" + screenshot + ' ' + err);
+            await this.handleError('Page Widget, TabBar item was not found', 'err_page_widget_panel_tab')
         }
     }
 
@@ -35,8 +34,7 @@ class LiveContextWindow extends Page {
             await this.getBrowser().elementClick(result[0].elementId);
             return await this.pause(200);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_context_window');
-            throw new Error('Error during clicking on tab bar item in Context Window, screenshot: ' + screenshot + "  " + err);
+            await this.handleError('Page widget, tried to click on the tab', 'err_click_tab_bar_item', err);
         }
     }
 
@@ -44,11 +42,10 @@ class LiveContextWindow extends Page {
         try {
             await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_context_window');
-            throw new Error('Live Edit, Context window is not opened, screenshot:' + screenshot + " " + err);
+            await this.handleError('Page widget in context window was not loaded!', 'err_page_widget_context_window', err);
         }
     }
 }
 
-module.exports = LiveContextWindow;
+module.exports = PageWidgetPanel;
 
