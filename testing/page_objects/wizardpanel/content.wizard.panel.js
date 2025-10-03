@@ -5,7 +5,6 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentStepForm = require('./content.wizard.step.form');
-const ContextWindow = require('./liveform/liveform.context.window');
 const WizardContextPanel = require('./details/wizard.context.window.panel');
 const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
@@ -14,7 +13,7 @@ const CreateRequestPublishDialog = require('../../page_objects/issue/create.requ
 const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const RenamePublishedContentDialog = require('./rename.content.dialog');
 const ContentUnpublishDialog = require('../content.unpublish.dialog');
-const WizardDependenciesWidget = require('./details/wizard.dependencies.widget');
+
 const PropertiesWidget = require('../browsepanel/detailspanel/properties.widget.itemview');
 const EditSettingsDialog = require('../details_panel/edit.settings.dialog');
 const PageDescriptorDropdown = require('../components/selectors/page.descriptor.dropdown');
@@ -197,11 +196,6 @@ class ContentWizardPanel extends Page {
     async clickOnHelpTextsToggler() {
         await this.waitForHelpTextsButtonTogglerDisplayed();
         return await this.clickOnElement(this.wizardToolbarHelpButton);
-    }
-
-    waitForContextWindowVisible() {
-        let contextWindow = new ContextWindow();
-        return contextWindow.waitForOpened();
     }
 
     waitForShaderDisplayed() {
@@ -1173,6 +1167,11 @@ class ContentWizardPanel extends Page {
         return await this.getTextInDisplayedElements(locator);
     }
 
+    async getNoPreviewMessageNoController() {
+        let locator = XPATH.container + lib.LIVE_VIEW.NO_CONTROLLER_NO_PREVIEW_MSG_SPAN;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
+    }
     async get500ErrorText() {
         let locator = '//h3';
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);

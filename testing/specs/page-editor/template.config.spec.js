@@ -13,7 +13,7 @@ const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wiz
 const TextComponent = require('../../page_objects/components/text.component');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
-const ContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
+const PageWidgetPanel = require('../../page_objects/wizardpanel/liveform/page.widget.context.window');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
@@ -96,7 +96,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
     it(`WHEN 'Customize Page' button has been clicked in Insert tab THEN 'Insert' tab should be visible in Components widget in Context Window`,
         async () => {
             let contentWizard = new ContentWizard();
-            let contextWindow = new ContextWindow();
+            let pageWidgetPanel = new PageWidgetPanel();
             let pageInspectionPanel = new PageInspectionPanel();
             let confirmationDialog = new ConfirmationDialog();
             // 1. Open new wizard for Article content:
@@ -110,9 +110,9 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
-            await contextWindow.switchToParentFrame();
+            await contentWizard.switchToParentFrame();
             // 4. Verify that Insert tab is displayed in the Context Window:
-            await contextWindow.waitForTabBarItemDisplayed('Insert');
+            await pageWidgetPanel.waitForTabBarItemDisplayed('Insert');
             await contentWizard.waitForSaveButtonEnabled();
         });
 

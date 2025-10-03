@@ -34,6 +34,8 @@ describe('Custom error handling - specification. Verify that application error p
             await contentWizard.pause(1000);
             // 2. Select a controller with error:
             let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_WITH_ERROR);
             await contentWizard.pause(500);
             await studioUtils.saveScreenshot('site_controller_with_errors');

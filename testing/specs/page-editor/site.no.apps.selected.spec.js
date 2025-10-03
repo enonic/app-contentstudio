@@ -23,23 +23,23 @@ describe('site.no.apps.selected: save a site without applications', function () 
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             // 2. Fill in the name input and save it
             await contentWizard.typeDisplayName(SITE_NAME);
+            let contextWindow = await contentWizard.openContextWindow();
+            let selectedWidget = await contextWindow.getSelectedOptionInWidgetSelectorDropdown();
+            assert.equal(selectedWidget, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, "'Details' selected option should be in the widget selector");
             // there's no apps are selected:
             await contentWizard.waitAndClickOnSave();
             // 3. Verify that "Monitor" icon is "off" and live form panel is not displayed:
-            await contentWizard.waitForControllerOptionFilterInputNotVisible();
             let actualOption = await contentWizard.getSelectedOptionInPreviewWidget();
             assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
                 'Automatic option should be selected in preview widget by default');
             let actualSize = await contentWizard.getSelectedOptionInEmulatorDropdown()
             assert.equal(actualSize, appConst.EMULATOR_RESOLUTION_VALUE.FULL_SIZE,
                 '100% should be selected in emulator dropdown by default');
-            // TODO  uncomment the check for Preview button
             // 3. Verify that 'Preview' button should be disabled in the wizard PreviewItem toolbar:
-            //await contentWizard.waitForPreviewButtonDisabled();
+            await contentWizard.waitForPreviewButtonDisabled();
             // 5. Verify the note in 'Live View' panel
             let message = await contentWizard.getNoPreviewMessage();
-            let expectedMessage = 'Please add an application to your site to enable rendering of this item';
-            assert.equal(message, expectedMessage, 'Expected message should be displayed in the live view panel');
+            assert.equal(message, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, 'expected message should be displayed');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

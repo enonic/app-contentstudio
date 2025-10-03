@@ -7,7 +7,7 @@ const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
 const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
-const ContextWindow = require('../page_objects/wizardpanel/liveform/liveform.context.window');
+const PageWidgetPanel = require('../page_objects/wizardpanel/liveform/page.widget.context.window');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const PageComponentView = require("../page_objects/wizardpanel/liveform/page.components.view");
 const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
@@ -60,7 +60,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
     it(`GIVEN existing site is opened(no controllers) WHEN a page controller has been selected THEN required options should be present in Inspection Panel`,
         async () => {
             let contentWizard = new ContentWizard();
-            let contextWindow = new ContextWindow();
+            let pageWidgetPanel = new PageWidgetPanel();
             let pageInspectionPanel = new PageInspectionPanel();
             // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
@@ -71,8 +71,8 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await contentWizard.pause(700);
             // 3. Verify that Preview button gets visible in the preview toolbar:
             await contentWizard.waitForPreviewButtonDisplayed();
-            // 4. Context Window loads automatically, click on 'Inspect' tab:
-            await contextWindow.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
+            // 4. Page widget in Context Window loads automatically, click on 'Inspect' tab:
+            await pageWidgetPanel.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             // 5. Click on dropdown handle and expand options:
             let actualOptions = await pageInspectionPanel.getOptionsDescriptionInPageTemplateDropdown();
             // 6. Verify actual options:
@@ -121,7 +121,6 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await contentWizard.waitForSaveButtonDisabled();
             // 5. Verify that 'Preview' button gets disabled in the Preview wizard toolbar:
             await contentWizard.waitForPreviewButtonDisabled();
-
             let controller = await pageInspectionPanel.getSelectedPageController();
             // 6. Verify that 'Preview' button is disabled in browse-toolbar:
             await studioUtils.doSwitchToContentBrowsePanel();

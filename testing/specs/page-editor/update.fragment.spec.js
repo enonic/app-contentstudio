@@ -37,6 +37,8 @@ describe('Test for updating text in fragment', function () {
             await siteFormPanel.filterOptionsAndSelectApplication(appConst.TEST_APPS_NAME.SIMPLE_SITE_APP);
             await contentWizard.pause(2000);
             let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();

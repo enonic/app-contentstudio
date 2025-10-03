@@ -40,6 +40,8 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             await contentWizard.pause(500);
             // 2. Verify that the site should be saved automatically after selecting a controller
             let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(appConst.CONTROLLER_NAME.MAIN_REGION);
             await contentWizard.waitForSaveButtonDisabled();
             // 3. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
@@ -81,6 +83,8 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(500);
             // 2. Verify that the site should be saved automatically after selecting a controller
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(appConst.CONTROLLER_NAME.APP_CONTENT_TYPES_PAGE);
             await contentWizard.waitForSaveButtonDisabled();
             // 3. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:

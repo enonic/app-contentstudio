@@ -31,9 +31,10 @@ describe('site.wizard.add.application.spec: Select an application in the wizard 
             let message = await contentWizard.waitForNotificationMessage();
             // 3. Add the application:
             await siteForm.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
-            // 6. Verify that 'Editing not available' message gets visible:
+            // 6. Verify that 'Preview not available' message gets visible:
             let result = await liveFormPanel.waitForEditingNotAvailableMessageDisplayed();
-            assert.equal(result, 'Editing not available', "'Editing not available' message should be displayed");
+            assert.equal(result, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, "'Preview not available' message should be displayed");
+            // 7. Verify that 'Page Settings' link gets visible:
             await liveFormPanel.waitForPageSettingsLinkDisplayed();
         });
 

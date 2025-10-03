@@ -33,14 +33,10 @@ describe('widget.selector.spec: tests for options in the widget selector', funct
             // 2. Select an application
             await siteFormPanel.filterOptionsAndSelectApplication(appConst.APP_CONTENT_TYPES);
             await contentWizard.waitForNotificationMessage();
-            // 3. Click on Widget Selector dropdown handler:
-            await wizardContextPanel.clickOnWidgetSelectorDropdownHandle();
-            // 4. Verify that 'Page' option is displayed before the selecting a controller:
-            let actualOptions1 = await wizardContextPanel.getWidgetSelectorDropdownOptions();
-            assert.ok(actualOptions1.includes(appConst.WIDGET_SELECTOR_OPTIONS.PAGE) === true,
-                "'Page' option should be displayed in the dropdown list");
             // 5. Select a controller:
             let pageInspectionPanel = new PageInspectionPanel();
+            let contextWindow = await contentWizard.openContextWindow();
+            await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 6. Verify that 'Components' option appears in options after selecting a controller:
             await wizardContextPanel.clickOnWidgetSelectorDropdownHandle();
@@ -50,14 +46,16 @@ describe('widget.selector.spec: tests for options in the widget selector', funct
                 "'Page' option should be displayed in the dropdown list");
         });
 
-
     // Verify Two items are selected in Widget selector #7897
     // https://github.com/enonic/app-contentstudio/issues/7897
     it(`GIVEN existing site is opened WHEN WidgetSelector dropdown has been expanded THEN the only one item is selected in the options list (Page)`,
         async () => {
-            let wizardContextPanel = new WizardContextPanel();
+
+            let contentWizard = new ContentWizard();
             // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            let wizardContextPanel = await contentWizard.openContextWindow();
+            await wizardContextPanel.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             // 2. Click on Widget selector dropdown handle and expand the ListBox:
             await wizardContextPanel.clickOnWidgetSelectorDropdownHandle();
             // 3. Verify that the only one item is selected in the options list
