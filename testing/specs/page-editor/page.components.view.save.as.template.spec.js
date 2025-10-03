@@ -32,6 +32,8 @@ describe('Save as Template specification', function () {
             await contentWizard.waitForNotificationMessage();
             // Verify that the site should be saved automatically after selecting a controller
             let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(COUNTRY_LIST_CONTROLLER);
             await contentWizard.waitForSaveButtonDisabled();
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
@@ -63,7 +65,7 @@ describe('Save as Template specification', function () {
             // 5. Verify the path of new template that was opened in new browser tab:
             await contentWizard.waitForOpened();
             await studioUtils.saveScreenshot('save_as_template1');
-            let expectedPath = "template-" + SITE.displayName;
+            let expectedPath = 'template-' + SITE.displayName;
             let actualPath = await contentWizard.getPath();
             assert.equal(actualPath, expectedPath, "Template's path should contain the name of its site");
             // 6. Verify the support selected option:
@@ -80,7 +82,7 @@ describe('Save as Template specification', function () {
             let pageInspectionPanel = new PageInspectionPanel();
             // 1. Open existing site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Click on the root element in the modal dialog:
             await pageComponentView.clickOnComponent(COUNTRY_LIST_CONTROLLER);
@@ -91,7 +93,7 @@ describe('Save as Template specification', function () {
             // 5. Verify the path of new template that was opened in new browser tab:
             await contentWizard.waitForOpened();
             await studioUtils.saveScreenshot('save_as_template2');
-            let expectedPath = "template-" + SITE.displayName + "-1";
+            let expectedPath = 'template-' + SITE.displayName + '-1';
             let actualPath = await contentWizard.getPath();
             assert.equal(actualPath, expectedPath, `Template's path should contain the name of its site`);
             // 6. Verify the support selected option:
@@ -99,7 +101,6 @@ describe('Save as Template specification', function () {
             assert.equal(support.length, 1, `Single item should be in support form`);
             assert.equal(support[0], `Site`, `Site option should be selected in the selector`);
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
