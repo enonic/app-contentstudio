@@ -5,8 +5,8 @@ import {VersionHistoryItem} from './VersionHistoryItem';
 
 export class BatchedContentVersionsConverter extends ContentVersionsConverter {
 
-    constructor(content: ContentSummaryAndCompareStatus) {
-        super(content);
+    constructor(content: ContentSummaryAndCompareStatus, creatorDisplayName: string) {
+        super(content, creatorDisplayName);
     }
 
     public append(versions: ContentVersion[], isMoreVersionsToBeAdded: boolean): VersionHistoryItem[] {
