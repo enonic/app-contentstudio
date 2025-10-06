@@ -74,7 +74,7 @@ describe('Save as Template specification', function () {
             assert.equal(support[0], 'Site', 'Site option should be selected in the selector');
         });
 
-    it("GIVEN 'Page Component View' has been opened AND the root element has been clicked WHEN 'Save as Template' button in 'Inspection Panel' has been clicked THEN wizard for new page template should be loaded",
+    it("GIVEN 'Page Component View' has been opened AND the root element has been clicked WHEN 'Save as Template' menu item has been clicked THEN wizard for new page template should be loaded",
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
@@ -87,8 +87,9 @@ describe('Save as Template specification', function () {
             // 3. Click on the root element in the modal dialog:
             await pageComponentView.clickOnComponent(COUNTRY_LIST_CONTROLLER);
             await studioUtils.saveScreenshot('controller_inspection_panel');
-            // 4. 'Page inspection' should be loaded, click on 'Save as Template' button:
-            await pageInspectionPanel.clickOnSaveAsTemplateButton();
+            // 4. Click on 'Save as Template' menu item
+            await pageComponentView.openMenu(COUNTRY_LIST_CONTROLLER);
+            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE);
             await studioUtils.doSwitchToNextTab();
             // 5. Verify the path of new template that was opened in new browser tab:
             await contentWizard.waitForOpened();
@@ -99,7 +100,7 @@ describe('Save as Template specification', function () {
             // 6. Verify the support selected option:
             let support = await pageTemplateForm.getSupportSelectedOptions();
             assert.equal(support.length, 1, `Single item should be in support form`);
-            assert.equal(support[0], `Site`, `Site option should be selected in the selector`);
+            assert.equal(support[0], 'Site', `Site option should be selected in the selector`);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

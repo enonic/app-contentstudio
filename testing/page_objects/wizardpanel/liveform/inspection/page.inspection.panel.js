@@ -26,24 +26,6 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
         return xpath.container + xpath.pageTemplateSelector + lib.DROP_DOWN_HANDLE;
     }
 
-    get saveAsTemplateButton() {
-        return xpath.container + lib.actionButton('Save as Template');
-    }
-
-    waitForSaveAsTemplateButtonDisplayed() {
-        return this.waitForElementDisplayed(this.saveAsTemplateButton, appConst.mediumTimeout);
-    }
-
-    async clickOnSaveAsTemplateButton() {
-        try {
-            await this.waitForSaveAsTemplateButtonDisplayed();
-            await this.clickOnElement(this.saveAsTemplateButton);
-            return await this.pause(3000);
-        } catch (err) {
-            await this.handleError('Page Inspection, tried to click on Save as Template button', 'err_click_save_as_template', err);
-        }
-    }
-
     async clickOnPageControllerDropdownHandle() {
         try {
             await this.clickOnElement(this.pageTemplateDropdownHandle);
