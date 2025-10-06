@@ -9,9 +9,9 @@ const contentBuilder = require("../libs/content.builder");
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const appConst = require('../libs/app_const');
 const PageComponentsWizardStepForm = require('../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
-const LiveFormPanel = require('../page_objects/wizardpanel/liveform/live.form.panel');
 const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ConfirmationDialog = require('../page_objects/confirmation.dialog');
+const allureReporter = require('@wdio/allure-reporter');
 
 describe('remove_app.in.site.with.descriptor.spec: replace an application and check the selected controller', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -25,14 +25,18 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
     const CONTROLLER_APP_1 = 'default';
     const CONTROLLER_APP_2 = 'Country List'
 
-    it("Precondition: new site with a page controller should be added",
+    it("Precondition",
         async () => {
-            let applications = [APP_1];
-            let displayName = appConst.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'test site1', applications, CONTROLLER_APP_1);
-            await studioUtils.doAddSite(SITE);
+            await allureReporter.step('new site with a page controller should be added', async () => {
+                let applications = [APP_1];
+                let displayName = appConst.generateRandomName('site');
+                SITE = contentBuilder.buildSite(displayName, 'test site1', applications, CONTROLLER_APP_1);
+                await studioUtils.doAddSite(SITE);
+            });
         });
 
+    // Verifies https://github.com/enonic/app-contentstudio/issues/9201
+    // Details widget should be loaded after reset of a controller #9201
     it(`WHEN the selected application has been replaced with another application THEN controller from the first application remains visible in PCV AND we can reset the controller`,
         async () => {
             let siteFormPanel = new SiteFormPanel();
@@ -40,42 +44,49 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Existing site is opened:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. remove the application in app-selector:
+            // 2. remove the App1 in app-selector:
             await siteFormPanel.removeApplication(APP_1);
             await studioUtils.saveScreenshot('app_1_removed');
-            // 3. Select another application:
+            // 3. Select App2 application:
             await siteFormPanel.filterOptionsAndSelectApplication(APP_2);
             // 4. the site should be automatically saved after removing the selected options:
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSaveButtonDisabled();
-            // 5. Verify that another application is selected in applications selector-dropdown:
+            // 5. Verify that App2 application is selected in app selector-dropdown:
             let apps = await siteFormPanel.getSelectedAppDisplayNames();
             assert.equal(apps[0], APP_2, 'application should be updated in the form');
             // 6. Verify that the controller from the previous application remains visible in PCV:
             await pageComponentsWizardStepForm.openMenu(CONTROLLER_APP_1);
+            // 7. Click on 'Reset' menu item, reset the controller
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             let confirmationDialog = new ConfirmationDialog();
-            // 4. Click on 'Yes' button in the confirmation dialog:
+            // 8. Click on 'Yes' button in the confirmation dialog:
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
             await contentWizard.waitForSaveButtonDisabled();
+            let contextWindow = await contentWizard.openContextWindow();
+            let widgetName = await contextWindow.getSelectedOptionInWidgetSelectorDropdown();
+            // 9. Verify that 'Details' widget is selected after the resetting:
+            assert.equal(widgetName, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS,
+                `'Details' widget should be selected after resetting the controller`);
             await studioUtils.saveScreenshot('app_replaced_in_site_wizard');
-            // 7. Verify that 'Controller Options Filter' input gets visible in the wizard-page:
+            // 10. Open Page widget in Context Window:
+            await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             let pageInspectionPanel = new PageInspectionPanel();
             let controller = await pageInspectionPanel.getSelectedPageController();
-            // 8 Verify that PCV gets not visible after the resetting:
-            await pageComponentsWizardStepForm.waitForNotDisplayed();
-            // 9. 'Save' button should be disabled after the resetting:
-            await contentWizard.waitForSaveButtonDisabled();
-            // 10 'Preview' button gets disabled in the Preview item toolbar:
-            await contentWizard.waitForPreviewButtonDisabled();
-            // 11. Select the page descriptor from the new selected application
-            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_APP_2);
-            // 12. Verify that 'Preview' button gets displayed again:
-            await contentWizard.waitForPreviewButtonDisplayed();
-            // 13. PCV gets visible and contains items from the second application:
-            await pageComponentsWizardStepForm.waitForComponentItemDisplayed(CONTROLLER_APP_2);
             assert.equal(controller, 'Automatic', 'Automatic controller should be displayed after resetting');
+            // 11. Verify that PCV gets not visible after the resetting:
+            await pageComponentsWizardStepForm.waitForNotDisplayed();
+            // 12. 'Save' button should be disabled after the resetting:
+            await contentWizard.waitForSaveButtonDisabled();
+            // 13 'Preview' button gets disabled in the Preview item toolbar:
+            await contentWizard.waitForPreviewButtonDisabled();
+            // 14. Select the page descriptor from the App2:
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_APP_2);
+            // 15. Verify that 'Preview' button gets displayed again:
+            await contentWizard.waitForPreviewButtonDisplayed();
+            // 16. PCV gets visible and contains items from the second application:
+            await pageComponentsWizardStepForm.waitForComponentItemDisplayed(CONTROLLER_APP_2);
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/7390
@@ -83,7 +94,6 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
     it(`GIVEN app selector has been expanded WHEN checkbox for the selected app has been unchecked THEN the selected option should not be displayed in the form`,
         async () => {
             let siteFormPanel = new SiteFormPanel();
-            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Existing site is opened:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. click on dropdown handle in app-selector:
@@ -97,6 +107,35 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             // 6. Verify that the selected option is removed in the form:
             let selectedApps = await siteFormPanel.getSelectedAppDisplayNames();
             assert.equal(selectedApps.length, 0, 'No selected apps should be in app-selector dropdown');
+        });
+
+    // Verifies https://github.com/enonic/app-contentstudio/issues/9201
+    // Details widget should be loaded after reset of a controller #9201
+    it.skip(
+        `GIVEN site with a selected controller is opened AND a page component is selected in PCV WHEN expand the menu for the 'main region' controller and click on Reset menu item THEN Details widget should be loaded after the resetting `,
+        async () => {
+            let siteFormPanel = new SiteFormPanel();
+            let contentWizard = new ContentWizard();
+            let pageInspectionPanel = new PageInspectionPanel();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            // 1. Existing site is opened:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            let contextWindow = await contentWizard.openContextWindow();
+            await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            //await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_APP_2);
+            await pageComponentsWizardStepForm.clickOnComponent('Main');
+            // 6. Verify that the controller from the previous application remains visible in PCV:
+            await pageComponentsWizardStepForm.openMenu(CONTROLLER_APP_2);
+            // 7. Click on 'Reset' menu item, reset the controller
+            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
+            let confirmationDialog = new ConfirmationDialog();
+            // 8. Click on 'Yes' button in the confirmation dialog:
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
+            await contentWizard.waitForSaveButtonDisabled();
+            let actualWidget = await contextWindow.getSelectedWidgetInContextWindow();
+            assert.equal(actualWidget, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS,
+                `'Details' widget should be selected after resetting the controller`)
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

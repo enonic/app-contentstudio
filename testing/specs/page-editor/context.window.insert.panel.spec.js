@@ -80,7 +80,7 @@ describe('context.window.insert.panel: tests for Insert tab in Page widget', fun
             let contextWindow = await contentWizard.openContextWindow();
             await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             let insertTabPanel = new InsertablesPanel();
-            // 1. Verify that Insert tab Panel is loaded automatically:
+            // 1. Verify that 'Insert' tab Panel is loaded automatically:
             await insertTabPanel.waitForOpened();
             // 2. Verify items in the panel:
             let items = await insertTabPanel.getItems();
