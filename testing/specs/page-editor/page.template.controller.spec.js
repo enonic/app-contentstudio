@@ -97,7 +97,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
             // 3. 'site' option has been selected in 'support' and the template has been saved:
             await pageTemplateForm.filterOptionsAndSelectSupport(appConst.TEMPLATE_SUPPORT.SITE);
-            // 4. Save the template
+            // 4. Save the template with 'Site' option is supports dropdown
             await contentWizard.waitAndClickOnSave();
             // 5. Switch to the site again:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
