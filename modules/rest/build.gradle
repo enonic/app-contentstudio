@@ -8,7 +8,7 @@ dependencies {
     compileOnly "com.enonic.xp:jaxrs-api:${xpVersion}"
     compileOnly "com.enonic.xp:admin-api:${xpVersion}"
     compileOnly "com.enonic.xp:portal-api:${xpVersion}"
-    testImplementation(platform("org.junit:junit-bom:5.13.4"))
+    testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation(platform("org.mockito:mockito-bom:5.20.0"))
     testImplementation "com.enonic.xp:testing:${xpVersion}"
     testImplementation "com.enonic.xp:admin-api:${xpVersion}"
