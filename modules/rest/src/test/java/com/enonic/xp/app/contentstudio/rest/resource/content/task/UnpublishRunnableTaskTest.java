@@ -22,21 +22,19 @@ import com.enonic.xp.content.FindContentIdsByQueryResult;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.content.UnpublishContentParams;
 import com.enonic.xp.content.UnpublishContentsResult;
-import com.enonic.xp.task.RunnableTask;
 import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
-public class UnpublishRunnableTaskTest
+class UnpublishRunnableTaskTest
     extends AbstractRunnableTaskTest
 {
     private UnpublishContentJson params;
 
     @BeforeEach
-    public void setUp()
-        throws Exception
+    void setUp()
     {
         this.params = Mockito.mock( UnpublishContentJson.class );
     }
@@ -57,8 +55,7 @@ public class UnpublishRunnableTaskTest
     }
 
     @Test
-    public void create_message_multiple()
-        throws Exception
+    void create_message_multiple()
     {
         final UnpublishContentsResult result = UnpublishContentsResult.create().
             addUnpublished( contents.get( 0 ).getId() ).
@@ -94,12 +91,10 @@ public class UnpublishRunnableTaskTest
     }
 
     @Test
-    public void create_message_single()
-        throws Exception
+    void create_message_single()
     {
         final UnpublishContentsResult result = UnpublishContentsResult.create().
             addUnpublished( contents.get( 0 ).getId() ).
-            setContentPath( contents.get( 0 ).getPath() ).
             build();
 
         Set<String> ids = Collections.singleton( contents.get( 0 ).getId().toString() );
@@ -122,8 +117,7 @@ public class UnpublishRunnableTaskTest
     }
 
     @Test
-    public void create_message_none()
-        throws Exception
+    void create_message_none()
     {
         final UnpublishContentsResult result = UnpublishContentsResult.create().build();
 
@@ -145,5 +139,4 @@ public class UnpublishRunnableTaskTest
 
         assertEquals( "{\"state\":\"WARNING\",\"message\":\"Nothing to unpublish.\"}", resultMessage );
     }
-
 }
