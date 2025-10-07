@@ -17,7 +17,6 @@ public final class DeleteContentProgressListener
         this.progressReporter = progressReporter;
     }
 
-    @Override
     public void setTotal( final int count )
     {
         total = count;

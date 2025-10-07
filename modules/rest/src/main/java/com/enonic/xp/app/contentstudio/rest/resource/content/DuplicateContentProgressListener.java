@@ -21,7 +21,6 @@ public final class DuplicateContentProgressListener
         this.progressReporter = progressReporter;
     }
 
-    @Override
     public void setTotal( final int count )
     {
         total = count;

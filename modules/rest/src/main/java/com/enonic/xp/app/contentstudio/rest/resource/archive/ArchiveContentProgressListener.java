@@ -17,7 +17,6 @@ public final class ArchiveContentProgressListener
         this.progressReporter = progressReporter;
     }
 
-    @Override
     public void setTotal( final int count )
     {
         total = count;
