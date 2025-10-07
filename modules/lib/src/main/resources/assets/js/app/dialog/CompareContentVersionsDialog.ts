@@ -1,3 +1,5 @@
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import * as Q from 'q';
 import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {Delta, DiffPatcher, formatters, HtmlFormatter} from 'jsondiffpatch';
@@ -29,6 +31,8 @@ import {ContentJson} from '../content/ContentJson';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
+import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -42,6 +46,8 @@ export class CompareContentVersionsDialog
     private versions: ContentVersions;
 
     private content: ContentSummaryAndCompareStatus;
+
+    private creatorDisplayName: string;
 
     private toolbar: DivEl;
 
@@ -328,7 +334,16 @@ export class CompareContentVersionsDialog
             return;
         }
 
-        return this.versionsLoader.load(this.content).then((versions: ContentVersions) => {
+        const getContentVersions = new GetContentVersionsRequest(this.content.getContentId()).sendAndParse();
+        const creator = this.content.getContentSummary().getCreator();
+        const getPrincipalByKey = new GetPrincipalsByKeysRequest([creator]).sendAndParse().catch(
+            (e) => {
+                DefaultErrorHandler.handle(e);
+                return [];
+            });
+
+        return Q.all([getContentVersions, getPrincipalByKey]).spread((versions: ContentVersions, principals: Principal[]) => {
+            this.creatorDisplayName = principals[0]?.getDisplayName() ?? creator.toString();
             this.resetVersions(versions);
 
             const items: VersionHistoryItem[] = this.convertVersionsToHistoryItems();
@@ -388,6 +403,7 @@ export class CompareContentVersionsDialog
         return ContentVersionsConverter.create()
             .setContent(this.content)
             .setContentVersions(this.versions)
+            .setCreatorDisplayName(this.creatorDisplayName)
             .build()
             .toVersionHistoryItems();
     }

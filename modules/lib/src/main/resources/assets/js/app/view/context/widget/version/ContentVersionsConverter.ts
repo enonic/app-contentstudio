@@ -19,11 +19,14 @@ export class ContentVersionsConverter {
 
     private lastDate: string;
 
+    private creatorDisplayName: string;
+
     constructor(builder: Builder) {
         this.content = builder.content;
         this.allContentVersions = builder.contentVersions;
         this.allContentVersions.get().sort(this.sortByDate);
         this.filteredVersions = this.filterSameVersions();
+        this.creatorDisplayName = builder.creatorDisplayName;
     }
 
     private sortByDate(v1: ContentVersion, v2: ContentVersion): number {
@@ -245,6 +248,9 @@ export class ContentVersionsConverter {
     private makeCreatedVersionHistoryItem(version: ContentVersion): VersionHistoryItem {
         const virtualCreatedVersion = version.newBuilder();
         virtualCreatedVersion.id = 'generated-created';
+        virtualCreatedVersion.modifier = this.content.getContentSummary().getCreator().toString();
+        virtualCreatedVersion.modifierDisplayName = this.creatorDisplayName;
+
         return this.createHistoryItemFromVersion(virtualCreatedVersion.build(), VersionItemStatus.CREATED,
             this.content.getContentSummary().getCreatedTime(), true);
     }
@@ -260,6 +266,8 @@ export class Builder {
 
     contentVersions: ContentVersions;
 
+    creatorDisplayName: string;
+
     setContent(value: ContentSummaryAndCompareStatus): Builder {
         this.content = value;
         return this;
@@ -267,6 +275,11 @@ export class Builder {
 
     setContentVersions(value: ContentVersions): Builder {
         this.contentVersions = value;
+        return this;
+    }
+
+    setCreatorDisplayName(value: string): Builder {
+        this.creatorDisplayName = value;
         return this;
     }
 
