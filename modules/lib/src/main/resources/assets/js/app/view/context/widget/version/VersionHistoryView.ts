@@ -1,4 +1,6 @@
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import * as Q from 'q';
+import {GetPrincipalsByKeysRequest} from '../../../../security/GetPrincipalsByKeysRequest';
 import {WidgetItemView} from '../../WidgetItemView';
 import {VersionHistoryList} from './VersionHistoryList';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
@@ -23,6 +25,8 @@ export class VersionHistoryView extends WidgetItemView {
     private content: ContentSummaryAndCompareStatus;
 
     private readonly versionsLoader: ContentVersionsLoader;
+
+    private creatorDisplayName: string;
 
     public static debug: boolean = false;
 
@@ -80,6 +84,8 @@ export class VersionHistoryView extends WidgetItemView {
         this.statusBlock.setHtml(this.getContentStatus(content));
 
         this.content = content;
+        this.creatorDisplayName = null;
+
         return this.reloadActivePanel();
     }
 
@@ -107,22 +113,55 @@ export class VersionHistoryView extends WidgetItemView {
         }
 
         if (this.versionListView) {
-            return this.versionsLoader.load(this.content).then((versions: ContentVersions) => {
-                VersionContext.setActiveVersion(this.content.getId(), versions.getActiveVersionId());
+            return this.fetchCreatorDisplayNameOnDemand().then(() => {
+                return this.versionsLoader.load(this.content).then((versions: ContentVersions) => {
+                    VersionContext.setActiveVersion(this.content.getId(), versions.getActiveVersionId());
 
-                const items: VersionHistoryItem[] = ContentVersionsConverter.create()
-                    .setContent(this.content)
-                    .setContentVersions(versions)
-                    .build()
-                    .toVersionHistoryItems();
+                    const items: VersionHistoryItem[] = ContentVersionsConverter.create()
+                        .setContent(this.content)
+                        .setContentVersions(versions)
+                        .setCreatorDisplayName(this.creatorDisplayName)
+                        .build()
+                        .toVersionHistoryItems();
 
-                this.versionListView.setContent(this.content);
-                this.versionListView.setItems(items);
+                    this.versionListView.setContent(this.content);
+                    this.versionListView.setItems(items);
 
-                return Q.resolve();
+                    return Q.resolve();
+                });
             });
         }
 
         return Q.resolve();
+    }
+
+    private fetchCreatorDisplayNameOnDemand(): Q.Promise<void> {
+        if (this.creatorDisplayName) {
+            return Q();
+        }
+
+        const creatorKey = this.content.getContentSummary().getCreator();
+        const creatorKeyAsString = creatorKey.toString();
+
+        this.versionListView.getItems().some((item: VersionHistoryItem) => {
+            if (item.getContentVersion().getModifier() === creatorKeyAsString)  {
+                this.creatorDisplayName = item.getContentVersion().getModifierDisplayName();
+                return true;
+            }
+
+            return false;
+        });
+
+        if (this.creatorDisplayName) {
+            return Q();
+        }
+
+        return new GetPrincipalsByKeysRequest([creatorKey]).sendAndParse().then((principals) => {
+            this.creatorDisplayName = principals.length > 0 ? principals[0].getDisplayName() : creatorKeyAsString;
+            return Q();
+        }).catch((e) => {
+            this.creatorDisplayName = creatorKeyAsString;
+            DefaultErrorHandler.handle(e)
+        });
     }
 }
