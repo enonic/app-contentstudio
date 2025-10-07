@@ -136,7 +136,8 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
             await this.waitForElementDisplayed(this.noControllerMessage, appConst.mediumTimeout);
             return await this.getText(this.noControllerMessage);
         } catch (err) {
-            await this.handleError('Page Inspection Tab, No Controller message - should be displayed', 'err_no_controller_message', err);
+            await this.handleError(`Page Inspection Tab, 'No page templates or page blocks available' - should be displayed`,
+                'err_no_controller_message', err);
         }
     }
 }
