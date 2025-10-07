@@ -109,12 +109,10 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             assert.equal(selectedApps.length, 0, 'No selected apps should be in app-selector dropdown');
         });
 
-    // Verifies https://github.com/enonic/app-contentstudio/issues/9201
-    // Details widget should be loaded after reset of a controller #9201
-    it.skip(
-        `GIVEN site with a selected controller is opened AND a page component is selected in PCV WHEN expand the menu for the 'main region' controller and click on Reset menu item THEN Details widget should be loaded after the resetting `,
+    // Verifies https://github.com/enonic/app-contentstudio/issues/9211
+    // Error displaying controllers from a missing app #9211
+    it(`GIVEN app has been removed in the site the site is reopened WHEN 'Page widget' has been opened THEN expected controller-name should be displayed in Inspect tab`,
         async () => {
-            let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
             let pageInspectionPanel = new PageInspectionPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
@@ -122,8 +120,22 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             let contextWindow = await contentWizard.openContextWindow();
             await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
-            //await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_APP_2);
-            await pageComponentsWizardStepForm.clickOnComponent('Main');
+            let actualController = await pageInspectionPanel.getSelectedPageController();
+            assert.equal(actualController, 'main region', `'main region' controller should be selected in the controller selector`);
+        });
+
+    // Verifies https://github.com/enonic/app-contentstudio/issues/9201
+    // Details widget should be loaded after reset of a controller #9201
+    it(`GIVEN site with a selected controller is opened AND a page component is selected in PCV WHEN expand the menu for the 'main region' controller and click on 'Reset' menu item THEN 'No controller is selected' message gets visible `,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageInspectionPanel = new PageInspectionPanel();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            // 1. Existing site is opened:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            let contextWindow = await contentWizard.openContextWindow();
+            await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageComponentsWizardStepForm.clickOnComponent('main');
             // 6. Verify that the controller from the previous application remains visible in PCV:
             await pageComponentsWizardStepForm.openMenu(CONTROLLER_APP_2);
             // 7. Click on 'Reset' menu item, reset the controller
@@ -134,8 +146,10 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await confirmationDialog.waitForDialogClosed();
             await contentWizard.waitForSaveButtonDisabled();
             let actualWidget = await contextWindow.getSelectedWidgetInContextWindow();
-            assert.equal(actualWidget, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS,
-                `'Details' widget should be selected after resetting the controller`)
+            assert.equal(actualWidget, appConst.WIDGET_SELECTOR_OPTIONS.PAGE,
+                `'Details' widget should be selected after resetting the controller`);
+            let actualMessage = await pageInspectionPanel.getNoControllerMessageText();
+            assert.equal(actualMessage, 'No controller is selected.', 'Expected no controller message should be displayed');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

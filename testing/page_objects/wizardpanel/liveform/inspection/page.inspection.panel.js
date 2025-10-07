@@ -7,8 +7,9 @@ const InspectPanelControllerSelector = require('../../../../page_objects/compone
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 
 const xpath = {
-    container: "//div[contains(@id,'InspectionsPanel')]",
+    container: "//div[contains(@id,'PageInspectionPanel')]",
     pageTemplateSelector: `//div[contains(@id,'PageTemplateAndControllerSelector')]`,
+    noControllerMessage: `//p[@class=no-controller-message]`,
 };
 
 // Inspect tab for controller and template of a Page
@@ -16,6 +17,10 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
 
     get customizePageButton() {
         return xpath.container + lib.actionButton('Customize Page');
+    }
+
+    get noControllerMessage() {
+        return xpath.container + xpath.noControllerMessage;
     }
 
     get templateAndControllerOptionFilterInput() {
@@ -85,7 +90,7 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
     async waitForCustomizePageButtonNotDisplayed() {
         try {
             return await this.waitForElementNotDisplayed(this.customizePageButton, appConst.mediumTimeout);
-        }catch (err){
+        } catch (err) {
             await this.handleError('Page Inspection Tab, Customize button is still displayed', 'err_customize_button_displayed', err);
         }
     }
@@ -100,29 +105,38 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
         }
     }
 
-    async waitForCustomizePageButtonDisplayed(){
+    async waitForCustomizePageButtonDisplayed() {
         try {
             return await this.waitForElementDisplayed(this.customizePageButton, appConst.mediumTimeout);
-        }catch (err){
+        } catch (err) {
             await this.handleError('Page Inspection Tab, Customize button was not displayed', 'err_customize_button_not_displayed', err);
         }
     }
 
-    async waitForCustomizePageButtonEnabled(){
+    async waitForCustomizePageButtonEnabled() {
         try {
             return await this.waitForElementEnabled(this.customizePageButton, appConst.mediumTimeout);
-        }catch (err){
+        } catch (err) {
             await this.handleError('Page Inspection Tab, Customize button should be enabled', 'err_customize_button', err);
         }
     }
 
-    async clickOnCustomizePageButton(){
+    async clickOnCustomizePageButton() {
         try {
             await this.waitForCustomizePageButtonEnabled();
             await this.clickOnElement(this.customizePageButton);
             return await this.pause(200);
-        }catch (err){
+        } catch (err) {
             await this.handleError('Page Inspection Tab, tried to click on Customize Page button', 'err_click_customize_button', err);
+        }
+    }
+
+    async getNoControllerMessageText() {
+        try {
+            await this.waitForElementDisplayed(this.noControllerMessage, appConst.mediumTimeout);
+            return await this.getText(this.noControllerMessage);
+        } catch (err) {
+            await this.handleError('Page Inspection Tab, No Controller message - should be displayed', 'err_no_controller_message', err);
         }
     }
 }
