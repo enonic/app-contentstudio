@@ -102,7 +102,7 @@ export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Pro
     const {inProgress, invalid, noPermissions, inbound} = props.errors || {};
 
     return (
-        <div className={cn('flex flex-col gap-2.5', className)}>
+        <div className={cn('flex flex-col gap-2.5 pb-10', className)}>
             {status === 'loading' && <StatusEntry>
                 <LoaderCircle className="w-7 h-7 animate-spin text-subtle" />
                 <span className="text-sm font-semibold">{useI18n('dialog.publish.resolving')}</span>

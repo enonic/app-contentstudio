@@ -20,6 +20,7 @@ import {DialogMainItemsList} from './DialogMainItemsList';
 import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 import {StatusCheckableItem} from './StatusCheckableItem';
 import {ContentItem} from '../ui2/list/ContentItem';
+import {PublishItemsListElement} from '../ui2/list/PublishItemsList';
 
 enum DependantsStatus {
     HAS_EXCLUDED = 'has-excluded',
@@ -46,7 +47,7 @@ export abstract class DependantItemsDialog<Item extends StatusCheckableItem | Co
     private ignoreItemsChanged: boolean;
 
     private subTitle: DivEl;
-    private itemList: DialogMainItemsList;
+    private itemList: DialogMainItemsList | PublishItemsListElement;
     private dependantsContainer: DivEl;
     private dependantList: DialogDependantItemsList<Item>;
 
@@ -171,7 +172,7 @@ export abstract class DependantItemsDialog<Item extends StatusCheckableItem | Co
         this.allCheckBox.setChecked(DependantItemsDialog.createChecked(type), true);
     }
 
-    protected createItemList(): DialogMainItemsList {
+    protected createItemList(): DialogMainItemsList | PublishItemsListElement {
         return new DialogMainItemsList();
     }
 
@@ -227,7 +228,7 @@ export abstract class DependantItemsDialog<Item extends StatusCheckableItem | Co
         };
     }
 
-    protected getItemList(): DialogMainItemsList {
+    protected getItemList(): DialogMainItemsList | PublishItemsListElement {
         return this.itemList;
     }
 
