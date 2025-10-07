@@ -1,6 +1,6 @@
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {Button, ListItem, type ListItemProps} from '@enonic/ui';
-import {useMemo, type JSX, type ReactNode} from 'react';
+import {useMemo, type ReactNode} from 'react';
 import type {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import type {Branch} from '../../versioning/Branch';
 import {ContentReferencesLink} from './ContentReferencesLink';

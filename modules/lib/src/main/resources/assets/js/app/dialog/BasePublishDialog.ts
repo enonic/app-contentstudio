@@ -21,6 +21,7 @@ import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {SelectionStatusBarElement} from '../ui2/dialog/SelectionStatusBar';
+import {PublishItemsListElement} from '../ui2/list/PublishItemsList';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
@@ -44,12 +45,12 @@ export abstract class BasePublishDialog
         });
     }
 
-    protected createItemList(): PublishDialogItemList {
+    protected createItemList(): PublishDialogItemList | PublishItemsListElement {
         return new PublishDialogItemList();
     }
 
-    protected getItemList(): PublishDialogItemList {
-        return super.getItemList() as PublishDialogItemList;
+    protected getItemList(): PublishDialogItemList | PublishItemsListElement {
+        return super.getItemList() as PublishDialogItemList | PublishItemsListElement;
     }
 
     protected createDependantList(): PublishDialogDependantList {
@@ -209,18 +210,22 @@ export abstract class BasePublishDialog
     private updateChildItemsToggler() {
         const ids: ContentId[] = this.getContentToPublishIds();
 
-        new HasUnpublishedChildrenRequest(ids).sendAndParse().then((children) => {
-            const toggleable = children.getResult().some(requestedResult => requestedResult.getHasChildren());
-            this.getItemList().setContainsToggleable(toggleable);
+        const itemList = this.getItemList();
+        // TODO: Enonic UI - Implement for PublishItemsListElement
+        if (itemList instanceof PublishDialogItemList) {
+            new HasUnpublishedChildrenRequest(ids).sendAndParse().then((children) => {
+                const toggleable = children.getResult().some(requestedResult => requestedResult.getHasChildren());
+                itemList.setContainsToggleable(toggleable);
 
-            children.getResult().forEach((requestedResult) => {
-                const item = this.getItemList().getItemViewById(requestedResult.getId());
+                children.getResult().forEach((requestedResult) => {
+                    const item = itemList.getItemViewById(requestedResult.getId());
 
-                if (item) {
-                    item.setTogglerActive(requestedResult.getHasChildren());
-                }
+                    if (item) {
+                        item.setTogglerActive(requestedResult.getHasChildren());
+                    }
+                });
             });
-        });
+        }
     }
 
     protected updateSubTitle() {

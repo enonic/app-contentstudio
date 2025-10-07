@@ -19,6 +19,7 @@ import {UrlAction} from './UrlAction';
 import {ContentAppBar} from './bar/ContentAppBar';
 import {WidgetsSidebar} from './widget/WidgetsSidebar';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {cn} from '@enonic/ui';
 
 export class AppWrapper
     extends DivEl {
@@ -44,7 +45,7 @@ export class AppWrapper
     private static HIDE_SIDEBAR_BY_DEFAULT: string = 'contentstudio:hideSidebarByDefault';
 
     constructor(className?: string) {
-        super(`main-app-wrapper ${(className || '')}`.trim());
+        super(cn('main-app-wrapper bg-surface-primary text-main', className));
 
         this.initElements();
         this.initListeners();

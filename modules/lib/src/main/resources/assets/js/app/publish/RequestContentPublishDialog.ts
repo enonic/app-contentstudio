@@ -277,9 +277,9 @@ export class RequestContentPublishDialog
     }
 
     setIncludeChildItems(include: boolean, silent?: boolean): RequestContentPublishDialog {
-        this.getItemList().getItemViews()
-            .filter((itemView) => itemView.hasChildrenItems())
-            .forEach((itemView) => itemView.toggleIncludeChildren(include, silent));
+        // this.getItemList().getItemViews()
+        //     .filter((itemView) => itemView.hasChildrenItems())
+        //     .forEach((itemView) => itemView.toggleIncludeChildren(include, silent));
 
         return this;
     }

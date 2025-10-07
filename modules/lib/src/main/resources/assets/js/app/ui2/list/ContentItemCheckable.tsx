@@ -9,14 +9,17 @@ import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
 
 export type Props = {
     content: ContentSummaryAndCompareStatus;
-    checked: boolean;
-    onCheckedChange: (checked: boolean) => void;
-} & Pick<CheckboxProps, 'className' | 'readOnly'>;
+} & Pick<CheckboxProps, 'className' | 'readOnly' | 'checked' | 'defaultChecked' | 'onCheckedChange'> & {
+    checked?: boolean;
+    defaultChecked?: boolean;
+    onCheckedChange?: (checked: boolean) => void;
+};
 
 
-const ContentItemCheckableComponent = ({
+export const ContentItemCheckable = ({
     content,
     checked,
+    defaultChecked,
     onCheckedChange,
     readOnly,
 }: Props): React.ReactElement => {
@@ -38,6 +41,7 @@ const ContentItemCheckableComponent = ({
             <ListItem.Left>
                 <Checkbox
                     checked={checked}
+                    defaultChecked={defaultChecked}
                     onCheckedChange={onCheckedChange}
                     readOnly={readOnly}
                 />
@@ -56,8 +60,8 @@ const ContentItemCheckableComponent = ({
     );
 };
 
-export class ContentItemCheckable
-    extends LegacyElement<typeof ContentItemCheckableComponent, Props> {
+export class ContentItemCheckableElement
+    extends LegacyElement<typeof ContentItemCheckable, Props> {
 
     constructor(props: Props) {
         super({
@@ -66,7 +70,7 @@ export class ContentItemCheckable
                 this.props.setKey('checked', checked);
                 props.onCheckedChange?.(checked);
             },
-        }, ContentItemCheckableComponent);
+        }, ContentItemCheckable);
     }
 
     getItem(): ContentSummaryAndCompareStatus {

@@ -27,6 +27,7 @@ import {ContentDependency} from './ContentDependency';
 import {TextSearchField} from '@enonic/lib-admin-ui/app/browse/filter/TextSearchField';
 import {Branch} from '../../versioning/Branch';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {cn} from '@enonic/ui';
 
 export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus>
     extends BrowseFilterPanel<T> {
@@ -44,7 +45,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
     constructor() {
         super();
 
-        this.addClass('content-browse-filter-panel');
+        this.addClass(cn('content-browse-filter-panel bg-surface-primary text-main'));
         this.aggregationsFetcher = this.createAggregationFetcher();
 
         this.getAndUpdateAggregations();
