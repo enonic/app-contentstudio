@@ -301,7 +301,8 @@ public final class IssueResource
     {
         final IssueCommentQuery issueQuery = createIssueCommentQuery( params );
         final FindIssueCommentsResult result = this.issueService.findComments( issueQuery );
-        final IssueListMetaData metaData = IssueListMetaData.create().hits( result.getHits() ).totalHits( result.getTotalHits() ).build();
+        final IssueListMetaData metaData =
+            IssueListMetaData.create().hits( result.getIssueComments().size() ).totalHits( result.getTotalHits() ).build();
 
         return new IssueCommentListJson( result.getIssueComments(), metaData );
     }
@@ -339,7 +340,7 @@ public final class IssueResource
     {
         final IssueQuery issueQuery = createIssueQuery( params.getFindIssuesParams() );
         final FindIssuesResult result = this.issueService.findIssues( issueQuery );
-        final IssueListMetaData metaData = IssueListMetaData.create().hits( result.getHits() ).totalHits( result.getTotalHits() ).build();
+        final IssueListMetaData metaData = IssueListMetaData.create().totalHits( result.getTotalHits() ).build();
 
         if ( params.isResolveAssignees() )
         {

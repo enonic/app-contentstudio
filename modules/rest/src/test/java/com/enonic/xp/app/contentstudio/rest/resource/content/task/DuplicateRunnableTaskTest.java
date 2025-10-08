@@ -81,7 +81,7 @@ public class DuplicateRunnableTaskTest
                              .collect( Collectors.toList() ) );
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( contents ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 3 ).build() );
+            .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 3 ).build() );
         Mockito.when( contentService.duplicate( Mockito.isA( DuplicateContentParams.class ) ) )
             .thenReturn( DuplicateContentsResult.create()
                              .addDuplicated( contents.get( 0 ).getId() )
@@ -116,7 +116,7 @@ public class DuplicateRunnableTaskTest
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) )
             .thenReturn( Contents.from( contents.subList( 0, 1 ) ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 1 ).build() );
+            .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 1 ).build() );
         Mockito.when( contentService.duplicate( Mockito.isA( DuplicateContentParams.class ) ) )
             .thenReturn( DuplicateContentsResult.create()
                              .addDuplicated( contents.get( 0 ).getId() )
@@ -145,7 +145,7 @@ public class DuplicateRunnableTaskTest
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) )
             .thenReturn( Contents.from( contents.subList( 0, 2 ) ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 1 ).build() );
+            .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 1 ).build() );
         Mockito.when( contentService.duplicate( Mockito.isA( DuplicateContentParams.class ) ) )
             .thenThrow( ContentNotFoundException.create().contentPath( contents.get( 1 ).getPath() ).build() )
             .thenThrow( ContentNotFoundException.create().contentPath( contents.get( 1 ).getPath() ).build() );

@@ -20,7 +20,7 @@ import com.enonic.xp.node.NodeService;
 import com.enonic.xp.node.NodeVersion;
 import com.enonic.xp.node.NodeVersionId;
 import com.enonic.xp.node.NodeVersionMetadata;
-import com.enonic.xp.node.NodeVersionsMetadata;
+import com.enonic.xp.node.NodeVersionMetadatas;
 import com.enonic.xp.security.PrincipalKey;
 
 class ContentVersionFactory
@@ -36,7 +36,7 @@ class ContentVersionFactory
         this.nodeService = nodeService;
     }
 
-    public ContentVersions create( final NodeId nodeId, final NodeVersionsMetadata nodeVersionsMetadata )
+    public ContentVersions create( final NodeId nodeId, final NodeVersionMetadatas nodeVersionsMetadata )
     {
         final ContentVersions.Builder contentVersionsBuilder = ContentVersions.create().contentId( ContentId.from( nodeId ) );
         final List<NodeVersionMetadata> nodeVersionsMetaList = StreamSupport.stream( nodeVersionsMetadata.spliterator(), false ).toList();

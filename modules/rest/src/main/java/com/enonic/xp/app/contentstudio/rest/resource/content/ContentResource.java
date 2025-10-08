@@ -1081,7 +1081,7 @@ public final class ContentResource
         final FindContentByParentResult result = contentService.findByParent( params );
 
         final ContentListMetaData metaData =
-            ContentListMetaData.create().totalHits( result.getTotalHits() ).hits( result.getHits() ).build();
+            ContentListMetaData.create().totalHits( result.getTotalHits() ).hits( result.getContents().getSize() ).build();
 
         if ( EXPAND_NONE.equalsIgnoreCase( expandParam ) )
         {
@@ -1251,7 +1251,7 @@ public final class ContentResource
                 .jsonObjectsFactory( jsonObjectsFactory )
                 .request( request )
                 .expand( contentQueryJson.getExpand() )
-                .hits( findResult.getHits() )
+                .hits( findResult.getContentIds().getSize() )
                 .totalHits( findResult.getTotalHits() )
                 .build()
                 .execute();
@@ -1303,7 +1303,7 @@ public final class ContentResource
             .jsonObjectsFactory( jsonObjectsFactory )
             .request( request )
             .expand( contentQueryJson.getExpand() )
-            .hits( findResult.getHits() )
+            .hits( findResult.getContentIds().getSize() )
             .totalHits( findResult.getTotalHits() )
             .build()
             .execute();
@@ -1361,7 +1361,7 @@ public final class ContentResource
             .collect( Collectors.toList() );
 
         final ContentListMetaData metaData = ContentListMetaData.create()
-            .hits( findLayerContentsResult.getHits() )
+            .hits( findLayerContentsResult.getContents().getSize() )
             .totalHits( findLayerContentsResult.getTotalHits() )
             .build();
 

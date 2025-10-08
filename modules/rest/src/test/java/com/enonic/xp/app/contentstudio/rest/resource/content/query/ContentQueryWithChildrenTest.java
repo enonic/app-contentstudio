@@ -69,14 +69,12 @@ public class ContentQueryWithChildrenTest
         FindContentIdsByQueryResult result = contentQueryWithChildren.find();
         assertTrue( result.getContentIds().isEmpty() );
         assertTrue( result.getAggregations().isEmpty() );
-        assertEquals( 0, result.getHits() );
         assertEquals( 0, result.getTotalHits() );
 
         result = contentQueryWithChildren.findOrdered();
 
         assertTrue( result.getContentIds().isEmpty() );
         assertTrue( result.getAggregations().isEmpty() );
-        assertEquals( 0, result.getHits() );
         assertEquals( 0, result.getTotalHits() );
     }
 }
