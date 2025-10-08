@@ -410,6 +410,7 @@ module.exports = {
         let pageInspectionPanel = new PageInspectionPanel();
         await liveFormPanel.clickOnPageSettingsLink();
         await pageInspectionPanel.selectPageTemplateOrController(template.data.controllerDisplayName);
+        await contentWizardPanel.waitForNotificationMessage();
         await this.saveScreenshot(template.displayName + '_created');
         await this.doCloseCurrentBrowserTab();
         await this.doSwitchToContentBrowsePanel();
