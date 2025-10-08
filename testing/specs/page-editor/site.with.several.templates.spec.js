@@ -160,11 +160,45 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 6. Confirm it:
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
-
-            // 9. Verify that items in PCV are updated after switching a template:
+            // 9. Verify that items in PCV are updated after switching to another template:
             result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.ok(result.includes('default'), 'default item should be displayed in the modal dialog');
             assert.ok(result.includes('Main'), 'Main item should be displayed in the modal dialog');
+            // 10. Save the customized site:
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+        });
+
+    it(`GIVEN customized site is opened WHEN the controller has been reset in PCV and another controller has been selected THEN 'Customize Page' button remains displayed AND PCV should not be displayed after switching templates`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageInspectionPanel = new PageInspectionPanel();
+            let confirmationDialog = new ConfirmationDialog();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            // 1. Open the customized site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            // 2. Select the 'Page' widget:
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            // 3. Click on 'Reset' menu item and reset the selected controller:
+            await pageComponentsWizardStepForm.openMenu('default');
+            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
+            // 4. Click on 'Yes' button in the confirmation dialog:
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
+            await contentWizard.waitForSaveButtonDisabled();
+            let actualWidget = await wizardContextWindow.getSelectedOptionInWidgetSelectorDropdown();
+            assert.equal(actualWidget, appConst.WIDGET_SELECTOR_OPTIONS.PAGE,
+                `'Page' widget should be selected after resetting the controller`);
+            // 5. Select the second template:
+            await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE2.displayName);
+            await studioUtils.saveScreenshot('site_second_template_selected');
+            await contentWizard.waitForNotificationMessage();
+            // 6. Verify that 'Customize Page' button remains displayed:
+            await pageInspectionPanel.waitForCustomizePageButtonDisplayed();
+            // 7. PCV should not be displayed (LiveEdit is locked):
+            await pageComponentsWizardStepForm.waitForNotDisplayed();
+            await contentWizard.waitForSaveButtonDisabled();
         });
 
     it(`GIVEN Inspection Panel is loaded WHEN 'main region' controller has been selected in Inspect Panel THEN PCV should be unlocked in wizard step`,

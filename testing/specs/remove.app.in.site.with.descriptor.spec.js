@@ -151,7 +151,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             // 7. Page widget should be shown in Widget selector:
             let actualWidget = await contextWindow.getSelectedOptionInWidgetSelectorDropdown();
             assert.equal(actualWidget, appConst.WIDGET_SELECTOR_OPTIONS.PAGE,
-                `'Details' widget should be selected after resetting the controller`);
+                `'Page' widget should be selected after resetting the controller`);
             // 8. Verify that 'No controller is selected' message gets visible in Inspect tab:
             let actualMessage = await pageInspectionPanel.getNoControllerMessageText();
             assert.equal(actualMessage, NO_SELECTED_CONTROLLER_MSG, 'Expected no controller message should be displayed');
