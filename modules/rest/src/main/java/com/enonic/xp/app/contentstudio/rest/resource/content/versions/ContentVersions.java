@@ -37,6 +37,10 @@ public final class ContentVersions
         return this.contentVersions.iterator();
     }
 
+    public int getSize()
+    {
+        return contentVersions.size();
+    }
 
     public static final class Builder
     {
