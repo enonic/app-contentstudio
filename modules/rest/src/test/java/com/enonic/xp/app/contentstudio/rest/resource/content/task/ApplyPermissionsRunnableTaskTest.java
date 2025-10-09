@@ -33,7 +33,7 @@ public class ApplyPermissionsRunnableTaskTest
             build();
 
         final FindContentIdsByParentResult res =
-            FindContentIdsByParentResult.create().contentIds( ContentIds.from( "content-id" ) ).hits( 1 ).totalHits( 1 ).build();
+            FindContentIdsByParentResult.create().contentIds( ContentIds.from( "content-id" ) ).totalHits( 1 ).build();
         Mockito.when( this.contentService.findIdsByParent( Mockito.isA( FindContentByParentParams.class ) ) ).thenReturn( res );
         Mockito.when( this.contentService.update( Mockito.isA( UpdateContentParams.class ) ) ).thenReturn( this.contents.get( 0 ) );
     }

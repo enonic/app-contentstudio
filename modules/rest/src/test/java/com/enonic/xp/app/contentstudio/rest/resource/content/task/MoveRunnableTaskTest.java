@@ -14,6 +14,7 @@ import com.enonic.xp.content.ContentAccessException;
 import com.enonic.xp.content.ContentAlreadyExistsException;
 import com.enonic.xp.content.ContentAlreadyMovedException;
 import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentQuery;
@@ -67,7 +68,7 @@ public class MoveRunnableTaskTest
             .thenReturn( contents.stream().map( content -> content.getId().toString() ).collect( Collectors.toList() ) );
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( contents ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 3 ).build() );
+            .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 3 ).build() );
         Mockito.when( contentService.move( Mockito.isA( MoveContentParams.class ) ) )
             .thenThrow( new ContentAlreadyMovedException( "Content already moved", contents.get( 0 ).getPath() ) )
             .thenThrow( ContentNotFoundException.create().contentPath( contents.get( 1 ).getPath() ).build() )
@@ -96,7 +97,7 @@ public class MoveRunnableTaskTest
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) )
             .thenReturn( Contents.from( contents.get( 0 ) ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 1 ).build() );
+            .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 1 ).build() );
         Mockito.when( contentService.move( Mockito.isA( MoveContentParams.class ) ) )
             .thenReturn( MoveContentsResult.create()
                              .addMoved( contents.get( 0 ).getId() )
@@ -119,7 +120,7 @@ public class MoveRunnableTaskTest
         Mockito.when( params.getContentIds() ).thenReturn( Collections.emptyList() );
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.empty() );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 0 ).build() );
+            .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 0 ).build() );
 
         createAndRunTask();
 
@@ -138,7 +139,7 @@ public class MoveRunnableTaskTest
             .thenReturn( contents.stream().map( content -> content.getId().toString() ).collect( Collectors.toList() ) );
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( contents ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 1 ).build() );
+            .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 1 ).build() );
         Mockito.when( contentService.move( Mockito.isA( MoveContentParams.class ) ) )
             .thenThrow( new ContentAccessException( User.ANONYMOUS, contents.get( 0 ).getPath(), Permission.MODIFY ) )
             .thenReturn( MoveContentsResult.create()
@@ -169,7 +170,7 @@ public class MoveRunnableTaskTest
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) )
             .thenReturn( Contents.from( contents.subList( 0, 2 ) ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 2 ).build() );
+            .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 2 ).build() );
         Mockito.when( contentService.move( Mockito.isA( MoveContentParams.class ) ) )
             .thenThrow( new ContentAlreadyMovedException( contents.get( 0 ).getDisplayName(), contents.get( 0 ).getPath() ) )
             .thenThrow( new ContentAccessException( User.ANONYMOUS, contents.get( 1 ).getPath(), Permission.MODIFY ) );
@@ -197,7 +198,7 @@ public class MoveRunnableTaskTest
             .thenReturn( Contents.from( Contents.from( contents ) ) );
 
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
-            .thenReturn( FindContentIdsByQueryResult.create().totalHits( 9 ).build() );
+            .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 9 ).build() );
 
         Mockito.when( contentService.move( Mockito.isA( MoveContentParams.class ) ) )
             .thenThrow( new ContentAlreadyMovedException( "Content already moved", contents.get( 0 ).getPath() ) )

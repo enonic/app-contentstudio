@@ -26,14 +26,12 @@ public class FindContentVersionsCommand
             build() );
 
         final FindContentVersionsResult.Builder findContentVersionsResultBuilder = FindContentVersionsResult.create().
-            hits( nodeVersionQueryResult.getHits() ).
-            totalHits( nodeVersionQueryResult.getTotalHits() ).
-            from( nodeVersionQueryResult.getFrom() ).
-            size( nodeVersionQueryResult.getSize() );
+            totalHits( nodeVersionQueryResult.getTotalHits() );
 
         final ContentVersionFactory contentVersionFactory = new ContentVersionFactory( this.nodeService );
 
-        final ContentVersions contentVersions = contentVersionFactory.create( nodeId, nodeVersionQueryResult.getNodeVersionsMetadata() );
+        final ContentVersions contentVersions = contentVersionFactory.create( nodeId, nodeVersionQueryResult.getNodeVersionMetadatas() );
+        findContentVersionsResultBuilder.hits( contentVersions.getSize() );
 
         findContentVersionsResultBuilder.contentVersions( contentVersions );
 

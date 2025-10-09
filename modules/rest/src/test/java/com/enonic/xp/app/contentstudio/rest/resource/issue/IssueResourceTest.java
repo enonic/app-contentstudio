@@ -412,7 +412,7 @@ public class IssueResourceTest
         throws Exception
     {
         createLocalSession();
-        final FindIssuesResult findIssuesResult = FindIssuesResult.create().hits( 2 ).totalHits( 4 ).build();
+        final FindIssuesResult findIssuesResult = FindIssuesResult.create().totalHits( 4 ).build();
         final IssueResource issueResource = getResourceInstance();
         when( issueService.findIssues( any( IssueQuery.class ) ) ).thenReturn( findIssuesResult );
         final IssueStatsJson result = issueResource.getStats();
@@ -426,7 +426,7 @@ public class IssueResourceTest
         throws Exception
     {
         createLocalSession();
-        final FindIssuesResult findIssuesResult = FindIssuesResult.create().hits( 2 ).totalHits( 4 ).build();
+        final FindIssuesResult findIssuesResult = FindIssuesResult.create().totalHits( 4 ).build();
         final IssueResource issueResource = getResourceInstance();
         when( issueService.findIssues( any( IssueQuery.class ) ) ).thenReturn( findIssuesResult );
         final IssueStatsJson result = issueResource.getStatsByType( new CountStatsJson( "STANDARD" ) );
@@ -444,7 +444,7 @@ public class IssueResourceTest
         final Issue issue = createIssue();
         final List<Issue> issues = List.of( issue );
         final IssueResource issueResource = getResourceInstance();
-        final FindIssuesResult result = FindIssuesResult.create().hits( 2 ).totalHits( 4 ).issues( issues ).build();
+        final FindIssuesResult result = FindIssuesResult.create().totalHits( 4 ).issues( issues ).build();
         when( issueService.findIssues( any( IssueQuery.class ) ) ).thenReturn( result );
         when( securityService.getUser( any( PrincipalKey.class ) ) ).thenReturn( Optional.empty() );
 
@@ -459,7 +459,7 @@ public class IssueResourceTest
     {
         createLocalSession();
 
-        final FindIssuesResult result = FindIssuesResult.create().hits( 2 ).totalHits( 4 ).issues( List.of( createIssue() ) ).build();
+        final FindIssuesResult result = FindIssuesResult.create().totalHits( 4 ).issues( List.of( createIssue() ) ).build();
 
         when( issueService.findIssues( any( IssueQuery.class ) ) ).thenReturn( result );
         when( securityService.getUser( any( PrincipalKey.class ) ) ).thenReturn( Optional.empty() );
@@ -478,7 +478,7 @@ public class IssueResourceTest
 
         when( this.issueService.getIssue( issue.getId() ) ).thenReturn( issue );
         List<IssueComment> comments = List.of( this.createIssueComment( createdTime ) );
-        FindIssueCommentsResult result = FindIssueCommentsResult.create().hits( 1 ).totalHits( 3 ).comments( comments ).build();
+        FindIssueCommentsResult result = FindIssueCommentsResult.create().totalHits( 3 ).comments( comments ).build();
         when( this.issueService.findComments( any( IssueCommentQuery.class ) ) ).thenReturn( result );
 
         final Map<String, String> params = Map.of( "id", issue.getId().toString() );
@@ -500,7 +500,7 @@ public class IssueResourceTest
 
         when( this.issueService.getIssue( issue.getId() ) ).thenReturn( issue );
         List<IssueComment> comments = List.of( this.createIssueComment( createdTime ) );
-        FindIssueCommentsResult result = FindIssueCommentsResult.create().hits( 1 ).totalHits( 3 ).comments( comments ).build();
+        FindIssueCommentsResult result = FindIssueCommentsResult.create().totalHits( 3 ).comments( comments ).build();
         when( this.issueService.findComments( any( IssueCommentQuery.class ) ) ).thenReturn( result );
 
         final Map<String, String> params = Map.of( "id", issue.getId().toString() );
@@ -711,7 +711,7 @@ public class IssueResourceTest
         final Issue issue = createIssue();
         final IssueComment comment = createIssueComment( Instant.now() );
 
-        FindIssueCommentsResult result = FindIssueCommentsResult.create().comments( List.of( comment ) ).hits( 1 ).totalHits( 10 ).build();
+        FindIssueCommentsResult result = FindIssueCommentsResult.create().comments( List.of( comment ) ).totalHits( 10 ).build();
 
         when( this.issueService.findComments( any( IssueCommentQuery.class ) ) ).thenReturn( result );
 

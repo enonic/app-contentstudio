@@ -87,8 +87,8 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVer
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.attachment.Attachments;
 import com.enonic.xp.attachment.CreateAttachment;
+import com.enonic.xp.blob.BlobKey;
 import com.enonic.xp.blob.BlobKeys;
-import com.enonic.xp.blob.NodeVersionKey;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.CompareContentResult;
 import com.enonic.xp.content.CompareContentResults;
@@ -156,9 +156,10 @@ import com.enonic.xp.node.NodePath;
 import com.enonic.xp.node.NodeService;
 import com.enonic.xp.node.NodeVersion;
 import com.enonic.xp.node.NodeVersionId;
+import com.enonic.xp.node.NodeVersionKey;
 import com.enonic.xp.node.NodeVersionMetadata;
 import com.enonic.xp.node.NodeVersionQueryResult;
-import com.enonic.xp.node.NodeVersionsMetadata;
+import com.enonic.xp.node.NodeVersionMetadatas;
 import com.enonic.xp.page.Page;
 import com.enonic.xp.page.PageTemplateKey;
 import com.enonic.xp.project.ProjectName;
@@ -635,7 +636,7 @@ public class ContentResourceTest
         final Content aContent = createContent( "aaa", "my_a_content", "myapplication:my_type" );
         final Content bContent = createContent( "bbb", "my_b_content", "myapplication:my_type" );
         when( contentService.findByParent( isA( FindContentByParentParams.class ) ) ).thenReturn(
-            FindContentByParentResult.create().contents( Contents.from( aContent, bContent ) ).hits( 2 ).totalHits( 2 ).build() );
+            FindContentByParentResult.create().contents( Contents.from( aContent, bContent ) ).totalHits( 2 ).build() );
         when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
 
         String jsonString = request().path( "content/list" ).queryParam( "parentId", "ccc" ).get().getAsString();
@@ -653,7 +654,7 @@ public class ContentResourceTest
         final Content aContent = createContent( "aaa", "my_a_content", "myapplication:my_type" );
         final Content bContent = createContent( "bbb", "my_b_content", "myapplication:my_type" );
         when( contentService.findByParent( isA( FindContentByParentParams.class ) ) ).thenReturn(
-            FindContentByParentResult.create().contents( Contents.from( aContent, bContent ) ).hits( 2 ).totalHits( 2 ).build() );
+            FindContentByParentResult.create().contents( Contents.from( aContent, bContent ) ).totalHits( 2 ).build() );
         when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
 
         String jsonString =
@@ -669,7 +670,7 @@ public class ContentResourceTest
         final Content aContent = createContent( "aaa", "my_a_content", "myapplication:my_type" );
         final Content bContent = createContent( "bbb", "my_b_content", "myapplication:my_type" );
         when( contentService.findByParent( isA( FindContentByParentParams.class ) ) ).thenReturn(
-            FindContentByParentResult.create().contents( Contents.from( aContent, bContent ) ).hits( 2 ).totalHits( 2 ).build() );
+            FindContentByParentResult.create().contents( Contents.from( aContent, bContent ) ).totalHits( 2 ).build() );
 
         String jsonString = request().path( "content/list" ).queryParam( "expand", "none" ).get().getAsString();
 
@@ -1085,7 +1086,7 @@ public class ContentResourceTest
 
         ContentResource contentResource = getResourceInstance();
         when( this.contentService.find( isA( ContentQuery.class ) ) ).thenReturn(
-            FindContentIdsByQueryResult.create().totalHits( 0L ).build() );
+            FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 0L ).build() );
 
         assertEquals( 2L, contentResource.countContentsWithDescendants( json ) );
     }
@@ -1111,7 +1112,7 @@ public class ContentResourceTest
 
         ContentResource contentResource = getResourceInstance();
         when( this.contentService.find( isA( ContentQuery.class ) ) ).thenReturn(
-            FindContentIdsByQueryResult.create().totalHits( 0L ).build() );
+            FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 0L ).build() );
 
         assertEquals( 3L, contentResource.countContentsWithDescendants( json ) );
     }
@@ -1442,7 +1443,6 @@ public class ContentResourceTest
         when( this.contentService.findPaths( isA( ContentQuery.class ) ) ).thenReturn( FindContentPathsByQueryResult.create()
                                                                                            .contentPaths(
                                                                                                ContentPaths.from( content4.getPath() ) )
-                                                                                           .hits( 1 )
                                                                                            .totalHits( 1 )
                                                                                            .build() );
 
@@ -1793,7 +1793,6 @@ public class ContentResourceTest
 
         FindContentIdsByQueryResult findResult = FindContentIdsByQueryResult.create()
             .aggregations( Aggregations.empty() )
-            .hits( 1L )
             .totalHits( 10L )
             .contents( ContentIds.from( content1.getId(), content2.getId() ) )
             .build();
@@ -1829,7 +1828,6 @@ public class ContentResourceTest
 
         FindContentIdsByQueryResult findResult = FindContentIdsByQueryResult.create()
             .aggregations( Aggregations.empty() )
-            .hits( 1L )
             .totalHits( 10L )
             .contents( ContentIds.from( content1.getId(), content2.getId() ) )
             .build();
@@ -1863,7 +1861,6 @@ public class ContentResourceTest
 
         final FindContentIdsByQueryResult findResult = FindContentIdsByQueryResult.create()
             .aggregations( Aggregations.empty() )
-            .hits( 1L )
             .totalHits( 10L )
             .contents( ContentIds.from( content1.getId(), content2.getId() ) )
             .build();
@@ -1898,14 +1895,12 @@ public class ContentResourceTest
 
         final FindContentIdsByQueryResult idsToRemove = FindContentIdsByQueryResult.create()
             .aggregations( Aggregations.empty() )
-            .hits( 2L )
             .totalHits( 2L )
             .contents( ContentIds.from( content1.getId(), content2.getId() ) )
             .build();
 
         final FindContentIdsByQueryResult inbound = FindContentIdsByQueryResult.create()
             .aggregations( Aggregations.empty() )
-            .hits( 2L )
             .totalHits( 2L )
             .contents( ContentIds.from( "content-id3", "content-id4" ) )
             .build();
@@ -1954,7 +1949,6 @@ public class ContentResourceTest
 
         FindContentIdsByQueryResult findResult = FindContentIdsByQueryResult.create()
             .aggregations( aggregations )
-            .hits( 1L )
             .totalHits( 10L )
             .contents( ContentIds.from( content.getId() ) )
             .build();
@@ -1992,7 +1986,6 @@ public class ContentResourceTest
 
         FindContentIdsByQueryResult findResult = FindContentIdsByQueryResult.create()
             .aggregations( aggregations )
-            .hits( 1L )
             .totalHits( 10L )
             .contents( ContentIds.from( content.getId() ) )
             .build();
@@ -2190,7 +2183,11 @@ public class ContentResourceTest
 
     private void mockVersions()
     {
-        final NodeVersionKey nodeVersionKey1 = NodeVersionKey.from( "a", "b",  "c" );
+        final NodeVersionKey nodeVersionKey1 = NodeVersionKey.create()
+            .nodeBlobKey( BlobKey.from( "a" ) )
+            .indexConfigBlobKey( BlobKey.from( "b" ) )
+            .accessControlBlobKey( BlobKey.from( "c" ) )
+            .build();
         final NodeVersionMetadata newNodeVersionMeta = NodeVersionMetadata.create().
             nodeId( NodeId.from( "nodeId1" ) ).
             nodeVersionId( NodeVersionId.from( "nodeVersionNew" ) ).
@@ -2200,7 +2197,11 @@ public class ContentResourceTest
             timestamp( Instant.ofEpochSecond( 1000 ) ).
             build();
 
-        final NodeVersionKey nodeVersionKey2 = NodeVersionKey.from( "d", "e",  "f" );
+        final NodeVersionKey nodeVersionKey2 = NodeVersionKey.create()
+            .nodeBlobKey( BlobKey.from( "d" ) )
+            .indexConfigBlobKey( BlobKey.from( "e" ) )
+            .accessControlBlobKey( BlobKey.from( "f" ) )
+            .build();
         final NodeVersionMetadata oldNodeVersionMeta = NodeVersionMetadata.create().
             nodeId( NodeId.from( "nodeId1" ) ).
             nodeVersionId( NodeVersionId.from( "nodeVersionOld" ) ).
@@ -2210,16 +2211,13 @@ public class ContentResourceTest
             timestamp( Instant.ofEpochSecond( 500 ) ).
             build();
 
-        final NodeVersionsMetadata nodeVersionsMetadata = NodeVersionsMetadata.create( NodeId.from( "nodeId1" ) ).
+        final NodeVersionMetadatas nodeVersionsMetadata = NodeVersionMetadatas.create().
             add( newNodeVersionMeta ).
             add( oldNodeVersionMeta ).
             build();
 
         final NodeVersionQueryResult nodeVersionQueryResult = NodeVersionQueryResult.create().
             entityVersions( nodeVersionsMetadata ).
-            from( 0 ).
-            to( 2 ).
-            hits( 2 ).
             totalHits( 40 ).
             build();
 

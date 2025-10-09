@@ -2,7 +2,9 @@ package com.enonic.xp.app.contentstudio.rest.resource.content.query;
 
 import java.util.stream.Collectors;
 
+import com.enonic.xp.aggregation.Aggregations;
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentHelper;
+import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPaths;
 import com.enonic.xp.content.ContentQuery;
@@ -83,7 +85,7 @@ public class ContentQueryWithChildren
     {
         if ( contentsPaths.isEmpty() )
         {
-            return FindContentIdsByQueryResult.empty();
+            return FindContentIdsByQueryResult.create().aggregations( Aggregations.empty() ).contents( ContentIds.empty() ).build();
         }
         final QueryExpr expr = constructExprToFindChildren();
 
@@ -96,7 +98,7 @@ public class ContentQueryWithChildren
     {
         if ( contentsPaths.isEmpty() )
         {
-            return FindContentIdsByQueryResult.empty();
+            return FindContentIdsByQueryResult.create().aggregations( Aggregations.empty() ).contents( ContentIds.empty() ).build();
         }
         final QueryExpr expr = constructExprToFindOrdered();
         final ContentQuery query = ContentQuery.create().from( this.from ).size( this.size ).queryExpr( expr ).build();
