@@ -7,7 +7,7 @@ export const configJsonId = 'contentstudio-config-json';
 export const profileScope = 'notifications';
 
 interface GetMarketConfigBean {
-    getMarketUrl(): string;
+    getMarketApi(): string;
 }
 
 function geti18nPhrases(locales: string[]): Record<string, string> {
@@ -31,24 +31,29 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
     const excludeDependencies = app.config['publishingWizard.excludeDependencies'] === 'true' || false;
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
+    const checkLatestVersion = app.config['settings.checkLatestVersion'] !== 'false';
     const defaultPublishFromTime = parseTime(app.config['publishingWizard.defaultPublishFromTime'] || '12:00');
     const toolUri = getToolUrl(
         app.name,
         'main'
     );
     const theme = 'light';
-    const user: User | null = getUser();
 
+    const user: User | null = getUser();
     if (!user) {
         throw new Error('User not found');
     }
 
-    const lastDismissedVersion = getLastDismissedVersion(user.key);
+    let lastDismissedVersion;
+    if (checkLatestVersion) {
+        lastDismissedVersion = getLastDismissedVersion(user.key);
+    }
 
     return {
         allowContentUpdate,
         excludeDependencies,
         allowPathTransliteration,
+        checkLatestVersion,
         adminUrl: getHomeToolUrl(),
         assetsUri: assetUrl({
             path: ''
@@ -61,7 +66,7 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
         enableCollaboration,
         defaultPublishFromTime,
         locale: locales[0],
-        marketUrl: getMarketUrl(),
+        marketApi: exports.getMarketApi(),
         services: {
             contentUrl: apiUrl({
                 api: 'content'
@@ -116,9 +121,9 @@ function parseTime(value: string): Optional<string> {
     return /^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/.test(value) ? value : null;
 }
 
-export function getMarketUrl() {
+export function getMarketApi() {
     const marketConfigBean = __.newBean('com.enonic.xp.app.main.GetMarketConfigBean') as GetMarketConfigBean;
-    return __.toNativeObject(marketConfigBean.getMarketUrl());
+    return __.toNativeObject(marketConfigBean.getMarketApi());
 }
 
 function getLastDismissedVersion(principalKey: UserKey): string {
