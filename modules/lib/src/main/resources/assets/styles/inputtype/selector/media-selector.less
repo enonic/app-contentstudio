@@ -1,11 +1,13 @@
 .media-selector {
   &.dropzone-visible {
     .media-uploader-el {
-      width: 100%;
-      position: absolute;
+      display: flex;
+      position: static;
 
-      .upload-button {
-        display: none;
+      .dropzone-container {
+        position: absolute !important;
+        width: 100%;
+        left: 0;
       }
     }
   }
