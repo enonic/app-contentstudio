@@ -1565,13 +1565,6 @@ public final class ContentResource
         }
 
         final Content currentContent = contentService.getById( ContentId.from( params.getContentId() ) );
-
-        if ( !currentContent.getChildOrder().equals( versionedContent.getChildOrder() ) )
-        {
-            contentService.sort(
-                SortContentParams.create().contentId( currentContent.getId() ).childOrder( versionedContent.getChildOrder() ).build() );
-        }
-
         final Content revertedContent = contentService.update( prepareUpdateContentParams( versionedContent, contentVersionId ) );
 
         final GetActiveContentVersionsCommand activeContentVersionsCommand = new GetActiveContentVersionsCommand( nodeService );
