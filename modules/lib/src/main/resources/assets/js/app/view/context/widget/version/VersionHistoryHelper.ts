@@ -6,7 +6,8 @@ export class VersionHistoryHelper {
         return VersionHistoryHelper.isComparableItem(version) &&
                !version.isMoved() &&
                !version.isPermissions() &&
-               !version.isRenamed();
+               !version.isRenamed() &&
+               !version.isSorted();
     }
 
     static isComparableItem(version: VersionHistoryItem): boolean {
