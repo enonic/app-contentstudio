@@ -1,39 +1,6 @@
 .image-selector {
   position: relative;
 
-  .image-uploader-el {
-    .dropzone {
-      overflow: visible;
-      z-index: @z-index-mask !important;
-
-      &::before {
-        .dropcircle(60px);
-
-        padding: 40px 5px 0;
-        line-height: 20px;
-      }
-
-      ////// cover underlying input
-      min-height: 36px;
-      height: 36px;
-      line-height: 30px;
-      font-size: 14px;
-      background-color: @admin-white;
-      border: 1px solid @admin-medium-gray-border;
-      box-sizing: border-box;
-
-      .input-border();
-      .input-glow();
-    }
-
-    &:focus {
-      .dropzone {
-        box-shadow: 0 0 5px @admin-input-blue;
-        border: 1px solid @admin-input-blue;
-      }
-    }
-  }
-
   .selected-options {
     .selected-option {
       &.placeholder::before {
