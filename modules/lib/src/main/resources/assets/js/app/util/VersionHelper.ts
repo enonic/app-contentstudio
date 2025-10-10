@@ -4,6 +4,7 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 type Versions = Record<string, { applicationUrl: string; date: string }>;
 
@@ -19,7 +20,7 @@ export class VersionHelper {
                 VersionHelper.fetchNewerVersion,
                 VersionHelper.checkInterval,
                 VersionHelper.checkAttempts,
-                (version: string) => !StringHelper.isBlank(version)
+                (version: string) => ObjectHelper.isDefined(version)
             )
                 .then((newestVersion: string) => {
                     if (!StringHelper.isBlank(newestVersion)) {
@@ -36,7 +37,6 @@ export class VersionHelper {
     }
 
     private static async fetchNewerVersion(): Promise<string | null> {
-        const xpVersion = CONFIG.getString('xpVersion');
         const appVersion = CONFIG.getString('appVersion');
         const marketUrl = CONFIG.getString('marketUrl');
         const appId = CONFIG.getString('appId');
@@ -46,7 +46,7 @@ export class VersionHelper {
             const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout in 10 seconds
 
             const response = await fetch(
-                `${marketUrl}?xpVersion=${xpVersion}&start=0&count=-1`, {
+                `${marketUrl}?start=0&count=-1`, {
                     method: "POST",
                     headers: {
                         "Accept": "application/json",
@@ -64,16 +64,17 @@ export class VersionHelper {
             }
 
             const responseAsJson = await response.json();
-            if (!responseAsJson || !responseAsJson.hits || !responseAsJson.hits[appId]) {
+
+            if (!responseAsJson) {
                 return null;
             }
 
-            const latestVersion = responseAsJson.hits[appId].latestVersion;
+            const latestVersion = responseAsJson.hits[appId]?.latestVersion;
             if (!StringHelper.isBlank(latestVersion) && VersionHelper.isVersionGreater(latestVersion, appVersion)) {
                 return latestVersion;
             }
 
-            return null;
+            return '';
         } catch (error) {
             if (error.name === 'AbortError') {
                 console.error('Request timed out');
@@ -101,7 +102,7 @@ export class VersionHelper {
     }
 
     private static notifyAboutNewerVersion(version: string) {
-        const message = new Message(MessageType.WARNING, i18n('notify.newerVersion', version), false);
+        const message = new Message(MessageType.INFO, i18n('notify.newerVersion', version), false);
         message.addAction(i18n('text.dismiss'), () => VersionHelper.dismissNotification(version));
 
         NotifyManager.get().notify(message);
