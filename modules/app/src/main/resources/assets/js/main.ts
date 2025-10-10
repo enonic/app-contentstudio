@@ -524,7 +524,9 @@ async function startContentBrowser() {
     const url: string = window.location.href;
     const commonWrapper = new AppWrapper(getTheme());
 
-    VersionHelper.checkAndNotifyIfNewerVersionExists();
+    if (CONFIG.isTrue('checkLatestVersion') && AuthHelper.isContentAdmin()) {
+        VersionHelper.checkAndNotifyIfNewerVersionExists();
+    }
 
     if (isDefaultAppUrl(url)) {
         commonWrapper.selectDefaultWidget();
