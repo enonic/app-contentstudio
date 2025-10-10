@@ -37,7 +37,6 @@ function handleGet(request) {
             ),
             appId: app.name,
             appVersion: app.version,
-            xpVersion: admin.getVersion(),
             branch,
             hideDefaultProject,
             enableCollaboration,

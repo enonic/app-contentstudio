@@ -68,6 +68,7 @@ import {UrlAction} from 'lib-contentstudio/app/UrlAction';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import {VersionHelper} from 'lib-contentstudio/app/util/VersionHelper';
+import {PermissionHelper} from 'lib-contentstudio/app/wizard/PermissionHelper';
 import * as Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
@@ -311,22 +312,27 @@ const getFirstAvailableProject = (projects: Project[]): Project => {
     return projects.find((p: Project) => ProjectHelper.isAvailable(p));
 };
 
-const handleNoProjectsAvailable = () => {
-    new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-        const principalKeys: PrincipalKey[] = loginResult.getPrincipals();
+const handleNoProjectsAvailable = (loginResult: LoginResult) => {
+    const principalKeys: PrincipalKey[] = loginResult.getPrincipals();
 
-        if (principalKeys.some((p: PrincipalKey) => RoleKeys.isContentAdmin(p))) {
-            new ProjectNotAvailableDialog().open();
-        } else {
-            ProjectSelectionDialog.get().setUpdateOnOpen(true);
-            ProjectSelectionDialog.get().open();
-        }
-
-        return Q.resolve();
-    }).catch(DefaultErrorHandler.handle);
+    if (principalKeys.some((p: PrincipalKey) => RoleKeys.isContentAdmin(p))) {
+        new ProjectNotAvailableDialog().open();
+    } else {
+        ProjectSelectionDialog.get().setUpdateOnOpen(true);
+        ProjectSelectionDialog.get().open();
+    }
 };
 
 let connectionDetector: ConnectionDetector;
+
+async function getAuthenticatedUser(): Promise<LoginResult> {
+    try {
+        return await new IsAuthenticatedRequest().sendAndParse();
+    } catch (error) {
+        DefaultErrorHandler.handle(error);
+        throw error;
+    }
+}
 
 async function startApplication() {
     const application: Application = getApplication();
@@ -336,8 +342,10 @@ async function startApplication() {
     startServerEventListeners(application);
     initApplicationEventListener();
 
+    const loginResult = await getAuthenticatedUser();
+
     ProjectContext.get().onNoProjectsAvailable(() => {
-        handleNoProjectsAvailable();
+        handleNoProjectsAvailable(loginResult);
     });
 
     initProjectContext(application)
@@ -355,7 +363,7 @@ async function startApplication() {
                 if (ContentAppHelper.isContentWizardUrl()) {
                     startContentWizard();
                 } else {
-                    startContentBrowser();
+                    startContentBrowser(loginResult);
                 }
             });
         });
@@ -535,7 +543,7 @@ function getTheme(): string {
     return '';
 }
 
-async function startContentBrowser() {
+async function startContentBrowser(loginResult: LoginResult) {
     await import('lib-contentstudio/app/ContentAppPanel');
     const AppWrapper = (await import('lib-contentstudio/app/AppWrapper')).AppWrapper;
     const url: string = window.location.href;
@@ -544,7 +552,9 @@ async function startContentBrowser() {
     const action: string = path?.getElement(1);
     const baseAppToBeOpened = action !== 'widget';
 
-    VersionHelper.checkAndNotifyIfNewerVersionExists();
+    if (PermissionHelper.hasAdminPermissions(loginResult)) {
+        VersionHelper.checkAndNotifyIfNewerVersionExists();
+    }
 
     if (baseAppToBeOpened) {
         commonWrapper.selectDefaultWidget();
