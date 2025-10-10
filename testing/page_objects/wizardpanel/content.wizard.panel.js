@@ -1128,11 +1128,12 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(optionSelector);
             await this.pause(200);
         } catch (err) {
-            await this.handleError(`Err occurred during selecting the option in Preview Widget: ${optionName}`, 'err_preview_widget', err);
+            await this.handleError(`Preview Widget, tried to select the widget: ${optionName}`, 'err_preview_widget', err);
         }
     }
 
     // Gets the selected option in the 'Preview dropdown' Auto, Media, etc.
+    // Wizard ContentItemPreviewToolbar
     async getSelectedOptionInPreviewWidget() {
         let locator = this.previewWidgetDropdown + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -1149,6 +1150,7 @@ class ContentWizardPanel extends Page {
     }
 
     // returns the selected option in the 'Emulator dropdown' '100%', '375px', etc.
+    // Wizard ContentItemPreviewToolbar
     async getSelectedOptionInEmulatorDropdown() {
         try {
             let locator = this.emulatorDropdown + lib.H6_DISPLAY_NAME;
@@ -1170,8 +1172,9 @@ class ContentWizardPanel extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
+
     async get500ErrorText() {
-        let locator = "//h3";
+        let locator = '//h3';
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }

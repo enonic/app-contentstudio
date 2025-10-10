@@ -43,7 +43,7 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             await studioUtils.saveScreenshot('shortcut_target_site_with_controller');
             // 4. 'Page' option should be selected in the widget selector dropdown:
             let selectedOption = await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
-            assert.equal(selectedOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, "'Details' selected option should be in the widget selector");
+            assert.equal(selectedOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, "'Details' widget should be in the widget selector");
         });
 
     it(`GIVEN existing shortcut has been opened WHEN Show Page Editor button has been clicked THEN 'Preview' button should be disabled in the Preview Item toolbar`,
@@ -52,14 +52,15 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             await studioUtils.selectAndOpenContentInWizard(SHORTCUT_NAME);
             // 1. 'Show page editor' toggle should be displayed, click on it and open the Editor
             await contentWizard.clickOnPageEditorToggler();
-            // 2. Verify the selected option in Preview Widget
+            // 2. Verify the selected option in Preview Widget: (Wizard ContentItemPreviewToolbar)
             let actualOption = await contentWizard.getSelectedOptionInPreviewWidget();
             assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
                 'Automatic option should be selected in preview widget by default');
+            // 3. get the selected option in Emulator dropdown in the WizardPreviewToolbar
             let actualSize = await contentWizard.getSelectedOptionInEmulatorDropdown()
             assert.equal(actualSize, appConst.EMULATOR_RESOLUTION_VALUE.FULL_SIZE,
                 '100% should be selected in emulator dropdown by default');
-            // 3. Verify that 'Preview' button should be disabled in the wizard PreviewItem toolbar:
+            // 4. Verify that 'Preview' button should be disabled in the wizard PreviewItem toolbar:
             await contentWizard.waitForPreviewButtonDisabled();
         });
 
@@ -90,7 +91,6 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             // 4. Verify that 'Preview not available' message is displayed in the Preview Item panel:
             let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
             assert.ok(actualMessage.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE), 'Preview not available - should be displayed');
-
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -17,6 +17,7 @@ const xpath = {
     noPreviewMessageSpan: "//div[@class='no-preview-message']//span",
 };
 
+// Browse Panel -> Content Item Preview Panel
 class ContentItemPreviewPanel extends Page {
 
     get liveViewFrame() {
@@ -73,7 +74,7 @@ class ContentItemPreviewPanel extends Page {
     }
 
     async waitForPreviewIframeClass(value) {
-        let locator = xpath.container + "//iframe";
+        let locator = xpath.container + '//iframe';
         await this.getBrowser().waitUntil(async () => {
             let text = await this.getAttribute(locator, 'class');
             return text === value;
@@ -83,7 +84,7 @@ class ContentItemPreviewPanel extends Page {
     // Waits for the image to be displayed in the iframe(Live View)
     async waitForImageElementDisplayed() {
         try {
-            let locator = "//img";
+            let locator = '//img';
             await this.switchToFrame(xpath.container + "//iframe[@class='image']");
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
@@ -184,7 +185,7 @@ class ContentItemPreviewPanel extends Page {
     //  gets a text(*.txt) in the Preview panel
     async getTextInAttachmentPreview() {
         try {
-            let textLocator = "//body/pre";
+            let textLocator = '//body/pre';
             await this.waitForElementDisplayed(textLocator, appConst.mediumTimeout);
             return await this.getText(textLocator);
         } catch (err) {
@@ -199,7 +200,7 @@ class ContentItemPreviewPanel extends Page {
     }
 
     async get500ErrorText() {
-        let locator = "//h1";
+        let locator = '//h1';
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
@@ -318,7 +319,8 @@ class ContentItemPreviewPanel extends Page {
             await this.waitForPreviewButtonDisplayed();
             await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout)
         } catch (err) {
-            await this.handleError(`'Preview' button should be displayed and enabled ` + 'err_preview_btn', 'err_preview_btn_disabled', err);
+            await this.handleError(`'Preview' button should be displayed and enabled ` + 'err_preview_btn', 'err_preview_btn_disabled',
+                err);
         }
     }
 
@@ -353,7 +355,8 @@ class ContentItemPreviewPanel extends Page {
             let locator = "//section[@data-portal-component-type='text']/p";
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Text component should be displayed in Live View in Preview Panel: `, 'err_text_component_live_view', err);
+            await this.handleError(`Text component should be displayed in Live View in Preview Panel: `, 'err_text_component_live_view',
+                err);
         }
     }
 
