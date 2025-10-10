@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <api xmlns="urn:enonic:xp:model:1.0">
   <allow>
-    <principal>role:system.authenticated</principal>
+    <principal>role:system.admin</principal>
+    <principal>role:cms.admin</principal>
   </allow>
 </api>
