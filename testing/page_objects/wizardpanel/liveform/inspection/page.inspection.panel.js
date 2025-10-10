@@ -9,7 +9,7 @@ const BaseComponentInspectionPanel = require('./base.component.inspection.panel'
 const xpath = {
     container: "//div[contains(@id,'PageInspectionPanel')]",
     pageTemplateSelector: `//div[contains(@id,'PageTemplateAndControllerSelector')]`,
-    noControllerMessage: `//p[@class=no-controller-message]`,
+    noControllerMessage: `//p[@class='no-controller-message']`,
 };
 
 // Inspect tab for controller and template of a Page

@@ -24,7 +24,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
     const APP_2 = appConst.TEST_APPS_NAME.MY_FIRST_APP
     const CONTROLLER_APP_1 = 'default';
     const CONTROLLER_APP_2 = 'Country List';
-    const NO_SELECTED_CONTROLLER_MSG = 'No page templates or page blocks available';
+    const NO_SELECTED_CONTROLLER_MSG = appConst.PAGE_WIDGET.NO_SELECTED_CONTROLLER_MSG;
 
     it("Precondition",
         async () => {

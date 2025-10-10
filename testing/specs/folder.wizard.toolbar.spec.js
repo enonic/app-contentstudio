@@ -6,6 +6,9 @@ const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
+const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
 
 describe('folder.wizard.toolbar.spec: tests for toolbar in folder wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -13,6 +16,27 @@ describe('folder.wizard.toolbar.spec: tests for toolbar in folder wizard', funct
         webDriverHelper.setupBrowser();
     }
     const FOLDER_1_NAME = appConst.generateRandomName('folder');
+    const NO_SELECTED_CONTROLLER_MSG = appConst.PAGE_WIDGET.NO_SELECTED_CONTROLLER_MSG;
+
+    // https://github.com/enonic/app-contentstudio/issues/9188
+    // Verifies Page widget, Insert tab with components displayed when no selected controllers #9188
+    it(`WHEN new wizard for folder in the root directory is opened THEN 'Page' widget has been opened in Context Window THEN the message 'No page templates or page blocks available' is displayed`,
+        async () => {
+            let contentWizardPanel = new ContentWizardPanel();
+            let pageInspectionPanel = new PageInspectionPanel();
+            // 1. Open the shortcut in the root directory:
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            let wizardContextWindow = new WizardContextPanel();
+            await contentWizardPanel.openContextWindow();
+            // 2. Verify that 'Details' widget is selected in Widget selector by default:
+            let actualWidget = await wizardContextWindow.getSelectedOptionInWidgetSelectorDropdown();
+            assert.equal(actualWidget, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, 'Details widget should be selected by default');
+            // 3. Open 'Page' widget in Context Window:
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            let actualMessage = await pageInspectionPanel.getNoControllerMessageText();
+            // 4. Verify the message - 'No page templates or page blocks available'
+            assert.equal(actualMessage, NO_SELECTED_CONTROLLER_MSG, 'Expected no controller message should be displayed');
+        });
 
     it(`GIVEN folder-wizard is opened WHEN name input is empty THEN all buttons have expected state`, async () => {
         let contentWizard = new ContentWizard();
@@ -34,7 +58,7 @@ describe('folder.wizard.toolbar.spec: tests for toolbar in folder wizard', funct
         await contentWizard.waitForDuplicateButtonEnabled();
         // 6. Verify that the content is invalid:
         let result = await contentWizard.isContentInvalid();
-        assert.ok(result, "The folder should be invalid, because the name input is empty");
+        assert.ok(result, 'The folder should be invalid, because the name input is empty');
     });
 
     it(`GIVEN folder-wizard is opened WHEN name has been typed THEN 'Save' button gets enabled`, async () => {
@@ -48,7 +72,7 @@ describe('folder.wizard.toolbar.spec: tests for toolbar in folder wizard', funct
         await contentWizard.waitForMarkAsReadyButtonVisible();
         // 4. Verify that the content gets valid
         let result = await contentWizard.isContentInvalid();
-        assert.ok(result === false, "The folder should be valid before the name saving");
+        assert.ok(result === false, 'The folder should be valid before the name saving');
         // 5. Only Unpublish menu item should be disabled:
         await contentWizard.openPublishMenu();
         await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
@@ -72,7 +96,7 @@ describe('folder.wizard.toolbar.spec: tests for toolbar in folder wizard', funct
             await contentWizard.waitForSavedButtonVisible();
             //5. The content should be valid
             let result = await contentWizard.isContentInvalid();
-            assert.ok(result === false, "The folder should be valid after the saving");
+            assert.ok(result === false, 'The folder should be valid after the saving');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
