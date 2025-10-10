@@ -2464,8 +2464,6 @@ public class ContentResourceTest
         final Content versionedContent = mock( Content.class );
         final Content currentContent = mock( Content.class );
         final ByteSource byteSource = mock( ByteSource.class );
-        final ContentVersion contentVersion =
-            ContentVersion.create().id( ContentVersionId.from( "contentVersionId" ) ).modifier( principalKey ).build();
 
         final Attachments attachments =
             Attachments.create().add( Attachment.create().name( "attachment" ).mimeType( "mimeType" ).size( 1000L ).build() ).build();
@@ -2494,7 +2492,6 @@ public class ContentResourceTest
         verify( this.contentService, times( 1 ) ).getBinary( any( ContentId.class ), any( ContentVersionId.class ),
                                                              any( BinaryReference.class ) );
         verify( this.contentService, times( 1 ) ).update( any( UpdateContentParams.class ) );
-        verify( this.contentService, times( 1 ) ).sort( any( SortContentParams.class ) );
         verify( this.contentService, times( 2 ) ).getById( any( ContentId.class ) );
         verifyNoMoreInteractions( contentService );
     }
