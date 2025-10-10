@@ -40,7 +40,7 @@ export class PermissionHelper {
     }
 
     static hasAdminPermissions(loginResult: LoginResult): boolean {
-        return loginResult.getPrincipals().some(principalKey => RoleKeys.isAdmin(principalKey)) || loginResult.isContentAdmin();
+        return loginResult.isContentAdmin();
     }
 
     static hasFullAccess(loginResult: LoginResult, permissions: AccessControlList): boolean {
