@@ -311,22 +311,30 @@ const getFirstAvailableProject = (projects: Project[]): Project => {
     return projects.find((p: Project) => ProjectHelper.isAvailable(p));
 };
 
-const handleNoProjectsAvailable = () => {
-    new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-        const principalKeys: PrincipalKey[] = loginResult.getPrincipals();
+const handleNoProjectsAvailable = async (loginResult?: LoginResult) => {
+    if (!loginResult) {
+        loginResult = await getAuthenticatedUser();
+    }
+    const principalKeys: PrincipalKey[] = loginResult.getPrincipals();
 
-        if (principalKeys.some((p: PrincipalKey) => RoleKeys.isContentAdmin(p))) {
-            new ProjectNotAvailableDialog().open();
-        } else {
-            ProjectSelectionDialog.get().setUpdateOnOpen(true);
-            ProjectSelectionDialog.get().open();
-        }
-
-        return Q.resolve();
-    }).catch(DefaultErrorHandler.handle);
+    if (principalKeys.some((p: PrincipalKey) => RoleKeys.isContentAdmin(p))) {
+        new ProjectNotAvailableDialog().open();
+    } else {
+        ProjectSelectionDialog.get().setUpdateOnOpen(true);
+        ProjectSelectionDialog.get().open();
+    }
 };
 
 let connectionDetector: ConnectionDetector;
+
+async function getAuthenticatedUser(): Promise<LoginResult> {
+    try {
+        return await new IsAuthenticatedRequest().sendAndParse();
+    } catch (error) {
+        DefaultErrorHandler.handle(error);
+        throw error;
+    }
+}
 
 async function startApplication() {
     const application: Application = getApplication();
@@ -336,8 +344,14 @@ async function startApplication() {
     startServerEventListeners(application);
     initApplicationEventListener();
 
+    let loginResult: LoginResult;
+    if (CONFIG.isTrue('checkLatestVersion')) {
+        loginResult = await getAuthenticatedUser();
+    }
+
     ProjectContext.get().onNoProjectsAvailable(() => {
-        handleNoProjectsAvailable();
+            (async () => handleNoProjectsAvailable(loginResult)
+        )();
     });
 
     initProjectContext(application)
@@ -355,7 +369,7 @@ async function startApplication() {
                 if (ContentAppHelper.isContentWizardUrl()) {
                     startContentWizard();
                 } else {
-                    startContentBrowser();
+                    startContentBrowser(loginResult);
                 }
             });
         });
@@ -535,8 +549,9 @@ function getTheme(): string {
     return '';
 }
 
-async function startContentBrowser() {
+async function startContentBrowser(loginResult: LoginResult) {
     await import('lib-contentstudio/app/ContentAppPanel');
+    const {PermissionHelper} = await import('lib-contentstudio/app/wizard/PermissionHelper');
     const AppWrapper = (await import('lib-contentstudio/app/AppWrapper')).AppWrapper;
     const url: string = window.location.href;
     const commonWrapper = new AppWrapper(getTheme());
@@ -544,7 +559,9 @@ async function startContentBrowser() {
     const action: string = path?.getElement(1);
     const baseAppToBeOpened = action !== 'widget';
 
-    VersionHelper.checkAndNotifyIfNewerVersionExists();
+    if (CONFIG.isTrue('checkLatestVersion') && PermissionHelper.hasAdminPermissions(loginResult)) {
+        VersionHelper.checkAndNotifyIfNewerVersionExists();
+    }
 
     if (baseAppToBeOpened) {
         commonWrapper.selectDefaultWidget();

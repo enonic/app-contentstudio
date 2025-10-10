@@ -7,17 +7,17 @@ import org.osgi.service.component.annotations.Component;
 public class MarketConfigService
 {
 
-    private final String marketUrl;
+    private final String marketApi;
 
     @Activate
     public MarketConfigService( final MarketConfig marketConfig )
     {
-        this.marketUrl = marketConfig.marketUrl();
+        this.marketApi = marketConfig.marketApi();
     }
 
-    public String getMarketUrl()
+    public String getMarketApi()
     {
-        return marketUrl;
+        return marketApi;
     }
 
 }

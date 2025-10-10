@@ -14,11 +14,17 @@ function handleGet(request) {
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
     const hideDefaultProject = app.config['settings.hideDefaultProject'] !== 'false';
+    const checkLatestVersion = app.config['settings.checkLatestVersion'] !== 'false';
     const defaultPublishFromTime = parseTime(app.config['publishingWizard.defaultPublishFromTime']);
 
     const isBrowseMode = request.path === admin.getToolUrl(app.name, 'main');
     const aiEnabled = !isBrowseMode && (aiLib.aiContentOperatorRunning || aiLib.aiTranslatorRunning);
-    const user = authLib.getUser();
+
+    let lastDismissedVersion;
+    if (checkLatestVersion) {
+        const user = authLib.getUser();
+        lastDismissedVersion = getLastDismissedVersion(user.key);
+    }
 
     return {
         status: 200,
@@ -27,6 +33,7 @@ function handleGet(request) {
             allowContentUpdate,
             excludeDependencies,
             allowPathTransliteration,
+            checkLatestVersion,
             adminUrl: admin.getBaseUri(),
             assetsUri: portal.assetUrl({
                 path: ''
@@ -37,13 +44,13 @@ function handleGet(request) {
             ),
             appId: app.name,
             appVersion: app.version,
-            xpVersion: admin.getVersion(),
             branch,
             hideDefaultProject,
             enableCollaboration,
             defaultPublishFromTime,
             locale: admin.getLocale(),
-            marketUrl: exports.getMarketUrl(),
+            marketApi: exports.getMarketApi(),
+            lastDismissedVersion,
             services: {
                 contentUrl: portal.serviceUrl({service: 'content'}),
                 i18nUrl: portal.serviceUrl({service: 'i18n'}),
@@ -64,8 +71,7 @@ function handleGet(request) {
             /* Remove in CS/lib-admin-ui 5.0 */
             launcher: {
                 theme: 'light'
-            },
-            lastDismissedVersion: getLastDismissedVersion(user.key)
+            }
         }
     };
 }
@@ -90,9 +96,9 @@ function getLastDismissedVersion(principalKey) {
 
 exports.profileScope = 'notifications';
 
-exports.getMarketUrl = function() {
+exports.getMarketApi = function() {
     const marketConfigBean = __.newBean('com.enonic.xp.app.main.GetMarketConfigBean');
-    return __.toNativeObject(marketConfigBean.getMarketUrl());
+    return __.toNativeObject(marketConfigBean.getMarketApi());
 };
 
 exports.getUnderscoredAppName = function () {

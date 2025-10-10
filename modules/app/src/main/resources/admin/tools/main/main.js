@@ -20,8 +20,8 @@ exports.renderTemplate = function (params) {
 
     if (enableSecurityPolicy) {
         let securityPolicy = app.config['contentSecurityPolicy.header'];
-        const marketUrl = configHelper.getMarketUrl();
-        const baseMarketUrl = marketUrl.substring(0, marketUrl.indexOf('/', 9));
+        const marketApi = configHelper.getMarketApi();
+        const baseMarketUrl = marketApi.substring(0, marketApi.indexOf('/', 9));
 
         if (!securityPolicy) {
             securityPolicy = `default-src 'self'; connect-src 'self' ws: wss: ${baseMarketUrl}; script-src 'self' 'unsafe-inline'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:`;
