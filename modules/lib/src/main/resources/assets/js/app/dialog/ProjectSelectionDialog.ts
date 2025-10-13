@@ -7,7 +7,7 @@ import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
 import {ProjectList} from '../project/list/ProjectList';
-import {ProjectListItem} from '../project/list/ProjectListItem';
+import {ProjectItem} from '../ui2/list/ProjectItem';
 import {ProjectContext} from '../project/ProjectContext';
 import {Project} from '../settings/data/project/Project';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
@@ -43,7 +43,7 @@ export class ProjectSelectionDialog
         this.updateOnOpen = false;
         this.projectsList.setItems(projects);
 
-        this.projectsList.getItemViews().forEach((itemView: ProjectListItem) => {
+        this.projectsList.getItemViews().forEach((itemView: ProjectItem) => {
             itemView.onClicked((event: MouseEvent) => {
                 if (!event.ctrlKey && !event.shiftKey) {
                     if (itemView.isSelectable()) {
@@ -125,9 +125,9 @@ export class ProjectSelectionDialog
         const currentProjectName: string = ProjectContext.get().isInitialized() ? ProjectContext.get().getProject().getName() : null;
 
         if (currentProjectName) {
-            this.projectsList.getItemViews().forEach((itemView: ProjectListItem) => {
+            this.projectsList.getItemViews().forEach((itemView: ProjectItem) => {
                 const isCurrentProject = itemView.getProject().getName() === currentProjectName;
-                itemView.toggleClass('selected', isCurrentProject);
+                itemView.setSelected(isCurrentProject);
                 if (isCurrentProject) {
                     itemView.whenRendered(() => setTimeout(() => itemView.giveFocus(), 100));
                 }
@@ -150,11 +150,9 @@ export class ProjectSelectionDialog
             return;
         }
 
-        const firstProject: ProjectListItem =
-            this.projectsList.getItemViews()[0] as ProjectListItem;
+        const firstProject: ProjectItem = this.projectsList.getItemViews()[0] as ProjectItem;
 
-        const lastProject: ProjectListItem =
-            this.projectsList.getItemViews()[this.projectsList.getItemViews().length - 1] as ProjectListItem;
+        const lastProject: ProjectItem = this.projectsList.getItemViews()[this.projectsList.getItemViews().length - 1] as ProjectItem;
 
         lastProject.onKeyDown((event: KeyboardEvent) => {
             if (KeyHelper.isTabKey(event) && !KeyHelper.isShiftKeyPressed(event)) {
