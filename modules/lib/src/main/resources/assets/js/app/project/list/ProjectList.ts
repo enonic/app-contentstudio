@@ -1,6 +1,6 @@
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {Project} from '../../settings/data/project/Project';
-import {ProjectListItem} from './ProjectListItem';
+import {ProjectItem} from '../../ui2/list/ProjectItem';
 import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
 import {UrlHelper} from '../../util/UrlHelper';
 
@@ -14,8 +14,8 @@ export class ProjectList
         super('project-list-items');
     }
 
-    protected createItemView(item: Project, readOnly: boolean): ProjectListItem {
-        const itemView: ProjectListItem = new ProjectListItem(item);
+    protected createItemView(item: Project, readOnly: boolean): ProjectItem {
+        const itemView: ProjectItem = new ProjectItem(item);
         itemView.addClass(`level-${this.projectLevel.get(item.getName())}`);
 
         const url: string = UrlHelper.createContentBrowseUrl(itemView.getProject().getName());
