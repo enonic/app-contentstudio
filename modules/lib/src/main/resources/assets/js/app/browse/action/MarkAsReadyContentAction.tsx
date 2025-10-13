@@ -48,7 +48,6 @@ export class MarkAsReadyContentAction
 
             dialog.open();
         }
-
     }
 
     private markAsReadyAndPublish(
