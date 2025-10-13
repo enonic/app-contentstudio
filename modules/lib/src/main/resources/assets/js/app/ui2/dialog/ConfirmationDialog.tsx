@@ -2,6 +2,7 @@ import {Button, Dialog, cn} from '@enonic/ui';
 import type {ComponentPropsWithoutRef, ReactElement, ReactNode} from 'react';
 import {createContext, useContext, useMemo, forwardRef, useState} from 'react';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {useI18n} from '../hooks/useI18n';
 
 //
 // * ConfirmationDialogContext
@@ -62,26 +63,33 @@ ConfirmationDialogContent.displayName = 'ConfirmationDialog.Content';
 //
 
 export type ConfirmationDialogFooterProps = {
+    cancelLabel?: ReactNode;
+    submitLabel?: ReactNode;
     onCancel?: () => void;
     onSubmit?: () => void;
+    intent?: 'default' | 'danger';
     className?: string;
 } & ComponentPropsWithoutRef<'footer'>;
 
 const ConfirmationDialogFooter = ({
     onCancel,
     onSubmit,
+    intent = 'default',
     className,
     ...props
 }: ConfirmationDialogFooterProps): ReactElement => {
     const {submitEnabled} = useConfirmationDialog();
 
+    const cancel = useI18n('action.cancel');
+    const submit = useI18n('action.submit');
+
     return (
         <Dialog.Footer {...props}>
             <Dialog.Close asChild>
-                <Button label={i18n('action.cancel')} variant='outline' onClick={onCancel}/>
+                <Button label={cancel} variant='outline' onClick={onCancel}/>
             </Dialog.Close>
             <Dialog.Close asChild>
-                <Button label={i18n('action.submit')} variant='solid' onClick={onSubmit} disabled={!submitEnabled}/>
+                <Button className={cn(intent === 'danger' && 'bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50')} label={submit} variant='solid' onClick={onSubmit} disabled={!submitEnabled}/>
             </Dialog.Close>
         </Dialog.Footer>
     );
