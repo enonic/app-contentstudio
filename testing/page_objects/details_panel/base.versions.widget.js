@@ -314,15 +314,6 @@ class BaseVersionsWidget extends Page {
         return this.versionsWidget + xpath.versionItem + xpath.itemByDisplayName(displayName);
     }
 
-    async waitForActiveVersionButtonNotDisplayed() {
-        try {
-            let locator = xpath.versionItemExpanded + "//button[child::span[text()='Active version']]";
-            await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
-        } catch (err) {
-            await this.handleError(`Version Widget - 'Active version' button should not be displayed`, 'err_active_version_button', err);
-        }
-    }
-
     // Checkbox for Edited, Created, Moved, Renamed version items:
     async isCompareVersionCheckboxDisplayed(itemHeader, index) {
         let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
@@ -341,13 +332,13 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    async clickOnResetCompareButton() {
+    async clickOnCancelSelectionOfVersionItemButton() {
         try {
-            let locator = this.versionsWidget + lib.actionButton('Reset compare');
+            let locator = this.versionsWidget + `//button[contains(@class,'reset-compare-button')]`;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.clickOnElement(locator);
         } catch (err) {
-            await this.handleError('Version Widget - Reset Compare versions button', 'err_compare_versions_button', err);
+            await this.handleError('Version Widget - Reset Compare versions button', 'err_cancel_selection_versions_button', err);
         }
     }
 }

@@ -29,7 +29,7 @@ describe('sort.content.by.display.name.spec, tests for ascending/descending orde
             await sortContentDialog.clickOnMenuButton();
             // 3. 'Display name-ascending' menu item has been clicked:
             await sortContentDialog.doSort(appConst.SORT_DIALOG.MENU_ITEM.DISPLAY_NAME, appConst.SORT_DIALOG.ASCENDING);
-            await studioUtils.saveScreenshot("display_name_ascending");
+            await studioUtils.saveScreenshot('display_name_ascending');
             let result = await sortContentDialog.getContentNamesInTreeGrid();
             assert.ok(result[0] === 'book', "Ascending Order should be in the dialog's grid");
 
