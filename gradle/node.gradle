@@ -34,7 +34,9 @@ tasks.named( 'pnpmInstall' ).configure {
 
     // I/O only necessary files
     inputs.file 'package.json'
-    inputs.file 'pnpm-lock.yaml'
+    if (file( 'pnpm-lock.yaml' ).exists()) {
+        inputs.file 'pnpm-lock.yaml'
+    }
     if (file( '.npmrc' ).exists()) {
         inputs.file '.npmrc'
     }

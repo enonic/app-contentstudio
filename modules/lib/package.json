@@ -21,8 +21,7 @@
     "check:lint": "eslint **/*.ts --quiet --cache"
   },
   "dependencies": {
-    "@enonic/lib-admin-ui": "workspace:*",
-    "@enonic/ui": "~0.10.1",
+    "@enonic/ui": "~0.12.0",
     "class-variance-authority": "^0.7.1",
     "d3": "^7.9.0",
     "d3-dag": "^0.11.5",
@@ -34,17 +33,23 @@
     "jquery-ui": "^1.14.1",
     "jsondiffpatch": "^0.7.3",
     "lodash": "^4.17.21",
-    "lucide-react": "^0.542.0",
+    "lucide-react": "^0.545.0",
     "nanoid": "~5.1.5",
     "nanostores": "^0.11.4",
+    "preact": "^10.27.2",
     "q": "^1.5.1",
     "sortablejs": "^1.15.6",
     "tw-animate-css": "^1.3.8"
   },
   "peerDependencies": {
-    "preact": ">=10.25.0"
+    "@enonic/lib-admin-ui": "workspace:*",
+    "@radix-ui/react-slot": "^1.2.0",
+    "focus-trap-react": "^11.0.0"
   },
   "devDependencies": {
+    "@enonic/lib-admin-ui": "workspace:*",
+    "@radix-ui/react-slot": "^1.2.0",
+    "focus-trap-react": "^11.0.0",
     "@enonic/eslint-config": "^2.0.1",
     "@swc/cli": "^0.7.8",
     "@swc/core": "^1.13.3",
@@ -64,7 +69,6 @@
     "mini-css-extract-plugin": "^2.9.2",
     "minimist": "^1.2.8",
     "postcss-loader": "^8.1.1",
-    "preact": "^10.27.1",
     "swc-loader": "^0.2.6",
     "tailwindcss": "^4.1.13",
     "terser-webpack-plugin": "^5.3.14",

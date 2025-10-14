@@ -53,12 +53,10 @@ tasks.register( 'pnpmBuild', PnpmTask ) {
                   "$buildDir/resources/main/dev/${base.archivesName.get()}" )
 }
 
-tasks.register( 'copyPackage', NodeTask ) {
+tasks.register( 'copyPackage', Copy ) {
     dependsOn tasks.named( 'pnpmBuild' )
-    script = file( 'util/modify.js' )
-    args = ["--out=$buildDir/resources/main/dev/${base.archivesName.get()}"]
-    inputs.file "./package.json"
-    outputs.file "$buildDir/resources/main/dev/${base.archivesName.get()}/package.json"
+    from "$projectDir/package.json"
+    into "$buildDir/resources/main/dev/${base.archivesName.get()}"
 }
 
 tasks.register( 'devJar', Jar ) {

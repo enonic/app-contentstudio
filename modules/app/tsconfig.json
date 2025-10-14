@@ -7,6 +7,7 @@
             "ES2022",
             "DOM"
         ],
+        "baseUrl": ".",
         "jsx": "react-jsx",
         "jsxImportSource": "preact",
         "sourceMap": true,
@@ -18,6 +19,9 @@
             "jqueryui",
             "q"
         ],
+        "paths": {
+            "@enonic/lib-admin-ui": [".xp/dev/lib-admin-ui/"]
+        }
     },
     "include": [
         "./src/**/*",
