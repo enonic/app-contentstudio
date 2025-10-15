@@ -76,7 +76,7 @@ module.exports = Object.freeze({
 
     },
     NOTIFICATION_MESSAGES: {
-        PERMISSIONS_APPLIED:'Permissions are applied.',
+        PERMISSIONS_APPLIED: 'Permissions are applied.',
         YOUR_COMMENT_ADDED: 'Your comment is added to the issue.',
         LOCALIZED_MESSAGE_1: 'Language was copied from current project.',
         LOCALIZED_MESSAGE_2: 'Inherited content is localized',
@@ -206,6 +206,9 @@ module.exports = Object.freeze({
         PAGE: 'Page',
         DETAILS: 'Details'
     },
+    PAGE_WIDGET: {
+        NO_SELECTED_CONTROLLER_MSG: 'No page templates or page blocks available'
+    },
     CONTEXT_WINDOW_TABS: {
         INSPECT: 'Inspect',
         INSERT: 'INSERT'
@@ -214,6 +217,7 @@ module.exports = Object.freeze({
         DEFAULT: 'default',
         MAIN_REGION: 'main region',
         APP_CONTENT_TYPES_PAGE: 'Page',
+        CONTROLLER_NO_REGIONS: 'no regions',
     },
     LAYOUT_NAME: {
         COL_3: '3-col',
@@ -302,7 +306,7 @@ module.exports = Object.freeze({
         INSERT: 'Insert',
         SAVE_AS_FRAGMENT: 'Save as Fragment',
         SAVE_AS_TEMPLATE: 'Save as Template',
-        DETACH_FROM_FRAGMENT: 'Detach from fragment',
+        CUSTOMIZE: 'Customize',
         INSPECT: 'Inspect',
         REMOVE: 'Remove',
         DUPLICATE: 'Duplicate',
@@ -431,7 +435,7 @@ module.exports = Object.freeze({
     },
     roleName: {
         CONTENT_MANAGER_APP: 'cms.cm.app',
-        ADMINISTRATOR:'system.admin',
+        ADMINISTRATOR: 'system.admin',
         CM_ADMIN: 'cms.admin'
     },
     roleDisplayName: {
@@ -511,7 +515,7 @@ module.exports = Object.freeze({
         LAST_MODIFIED_BY: 'Last Modified by',
         OWNER: 'Owner',
         LANGUAGE: 'Language',
-
+        IMAGE:'Image'
     },
     ISSUE_LIST_TYPE_FILTER: {
         ALL: 'All',
@@ -521,8 +525,8 @@ module.exports = Object.freeze({
         ISSUES: 'Issues',
     },
     SYSTEM_ROLES_NAME: {
-        ADMINISTRATOR:  'roles/system.admin',
-        AUDIT_LOG:  'roles/system.auditlog',
+        ADMINISTRATOR: 'roles/system.admin',
+        AUDIT_LOG: 'roles/system.auditlog',
     },
     SYSTEM_ROLES: {
         CM_ADMIN: 'Content Manager Administrator',
@@ -541,6 +545,9 @@ module.exports = Object.freeze({
         ENONIC_RENDERING: 'Enonic rendering',
         MEDIA: 'Media',
         JSON: 'JSON'
+    },
+    INSPECT_PANEL_TEMPLATE_CONTROLLER: {
+        AUTOMATIC: 'Automatic',
     },
     LIVE_VIEW_IFRAME_CLASS: {
         IMAGE: 'image',
@@ -564,12 +571,12 @@ module.exports = Object.freeze({
         HTML_AREA_X_DATA_NAME: 'Html Area x-data',
         IMAGE_X_DATA_NAME: 'X-data (image selector)'
     },
-    PERMISSIONS_DIALOG:{
-        APPLY_TO:{
+    PERMISSIONS_DIALOG: {
+        APPLY_TO: {
             THIS_ITEM: 'This item',
             CHILDREN_ONLY: 'Children only',
         },
-        ACCESS_MODE:{
+        ACCESS_MODE: {
             RESTRICTED: 'Restricted',
             PUBLIC: 'Public',
         }

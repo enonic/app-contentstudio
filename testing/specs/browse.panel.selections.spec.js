@@ -9,6 +9,7 @@ const appConst = require('../libs/app_const');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
+const ContentFilterPanel = require('../page_objects/browsepanel/content.filter.panel');
 
 describe('browse.panel.selections.spec - tests for selection items in Browse Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -85,6 +86,41 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             // 5. Verify that the  folder gets collapsed:
             isExpanded = await contentBrowsePanel.isContentExpanded(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             assert.ok(isExpanded === false, 'The folder gets collapsed');
+        });
+
+    it("GIVEN one row is checked WHEN hold down 'Shift' key AND press Arrow down key 3 times THEN 3 content items get checked",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentFilterPanel = new ContentFilterPanel();
+            // 1. Open Filter Panel and filter by 'Images' content type:
+            await studioUtils.openFilterPanel();
+            await contentFilterPanel.clickOnCheckboxInContentTypesBlock(appConst.FILTER_PANEL_AGGREGATION_BLOCK.IMAGE);
+            // 2. Click on the first row - highlight the first item
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.BOOK);
+            // 3. hold down Shift key and press Arrow down key 3 times:
+            await contentBrowsePanel.holdDownShiftAndPressArrowDown(3);
+            await studioUtils.saveScreenshot('hold_down_shift_and_click');
+            // 4. Verify that 5 content items get checked:
+            let numberCheckedRows = await contentBrowsePanel.getNumberOfCheckedRows();
+            assert.equal(numberCheckedRows, 3, '3 rows should be checked in Browse Panel');
+        });
+
+    // https://github.com/enonic/app-contentstudio/issues/9238
+    it("GIVEN one row is highlighted WHEN hold down 'Shift' key AND click on the 5th row in grid THEN 5 content items get checked",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentFilterPanel = new ContentFilterPanel();
+            // 1. Open Filter Panel and filter by 'Images' content type:
+            await studioUtils.openFilterPanel();
+            await contentFilterPanel.clickOnCheckboxInContentTypesBlock(appConst.FILTER_PANEL_AGGREGATION_BLOCK.IMAGE);
+            // 2. Click on the first row - highlight the first item
+            await contentBrowsePanel.clickOnRowByIndex(0);
+            // 3. hold down Shift key and click on the 5th row in the grid:
+            await contentBrowsePanel.holdDownShiftKeyAndClickOnRowByIndex(4);
+            await studioUtils.saveScreenshot('hold_down_shift_and_click');
+            // 4. Verify that 5 content items get checked:
+            let numberCheckedRows = await contentBrowsePanel.getNumberOfCheckedRows();
+            assert.equal(numberCheckedRows, 5, '5 rows should be checked in Browse Panel');
         });
 
     it("GIVEN one row is highlighted WHEN 'Arrow Down' key has been pressed THEN the next row should be highlighted",

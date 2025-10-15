@@ -355,8 +355,7 @@ class Page {
             await this.pause(400);
             return await this.getText(notificationXpath);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_notification');
-            throw new Error(`Error when wait for the notification message, screenshot:${screenshot}  `  + err);
+            await this.handleError('Waited for the notification message', 'err_notif_msg', err);
         }
     }
 
@@ -466,9 +465,9 @@ class Page {
         await element.moveTo();
         let xValue = await element.getLocation('x');
         let yValue = await element.getLocation('y');
-        let x  = Math.floor(xValue);//parseInt(yValue) + offsetY;
+        let x = Math.floor(xValue);//parseInt(yValue) + offsetY;
         let y = Math.floor(yValue);// + offsetX;
-        return await this.browser.performActions([{
+        return await this.getBrowser().performActions([{
             type: 'pointer',
             id: 'pointer1',
             parameters: {
@@ -476,6 +475,38 @@ class Page {
             },
             actions: [
                 {type: "pointerMove", origin: "pointer", "x": x, "y": y}]
+        }]);
+    }
+
+    async holdDownShiftAndPressArrowDown(count) {
+        // holding down the Shift key
+        await this.getBrowser().performActions([{
+            type: 'key',
+            id: 'keyboard',
+            actions: [
+                { type: 'keyDown', value: Key.Shift }
+            ]
+        }]);
+
+        // press ArrowDown key 'count' times
+        for (let i = 1; i < count; i++) {
+            await this.getBrowser().performActions([{
+                type: 'key',
+                id: 'keyboard',
+                actions: [
+                    { type: 'keyDown', value: Key.ArrowDown },
+                    { type: 'keyUp', value: Key.ArrowDown  }
+                ]
+            }]);
+            await this.getBrowser().pause(400);
+        }
+
+        await this.getBrowser().performActions([{
+            type: 'key',
+            id: 'keyboard',
+            actions: [
+                { type: 'keyUp', value: Key.Shift } // Shift
+            ]
         }]);
     }
 
@@ -559,8 +590,7 @@ class Page {
             let el = await this.findElement(selector);
             return await this.getBrowser().switchFrame(el);
         } catch (err) {
-            console.log('Error when switch to frame ' + selector);
-            throw new Error('Error when switch to frame  ' + err);
+            await this.handleError('Tried to switch to the frame', 'err_switch_frame', err);
         }
     }
 
@@ -698,10 +728,24 @@ class Page {
             },
         ]);
     }
+
     // Utility method for error handling
     async handleError(errorMessage, screenshotName, error) {
-        let screenshot = await this.saveScreenshotUniqueName(screenshotName);
-        throw new Error(`${errorMessage}, screenshot: ${screenshot} ` + error);
+        if (Error.prototype.hasOwnProperty('cause')) {
+            throw new Error(`${errorMessage}: ${error.message}  [screenshot]: ${screenshotName} `, {cause: error});
+        }
+        const wrapped = new Error(`${errorMessage}: ${error.message} `);
+        wrapped.cause = error;
+        wrapped.screenshotTaken = error.screenshotTaken;
+        wrapped.screenshotName = error.screenshotName;
+
+        if (!wrapped.screenshotTaken) {
+            wrapped.screenshotName = screenshotName
+            wrapped.screenshotTaken = true;
+            wrapped.message += `[Screenshot]: ${screenshotName}`
+            await this.saveScreenshotUniqueName(wrapped.screenshotName);
+        }
+        throw wrapped;
     }
 
     async isMacOS() {
