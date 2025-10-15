@@ -206,9 +206,6 @@ module.exports = Object.freeze({
         PAGE: 'Page',
         DETAILS: 'Details'
     },
-    PAGE_WIDGET: {
-        NO_SELECTED_CONTROLLER_MSG: 'No page templates or page blocks available'
-    },
     CONTEXT_WINDOW_TABS: {
         INSPECT: 'Inspect',
         INSERT: 'INSERT'
@@ -217,7 +214,6 @@ module.exports = Object.freeze({
         DEFAULT: 'default',
         MAIN_REGION: 'main region',
         APP_CONTENT_TYPES_PAGE: 'Page',
-        CONTROLLER_NO_REGIONS: 'no regions',
     },
     LAYOUT_NAME: {
         COL_3: '3-col',
@@ -306,7 +302,7 @@ module.exports = Object.freeze({
         INSERT: 'Insert',
         SAVE_AS_FRAGMENT: 'Save as Fragment',
         SAVE_AS_TEMPLATE: 'Save as Template',
-        CUSTOMIZE: 'Customize',
+        DETACH_FROM_FRAGMENT: 'Detach from fragment',
         INSPECT: 'Inspect',
         REMOVE: 'Remove',
         DUPLICATE: 'Duplicate',
@@ -545,9 +541,6 @@ module.exports = Object.freeze({
         ENONIC_RENDERING: 'Enonic rendering',
         MEDIA: 'Media',
         JSON: 'JSON'
-    },
-    INSPECT_PANEL_TEMPLATE_CONTROLLER: {
-        AUTOMATIC: 'Automatic',
     },
     LIVE_VIEW_IFRAME_CLASS: {
         IMAGE: 'image',
