@@ -3,7 +3,7 @@ import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
 import {Flag} from '../../locale/Flag';
 
 export type ProjectIconProps = {
-    name?: string;
+    projectName: string;
     language?: string;
     icon?: ReactNode;
     hasIcon?: boolean;
@@ -11,25 +11,18 @@ export type ProjectIconProps = {
     className?: string;
 };
 
-export default function ProjectIcon({name, language, icon, hasIcon, isLayer, className}: ProjectIconProps): ReactElement {
-    // 0) If explicit icon node provided, render it as-is within the expected size box
-    if (icon) {
-        return <span className={`h-6 w-6 rounded ${className ?? ''}`}>{icon}</span>;
-    }
-
-    // 1) Try explicit project icon URL if indicated
+export default function ProjectIcon({projectName, language, hasIcon, isLayer, className}: ProjectIconProps): ReactElement {
     try {
-        if (hasIcon && name) {
-            const url = new ProjectIconUrlResolver().setProjectName(name).setTimestamp(new Date().getTime()).resolve();
+        if (hasIcon) {
+            const url = new ProjectIconUrlResolver().setProjectName(projectName).setTimestamp(new Date().getTime()).resolve();
             if (url) {
-                return <img src={url} alt="" draggable={false} className="h-6 w-6 rounded"/>;
+                return <img src={url} alt="" draggable={false} className="h-6 w-6 rounded-full bg-center"/>;
             }
         }
     } catch {
         // fall through to flag/default
     }
 
-    // 2) Language flag
     try {
         const lang = language ? String(language) : '';
         if (lang) {
@@ -41,10 +34,9 @@ export default function ProjectIcon({name, language, icon, hasIcon, isLayer, cla
             );
         }
     } catch {
-        // fall through to default icon
+        // fall through to default-icon
     }
 
-    // 3) Default icon class
     try {
         const fallbackClass = isLayer
                               ? ProjectIconUrlResolver.getDefaultLayerIcon()
