@@ -3,7 +3,7 @@ import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
 import {Flag} from '../../locale/Flag';
 
 export type ProjectIconProps = {
-    name: string;
+    name?: string;
     language?: string;
     icon?: ReactNode;
     hasIcon?: boolean;
@@ -11,10 +11,15 @@ export type ProjectIconProps = {
     className?: string;
 };
 
-export default function ProjectIcon({name, language, hasIcon, isLayer, className}: ProjectIconProps): ReactElement {
+export default function ProjectIcon({name, language, icon, hasIcon, isLayer, className}: ProjectIconProps): ReactElement {
+    // 0) If explicit icon node provided, render it as-is within the expected size box
+    if (icon) {
+        return <span className={`h-6 w-6 rounded ${className ?? ''}`}>{icon}</span>;
+    }
+
     // 1) Try explicit project icon URL if indicated
     try {
-        if (hasIcon) {
+        if (hasIcon && name) {
             const url = new ProjectIconUrlResolver().setProjectName(name).setTimestamp(new Date().getTime()).resolve();
             if (url) {
                 return <img src={url} alt="" draggable={false} className="h-6 w-6 rounded"/>;

@@ -36,11 +36,15 @@ export function ProjectItemView({
       {...rest}
     >
         <ListItem.Left>
-            <ProjectIcon
-                name={label}
-                language={language}
-                hasIcon={hasIcon}
-            />
+            {icon ? (
+                <span className="h-6 w-6 rounded">{icon}</span>
+            ) : (
+                <ProjectIcon
+                    name={typeof description === 'string' ? description : undefined}
+                    language={language}
+                    hasIcon={hasIcon}
+                />
+            )}
         </ListItem.Left>
             <ListItem.Content>
                 <h3 className="text-base leading-5.5">{label}</h3>
