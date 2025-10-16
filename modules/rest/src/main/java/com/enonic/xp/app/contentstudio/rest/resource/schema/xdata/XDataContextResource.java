@@ -1,12 +1,6 @@
 package com.enonic.xp.app.contentstudio.rest.resource.schema.xdata;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -23,38 +17,27 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 
 import com.enonic.xp.app.ApplicationKey;
-import com.enonic.xp.app.ApplicationWildcardMatcher;
+import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.app.contentstudio.json.schema.xdata.XDataJson;
 import com.enonic.xp.app.contentstudio.json.schema.xdata.XDataListJson;
-import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.jaxrs.JaxRsComponent;
-import com.enonic.xp.project.Project;
-import com.enonic.xp.project.ProjectName;
-import com.enonic.xp.project.ProjectService;
-import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.mixin.MixinService;
-import com.enonic.xp.schema.xdata.XData;
-import com.enonic.xp.schema.xdata.XDataService;
 import com.enonic.xp.security.RoleKeys;
-import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
-import com.enonic.xp.site.SiteConfigs;
+import com.enonic.xp.site.SiteConfigService;
 import com.enonic.xp.site.SiteConfigsDataSerializer;
-import com.enonic.xp.site.SiteDescriptor;
-import com.enonic.xp.site.SiteService;
-import com.enonic.xp.site.XDataMappings;
+import com.enonic.xp.site.XDataMappingService;
+import com.enonic.xp.site.XDataOptions;
 
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
-import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.stream.Collectors.toList;
 
 @Path(REST_ROOT + "{content:(" + CONTENT_CMS_PATH + ")}/schema/xdata")
@@ -64,25 +47,20 @@ import static java.util.stream.Collectors.toList;
 public final class XDataContextResource
     implements JaxRsComponent
 {
-    private XDataService xDataService;
-
     private ContentService contentService;
-
-    private SiteService siteService;
 
     private LocaleService localeService;
 
     private MixinService mixinService;
 
-    private ProjectService projectService;
+    private XDataMappingService xDataMappingService;
 
-    private ApplicationWildcardMatcher.Mode contentTypeParseMode;
+    private SiteConfigService siteConfigService;
 
     @Activate
     @Modified
-    public void activate( final AdminRestConfig config )
+    public void activate()
     {
-        contentTypeParseMode = ApplicationWildcardMatcher.Mode.valueOf( config.contentTypePatternMode() );
     }
 
     @GET
@@ -92,13 +70,29 @@ public final class XDataContextResource
         final ContentId contentId = ContentId.from( id );
         final Content content = this.contentService.getById( contentId );
 
+        final ApplicationKeys.Builder applicationKeys = ApplicationKeys.create();
+
+        if ( content.isSite() )
+        {
+            applicationKeys.add( ApplicationKey.PORTAL );
+
+            SiteConfigsDataSerializer.fromData( content.getData().getRoot() )
+                .stream()
+                .map( SiteConfig::getApplicationKey )
+                .forEach( applicationKeys::add );
+        }
+        else
+        {
+            siteConfigService.getSiteConfigs( content.getPath().getParentPath() )
+                .stream()
+                .map( SiteConfig::getApplicationKey )
+                .forEach( applicationKeys::add );
+        }
+
+        final XDataOptions xDataOptions = xDataMappingService.getXDataMappingOptions( content.getType(), applicationKeys.build() );
+
         final XDataListJson result = new XDataListJson();
-
-        final Map<XData, Boolean> resultXData = new LinkedHashMap<>();
-
-        getSiteXData( content ).forEach( resultXData::putIfAbsent );
-
-        result.addXDatas( createXDataListJson( resultXData, request ) );
+        result.addXDatas( createXDataListJson( xDataOptions, request ) );
 
         return result;
     }
@@ -111,95 +105,25 @@ public final class XDataContextResource
     {
         final XDataListJson result = new XDataListJson();
 
-        final SiteDescriptor siteDescriptor = siteService.getDescriptor( ApplicationKey.from( key ) );
+        final XDataOptions xDataOptions =
+            xDataMappingService.getXDataMappingOptions( ContentTypeName.from( contentTypeName ), ApplicationKeys.from( key ) );
 
-        final Map<XData, Boolean> siteXData =
-            this.getXDatasByContentType( siteDescriptor.getXDataMappings(), ContentTypeName.from( contentTypeName ) );
-
-        result.addXDatas( createXDataListJson( siteXData, request ) );
+        result.addXDatas( createXDataListJson( xDataOptions, request ) );
 
         return result;
     }
 
-    private SiteConfigs getSiteOrProjectConfigs( final Content content )
+    private List<XDataJson> createXDataListJson( final XDataOptions xDataOptions, @Context HttpServletRequest request )
     {
-        final Site nearestSite = this.contentService.getNearestSite( content.getId() );
-
-        return nearestSite == null ? getProjectSiteConfigs() : SiteConfigsDataSerializer.fromData( nearestSite.getData().getRoot() );
-    }
-
-    private SiteConfigs getProjectSiteConfigs()
-    {
-        final RepositoryId repositoryId = ContextAccessor.current().getRepositoryId();
-
-        return Optional.ofNullable( repositoryId != null ? ProjectName.from( repositoryId ) : null )
-            .map( projectService::get )
-            .map( Project::getSiteConfigs )
-            .orElseGet( SiteConfigs::empty );
-    }
-
-    private List<XDataJson> createXDataListJson( final Map<XData, Boolean> xDatas, @Context HttpServletRequest request )
-    {
-        return xDatas.keySet()
+        return xDataOptions
             .stream()
-            .map( xData -> XDataJson.create()
-                .setXData( xData )
+            .map( xData -> XDataJson.create().setXData( xData.xdata() )
                 .setLocaleMessageResolver(
-                    new LocaleMessageResolver( localeService, xData.getName().getApplicationKey(), request.getLocales() ) )
-                .setInlineMixinResolver( new InlineMixinResolver( mixinService ) )
-                .setOptional( xDatas.get( xData ) )
+                    new LocaleMessageResolver( localeService, xData.xdata().getName().getApplicationKey(), request.getLocales() ) )
+                .setInlineMixinResolver( new InlineMixinResolver( mixinService ) ).setOptional( xData.optional() )
                 .build() )
             .distinct()
             .collect( toList() );
-    }
-
-    private Map<XData, Boolean> getSiteXData( final Content content )
-    {
-        final List<ApplicationKey> applicationKeys =
-            Stream.concat( getSiteOrProjectConfigs( content ).stream().map( SiteConfig::getApplicationKey ),
-                           Stream.of( ApplicationKey.PORTAL ) ).distinct().collect( toList() );
-
-        return getXDataByApps( applicationKeys, content.getType() );
-    }
-
-    private Map<XData, Boolean> getXDataByApps( final Collection<ApplicationKey> applicationKeys, final ContentTypeName contentType )
-    {
-        final XDataMappings.Builder builder = XDataMappings.create();
-
-        applicationKeys.stream()
-            .map( applicationKey -> siteService.getDescriptor( applicationKey ) )
-            .filter( Objects::nonNull )
-            .forEach( siteDescriptor -> builder.addAll( siteDescriptor.getXDataMappings() ) );
-
-        return getXDatasByContentType( builder.build(), contentType );
-    }
-
-    private Map<XData, Boolean> getXDatasByContentType( final XDataMappings xDataMappings, final ContentTypeName contentTypeName )
-    {
-        final Map<XData, Boolean> result = new LinkedHashMap<>();
-
-        xDataMappings.stream().filter( xDataMapping -> {
-            final String wildcard = xDataMapping.getAllowContentTypes();
-            final ApplicationKey applicationKey = xDataMapping.getXDataName().getApplicationKey();
-
-            return nullToEmpty( wildcard ).isBlank() ||
-                new ApplicationWildcardMatcher<>( applicationKey, ContentTypeName::toString, contentTypeParseMode ).matches( wildcard,
-                                                                                                                             contentTypeName );
-        } ).forEach( xDataMapping -> {
-            final XData xData = this.xDataService.getByName( xDataMapping.getXDataName() );
-            if ( xData != null )
-            {
-                result.putIfAbsent( xData, xDataMapping.getOptional() );
-            }
-        } );
-
-        return result;
-    }
-
-    @Reference
-    public void setXDataService( final XDataService xDataService )
-    {
-        this.xDataService = xDataService;
     }
 
     @Reference
@@ -217,21 +141,21 @@ public final class XDataContextResource
 
 
     @Reference
-    public void setSiteService( final SiteService siteService )
-    {
-        this.siteService = siteService;
-    }
-
-    @Reference
     public void setMixinService( final MixinService mixinService )
     {
         this.mixinService = mixinService;
     }
 
     @Reference
-    public void setProjectService( final ProjectService projectService )
+    public void setXDataMappingService( final XDataMappingService xDataMappingService )
     {
-        this.projectService = projectService;
+        this.xDataMappingService = xDataMappingService;
+    }
+
+    @Reference
+    public void setSiteConfigService( final SiteConfigService siteConfigService )
+    {
+        this.siteConfigService = siteConfigService;
     }
 }
 

@@ -12,10 +12,10 @@ import org.mockito.AdditionalAnswers;
 import jakarta.servlet.http.HttpServletRequest;
 
 import com.enonic.xp.app.ApplicationKey;
-import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentName;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextBuilder;
@@ -37,14 +37,19 @@ import com.enonic.xp.schema.xdata.XDataService;
 import com.enonic.xp.schema.xdata.XDatas;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
+import com.enonic.xp.site.SiteConfigService;
 import com.enonic.xp.site.SiteConfigs;
 import com.enonic.xp.site.SiteConfigsDataSerializer;
 import com.enonic.xp.site.SiteDescriptor;
 import com.enonic.xp.site.SiteService;
 import com.enonic.xp.site.XDataMapping;
+import com.enonic.xp.site.XDataMappingService;
 import com.enonic.xp.site.XDataMappings;
+import com.enonic.xp.site.XDataOption;
+import com.enonic.xp.site.XDataOptions;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -64,6 +69,10 @@ public class XDataContextResourceTest
 
     private ProjectService projectService;
 
+    private XDataMappingService xDataMappingService;
+
+    private SiteConfigService siteConfigService;
+
     @Override
     protected XDataContextResource getResourceInstance()
     {
@@ -73,19 +82,17 @@ public class XDataContextResourceTest
         contentService = mock( ContentService.class );
         siteService = mock( SiteService.class );
         projectService = mock( ProjectService.class );
+        xDataMappingService = mock( XDataMappingService.class );
+        siteConfigService = mock( SiteConfigService.class );
 
         final XDataContextResource resource = new XDataContextResource();
         resource.setMixinService( mixinService );
-        resource.setXDataService( xDataService );
         resource.setLocaleService( localeService );
         resource.setContentService( contentService );
-        resource.setSiteService( siteService );
-        resource.setProjectService( projectService );
+        resource.setXDataMappingService( xDataMappingService );
+        resource.setSiteConfigService( siteConfigService );
 
-        final AdminRestConfig config = mock( AdminRestConfig.class );
-        when( config.contentTypePatternMode() ).thenReturn( "MATCH" );
-
-        resource.activate( config );
+        resource.activate();
 
         when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
@@ -123,6 +130,13 @@ public class XDataContextResourceTest
         when( xDataService.getByNames( XDataNames.empty() ) ).thenReturn( XDatas.empty() );
         when( xDataService.getByName( xData.getName() ) ).thenReturn( xData );
 
+        when( siteConfigService.getSiteConfigs( any() ) ).thenReturn( SiteConfigs.from(
+            SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build() ) );
+
+        when( xDataMappingService.getXDataMappingOptions( eq( contentType.getName() ), any() ) ).thenReturn(
+            XDataOptions.create().add( new XDataOption( xData, true ) ).build() );
+
+
         String result =
             request().path( "cms/default/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
 
@@ -151,6 +165,11 @@ public class XDataContextResourceTest
         when( xDataService.getByName( xData1.getName() ) ).thenReturn( xData1 );
         when( xDataService.getByName( xData2.getName() ) ).thenReturn( xData2 );
 
+        when( siteConfigService.getSiteConfigs( any() ) ).thenReturn( SiteConfigs.from(
+            SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build() ) );
+
+        when( xDataMappingService.getXDataMappingOptions( eq( contentType.getName() ), any() ) ).thenReturn(
+            XDataOptions.create().add( new XDataOption( xData1, false ) ).add( new XDataOption( xData2, false ) ).build() );
 
         String result =
             request().path( "cms/default/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
@@ -171,6 +190,11 @@ public class XDataContextResourceTest
         when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
         when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
         when( xDataService.getByName( xData1.getName() ) ).thenReturn( xData1 );
+
+        when( siteConfigService.getSiteConfigs( any() ) ).thenReturn( SiteConfigs.from(
+            SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build() ) );
+
+        when( xDataMappingService.getXDataMappingOptions( eq( contentType.getName() ), any() ) ).thenReturn( XDataOptions.empty() );
 
         String result =
             request().path( "cms/default/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
@@ -210,6 +234,12 @@ public class XDataContextResourceTest
         when( xDataService.getByName( xdata2.getName() ) ).thenReturn( xdata2 );
 
         when( xDataService.getByApplication( any() ) ).thenReturn( XDatas.from( xdata2 ) );
+
+        when( siteConfigService.getSiteConfigs( eq( ContentPath.ROOT ) ) ).thenReturn( SiteConfigs.from(
+            SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build() ) );
+
+        when( xDataMappingService.getXDataMappingOptions( eq( contentType.getName() ), any() ) ).thenReturn(
+            XDataOptions.create().add( new XDataOption( xdata2, false ) ).build() );
 
         String result = ContextBuilder.create()
             .repositoryId( project.getName().getRepoId() )
@@ -294,9 +324,16 @@ public class XDataContextResourceTest
 
         when( xDataService.getByApplication( any() ) ).thenReturn( XDatas.from( xdata2 ) );
 
-        String result = request().path( "cms/default/content/schema/xdata/getApplicationXDataForContentType" ).
-            queryParam( "contentTypeName", contentTypeName.toString() ).
-            queryParam( "applicationKey", contentTypeName.getApplicationKey().toString() ).
+        when( siteConfigService.getSiteConfigs( any() ) ).thenReturn( SiteConfigs.from(
+            SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build() ) );
+
+        when( xDataMappingService.getXDataMappingOptions( eq( contentTypeName ), any() ) ).thenReturn(
+            XDataOptions.create().add( new XDataOption( xdata1, false ) ).build() );
+
+        String result = request().path( "cms/default/content/schema/xdata/getApplicationXDataForContentType" )
+            .queryParam( "contentTypeName", contentTypeName.toString() )
+            .queryParam( "applicationKey", contentTypeName.getApplicationKey().toString() )
+            .
             get().
             getAsString();
 
@@ -340,6 +377,8 @@ public class XDataContextResourceTest
     {
         final Content content = mock( Content.class );
         when( content.getType() ).thenReturn( contentTypeName );
+        when( content.getName() ).thenReturn( ContentName.from( "content1" ) );
+        when( content.getPath() ).thenReturn( ContentPath.from( ContentPath.ROOT, "content1" ) );
         when( content.getId() ).thenReturn( ContentId.from( "contentId" ) );
         return content;
     }
