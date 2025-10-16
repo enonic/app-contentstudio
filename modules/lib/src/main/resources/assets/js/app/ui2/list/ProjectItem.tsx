@@ -3,7 +3,7 @@ import type {ReactElement} from 'react';
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {Project} from '../../settings/data/project/Project';
 import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
-import ProjectIcon from './ProjectIcon';
+import {ProjectIcon} from './ProjectIcon';
 
 export type ProjectItemProps = {
     label: string;
@@ -27,21 +27,19 @@ export function ProjectItemView({
         <ListItem
             {...rest}
         >
-            <ListItem.Left>
+            <ListItem.Content className="flex-1 min-w-0 grid-cols-[auto_1fr] gap-2.5 items-center grid">
                 <ProjectIcon
                     projectName={projectName}
                     language={language}
                     hasIcon={hasIcon}
                 />
-            </ListItem.Left>
-            <ListItem.Content>
+                <div>
                 <h3 className="text-base leading-5.5">
                     {label}
-                    {language ?
-                     <span className="text-sm text-subtle"> ({language})</span> : null}
+                    {language ? <span className="text-sm text-subtle">({language})</span> : null}
                 </h3>
                 <p className="text-sm text-subtle">{projectName}</p>
-
+                </div>
             </ListItem.Content>
         </ListItem>
     );
@@ -58,7 +56,7 @@ export class ProjectItem
         const name = project.getName();
         const language = project.getLanguage();
         const icon = project.getIcon();
-
+        console.log(project);
         super(
             {
                 label: displayName,
