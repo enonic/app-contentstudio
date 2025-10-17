@@ -70,12 +70,10 @@ public final class XDataContextResource
         final ContentId contentId = ContentId.from( id );
         final Content content = this.contentService.getById( contentId );
 
-        final ApplicationKeys.Builder applicationKeys = ApplicationKeys.create();
+        final ApplicationKeys.Builder applicationKeys = ApplicationKeys.create().add( ApplicationKey.PORTAL );
 
         if ( content.isSite() )
         {
-            applicationKeys.add( ApplicationKey.PORTAL );
-
             SiteConfigsDataSerializer.fromData( content.getData().getRoot() )
                 .stream()
                 .map( SiteConfig::getApplicationKey )
