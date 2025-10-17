@@ -46,7 +46,7 @@ describe('fragment.layout.pcv.spec - Select a layout in fragment and verify regi
             await contentWizard.waitForNotificationMessage();
             // 5. Switch to the new wizard and select the '3-col' layout:
             await studioUtils.doSwitchToNewWizard();
-            await pageComponentsWizardStepForm.clickOnComponent("Layout");
+            await pageComponentsWizardStepForm.clickOnComponent('Layout');
             await liveFormPanel.selectLayoutByDisplayName(LAYOUT_3_COL);
             // 6. Verify that 3 regions are present in the PCV:
             await pageComponentsWizardStepForm.waitForItemDisplayed('left');

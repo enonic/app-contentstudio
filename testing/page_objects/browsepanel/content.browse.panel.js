@@ -225,10 +225,12 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     // Wait for `Publish Menu` Button gets 'Unpublish'
-    waitForUnPublishButtonVisible() {
-        return this.waitForElementDisplayed(this.unpublishButton, appConst.shortTimeout).catch(err => {
-            throw new Error('Unpublish button is not displayed after 2 seconds ' + err);
-        })
+    async waitForUnPublishButtonVisible() {
+        try {
+            return await this.waitForElementDisplayed(this.unpublishButton, appConst.shortTimeout)
+        } catch (err) {
+            await this.handleError('Unpublish button should be visible', 'err_unpublish_button', err);
+        }
     }
 
     // Wait for `Publish Menu` Button gets 'Publish Tree...'
@@ -449,11 +451,12 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    waitForMoveButtonDisabled() {
-        return this.waitForElementDisabled(this.moveButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_move_disabled_button');
-            throw new Error('Move button should be disabled, timeout: ' + err);
-        })
+    async waitForMoveButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.moveButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Move button should be disabled', 'err_move_disabled_button', err);
+        }
     }
 
     async waitForSortButtonEnabled() {
@@ -464,11 +467,61 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    waitForMoveButtonEnabled() {
-        return this.waitForElementEnabled(this.moveButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_move_enabled_button');
-            throw new Error('Move button should be enabled, timeout: ' + err);
-        })
+    async waitForMoveButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.moveButton, appConst.mediumTimeout)
+        } catch (err) {
+            await this.handleError('Move button should be enabled', 'err_move_enabled_button', err);
+        }
+    }
+
+    async clickOnRowByIndex(rowNumber) {
+        try {
+            let locator = XPATH.contentsTreeGridRootUL + lib.H6_DISPLAY_NAME;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            let rows = await this.findElements(locator);
+            if (rowNumber > rows.length) {
+                throw new Error('The number of content-rows less than the index');
+            }
+            await rows[rowNumber].click();
+            return await this.pause(500);
+        } catch (err) {
+            await this.handleError(`Tried to click on row by number: ${rowNumber}`, 'err_click_on_row_in_grid');
+        }
+    }
+
+    async holdDownShiftKeyAndClickOnRowByIndex(rowNumber) {
+        try {
+            let locator = XPATH.contentsTreeGridRootUL + lib.H6_DISPLAY_NAME;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            let rows = await this.findElements(locator);
+            if (rowNumber > rows.length) {
+                throw new Error('The number of content-rows less than the index');
+            }
+            // Press Shift key down
+            await this.getBrowser().performActions([{
+                type: 'key',
+                id: 'keyboard',
+                actions: [
+                    {type: 'keyDown', value: Key.Shift}
+                ]
+            }]);
+            // Click on the row
+            await rows[rowNumber].click();
+            // Shift key up
+            await this.getBrowser().performActions([{
+                type: 'key',
+                id: 'keyboard',
+                actions: [
+                    {type: 'keyUp', value: Key.Shift} // Shift key
+                ]
+            }]);
+            await this.getBrowser().releaseActions();
+
+            return await this.pause(500);
+        } catch (err) {
+            await this.handleError(`Tried to hold down Shift key and click on row by number: ${rowNumber}`, 'err_click_on_row_in_grid');
+        }
     }
 
     async clickOnRowByDisplayName(displayName) {
