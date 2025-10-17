@@ -72,9 +72,9 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
 
             isDisplayed =
                 await wizardVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 0);
-            assert.ok(isDisplayed===false, "'Compare Version' checkbox should be displayed in the first Permissions updated-item");
+            assert.ok(isDisplayed === false, "'Compare Version' checkbox should be displayed in the first Permissions updated-item");
             isDisplayed = await wizardVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
-            assert.ok(isDisplayed===false, "'Compare Version' checkbox should be displayed in the top Edit-item");
+            assert.ok(isDisplayed === false, "'Compare Version' checkbox should be displayed in the top Edit-item");
         });
 
     it(`WHEN 'Permissions updated' item has been clicked THEN 'Revert' button should not be visible in the item`,
@@ -172,7 +172,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             // 3. Click on the 'Edited' version item:
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             // 4. Verify that 'Compare changes' checkbox gets visible in the item:
-            await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED,0);
+            await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             // 5. Click on 'Compare changes' button in the 'Edited' item:
             await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             // 6. Click on the 'Permissions Updated' version item:

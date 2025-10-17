@@ -762,12 +762,14 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    // Gets content status from the Item Preview toolbar
     async getContentStatus() {
         let locator = this.previewItemToolbar + XPATH.status;
         let result = await this.getDisplayedElements(XPATH.container + XPATH.status);
         return await result[0].getText();
     }
 
+    // Waits until content status in the Item Preview toolbar equals to expectedStatus
     async waitForContentStatus(expectedStatus) {
         try {
             let selector = this.previewItemToolbar +
@@ -1174,7 +1176,7 @@ class ContentWizardPanel extends Page {
     }
 
     async get500ErrorText() {
-        let locator = "//h3";
+        let locator = '//h3';
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
