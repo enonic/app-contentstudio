@@ -2,13 +2,6 @@ package com.enonic.xp.app.contentstudio.json.schema.xdata;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import com.google.common.base.Preconditions;
-
-import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
-import com.enonic.xp.schema.xdata.XDatas;
 
 public class XDataListJson
 {
@@ -17,16 +10,6 @@ public class XDataListJson
     public XDataListJson()
     {
         this.list = new ArrayList<>();
-    }
-
-    public XDataListJson( final Builder builder )
-    {
-        this.list = builder.xDatas.stream().map( xData -> XDataJson.
-            create().
-            setXData( xData ).
-            setLocaleMessageResolver( builder.localeMessageResolver ).
-            setInlineMixinResolver( builder.inlineMixinResolver ).
-            build() ).collect( Collectors.toList() );
     }
 
     public void addXDatas( final List<XDataJson> xDatas )
@@ -39,51 +22,4 @@ public class XDataListJson
         return this.list;
     }
 
-    public static Builder create()
-    {
-        return new Builder();
-    }
-
-    public static final class Builder
-    {
-        private XDatas xDatas = XDatas.empty();
-
-        private LocaleMessageResolver localeMessageResolver;
-
-        private InlineMixinResolver inlineMixinResolver;
-
-        private Builder()
-        {
-        }
-
-        public Builder setXDatas( final XDatas xDatas )
-        {
-            this.xDatas = xDatas;
-            return this;
-        }
-
-        public Builder setLocaleMessageResolver( final LocaleMessageResolver localeMessageResolver )
-        {
-            this.localeMessageResolver = localeMessageResolver;
-            return this;
-        }
-
-        public Builder setInlineMixinResolver( final InlineMixinResolver inlineMixinResolver )
-        {
-            this.inlineMixinResolver = inlineMixinResolver;
-            return this;
-        }
-
-        private void validate()
-        {
-            Preconditions.checkNotNull( localeMessageResolver );
-            Preconditions.checkNotNull( inlineMixinResolver );
-        }
-
-        public XDataListJson build()
-        {
-            validate();
-            return new XDataListJson( this );
-        }
-    }
 }
