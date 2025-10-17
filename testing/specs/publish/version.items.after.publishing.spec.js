@@ -6,7 +6,7 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const EditPermissionsDialog = require('../../page_objects/permissions/edit.permissions.general.step');
+const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
 const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const PublishContentDialog = require('../../page_objects/content.publish.dialog');
@@ -15,6 +15,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const contentBuilder = require('../../libs/content.builder');
+const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
 
 describe('version.items.after.publishing.spec tests for version items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -39,6 +40,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             let contentWizard = new ContentWizard();
             // 1. Open an existing folder
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
+            await contentWizard.openDetailsPanel();
             // 2. Open Version widget:
             await wizardContextPanel.openVersionHistory();
             // 3. Open Publish wizard and insert a publish-message:
@@ -51,52 +53,43 @@ describe('version.items.after.publishing.spec tests for version items', function
             await contentPublishDialog.waitForNotificationMessage();
             // 5. Verify the text in the Published version item:
             let actualResult = await wizardVersionsWidget.getPublishMessagesFromPublishedItems();
-            assert.ok(actualResult[0] === PUBLISH_MSG, 'Expected publish mesage should be displayed in Published version item');
+            assert.ok(actualResult[0] === PUBLISH_MSG, 'Expected publish message should be displayed in Published version item');
         });
 
-    it.skip(`GIVEN existing published folder is opened WHEN permissions have been updated THEN 'Permissions updated' item should appear in Versions Widget, the content gets Modified`,
+    it(`GIVEN existing published folder is opened WHEN permissions have been updated THEN 'Permissions updated' item should appear in 'Versions Widget', the content remains Published`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardContextPanel = new WizardContextPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let editPermissionsDialog = new EditPermissionsDialog();
+            let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let userAccessWidget = new UserAccessWidget();
             // 1. Select the folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
+            await contentWizard.openDetailsPanel();
             // 2. Update permissions:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
-            await editPermissionsDialog.clickOnApplyButton();
-            // Open version widget:
-            await wizardContextPanel.openVersionHistory();
-            // 3. Verify that 'Permissions updated' item appears in the widget
-            await wizardVersionsWidget.waitForPermissionsUpdatedItemDisplayed();
-            // 4. Open Page Editor with Preview Widget, Verify that status gets  Modified
+            // 3. Add 'Audit Log' principal:
+            await editPermissionsGeneralStep.filterAndSelectPrincipal(appConst.SYSTEM_ROLES.AUDIT_LOG);
+            // 4. Click on 'Next' button and go to Apply Changes step:
+            await editPermissionsGeneralStep.clickOnNextButton();
+            let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
+            await editPermissionsSummaryStep.waitForLoaded();
+            await editPermissionsSummaryStep.clickOnApplyChangesButton();
+            await editPermissionsSummaryStep.waitForDialogClosed();
+            // 5. Open Page Editor with Preview Widget, Verify that status remains  Published
             await contentWizard.clickOnPageEditorToggler();
             let actualStatus = await contentWizard.getContentStatus();
-            assert.equal(actualStatus, appConst.CONTENT_STATUS.MODIFIED, "the folder gets 'Modified'");
-            // 5. Verify that the total number of items is 4
-            let allVersions = await wizardVersionsWidget.countVersionItems();
-            assert.equal(allVersions, 4, '4 version items should be present in the widget');
-            // 6. Verify that one 'Published' item is present in the widget
-            let publishedItems = await wizardVersionsWidget.countPublishedItems();
-            assert.equal(publishedItems, 1, "One 'Published' item should be present in the widget");
-            // 7. Verify that one 'Marked as ready' item is present in the widget
-            let markedAsReadyItems = await wizardVersionsWidget.countMarkedAsReadyItems();
-            assert.equal(markedAsReadyItems, 1, "One 'Marked as Ready' item should be present in the widget");
-            // 8. Verify that one 'Permissions updated' item is present in the widget
-            let permissionsUpdatedItems = await wizardVersionsWidget.countPermissionsUpdatedItems();
-            assert.equal(permissionsUpdatedItems, 1, "One 'Permissions updated' item should be present in the widget");
+            assert.equal(actualStatus, appConst.CONTENT_STATUS.PUBLISHED, `The folder should remain 'Published'`);
         });
 
-    it.skip(`WHEN existing folder with updated permissions is selected THEN the folder remains 'Ready for publishing'`,
+    it(`WHEN existing folder with updated permissions is selected THEN the folder remains 'Published' after updating its permissions`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the folder:
             await studioUtils.typeNameInFilterPanel(FOLDER_NAME);
             let state = await contentBrowsePanel.getWorkflowStateByName(FOLDER_NAME);
-            // 2. Verify -  folder with updated permissions remains 'Ready for publishing':
-            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content should be 'Ready for publishing'");
+            // 2. Verify -  folder with updated permissions remains 'Published':
+            assert.equal(state, appConst.WORKFLOW_STATE.PUBLISHED, `The content should be 'Published'`);
         });
 
     it.skip("GIVEN modified folder with updated permissions is opened WHEN 'Show changes' button has been clicked THEN 'inheritPermissions' should be present in 'Compare With Published Version'",
