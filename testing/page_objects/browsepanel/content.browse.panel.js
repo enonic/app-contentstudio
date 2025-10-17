@@ -822,13 +822,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
+            // yellow circle icon in grid:
             return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
         } else if (result.includes('ready')) {
+            // green circle icon in grid
             return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
-        } else if (result === 'viewer content-summary-and-compare-status-viewer') {
+        } else if (result.includes( 'viewer content-summary-and-compare-status-viewer')) {
             return appConst.WORKFLOW_STATE.PUBLISHED;
         } else {
-            throw new Error("Error when getting content's state, actual result is:" + result);
+            throw new Error(`Error during checking the content's workflow, @class:` + result);
         }
     }
 
