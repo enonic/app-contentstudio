@@ -7,6 +7,7 @@ import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {UriHelper as RenderingUriHelper} from '../rendering/UriHelper';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {ContentSummary} from '../content/ContentSummary';
+import {AccessDeniedException} from '@enonic/lib-admin-ui/AccessDeniedException';
 
 export class IsRenderableRequest
     extends ResourceRequest<number> {
@@ -65,11 +66,19 @@ export class IsRenderableRequest
                 IsRenderableRequest.cache.set(id, statusCode);
             }
             return statusCode;
-        }).catch((error: RequestError) => {
-            if (id) {
-                IsRenderableRequest.cache.set(id, error.getStatusCode());
+        }).catch((error: RequestError | AccessDeniedException) => {
+            let statusCode = 500;
+            if (error instanceof RequestError) {
+                statusCode = error.getStatusCode();
             }
-            return error.getStatusCode();
+            if (error instanceof AccessDeniedException) {
+                statusCode = 403;
+            }
+
+            if (id) {
+                IsRenderableRequest.cache.set(id, statusCode);
+            }
+            return statusCode;
         });
 
         if (id && !IsRenderableRequest.cache.has(id)) {
