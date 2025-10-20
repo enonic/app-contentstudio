@@ -2,7 +2,6 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {MarkAsReadyRequest} from '../../resource/MarkAsReadyRequest';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
@@ -10,13 +9,13 @@ import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {ContentPublishPromptEvent} from '../ContentPublishPromptEvent';
 import {ContentId} from '../../content/ContentId';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {DialogPresetConfirmElement} from '../../ui2/dialog/DialogPreset';
 
 export class MarkAsReadyContentAction
     extends ContentTreeGridAction {
 
     private canPublish: boolean;
 
-    private confirmDialog: ConfirmationDialog;
 
     constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
         super(grid, i18n('action.markAsReady'));
@@ -25,7 +24,6 @@ export class MarkAsReadyContentAction
 
         this.canPublish = false;
 
-        this.confirmDialog = new ConfirmationDialog().setQuestion(i18n('dialog.markAsReady.question'));
     }
 
     protected handleExecuted() {
@@ -37,8 +35,20 @@ export class MarkAsReadyContentAction
         if (isSingleItem) {
             this.markAsReadyAndPublish(contentToMarkAsReady, content);
         } else {
-            this.confirmDialog.setYesCallback(() => void this.markAsReadyAndPublish(contentToMarkAsReady, content)).open();
+            const dialog = new DialogPresetConfirmElement({
+                open: true,
+                title: i18n('dialog.confirm.title'),
+                description: i18n('dialog.markAsReady.question'),
+                onSubmit: () => {
+                    dialog.close();
+                    void this.markAsReadyAndPublish(contentToMarkAsReady, content);
+                },
+                onCancel: () => dialog.close(),
+            });
+
+            dialog.open();
         }
+
     }
 
     private markAsReadyAndPublish(
