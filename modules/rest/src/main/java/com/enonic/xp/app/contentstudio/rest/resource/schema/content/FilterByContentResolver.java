@@ -24,6 +24,7 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.inputtype.InputTypeProperty;
+import com.enonic.xp.inputtype.PropertyValue;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.page.PageDescriptorService;
 import com.enonic.xp.project.ProjectName;
@@ -159,7 +160,8 @@ public class FilterByContentResolver
                 .map( this.contentTypeService::getByApplication )
                 .flatMap( ContentTypes::stream )
                 .filter( Predicate.not( ContentType::isAbstract ) )
-                .filter( type -> type.getSchemaConfig().getValue( "allowNewContent", Boolean.class, Boolean.TRUE ) ) )
+                .filter(type -> type.getSchemaConfig().getProperty( "allowNewContent" ).map( InputTypeProperty::getValue ).map(
+                        PropertyValue::asBoolean ).orElse( Boolean.TRUE ) ) )
             .orElseGet( Stream::of );
     }
 
@@ -171,7 +173,8 @@ public class FilterByContentResolver
             .map( contentTypeService::getByApplication )
             .flatMap( ContentTypes::stream )
             .filter( Predicate.not( ContentType::isAbstract ) )
-            .filter( type -> type.getSchemaConfig().getValue( "allowNewContent", Boolean.class, Boolean.TRUE ) );
+            .filter(type -> type.getSchemaConfig().getProperty( "allowNewContent" ).map( InputTypeProperty::getValue ).map(
+                PropertyValue::asBoolean ).orElse( Boolean.TRUE ) );
     }
 
     public Stream<LayoutDescriptor> layouts( final ContentId contentId )
@@ -225,7 +228,9 @@ public class FilterByContentResolver
 
     private boolean isAllowedOnContentType( final ComponentDescriptor descriptor, ContentTypeName contentTypeName )
     {
-        final List<String> allowOnContentType = readConfigValues( descriptor.getSchemaConfig().getProperties( "allowOnContentType" ) );
+        final List<String> allowOnContentType =
+            descriptor.getSchemaConfig().getProperties( "allowOnContentType" ).stream().map( InputTypeProperty::getValue ).map(
+                PropertyValue::asString ).collect( Collectors.toList() );
 
         return allowContentTypeFilter( descriptor.getKey().getApplicationKey(), allowOnContentType ).test( contentTypeName );
     }
@@ -236,11 +241,6 @@ public class FilterByContentResolver
             new ApplicationWildcardMatcher<>( applicationKey, ContentTypeName::toString, mode );
 
         return wildcards.stream().map( wildcardMatcher::createPredicate ).reduce( Predicate::or ).orElse( s -> true );
-    }
-
-    private static List<String> readConfigValues( final Set<InputTypeProperty> config )
-    {
-        return config.stream().map( InputTypeProperty::getValue ).collect( Collectors.toList() );
     }
 
     @Reference

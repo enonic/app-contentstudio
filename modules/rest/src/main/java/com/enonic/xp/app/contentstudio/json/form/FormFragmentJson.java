@@ -2,35 +2,35 @@ package com.enonic.xp.app.contentstudio.json.form;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.enonic.xp.form.FormFragment;
 import com.enonic.xp.form.FormItem;
-import com.enonic.xp.form.InlineMixin;
 
 @SuppressWarnings("UnusedDeclaration")
-public class InlineMixinJson
+public class FormFragmentJson
     extends FormItemJson
 {
-    private final InlineMixin inline;
+    private final FormFragment formFragment;
 
-    public InlineMixinJson( final InlineMixin inline )
+    public FormFragmentJson( final FormFragment formFragment )
     {
-        this.inline = inline;
+        this.formFragment = formFragment;
     }
 
     @JsonIgnore
     @Override
     public FormItem getFormItem()
     {
-        return inline;
+        return formFragment;
     }
 
     @Override
     public String getName()
     {
-        return inline.getName();
+        return formFragment.getName();
     }
 
     public String getReference()
     {
-        return inline.getMixinName().toString();
+        return formFragment.getFormFragmentName().toString();
     }
 }

@@ -12,9 +12,9 @@ import com.enonic.xp.app.contentstudio.json.ItemJson;
 import com.enonic.xp.app.contentstudio.json.form.FormJson;
 import com.enonic.xp.app.contentstudio.rest.resource.application.ApplicationIconUrlResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.CmsFormFragmentServiceResolver;
 import com.enonic.xp.idprovider.IdProviderDescriptor;
-import com.enonic.xp.site.SiteDescriptor;
+import com.enonic.xp.site.CmsDescriptor;
 
 public class ApplicationJson
     implements ItemJson
@@ -40,16 +40,16 @@ public class ApplicationJson
         this.local = builder.local;
 
         this.config =
-            builder.siteDescriptor != null && builder.siteDescriptor.getForm() != null ? new FormJson( builder.siteDescriptor.getForm(),
+            builder.cmsDescriptor != null && builder.cmsDescriptor.getForm() != null ? new FormJson( builder.cmsDescriptor.getForm(),
                                                                                                        builder.localeMessageResolver,
                                                                                                        builder.inlineMixinResolver ) : null;
 
         this.idProviderConfig = builder.idProviderDescriptor != null && builder.idProviderDescriptor.getConfig() != null ? new FormJson(
             builder.idProviderDescriptor.getConfig(), builder.localeMessageResolver, builder.inlineMixinResolver ) : null;
 
-        if ( builder.siteDescriptor != null && builder.siteDescriptor.getXDataMappings() != null )
+        if ( builder.cmsDescriptor != null && builder.cmsDescriptor.getXDataMappings() != null )
         {
-            this.metaStepMixinNames = ImmutableList.copyOf( builder.siteDescriptor.getXDataMappings().
+            this.metaStepMixinNames = ImmutableList.copyOf( builder.cmsDescriptor.getXDataMappings().
                 stream().
                 map( xDataMapping -> xDataMapping.getXDataName().toString() ).
                 distinct().
@@ -165,7 +165,7 @@ public class ApplicationJson
 
         private ApplicationDescriptor applicationDescriptor;
 
-        private SiteDescriptor siteDescriptor;
+        private CmsDescriptor cmsDescriptor;
 
         private IdProviderDescriptor idProviderDescriptor;
 
@@ -173,7 +173,7 @@ public class ApplicationJson
 
         private LocaleMessageResolver localeMessageResolver;
 
-        private InlineMixinResolver inlineMixinResolver;
+        private CmsFormFragmentServiceResolver inlineMixinResolver;
 
         private boolean local;
 
@@ -194,9 +194,9 @@ public class ApplicationJson
             return this;
         }
 
-        public Builder setSiteDescriptor( final SiteDescriptor siteDescriptor )
+        public Builder setCmsDescriptor( final CmsDescriptor cmsDescriptor )
         {
-            this.siteDescriptor = siteDescriptor;
+            this.cmsDescriptor = cmsDescriptor;
             return this;
         }
 
@@ -218,7 +218,7 @@ public class ApplicationJson
             return this;
         }
 
-        public Builder setInlineMixinResolver( final InlineMixinResolver inlineMixinResolver )
+        public Builder setInlineMixinResolver( final CmsFormFragmentServiceResolver inlineMixinResolver )
         {
             this.inlineMixinResolver = inlineMixinResolver;
             return this;

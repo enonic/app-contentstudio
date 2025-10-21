@@ -29,31 +29,34 @@ import jakarta.ws.rs.core.Response;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.form.FieldSet;
 import com.enonic.xp.form.Form;
+import com.enonic.xp.form.FormFragment;
 import com.enonic.xp.form.FormItemSet;
 import com.enonic.xp.form.FormOptionSet;
 import com.enonic.xp.form.FormOptionSetOption;
-import com.enonic.xp.form.InlineMixin;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.i18n.MessageBundle;
 import com.enonic.xp.icon.Icon;
+import com.enonic.xp.inputtype.InputTypeConfig;
 import com.enonic.xp.inputtype.InputTypeName;
+import com.enonic.xp.inputtype.InputTypeProperty;
+import com.enonic.xp.inputtype.PropertyValue;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
 import com.enonic.xp.schema.content.GetContentTypeParams;
-import com.enonic.xp.schema.mixin.MixinService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
 
 public class ContentTypeResourceTest
     extends AdminResourceTestSupport
@@ -66,7 +69,7 @@ public class ContentTypeResourceTest
 
     private LocaleService localeService;
 
-    private MixinService mixinService;
+    private CmsFormFragmentService cmsFormFragmentService;
 
     private ContentTypeResource resource;
 
@@ -81,11 +84,11 @@ public class ContentTypeResourceTest
         this.resource = new ContentTypeResource();
         contentTypeService = mock( ContentTypeService.class );
         localeService = mock( LocaleService.class );
-        mixinService = mock( MixinService.class );
+        cmsFormFragmentService = mock( CmsFormFragmentService.class );
 
         this.resource.setContentTypeService( contentTypeService );
         this.resource.setLocaleService( localeService );
-        this.resource.setMixinService( mixinService );
+        this.resource.setCmsFormFragmentService( cmsFormFragmentService );
 
         final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
         when( mockRequest.getServerName() ).thenReturn( "localhost" );
@@ -118,7 +121,7 @@ public class ContentTypeResourceTest
             build();
 
         when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( cmsFormFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         // execute
         String jsonString = request().path( "schema/content" )
@@ -163,7 +166,7 @@ public class ContentTypeResourceTest
         when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
 
         when( this.localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( cmsFormFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         // execute
         String jsonString = request().path( "schema/content" )
@@ -209,7 +212,7 @@ public class ContentTypeResourceTest
         when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
 
         when( this.localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( cmsFormFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         // execute
         String jsonString = request().path( "schema/content" )
@@ -263,7 +266,7 @@ public class ContentTypeResourceTest
         when( messageBundle.localize( "key.help-text" ) ).thenReturn( "translated.helpText" );
 
         when( this.localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( cmsFormFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         // execute
         String jsonString = request().path( "schema/content" )
@@ -289,9 +292,13 @@ public class ContentTypeResourceTest
             displayNameI18nKey( "key.display-name" ).
             description( "My description" ).
             descriptionI18nKey( "key.description" ).
-            displayNameLabel( "My Display Name Label" ).
-            displayNameLabelI18nKey( "key.displayNameLabel" ).
+            schemaConfig( InputTypeConfig.create().property(
+                InputTypeProperty.create( "displayNamePlaceholder", PropertyValue.object().
+                    put( "text", "My Display Name Label" ).
+                    put( "i18n", "key.displayNameLabel" ).build() ).build() ).build()
+            ).
             icon( Icon.from( new byte[]{123}, "image/gif", SOME_DATE ) ).
+
             addFormItem( Input.create().
                 name( "myTextLine" ).
                 inputType( InputTypeName.TEXT_LINE ).
@@ -312,7 +319,7 @@ public class ContentTypeResourceTest
         when( messageBundle.localize( "key.displayNameLabel" ) ).thenReturn( "translated.displayNameLabel" );
 
         when( this.localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( cmsFormFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         // execute
         String jsonString = request().path( "schema/content" )
@@ -390,8 +397,8 @@ public class ContentTypeResourceTest
                     .build() ).
             build();
 
-        InlineMixin myInline = InlineMixin.create().
-            mixin( "myapplication:mymixin" ).
+        FormFragment myInline = FormFragment.create().
+            formFragment( "myapplication:mymixin" ).
             build();
 
         ContentType contentType = ContentType.create().
@@ -408,7 +415,7 @@ public class ContentTypeResourceTest
             build();
 
         when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) ).thenReturn( contentType );
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( cmsFormFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         // execute
         String jsonString = request().path( "schema/content" )

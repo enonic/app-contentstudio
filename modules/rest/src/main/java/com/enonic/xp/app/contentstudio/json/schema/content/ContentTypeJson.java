@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import com.enonic.xp.app.contentstudio.json.form.FormJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.CmsFormFragmentServiceResolver;
 import com.enonic.xp.schema.content.ContentType;
 
 @SuppressWarnings("UnusedDeclaration")
@@ -40,7 +40,7 @@ public class ContentTypeJson
 
         private LocaleMessageResolver localeMessageResolver;
 
-        private InlineMixinResolver inlineMixinResolver;
+        private CmsFormFragmentServiceResolver inlineMixinResolver;
 
         private HttpServletRequest request;
 
@@ -67,7 +67,7 @@ public class ContentTypeJson
             return this;
         }
 
-        public Builder setInlineMixinResolver( final InlineMixinResolver inlineMixinResolver )
+        public Builder setInlineMixinResolver( final CmsFormFragmentServiceResolver inlineMixinResolver )
         {
             this.inlineMixinResolver = inlineMixinResolver;
             return this;

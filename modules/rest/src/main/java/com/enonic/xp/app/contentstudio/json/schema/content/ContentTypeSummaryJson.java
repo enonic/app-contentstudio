@@ -2,8 +2,9 @@ package com.enonic.xp.app.contentstudio.json.schema.content;
 
 import java.time.Instant;
 import java.util.List;
-
-import com.google.common.collect.ImmutableList;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -11,8 +12,10 @@ import com.enonic.xp.app.contentstudio.json.ChangeTraceableJson;
 import com.enonic.xp.app.contentstudio.json.ItemJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
+import com.enonic.xp.inputtype.InputTypeConfig;
+import com.enonic.xp.inputtype.InputTypeProperty;
+import com.enonic.xp.inputtype.PropertyValue;
 import com.enonic.xp.schema.content.ContentType;
-import com.enonic.xp.schema.xdata.XDataName;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
@@ -65,13 +68,35 @@ public class ContentTypeSummaryJson
 
     public String getDisplayNameLabel()
     {
-        if ( !nullToEmpty( contentType.getDisplayNameLabelI18nKey() ).isBlank() )
+        final InputTypeConfig schemaConfig = contentType.getSchemaConfig();
+
+        final Optional<PropertyValue> displayNamePlaceholder =
+            schemaConfig.getProperty( "displayNamePlaceholder" ).map( InputTypeProperty::getValue );
+
+        if ( displayNamePlaceholder.isEmpty() )
         {
-            return localeMessageResolver.localizeMessage( contentType.getDisplayNameLabelI18nKey(), contentType.getDisplayNameLabel() );
+            return null;
+        }
+
+        final PropertyValue propertyValue = displayNamePlaceholder.get();
+
+        if ( propertyValue.getType() == PropertyValue.Type.STRING )
+        {
+            return propertyValue.asString();
         }
         else
         {
-            return contentType.getDisplayNameLabel();
+            final String i18n = propertyValue.optional( "i18n" ).map( PropertyValue::asString ).orElse( null );
+            final String text = propertyValue.optional( "text" ).map( PropertyValue::asString ).orElse(  null );
+
+            if ( !nullToEmpty( i18n ).isBlank() )
+            {
+                return localeMessageResolver.localizeMessage( i18n, text );
+            }
+            else
+            {
+                return text;
+            }
         }
     }
 
@@ -94,7 +119,8 @@ public class ContentTypeSummaryJson
 
     public String getDisplayNameExpression()
     {
-        return contentType.getDisplayNameExpression();
+        return contentType.getSchemaConfig().getProperty( "displayNameExpression" ).map( InputTypeProperty::getValue ).map(
+            PropertyValue::asString ).orElse( null );
     }
 
     public String getSuperType()

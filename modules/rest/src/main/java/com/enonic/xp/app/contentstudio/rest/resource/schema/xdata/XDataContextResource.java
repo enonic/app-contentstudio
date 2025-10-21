@@ -21,14 +21,14 @@ import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.app.contentstudio.json.schema.xdata.XDataJson;
 import com.enonic.xp.app.contentstudio.json.schema.xdata.XDataListJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.CmsFormFragmentServiceResolver;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.jaxrs.JaxRsComponent;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentTypeName;
-import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigService;
@@ -51,7 +51,7 @@ public final class XDataContextResource
 
     private LocaleService localeService;
 
-    private MixinService mixinService;
+    private CmsFormFragmentService cmsFormFragmentService;
 
     private XDataMappingService xDataMappingService;
 
@@ -118,7 +118,7 @@ public final class XDataContextResource
             .map( xData -> XDataJson.create().setXData( xData.xdata() )
                 .setLocaleMessageResolver(
                     new LocaleMessageResolver( localeService, xData.xdata().getName().getApplicationKey(), request.getLocales() ) )
-                .setInlineMixinResolver( new InlineMixinResolver( mixinService ) ).setOptional( xData.optional() )
+                .setInlineMixinResolver( new CmsFormFragmentServiceResolver( cmsFormFragmentService ) ).setOptional( xData.optional() )
                 .build() )
             .distinct()
             .collect( toList() );
@@ -139,9 +139,9 @@ public final class XDataContextResource
 
 
     @Reference
-    public void setMixinService( final MixinService mixinService )
+    public void setCmsFormFragmentService( final CmsFormFragmentService cmsFormFragmentService )
     {
-        this.mixinService = mixinService;
+        this.cmsFormFragmentService = cmsFormFragmentService;
     }
 
     @Reference

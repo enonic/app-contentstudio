@@ -139,7 +139,7 @@ import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.content.UpdateMediaParams;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.LocalScope;
-import com.enonic.xp.core.impl.schema.content.BuiltinContentTypesAccessor;
+import com.enonic.xp.core.impl.content.schema.BuiltinContentTypesAccessor;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.extractor.BinaryExtractor;

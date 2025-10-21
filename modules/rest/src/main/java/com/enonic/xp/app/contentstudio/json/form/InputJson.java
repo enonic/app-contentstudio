@@ -15,6 +15,7 @@ import com.enonic.xp.form.Input;
 import com.enonic.xp.inputtype.InputTypeConfig;
 import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.inputtype.InputTypeProperty;
+import com.enonic.xp.inputtype.PropertyValue;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
@@ -65,26 +66,6 @@ public class InputJson
         }
     }
 
-    public boolean isImmutable()
-    {
-        return input.isImmutable();
-    }
-
-    public boolean isIndexed()
-    {
-        return input.isIndexed();
-    }
-
-    public boolean isMaximizeUIInputWidth()
-    {
-        return input.isMaximizeUIInputWidth();
-    }
-
-    public String getCustomText()
-    {
-        return input.getCustomText();
-    }
-
     public String getHelpText()
     {
         if ( localeMessageResolver != null && !nullToEmpty( input.getHelpTextI18nKey() ).isBlank() )
@@ -95,11 +76,6 @@ public class InputJson
         {
             return input.getHelpText();
         }
-    }
-
-    public String getValidationRegexp()
-    {
-        return input.getValidationRegexp();
     }
 
     public OccurrencesJson getOccurrences()
@@ -129,6 +105,12 @@ public class InputJson
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public PropertyValueJson getDefaultValue()
     {
+//        final InputTypeConfig inputTypeConfig = this.input.getInputTypeConfig();
+//        final InputTypeProperty defaultValueProperty = inputTypeConfig.getProperty( "default" );
+//        if ( defaultValueProperty != null )
+//        {
+//            defaultValueProperty.
+//        }
         return defaultValue != null ? new PropertyValueJson( defaultValue ) : null;
     }
 
@@ -152,18 +134,18 @@ public class InputJson
     {
         final Map<String, String> json = new LinkedHashMap<>();
 
-        String propertyValue = property.getValue();
+        final PropertyValue propertyValue = property.getValue();
 
-        for ( final Map.Entry<String, String> attribute : property.getAttributes().entrySet() )
-        {
-            if ( InputTypeName.RADIO_BUTTON.equals( this.input.getInputType() ) && "i18n".equals( attribute.getKey() ) )
-            {
-                propertyValue = this.localeMessageResolver.localizeMessage( attribute.getValue(), propertyValue );
-            }
-            json.put( "@" + attribute.getKey(), attribute.getValue() );
-        }
-
-        json.put( "value", propertyValue );
+//        for ( final Map.Entry<String, String> attribute : property.getAttributes().entrySet() )
+//        {
+//            if ( InputTypeName.RADIO_BUTTON.equals( this.input.getInputType() ) && "i18n".equals( attribute.getKey() ) )
+//            {
+//                propertyValue = this.localeMessageResolver.localizeMessage( attribute.getValue(), propertyValue );
+//            }
+//            json.put( "@" + attribute.getKey(), attribute.getValue() );
+//        }
+//
+//        json.put( "value", propertyValue );
 
         return json;
     }

@@ -86,7 +86,7 @@ public class XDataContextResourceTest
         siteConfigService = mock( SiteConfigService.class );
 
         final XDataContextResource resource = new XDataContextResource();
-        resource.setMixinService( mixinService );
+        resource.setCmsFormFragmentService( mixinService );
         resource.setLocaleService( localeService );
         resource.setContentService( contentService );
         resource.setXDataMappingService( xDataMappingService );

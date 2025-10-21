@@ -56,7 +56,7 @@ class FilterByContentResourceTest
         filterByContentResolver = mock( FilterByContentResolver.class );
         final JsonObjectsFactory jsonObjectsFactory = new JsonObjectsFactory();
         jsonObjectsFactory.setLocaleService( localeService );
-        jsonObjectsFactory.setMixinService( mixinService );
+        jsonObjectsFactory.setCmsFormFragmentService( mixinService );
         jsonObjectsFactory.setContentTypeService( contentTypeService );
         final FilterByContentResource resource = new FilterByContentResource();
         resource.setJsonObjectsFactory( jsonObjectsFactory );

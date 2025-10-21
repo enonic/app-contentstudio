@@ -24,7 +24,7 @@ import com.enonic.xp.region.LayoutDescriptorService;
 import com.enonic.xp.region.LayoutDescriptors;
 import com.enonic.xp.region.RegionDescriptor;
 import com.enonic.xp.region.RegionDescriptors;
-import com.enonic.xp.schema.mixin.MixinService;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
@@ -38,18 +38,18 @@ public class LayoutDescriptorResourceTest
 
     private LocaleService localeService;
 
-    private MixinService mixinService;
+    private CmsFormFragmentService cmsFormFragmentService;
 
     @Override
     protected Object getResourceInstance()
     {
         layoutDescriptorService = mock( LayoutDescriptorService.class );
         localeService = mock( LocaleService.class );
-        mixinService = mock( MixinService.class );
+        cmsFormFragmentService = mock( CmsFormFragmentService.class );
 
         final JsonObjectsFactory jsonObjectsFactory = new JsonObjectsFactory();
         jsonObjectsFactory.setLocaleService( localeService );
-        jsonObjectsFactory.setMixinService( mixinService );
+        jsonObjectsFactory.setCmsFormFragmentService( cmsFormFragmentService );
         final LayoutDescriptorResource resource = new LayoutDescriptorResource();
         resource.setLayoutDescriptorService( layoutDescriptorService );
         resource.setJsonObjectsFactory( jsonObjectsFactory );
@@ -72,7 +72,6 @@ public class LayoutDescriptorResourceTest
         final Form layoutForm = Form.create().
             addFormItem( Input.create().
                 name( "columns" ).
-                maximizeUIInputWidth( true ).
                 label( "Columns" ).
                 inputType( InputTypeName.DOUBLE ).
                 build() ).
@@ -90,7 +89,7 @@ public class LayoutDescriptorResourceTest
             build();
 
         when( layoutDescriptorService.getByKey( key ) ).thenReturn( layoutDescriptor );
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( cmsFormFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String jsonString = request().path( "content/page/layout/descriptor" ).
             queryParam( "key", "application:fancy-layout" ).get().getAsString();
@@ -106,7 +105,6 @@ public class LayoutDescriptorResourceTest
         final Form layoutForm = Form.create().
             addFormItem( Input.create().
                 name( "columns" ).
-                maximizeUIInputWidth( true ).
                 label( "Columns" ).
                 labelI18nKey( "key.label" ).
                 helpTextI18nKey( "key.help-text" ).
@@ -136,7 +134,7 @@ public class LayoutDescriptorResourceTest
         when( messageBundle.localize( "key.description" ) ).thenReturn( "translated.description" );
 
         when( this.localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( cmsFormFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String jsonString = request().path( "content/page/layout/descriptor" ).
             queryParam( "key", "application:fancy-layout" ).get().getAsString();
@@ -176,7 +174,7 @@ public class LayoutDescriptorResourceTest
 
         when( layoutDescriptorService.getByApplications( ApplicationKeys.from( "application1", "application2", "application3" ) ) )
             .thenReturn( LayoutDescriptors.from( layoutDescriptor1, layoutDescriptor2 ) );
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( cmsFormFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String jsonString = request().path( "content/page/layout/descriptor/list/by_applications" )
             .entity( readFromFile( "get_by_applications_params.json" ), MediaType.APPLICATION_JSON_TYPE )

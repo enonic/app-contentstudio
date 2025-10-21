@@ -23,6 +23,7 @@ import com.enonic.xp.i18n.MessageBundle;
 import com.enonic.xp.inputtype.InputTypeConfig;
 import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.inputtype.InputTypeProperty;
+import com.enonic.xp.inputtype.PropertyValue;
 import com.enonic.xp.support.JsonTestHelper;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -55,11 +56,6 @@ public class FormItemJsonTest
         InputJson inputJson = new InputJson( Input.create().
             name( "myTextLine" ).
             label( "My TextLine" ).
-            immutable( true ).
-            indexed( true ).
-            maximizeUIInputWidth( false ).
-            validationRegexp( "script" ).
-            customText( "Custom text" ).
             helpText( "Help text" ).
             occurrences( 1, 3 ).
             inputType( InputTypeName.TEXT_LINE ).
@@ -76,10 +72,6 @@ public class FormItemJsonTest
         InputJson inputJson = new InputJson( Input.create().
             name( "myTextLine" ).
             label( "My TextLine" ).
-            immutable( true ).
-            indexed( true ).
-            validationRegexp( "script" ).
-            customText( "Custom text" ).
             helpText( "Help text" ).
             occurrences( 1, 3 ).
             inputType( InputTypeName.TEXT_AREA ).
@@ -98,22 +90,22 @@ public class FormItemJsonTest
         when( messageBundle.localize( "translate.option" ) ).thenReturn( "translatedOptionValue" );
         when( localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
 
-        InputJson inputJson = new InputJson( Input.create().
-            name( "myTextLine" ).
-            label( "My TextLine" ).
-            immutable( true ).
-            indexed( true ).
-            validationRegexp( "script" ).
-            customText( "Custom text" ).
-            helpText( "Help text" ).
-            occurrences( 1, 3 ).
-            inputType( InputTypeName.RADIO_BUTTON ).
-            inputTypeConfig( InputTypeConfig.create().property( InputTypeProperty.
-                create( "option", "notTranslatedValue" ).
-                attribute( "i18n", "translate.option" ).
-                build() ).
-                build() ).
-            build(), new LocaleMessageResolver(  localeService, ApplicationKey.BASE, Collections.emptyEnumeration()  ) );
+        InputJson inputJson = new InputJson(
+            Input.create().name( "myTextLine" ).label( "My TextLine" ).helpText( "Help text" ).occurrences( 1, 3 )
+                .inputType( InputTypeName.RADIO_BUTTON )
+                .inputTypeConfig(
+                    InputTypeConfig.create()
+                        .property(
+                            InputTypeProperty.create( "option",
+                                                      PropertyValue.object()
+                                                          .put( "value", "notTranslatedValue" )
+                                                          .put( "label", PropertyValue.object().put( "i18n", "translate.option" ).build() )
+                                                          .build()
+                            ).build()
+                        )
+                        .build()
+                ).build(),
+            new LocaleMessageResolver( localeService, ApplicationKey.BASE, Collections.emptyEnumeration() ) );
 
         JsonNode json = jsonTestHelper.objectToJson( inputJson );
         this.jsonTestHelper.assertJsonEquals( jsonTestHelper.loadTestJson( "inputWithConfigTranslation.json" ), json );
@@ -141,16 +133,19 @@ public class FormItemJsonTest
     public void serialization_of_FieldSet()
         throws IOException
     {
-        FieldSetJson fieldSetJson = new FieldSetJson( FieldSet.create().
-            label( "My field set" ).
-            addFormItem( Input.create().name( "myTextLine" ).label( "myTextLine" ).inputType( InputTypeName.TEXT_LINE ).build() ).
-            addFormItem( Input.create().name( "myDate" ).label( "myDate" ).inputType( InputTypeName.DATE ).
-                inputTypeProperty( InputTypeProperty.create( "timezone", "true" ).build() ).build() ).
-            addFormItem( Input.create().name( "myOptions" ).label( "myOptions" ).inputType( InputTypeName.CHECK_BOX ).
-                inputTypeProperty( InputTypeProperty.create( "option", "label1" ).attribute( "value", "value1" ).build() ).
-                inputTypeProperty( InputTypeProperty.create( "option", "label2" ).attribute( "value", "value2" ).build() ).
-                build() ).
-            build(), new LocaleMessageResolver(  localeService, ApplicationKey.BASE, Collections.emptyEnumeration()  ) );
+        FieldSetJson fieldSetJson = new FieldSetJson( FieldSet.create().label( "My field set" ).addFormItem(
+            Input.create().name( "myTextLine" ).label( "myTextLine" ).inputType( InputTypeName.TEXT_LINE ).build() ).addFormItem(
+            Input.create().name( "myDate" ).label( "myDate" ).inputType( InputTypeName.DATE ).inputTypeProperty(
+                InputTypeProperty.create( "timezone", PropertyValue.stringValue( "true" ) ).build() ).build() ).addFormItem(
+            Input.create().name( "myOptions" ).label( "myOptions" ).inputType( InputTypeName.CHECK_BOX ).inputTypeProperty(
+                InputTypeProperty.create( "option", PropertyValue.object().put( "value", "value1" ).put( "label",
+                                                                                                         PropertyValue.object().put( "text",
+                                                                                                                                     "label1" ).build() ).build() ).build() ).inputTypeProperty(
+                InputTypeProperty.create( "option", PropertyValue.object().put( "value", "value2" ).put( "label",
+                                                                                                         PropertyValue.object().put( "text",
+                                                                                                                                     "label2" ).build() ).build() ).build() ).build() ).build(),
+                                                      new LocaleMessageResolver( localeService, ApplicationKey.BASE,
+                                                                                 Collections.emptyEnumeration() ) );
 
         JsonNode json = jsonTestHelper.objectToJson( fieldSetJson );
         this.jsonTestHelper.assertJsonEquals( jsonTestHelper.loadTestJson( "fieldSet.json" ), json );

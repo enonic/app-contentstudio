@@ -1,10 +1,10 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
-import java.util.Optional;
-
 import com.enonic.xp.app.contentstudio.rest.Interpolator;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.data.PropertyTree;
+import com.enonic.xp.inputtype.InputTypeProperty;
+import com.enonic.xp.inputtype.PropertyValue;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.GetContentTypeParams;
@@ -25,10 +25,9 @@ public class ContentListTitleResolver
     {
         final ContentType contentType = contentTypeService.getByName( GetContentTypeParams.from( content.getType() ) );
 
-        final String listTitleExpression = Optional.ofNullable( contentType )
-            .map( ContentType::getSchemaConfig )
-            .map( sc -> sc.getValue( "listTitleExpression" ) )
-            .orElse( "" );
+        final String listTitleExpression =
+            contentType.getSchemaConfig().getProperty( "listTitleExpression" ).map( InputTypeProperty::getValue ).map(
+                PropertyValue::asString ).orElse( "" );
 
         if ( nullToEmpty( listTitleExpression ).isBlank() )
         {

@@ -12,7 +12,7 @@ import com.enonic.xp.form.FormItem;
 @JsonSubTypes({@JsonSubTypes.Type(value = InputJson.class, name = "Input"),
     @JsonSubTypes.Type(value = FormItemSetJson.class, name = "FormItemSet"),
     @JsonSubTypes.Type(value = FieldSetJson.class, name = "FieldSet"),
-    @JsonSubTypes.Type(value = InlineMixinJson.class, name = "InlineMixin"),
+    @JsonSubTypes.Type(value = FormFragmentJson.class, name = "InlineMixin"),
     @JsonSubTypes.Type(value = FormOptionSetJson.class, name = "FormOptionSet")})
 public abstract class FormItemJson<T extends FormItem>
 {

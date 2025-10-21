@@ -26,7 +26,7 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.ExtraData;
 import com.enonic.xp.content.ExtraDatas;
 import com.enonic.xp.content.FindContentIdsByParentResult;
-import com.enonic.xp.core.impl.schema.content.BuiltinContentTypesAccessor;
+import com.enonic.xp.core.impl.content.schema.BuiltinContentTypesAccessor;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.page.CreatePageTemplateParams;

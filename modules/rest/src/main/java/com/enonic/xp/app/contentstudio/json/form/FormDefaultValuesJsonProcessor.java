@@ -34,24 +34,24 @@ final class FormDefaultValuesJsonProcessor
 
             if ( formItem.getType() == INPUT )
             {
-                final Input input = formItem.toInput();
-                final InputJson inputJson = (InputJson) formItemJson;
-                if ( input.getDefaultValue() != null )
-                {
-                    try
-                    {
-                        final Value defaultValue = InputTypes.BUILTIN.resolve( input.getInputType() ).
-                            createDefaultValue( input );
-                        if ( defaultValue != null )
-                        {
-                            inputJson.setDefaultValue( defaultValue );
-                        }
-                    }
-                    catch ( IllegalArgumentException ex )
-                    {
-                        // DO NOTHING
-                    }
-                }
+//                final Input input = formItem.toInput();
+//                final InputJson inputJson = (InputJson) formItemJson;
+//                if ( input.getDefaultValue() != null )
+//                {
+//                    try
+//                    {
+//                        final Value defaultValue = InputTypes.BUILTIN.resolve( input.getInputType() ).
+//                            createDefaultValue( input );
+//                        if ( defaultValue != null )
+//                        {
+//                            inputJson.setDefaultValue( defaultValue );
+//                        }
+//                    }
+//                    catch ( IllegalArgumentException ex )
+//                    {
+//                        // DO NOTHING
+//                    }
+//                }
             }
             else if ( formItem.getType() == FORM_ITEM_SET )
             {
