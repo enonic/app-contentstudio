@@ -1,9 +1,9 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentView} from './ComponentView';
 
 export class ComponentViewDragCanceledEvent
-    extends Event {
+    extends IframeEvent {
 
     private readonly componentView: ComponentView;
 
@@ -17,10 +17,10 @@ export class ComponentViewDragCanceledEvent
     }
 
     static on(handler: (event: ComponentViewDragCanceledEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler: (event: ComponentViewDragCanceledEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

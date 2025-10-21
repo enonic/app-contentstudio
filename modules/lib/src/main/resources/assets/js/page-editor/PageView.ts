@@ -217,7 +217,7 @@ export class PageView
             // adding anything except text should exit the text edit mode
             if (itemView.getType().equals(TextItemType.get())) {
                 if (event.isNewlyCreated()) {
-                    new SelectComponentEvent({itemView, position: null, rightClicked: true}).fire();
+                    new SelectComponentEvent({path: itemView.getPath(), position: null, rightClicked: true}).fire();
 
                     if (!PageViewController.get().isTextEditMode()) {
                         PageViewController.get().setTextEditMode(true);
@@ -232,7 +232,7 @@ export class PageView
                     PageViewController.get().setTextEditMode(false);
                 }
                 if (event.isNewlyCreated()) {
-                    const config = {itemView, position: null, newlyCreated: true} as ItemViewSelectedEventConfig;
+                    const config = {path: itemView.getPath(), position: null, newlyCreated: true} as ItemViewSelectedEventConfig;
                     itemView.select(config, ItemViewContextMenuPosition.NONE);
                     itemView.focusPlaceholderIfEmpty();
                 }
@@ -367,7 +367,7 @@ export class PageView
         this.setLockVisible(true);
         this.lockedContextMenu.showAt(position.x, position.y);
 
-        new SelectComponentEvent({itemView: this, position}).fire();
+        new SelectComponentEvent({path: this.getPath(), position}).fire();
     }
 
     deselectLocked() {

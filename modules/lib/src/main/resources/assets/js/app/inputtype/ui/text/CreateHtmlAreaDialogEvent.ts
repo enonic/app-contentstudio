@@ -1,5 +1,5 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 import {Project} from '../../../settings/data/project/Project';
 import {FullScreenDialogParams, MacroDialogParams} from './HtmlEditor';
 import eventInfo = CKEDITOR.eventInfo;
@@ -11,7 +11,7 @@ export enum HtmlAreaDialogType {
 export type HtmlAreaDialogConfig = eventInfo | MacroDialogParams | FullScreenDialogParams;
 
 export class CreateHtmlAreaDialogEvent
-    extends Event {
+    extends IframeEvent {
 
     private readonly config: HtmlAreaDialogConfig;
 
@@ -44,11 +44,11 @@ export class CreateHtmlAreaDialogEvent
     }
 
     static on(handler: (event: CreateHtmlAreaDialogEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: CreateHtmlAreaDialogEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }
 

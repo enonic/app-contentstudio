@@ -354,7 +354,7 @@ export abstract class ItemView
                 }
 
                 // restored selection: true to nake context panel not open
-                new SelectComponentEvent({itemView: this, position: clickPosition}).fire();
+                new SelectComponentEvent({path: this.getPath(), position: clickPosition}).fire();
             } else {
                 if (this.contextMenu?.isVisible()) {
                     this.hideContextMenu();
@@ -675,7 +675,7 @@ export abstract class ItemView
                     this.unhighlight();
                 } else {
                     const config = {
-                        itemView: this,
+                        path: this.getPath(),
                         position: clickPosition,
                         newlyCreated: false,
                         rightClicked
@@ -841,7 +841,7 @@ export abstract class ItemView
         this.selectItem();
 
         if (!silent) {
-            new SelectComponentEvent({itemView: this, position: null}).fire();
+            new SelectComponentEvent({path: this.getPath(), position: null}).fire();
         }
     }
 
@@ -1085,7 +1085,7 @@ export abstract class ItemView
 
     private selectItemView(itemView: ItemView) {
         this.deselect();
-        const config = {itemView, position: null, newlyCreated: false, rightClicked: true} as ItemViewSelectedEventConfig;
+        const config = {path: itemView.getPath(), position: null, newlyCreated: false, rightClicked: true} as ItemViewSelectedEventConfig;
         itemView.select(config, ItemViewContextMenuPosition.TOP);
         itemView.scrollComponentIntoView();
     }

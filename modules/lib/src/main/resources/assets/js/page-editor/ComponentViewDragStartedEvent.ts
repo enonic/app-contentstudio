@@ -1,9 +1,9 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 
 export class ComponentViewDragStartedEvent
-    extends Event {
+    extends IframeEvent {
 
     private readonly path: ComponentPath;
 
@@ -17,10 +17,10 @@ export class ComponentViewDragStartedEvent
     }
 
     static on(handler: (event: ComponentViewDragStartedEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler: (event: ComponentViewDragStartedEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }
