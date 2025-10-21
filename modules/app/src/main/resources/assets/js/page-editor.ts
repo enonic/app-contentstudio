@@ -4,6 +4,7 @@ import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
 import 'jquery-simulate/jquery.simulate.js';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+import {IframeEventBus} from '@enonic/lib-admin-ui/event/IframeEventBus';
 import {LiveEditPage} from 'lib-contentstudio/page-editor/LiveEditPage';
 import {ItemViewPlaceholder} from 'lib-contentstudio/page-editor/ItemViewPlaceholder';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
@@ -16,6 +17,9 @@ Store.instance().set('$', $);
  */
 StyleHelper.setCurrentPrefix(ItemViewPlaceholder.PAGE_EDITOR_PREFIX);
 
+// Initialize the event bus for communication with the parent window
+IframeEventBus.get(parent);
+
 const liveEditPage = new LiveEditPage();
 
 const init = () => {
@@ -23,6 +27,16 @@ const init = () => {
     if (!assetUrl) {
         throw Error('Unable to init wysiwyg editor');
     }
+
+    window.onload = function () {
+        // ...send a message to the parent window.
+        // The '*' is a wildcard, but for security, it's better to specify the parent's origin.
+        // e.g., 'https://parent-domain.com'
+
+        parent.postMessage({eventName: 'editor-iframe-loaded'}, '*');
+
+        console.info('Notified parent', parent);
+    };
 
     // Notify parent frame if any modifier except shift is pressed
     // For the parent shortcuts to work if the inner iframe has focus

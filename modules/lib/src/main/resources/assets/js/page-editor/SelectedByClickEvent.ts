@@ -1,7 +1,7 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 export abstract class SelectedByClickEvent
-    extends Event {
+    extends IframeEvent {
 
     private rightClicked: boolean;
 
