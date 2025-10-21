@@ -2291,7 +2291,9 @@ export class ContentWizardPanel
         const extraData: ExtraData[] = [];
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
-            extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData().copy()));
+            if (!form.isOptional() || form.isEnabled()) {
+                extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData().copy()));
+            }
         });
 
         viewedContentBuilder.setExtraData(extraData);
@@ -2825,7 +2827,9 @@ export class ContentWizardPanel
                 const extraData: ExtraData[] = [];
 
                 xDataForms.forEach((form: XDataWizardStepForm) => {
-                    extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData().copy()));
+                    if (!form.isOptional() || form.isEnabled()) {
+                        extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData().copy()));
+                    }
                 });
 
                 return {data: contentForm.getData(), xData: extraData};
