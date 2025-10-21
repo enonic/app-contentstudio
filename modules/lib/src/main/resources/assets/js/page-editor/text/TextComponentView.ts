@@ -173,7 +173,7 @@ export class TextComponentView
             this.highlightSelected();
         }
 
-        new SelectComponentEvent({itemView: this, position: null}).fire();
+        new SelectComponentEvent({path: this.getPath(), position: null}).fire();
     }
 
     private bindWindowFocusEvents(): void {
