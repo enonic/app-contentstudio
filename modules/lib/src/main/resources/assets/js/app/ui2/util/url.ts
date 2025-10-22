@@ -6,15 +6,14 @@ interface ImageUrlParams {
     crop?: boolean | null;
 }
 
-export interface ProjectIconUrlOptions {
-    ts?: number;
-}
-
 export function createImageUrl(url: string, params: ImageUrlParams): string {
     return `${UriHelper.trimUrlParams(url)}?${UriHelper.encodeUrlParams(params)}`;
 }
 
-export const resolveProjectIconUrl = (projectName?: string): string | undefined =>
-    projectName
-        ? `${UrlHelper.getCmsRestUri('project/icon/')}${encodeURIComponent(projectName)}`
-        : undefined;
+export function resolveProjectIconUrl(projectName: string | undefined | null): string | undefined {
+    if (projectName == null) {
+        return undefined;
+    }
+
+    return `${UrlHelper.getCmsRestUri('project/icon/')}${encodeURIComponent(projectName)}`;
+}

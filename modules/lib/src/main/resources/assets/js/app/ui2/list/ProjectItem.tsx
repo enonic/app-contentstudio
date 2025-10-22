@@ -1,4 +1,4 @@
-import {ListItem, type ListItemProps} from '@enonic/ui';
+import {cn, ListItem, type ListItemProps} from '@enonic/ui';
 import type {ReactElement} from 'react';
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {Project} from '../../settings/data/project/Project';
@@ -13,58 +13,45 @@ export type ProjectItemProps = {
     href?: string;
 } & Omit<ListItemProps, 'children'>;
 
-export function ProjectItemView({
-                                    label,
-                                    projectName,
-                                    language,
-                                    hasIcon,
-                                    selected,
-                                    className,
-                                    href,
-                                    ...rest
-                                }: ProjectItemProps): ReactElement {
+export function ProjectItem({
+    label,
+    projectName,
+    language,
+    hasIcon,
+    className,
+    ...rest
+}: ProjectItemProps): ReactElement {
     return (
-        <ListItem
-            {...rest}
-        >
-            <ListItem.Content className="flex-1 min-w-0 grid-cols-[auto_1fr] gap-2.5 items-center grid">
-                <ProjectIcon
-                    projectName={projectName}
-                    language={language}
-                    hasIcon={hasIcon}
-                />
-                <div>
-                <h3 className="text-base leading-5.5">
-                    {label}
-                    {language ? <span className="text-sm text-subtle">({language})</span> : null}
-                </h3>
-                <p className="text-sm text-subtle">{projectName}</p>
+        <ListItem className={cn('cursor-pointer', className)} {...rest}>
+            <ListItem.Content className="grid grid-cols-[auto_1fr] gap-2.5 items-center">
+                <div className='flex items-center justify-center flex-shrink-0 group-data-[tone=inverse]:text-alt'>
+                    <ProjectIcon className="row-span-2 size-8" projectName={projectName} language={language} hasIcon={hasIcon} />
+                </div>
+                <div className='min-w-0 text-left'>
+                    <h1 className='text-base truncate font-semibold group-data-[tone=inverse]:text-alt'>
+                        {label}
+                        {language ? <span className="text-sm text-subtle">{` (${language})`}</span> : null}
+                    </h1>
+                    <p className='truncate text-sm text-subtle group-data-[tone=inverse]:text-alt'>{projectName}</p>
                 </div>
             </ListItem.Content>
         </ListItem>
     );
 }
 
-export default ProjectItemView;
-
-export class ProjectItem
-    extends LegacyElement<typeof ProjectItemView, ProjectItemProps> {
+export class ProjectItemElement
+    extends LegacyElement<typeof ProjectItem, ProjectItemProps> {
     private project: Project;
 
     constructor(project: Project) {
-        const displayName = project.getDisplayName() || project.getName();
-        const name = project.getName();
-        const language = project.getLanguage();
-        const icon = project.getIcon();
-        console.log(project);
         super(
             {
-                label: displayName,
-                projectName: name,
-                language: language,
-                hasIcon: !!icon,
+                label: project.getDisplayName() || project.getName(),
+                projectName: project.getName(),
+                language: project.getLanguage(),
+                hasIcon: !!project.getIcon(),
             },
-            ProjectItemView,
+            ProjectItem,
         );
         this.project = project;
     }

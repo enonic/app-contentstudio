@@ -1,7 +1,8 @@
-import type {ReactNode} from 'react';
+import type {ReactElement, ReactNode} from 'react';
 import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
 import {resolveProjectIconUrl} from '../util/url';
 import {Flag} from '../../locale/Flag';
+import {cn} from '@enonic/ui';
 
 export type ProjectIconProps = {
     projectName: string;
@@ -12,53 +13,51 @@ export type ProjectIconProps = {
     className?: string;
 };
 
-export const ProjectIcon: React.FC<ProjectIconProps> = ({
-                                                            projectName,
-                                                            language,
-                                                            hasIcon,
-                                                            isLayer,
-                                                            className
-                                                        }) => {
-    try {
-        if (hasIcon) {
-            const url = resolveProjectIconUrl(projectName);
-            if (url) {
-                return <img src={url} alt="" draggable={false} className="h-6 w-6 rounded-full bg-center object-contain"/>;
-            }
-        }
-    } catch {
-        // fall through to flag/default
+export const ProjectIcon = ({
+    projectName,
+    language,
+    hasIcon,
+    isLayer,
+    className
+}: ProjectIconProps): ReactElement => {
+    const url = hasIcon ? resolveProjectIconUrl(projectName) : null;
+    if (url) {
+        return <img src={url} alt={projectName} draggable={false} className="size-8 rounded-full bg-center object-contain"/>;
     }
 
-    try {
-        const lang = language ? String(language).toLowerCase() : '';
-        if (lang) {
-            const f = new Flag(lang);
-            const countryClass = f.getCountryClass();
-            const short = lang.slice(0, 2);
-            const classCode = countryClass.startsWith('fi-') ? countryClass.slice(3) : countryClass;
-
-            if (!classCode || classCode === 'none' || classCode === 'unknown') {
-                return (
-                    <div className={`h-6 w-6 rounded-full content-center text-center border-1 border-bdr-subtle ${className ?? ''}`} aria-hidden="true"><span>{short}</span></div>
-                );
-            }
-
-            return (
-                <div
-                    className={`h-6 w-6 rounded-full flag bg-center ${countryClass} ${className ?? ''}`}
-                    data-code={classCode}
-                    aria-hidden="true"
-                />
-            );
-        }
-    } catch {
-        // fall through to default icon
+    if (!language) {
+        return (
+            <span
+                className={cn(
+                    'flex items-center justify-center size-8 rounded-full text-4xl',
+                    isLayer ? ProjectIconUrlResolver.getDefaultLayerIcon() : ProjectIconUrlResolver.getDefaultProjectIcon(),
+                    className
+                )}
+                aria-hidden="true"
+            />
+        );
     }
-        const fallbackClass = isLayer
-                              ? ProjectIconUrlResolver.getDefaultLayerIcon()
-                              : ProjectIconUrlResolver.getDefaultProjectIcon();
-        return <i className={`h-6 w-6 rounded text-xl text-center ${className ?? ''} ${fallbackClass}`} aria-hidden="true"/>;
+
+    const lang = language.toLowerCase();
+    const countryClass = new Flag(lang).getCountryClass();
+    const code = countryClass.startsWith('fi-') ? countryClass.slice(3) : countryClass;
+
+    if (!code || code === 'none' || code === 'unknown') {
+        return (
+            <div
+            className={cn('flex items-center justify-center size-8 rounded-full border-1 border-bdr-subtle', className)} aria-hidden="true">
+                {lang.slice(0, 2)}
+            </div>
+        );
+    }
+
+    return (
+        <div
+            className={cn('size-8 rounded-full flag bg-center', countryClass, className)}
+            data-code={code}
+            aria-hidden="true"
+        />
+    );
 
 };
 
