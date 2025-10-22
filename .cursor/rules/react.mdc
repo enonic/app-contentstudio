@@ -20,7 +20,7 @@ export type MyComponentProps = {
   active?: boolean;
   // ✅ Put `className?` and `children?` last in the Props definition
   className?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 };
 
 export function MyComponent({
@@ -102,6 +102,42 @@ export function MyComponent({ variant, disabled, className }: Props) {
   );
 }
 ```
+
+## Component Display Names
+
+```typescript
+// ✅ Arrow functions: MUST set displayName
+export const Button = ({ children }: ButtonProps) => <button>{children}</button>;
+Button.displayName = 'Button';
+
+// ✅ memo(): MUST set displayName
+export const List = React.memo(({ items }: Props) => <ul>...</ul>);
+List.displayName = 'List';
+
+// ✅ forwardRef(): MUST set displayName
+export const Input = React.forwardRef<HTMLInputElement, Props>((props, ref) => <input ref={ref} />);
+Input.displayName = 'Input';
+
+// ✅ HOCs: MUST set displayName with wrapper info
+const withAuth = <P,>(Component: React.ComponentType<P>) => {
+  const Wrapped = (props: P) => { /* ... */ };
+  Wrapped.displayName = \`withAuth(\${Component.displayName || Component.name})\`;
+  return Wrapped;
+};
+
+// ❌ Function declarations: displayName NOT needed (auto-inferred)
+export function UserCard({ name }: Props) { return <div>{name}</div>; }
+```
+
+**Check for missing displayName when:**
+
+- Component uses arrow function syntax: `const X = () => ...`
+- Component wrapped with `React.memo()` or `React.forwardRef()`
+- Component returned from HOC
+
+**Skip displayName check when:**
+
+- Component uses `function` declaration syntax
 
 ## useEffect Best Practices
 
@@ -224,6 +260,43 @@ const options = useMemo(() => ({ sort: true, filter }), [filter]);
 return <MemoizedList options={options} />;
 ```
 
+## Extending Component Props
+
+```typescript
+// ✅ DO: Use ComponentPropsWithoutRef for standard components
+import { ComponentPropsWithoutRef } from 'react';
+
+type ButtonProps = {
+  variant?: 'primary' | 'secondary';
+  loading?: boolean;
+} & ComponentPropsWithoutRef<'button'>;
+
+export function Button({ variant = 'primary', loading, ...props }: ButtonProps) {
+  return <button {...props} />;
+}
+
+// ✅ DO: Use ComponentPropsWithRef when forwarding refs
+import { ComponentPropsWithRef, forwardRef } from 'react';
+
+type InputProps = {
+  label?: string;
+  error?: string;
+} & ComponentPropsWithRef<'input'>;
+
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ label, error, ...props }, ref) => {
+    return <input ref={ref} {...props} />;
+  }
+);
+
+// ❌ DON'T: Use ComponentProps (doesn't distinguish ref handling)
+type BadProps = { value: string } & ComponentProps<'input'>; // Avoid
+
+// ❌ DON'T: Use specific HTML attribute types
+type BadButtonProps = { variant: string } & ButtonHTMLAttributes<HTMLButtonElement>; // Verbose
+type BadDivProps = { layout: string } & HTMLAttributes<HTMLDivElement>; // Unnecessary
+```
+
 ## Performance Patterns
 
 ```typescript
@@ -236,7 +309,7 @@ const ImageGrid = React.memo(function ImageGrid({ images }: { images: Image[] })
 // 2️⃣ `useMemo` only for **expensive** calculations or reference-equality
 // ✅ Heavy work
 const sorted = useMemo(() => heavySort(list), [list]);  // good
-// ❌ Cheap math doesn’t need it
+// ❌ Cheap math doesn't need it
 const sum = a + b;                                      // simpler + faster
 
 // 3️⃣ `useCallback` only when a child​/​hook depends on function identity

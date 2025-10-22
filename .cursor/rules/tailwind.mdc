@@ -77,6 +77,12 @@ const badVariants = cva('base', {
 // ✅ Use semantic color tokens when available
 <div className="bg-primary text-primary-foreground" />
 
+// ✅ Use Tailwind class names directly for theme colors
+<div className="bg-overlay backdrop-blur-xs" />
+
+// ❌ Avoid arbitrary CSS variable syntax
+<div className="bg-[var(--color-overlay)]" /> // Use bg-overlay instead
+
 // ✅ Use color-* syntax for dynamic colors in v4
 <div className="bg-color-blue-500/90" />
 
@@ -230,7 +236,7 @@ export function Component({ className, ...props }: ComponentProps) {
         // Base styles first
         'relative flex items-center gap-2',
         // Conditional styles
-        props.disabled && 'opacity-50 pointer-events-none',
+        props.disabled && 'pointer-events-none select-none opacity-30',
         // User overrides last
         className,
       )}
@@ -238,6 +244,38 @@ export function Component({ className, ...props }: ComponentProps) {
     />
   );
 }
+```
+
+### State Management with Data Attributes
+
+```typescript
+// ✅ Use data-* attributes for state-based styling
+<li
+  data-active={isActive}
+  data-selected={isSelected}
+  className="option data-[active=true]:bg-surface-primary-hover data-[selected=true]:bg-surface-primary"
+>
+  Option
+</li>
+
+// ❌ Avoid complex class-based state selectors
+<li
+  className={cn(
+    'option',
+    isActive && 'option-active',
+    isSelected && 'option-selected'
+  )}
+>
+  {/* Then using: 'focus-within:[&>li.option-active:not(.option-selected)]:bg-surface-primary-hover' */}
+  Option
+</li>
+
+// Why data-* attributes are better:
+// - More declarative and readable
+// - Better separation of state and styling
+// - Easier to debug in DevTools
+// - Less specificity issues
+// - Simpler selector syntax
 ```
 
 ### Dark Mode
