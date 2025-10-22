@@ -1,21 +1,5 @@
 .main-app-wrapper {
-  @sidebar-width: 55px;
-  @sidebar-width-mobile: 260px;
-  @sidebar-bg-color: #2C4A38;
-
   .sidebar {
-    display: flex;
-    flex-direction: column;
-    z-index: 3;
-    padding-top: 44px;
-    background-color: @sidebar-bg-color;
-    width: @app-header-height;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    color: @admin-white;
-    left: -@app-header-height;
-    transition: left 0.5s ease;
 
     .app-name-wrapper {
       padding: 20px 0;
@@ -84,7 +68,7 @@
     .app-container {
       position: absolute;
       top: @app-header-height;
-      left: 0;
+      left: 60px;
       right: 0;
       bottom: 0;
       transition: left 0.5s ease;
@@ -103,132 +87,8 @@
     }
   }
 
-  &.sidebar-expanded {
-    .sidebar {
-      left: 0;
-    }
-
-    .app-container {
-      left: @app-header-height;
-
-      @media screen and (min-width: 720px) {
-        .appbar {
-          left: 0;
-          width: calc(100% - @app-header-height);
-        }
-      }
-    }
-  }
-
-  > .sidebar-toggler {
-    display: block;
-    font-family: @admin-font-family;
-    font-size: @admin-font-size;
-    position: fixed;
-    border: none;
-    top: 0;
-    left: 0;
-    padding: 0;
-    height: @app-header-height;
-    width: @app-header-height;
-    text-align: center;
-    background-color: @admin-bg-dark-gray;
-    cursor: pointer;
-    z-index: 4;
-    outline-width: 2px;
-    outline-offset: -2px;
-    -moz-outline-radius: 3px;
-
-    &::-moz-focus-inner {
-      border: 0;
-    }
-
-    .line {
-      display: inline-block;
-      width: 20px;
-      height: 3px;
-      background: @admin-white;
-      cursor: pointer;
-    }
-
-    .lines {
-      .line();
-      position: relative;
-      top: -3px;
-
-      &::before,
-      &::after {
-        .line();
-        transition: top 0.3s;
-        position: absolute;
-        left: 0;
-        content: '';
-        -webkit-transform-origin: 2rem/14 center;
-        transform-origin: 2rem/14 center;
-      }
-
-      &::before {
-        top: 6px;
-      }
-
-      &::after {
-        top: -6px;
-      }
-    }
-
-    &:hover {
-      background-color: @admin-bg-dark-gray;
-
-      .lines {
-        &::before {
-          top: 8px;
-        }
-
-        &::after {
-          top: -8px;
-        }
-      }
-    }
-
-    &.toggled {
-      background-color: transparent;
-      -webkit-transform: scale3d(.8, .8, .8);
-      transform: scale3d(.8, .8, .8);
-      padding: 4px 4px 8px 16px;
-
-      .lines {
-        background: transparent !important;
-
-        &::before,
-        &::after {
-          -webkit-transform-origin: 50% 50%;
-          transform-origin: 50% 50%;
-          top: 2px;
-          width: 1.3rem;
-          left: -7px;
-        }
-
-        &::before {
-          background-color: @admin-font-gray1;
-          -webkit-transform: rotate3d(0, 0, 1, 45deg);
-          transform: rotate3d(0, 0, 1, 45deg);
-        }
-
-        &::after {
-          background-color: @admin-font-gray1;
-          -webkit-transform: rotate3d(0, 0, 1, -45deg);
-          transform: rotate3d(0, 0, 1, -45deg);
-        }
-      }
-    }
-  }
-
   @media screen and (max-width: 720px) {
     .sidebar {
-      width: @sidebar-width-mobile;
-      left: -@sidebar-width-mobile;
-      padding-top: 0;
-
       .app-name-wrapper {
         padding: 0 50px;
 
@@ -261,16 +121,6 @@
             font-size: 18px;
           }
         }
-      }
-    }
-
-    &.sidebar-expanded {
-      .sidebar {
-        left: 0;
-      }
-
-      .app-container {
-        left: 0;
       }
     }
   }
