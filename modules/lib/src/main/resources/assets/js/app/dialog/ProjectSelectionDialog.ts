@@ -7,7 +7,7 @@ import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
 import {ProjectList} from '../project/list/ProjectList';
-import {ProjectItem} from '../ui2/list/ProjectItem';
+import {ProjectItemElement} from '../ui2/list/ProjectItem';
 import {ProjectContext} from '../project/ProjectContext';
 import {Project} from '../settings/data/project/Project';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
@@ -43,7 +43,7 @@ export class ProjectSelectionDialog
         this.updateOnOpen = false;
         this.projectsList.setItems(projects);
 
-        this.projectsList.getItemViews().forEach((itemView: ProjectItem) => {
+        this.projectsList.getItemViews().forEach((itemView: ProjectItemElement) => {
             itemView.onClicked((event: MouseEvent) => {
                 if (!event.ctrlKey && !event.shiftKey) {
                     if (itemView.isSelectable()) {
@@ -125,7 +125,7 @@ export class ProjectSelectionDialog
         const currentProjectName: string = ProjectContext.get().isInitialized() ? ProjectContext.get().getProject().getName() : null;
 
         if (currentProjectName) {
-            this.projectsList.getItemViews().forEach((itemView: ProjectItem) => {
+            this.projectsList.getItemViews().forEach((itemView: ProjectItemElement) => {
                 const isCurrentProject = itemView.getProject().getName() === currentProjectName;
                 itemView.setSelected(isCurrentProject);
                 if (isCurrentProject) {
@@ -150,9 +150,9 @@ export class ProjectSelectionDialog
             return;
         }
 
-        const firstProject: ProjectItem = this.projectsList.getItemViews()[0] as ProjectItem;
+        const firstProject = this.projectsList.getItemViews().at(0);
 
-        const lastProject: ProjectItem = this.projectsList.getItemViews()[this.projectsList.getItemViews().length - 1] as ProjectItem;
+        const lastProject = this.projectsList.getItemViews().at(-1);
 
         lastProject.onKeyDown((event: KeyboardEvent) => {
             if (KeyHelper.isTabKey(event) && !KeyHelper.isShiftKeyPressed(event)) {
