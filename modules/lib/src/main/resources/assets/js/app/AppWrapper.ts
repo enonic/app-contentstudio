@@ -1,10 +1,7 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import Q from 'q';
 import {Element, NewElementBuilder} from '@enonic/lib-admin-ui/dom/Element';
-import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {AppContext} from './AppContext';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
@@ -17,22 +14,20 @@ import {ContentAppContainer} from './ContentAppContainer';
 import {Router} from './Router';
 import {UrlAction} from './UrlAction';
 import {ContentAppBar} from './bar/ContentAppBar';
-import {WidgetsSidebar} from './widget/WidgetsSidebar';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {cn} from '@enonic/ui';
+import {SidebarElement} from '../v6/features/layout/AppShell/Sidebar';
 
 export class AppWrapper
     extends DivEl {
 
-    private sidebar: WidgetsSidebar;
+    private sidebar: SidebarElement;//WidgetsSidebar;
 
     private widgets: Widget[] = [];
 
     private widgetElements: Map<string, WidgetElement> = new Map<string, WidgetElement>();
 
     private activeWidgets: string[] = [];
-
-    private toggleSidebarButton: Button;
 
     private appBar: ContentAppBar;
 
@@ -42,8 +37,6 @@ export class AppWrapper
 
     private widgetAddedListeners: ((Widget) => void)[] = [];
 
-    private static HIDE_SIDEBAR_BY_DEFAULT: string = 'contentstudio:hideSidebarByDefault';
-
     constructor(className?: string) {
         super(cn('main-app-wrapper bg-surface-primary text-main', className));
 
@@ -51,24 +44,15 @@ export class AppWrapper
         this.initListeners();
         this.addStudioWidget();
         this.updateSidebarWidgets();
-
-        if (this.isSidebarToBeShownOnEnter()) {
-            this.toggleSidebar();
-        }
     }
 
     private initElements() {
-        this.sidebar = new WidgetsSidebar();
-        this.sidebar.hide();
-        this.toggleSidebarButton = new ToggleIcon();
+        this.sidebar = new SidebarElement({widgets: this.widgets});
         this.appBar = ContentAppBar.getInstance();
         this.widgetsBlock = new DivEl('widgets-block');
     }
 
     private initListeners() {
-        this.toggleSidebarButton.onClicked(this.toggleSidebar.bind(this));
-        this.handleTouchOutsideSidebar();
-
         this.sidebar.onItemSelected((widgetId: string) => {
             const widget: Widget = this.widgets.find((w: Widget) => w.getWidgetDescriptorKey().toString() === widgetId);
 
@@ -83,7 +67,7 @@ export class AppWrapper
     private addStudioWidget(): void {
         const studioWidget: Widget = this.createStudioWidget();
         this.widgets.push(studioWidget);
-        this.sidebar.addWidget(studioWidget, 'icon-version-modified');
+        this.sidebar.addWidget(studioWidget);
     }
 
     private createStudioWidget(): Widget {
@@ -168,9 +152,6 @@ export class AppWrapper
         return widget === this.widgets[0];
     }
 
-    private isSidebarToBeShownOnEnter(): boolean {
-        return !localStorage.getItem(AppWrapper.HIDE_SIDEBAR_BY_DEFAULT);
-    }
 
     private fetchAndAppendWidget(widget: Widget): void {
         if (this.isDefaultWidget(widget)) { // default studio app
@@ -193,63 +174,6 @@ export class AppWrapper
             .catch(err => {
                 throw new Error('Failed to fetch widget: ' + err);
             });
-    }
-
-    private collapseSidebarOnMouseEvent(event: TouchEvent) {
-        this.toggleSidebar();
-
-        event.stopPropagation();
-        event.preventDefault();
-    }
-
-    private handleTouchOutsideSidebar() {
-        this.touchListener = (event: TouchEvent) => {
-            if (!this.hasClass('sidebar-expanded')) {
-                return;
-            }
-
-            if (this.sidebar.getButtons().some(
-                (button: Button) => button.getHTMLElement().contains(event.target as HTMLElement))
-            ) {
-                this.collapseSidebarOnMouseEvent(event);
-                return;
-            }
-
-            for (let element = event.target; element; element = (element as HTMLElement).parentNode) {
-                if (element === this.sidebar.getHTMLElement() || element === this.toggleSidebarButton.getHTMLElement()) {
-                    return;
-                }
-            }
-            this.collapseSidebarOnMouseEvent(event);
-        };
-    }
-
-    private toggleSidebar() {
-        const isSidebarVisible: boolean = this.hasClass('sidebar-expanded');
-        if (!isSidebarVisible) {
-            this.sidebar.show();
-        } else {
-            // Hide the sidebar in DOM after collapse animation to prevent its elements from getting focus
-            setTimeout(() => this.sidebar.hide(), 500);
-        }
-
-        this.toggleClass('sidebar-expanded', !isSidebarVisible);
-        this.toggleSidebarButton.toggleClass('toggled', !isSidebarVisible);
-        this.toggleSidebarButton.setTitle(
-            this.toggleSidebarButton.hasClass('toggled') ? i18n('tooltip.sidebar.close') : i18n('tooltip.sidebar.open'), false
-        );
-
-        if (isSidebarVisible) {
-            localStorage.setItem(AppWrapper.HIDE_SIDEBAR_BY_DEFAULT, 'true');
-        } else {
-            localStorage.removeItem(AppWrapper.HIDE_SIDEBAR_BY_DEFAULT);
-        }
-
-        if (!isSidebarVisible) {
-            Body.get().onTouchStart(this.touchListener, false);
-        } else {
-            Body.get().unTouchStart(this.touchListener);
-        }
     }
 
     private updateSidebarWidgets() {
@@ -305,7 +229,7 @@ export class AppWrapper
         return super.doRender().then((rendered: boolean) => {
             const headerAndWidgetsBlock: DivEl = new DivEl('header-widgets-block');
             headerAndWidgetsBlock.appendChildren(this.appBar, this.widgetsBlock);
-            this.appendChildren(this.toggleSidebarButton, this.sidebar as Element, headerAndWidgetsBlock);
+            this.appendChildren(this.sidebar, headerAndWidgetsBlock);
 
             ResponsiveManager.onAvailableSizeChanged(this.appBar);
 
@@ -349,24 +273,5 @@ export class AppWrapper
 
     private isInternalWidget(key: string): boolean {
         return key === CONFIG.get('appId');
-    }
-}
-
-class ToggleIcon
-    extends Button {
-
-    constructor() {
-        super();
-        this.setTitle(i18n('tooltip.sidebar.open'));
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            this.addClass('sidebar-toggler');
-            const lines: SpanEl = new SpanEl('lines');
-            this.appendChild(lines);
-
-            return rendered;
-        });
     }
 }
