@@ -11,6 +11,9 @@ importers:
       '@enonic/ui':
         specifier: ~0.13.0
         version: 0.13.0(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@nanostores/preact':
+        specifier: ^1.0.0
+        version: 1.0.0(nanostores@0.11.4)(preact@10.27.2)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -564,6 +567,13 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@nanostores/preact@1.0.0':
+    resolution: {integrity: sha512-woHYvSwau1YtO9AEnGsh/jRPU2u5DTfNSrDHtKMZOeDUWV6EJfvyv7dJ7AaMps2I9uJcY6OlqXKkA9qTctEjyw==}
+    engines: {node: ^20.0.0 || >=22.0.0}
+    peerDependencies:
+      nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^1.0.0
+      preact: '>=10.0.0'
 
   '@napi-rs/nice-android-arm-eabi@1.1.1':
     resolution: {integrity: sha512-kjirL3N6TnRPv5iuHw36wnucNqXAO46dzK9oPb0wj076R5Xm8PfUVA9nAFB5ZNMmfJQJVKACAPd/Z2KYMppthw==}
@@ -3427,6 +3437,11 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@nanostores/preact@1.0.0(nanostores@0.11.4)(preact@10.27.2)':
+    dependencies:
+      nanostores: 0.11.4
+      preact: 10.27.2
 
   '@napi-rs/nice-android-arm-eabi@1.1.1':
     optional: true

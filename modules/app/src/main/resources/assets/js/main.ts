@@ -24,7 +24,6 @@ import {CONFIG, ConfigObject} from '@enonic/lib-admin-ui/util/Config';
 import {LauncherHelper} from '@enonic/lib-admin-ui/util/LauncherHelper';
 import {i18n, Messages} from '@enonic/lib-admin-ui/util/Messages';
 import * as $ from 'jquery';
-import {AppContext} from 'lib-contentstudio/app/AppContext';
 import {ContentDeletePromptEvent} from 'lib-contentstudio/app/browse/ContentDeletePromptEvent';
 import {ContentDuplicatePromptEvent} from 'lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
 import {ContentPublishPromptEvent} from 'lib-contentstudio/app/browse/ContentPublishPromptEvent';
@@ -511,9 +510,6 @@ function getTheme(): string {
     return '';
 }
 
-function isDefaultAppUrl(url: string): boolean {
-    return url.endsWith('/main') || url.endsWith('/browse') || url.indexOf('/inbound/') > 0 || url.indexOf('/outbound/') > 0;
-}
 
 async function startContentBrowser() {
     await import('lib-contentstudio/app/ContentAppPanel');
@@ -522,26 +518,6 @@ async function startContentBrowser() {
     const commonWrapper = new AppWrapper(getTheme());
 
     VersionHelper.checkAndNotifyIfNewerVersionExists();
-
-    if (isDefaultAppUrl(url)) {
-        commonWrapper.selectDefaultWidget();
-    } else {
-        commonWrapper.onItemAdded((item: Widget) => {
-            if (AppContext.get().getCurrentAppOrWidgetId()) {
-                return;
-            }
-
-            if (url.endsWith(`/${item.getWidgetDescriptorKey().getName()}`)) {
-                commonWrapper.selectWidget(item);
-            }
-        });
-
-        setTimeout(() => { // if no external app is loaded then switch to a studio
-            if (!AppContext.get().getCurrentAppOrWidgetId()) {
-                commonWrapper.selectDefaultWidget();
-            }
-        }, 3000);
-    }
 
     LauncherHelper.appendLauncherPanel();
     Body.get().appendChild(commonWrapper);
