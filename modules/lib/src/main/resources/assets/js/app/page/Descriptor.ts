@@ -77,7 +77,7 @@ export class Descriptor
     }
 
     getIconCls(): string {
-        return this.componentType.getIconCls();
+        return this.iconCls ? this.iconCls : this.componentType.getIconCls();
     }
 
     getIcon(): string {
