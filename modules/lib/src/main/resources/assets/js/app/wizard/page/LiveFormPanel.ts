@@ -693,10 +693,6 @@ export class LiveFormPanel
         eventsManager.onLiveEditPageInitializationError((event: LiveEditPageInitializationErrorEvent) => {
             showError(event.getMessage(), false);
             this.contentWizardPanel.showForm();
-
-            if (this.insertablesPanel) {
-                this.contextWindow.setItemVisible(this.insertablesPanel, false);
-            }
         });
 
         eventsManager.onLiveEditPageDialogCreate((event: CreateHtmlAreaDialogEvent) => {

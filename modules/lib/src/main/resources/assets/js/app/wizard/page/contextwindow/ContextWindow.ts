@@ -101,6 +101,11 @@ export class ContextWindow
                 this.updateInsertablesPanel(this.isPageRenderable);
             }
         })
+        eventManager.onLiveEditPageInitializationError(() => {
+            if (this.isPageReady) {
+                this.setInsertablesVisible(false);
+            }
+        })
 
         if (this.insertablesPanel) {
             this.liveFormPanel.onHidden((): void => {

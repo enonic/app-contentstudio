@@ -102,7 +102,7 @@ export class ContextView
             const wasRenderable: boolean = this.isPageRenderable;
             this.isPageRenderable = renderable;
 
-            if (wasRenderable !== undefined && renderable) {
+            if (wasRenderable !== undefined && renderable !== wasRenderable) {
                 // only switch the widget when the page becomes renderable
                 this.updateSelectedWidget();
             }
