@@ -2,9 +2,10 @@ package com.enonic.app.contentstudio.json.content;
 
 import java.time.Instant;
 
+
 import com.enonic.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
-import com.enonic.app.contentstudio.rest.resource.content.versions.ContentVersionPublishInfo;
 import com.enonic.xp.security.Principal;
+import com.enonic.xp.security.PrincipalKey;
 
 public class ContentVersionPublishInfoJson
 {
@@ -20,21 +21,18 @@ public class ContentVersionPublishInfoJson
 
     private final ContentPublishInfoJson contentPublishInfo;
 
-    public ContentVersionPublishInfoJson( final ContentVersionPublishInfo versionPublishInfo,
-                                          final ContentPrincipalsResolver principalsResolver )
+    public ContentVersionPublishInfoJson( final PrincipalKey publisher, final Instant timestamp, final String message,
+                                          final String type,
+                                          final ContentPublishInfoJson contentPublishInfo, final ContentPrincipalsResolver principalsResolver)
     {
-        this.timestamp = versionPublishInfo.getTimestamp();
-        this.message = versionPublishInfo.getMessage();
+        this.publisher = publisher.toString();
+        this.timestamp = timestamp;
+        this.message = message;
 
-        final Principal publisher = principalsResolver.findPrincipal( versionPublishInfo.getPublisher() );
-
-        this.publisher = versionPublishInfo.getPublisher().toString();
-        this.publisherDisplayName = publisher != null ? publisher.getDisplayName() : "";
-        this.type = versionPublishInfo.getType() != null ? versionPublishInfo.getType().toString() : null;
-
-        this.contentPublishInfo = versionPublishInfo.getContentPublishInfo() != null
-            ? new ContentPublishInfoJson( versionPublishInfo.getContentPublishInfo() )
-            : null;
+        final Principal principal = principalsResolver.findPrincipal( publisher );
+        this.publisherDisplayName = principal != null ? principal.getDisplayName() : "";
+        this.type = type;
+        this.contentPublishInfo = contentPublishInfo;
     }
 
     public String getPublisher()
