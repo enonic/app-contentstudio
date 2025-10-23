@@ -159,7 +159,7 @@ public class MediaRenderingBean
     {
         final Content content = contentServiceSupplier.get().getById( ContentId.from( contentId ) );
         // don't render image preview in edit mode, because image editor is part of the form
-        if ( content == null || editMode && IMAGE_CONTENT_TYPES.contains( content.getType() ) )
+        if ( content == null )
         {
             return false;
         }

@@ -2434,7 +2434,7 @@ export class ContentWizardPanel
     }
 
     private shouldOpenEditorByDefault(): Q.Promise<boolean> {
-        if (!this.contentType) {
+        if (!this.contentType || ContentTypeName.IMAGE.equals(this.contentType.getContentTypeName())) {
             return Q.resolve(false);
         }
         const isTemplate: boolean = this.getContentTypeName().isPageTemplate();
