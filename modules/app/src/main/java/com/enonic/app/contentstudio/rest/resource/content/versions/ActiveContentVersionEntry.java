@@ -1,6 +1,7 @@
 package com.enonic.app.contentstudio.rest.resource.content.versions;
 
 import com.enonic.xp.branch.Branch;
+import com.enonic.xp.content.ContentVersion;
 
 public final class ActiveContentVersionEntry
 {

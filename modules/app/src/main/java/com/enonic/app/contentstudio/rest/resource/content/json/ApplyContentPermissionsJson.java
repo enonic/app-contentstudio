@@ -8,8 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.enonic.xp.content.ApplyContentPermissionsParams;
+import com.enonic.xp.content.ApplyContentPermissionsScope;
 import com.enonic.xp.content.ContentId;
-import com.enonic.xp.node.ApplyPermissionsScope;
 import com.enonic.xp.security.acl.AccessControlList;
 
 public class ApplyContentPermissionsJson
@@ -22,14 +22,14 @@ public class ApplyContentPermissionsJson
 
     final AccessControlList removePermissions;
 
-    final ApplyPermissionsScope scope;
+    final ApplyContentPermissionsScope scope;
 
     @JsonCreator
     ApplyContentPermissionsJson( @JsonProperty("contentId") final String contentId,
                                  @JsonProperty("permissions") final List<AccessControlEntryJson> permissions,
                                  @JsonProperty("addPermissions") final List<AccessControlEntryJson> addPermissions,
                                  @JsonProperty("removePermissions") final List<AccessControlEntryJson> removePermissions,
-                                 @JsonProperty("scope") final ApplyPermissionsScope scope )
+                                 @JsonProperty("scope") final ApplyContentPermissionsScope scope )
     {
         this.contentId = ContentId.from( contentId );
         this.permissions = parseAcl( permissions );
@@ -63,7 +63,7 @@ public class ApplyContentPermissionsJson
     }
 
     @JsonIgnore
-    public ApplyPermissionsScope getScope()
+    public ApplyContentPermissionsScope getScope()
     {
         return scope;
     }

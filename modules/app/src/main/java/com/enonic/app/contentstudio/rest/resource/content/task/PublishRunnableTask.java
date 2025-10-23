@@ -46,15 +46,20 @@ public class PublishRunnableTask
 
         try
         {
-            final PublishContentResult result = contentService.publish( PushContentParams.create().
-                contentIds( contentIds ).
-                excludedContentIds( excludeContentIds ).
-                excludeDescendantsOf( excludeDescendantsOf ).
-                contentPublishInfo( contentPublishInfo ).
-                includeDependencies( true ).
-                pushListener( new PublishContentProgressListener( progressReporter ) ).
-                message( message ).
-                build() );
+            final PushContentParams.Builder builder = PushContentParams.create()
+                .contentIds( contentIds )
+                .excludedContentIds( excludeContentIds )
+                .excludeDescendantsOf( excludeDescendantsOf )
+                .includeDependencies( true )
+                .pushListener( new PublishContentProgressListener( progressReporter ) )
+                .message( message );
+
+            if (params.getSchedule() != null)
+            {
+                builder.publishFrom( params.getSchedule().getPublishFrom() ).publishTo( params.getSchedule().getPublishTo() );
+            }
+
+            final PublishContentResult result = contentService.publish( builder.build() );
 
             ContentIds pushed = result.getPushedContents();
             ContentIds failed = result.getFailedContents();

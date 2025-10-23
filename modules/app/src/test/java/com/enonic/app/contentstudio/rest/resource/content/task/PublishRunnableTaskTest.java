@@ -50,8 +50,8 @@ public class PublishRunnableTaskTest
         throws Exception
     {
         final PublishContentResult result = PublishContentResult.create().
-            setPushed( ContentIds.from( contents.get( 0 ).getId() ) ).
-            setFailed( ContentIds.from( contents.get( 2 ).getId() ) ).
+            add( PublishContentResult.Result.success( contents.get( 0 ).getId() ) ).
+            add( PublishContentResult.Result.failure( contents.get( 2 ).getId(), PublishContentResult.Reason.INVALID ) ).
             build();
 
         Mockito.when( params.getIds() )
@@ -98,7 +98,7 @@ public class PublishRunnableTaskTest
         throws Exception
     {
         final PublishContentResult result = PublishContentResult.create().
-            setPushed( ContentIds.from( contents.get( 0 ).getId() ) ).
+            add( PublishContentResult.Result.success( contents.get( 0 ).getId() ) ).
             build();
 
         assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content1\\\" has been published.\"}", runTask( result ) );
@@ -109,7 +109,8 @@ public class PublishRunnableTaskTest
         throws Exception
     {
         final PublishContentResult result = PublishContentResult.create().
-            setFailed( ContentIds.from( contents.get( 0 ).getId(), contents.get( 1 ).getId() ) ).
+            add( PublishContentResult.Result.failure( contents.get( 2 ).getId(), PublishContentResult.Reason.INVALID ) ).
+            add( PublishContentResult.Result.failure( contents.get( 1 ).getId(), PublishContentResult.Reason.INVALID ) ).
             build();
 
         assertEquals( "{\"state\":\"ERROR\",\"message\":\"Failed to publish 2 items. \"}", runTask( result ) );
