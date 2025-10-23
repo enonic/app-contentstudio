@@ -3,7 +3,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ContentSummary} from '../../../../../content/ContentSummary';
 import {PageTemplateOption} from './PageTemplateOption';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {GetPageTemplatesByCanRenderRequest} from './GetPageTemplatesByCanRenderRequest';
@@ -293,11 +292,10 @@ export class PageTemplateAndControllerSelector
                     // This can happen if the controller was deleted or the app stopped or removed from the site
                     const ctrKey = currentPageState.getController();
                     const missingControllerOption = new PageControllerOption(
-                        new Descriptor(
-                            new DescriptorBuilder().setKey(ctrKey)
-                                .setIconCls(PageComponentType.get().getIconCls())
-                                .setDisplayName(ctrKey.getName().toString())
-                        )
+                        new DescriptorBuilder().setKey(ctrKey)
+                            .setIconCls(PageComponentType.get().getIconCls())
+                            .setDisplayName(ctrKey.getName().toString())
+                            .build()
                     );
                     this.listBox.addItems(missingControllerOption);
                     this.selectOptionByValue(key);

@@ -53,7 +53,7 @@ export class PageTemplateAndSelectorViewer
             return iconClass + ' icon-large';
         }
 
-        iconClass = (object as PageControllerOption).getData().getIconCls();
+        iconClass = (object as PageControllerOption).getData()?.getIconCls();
         return (iconClass ? StyleHelper.getCommonIconCls(iconClass) + ' ' : '') + 'icon-large';
     }
 
