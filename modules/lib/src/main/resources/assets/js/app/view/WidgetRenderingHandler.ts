@@ -74,15 +74,11 @@ export class WidgetRenderingHandler {
 
         this.showMask();
         this.renderer.getPreviewAction()?.setEnabled(false);
+        let isRenderable: boolean;
 
         return this.doRender(summary, widget)
             .then((result) => {
-                const isRenderable = result.isRenderable();
-                deferred.resolve(isRenderable);
-
-                if (isRenderable !== wasRenderable) {
-                    this.notifyRenderableChanged(isRenderable, wasRenderable);
-                }
+                isRenderable = result.isRenderable();
 
                 if (isRenderable) {
                     this.handlePreviewSuccess(result.getResponse(), result.getData());
@@ -96,9 +92,15 @@ export class WidgetRenderingHandler {
             .catch((err) => {
                 this.setPreviewType(PREVIEW_TYPE.FAILED);
                 this.hideMask();
-                deferred.resolve(false);
+                isRenderable = false;
 
                 return false;
+            }).finally(() => {
+                deferred.resolve(isRenderable);
+                if (isRenderable !== wasRenderable) {
+                    this.notifyRenderableChanged(isRenderable, wasRenderable);
+                }
+                return isRenderable;
             });
     }
 
