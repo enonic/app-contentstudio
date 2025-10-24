@@ -31,8 +31,7 @@ const SidebarComponent = ({
     const mainWidgets = widgets.slice(0, -1);
     const lastWidget = widgets.at(-1);
 
-    const isWidgetActive = (widget: Widget) =>
-        widget.getWidgetDescriptorKey().toString() === activeWidgetId;
+    const isWidgetActive = (widget: Widget) => widget.getWidgetDescriptorKey().toString() === activeWidgetId;
 
     return (
         <nav
@@ -41,13 +40,12 @@ const SidebarComponent = ({
             aria-label="Sidebar"
         >
             {/* Header */}
-            <div className="size-8">
-                <ProjectIcon
-                    projectName={project.getName()}
-                    language={project.getLanguage()}
-                    hasIcon={!!project.getIcon()}
-                />
-            </div>
+            <ProjectIcon
+                projectName={project.getName()}
+                language={project.getLanguage()}
+                hasIcon={!!project.getIcon()}
+                className="flex-shrink-0 my-1.75"
+            />
             <h1 title={name} class="[writing-mode:vertical-lr] text-nowrap text-base font-semibold">
                 {name}
             </h1>
@@ -74,15 +72,11 @@ const SidebarComponent = ({
                             active={isWidgetActive(lastWidget)}
                             icon={isMainWidget(lastWidget) && Pen}
                             iconUrl={lastWidget.getIconUrl() && lastWidget.getFullIconUrl()}
-                            onClick={() =>
-                                onClick?.(lastWidget.getWidgetDescriptorKey().toString())
-                            }
+                            onClick={() => onClick?.(lastWidget.getWidgetDescriptorKey().toString())}
                         />
                     )}
                     <Tooltip value={version} side="right">
-                        <p class="text-cs text-surface-primary-selected text-center overflow-hidden text-nowrap max-w-[40px]">
-                            {version}
-                        </p>
+                        <p class="text-cs text-surface-primary-selected text-center overflow-hidden text-nowrap max-w-[40px]">{version}</p>
                     </Tooltip>
                 </div>
             </div>
@@ -105,10 +99,7 @@ export class SidebarElement extends LegacyElement<typeof SidebarComponent, Props
         const settingsWidget = widgets.find(this.isSettingsWidget);
         const defaultWidgets = widgets.filter(this.isDefaultWidget);
         const sortedDefaultWidgets = defaultWidgets.sort((wa, wb) => {
-            return wa
-                .getWidgetDescriptorKey()
-                .toString()
-                .localeCompare(wb.getWidgetDescriptorKey().toString());
+            return wa.getWidgetDescriptorKey().toString().localeCompare(wb.getWidgetDescriptorKey().toString());
         });
 
         return [mainWidget, archiveWidget, ...sortedDefaultWidgets, settingsWidget].filter(Boolean);
@@ -119,17 +110,11 @@ export class SidebarElement extends LegacyElement<typeof SidebarComponent, Props
     }
 
     private isArchiveWidget(widget: Widget): boolean {
-        return widget
-            .getWidgetDescriptorKey()
-            .toString()
-            .endsWith(SidebarElement.ARCHIVE_APP_ENDING);
+        return widget.getWidgetDescriptorKey().toString().endsWith(SidebarElement.ARCHIVE_APP_ENDING);
     }
 
     private isSettingsWidget(widget: Widget): boolean {
-        return widget
-            .getWidgetDescriptorKey()
-            .toString()
-            .endsWith(SidebarElement.SETTINGS_APP_ENDING);
+        return widget.getWidgetDescriptorKey().toString().endsWith(SidebarElement.SETTINGS_APP_ENDING);
     }
 
     private isDefaultWidget(widget: Widget): boolean {
@@ -155,9 +140,7 @@ export class SidebarElement extends LegacyElement<typeof SidebarComponent, Props
     }
 
     removeWidget(widget: Widget): void {
-        const updatedWidgets = this.props
-            .get()
-            .widgets.filter((w) => w.getWidgetDescriptorKey() !== widget.getWidgetDescriptorKey());
+        const updatedWidgets = this.props.get().widgets.filter((w) => w.getWidgetDescriptorKey() !== widget.getWidgetDescriptorKey());
         this.props.setKey('widgets', updatedWidgets);
     }
 }
