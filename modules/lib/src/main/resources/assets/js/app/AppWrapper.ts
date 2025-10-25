@@ -17,9 +17,7 @@ import {cn} from '@enonic/ui';
 import {SidebarElement} from '../v6/features/layout/AppShell/Sidebar';
 import * as Store from '../v6/features/store/sidebarWidgets.store';
 
-export class AppWrapper
-    extends DivEl {
-
+export class AppWrapper extends DivEl {
     private sidebar: SidebarElement;
 
     private widgetElements: Map<string, WidgetElement> = new Map<string, WidgetElement>();
@@ -46,8 +44,8 @@ export class AppWrapper
 
     private initListeners() {
         Store.$activeWidget.subscribe((value) => {
-            value && this.selectWidget(value as Widget);
-        })
+            if (value) this.selectWidget(value as Widget);
+        });
         this.listenAppEvents();
     }
 
@@ -109,7 +107,9 @@ export class AppWrapper
     private updateTabName(widget: Widget): void {
         const prefix: string = i18n('admin.tool.displayName');
         const postfix: string =
-            (this.isDefaultWidget(widget) || !widget.getDisplayName()) ? i18n('app.admin.tool.title') : widget.getDisplayName();
+            this.isDefaultWidget(widget) || !widget.getDisplayName()
+                ? i18n('app.admin.tool.title')
+                : widget.getDisplayName();
         document.title = `${prefix} - ${postfix}`;
     }
 
@@ -118,7 +118,8 @@ export class AppWrapper
     }
 
     private fetchAndAppendWidget(widget: Widget): void {
-        if (this.isDefaultWidget(widget)) { // default studio app
+        if (this.isDefaultWidget(widget)) {
+            // default studio app
             const widgetEl: Element = this.createStudioWidgetEl();
             this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), {el: widgetEl});
             this.widgetsBlock.appendChild(widgetEl);
@@ -126,16 +127,15 @@ export class AppWrapper
         }
 
         fetch(widget.getFullUrl())
-            .then(response => response.text())
+            .then((response) => response.text())
             .then((html: string) => {
-                WidgetHelper.createFromHtmlAndAppend(html, this.widgetsBlock)
-                    .then((widgetEl: WidgetElement) => {
-                        const widgetKey = widget.getWidgetDescriptorKey().toString();
-                        this.widgetElements.set(widgetKey, widgetEl);
-                        this.activeWidgets.push(widgetKey);
-                    });
+                WidgetHelper.createFromHtmlAndAppend(html, this.widgetsBlock).then((widgetEl: WidgetElement) => {
+                    const widgetKey = widget.getWidgetDescriptorKey().toString();
+                    this.widgetElements.set(widgetKey, widgetEl);
+                    this.activeWidgets.push(widgetKey);
+                });
             })
-            .catch(err => {
+            .catch((err) => {
                 throw new Error('Failed to fetch widget: ' + err);
             });
     }
@@ -153,8 +153,12 @@ export class AppWrapper
     }
 
     private isAppStopStartEvent(event: ApplicationEvent): boolean {
-        return ApplicationEventType.STOPPED === event.getEventType() || ApplicationEventType.UNINSTALLED === event.getEventType()
-               || ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED === event.getEventType();
+        return (
+            ApplicationEventType.STOPPED === event.getEventType() ||
+            ApplicationEventType.UNINSTALLED === event.getEventType() ||
+            ApplicationEventType.STARTED === event.getEventType() ||
+            ApplicationEventType.INSTALLED === event.getEventType()
+        );
     }
 
     doRender(): Q.Promise<boolean> {

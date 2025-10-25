@@ -5,12 +5,12 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {UrlAction} from '../../../app/UrlAction';
 
-export type WidgetsStore = {
+interface WidgetsStore {
     items: Widget[];
     activeWidgetId: string | null;
     isLoading: boolean;
     error: string | null;
-};
+}
 
 export const $sidebarWidgets = map<WidgetsStore>({
     items: [],
