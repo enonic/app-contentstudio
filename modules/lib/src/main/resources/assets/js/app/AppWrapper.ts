@@ -2,13 +2,11 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import Q from 'q';
 import {Element, NewElementBuilder} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {AppContext} from './AppContext';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {GetWidgetsByInterfaceRequest} from './resource/GetWidgetsByInterfaceRequest';
-import {Widget, WidgetConfig} from '@enonic/lib-admin-ui/content/Widget';
+import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {WidgetElement, WidgetHelper} from '@enonic/lib-admin-ui/widget/WidgetHelper';
 import {ContentAppContainer} from './ContentAppContainer';
 import {Router} from './Router';
@@ -17,13 +15,12 @@ import {ContentAppBar} from './bar/ContentAppBar';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {cn} from '@enonic/ui';
 import {SidebarElement} from '../v6/features/layout/AppShell/Sidebar';
+import * as Store from '../v6/features/store/sidebarWidgets.store';
 
 export class AppWrapper
     extends DivEl {
 
-    private sidebar: SidebarElement;//WidgetsSidebar;
-
-    private widgets: Widget[] = [];
+    private sidebar: SidebarElement;
 
     private widgetElements: Map<string, WidgetElement> = new Map<string, WidgetElement>();
 
@@ -33,50 +30,25 @@ export class AppWrapper
 
     private widgetsBlock: DivEl;
 
-    private touchListener: (event: TouchEvent) => void;
-
-    private widgetAddedListeners: ((Widget) => void)[] = [];
-
     constructor(className?: string) {
         super(cn('main-app-wrapper bg-surface-primary text-main', className));
 
+        this.loadWidgets();
         this.initElements();
         this.initListeners();
-        this.addStudioWidget();
-        this.updateSidebarWidgets();
     }
 
     private initElements() {
-        this.sidebar = new SidebarElement({widgets: this.widgets});
+        this.sidebar = new SidebarElement();
         this.appBar = ContentAppBar.getInstance();
         this.widgetsBlock = new DivEl('widgets-block');
     }
 
     private initListeners() {
-        this.sidebar.onItemSelected((widgetId: string) => {
-            const widget: Widget = this.widgets.find((w: Widget) => w.getWidgetDescriptorKey().toString() === widgetId);
-
-            if (widget) {
-                this.selectWidget(widget);
-            }
-        });
-
+        Store.$activeWidget.subscribe((value) => {
+            value && this.selectWidget(value as Widget);
+        })
         this.listenAppEvents();
-    }
-
-    private addStudioWidget(): void {
-        const studioWidget: Widget = this.createStudioWidget();
-        this.widgets.push(studioWidget);
-        this.sidebar.addWidget(studioWidget);
-    }
-
-    private createStudioWidget(): Widget {
-        return Widget.create()
-            .setWidgetDescriptorKey(`${CONFIG.getString('appId')}:main`)
-            .setDisplayName(i18n('app.admin.widget.main'))
-            .setUrl(UrlAction.BROWSE)
-            .setConfig(new WidgetConfig().setProperty('context', 'project'))
-            .build();
     }
 
     private createStudioWidgetEl(): Element {
@@ -96,10 +68,6 @@ export class AppWrapper
         return widgetEl;
     }
 
-    selectDefaultWidget(): void {
-        this.selectWidget(this.widgets[0]);
-    }
-
     selectWidget(widget: Widget) {
         const widgetToSelectKey: string = widget.getWidgetDescriptorKey().toString();
         this.widgetElements.forEach((widgetEl: WidgetElement, key: string) => {
@@ -107,7 +75,6 @@ export class AppWrapper
                 this.setWidgetActive(key, widgetEl, false);
             }
         });
-        AppContext.get().setWidget(widget);
         this.updateUrl(widget);
         this.updateTabName(widget);
 
@@ -126,8 +93,6 @@ export class AppWrapper
         }
 
         this.appBar.setAppName(widget.getDisplayName());
-
-        this.sidebar.toggleActiveButton();
     }
 
     private updateUrl(widget: Widget): void {
@@ -149,9 +114,8 @@ export class AppWrapper
     }
 
     private isDefaultWidget(widget: Widget): boolean {
-        return widget === this.widgets[0];
+        return widget === Store.$sidebarWidgets.get().items?.[0];
     }
-
 
     private fetchAndAppendWidget(widget: Widget): void {
         if (this.isDefaultWidget(widget)) { // default studio app
@@ -176,46 +140,14 @@ export class AppWrapper
             });
     }
 
-    private updateSidebarWidgets() {
-        new GetWidgetsByInterfaceRequest('contentstudio.menuitem').sendAndParse().then((widgets: Widget[]) => {
-            widgets.push(this.widgets[0]); // default studio widget
-            this.removeStaleWidgets(widgets);
-            this.addMissingWidgets(widgets);
-        }).catch(DefaultErrorHandler.handle);
-    }
-
-    private removeStaleWidgets(widgets: Widget[]): void {
-        this.widgets = this.widgets.filter((currentWidget: Widget) => {
-            if (widgets.some((w: Widget) => w.getWidgetDescriptorKey().equals(currentWidget.getWidgetDescriptorKey()))) {
-                return true;
-            }
-
-            this.sidebar.removeWidget(currentWidget);
-
-            return false;
-        });
-    }
-
-    private hasWidget(widget: Widget): boolean {
-        return this.widgets.some((w: Widget) => w.getWidgetDescriptorKey().equals(widget.getWidgetDescriptorKey()));
-    }
-
-    private addMissingWidgets(widgets: Widget[]): void {
-        widgets.filter((widget: Widget) => !this.hasWidget(widget)).forEach((widget: Widget) => {
-            this.widgets.push(widget);
-            this.sidebar.addWidget(widget);
-            this.notifyItemAdded(widget);
-        });
+    private loadWidgets() {
+        Store.loadWidgets().catch(DefaultErrorHandler.handle);
     }
 
     private listenAppEvents() {
-        const debouncedAdminToolUpdate: () => void = AppHelper.debounce(() => {
-            this.updateSidebarWidgets();
-        }, 1000);
-
         ApplicationEvent.on((event: ApplicationEvent) => {
             if (this.isAppStopStartEvent(event)) {
-                debouncedAdminToolUpdate();
+                AppHelper.debounce(() => this.loadWidgets(), 1000)();
             }
         });
     }
@@ -234,22 +166,6 @@ export class AppWrapper
             ResponsiveManager.onAvailableSizeChanged(this.appBar);
 
             return rendered;
-        });
-    }
-
-    onItemAdded(handler: (item: Widget) => void) {
-        this.widgetAddedListeners.push(handler);
-    }
-
-    unItemAdded(handler: (item: Widget) => void) {
-        this.widgetAddedListeners = this.widgetAddedListeners.filter((curr: (widget: Widget) => void) => {
-            return handler !== curr;
-        });
-    }
-
-    private notifyItemAdded(item: Widget) {
-        this.widgetAddedListeners.forEach((handler: (widget: Widget) => void) => {
-            handler(item);
         });
     }
 
