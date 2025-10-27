@@ -4,6 +4,8 @@ import java.time.Instant;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVersionPublishInfo;
+import com.enonic.xp.content.ContentPublishInfo;
+import com.enonic.xp.content.ContentVersionCommitInfo;
 import com.enonic.xp.security.Principal;
 
 public class ContentVersionPublishInfoJson
@@ -20,21 +22,19 @@ public class ContentVersionPublishInfoJson
 
     private final ContentPublishInfoJson contentPublishInfo;
 
-    public ContentVersionPublishInfoJson( final ContentVersionPublishInfo versionPublishInfo,
+    public ContentVersionPublishInfoJson( final ContentPublishInfo publishInfo, final ContentVersionCommitInfo commitInfo,
                                           final ContentPrincipalsResolver principalsResolver )
     {
-        this.timestamp = versionPublishInfo.getTimestamp();
-        this.message = versionPublishInfo.getMessage();
+        this.timestamp = commitInfo == null ? null : commitInfo.getTimestamp();
+        this.message = commitInfo == null ? null : commitInfo.getMessage();
 
-        final Principal publisher = principalsResolver.findPrincipal( versionPublishInfo.getPublisher() );
+        final Principal publisher = commitInfo == null ? null : principalsResolver.findPrincipal( commitInfo.getCommiter() );
 
-        this.publisher = versionPublishInfo.getPublisher().toString();
+        this.publisher = commitInfo == null ? null : commitInfo.getCommiter().toString();
         this.publisherDisplayName = publisher != null ? publisher.getDisplayName() : "";
-        this.type = versionPublishInfo.getType() != null ? versionPublishInfo.getType().toString() : null;
+        this.type = commitInfo == null ? null : ( commitInfo.getType() != null ? commitInfo.getType().toString() : null );
 
-        this.contentPublishInfo = versionPublishInfo.getContentPublishInfo() != null
-            ? new ContentPublishInfoJson( versionPublishInfo.getContentPublishInfo() )
-            : null;
+        this.contentPublishInfo = publishInfo != null ? new ContentPublishInfoJson( publishInfo ) : null;
     }
 
     public String getPublisher()

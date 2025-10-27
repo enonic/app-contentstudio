@@ -51,7 +51,6 @@ import com.enonic.xp.app.contentstudio.json.content.ContentListJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentPermissionsJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentSummaryJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentTreeSelectorListJson;
-import com.enonic.xp.app.contentstudio.json.content.ContentVersionJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentsExistByPathJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentsExistJson;
 import com.enonic.xp.app.contentstudio.json.content.DependenciesAggregationJson;
@@ -112,12 +111,6 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.task.DuplicateRunna
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.MoveRunnableTask;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.PublishRunnableTask;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.UnpublishRunnableTask;
-import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ActiveContentVersionEntry;
-import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVersion;
-import com.enonic.xp.app.contentstudio.rest.resource.content.versions.FindContentVersionsCommand;
-import com.enonic.xp.app.contentstudio.rest.resource.content.versions.FindContentVersionsResult;
-import com.enonic.xp.app.contentstudio.rest.resource.content.versions.GetActiveContentVersionsCommand;
-import com.enonic.xp.app.contentstudio.rest.resource.content.versions.GetActiveContentVersionsResult;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
 import com.enonic.xp.attachment.Attachment;
@@ -126,7 +119,6 @@ import com.enonic.xp.attachment.Attachments;
 import com.enonic.xp.attachment.CreateAttachment;
 import com.enonic.xp.attachment.CreateAttachments;
 import com.enonic.xp.branch.Branch;
-import com.enonic.xp.branch.Branches;
 import com.enonic.xp.content.CompareContentResult;
 import com.enonic.xp.content.CompareContentResults;
 import com.enonic.xp.content.CompareContentsParams;
@@ -146,6 +138,7 @@ import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.ContentValidityParams;
 import com.enonic.xp.content.ContentValidityResult;
+import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.content.ContentVersionId;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.CreateMediaParams;
@@ -153,6 +146,8 @@ import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentByParentResult;
 import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
+import com.enonic.xp.content.FindContentVersionsParams;
+import com.enonic.xp.content.FindContentVersionsResult;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.content.GetPublishStatusesParams;
 import com.enonic.xp.content.GetPublishStatusesResult;
@@ -1408,8 +1403,9 @@ public final class ContentResource
         final ContentId contentId = ContentId.from( params.getContentId() );
         final int from = params.getFrom() != null ? params.getFrom() : 0;
         final int size = params.getSize() != null ? params.getSize() : 50;
-        final FindContentVersionsCommand contentVersionsCommand = new FindContentVersionsCommand( nodeService );
-        final FindContentVersionsResult result = contentVersionsCommand.getContentVersions( contentId, from, size );
+
+        final FindContentVersionsResult result =
+            contentService.getVersions( FindContentVersionsParams.create().contentId( contentId ).from( from ).size( size ).build() );
 
         return new GetContentVersionsResultJson( result, this.principalsResolver );
     }
@@ -1418,12 +1414,19 @@ public final class ContentResource
     @Path("getActiveVersions")
     public GetActiveContentVersionsResultJson getActiveVersions( @QueryParam("id") final String id )
     {
-        final ContentId contentId = ContentId.from( id );
-        final Branches branches = Branches.from( ContentConstants.BRANCH_DRAFT, ContentConstants.BRANCH_MASTER );
-        final GetActiveContentVersionsCommand activeContentVersionsCommand = new GetActiveContentVersionsCommand( nodeService );
-        final GetActiveContentVersionsResult activeVersions = activeContentVersionsCommand.getActiveVersions( contentId, branches );
+        final FindContentVersionsParams findParam = FindContentVersionsParams.create().contentId( ContentId.from( id ) ).size( 1 ).build();
 
-        return new GetActiveContentVersionsResultJson( activeVersions, this.principalsResolver );
+        final ContentVersion draft = getActiveVersion( findParam );
+
+        return new GetActiveContentVersionsResultJson();
+    }
+
+    private ContentVersion getActiveVersion( final FindContentVersionsParams findParam )
+    {
+        return ContextBuilder.copyOf( ContextAccessor.current() )
+            .branch( ContentConstants.BRANCH_DRAFT )
+            .build()
+            .callWith( () -> contentService.getVersions( findParam ).getContentVersions().first() );
     }
 
     @GET
@@ -1551,7 +1554,8 @@ public final class ContentResource
 
     @POST
     @Path("revert")
-    public ContentVersionJson revert( final RevertContentJson params )
+    public ContentJson revert( final RevertContentJson params,
+                               @Context HttpServletRequest request )
     {
         final ContentVersionId contentVersionId = ContentVersionId.from( params.getVersionId() );
 
@@ -1565,25 +1569,8 @@ public final class ContentResource
         }
 
         final Content currentContent = contentService.getById( ContentId.from( params.getContentId() ) );
-        final Content revertedContent = contentService.update( prepareUpdateContentParams( versionedContent, contentVersionId ) );
-
-        final GetActiveContentVersionsCommand activeContentVersionsCommand = new GetActiveContentVersionsCommand( nodeService );
-        final GetActiveContentVersionsResult activeVersions =
-            activeContentVersionsCommand.getActiveVersions( revertedContent.getId(), Branches.from( ContentConstants.BRANCH_DRAFT ) );
-
-        final ContentVersion contentVersion = activeVersions
-            .getActiveContentVersions()
-            .stream()
-            .findAny()
-            .map( ActiveContentVersionEntry::getContentVersion )
-            .orElse( null );
-
-        if ( contentVersion != null )
-        {
-            return new ContentVersionJson( contentVersion, principalsResolver );
-        }
-
-        return null;
+        final Content content = contentService.update( prepareUpdateContentParams( versionedContent, contentVersionId ) );
+        return jsonObjectsFactory.createContentJson( content, request );
     }
 
     @POST

@@ -4,8 +4,8 @@ import java.time.Instant;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ChildOrderJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVersion;
 import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.security.Principal;
 
 public class ContentVersionJson
@@ -48,11 +48,11 @@ public class ContentVersionJson
         this.modifier = contentVersion.getModifier().toString();
         this.id = contentVersion.getId().toString();
         this.childOrder = contentVersion.getChildOrder() != null ? new ChildOrderJson( contentVersion.getChildOrder() ) : null;
-        this.publishInfo = contentVersion.getPublishInfo() != null ? new ContentVersionPublishInfoJson( contentVersion.getPublishInfo(),
+        this.publishInfo = contentVersion.getPublishInfo() != null ? new ContentVersionPublishInfoJson( contentVersion.getPublishInfo(), contentVersion.getCommitInfo(),
                                                                                                         principalsResolver ) : null;
 
         this.workflow = contentVersion.getWorkflowInfo() != null ? new ContentWorkflowInfoJson( contentVersion.getWorkflowInfo() ) : null;
-        this.permissionsChanged = contentVersion.isPermissionsChanged();
+        this.permissionsChanged = false;
     }
 
     @SuppressWarnings("UnusedDeclaration")

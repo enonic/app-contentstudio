@@ -7,17 +7,13 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsRe
 import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ActiveContentVersionEntry;
 import com.enonic.xp.app.contentstudio.rest.resource.content.versions.GetActiveContentVersionsResult;
 
+@Deprecated
 public class GetActiveContentVersionsResultJson
 {
     private final Set<ActiveContentVersionEntryJson> activeContentVersions = new LinkedHashSet<>();
 
-    public GetActiveContentVersionsResultJson( final GetActiveContentVersionsResult result,
-                                               final ContentPrincipalsResolver principalsResolver )
+    public GetActiveContentVersionsResultJson()
     {
-        for ( final ActiveContentVersionEntry activeContentVersionEntry : result.getActiveContentVersions() )
-        {
-            activeContentVersions.add( new ActiveContentVersionEntryJson( activeContentVersionEntry, principalsResolver ) );
-        }
     }
 
     @SuppressWarnings("UnusedDeclaration")

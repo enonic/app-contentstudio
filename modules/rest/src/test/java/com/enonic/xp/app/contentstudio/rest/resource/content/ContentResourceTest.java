@@ -82,7 +82,6 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishContent
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResetContentInheritJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.RevertContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UnpublishContentJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVersion;
 import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVersionPublishInfo;
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.attachment.Attachments;
@@ -111,6 +110,8 @@ import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.ContentValidityParams;
 import com.enonic.xp.content.ContentValidityResult;
+import com.enonic.xp.content.ContentVersion;
+import com.enonic.xp.content.ContentVersionCommitInfo;
 import com.enonic.xp.content.ContentVersionId;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.CreateContentParams;
@@ -2130,9 +2131,9 @@ public class ContentResourceTest
             .id( ContentVersionId.from( "a" ) )
             .modified( Instant.now() )
             .modifier( PrincipalKey.ofAnonymous() )
-            .publishInfo( ContentVersionPublishInfo.create()
+            .commitInfo( ContentVersionCommitInfo.create()
                               .message( "My version" )
-                              .publisher( PrincipalKey.ofAnonymous() )
+                              .commiter( PrincipalKey.ofAnonymous() )
                               .timestamp( Instant.ofEpochSecond( 1562056003L ) )
                               .build() )
             .build();
@@ -2160,11 +2161,8 @@ public class ContentResourceTest
             .id( ContentVersionId.from( "a" ) )
             .modified( Instant.now() )
             .modifier( PrincipalKey.ofAnonymous() )
-            .publishInfo( ContentVersionPublishInfo.create()
-                              .message( "My version" )
-                              .publisher( PrincipalKey.ofAnonymous() )
-                              .timestamp( Instant.ofEpochSecond( 1562056003L ) )
-                              .build() )
+            .comment( "My version" )
+            .commitInfo( ContentVersionCommitInfo.create().commiter( PrincipalKey.ofAnonymous() ).timestamp( Instant.ofEpochSecond( 1562056003L ) ).build() )
             .build();
 
         when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) ).thenReturn( (Optional) Optional.of( User.ANONYMOUS ) );
@@ -2481,7 +2479,7 @@ public class ContentResourceTest
         mockVersions();
 
         // test
-        final ContentVersionJson result = instance.revert( params );
+        final ContentJson result = instance.revert( params, request );
 
         // assert
         assertNotNull( result );
@@ -2522,7 +2520,7 @@ public class ContentResourceTest
         mockVersions();
 
         // test
-        final ContentVersionJson result = instance.revert( params );
+        final ContentJson result = instance.revert( params, request );
 
         // assert
         assertNotNull( result );
@@ -2546,7 +2544,7 @@ public class ContentResourceTest
         when( contentService.getByIdAndVersionId( any( ContentId.class ), any( ContentVersionId.class ) ) ).thenReturn( null );
 
         // test & assert
-        final WebApplicationException exception = assertThrows( WebApplicationException.class, () -> instance.revert( params ) );
+        final WebApplicationException exception = assertThrows( WebApplicationException.class, () -> instance.revert( params, request ) );
 
         assertEquals( "Content with contentKey [content-id1] and versionId [versionKey] not found", exception.getMessage() );
 
