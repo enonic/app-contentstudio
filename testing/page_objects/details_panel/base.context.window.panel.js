@@ -95,6 +95,7 @@ class BaseContextWindowPanel extends Page {
             let widgetSelectorDropdown = new WidgetSelectorDropdown();
             await this.clickOnWidgetSelectorDropdownHandle();
             await widgetSelectorDropdown.clickOnOptionByDisplayName(itemName);
+            await this.pause(300);
         } catch (err) {
             await this.handleError(`Widget selector dropdown - tried to open ${itemName} : `, 'err_open_widget', err);
         }

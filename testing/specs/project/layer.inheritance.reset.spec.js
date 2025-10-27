@@ -164,6 +164,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await liveFormPanel.waitForPageSettingsLinkDisplayed();
             // 8. Verify that 'Preview' button is disabled:
             await contentWizard.waitForPreviewButtonDisabled();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             // 9. Verify that controller in 'Page inspection' panel is set to 'Automatic':
             let controllerActual = await pageInspectionPanel.getSelectedPageController();
             assert.equal(controllerActual, AUTOMATIC_CONTROLLER, 'Automatic controller should be selected after the resetting');

@@ -40,7 +40,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             let contentWizard = new ContentWizard();
             // 1. Open an existing folder
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openDetailsWidget();
             // 2. Open Version widget:
             await wizardContextPanel.openVersionHistory();
             // 3. Open Publish wizard and insert a publish-message:
@@ -65,7 +65,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             let userAccessWidget = new UserAccessWidget();
             // 1. Select the folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openDetailsWidget();
             // 2. Update permissions:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             // 3. Add 'Audit Log' principal:
