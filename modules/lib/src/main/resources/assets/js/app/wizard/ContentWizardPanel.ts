@@ -1674,6 +1674,11 @@ export class ContentWizardPanel
                                                defaultModels.getDefaultPageTemplate()?.getId() === template.getId();
                 this.defaultModels = defaultModels;
 
+                if (this.liveEditModel) {
+                    // defaultModels is part of liveEditModel so need to update it
+                    this.updateLiveEditModel(this.getPersistedItem());
+                }
+
                 if (isAutoUpdated) {
                     this.debouncedEditorReload(false, true, true);
                     return;
