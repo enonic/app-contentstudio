@@ -57,6 +57,8 @@ export class ContextWindow
 
     private isPageReady: boolean = false;
 
+    public static debug = false;
+
     constructor(config: ContextWindowConfig) {
         super();
         this.liveFormPanel = config.liveFormPanel;
@@ -70,12 +72,18 @@ export class ContextWindow
         const eventManager = PageEventsManager.get();
         eventManager.onPageLocked(() => {
             this.isPageLocked = true;
+            if (ContextWindow.debug) {
+                console.info(`ContextWindow.onPageLocked: isPageLocked = ${this.isPageLocked}, isPageReady = ${this.isPageReady}`);
+            }
             if (this.isPageReady) {
                 this.setInsertablesVisible(false);
             }
         });
         eventManager.onPageUnlocked(() => {
             this.isPageLocked = false;
+            if (ContextWindow.debug) {
+                console.info(`ContextWindow.onPageUnlocked: isPageLocked = ${this.isPageLocked}, isPageReady = ${this.isPageReady}`);
+            }
             if (this.isPageReady) {
                 void this.updateInsertablesPanel();
             }
@@ -83,25 +91,30 @@ export class ContextWindow
         eventManager.onRenderableChanged((isRenderable) => {
             const wasRenderable = this.isPageRenderable;
             this.isPageRenderable = isRenderable;
-
+            if (ContextWindow.debug) {
+                console.info(
+                    `ContextWindow.onRenderableChanged: isPageRenderable = ${this.isPageRenderable}, isPageReady = ${this.isPageReady}`);
+            }
             if (this.isPageReady) {
                 // don't select insertables when renderable was set for the first time (undefined -> true/false)
                 this.updateInsertablesPanel(isRenderable && wasRenderable !== undefined);
             }
         })
         eventManager.onLiveEditPageViewReady((event) => {
-            const wasReady = this.isPageReady;
-
             // NB: thrown 2 times for renderable page!
+            this.isPageReady = true;
 
-            if (!wasReady) {
-                this.isPageReady = true;
-                // disable insert tab if there is no page for some reason (i.e. error occurred)
-                // or there is no controller or template set or no automatic template
-                this.updateInsertablesPanel(this.isPageRenderable);
+            if (ContextWindow.debug) {
+                console.info(`ContextWindow.onLiveEditPageViewReady: isPageReady = ${this.isPageReady}`);
             }
+            // disable insert tab if there is no page for some reason (i.e. error occurred)
+            // or there is no controller or template set or no automatic template
+            this.updateInsertablesPanel(this.isPageRenderable);
         })
         eventManager.onLiveEditPageInitializationError(() => {
+            if (ContextWindow.debug) {
+                console.info(`ContextWindow.onLiveEditPageInitializationError: isPageReady = ${this.isPageReady}`);
+            }
             if (this.isPageReady) {
                 this.setInsertablesVisible(false);
             }
@@ -109,19 +122,28 @@ export class ContextWindow
 
         if (this.insertablesPanel) {
             this.liveFormPanel.onHidden((): void => {
+                if (ContextWindow.debug) {
+                    console.info(`ContextWindow: liveFormPanel.onHidden`);
+                }
                 this.setInsertablesVisible(false);
             });
 
             this.liveFormPanel.onShown((): void => {
+                if (ContextWindow.debug) {
+                    console.info(`ContextWindow: liveFormPanel.onShown`);
+                }
                 this.updateInsertablesPanel();
             });
         }
     }
 
-    private setInsertablesVisible(visible: boolean, selectInsertables = false): void {
+    private setInsertablesVisible(visible: boolean, select = false): void {
         this.insertablesPanel?.whenRendered(() => {
+            if (ContextWindow.debug) {
+                console.info(`ContextWindow.setInsertablesVisible: visible = ${visible}, select = ${select}`);
+            }
             this.setItemVisible(this.insertablesPanel, visible);
-            if (selectInsertables) {
+            if (select && visible) {
                 this.selectPanel(this.insertablesPanel);
             }
         });
