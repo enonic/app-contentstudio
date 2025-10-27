@@ -1,7 +1,6 @@
 import {Button, Dialog, cn} from '@enonic/ui';
 import type {ComponentPropsWithoutRef, ReactElement, ReactNode} from 'react';
 import {createContext, useContext, useMemo, forwardRef, useState} from 'react';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {useI18n} from '../hooks/useI18n';
 
 //
@@ -9,8 +8,8 @@ import {useI18n} from '../hooks/useI18n';
 //
 
 type ConfirmationDialogContextValue = {
-    submitEnabled: boolean;
-    setSubmitEnabled: (submitEnabled: boolean) => void;
+    confirmEnabled: boolean;
+    setConfirmEnabled: (confirmEnabled: boolean) => void;
 };
 
 const ConfirmationDialogContext = createContext<ConfirmationDialogContextValue | null>(null);
@@ -18,20 +17,20 @@ const ConfirmationDialogContext = createContext<ConfirmationDialogContextValue |
 export const useConfirmationDialog = (): ConfirmationDialogContextValue => {
     const ctx = useContext(ConfirmationDialogContext);
     if (!ctx) {
-        return {submitEnabled: true, setSubmitEnabled: () => void 0};
+        return {confirmEnabled: true, setConfirmEnabled: () => void 0};
     }
     return ctx;
 };
 
 type ConfirmationDialogProviderProps = {
-    defaultSubmitEnabled?: boolean;
+    defaultConfirmEnabled?: boolean;
     children?: ReactNode;
 };
 
-const ConfirmationDialogProvider = ({defaultSubmitEnabled = true, children}: ConfirmationDialogProviderProps): ReactElement => {
-    const [submitEnabled, setSubmitEnabled] = useState<boolean>(defaultSubmitEnabled);
+const ConfirmationDialogProvider = ({defaultConfirmEnabled = true, children}: ConfirmationDialogProviderProps): ReactElement => {
+    const [confirmEnabled, setConfirmEnabled] = useState<boolean>(defaultConfirmEnabled);
 
-    const value = useMemo<ConfirmationDialogContextValue>(() => ({submitEnabled, setSubmitEnabled}), [submitEnabled]);
+    const value = useMemo<ConfirmationDialogContextValue>(() => ({confirmEnabled, setConfirmEnabled}), [confirmEnabled]);
 
     return <ConfirmationDialogContext.Provider value={value}>{children}</ConfirmationDialogContext.Provider>;
 };
@@ -41,47 +40,46 @@ const ConfirmationDialogProvider = ({defaultSubmitEnabled = true, children}: Con
 //
 
 export type ConfirmationDialogContentProps = {
-    defaultSubmitEnabled?: boolean;
+    defaultConfirmEnabled?: boolean;
     className?: string;
     children?: ReactNode;
 } & ComponentPropsWithoutRef<typeof Dialog.Content>;
 
 const ConfirmationDialogContent = forwardRef<HTMLDivElement, ConfirmationDialogContentProps>(
-    ({defaultSubmitEnabled = true, className, children, ...props}, ref): ReactElement => {
+    ({defaultConfirmEnabled = true, className, children, ...props}, ref): ReactElement => {
         return (
             <Dialog.Content ref={ref}
-                            className={cn('gap-3 min-w-170 max-w-fit', className)} {...props}>
-                <ConfirmationDialogProvider defaultSubmitEnabled={defaultSubmitEnabled}>{children}</ConfirmationDialogProvider>
+                            className={cn('text-main gap-3 min-w-170 max-w-fit', className)} {...props}>
+                <ConfirmationDialogProvider defaultConfirmEnabled={defaultConfirmEnabled}>{children}</ConfirmationDialogProvider>
             </Dialog.Content>
         );
     }
 );
 ConfirmationDialogContent.displayName = 'ConfirmationDialog.Content';
 
+
 //
 // * ConfirmationDialogFooter
 //
 
 export type ConfirmationDialogFooterProps = {
-    cancelLabel?: ReactNode;
-    submitLabel?: ReactNode;
     onCancel?: () => void;
-    onSubmit?: () => void;
+    onConfirm?: () => void;
     intent?: 'default' | 'danger';
     className?: string;
 } & ComponentPropsWithoutRef<'footer'>;
 
 const ConfirmationDialogFooter = ({
     onCancel,
-    onSubmit,
+    onConfirm,
     intent = 'default',
     className,
     ...props
 }: ConfirmationDialogFooterProps): ReactElement => {
-    const {submitEnabled} = useConfirmationDialog();
+    const {confirmEnabled} = useConfirmationDialog();
 
     const cancel = useI18n('action.cancel');
-    const submit = useI18n('action.submit');
+    const confirm = useI18n('action.confirm');
 
     return (
         <Dialog.Footer {...props}>
@@ -89,7 +87,7 @@ const ConfirmationDialogFooter = ({
                 <Button label={cancel} variant='outline' onClick={onCancel}/>
             </Dialog.Close>
             <Dialog.Close asChild>
-                <Button className={cn(intent === 'danger' && 'bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50')} label={submit} variant='solid' onClick={onSubmit} disabled={!submitEnabled}/>
+                <Button className={cn(intent === 'danger' && 'bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50')} label={confirm} variant='solid' onClick={onConfirm} disabled={!confirmEnabled}/>
             </Dialog.Close>
         </Dialog.Footer>
     );

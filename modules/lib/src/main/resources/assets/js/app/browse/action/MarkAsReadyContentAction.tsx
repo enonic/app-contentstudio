@@ -39,7 +39,7 @@ export class MarkAsReadyContentAction
                 open: true,
                 title: i18n('dialog.confirm.title'),
                 description: i18n('dialog.markAsReady.question'),
-                onSubmit: () => {
+                onConfirm: () => {
                     dialog.close();
                     void this.markAsReadyAndPublish(contentToMarkAsReady, content);
                 },
