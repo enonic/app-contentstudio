@@ -972,6 +972,8 @@ export class ContentWizardPanel
                     // because content path is used to load the page
                     this.updateLiveEditModel(currentContent);
 
+                    this.contextView?.setItem(this.getContent());
+
                     if (this.reloadPageEditorOnSave && this.livePanel) {
 
                         this.livePanel.loadPage(false).then(() => {
@@ -984,7 +986,6 @@ export class ContentWizardPanel
                     } else {
                         resolve(currentContent);
                     }
-
 
                 } else {
                     resolve(currentContent);
