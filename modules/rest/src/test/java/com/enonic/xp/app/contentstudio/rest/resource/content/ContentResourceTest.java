@@ -41,7 +41,6 @@ import com.enonic.xp.aggregation.BucketAggregation;
 import com.enonic.xp.aggregation.Buckets;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.json.aggregation.BucketAggregationJson;
-import com.enonic.xp.app.contentstudio.json.content.ActiveContentVersionEntryJson;
 import com.enonic.xp.app.contentstudio.json.content.CompareContentResultJson;
 import com.enonic.xp.app.contentstudio.json.content.CompareContentResultsJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentIdJson;
@@ -50,10 +49,8 @@ import com.enonic.xp.app.contentstudio.json.content.ContentListJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentSummaryJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentTreeSelectorListJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentVersionJson;
-import com.enonic.xp.app.contentstudio.json.content.ContentVersionViewJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentsExistByPathJson;
 import com.enonic.xp.app.contentstudio.json.content.ContentsExistJson;
-import com.enonic.xp.app.contentstudio.json.content.GetActiveContentVersionsResultJson;
 import com.enonic.xp.app.contentstudio.json.content.GetContentVersionsResultJson;
 import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentJson;
 import com.enonic.xp.app.contentstudio.json.task.TaskResultJson;
@@ -82,12 +79,9 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishContent
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResetContentInheritJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.RevertContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UnpublishContentJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVersionPublishInfo;
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.attachment.Attachments;
 import com.enonic.xp.attachment.CreateAttachment;
-import com.enonic.xp.blob.BlobKey;
-import com.enonic.xp.blob.BlobKeys;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.CompareContentResult;
 import com.enonic.xp.content.CompareContentResults;
@@ -104,7 +98,6 @@ import com.enonic.xp.content.ContentInheritType;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPaths;
-import com.enonic.xp.content.ContentPropertyNames;
 import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
@@ -149,18 +142,6 @@ import com.enonic.xp.form.Form;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.jaxrs.impl.MockRestResponse;
-import com.enonic.xp.node.GetActiveNodeVersionsParams;
-import com.enonic.xp.node.GetActiveNodeVersionsResult;
-import com.enonic.xp.node.GetNodeVersionsParams;
-import com.enonic.xp.node.NodeId;
-import com.enonic.xp.node.NodePath;
-import com.enonic.xp.node.NodeService;
-import com.enonic.xp.node.NodeVersion;
-import com.enonic.xp.node.NodeVersionId;
-import com.enonic.xp.node.NodeVersionKey;
-import com.enonic.xp.node.NodeVersionMetadata;
-import com.enonic.xp.node.NodeVersionQueryResult;
-import com.enonic.xp.node.NodeVersionMetadatas;
 import com.enonic.xp.page.Page;
 import com.enonic.xp.page.PageTemplateKey;
 import com.enonic.xp.project.ProjectName;
@@ -248,8 +229,6 @@ public class ContentResourceTest
 
     private ContentService contentService;
 
-    private NodeService nodeService;
-
     private SecurityService securityService;
 
     private TaskService taskService;
@@ -298,9 +277,6 @@ public class ContentResourceTest
 
         syncContentService = mock( SyncContentService.class );
         resource.setSyncContentService( syncContentService );
-
-        nodeService = mock( NodeService.class );
-        resource.setNodeService( nodeService );
 
         final ComponentDisplayNameResolverImpl componentNameResolver = new ComponentDisplayNameResolverImpl();
         componentNameResolver.setContentService( contentService );
@@ -2121,37 +2097,6 @@ public class ContentResourceTest
     }
 
     @Test
-    public void getActiveVersions()
-    {
-        ContentResource contentResource = getResourceInstance();
-
-        Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
-
-        ContentVersion contentVersion = ContentVersion.create()
-            .id( ContentVersionId.from( "a" ) )
-            .modified( Instant.now() )
-            .modifier( PrincipalKey.ofAnonymous() )
-            .commitInfo( ContentVersionCommitInfo.create()
-                              .message( "My version" )
-                              .commiter( PrincipalKey.ofAnonymous() )
-                              .timestamp( Instant.ofEpochSecond( 1562056003L ) )
-                              .build() )
-            .build();
-
-        when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) ).thenReturn( (Optional) Optional.of( User.ANONYMOUS ) );
-
-        when( securityService.getUser( PrincipalKey.ofAnonymous() ) ).thenReturn( Optional.of( User.ANONYMOUS ) );
-
-        mockVersions();
-
-        GetActiveContentVersionsResultJson result = contentResource.getActiveVersions( content.getId().toString() );
-
-        final ActiveContentVersionEntryJson[] resultArray = result.getActiveContentVersions().toArray(ActiveContentVersionEntryJson[]::new);
-        assertTrue( resultArray.length == 1 );
-        assertEquals( "nodeVersionNew", resultArray[0].getContentVersion().getId() );
-    }
-
-    @Test
     public void getContentVersionsForView()
     {
         ContentResource contentResource = getResourceInstance();
@@ -2169,74 +2114,12 @@ public class ContentResourceTest
 
         when( securityService.getUser( PrincipalKey.ofAnonymous() ) ).thenReturn( Optional.of( User.ANONYMOUS ) );
 
-        mockVersions();
-
         GetContentVersionsResultJson result =
             contentResource.getContentVersions( new GetContentVersionsJson( 0, 10, content.getId().toString() ) );
 
         final ContentVersionJson[] resultArray = result.getContentVersions().toArray(ContentVersionJson[]::new);
         assertTrue( resultArray.length == 2 );
         assertEquals( "DEF", resultArray[1].getDisplayName() );
-    }
-
-    private void mockVersions()
-    {
-        final NodeVersionKey nodeVersionKey1 = NodeVersionKey.create()
-            .nodeBlobKey( BlobKey.from( "a" ) )
-            .indexConfigBlobKey( BlobKey.from( "b" ) )
-            .accessControlBlobKey( BlobKey.from( "c" ) )
-            .build();
-        final NodeVersionMetadata newNodeVersionMeta = NodeVersionMetadata.create().
-            nodeId( NodeId.from( "nodeId1" ) ).
-            nodeVersionId( NodeVersionId.from( "nodeVersionNew" ) ).
-            nodeVersionKey( nodeVersionKey1 ).
-            nodePath( new NodePath( "/content/new" ) ).
-            binaryBlobKeys( BlobKeys.empty() ).
-            timestamp( Instant.ofEpochSecond( 1000 ) ).
-            build();
-
-        final NodeVersionKey nodeVersionKey2 = NodeVersionKey.create()
-            .nodeBlobKey( BlobKey.from( "d" ) )
-            .indexConfigBlobKey( BlobKey.from( "e" ) )
-            .accessControlBlobKey( BlobKey.from( "f" ) )
-            .build();
-        final NodeVersionMetadata oldNodeVersionMeta = NodeVersionMetadata.create().
-            nodeId( NodeId.from( "nodeId1" ) ).
-            nodeVersionId( NodeVersionId.from( "nodeVersionOld" ) ).
-            nodeVersionKey( nodeVersionKey2 ).
-            nodePath( new NodePath( "/content/old" ) ).
-            binaryBlobKeys( BlobKeys.empty() ).
-            timestamp( Instant.ofEpochSecond( 500 ) ).
-            build();
-
-        final NodeVersionMetadatas nodeVersionsMetadata = NodeVersionMetadatas.create().
-            add( newNodeVersionMeta ).
-            add( oldNodeVersionMeta ).
-            build();
-
-        final NodeVersionQueryResult nodeVersionQueryResult = NodeVersionQueryResult.create().
-            entityVersions( nodeVersionsMetadata ).
-            totalHits( 40 ).
-            build();
-
-        final PropertyTree data1 = new PropertyTree();
-        data1.setString( ContentPropertyNames.DISPLAY_NAME, "ABC" );
-        data1.setInstant( ContentPropertyNames.MODIFIED_TIME, Instant.now() );
-        data1.setString( ContentPropertyNames.MODIFIER, PrincipalKey.ofAnonymous().toString() );
-        final NodeVersion nodeVersion1 = NodeVersion.create().data( data1 ).build();
-
-        final PropertyTree data2 = new PropertyTree();
-        data2.setString( ContentPropertyNames.DISPLAY_NAME, "DEF" );
-        data2.setInstant( ContentPropertyNames.MODIFIED_TIME, Instant.now() );
-        data2.setString( ContentPropertyNames.MODIFIER, PrincipalKey.ofAnonymous().toString() );
-        final NodeVersion nodeVersion2 = NodeVersion.create().data( data2 ).build();
-
-        when( nodeService.findVersions( any ( GetNodeVersionsParams.class ) ) ).thenReturn( nodeVersionQueryResult  );
-
-        when( nodeService.getActiveVersions( any( GetActiveNodeVersionsParams.class ) ) ).thenReturn(
-            GetActiveNodeVersionsResult.create().add( ContentConstants.BRANCH_DRAFT, newNodeVersionMeta ).build() );
-        when( nodeService.getByNodeVersionKey( nodeVersionKey1 ) ).thenReturn( nodeVersion1 );
-        when( nodeService.getByNodeVersionKey( nodeVersionKey2 ) ).thenReturn( nodeVersion2 );
     }
 
     @Test
@@ -2476,7 +2359,6 @@ public class ContentResourceTest
         when( currentContent.getChildOrder() ).thenReturn( ChildOrder.manualOrder() );
         when( contentService.getBinary( any( ContentId.class ), any( ContentVersionId.class ), any( BinaryReference.class ) ) ).thenReturn(
             byteSource );
-        mockVersions();
 
         // test
         final ContentJson result = instance.revert( params, request );
@@ -2517,7 +2399,6 @@ public class ContentResourceTest
         when( contentService.getByPath( any( ContentPath.class ) ) ).thenReturn( currentContent );
         when( contentService.update( any( UpdateContentParams.class ) ) ).thenReturn( updatedContent );
         when( contentService.getById( any( ContentId.class ) ) ).thenReturn( currentContent );
-        mockVersions();
 
         // test
         final ContentJson result = instance.revert( params, request );
@@ -2726,11 +2607,5 @@ public class ContentResourceTest
         assertEquals( first.getPublishInfo().getPublisher(), second.getPublishInfo().getPublisher() );
         assertEquals( first.getPublishInfo().getMessage(), second.getPublishInfo().getMessage() );
         assertEquals( first.getPublishInfo().getPublisherDisplayName(), second.getPublishInfo().getPublisherDisplayName() );
-    }
-
-    private void assertContentVersionViewJsonsEquality( final ContentVersionViewJson first, final ContentVersionViewJson second )
-    {
-        assertContentVersionJsonsEquality( first, second );
-        assertEquals( first.getWorkspaces(), second.getWorkspaces() );
     }
 }

@@ -3,7 +3,6 @@ package com.enonic.xp.app.contentstudio.json.content;
 import java.time.Instant;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.content.versions.ContentVersionPublishInfo;
 import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ContentVersionCommitInfo;
 import com.enonic.xp.security.Principal;

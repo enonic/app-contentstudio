@@ -169,7 +169,6 @@ import com.enonic.xp.extractor.ExtractedData;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.jaxrs.JaxRsComponent;
-import com.enonic.xp.node.NodeService;
 import com.enonic.xp.page.EditablePage;
 import com.enonic.xp.query.expr.CompareExpr;
 import com.enonic.xp.query.expr.FieldExpr;
@@ -237,8 +236,6 @@ public final class ContentResource
     private static final Logger LOG = LoggerFactory.getLogger( ContentResource.class );
 
     private ContentService contentService;
-
-    private NodeService nodeService;
 
     private ContentPrincipalsResolver principalsResolver;
 
@@ -1767,12 +1764,6 @@ public final class ContentResource
     public void setContentService( final ContentService contentService )
     {
         this.contentService = contentService;
-    }
-
-    @Reference
-    public void setNodeService( final NodeService nodeService )
-    {
-        this.nodeService = nodeService;
     }
 
     @Reference
