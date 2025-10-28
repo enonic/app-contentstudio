@@ -1,12 +1,14 @@
 package com.enonic.xp.app.contentstudio.json.content;
 
 import java.time.Instant;
+import java.util.List;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ChildOrderJson;
-import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentVersion;
+import com.enonic.xp.node.Attributes;
 import com.enonic.xp.security.Principal;
+import com.enonic.xp.util.GenericValue;
 
 public class ContentVersionJson
 {
@@ -32,7 +34,9 @@ public class ContentVersionJson
 
     private final boolean permissionsChanged;
 
-    private final ContentPath contentPath;
+    private final String contentPath;
+
+    private final Attributes attributes;
 
     public ContentVersionJson( final ContentVersion contentVersion, final ContentPrincipalsResolver principalsResolver )
     {
@@ -40,7 +44,7 @@ public class ContentVersionJson
         this.timestamp = contentVersion.getTimestamp();
         this.displayName = contentVersion.getDisplayName();
         this.comment = contentVersion.getComment();
-        this.contentPath = contentVersion.getPath();
+        this.contentPath = contentVersion.getPath().toString();
 
         final Principal modifier = principalsResolver.findPrincipal( contentVersion.getModifier() );
 
@@ -48,11 +52,21 @@ public class ContentVersionJson
         this.modifier = contentVersion.getModifier().toString();
         this.id = contentVersion.getId().toString();
         this.childOrder = contentVersion.getChildOrder() != null ? new ChildOrderJson( contentVersion.getChildOrder() ) : null;
-        this.publishInfo = contentVersion.getPublishInfo() != null ? new ContentVersionPublishInfoJson( contentVersion.getPublishInfo(), contentVersion.getCommitInfo(),
-                                                                                                        principalsResolver ) : null;
+        if ( contentVersion.getPublishInfo() != null && contentVersion.getCommitInfo() != null )
+        {
+            this.publishInfo =
+                new ContentVersionPublishInfoJson( contentVersion.getPublishInfo(), contentVersion.getCommitInfo(), principalsResolver );
+        }
+        else
+        {
+            this.publishInfo = null;
+        }
 
         this.workflow = contentVersion.getWorkflowInfo() != null ? new ContentWorkflowInfoJson( contentVersion.getWorkflowInfo() ) : null;
-        this.permissionsChanged = false;
+
+        this.attributes = contentVersion.getAttributes();
+
+        this.permissionsChanged = attributes != null && attributes.get( "content.permissions" ) != null;
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -122,6 +136,11 @@ public class ContentVersionJson
 
     public String getPath()
     {
-        return contentPath.toString();
+        return contentPath;
+    }
+
+    public List<Object> getAttributes()
+    {
+        return attributes != null ? attributes.list().stream().map( GenericValue::rawJava ).toList() : List.of();
     }
 }

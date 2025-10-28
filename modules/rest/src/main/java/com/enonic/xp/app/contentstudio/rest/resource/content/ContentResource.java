@@ -1404,7 +1404,7 @@ public final class ContentResource
         final FindContentVersionsResult result =
             contentService.getVersions( FindContentVersionsParams.create().contentId( contentId ).from( from ).size( size ).build() );
 
-        return new GetContentVersionsResultJson( result, this.principalsResolver );
+        return new GetContentVersionsResultJson( result, from, this.principalsResolver );
     }
 
     @GET

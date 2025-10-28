@@ -24,16 +24,16 @@ public class ContentVersionPublishInfoJson
     public ContentVersionPublishInfoJson( final ContentPublishInfo publishInfo, final ContentVersionCommitInfo commitInfo,
                                           final ContentPrincipalsResolver principalsResolver )
     {
-        this.timestamp = commitInfo == null ? null : commitInfo.getTimestamp();
-        this.message = commitInfo == null ? null : commitInfo.getMessage();
+        this.timestamp = commitInfo.getTimestamp();
+        this.message = commitInfo.getMessage();
 
-        final Principal publisher = commitInfo == null ? null : principalsResolver.findPrincipal( commitInfo.getCommiter() );
+        final Principal publisher = principalsResolver.findPrincipal( commitInfo.getCommiter() );
 
-        this.publisher = commitInfo == null ? null : commitInfo.getCommiter().toString();
+        this.publisher = commitInfo.getCommiter().toString();
         this.publisherDisplayName = publisher != null ? publisher.getDisplayName() : "";
-        this.type = commitInfo == null ? null : ( commitInfo.getType() != null ? commitInfo.getType().toString() : null );
+        this.type =  commitInfo.getType() != null ? commitInfo.getType().toString() : null;
 
-        this.contentPublishInfo = publishInfo != null ? new ContentPublishInfoJson( publishInfo ) : null;
+        this.contentPublishInfo = new ContentPublishInfoJson( publishInfo );
     }
 
     public String getPublisher()
