@@ -125,7 +125,6 @@ function createStudioWidget(): Widget {
 
         if (startedOrInstalledEvent) {
             loadWidgets();
-            setInitialActiveWidget();
         }
 
         if (stoppedOrUninstalledEvent) {
