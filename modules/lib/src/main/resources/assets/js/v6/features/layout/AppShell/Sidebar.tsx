@@ -8,21 +8,21 @@ import {ProjectContext} from '../../../../app/project/ProjectContext';
 import {WidgetButton} from './WidgetButton';
 import {Pen} from 'lucide-react';
 import {useStore} from '@nanostores/preact';
-import {$sidebarWidgets, setActiveWidget} from '../../store/sidebarWidgets.store';
-import {ReactElement} from 'react';
+import {$sidebarWidgets, getWidgetKey, isMainWidget, setActiveWidget} from '../../store/sidebarWidgets.store';
+import {ReactElement, useCallback} from 'react';
 
-function isMainWidget(widget: Widget): boolean {
-    return widget.getWidgetDescriptorKey().toString().endsWith('studio:main');
-}
-
-const Sidebar = (): ReactElement => {
+export const Sidebar = (): ReactElement => {
     const {widgets, activeWidgetId} = useStore($sidebarWidgets);
     const name = Store.instance().get('application').getName();
     const project = ProjectContext.get().getProject();
     const version = 'v' + CONFIG.getString('appVersion');
+
     const mainWidgets = widgets.slice(0, -1);
     const lastWidget = widgets.at(-1);
-    const isWidgetActive = (widget: Widget) => widget.getWidgetDescriptorKey().toString() === activeWidgetId;
+
+    const isWidgetActive = useCallback((widget: Readonly<Widget>) => {
+        return getWidgetKey(widget) === activeWidgetId;
+    }, [activeWidgetId]);
 
     return (
         <nav
@@ -42,7 +42,6 @@ const Sidebar = (): ReactElement => {
             </h1>
             <div class="flex flex-col justify-between h-full">
                 {/* Widgets */}
-
                 <div className="flex flex-col gap-2 items-center">
                     {mainWidgets.map((widget) => (
                         <WidgetButton

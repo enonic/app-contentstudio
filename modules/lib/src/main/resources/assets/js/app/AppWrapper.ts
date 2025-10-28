@@ -40,7 +40,7 @@ export class AppWrapper extends DivEl {
 
     private initListeners() {
         $activeWidget.subscribe((value) => {
-            if (value) this.selectWidget(value as Widget);
+            if (value) this.selectWidget(value);
         });
     }
 
@@ -61,7 +61,7 @@ export class AppWrapper extends DivEl {
         return widgetEl;
     }
 
-    selectWidget(widget: Widget) {
+    selectWidget(widget: Readonly<Widget>) {
         const widgetToSelectKey: string = widget.getWidgetDescriptorKey().toString();
         this.widgetElements.forEach((widgetEl: WidgetElement, key: string) => {
             if (key !== widgetToSelectKey) {
@@ -88,7 +88,7 @@ export class AppWrapper extends DivEl {
         this.appBar.setAppName(widget.getDisplayName());
     }
 
-    private updateUrl(widget: Widget): void {
+    private updateUrl(widget: Readonly<Widget>): void {
         if (isDefaultWidget(widget)) {
             Router.get().setHash(UrlAction.BROWSE);
             return;
@@ -99,7 +99,7 @@ export class AppWrapper extends DivEl {
         Router.get().setHash(`widget/${appKeyLastPart}/${widgetName}`);
     }
 
-    private updateTabName(widget: Widget): void {
+    private updateTabName(widget: Readonly<Widget>): void {
         const prefix: string = i18n('admin.tool.displayName');
         const postfix: string =
             isDefaultWidget(widget) || !widget.getDisplayName()
@@ -108,7 +108,7 @@ export class AppWrapper extends DivEl {
         document.title = `${prefix} - ${postfix}`;
     }
 
-    private fetchAndAppendWidget(widget: Widget): void {
+    private fetchAndAppendWidget(widget: Readonly<Widget>): void {
         if (isDefaultWidget(widget)) {
             // default studio app
             const widgetEl: Element = this.createStudioWidgetEl();
