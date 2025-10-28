@@ -65,8 +65,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             assert.equal(question, EXPECTED_QUESTION, 'Expected question should be displayed in the dialog');
         });
 
-    // verifies :XP-3993 Inspection Panel should be closed, when 'Page Controller' was removed (Automatic)
-    it("GIVEN 'Page Inspection' tab is opened WHEN 'Automatic' option has been selected THEN 'Context window' should be closed AND Details panel should be loaded",
+    it("GIVEN 'Page Inspection' tab is opened WHEN 'Automatic' option has been selected in Page widget THEN 'Context window' should be closed AND Details panel should be loaded",
         async () => {
             let pageWidgetPanel = new PageWidgetPanel();
             let contentWizard = new ContentWizard();
@@ -88,9 +87,10 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             await contentWizard.waitForNotificationMessage();
             // Verify - 'Save' button remains enabled after switching templates #6484
             await contentWizard.waitForSaveButtonDisabled();
-            // 6. Automatic option should be selected in the dropdown:
-            let option  = await pageInspectionPanel.getSelectedPageController();
-            assert.equal(option, 'Automatic', 'Automatic page controller should be selected in Page inspection panel');
+            await wizardContextWindow.getSelectedOptionInWidgetSelectorDropdown();
+            // 6. Verify that 'Details' widget loads after selecting 'Automatic'(no default template) controller:
+            let selectedOption = await wizardContextWindow.getSelectedOptionInWidgetSelectorDropdown();
+            assert.equal(selectedOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, `'Details' widget should be in the widget selector`);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

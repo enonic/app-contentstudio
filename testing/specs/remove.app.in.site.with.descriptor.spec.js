@@ -11,6 +11,7 @@ const appConst = require('../libs/app_const');
 const PageComponentsWizardStepForm = require('../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ConfirmationDialog = require('../page_objects/confirmation.dialog');
+const PageWidgetPanel = require('../page_objects/wizardpanel/liveform/page.widget.context.window');
 const allureReporter = require('@wdio/allure-reporter');
 
 describe('remove_app.in.site.with.descriptor.spec: replace an application and check the selected controller', function () {
@@ -115,14 +116,16 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
     it(`GIVEN app has been removed in the site the site is reopened WHEN 'Page widget' has been opened THEN expected controller-name should be displayed in Inspect tab`,
         async () => {
             let contentWizard = new ContentWizard();
+            let pageWidgetPanel = new PageWidgetPanel();
             let pageInspectionPanel = new PageInspectionPanel();
             // 1. Existing site is opened:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             let contextWindow = await contentWizard.openContextWindow();
             // 2. Verify the controller in Inspect Tab:
             await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageWidgetPanel.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             let actualController = await pageInspectionPanel.getSelectedPageController();
-            assert.equal(actualController, 'main region', `'main region' controller should be selected in the controller selector`);
+            assert.equal(actualController, 'country-list', `'country list' controller should be selected in the controller selector`);
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/9201
@@ -148,11 +151,13 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
             await contentWizard.waitForSaveButtonDisabled();
-            // 7. Page widget should be shown in Widget selector:
+            // 7. Details widget should be shown in Widget selector:
             let actualWidget = await contextWindow.getSelectedOptionInWidgetSelectorDropdown();
-            assert.equal(actualWidget, appConst.WIDGET_SELECTOR_OPTIONS.PAGE,
-                `'Page' widget should be selected after resetting the controller`);
-            // 8. Verify that 'No controller is selected' message gets visible in Inspect tab:
+            assert.equal(actualWidget, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS,
+                `'Details' widget should be selected after resetting the controller`);
+            await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await studioUtils.saveScreenshot('page_inspect_after_reset_controller');
+            // 8. Verify that 'No page templates or page blocks available' message gets visible in Page Inspect tab:
             let actualMessage = await pageInspectionPanel.getNoControllerMessageText();
             assert.equal(actualMessage, NO_SELECTED_CONTROLLER_MSG, 'Expected no controller message should be displayed');
         });
