@@ -118,7 +118,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             // 2. Switch to the new browser-tab and verify the link:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             await studioUtils.clickOnElement('a=test');
-            await contentItemPreviewPanel.pause(2000);
+            await contentItemPreviewPanel.pause(1000);
             let title = await studioUtils.getTitle();
             await studioUtils.saveScreenshot('site_preview_button_clicked');
             assert.equal(title, 'Google', 'expected title should be loaded');
