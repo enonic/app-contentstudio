@@ -57,6 +57,8 @@ export class ContextWindow
 
     private isPageReady: boolean = false;
 
+    private isInspecting: boolean = false;
+
     public static debug = false;
 
     constructor(config: ContextWindowConfig) {
@@ -109,7 +111,7 @@ export class ContextWindow
             }
             // disable insert tab if there is no page for some reason (i.e. error occurred)
             // or there is no controller or template set or no automatic template
-            this.updateInsertablesPanel(this.isPageRenderable);
+            this.updateInsertablesPanel(this.isPageRenderable && !this.isInspecting);
         })
         eventManager.onLiveEditPageInitializationError(() => {
             if (ContextWindow.debug) {
@@ -203,6 +205,8 @@ export class ContextWindow
 
             this.inspectionsPanel.showInspectionPanel(params.panel);
 
+            this.isInspecting = true;
+
             if (!params.keepPanelSelection) {
                 this.selectPanel(this.inspectionsPanel);
             }
@@ -211,6 +215,8 @@ export class ContextWindow
 
     public clearSelection(showInsertables?: boolean) {
         this.inspectionsPanel.clearInspection();
+
+        this.isInspecting = false;
 
         const isPageInspectionPanelSelectable = this.isPanelSelectable(this.inspectionsPanel.getPanelShown());
         this.toggleClass('no-inspection', !isPageInspectionPanelSelectable);
