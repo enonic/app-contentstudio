@@ -9,6 +9,7 @@ const contentBuilder = require("../libs/content.builder");
 const PageComponentView = require("../page_objects/wizardpanel/liveform/page.components.view");
 const LiveFormPanel = require("../page_objects/wizardpanel/liveform/live.form.panel");
 const appConst = require('../libs/app_const');
+const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
 
 describe('default.error.page.spec tests for Default error page', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -19,12 +20,39 @@ describe('default.error.page.spec tests for Default error page', function () {
     let SITE;
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const ERROR_PART_NAME = appConst.PART_NAME.PART_WITH_ERROR;
+    const PART_CITIES_DISTANCE_FACET = appConst.PART_NAME.CONTENT_TYPES_CITIES_DISTANCE_FACET;
 
     it(`Preconditions: test site should be created`, async () => {
         let displayName = contentBuilder.generateRandomName('site');
         SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
         await studioUtils.doAddSite(SITE);
     });
+
+    it("WHEN Controller has been reset THEN Details widget should be loaded in the wizard page",
+        async () => {
+            let liveFormPanel = new LiveFormPanel();
+            let contentWizard = new ContentWizardPanel();
+            let pageComponentView = new PageComponentView();
+            let wizardContextPanel = new WizardContextPanel();
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await contentWizard.openContextWindow();
+            // 2. open the context menu
+            await pageComponentView.openMenu('main');
+            // 3. click on the 'Insert Part' menu item:
+            await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, appConst.PCV_MENU_ITEM.PART]);
+            // 4. Select a  part:
+            await liveFormPanel.selectPartByDisplayName(PART_CITIES_DISTANCE_FACET);
+            await contentWizard.switchToMainFrame();
+            // 5. Reset the controller in PCV
+            await pageComponentView.openMenu('main region');
+            await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.RESET]);
+            await studioUtils.saveScreenshot('site_controller_has_been_reset');
+            // 6. Verify that Details widget should be loaded in Context Window
+            let selectedOption = await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
+            assert.equal(selectedOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, `'Details' widget should be in the widget selector`);
+        });
 
     it("WHEN part with errors has been inserted WHEN 'Preview' button has been pressed THEN default error page should be loaded",
         async () => {
@@ -47,9 +75,10 @@ describe('default.error.page.spec tests for Default error page', function () {
             await studioUtils.saveScreenshot('default-error-page');
             // 6. Verify that Default Error Page is loaded:
             let pageSource = await studioUtils.getPageSource();
-            assert.ok(pageSource.includes("Error 500"), "Default error page should be loaded");
-            assert.ok(pageSource.includes("Oops, something went wrong!"), "Expected message should be loaded");
+            assert.ok(pageSource.includes('Error 500'), 'Default error page should be loaded');
+            assert.ok(pageSource.includes('Oops, something went wrong!'), 'Expected message should be loaded');
         });
+
 
     it("WHEN part with errors has been removed THEN new inserted component should be displayed without the red icon",
         async () => {
