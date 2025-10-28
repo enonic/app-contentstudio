@@ -2,9 +2,6 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import Q from 'q';
 import {Element, NewElementBuilder} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {WidgetElement, WidgetHelper} from '@enonic/lib-admin-ui/widget/WidgetHelper';
@@ -15,7 +12,7 @@ import {ContentAppBar} from './bar/ContentAppBar';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {cn} from '@enonic/ui';
 import {SidebarElement} from '../v6/features/layout/AppShell/Sidebar';
-import * as Store from '../v6/features/store/sidebarWidgets.store';
+import {$activeWidget, isDefaultWidget} from '../v6/features/store/sidebarWidgets.store';
 
 export class AppWrapper extends DivEl {
     private sidebar: SidebarElement;
@@ -31,7 +28,6 @@ export class AppWrapper extends DivEl {
     constructor(className?: string) {
         super(cn('main-app-wrapper bg-surface-primary text-main', className));
 
-        this.loadWidgets();
         this.initElements();
         this.initListeners();
     }
@@ -43,10 +39,9 @@ export class AppWrapper extends DivEl {
     }
 
     private initListeners() {
-        Store.$activeWidget.subscribe((value) => {
+        $activeWidget.subscribe((value) => {
             if (value) this.selectWidget(value as Widget);
         });
-        this.listenAppEvents();
     }
 
     private createStudioWidgetEl(): Element {
@@ -94,7 +89,7 @@ export class AppWrapper extends DivEl {
     }
 
     private updateUrl(widget: Widget): void {
-        if (this.isDefaultWidget(widget)) {
+        if (isDefaultWidget(widget)) {
             Router.get().setHash(UrlAction.BROWSE);
             return;
         }
@@ -107,18 +102,14 @@ export class AppWrapper extends DivEl {
     private updateTabName(widget: Widget): void {
         const prefix: string = i18n('admin.tool.displayName');
         const postfix: string =
-            this.isDefaultWidget(widget) || !widget.getDisplayName()
+            isDefaultWidget(widget) || !widget.getDisplayName()
                 ? i18n('app.admin.tool.title')
                 : widget.getDisplayName();
         document.title = `${prefix} - ${postfix}`;
     }
 
-    private isDefaultWidget(widget: Widget): boolean {
-        return widget === Store.$sidebarWidgets.get().items?.[0];
-    }
-
     private fetchAndAppendWidget(widget: Widget): void {
-        if (this.isDefaultWidget(widget)) {
+        if (isDefaultWidget(widget)) {
             // default studio app
             const widgetEl: Element = this.createStudioWidgetEl();
             this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), {el: widgetEl});
@@ -138,27 +129,6 @@ export class AppWrapper extends DivEl {
             .catch((err) => {
                 throw new Error('Failed to fetch widget: ' + err);
             });
-    }
-
-    private loadWidgets() {
-        Store.loadWidgets().catch(DefaultErrorHandler.handle);
-    }
-
-    private listenAppEvents() {
-        ApplicationEvent.on((event: ApplicationEvent) => {
-            if (this.isAppStopStartEvent(event)) {
-                AppHelper.debounce(() => this.loadWidgets(), 1000)();
-            }
-        });
-    }
-
-    private isAppStopStartEvent(event: ApplicationEvent): boolean {
-        return (
-            ApplicationEventType.STOPPED === event.getEventType() ||
-            ApplicationEventType.UNINSTALLED === event.getEventType() ||
-            ApplicationEventType.STARTED === event.getEventType() ||
-            ApplicationEventType.INSTALLED === event.getEventType()
-        );
     }
 
     doRender(): Q.Promise<boolean> {

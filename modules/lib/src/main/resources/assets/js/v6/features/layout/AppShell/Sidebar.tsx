@@ -9,13 +9,14 @@ import {WidgetButton} from './WidgetButton';
 import {Pen} from 'lucide-react';
 import {useStore} from '@nanostores/preact';
 import {$sidebarWidgets, setActiveWidget} from '../../store/sidebarWidgets.store';
+import {ReactElement} from 'react';
 
 function isMainWidget(widget: Widget): boolean {
     return widget.getWidgetDescriptorKey().toString().endsWith('studio:main');
 }
 
-const SidebarComponent = (): React.ReactElement => {
-    const {items: widgets, activeWidgetId} = useStore($sidebarWidgets);
+const Sidebar = (): ReactElement => {
+    const {widgets, activeWidgetId} = useStore($sidebarWidgets);
     const name = Store.instance().get('application').getName();
     const project = ProjectContext.get().getProject();
     const version = 'v' + CONFIG.getString('appVersion');
@@ -80,8 +81,8 @@ const SidebarComponent = (): React.ReactElement => {
     );
 };
 
-export class SidebarElement extends LegacyElement<typeof SidebarComponent> {
+export class SidebarElement extends LegacyElement<typeof Sidebar> {
     constructor() {
-        super({}, SidebarComponent);
+        super({}, Sidebar);
     }
 }

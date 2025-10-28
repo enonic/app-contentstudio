@@ -4,23 +4,28 @@ import {Widget, WidgetConfig} from '@enonic/lib-admin-ui/content/Widget';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {UrlAction} from '../../../app/UrlAction';
+import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
+
+let isLoading = false;
+let needsReload = false;
 
 interface WidgetsStore {
-    items: Widget[];
+    widgets: Widget[];
     activeWidgetId: string | null;
-    isLoading: boolean;
-    error: string | null;
 }
 
 export const $sidebarWidgets = map<WidgetsStore>({
-    items: [],
+    widgets: [],
     activeWidgetId: null,
-    isLoading: false,
-    error: null,
 });
 
-export async function loadWidgets(): Promise<void> {
-    $sidebarWidgets.setKey('isLoading', true);
+async function loadWidgets(): Promise<void> {
+    if (isLoading) {
+        needsReload = true;
+        return;
+    }
+
+    isLoading = true;
 
     try {
         const request = new GetWidgetsByInterfaceRequest('contentstudio.menuitem');
@@ -28,26 +33,38 @@ export async function loadWidgets(): Promise<void> {
         const widgets = [createStudioWidget(), ...response];
         const sortedWidgets = sortWidgets(widgets);
 
-        $sidebarWidgets.setKey('items', sortedWidgets);
+        $sidebarWidgets.setKey('widgets', sortedWidgets);
         setInitialActiveWidget();
     } catch (error) {
-        $sidebarWidgets.setKey('error', error.message);
+        console.error(error);
     } finally {
-        $sidebarWidgets.setKey('isLoading', false);
+        isLoading = false;
     }
+
+    if (needsReload) {
+        needsReload = false;
+        return loadWidgets();
+    }
+}
+
+export function isDefaultWidget(widget: Widget): boolean {
+    return (
+        widget.getWidgetDescriptorKey().toString() ===
+        $sidebarWidgets.get().widgets?.[0].getWidgetDescriptorKey().toString()
+    );
 }
 
 export function setActiveWidget(widget: Widget): void {
     $sidebarWidgets.setKey('activeWidgetId', widget.getWidgetDescriptorKey().toString());
 }
 
-export const $activeWidget = computed($sidebarWidgets, (widgets) => {
-    return widgets.items.find((w) => w?.getWidgetDescriptorKey().toString() === widgets.activeWidgetId);
+export const $activeWidget = computed($sidebarWidgets, (store) => {
+    return store.widgets.find((w) => w?.getWidgetDescriptorKey().toString() === store.activeWidgetId);
 });
 
 function setInitialActiveWidget(): void {
     const url = window.location.href;
-    const widgets = $sidebarWidgets.get().items;
+    const widgets = $sidebarWidgets.get().widgets;
 
     const widgetMatchingUrl = widgets.find((w) => url.endsWith(`/${w.getWidgetDescriptorKey().getName()}`));
 
@@ -64,30 +81,17 @@ function sortWidgets(widgets: Widget[]): Widget[] {
     const ARCHIVE_APP_ENDING: string = 'plus:archive';
     const SETTINGS_APP_ENDING: string = 'studio:settings';
 
-    const isMainWidget = (widget: Widget): boolean => {
-        return widget.getWidgetDescriptorKey().toString().endsWith(MAIN_APP_ENDING);
-    };
-
-    const isArchiveWidget = (widget: Widget): boolean => {
-        return widget.getWidgetDescriptorKey().toString().endsWith(ARCHIVE_APP_ENDING);
-    };
-
-    const isSettingsWidget = (widget: Widget): boolean => {
-        return widget.getWidgetDescriptorKey().toString().endsWith(SETTINGS_APP_ENDING);
-    };
-
-    const isDefaultWidget = (widget: Widget): boolean => {
-        const widgetKey = widget.getWidgetDescriptorKey().toString();
+    const mainWidget = widgets.find((w) => w.getWidgetDescriptorKey().toString().endsWith(MAIN_APP_ENDING));
+    const archiveWidget = widgets.find((w) => w.getWidgetDescriptorKey().toString().endsWith(ARCHIVE_APP_ENDING));
+    const settingsWidget = widgets.find((w) => w.getWidgetDescriptorKey().toString().endsWith(SETTINGS_APP_ENDING));
+    const defaultWidgets = widgets.filter((w) => {
+        const widgetKey = w.getWidgetDescriptorKey().toString();
         return [
             widgetKey.endsWith(MAIN_APP_ENDING),
             widgetKey.endsWith(ARCHIVE_APP_ENDING),
             widgetKey.endsWith(SETTINGS_APP_ENDING),
         ].every((widgetStatus) => widgetStatus === false);
-    };
-    const mainWidget = widgets.find(isMainWidget);
-    const archiveWidget = widgets.find(isArchiveWidget);
-    const settingsWidget = widgets.find(isSettingsWidget);
-    const defaultWidgets = widgets.filter(isDefaultWidget);
+    });
     const sortedDefaultWidgets = defaultWidgets.sort((wa, wb) => {
         return wa.getWidgetDescriptorKey().toString().localeCompare(wb.getWidgetDescriptorKey().toString());
     });
@@ -103,3 +107,35 @@ function createStudioWidget(): Widget {
         .setConfig(new WidgetConfig().setProperty('context', 'project'))
         .build();
 }
+
+//
+// * Fetching
+//
+(function () {
+    loadWidgets();
+
+    ApplicationEvent.on((event: ApplicationEvent) => {
+        const stoppedOrUninstalledEvent =
+            ApplicationEventType.STOPPED === event.getEventType() ||
+            ApplicationEventType.UNINSTALLED === event.getEventType();
+
+        const startedOrInstalledEvent =
+            ApplicationEventType.STARTED === event.getEventType() ||
+            ApplicationEventType.INSTALLED === event.getEventType();
+
+        if (startedOrInstalledEvent) {
+            loadWidgets();
+            setInitialActiveWidget();
+        }
+
+        if (stoppedOrUninstalledEvent) {
+            const appKey = event.getApplicationKey().toString();
+            const currentWidgets = $sidebarWidgets.get().widgets;
+            const filteredWidgets = currentWidgets.filter(
+                (w) => appKey !== w.getWidgetDescriptorKey().getApplicationKey().toString()
+            );
+
+            $sidebarWidgets.setKey('widgets', filteredWidgets);
+        }
+    });
+})();
