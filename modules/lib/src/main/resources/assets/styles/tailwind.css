@@ -11,3 +11,8 @@
   --sizing-1\.25: calc(var(--spacing) * 1.25);
   --sizing-19: calc(var(--spacing) * 19);
 }
+
+/* HACKS */
+#launcher-button { 
+  display: none !important; 
+}
