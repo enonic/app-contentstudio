@@ -7,7 +7,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const HomePageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/home.page.inspection.panel');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
+const WizardContextWindowPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const TextComponent = require('../../page_objects/components/text.component');
@@ -16,6 +16,7 @@ const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.
 const PageWidgetPanel = require('../../page_objects/wizardpanel/liveform/page.widget.context.window');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const PageTemplateForm = require('../../page_objects/wizardpanel/page.template.form.panel');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -45,18 +46,50 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await studioUtils.saveScreenshot('article_template');
         });
 
-    // verifies https://github.com/enonic/xp/issues/7396 and https://github.com/enonic/app-contentstudio/issues/947
-    it(`WHEN new wizard for article has been opened THEN input from template-config should be displayed in the Inspection Panel`,
+    // Verify - Creating a template doesn't work from a non-site content #9183
+    // https://github.com/enonic/app-contentstudio/issues/9183
+    it(`GIVEN a controller in article-content has been set WHEN 'Save as template' menu item has been clicked in PCV THEN new page template for this content should be created`,
         async () => {
-            let homePageInspectionPanel = new HomePageInspectionPanel();
-            let wizardContextPanel = new WizardContextPanel();
+            let wizardContextWindowPanel = new WizardContextWindowPanel();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let contentWizard = new ContentWizard();
             let pageInspectionPanel = new PageInspectionPanel();
             let confirmationDialog = new ConfirmationDialog();
             // 1. Open new wizard for Article content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
             // 2. Inspection Panel should be loaded in the Context Window:
-            await wizardContextPanel.waitForOpened();
+            await wizardContextWindowPanel.waitForOpened();
+            // 3. Click on 'Customize' menu item:
+            await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
+            await contentWizard.switchToMainFrame();
+            // 4. Click on 'Customize Page' button in the Page Inspection panel:
+            await pageInspectionPanel.clickOnCustomizePageButton();
+            await confirmationDialog.waitForDialogOpened();
+            // 5. Confirm the action in the Confirmation dialog:
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
+            await pageComponentsWizardStepForm.openMenu('Page');
+            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE]);
+            await studioUtils.doSwitchToNextTab();
+            await studioUtils.saveScreenshot('article_support_template');
+            let pageTemplateForm = new PageTemplateForm();
+            // 6. Verify that 'support' dropdown has 'article' option selected:
+            let support = await pageTemplateForm.getSupportSelectedOptions() ;
+            assert.equal(support[0],'article', `'article' should be selected in support dropdown`);
+        });
+
+    // verifies https://github.com/enonic/xp/issues/7396 and https://github.com/enonic/app-contentstudio/issues/947
+    it(`WHEN new wizard for article has been opened THEN input from template-config should be displayed in the Inspection Panel`,
+        async () => {
+            let homePageInspectionPanel = new HomePageInspectionPanel();
+            let wizardContextWindowPanel = new WizardContextWindowPanel();
+            let contentWizard = new ContentWizard();
+            let pageInspectionPanel = new PageInspectionPanel();
+            let confirmationDialog = new ConfirmationDialog();
+            // 1. Open new wizard for Article content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
+            // 2. Inspection Panel should be loaded in the Context Window:
+            await wizardContextWindowPanel.waitForOpened();
             // 3. Click on 'Customize' menu item:
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await contentWizard.switchToMainFrame();
