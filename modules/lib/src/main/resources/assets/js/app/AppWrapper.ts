@@ -8,11 +8,11 @@ import {WidgetElement, WidgetHelper} from '@enonic/lib-admin-ui/widget/WidgetHel
 import {ContentAppContainer} from './ContentAppContainer';
 import {Router} from './Router';
 import {UrlAction} from './UrlAction';
-import {ContentAppBar} from './bar/ContentAppBar';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {cn} from '@enonic/ui';
 import {SidebarElement} from '../v6/features/layout/AppShell/Sidebar';
 import {$activeWidget, isDefaultWidget} from '../v6/features/store/sidebarWidgets.store';
+import {AppBarElement} from '../v6/features/layout/AppShell/AppBar';
 
 export class AppWrapper extends DivEl {
     private sidebar: SidebarElement;
@@ -21,12 +21,12 @@ export class AppWrapper extends DivEl {
 
     private activeWidgets: string[] = [];
 
-    private appBar: ContentAppBar;
+    private appBar: AppBarElement;
 
     private widgetsBlock: DivEl;
 
     constructor(className?: string) {
-        super(cn('main-app-wrapper bg-surface-primary text-main', className));
+        super(cn('main-app-wrapper text-main', className));
 
         this.initElements();
         this.initListeners();
@@ -34,7 +34,7 @@ export class AppWrapper extends DivEl {
 
     private initElements() {
         this.sidebar = new SidebarElement();
-        this.appBar = ContentAppBar.getInstance();
+        this.appBar = AppBarElement.getInstance();
         this.widgetsBlock = new DivEl('widgets-block');
     }
 

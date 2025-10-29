@@ -1,5 +1,4 @@
 import {AppContainer} from './AppContainer';
-import {ContentAppBar} from './bar/ContentAppBar';
 import {ContentAppPanel} from './ContentAppPanel';
 import {ToggleSearchPanelWithDependenciesGlobalEvent} from './browse/ToggleSearchPanelWithDependenciesGlobalEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './browse/ToggleSearchPanelWithDependenciesEvent';
@@ -22,6 +21,7 @@ import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {Branch} from './versioning/Branch';
+import {AppBarElement} from '../v6/features/layout/AppShell/AppBar';
 
 export class ContentAppContainer
     extends AppContainer {
@@ -52,7 +52,7 @@ export class ContentAppContainer
     }
 
     private handleNoProjectsAvailable() {
-        ContentAppBar.getInstance().disable();
+        AppBarElement.getInstance().disable();
     }
 
     private initSearchPanelListener(panel: ContentAppPanel) {
