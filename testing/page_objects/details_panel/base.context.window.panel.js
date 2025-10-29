@@ -4,7 +4,8 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const WidgetSelectorDropdown = require('../components/selectors/widget.selector.dropdown')
+const WidgetSelectorDropdown = require('../components/selectors/widget.selector.dropdown');
+const PageWidgetContextWindowPanel = require('../wizardpanel/liveform/page.widget.context.window');
 
 const xpath = {
     scheduleWidgetItem: "//div[contains(@id,'OnlinePropertiesWidgetItemView')]",
@@ -98,6 +99,18 @@ class BaseContextWindowPanel extends Page {
             await this.pause(300);
         } catch (err) {
             await this.handleError(`Widget selector dropdown - tried to open ${itemName} : `, 'err_open_widget', err);
+        }
+    }
+
+    async openPageWidget() {
+        try {
+            let widgetSelectorDropdown = new WidgetSelectorDropdown();
+            await this.clickOnWidgetSelectorDropdownHandle();
+            await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await this.pause(300);
+            return new PageWidgetContextWindowPanel();
+        } catch (err) {
+            await this.handleError(`Tried to open Page Widget. `, 'err_open_page_widget', err);
         }
     }
 

@@ -125,7 +125,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageWidgetPanel.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             let actualController = await pageInspectionPanel.getSelectedPageController();
-            assert.equal(actualController, 'country-list', `'country list' controller should be selected in the controller selector`);
+            assert.equal(actualController, 'country-list', `'country list' controller should be selected in Inspect Panel`);
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/9201
@@ -161,7 +161,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await studioUtils.saveScreenshot('page_inspect_after_reset_controller');
             // 8. Verify that 'No page templates or page blocks available' message gets visible in Page Inspect tab:
             let actualMessage = await pageInspectionPanel.getNoControllerMessageText();
-            assert.equal(actualMessage, NO_SELECTED_CONTROLLER_MSG, 'Expected no controller message should be displayed');
+            assert.equal(actualMessage, NO_SELECTED_CONTROLLER_MSG, `'No page templates or page blocks available' message should be displayed`);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
