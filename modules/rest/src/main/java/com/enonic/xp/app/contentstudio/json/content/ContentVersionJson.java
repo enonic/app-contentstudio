@@ -2,12 +2,15 @@ package com.enonic.xp.app.contentstudio.json.content;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ChildOrderJson;
 import com.enonic.xp.content.ContentVersion;
+import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.node.Attributes;
 import com.enonic.xp.security.Principal;
+import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.util.GenericValue;
 
 public class ContentVersionJson
@@ -34,15 +37,17 @@ public class ContentVersionJson
 
     public ContentVersionJson( final ContentVersion contentVersion, final ContentPrincipalsResolver principalsResolver )
     {
-        this.modified = contentVersion.getChangedTime();
+        this.modified = Objects.requireNonNullElse( contentVersion.getChangedTime(), contentVersion.getTimestamp() );
         this.timestamp = contentVersion.getTimestamp();
         this.comment = contentVersion.getComment();
         this.contentPath = contentVersion.getPath().toString();
 
-        final Principal modifier = principalsResolver.findPrincipal( contentVersion.getChangedBy() );
+        final PrincipalKey changedBy = contentVersion.getChangedBy();
+        final Principal modifier = changedBy != null ? principalsResolver.findPrincipal( changedBy ) : null;
 
         this.modifierDisplayName = modifier != null ? modifier.getDisplayName() : "";
-        this.modifier = contentVersion.getChangedBy().toString();
+        this.modifier = changedBy != null ? changedBy.toString() : null;
+
         this.id = contentVersion.getId().toString();
         if ( contentVersion.getPublishedFrom() != null )
         {
@@ -105,7 +110,7 @@ public class ContentVersionJson
         return publishInfo;
     }
 
-    @SuppressWarnings("UnusedDeclaration")
+    @Deprecated
     public boolean isPermissionsChanged()
     {
         return permissionsChanged;
@@ -114,6 +119,12 @@ public class ContentVersionJson
     public String getPath()
     {
         return contentPath;
+    }
+
+    @Deprecated
+    public ChildOrderJson getChildOrder()
+    {
+        return new ChildOrderJson( ChildOrder.defaultOrder() );
     }
 
     @Deprecated
