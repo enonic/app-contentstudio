@@ -16,13 +16,15 @@ export const $sidebarWidgets = map<WidgetsStore>({
     activeWidgetId: undefined,
 });
 
-export function setActiveWidget(widget: Readonly<Widget> | undefined): void {
-    $sidebarWidgets.setKey('activeWidgetId', getWidgetKey(widget));
-}
-
 export const $activeWidget = computed($sidebarWidgets, (store) => {
     return store.widgets.find((w) => getWidgetKey(w) === store.activeWidgetId);
 });
+
+export function setActiveWidget(widget: Readonly<Widget> | undefined): void {
+    const existsInStore = $sidebarWidgets.get().widgets.some((p) => getWidgetKey(p) === getWidgetKey(widget));
+    if (!existsInStore) return;
+    $sidebarWidgets.setKey('activeWidgetId', getWidgetKey(widget));
+}
 
 //
 // * Utilities
@@ -42,7 +44,9 @@ export function isMainWidget(widget: Readonly<Widget>): boolean {
     return getWidgetKey(widget)?.endsWith('studio:main') ?? false;
 }
 
-// Internal
+//
+// * Internal
+//
 
 const WIDGET_INTERFACE = 'contentstudio.menuitem';
 let isLoading = false;
@@ -77,15 +81,10 @@ async function loadWidgets(): Promise<void> {
 }
 
 function updateActiveWidget(): void {
+    if ($activeWidget.get()) return;
+
     const url = window.location.href;
     const {widgets} = $sidebarWidgets.get();
-
-    const {activeWidgetId} = $sidebarWidgets.get();
-    const hasActiveWidget = widgets.some((w) => getWidgetKey(w) === activeWidgetId);
-
-    if (hasActiveWidget) {
-        return;
-    }
 
     const widgetMatchingUrl = widgets.find((w) => {
         const widgetKey = getWidgetKey(w);
@@ -111,9 +110,11 @@ function sortWidgets(widgets: Readonly<Widget>[]): Readonly<Widget>[] {
     const settingsWidget = widgets.find((w) => w.getWidgetDescriptorKey().toString().endsWith(SETTINGS_APP_ENDING));
     const defaultWidgets = widgets.filter((w) => {
         const widgetKey = getWidgetKey(w);
-        return !widgetKey.endsWith(MAIN_APP_ENDING) &&
+        return (
+            !widgetKey.endsWith(MAIN_APP_ENDING) &&
             !widgetKey.endsWith(ARCHIVE_APP_ENDING) &&
-            !widgetKey.endsWith(SETTINGS_APP_ENDING);
+            !widgetKey.endsWith(SETTINGS_APP_ENDING)
+        );
     });
     const sortedDefaultWidgets = defaultWidgets.sort((wa, wb) => {
         return wa.getWidgetDescriptorKey().toString().localeCompare(wb.getWidgetDescriptorKey().toString());
@@ -151,7 +152,7 @@ ApplicationEvent.on((event: ApplicationEvent) => {
     } else if (stoppedOrUninstalledEvent) {
         const {widgets} = $sidebarWidgets.get();
         const appKey = String(event.getApplicationKey());
-        const filteredWidgets = widgets.filter(w => getWidgetKey(w) !== appKey);
+        const filteredWidgets = widgets.filter((w) => getWidgetKey(w) !== appKey);
 
         $sidebarWidgets.setKey('widgets', filteredWidgets);
     }

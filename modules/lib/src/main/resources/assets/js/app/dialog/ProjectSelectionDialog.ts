@@ -12,6 +12,7 @@ import {ProjectContext} from '../project/ProjectContext';
 import {Project} from '../settings/data/project/Project';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
+import {setActiveProject} from '../../v6/features/store/projects.store';
 
 export class ProjectSelectionDialog
     extends ModalDialog {
@@ -47,6 +48,8 @@ export class ProjectSelectionDialog
             itemView.onClicked((event: MouseEvent) => {
                 if (!event.ctrlKey && !event.shiftKey) {
                     if (itemView.isSelectable()) {
+                        setActiveProject(itemView.getProject());
+                        // TODO: Enonic UI - Remove once ProjectContext is replaced by projects store
                         ProjectContext.get().setProject(itemView.getProject());
                         this.close();
                     }
@@ -75,10 +78,13 @@ export class ProjectSelectionDialog
     close() {
         super.close();
 
+        // TODO: Enonic UI - Change to $isInitialized from projects store once ProjectContext is replaced by projects store
         if (!ProjectContext.get().isInitialized()) {
             const project: Project = this.getDefaultProject();
 
             if (project) {
+                setActiveProject(project);
+                // TODO: Enonic UI - Remove once ProjectContext is replaced by projects store
                 ProjectContext.get().setProject(project);
             } else {
                 Body.get().addClass('no-projects');
@@ -106,11 +112,11 @@ export class ProjectSelectionDialog
         this.mask();
 
         return new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
-            this.setProjects(projects);
-            this.showItems();
+                this.setProjects(projects);
+                this.showItems();
         }).catch(DefaultErrorHandler.handle).finally(() => {
-            this.unmask();
-        });
+                this.unmask();
+            });
     }
 
     private showItems() {

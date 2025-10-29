@@ -69,7 +69,7 @@ module.exports = [
         }
     },
     {
-        files: ["**/*.tsx", "**/*.store.ts"],
+        files: ["**/*.tsx", "**/v6/**/*.ts"],
         rules: {
             '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
         }
