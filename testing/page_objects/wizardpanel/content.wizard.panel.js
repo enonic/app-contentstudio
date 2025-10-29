@@ -883,7 +883,7 @@ class ContentWizardPanel extends Page {
         return result;
     }
 
-    // Clicks on Page Editor toggle (monitor icon)
+    // Clicks on Page Editor toggle (monitor icon). Show Page Editor
     async clickOnPageEditorToggler() {
         try {
             await this.waitForElementDisplayed(this.pageEditorTogglerButton, appConst.mediumTimeout);
