@@ -10,6 +10,7 @@ const PageComponentView = require("../page_objects/wizardpanel/liveform/page.com
 const LiveFormPanel = require("../page_objects/wizardpanel/liveform/live.form.panel");
 const appConst = require('../libs/app_const');
 const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
+const ConfirmationDialog = require('../page_objects/confirmation.dialog');
 
 describe('default.error.page.spec tests for Default error page', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -47,9 +48,13 @@ describe('default.error.page.spec tests for Default error page', function () {
             await contentWizard.switchToMainFrame();
             // 5. Reset the controller in PCV
             await pageComponentView.openMenu('main region');
-            await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.RESET]);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
+            // 6. Click on 'Yes' button in the confirmation dialog:
+            let confirmationDialog = new ConfirmationDialog();
+            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('site_controller_has_been_reset');
-            // 6. Verify that Details widget should be loaded in Context Window
+            // 7. Verify that Details widget should be loaded in Context Window
             let selectedOption = await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
             assert.equal(selectedOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, `'Details' widget should be in the widget selector`);
         });
@@ -60,7 +65,7 @@ describe('default.error.page.spec tests for Default error page', function () {
             let contentWizard = new ContentWizardPanel();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. open the context menu
             await pageComponentView.openMenu('main');
@@ -101,7 +106,6 @@ describe('default.error.page.spec tests for Default error page', function () {
             let isInvalid = await pageComponentView.isComponentItemInvalid(appConst.LAYOUT_NAME.CENTERED);
             assert.ok(isInvalid === false, 'The layout-component should be displayed as valid in PCV');
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

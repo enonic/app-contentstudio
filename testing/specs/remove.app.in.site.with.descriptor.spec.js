@@ -130,6 +130,8 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/9201
     // Details widget should be loaded after reset of a controller #9201
+    // https://github.com/enonic/app-contentstudio/issues/9284
+    // Page widget does not clear after reset a selected controller in site #9284
     it(`GIVEN site with a selected controller is opened AND a page component is selected in PCV WHEN expand the menu for the 'main region' controller and click on 'Reset' menu item THEN 'No controller is selected' message gets visible `,
         async () => {
             let contentWizard = new ContentWizard();

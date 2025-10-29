@@ -138,7 +138,6 @@ describe('Browse panel, properties widget, language spec', function () {
 
     it("GIVEN existing folder is selected WHEN custom widget item has been selected in widget-selector THEN expected text gets visible in the widget-view",
         async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseContextWindow = new ContentBrowseContextWindow();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await contentBrowseContextWindow.waitForWidgetSelected(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
