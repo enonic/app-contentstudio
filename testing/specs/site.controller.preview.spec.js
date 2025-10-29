@@ -13,6 +13,7 @@ const PageComponentView = require("../page_objects/wizardpanel/liveform/page.com
 const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
 const appConst = require('../libs/app_const');
 const ConfirmationDialog = require('../page_objects/confirmation.dialog');
+const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
 
 describe('site.controller.preview.spec: checks Preview button and options in selector for Page Templates and Controllers', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -121,12 +122,14 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await contentWizard.waitForSaveButtonDisabled();
             // 5. Verify that 'Preview' button gets disabled in the Preview wizard toolbar:
             await contentWizard.waitForPreviewButtonDisabled();
+            let  wizardContextPanel = new WizardContextPanel();
+            await wizardContextPanel.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             let controller = await pageInspectionPanel.getSelectedPageController();
+            assert.equal(controller, 'Automatic', 'Automatic controller should be displayed after resetting');
             // 6. Verify that 'Preview' button is disabled in browse-toolbar:
             await studioUtils.doSwitchToContentBrowsePanel();
             // 7. Verify that 'Preview' button is disabled in ItemPreviewPanel-toolbar:
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
-            assert.equal(controller, 'Automatic', 'Automatic controller should be displayed after resetting');
         });
 
     // Verifies - Preview Panel is not refreshed after updating contents's page #8239
@@ -156,7 +159,6 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             // 9. Verify that text from the descriptor page is displayed in the LIVE VIEW in Browse Panel:
             let footerText = await studioUtils.getText(locator);
             assert.equal(footerText, FOOTER_TEXT, 'Footer text should be displayed in the preview panel');
-
         });
 
     // test to verify of XP-4123 (Page Editor inaccessible for a folder)
