@@ -120,7 +120,9 @@ export class PageTemplateAndControllerSelector
             }
         }, 300);
 
+        eventsHandler.onContentCreated(updatedHandlerDebounced);
         eventsHandler.onContentUpdated(updatedHandlerDebounced);
+        eventsHandler.onContentDeleted(updatedHandlerDebounced);
 
         eventsHandler.onContentDeleted((items: ContentServerChangeItem[]) => {
             // Remove template from the list, if the corresponding content was deleted

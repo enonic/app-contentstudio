@@ -579,7 +579,9 @@ export class ContentWizardPanel
                 this.wizardHeader.setDisplayName(currentItem.getDisplayName());
                 this.wizardHeader.setName(currentItem.getName().toString());
 
-                this.initSiteModel(this.site);
+                if (this.site) {
+                    this.initSiteModel(this.site);
+                }
                 this.initFormContext();
                 this.liveEditModel = this.initLiveEditModel(currentItem);
 
