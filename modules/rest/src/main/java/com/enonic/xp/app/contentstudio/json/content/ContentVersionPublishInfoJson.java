@@ -3,9 +3,8 @@ package com.enonic.xp.app.contentstudio.json.content;
 import java.time.Instant;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
-import com.enonic.xp.content.ContentPublishInfo;
-import com.enonic.xp.content.ContentVersionCommitInfo;
 import com.enonic.xp.security.Principal;
+import com.enonic.xp.security.PrincipalKey;
 
 public class ContentVersionPublishInfoJson
 {
@@ -21,19 +20,18 @@ public class ContentVersionPublishInfoJson
 
     private final ContentPublishInfoJson contentPublishInfo;
 
-    public ContentVersionPublishInfoJson( final ContentPublishInfo publishInfo, final ContentVersionCommitInfo commitInfo,
-                                          final ContentPrincipalsResolver principalsResolver )
+    public ContentVersionPublishInfoJson( final PrincipalKey publisher, final Instant timestamp, final String message,
+                                          final String type,
+                                          final ContentPublishInfoJson contentPublishInfo, final ContentPrincipalsResolver principalsResolver )
     {
-        this.timestamp = commitInfo.getTimestamp();
-        this.message = commitInfo.getMessage();
+        this.publisher = publisher.toString();
+        this.timestamp = timestamp;
+        this.message = message;
 
-        final Principal publisher = principalsResolver.findPrincipal( commitInfo.getCommiter() );
-
-        this.publisher = commitInfo.getCommiter().toString();
-        this.publisherDisplayName = publisher != null ? publisher.getDisplayName() : "";
-        this.type =  commitInfo.getType() != null ? commitInfo.getType().toString() : null;
-
-        this.contentPublishInfo = new ContentPublishInfoJson( publishInfo );
+        final Principal principal = principalsResolver.findPrincipal( publisher );
+        this.publisherDisplayName = principal != null ? principal.getDisplayName() : "";
+        this.type = type;
+        this.contentPublishInfo = contentPublishInfo;
     }
 
     public String getPublisher()

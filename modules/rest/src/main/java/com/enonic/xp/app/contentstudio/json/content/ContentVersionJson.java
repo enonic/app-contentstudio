@@ -16,21 +16,15 @@ public class ContentVersionJson
 
     private final String modifierDisplayName;
 
-    private final String displayName;
-
     private final Instant modified;
 
     private final Instant timestamp;
-
-    private final ChildOrderJson childOrder;
 
     private final String comment;
 
     private final String id;
 
     private final ContentVersionPublishInfoJson publishInfo;
-
-    private final ContentWorkflowInfoJson workflow;
 
     private final boolean permissionsChanged;
 
@@ -40,33 +34,33 @@ public class ContentVersionJson
 
     public ContentVersionJson( final ContentVersion contentVersion, final ContentPrincipalsResolver principalsResolver )
     {
-        this.modified = contentVersion.getModified();
+        this.modified = contentVersion.getChangedTime();
         this.timestamp = contentVersion.getTimestamp();
-        this.displayName = contentVersion.getDisplayName();
         this.comment = contentVersion.getComment();
         this.contentPath = contentVersion.getPath().toString();
 
-        final Principal modifier = principalsResolver.findPrincipal( contentVersion.getModifier() );
+        final Principal modifier = principalsResolver.findPrincipal( contentVersion.getChangedBy() );
 
         this.modifierDisplayName = modifier != null ? modifier.getDisplayName() : "";
-        this.modifier = contentVersion.getModifier().toString();
+        this.modifier = contentVersion.getChangedBy().toString();
         this.id = contentVersion.getId().toString();
-        this.childOrder = contentVersion.getChildOrder() != null ? new ChildOrderJson( contentVersion.getChildOrder() ) : null;
-        if ( contentVersion.getPublishInfo() != null && contentVersion.getCommitInfo() != null )
+        if ( contentVersion.getPublishedFrom() != null )
         {
-            this.publishInfo =
-                new ContentVersionPublishInfoJson( contentVersion.getPublishInfo(), contentVersion.getCommitInfo(), principalsResolver );
+            this.publishInfo = new ContentVersionPublishInfoJson( contentVersion.getPublishedBy(), contentVersion.getPublishedTime(),
+                                                                  contentVersion.getComment(), "PUBLISHED",
+                                                                  new ContentPublishInfoJson( contentVersion.getPublishedFrom(),
+                                                                                              contentVersion.getPublishedTo() ),
+                                                                  principalsResolver );
         }
         else
         {
             this.publishInfo = null;
         }
 
-        this.workflow = contentVersion.getWorkflowInfo() != null ? new ContentWorkflowInfoJson( contentVersion.getWorkflowInfo() ) : null;
-
+        // TODO for debugging only. remove before release
         this.attributes = contentVersion.getAttributes();
 
-        this.permissionsChanged = attributes != null && attributes.get( "content.permissions" ) != null;
+        this.permissionsChanged = "content.permissions".equals( contentVersion.getChange() );
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -79,12 +73,6 @@ public class ContentVersionJson
     public Instant getTimestamp()
     {
         return timestamp;
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    public String getDisplayName()
-    {
-        return displayName;
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -105,11 +93,6 @@ public class ContentVersionJson
         return id;
     }
 
-    public ChildOrderJson getChildOrder()
-    {
-        return childOrder;
-    }
-
     @SuppressWarnings("UnusedDeclaration")
     public String getModifierDisplayName()
     {
@@ -123,12 +106,6 @@ public class ContentVersionJson
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public ContentWorkflowInfoJson getWorkflow()
-    {
-        return workflow;
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
     public boolean isPermissionsChanged()
     {
         return permissionsChanged;
@@ -139,6 +116,7 @@ public class ContentVersionJson
         return contentPath;
     }
 
+    @Deprecated
     public List<Object> getAttributes()
     {
         return attributes != null ? attributes.list().stream().map( GenericValue::rawJava ).toList() : List.of();
