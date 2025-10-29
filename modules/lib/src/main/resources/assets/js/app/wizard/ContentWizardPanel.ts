@@ -943,7 +943,7 @@ export class ContentWizardPanel
         }
     }
 
-    saveChanges(): Q.Promise<Content> {
+    saveChanges(clearInspection: boolean = false): Q.Promise<Content> {
 
         // save happens right after data loaded with new content
         // so layout is not done yet and livePanel is not present yet
@@ -976,7 +976,7 @@ export class ContentWizardPanel
 
                     if (this.reloadPageEditorOnSave && this.livePanel) {
 
-                        this.livePanel.loadPage(false).then(() => {
+                        this.livePanel.loadPage(clearInspection).then(() => {
 
                             this.refreshLivePanel(currentContent).then(() => {
                                 resolve(currentContent);
@@ -1195,7 +1195,7 @@ export class ContentWizardPanel
         PageState.getEvents().onPageReset(() => {
             this.removePageComponentsView();
             this.setMarkedAsReady(false);
-            this.saveChanges().catch(DefaultErrorHandler.handle);
+            this.saveChanges(true).catch(DefaultErrorHandler.handle);
         });
 
         // to be changed: make default models static and remove that call by directly using DefaultModels in PageState
