@@ -10,6 +10,7 @@ import {Pen} from 'lucide-react';
 import {useStore} from '@nanostores/preact';
 import {$sidebarWidgets, getWidgetKey, isMainWidget, setActiveWidget} from '../../store/sidebarWidgets.store';
 import {ReactElement, useCallback} from 'react';
+import { useI18n } from '../../../../app/ui2/hooks/useI18n';
 
 export const Sidebar = (): ReactElement => {
     const {widgets, activeWidgetId} = useStore($sidebarWidgets);
@@ -26,9 +27,8 @@ export const Sidebar = (): ReactElement => {
 
     return (
         <nav
-            tabIndex={0}
             class="dark:bg-surface-neutral absolute h-screen w-[60px] flex flex-col gap-10 items-center py-2.5 px-1.75 border-r border-bdr-soft"
-            aria-label="Sidebar"
+            aria-label={useI18n('wcag.sidebar.label')}
         >
             {/* Header */}
             <ProjectIcon
