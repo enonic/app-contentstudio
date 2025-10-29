@@ -11,6 +11,7 @@ const xpath = {
     title: "Drag and drop components into the page",
 };
 
+// Context Window - Insert tab of Page widget
 class InsertablesPanel extends Page {
 
     get title() {

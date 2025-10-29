@@ -11,7 +11,7 @@ const xpath = {
         name => `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']]`,
 };
 
-class PageWidgetPanel extends Page {
+class PageWidgetContextWindowPanel extends Page {
 
     get insertTabBarItem() {
         return xpath.container + xpath.insertTabBarItem;
@@ -47,5 +47,5 @@ class PageWidgetPanel extends Page {
     }
 }
 
-module.exports = PageWidgetPanel;
+module.exports = PageWidgetContextWindowPanel;
 
