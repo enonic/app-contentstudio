@@ -239,6 +239,8 @@ public final class ContentResource
 
     private ContentPrincipalsResolver principalsResolver;
 
+    private ContentPublishInfoResolver contentPublishInfoResolver;
+
     private SecurityService securityService;
 
     private BinaryExtractor extractor;
@@ -1404,7 +1406,7 @@ public final class ContentResource
         final FindContentVersionsResult result =
             contentService.getVersions( FindContentVersionsParams.create().contentId( contentId ).from( from ).size( size ).build() );
 
-        return new GetContentVersionsResultJson( result, from, this.principalsResolver );
+        return new GetContentVersionsResultJson( result, from, this.principalsResolver, this.contentPublishInfoResolver );
     }
 
     @GET
@@ -1764,6 +1766,7 @@ public final class ContentResource
     public void setContentService( final ContentService contentService )
     {
         this.contentService = contentService;
+        this.contentPublishInfoResolver = new ContentPublishInfoResolver( contentService );
     }
 
     @Reference

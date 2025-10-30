@@ -12,13 +12,6 @@ public class ContentPublishInfoJson
 
     private final Instant first;
 
-    public ContentPublishInfoJson( final Instant from, final Instant to )
-    {
-        this.from = from;
-        this.to = to;
-        this.first = from;
-    }
-
     public ContentPublishInfoJson( final ContentPublishInfo publishInfo )
     {
         this.from = publishInfo.getFrom();

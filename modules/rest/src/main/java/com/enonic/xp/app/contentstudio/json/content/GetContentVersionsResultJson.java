@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPublishInfoResolver;
 import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.content.FindContentVersionsResult;
 
@@ -15,13 +16,14 @@ public class GetContentVersionsResultJson
 
     private final int from;
 
-    public GetContentVersionsResultJson( final FindContentVersionsResult result, int from, final ContentPrincipalsResolver principalsResolver )
+    public GetContentVersionsResultJson( final FindContentVersionsResult result, int from, final ContentPrincipalsResolver principalsResolver, final
+                                         ContentPublishInfoResolver contentPublishInfoResolver )
     {
         this.totalHits = result.getTotalHits();
         this.from = from;
         for ( final ContentVersion contentVersion : result.getContentVersions() )
         {
-            this.contentVersions.add( new ContentVersionJson( contentVersion, principalsResolver ) );
+            this.contentVersions.add( new ContentVersionJson( contentVersion, principalsResolver, contentPublishInfoResolver ) );
         }
     }
 

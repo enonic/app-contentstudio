@@ -22,7 +22,7 @@ public class ContentVersionPublishInfoJson
 
     public ContentVersionPublishInfoJson( final PrincipalKey publisher, final Instant timestamp, final String message,
                                           final String type,
-                                          final ContentPublishInfoJson contentPublishInfo, final ContentPrincipalsResolver principalsResolver )
+                                          final ContentPublishInfoJson contentPublishInfo, final ContentPrincipalsResolver principalsResolver)
     {
         this.publisher = publisher.toString();
         this.timestamp = timestamp;
