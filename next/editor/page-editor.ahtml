@@ -453,7 +453,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Page Editor is a modifiable preview of the content page that will open automatically when a content that has a supporting page template is created or edited. It is used in conjunction with the <a href="./context-panel.ahtml">Context Panel</a> to add, remove, and move components around the page with drag and drop. The page editor can be toggled with the  <span class="image"><img src="images/page-editor-icon-monitor.png" alt="page editor icon monitor"></span>  icon on the far right of the toolbar.</p>
+<p>Page Editor is a modifiable preview of the content page that will open automatically when a content that has a supporting page template is created or edited. It is used in conjunction with the <a href="./context-panel.ahtml">Context Panel</a> to add, remove, and move components around the page with drag and drop. The page editor can be toggled with the <span class="image"><img src="images/page-editor-icon-monitor.png" alt="Monitor icon" width="30" height="30"></span> icon on the far right of the toolbar.</p>
 </div>
 </div>
 </div>
@@ -530,7 +530,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="page_components_tree"><a class="link" href="#page_components_tree">Page Components tree</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When the Content form is collapsed (with the <span class="image"><img src="images/page-editor-icon-collapse.png" alt="page editor icon collapse"></span> icon in the menu toolbar), the Page Components tree will automatically undock and switch into floating mode.</p>
+<p>When the Content form is collapsed (with the <span class="image"><img src="images/page-editor-icon-collapse.png" alt="Collapse icon" width="30" height="30"></span> icon in the menu toolbar), the Page Components tree will automatically undock and switch into floating mode.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -538,19 +538,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>This view can be collapsed with the <span class="image"><img src="images/page-editor-components-collapse.png" alt="page editor components collapse"></span> icon in the view header and the tree will be docked inside the vertical menu toolbar on the left. Clicking the <span class="image"><img src="images/page-editor-components-expand.png" alt="page editor components expand"></span> icon will reopen the view again.</p>
-</div>
-<div class="imageblock text-center">
-<div class="content">
-<img src="images/page-editor-component-view-collapsed.png" alt="Page Components collapsed" width="25%">
-</div>
+<p>This view can be collapsed with the <span class="image"><img src="images/page-editor-components-collapse.png" alt="Collapse icon" width="30" height="30"></span> icon in the view header and the tree will be docked inside the vertical menu toolbar on the left. Clicking the <span class="image"><img src="images/page-editor-components-expand.png" alt="Expand icon" width="30" height="30"></span> icon will reopen the view again.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-30 13:46:42 UTC
+Last updated 2025-10-30 13:53:22 UTC
 </div>
 </div>
 </body>
