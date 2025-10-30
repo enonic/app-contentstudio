@@ -18,7 +18,7 @@
     },
     {
       "label": "stable",
-      "checkout": "5.3",
+      "checkout": "3dcda55d290f3dc89d6a8700bce6d1e5cc7ab4b0",
       "latest": true
     }
   ]
