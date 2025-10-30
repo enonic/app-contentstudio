@@ -6,6 +6,7 @@ import {ProjectSelectionDialog} from '../../../../app/dialog/ProjectSelectionDia
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {ShowIssuesDialogEvent} from '../../../../app/browse/ShowIssuesDialogEvent';
 import {useI18n} from '../../../../app/ui2/hooks/useI18n';
+import {$activeProjectName} from '../../store/projects.store';
 
 const AppBar = (): ReactElement => {
     return (
@@ -19,7 +20,7 @@ const AppBar = (): ReactElement => {
                 }}
                 aria-label={useI18n('wcag.appbar.project.label')}
             >
-                Default Project
+                {$activeProjectName.get()}
             </Button>
 
             <Button
