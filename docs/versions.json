@@ -13,6 +13,10 @@
       "checkout": "9e9a086"
     },
     {
+      "label": "next",
+      "checkout": "issue-9290"
+    },
+    {
       "label": "stable",
       "checkout": "5.3",
       "latest": true
