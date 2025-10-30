@@ -90,8 +90,12 @@ function updateActiveProject(): void {
 
 void loadProjects();
 
-ProjectUpdatedEvent.on(loadProjects);
-ProjectCreatedEvent.on(loadProjects);
+ProjectUpdatedEvent.on(() => {
+    loadProjects();
+});
+ProjectCreatedEvent.on(() => {
+    loadProjects();
+});
 ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
     const {projects} = $projects.get();
     const updatedProjects = projects.filter((p) => getProjectKey(p) !== event.getProjectName());
