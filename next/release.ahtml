@@ -444,6 +444,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#content_studio_5_update_4">Content Studio 5 Update 4</a>
 <ul class="sectlevel2">
 <li><a href="#whats_new">What&#8217;s new</a></li>
+<li><a href="#schedule_publish_improvements">Schedule Publish improvements</a></li>
 <li><a href="#juke_translation_on_language_change">Juke translation on language change</a></li>
 <li><a href="#layers_widget">Layers widget</a></li>
 <li><a href="#preview_mode_selector_in_page_editor">Preview mode selector in Page Editor</a></li>
@@ -533,6 +534,36 @@ Content Studio 5.4 requires XP 7.16.0 or higher.
 
 </div>
 <div class="sect2">
+<h3 id="schedule_publish_improvements"><a class="link" href="#schedule_publish_improvements">Schedule Publish improvements</a></h3>
+<div class="paragraph">
+<p>Two major improvements have been made to the Schedule Publish functionality in the Publishing Wizard.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>It&#8217;s no longer necessary to select date/time in the "Online from" field of the Schedule form. Default value is "Now", meaning that content will go online as soon as the content is published. If a specific date/time in the future is required, it can still be set manually.</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="actions/images/publishing-wizard-schedule.png" alt="Optionally schedule publish from and to" width="75%">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="2">
+<li>
+<p>If content has already been scheduled for publishing, then modified and needs to be republished, caption on the publish button will change from "Publish Now" to "Update Scheduled".</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-update-scheduled.png" alt="Update scheduled publishing" width="75%">
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="juke_translation_on_language_change"><a class="link" href="#juke_translation_on_language_change">Juke translation on language change</a></h3>
 <div class="paragraph">
 <p>In the previous release we introduced integration with Juke AI Translator to provide AI-powered translation
@@ -545,7 +576,7 @@ all text fields to the new language using Juke AI Translator.</p>
 </div>
 <div class="imageblock text-center">
 <div class="content">
-<img src="release/images/cs54-translate.png" alt="Translate content" width="75%">
+<img src="release/images/cs54-translate.png" alt="Translate content" width="50%">
 </div>
 </div>
 </div>
@@ -564,7 +595,7 @@ all text fields to the new language using Juke AI Translator.</p>
 </div>
 <div class="imageblock text-center">
 <div class="content">
-<img src="layers/images/layer-modal-dialog.png" alt="Layer dialog" width="75%">
+<img src="layers/images/layer-modal-dialog.png" alt="Layer dialog" width="50%">
 </div>
 </div>
 </div>
@@ -1162,7 +1193,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-30 15:42:54 UTC
+Last updated 2025-10-30 16:10:52 UTC
 </div>
 </div>
 </body>

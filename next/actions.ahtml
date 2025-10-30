@@ -1084,7 +1084,7 @@ Use "Mark as ready" link up in the status bar to mark all in-progress items as r
 <h3 id="scheduled_publishing"><a class="link" href="#scheduled_publishing">Scheduled publishing</a></h3>
 <div class="paragraph">
 <p>The Calendar icon in the <strong>Publishing Wizard</strong> dialog will open a section on top of the dialog where you can schedule the period of time
-when the content should be online. "Publish Now" button will then change its label to "Schedule".</p>
+when the content should be online. "Publish Now" button will then change its label to "Schedule". By default, "Online from" is set to "Now" (content goes online immediately), and only "Online to" needs to be set.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -1203,7 +1203,7 @@ In-depth reference on the publish requests can be found <a href="workflow.ahtml#
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-30 15:42:54 UTC
+Last updated 2025-10-30 16:10:52 UTC
 </div>
 </div>
 </body>
