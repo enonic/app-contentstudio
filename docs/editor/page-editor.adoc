@@ -2,11 +2,11 @@
 :toc: right
 :imagesdir: images
 
-Page Editor is a modifiable preview of the content page that will open automatically when a content that has a supporting page template is created or edited. It is used in conjunction with the <<./context-panel#, Context Panel>> to add, remove, and move components around the page with drag and drop. The page editor can be closed and reopened with the icon on the far right of the toolbar that looks like a computer monitor.
+Page Editor is a modifiable preview of the content page that will open automatically when a content that has a supporting page template is created or edited. It is used in conjunction with the <<./context-panel#, Context Panel>> to add, remove, and move components around the page with drag and drop. The page editor can be toggled with the image:page-editor-icon-monitor.png[Monitor icon,30,30] icon on the far right of the toolbar.
 
-== Selecting controller
+== Page controller
 
-As mentioned earlier, Page Editor panel won't be displayed for a content that can't be rendered, such as Folder, Image or a Shortcut.
+As mentioned earlier, Page Editor panel won't be displayed for a content that can't be rendered, such as Folder, Media, or a Shortcut.
 
 Page Editor will be shown but not available for a *Site* without at least one application that contains a template or a controller that implement rendering.
 
@@ -16,9 +16,9 @@ If there is at least one application, but the template was not set automatically
 
 image::page-editor-no-controller.png[]
 
-== Editing page
+== Editor panel
 
-The page with the automatic template is disabled for editing. Clicking on it, or inside the <<#components-view,Components View>> will show the menu with the option to enable the editing.
+The page that uses a template is locked for editing. Clicking on it, or inside the <<#components-view,Components View>> will show the menu with the option to enable the editing.
 
 image::page-editor-lock.png[]
 
@@ -28,16 +28,20 @@ For the *Fragment* component, the last action will be replaced with the *Detach 
 
 image::page-editor-menu.png[]
 
-== Page Editor widgets
+== Preview modes
 
-When *Page Editor* is available, you'll have access to all default widgets, including <<../widgets#emulator,Emulator>> and <<../widgets#components,Components>> widgets.
+Similar to the preview mode selector in the Navigator's <<../navigator#preview_panel, Preview panel>>, Page Editor has its own preview mode selector located in the top-right corner of the panel. Predefined modes are Automatic (default, the best suitable mode), Media, Enonic rendering, and JSON.
+
+== Page widget
+
+Page Editor adds a new Page widget to the widget list in the Context Panel. This widget can be used to switch between different templates and controllers for the current content and manage components on the page.
+
+image::page-editor-widget.png[Page widget, 25%, align="center"]
 
 == Page Components tree
 
-When the Content form is collapsed (with the "<" icon in the menu toolbar), the Page Components tree will automatically undock and switch into floating mode.
+When the Content form is collapsed (with the image:page-editor-icon-collapse.png[Collapse icon,30,30] icon in the menu toolbar), the Page Components tree will automatically undock and switch into floating mode.
 
-image::wizard-component-view-floating.png[Page Components floating, 75%]
+image::page-editor-component-view-floating.png[Page Components floating, 75%]
 
-This view can be collapsed with the icon in the view header and the tree will be docked inside the vertical menu toolbar - its icon will appear at the bottom of the toolbar. Clicking the icon will reopen the view again.
-
-image::wizard-component-view-collapsed.png[Page Components collapsed]
+This view can be collapsed with the image:page-editor-components-collapse.png[Collapse icon,30,30] icon in the view header and the tree will be docked inside the vertical menu toolbar on the left. Clicking the image:page-editor-components-expand.png[Expand icon,30,30] icon will reopen the view again.

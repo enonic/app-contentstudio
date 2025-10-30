@@ -30,9 +30,9 @@ IMPORTANT: Online content will instantly go offline after archiving or deleting.
 in the parent project/layer. It's an effective way to "clean up" a layer of unwanted content items inherited from the parent project/layer.
 * If content is deleted from a layer's archive, it will be recreated in the layer's "main" storage (as long as it still exists in the parent), unless it was originally localised in the layer.
 
-== View archived content
+== Archive browser
 
-NOTE: The archive browser is part of https://market.enonic.com/vendors/enonic/content-studio-plus[Content Studio+].
+NOTE: The Archive browser requires https://market.enonic.com/vendors/enonic/content-studio-plus[Content Studio+].
 
 image::archived-content.png[Archived contents, 600]
 
@@ -44,18 +44,18 @@ Click "Archive" icon in the vertical menu bar on the left side to open the "Arch
 
 In the preview panel on the right you can see who and when archived the item, and what its original path was.
 
-image::archived-content.png[Archived contents, 600]
+image::archived-content.png[Archived contents, 75%]
 
 == Restore content
 
-NOTE: Archived content can only be restored from the Archive section which requires <<../#content_studio,Content Studio+>>
+NOTE: Archived content can only be restored from the Archive browser which requires https://market.enonic.com/vendors/enonic/content-studio-plus[Content Studio+].
 
 Use *Restore* action to restore selected archived content via "Restore from Archive" dialog. Content will always be restored along with all
 of its descendant items to preserve content structure.
 
 If a content item is restored directly from a Content layer's archive, it will be automatically localised/unlinked from the content in parent project/layer.
 
-image::restore-content.png[Restore of archived content, 600]
+image::restore-content.png[Restore of archived content, 75%]
 
 TIP: If it's not possible to put content back to its original location (for example, if original path is taken), the system will try to append
 "-1", "-2" etc. to path of the content being restored.
@@ -64,4 +64,4 @@ TIP: If it's not possible to put content back to its original location (for exam
 
 Archive and Restore operations will be reflected in the Version History widget of a content item.
 
-image::version-history.png[Version history, 394]
+image::version-history.png[Version history, 25%, align="center"]
