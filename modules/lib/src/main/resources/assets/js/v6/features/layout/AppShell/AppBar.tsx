@@ -8,54 +8,44 @@ import {ShowIssuesDialogEvent} from '../../../../app/browse/ShowIssuesDialogEven
 import {useI18n} from '../../../../app/ui2/hooks/useI18n';
 
 const AppBar = (): ReactElement => {
-    const projectClickHandler = () => {
-        ProjectSelectionDialog.get().open();
-    };
-
-    const issuesClickHandler = () => {
-        new ShowIssuesDialogEvent().fire();
-    };
-
-    const launcherClickHandler = () => {
-        const launcherButton = document.getElementById('launcher-button');
-
-        // TODO: Enonic UI Hack
-        // Defer the click to the next event loop to prevent the launcher from closing due to its outside-click handler
-        setTimeout(() => launcherButton?.click());
-    };
-
     return (
-        <nav className="dark:bg-surface-neutral h-[60px] px-5 py-3 flex items-center justify-between border-b border-bdr-soft">
+        <header className="bg-surface-neutral h-15 px-5 py-2 flex items-center gap-2.5 border-b border-bdr-soft">
             <Button
+                className="mr-auto"
                 size="sm"
-                className="flex gap-2.75 items-center text-sm font-semibold"
-                onClick={projectClickHandler}
+                endIcon={ArrowLeftRight}
+                onClick={() => {
+                    ProjectSelectionDialog.get().open();
+                }}
                 aria-label={useI18n('wcag.appbar.project.label')}
             >
                 Default Project
-                <ArrowLeftRight size={14} />
             </Button>
 
-            <div class="flex gap-1.25 items-center">
-                <Button
-                    size="sm"
-                    className="gap-2.75 text-sm font-semibold hidden md:flex md:items-center"
-                    onClick={issuesClickHandler}
-                    aria-label={useI18n('wcag.appbar.issues.label')}
-                >
-                    <BellIcon size={14} />
-                    Issues
-                </Button>
-                <IconButton
-                    size="sm"
-                    icon={LayoutGrid}
-                    iconSize={14}
-                    shape="round"
-                    onClick={launcherClickHandler}
-                    aria-label={useI18n('wcag.appbar.launcher.label')}
-                />
-            </div>
-        </nav>
+            <Button
+                className="max-sm:hidden"
+                size="sm"
+                startIcon={BellIcon}
+                onClick={() => {
+                    new ShowIssuesDialogEvent().fire();
+                }}
+                aria-label={useI18n('wcag.appbar.issues.label')}
+            >
+                Issues
+            </Button>
+
+            <IconButton
+                size="sm"
+                icon={LayoutGrid}
+                shape="round"
+                onClick={() => {
+                    // TODO: Enonic UI Hack
+                    // Defer the click to the next event loop to prevent the launcher from closing due to its outside-click handler
+                    requestAnimationFrame(() => document.getElementById('launcher-button')?.click());
+                }}
+                aria-label={useI18n('wcag.appbar.launcher.label')}
+            />
+        </header>
     );
 };
 
