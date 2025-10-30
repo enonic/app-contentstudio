@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#archive_content">Archive content</a></li>
 <li><a href="#archiverestore_in_layers">Archive/restore in layers</a></li>
-<li><a href="#view_archived_content">View archived content</a></li>
+<li><a href="#archive_browser">Archive browser</a></li>
 <li><a href="#restore_content">Restore content</a></li>
 <li><a href="#version_history">Version History</a></li>
 </ul>
@@ -520,7 +520,7 @@ in the parent project/layer. It&#8217;s an effective way to "clean up" a layer o
 </div>
 </div>
 <div class="sect1">
-<h2 id="view_archived_content"><a class="link" href="#view_archived_content">View archived content</a></h2>
+<h2 id="archive_browser"><a class="link" href="#archive_browser">Archive browser</a></h2>
 <div class="sectionbody">
 <div class="admonitionblock note">
 <table>
@@ -529,7 +529,7 @@ in the parent project/layer. It&#8217;s an effective way to "clean up" a layer o
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The archive browser is part of <a href="https://market.enonic.com/vendors/enonic/content-studio-plus">Content Studio+</a>.
+The Archive browser requires <a href="https://market.enonic.com/vendors/enonic/content-studio-plus">Content Studio+</a>.
 </td>
 </tr>
 </table>
@@ -560,7 +560,7 @@ The archive browser is part of <a href="https://market.enonic.com/vendors/enonic
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="archive/images/archived-content.png" alt="Archived contents" width="600">
+<img src="archive/images/archived-content.png" alt="Archived contents" width="75%">
 </div>
 </div>
 </div>
@@ -575,7 +575,7 @@ The archive browser is part of <a href="https://market.enonic.com/vendors/enonic
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Archived content can only be restored from the Archive section which requires <a href="../.ahtml#content_studio">Content Studio+</a>
+Archived content can only be restored from the Archive browser which requires <a href="https://market.enonic.com/vendors/enonic/content-studio-plus">Content Studio+</a>.
 </td>
 </tr>
 </table>
@@ -589,7 +589,7 @@ of its descendant items to preserve content structure.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="archive/images/restore-content.png" alt="Restore of archived content" width="600">
+<img src="archive/images/restore-content.png" alt="Restore of archived content" width="75%">
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -613,9 +613,9 @@ If it&#8217;s not possible to put content back to its original location (for exa
 <div class="paragraph">
 <p>Archive and Restore operations will be reflected in the Version History widget of a content item.</p>
 </div>
-<div class="imageblock">
+<div class="imageblock text-center">
 <div class="content">
-<img src="archive/images/version-history.png" alt="Version history" width="394">
+<img src="archive/images/version-history.png" alt="Version history" width="25%">
 </div>
 </div>
 </div>
@@ -623,7 +623,7 @@ If it&#8217;s not possible to put content back to its original location (for exa
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-30 13:53:22 UTC
+Last updated 2025-10-30 15:02:21 UTC
 </div>
 </div>
 </body>
