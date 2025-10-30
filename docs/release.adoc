@@ -12,6 +12,18 @@ IMPORTANT: Content Studio 5.4 requires XP 7.16.0 or higher.
 
 === What's new
 
+=== Layers widget
+
+:imagesdir: layers/images
+
+<<layers#layers_widget, Layers Widget>> has been improved to better visualize placement of the content in the project hierarchy. By default, only direct ancestors and descendants of the current layer are shown.
+
+image::layer-widget.png[Layer widget, 50%, align="center"]
+
+To see all layers where the content exists, click "Show all" button at the bottom of the widget.
+
+image::layer-modal-dialog.png[Layer dialog, 75%, align="center"]
+
 === Preview mode selector in Page Editor
 
 Preview mode selector added to the Preview panel in Content Studio 5.3 is now also available in the Page Editor. In a future version it will be possible to extend the predefined list of modes by plugging in your own preview engines.
