@@ -33,7 +33,7 @@ public class ContentVersionJson
 
     private final String contentPath;
 
-    private final List<ContentVersion.Change> changes;
+    private final List<ChangeJson> changes;
 
     public ContentVersionJson( final ContentVersion contentVersion, final ContentPrincipalsResolver principalsResolver,
                                final ContentPublishInfoResolver contentPublishInfoResolver )
@@ -108,7 +108,10 @@ public class ContentVersionJson
 
         this.publishInfo = info;
 
-        this.changes = contentVersion.getChanges();
+        this.changes = contentVersion.getChanges()
+            .stream()
+            .map( c -> new ChangeJson( c.operation(), c.fields(), c.user().toString(), c.opTime() ) )
+            .toList();
 
         this.permissionsChanged = contentVersion.getChanges()
             .stream()
@@ -175,7 +178,7 @@ public class ContentVersionJson
         return new ChildOrderJson( ChildOrder.defaultOrder() );
     }
 
-    public List<?> getChanges()
+    public List<ChangeJson> getChanges()
     {
         return changes;
     }
