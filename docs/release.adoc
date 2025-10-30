@@ -12,6 +12,23 @@ IMPORTANT: Content Studio 5.4 requires XP 7.16.0 or higher.
 
 === What's new
 
+=== Schedule Publish improvements
+
+:imagesdir: actions/images
+
+Two major improvements have been made to the Schedule Publish functionality in the Publishing Wizard.
+
+1. It's no longer necessary to select date/time in the "Online from" field of the Schedule form. Default value is "Now", meaning that content will go online as soon as the content is published. If a specific date/time in the future is required, it can still be set manually.
+
+image::publishing-wizard-schedule.png[Optionally schedule publish from and to, 75%]
+
+[start=2]
+2. If content has already been scheduled for publishing, then modified and needs to be republished, caption on the publish button will change from "Publish Now" to "Update Scheduled".
+
+:imagesdir: release/images
+
+image::cs54-update-scheduled.png[Update scheduled publishing, 75%]
+
 === Juke translation on language change
 
 In the previous release we introduced integration with Juke AI Translator to provide AI-powered translation
@@ -21,7 +38,7 @@ automatic translation when changing the language of existing content that doesn'
 After changing the language of content that has text fields, Content Studio will now suggest translating
 all text fields to the new language using Juke AI Translator.
 
-image::cs54-translate.png[Translate content, 75%, align="center"]
+image::cs54-translate.png[Translate content, 50%, align="center"]
 
 === Layers widget
 
@@ -33,7 +50,7 @@ image::layer-widget.png[Layer widget, 75%, align="center"]
 
 To see all layers where the content exists, click "Show all" button at the bottom of the widget.
 
-image::layer-modal-dialog.png[Layer dialog, 75%, align="center"]
+image::layer-modal-dialog.png[Layer dialog, 50%, align="center"]
 
 :imagesdir: release/images
 

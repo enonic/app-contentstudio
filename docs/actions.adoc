@@ -253,7 +253,7 @@ TIP: Use "Mark as ready" link up in the status bar to mark all in-progress items
 === Scheduled publishing
 
 The Calendar icon in the *Publishing Wizard* dialog will open a section on top of the dialog where you can schedule the period of time
-when the content should be online. "Publish Now" button will then change its label to "Schedule".
+when the content should be online. "Publish Now" button will then change its label to "Schedule". By default, "Online from" is set to "Now" (content goes online immediately), and only "Online to" needs to be set.
 
 image::publishing-wizard-schedule.png[Optionally schedule publish from and to, 937w]
 
