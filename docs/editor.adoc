@@ -4,7 +4,7 @@
 
 The *Content Editor* opens in a new browser tab from the <<navigator#,Browse View>> when content is created or edited. Multiple content tabs can be open at the same time. Clicking on the *Content Studio* tree icon in the top left corner will open <<navigator#,Browse View>> in a new browser tab. User will get a browser warning upon trying to close a tab with modified but unsaved content.
 
-The edit view consists of several parts. On the left is the <<editor/content-form#,Content Form>>. If content is editable, the <<editor/page-editor#,Page Editor>> will automatically open on the right. A <<editor/context-panel#, Context Panel>> can be accessed from inside the Page Editor.  The Context Panel contain a number of widgets to work with the page, and will be placed to the right of the <<editor/page-editor#,Page Editor>> or expand over it, based on screen resolution.
+The edit view consists of several parts. On the left is the <<editor/content-form#,Content Form>>. If content is editable, the <<editor/page-editor#,Page Editor>> will automatically open on the right. A <<editor/context-panel#, Context Panel>> can be accessed from inside the Page Editor.  The Context Panel contains a number of widgets to work with the page, and is placed to the right of the <<editor/page-editor#,Page Editor>> or expands over it, based on screen resolution.
 
 image::editor.png[Content Wizard, 1680]
 

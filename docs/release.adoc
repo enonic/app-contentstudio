@@ -6,6 +6,17 @@
 
 TIP: Release Notes for Content Studio 4.x can be found https://developer.enonic.com/docs/content-studio/4.x/release[here]
 
+== Content Studio 5 Update 4
+
+IMPORTANT: Content Studio 5.4 requires XP 7.16.0 or higher.
+
+=== What's new
+
+=== Preview mode selector in Page Editor
+
+Preview mode selector added to the Preview panel in Content Studio 5.3 is now also available in the Page Editor. In a future version it will be possible to extend the predefined list of modes by plugging in your own preview engines.
+
+image::cs54-preview-mode.png[Preview selector, 75%, align="center"]
 
 == Content Studio 5 Update 3
 
