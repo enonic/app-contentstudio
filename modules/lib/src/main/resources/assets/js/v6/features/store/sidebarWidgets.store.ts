@@ -17,6 +17,8 @@ export const $sidebarWidgets = map<WidgetsStore>({
 });
 
 export function setActiveWidget(widget: Readonly<Widget> | undefined): void {
+    const existsInStore = $sidebarWidgets.get().widgets.some((p) => getWidgetKey(p) === getWidgetKey(widget));
+    if (!existsInStore) throw new Error('Widget not found in store');
     $sidebarWidgets.setKey('activeWidgetId', getWidgetKey(widget));
 }
 
@@ -42,7 +44,9 @@ export function isMainWidget(widget: Readonly<Widget>): boolean {
     return getWidgetKey(widget)?.endsWith('studio:main') ?? false;
 }
 
-// Internal
+//
+// * Internal
+//
 
 const WIDGET_INTERFACE = 'contentstudio.menuitem';
 let isLoading = false;
@@ -77,15 +81,10 @@ async function loadWidgets(): Promise<void> {
 }
 
 function updateActiveWidget(): void {
+    if ($activeWidget.get()) return;
+
     const url = window.location.href;
     const {widgets} = $sidebarWidgets.get();
-
-    const {activeWidgetId} = $sidebarWidgets.get();
-    const hasActiveWidget = widgets.some((w) => getWidgetKey(w) === activeWidgetId);
-
-    if (hasActiveWidget) {
-        return;
-    }
 
     const widgetMatchingUrl = widgets.find((w) => {
         const widgetKey = getWidgetKey(w);
