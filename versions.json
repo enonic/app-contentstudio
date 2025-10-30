@@ -14,7 +14,7 @@
     },
     {
       "label": "next",
-      "checkout": "issue-9290"
+      "checkout": "2d7ad8cc9cff5fc5e4ff1fb5b56d5a8912c24c85"
     },
     {
       "label": "stable",
