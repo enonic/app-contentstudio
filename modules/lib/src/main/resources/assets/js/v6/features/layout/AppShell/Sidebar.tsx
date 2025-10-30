@@ -10,7 +10,7 @@ import {Pen} from 'lucide-react';
 import {useStore} from '@nanostores/preact';
 import {$sidebarWidgets, getWidgetKey, isMainWidget, setActiveWidget} from '../../store/sidebarWidgets.store';
 import {ReactElement, useCallback} from 'react';
-import { useI18n } from '../../../../app/ui2/hooks/useI18n';
+import {useI18n} from '../../../../app/ui2/hooks/useI18n';
 
 export const Sidebar = (): ReactElement => {
     const {widgets, activeWidgetId} = useStore($sidebarWidgets);
@@ -21,13 +21,16 @@ export const Sidebar = (): ReactElement => {
     const mainWidgets = widgets.slice(0, -1);
     const lastWidget = widgets.at(-1);
 
-    const isWidgetActive = useCallback((widget: Readonly<Widget>) => {
-        return getWidgetKey(widget) === activeWidgetId;
-    }, [activeWidgetId]);
+    const isWidgetActive = useCallback(
+        (widget: Readonly<Widget>) => {
+            return getWidgetKey(widget) === activeWidgetId;
+        },
+        [activeWidgetId]
+    );
 
     return (
         <nav
-            class="dark:bg-surface-neutral absolute h-screen w-[60px] flex flex-col gap-10 items-center py-2.5 px-1.75 border-r border-bdr-soft"
+            class="bg-surface-neutral absolute h-screen w-15 flex flex-col gap-10 items-center py-2.5 px-1.75 border-r border-bdr-soft"
             aria-label={useI18n('wcag.sidebar.label')}
         >
             {/* Header */}
@@ -70,7 +73,7 @@ export const Sidebar = (): ReactElement => {
                         />
                     )}
                     <Tooltip value={version} side="right">
-                        <p class="text-sm text-surface-primary-selected text-center overflow-hidden text-nowrap max-w-[40px]">
+                        <p class="text-xs text-surface-primary-selected text-center overflow-hidden text-nowrap max-w-[40px] text-ellipsis">
                             {version}
                         </p>
                     </Tooltip>
