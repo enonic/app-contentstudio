@@ -90,39 +90,23 @@ You may reset a localized item by clicking btn:[Reset] from within the content e
 image::layer-content-reset.png[Reset localisation, 617]
 
 
-== Layers Panel
+== Layers Widget
 
 NOTE: The https://market.enonic.com/vendors/enonic/content-studio-plus[Content Studio+] application must be installed to access the features described in this section
 
-The Layers widget enables the user to see the status of a specific content item in all existing layers in the system.
+The Layers widget enables the user to see the status of a specific content item in each of the existing layers in the system.
 
-The current layer is highlighted with a blue border. You can also see how many parents (_Ascendants_)
-and children (_Descendants_) the current item has.
+By default, only direct ancestors and descendants of the current layer are shown, and the current layer is highlighted with a blue border. The content can be opened in any of the displayed layers by expanding the layer box and clicking the action button.
 
-By clicking an item, a related action button will appear.
-
-image::layer-widget-1.png[Layers Widget, 275]
-
-image::layer-widget-3.png[Layers Widget, 274]
-
-Boxes of parent layers where the content item is not localized are hidden by default and can be displayed by clicking on the Ascendants link.
-
-image::layer-widget-2.png[Layers Widget, 274]
+image::layer-widget.png[Layer Widget, 75%, align="center"]
 
 TIP: You can localize content in the current layer directly from the widget.
 
-*Show all* button at the bottom of the widget displays the total number of layers where this item exists. This number can be different from tbe number
-of boxes displayed in the widget, since the widget only displays the branch of the current layer. To see status of the content item in the entire tree of layers
-click the button to open the modal dialog.
+*Show all* button at the bottom of the widget opens the modal dialog with the full hierarchy of layers in the system where the content exists.
 
 image::layer-modal-dialog.png[Layers Widget, 375]
 
-Just like with the Layers widget, you can expand layer boxes in this dialog to either localize or edit the content in the current layer,
-or open it in other layers (given your user has sufficient permissions to access the layer).
+Just like with the Layers widget, you can expand layer boxes in this dialog to either localize or open the content in a specific layer (given your user has sufficient permissions to access the layer).
 
 TIP: Read about the high-level concept of Content Layers https://developer.enonic.com/docs/xp/stable/cms/layers[here].
-
-
-== Management
-
 

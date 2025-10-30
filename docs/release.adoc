@@ -6,6 +6,103 @@
 
 TIP: Release Notes for Content Studio 4.x can be found https://developer.enonic.com/docs/content-studio/4.x/release[here]
 
+== Content Studio 5 Update 4
+
+IMPORTANT: Content Studio 5.4 requires XP 7.16.0 or higher.
+
+=== What's new
+
+=== Gallery mode in CustomSelector
+
+https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/customselector[CustomSelector^] input type now supports gallery mode, similar to the appearance of ImageSelector's dropdown.
+When enabled, the selector will display options in a gallery style (three big images in a row), making it more suitable for selecting images.
+
+image::cs54-customselector-gallery.png[Custom Selector in gallery mode, 75%]
+
+=== Schedule Publish improvements
+
+:imagesdir: actions/images
+
+Two major improvements have been made to the Schedule Publish functionality in the Publishing Wizard.
+
+1. It's no longer necessary to select date/time in the "Online from" field of the Schedule form. Default value is "Now", meaning that content will go online as soon as the content is published. If a specific date/time in the future is required, it can still be set manually.
+
+image::publishing-wizard-schedule.png[Optionally schedule publish from and to, 75%]
+
+[start=2]
+2. If content has already been scheduled for publishing, then modified and needs to be republished, caption on the publish button will change from "Publish Now" to "Update Scheduled".
+
+:imagesdir: release/images
+
+image::cs54-update-scheduled.png[Update scheduled publishing, 75%]
+
+=== Juke translation on language change
+
+In the previous release we introduced integration with Juke AI Translator to provide AI-powered translation
+when localizing content in a layer. In this release we have extended this functionality to also provide
+automatic translation when changing the language of existing content that doesn't belong to a layer.
+
+After changing the language of content that has text fields, Content Studio will now suggest translating
+all text fields to the new language using Juke AI Translator.
+
+image::cs54-translate.png[Translate content, 50%]
+
+=== Layers widget
+
+:imagesdir: layers/images
+
+<<layers#layers_widget, Layers Widget>> has been improved to better visualize placement of the content in the project hierarchy. By default, only direct ancestors and descendants of the current layer are shown.
+
+image::layer-widget.png[Layer widget, 75%]
+
+To see all layers where the content exists, click "Show all" button at the bottom of the widget. This will open a modal dialog with the full overview of content placement in the project hierarchy.
+
+image::layer-modal-dialog.png[Layer dialog, 50%]
+
+=== Language plugin in HtmlArea
+
+:imagesdir: release/images
+
+A new Language plugin has been added to the https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/htmlarea[HtmlArea^] input type. This plugin allows setting the `lang` attribute on selected text inside the editor to correctly present content written in multiple languages to screen readers (https://www.w3.org/TR/UNDERSTANDING-WCAG20/meaning-other-lang-id.html[WCAG specs^]).
+
+image::cs54-language-plugin.png[Language plugin, 50%]
+
+=== Version History improvements
+
+:imagesdir: widgets/images
+
+Selection of two versions for comparison in the Version History panel is now done with checkboxes, instead of clicking the "Compare" icon next to each version. This makes it more obvious which versions are going to be compared.
+
+image::widgets-version-history-select.png[Select versions for comparison, 50%]
+
+Long lists of versions in the Version History panel have been optimized for a faster load.
+
+=== Preview mode selector in Page Editor
+
+:imagesdir: release/images
+
+Preview mode selector added to the Preview panel in Content Studio 5.3 is now also available in the Page Editor. In a future version it will be possible to extend the predefined list of modes by plugging in your own preview engines with editing capabilities.
+
+image::cs54-preview-mode.png[Preview selector, 75%]
+
+=== Notification about a new release
+
+Content Studio will now notify users with Administrator and Content Manager roles about availability of a new feature release (not patch releases).
+A non-intrusive banner will be briefly shown at the bottom of the Content Studio window, with a link to the release notes page.
+
+image::cs54-version-update.png[Notification about new release, 75%]
+
+NOTE: Once the user clicks on the close icon to dismiss the banner, it will not be shown again until a new feature release is available.
+
+=== Other improvements
+
+* Websocket stability has been improved to avoid disconnections in case of temporary network issues.
+
+* A lifetime of warning and error notifications has been increased to give users more time to read them. Also, a notification will now only be dismissed when the user clicks the close icon, not anywhere on the notification itself.
+
+* When the current user didn't have READ permissions for a selected content in Content Selector, the placeholder was displayed saying that the item is not available. Now, a more descriptive message is shown saying that the user doesn't have permissions to view the item, which helps distinguish the lack of permissions from actual missing items.
+
+image::cs54-missing-selected-items.png[Missing selected items, 75%]
 
 == Content Studio 5 Update 3
 
