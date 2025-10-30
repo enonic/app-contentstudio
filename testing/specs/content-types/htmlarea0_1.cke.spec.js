@@ -48,17 +48,18 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await liveFormPanel.waitForOpened();
         });
 
-    // Verifies: https://github.com/enonic/app-contentstudio/issues/3294
-    it(`GIVEN wizard for a content that has no controller is opened WHEN Show Page Editor has been clicked THEN toggler for Component View should not be visible in the toolbar`,
+    it(`GIVEN wizard for a content that has no controller is opened WHEN Hide Page Editor has been clicked THEN Page Editor should be hidden`,
         async () => {
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
             // 1. Open a new wizard for a content without controller or template
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
-            // 2. Click on 'Show Page Editor' button:
-            await contentWizard.clickOnPageEditorToggler();
-            // 3. Verify that 'Live Form' panel gets visible:
+            // 2. Verify that 'Live Form' panel is visible by default:
             await liveFormPanel.waitForOpened();
+            // 3. Click on 'Hide Page Editor' button:
+            await contentWizard.clickOnPageEditorToggler();
+            // 4. Verify that 'Live Form' gets hidden:
+            await liveFormPanel.waitForHidden();
         });
 
     it(`WHEN wizard for 'htmlArea 0:1' is opened THEN single htmlarea should be present by default`,
@@ -71,7 +72,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await contentWizard.waitAndClickOnSave();
             // 2. Verify that only one area is displayed:
             let ids = await htmlAreaForm.getIdOfHtmlAreas();
-            assert.equal(ids.length, 1, "Single html area should be displayed by default");
+            assert.equal(ids.length, 1, 'Single html area should be displayed by default');
             // 3. Verify that the toolbar is not visible in the htmlArea:
             let isToolbarVisible = await htmlAreaForm.isEditorToolbarVisible(0);
             assert.ok(isToolbarVisible === false, 'Html Area toolbar should be hidden by default');
@@ -257,7 +258,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await studioUtils.saveScreenshot('htmlarea_full_screen_conf');
             // 2. Verify that only 6 buttons are present in the toolbar - JustifyLeft JustifyRight | Bold Italic + 'Source' + Fullscreen buttons
             let numberOfButtons = await fullScreenDialog.getNumberOfToolbarButtons();
-            assert.equal(numberOfButtons, 6, "6 buttons should be present in toolbar in Full screen mode");
+            assert.equal(numberOfButtons, 6, '6 buttons should be present in toolbar in Full screen mode');
             await fullScreenDialog.waitForUnderlineButtonNotDisplayed();
         });
 

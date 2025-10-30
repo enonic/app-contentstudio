@@ -86,7 +86,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             // 8. Verify that expected description should be present in the site in wizard step:
             let actualDescriptionFragment = await pageComponentsWizardStepForm.getComponentDescription(LAYOUT_2_COL);
             assert.equal(actualDescriptionFragment, FRAGMENT_LAYOUT_DESCRIPTION,
-                "'layout' description should be present in 'fragment item'");
+                `'layout' description should be present in 'fragment item'`);
         });
 
     it("GIVEN existing site is opened WHEN the second fragment has been saved THEN two options should be in fragment selector in Inspect Panel",

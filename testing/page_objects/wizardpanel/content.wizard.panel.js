@@ -1093,8 +1093,12 @@ class ContentWizardPanel extends Page {
     }
 
     async clickOnShowChangesToolbarButton() {
-        await this.waitForShowChangesButtonDisplayed();
-        await this.clickOnElement(this.showChangesToolbarButton);
+        try {
+            await this.waitForShowChangesButtonDisplayed();
+            await this.clickOnElement(this.showChangesToolbarButton);
+        } catch (err) {
+            await this.handleError('Tried to click on Show Changes in wizard preview toolbar button', 'err_show_changes_button', err);
+        }
     }
 
     async waitForToolbarRoleAttribute(expectedRole) {
