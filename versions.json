@@ -14,11 +14,11 @@
     },
     {
       "label": "next",
-      "checkout": "2d7ad8cc9cff5fc5e4ff1fb5b56d5a8912c24c85"
+      "checkout": "issue-9290"
     },
     {
       "label": "stable",
-      "checkout": "3dcda55d290f3dc89d6a8700bce6d1e5cc7ab4b0",
+      "checkout": "5.3",
       "latest": true
     }
   ]
