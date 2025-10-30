@@ -19,11 +19,11 @@ describe("compare.with.published.version.dialog.spec tests for 'Show changes' mo
     it('Preconditions- published folder should be added',
         async () => {
             let contentWizard = new ContentWizard();
-            //1. Open new wizard for folder
+            // 1. Open new wizard for folder
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            //2. Fill in the name input
+            // 2. Fill in the name input
             await contentWizard.typeDisplayName(FOLDER_NAME);
-            //3. Publish this folder:
+            // 3. Publish this folder:
             await contentWizard.clickOnMarkAsReadyButton();
             await studioUtils.doPublish();
         });
@@ -43,8 +43,7 @@ describe("compare.with.published.version.dialog.spec tests for 'Show changes' mo
             await editDetailsDialog.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSaveButtonDisabled();
-            // Open preview toolbar:
-            await contentWizard.clickOnPageEditorToggler();
+            // preview toolbar should be shown by default:
             // 3. Open 'Compare With Published Version' modal dialog
             await contentWizard.clickOnShowChangesToolbarButton();
             await compareWithPublishedVersionDialog.waitForDialogOpened();
@@ -72,8 +71,7 @@ describe("compare.with.published.version.dialog.spec tests for 'Show changes' mo
             await editSettingsDialog.clickOnRemoveLanguage();
             await editSettingsDialog.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
-            // Open preview toolbar
-            await contentWizard.clickOnPageEditorToggler();
+            // preview toolbar should be shown by default:
             // 3. Open 'Compare With Published Version' modal dialog
             await contentWizard.clickOnShowChangesToolbarButton();
             await compareWithPublishedVersionDialog.waitForDialogOpened();

@@ -50,8 +50,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await contentWizard.typeDisplayName(CONTENT_NAME);
             await htmlAreaForm.typeTextInHtmlArea('test1');
             await studioUtils.saveScreenshot('issue_1');
-            // 1 Click on the toggle and open 'Page Editor'
-            await contentWizard.clickOnPageEditorToggler();
+            // 1 'Page Editor' should be opened by default
             // 2 Select the page descriptor
             let pageInspectionPanel = new PageInspectionPanel();
             let wizardContextWindow = await contentWizard.openContextWindow();

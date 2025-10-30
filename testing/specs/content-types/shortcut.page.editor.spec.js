@@ -50,8 +50,7 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(SHORTCUT_NAME);
-            // 1. 'Show page editor' toggle should be displayed, click on it and open the Editor
-            await contentWizard.clickOnPageEditorToggler();
+            // 1. 'page editor' should be opened,
             // 2. Verify the selected option in Preview Widget: (Wizard ContentItemPreviewToolbar)
             let actualOption = await contentWizard.getSelectedOptionInPreviewWidget();
             assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
