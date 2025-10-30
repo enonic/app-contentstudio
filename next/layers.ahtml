@@ -454,7 +454,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#reset">Reset</a></li>
 <li><a href="#layers_widget">Layers Widget</a></li>
-<li><a href="#management">Management</a></li>
 </ul>
 </div>
 </div>
@@ -693,7 +692,7 @@ The <a href="https://market.enonic.com/vendors/enonic/content-studio-plus">Conte
 </div>
 <div class="imageblock text-center">
 <div class="content">
-<img src="layers/images/layer-widget.png" alt="Layer Widget" width="50%">
+<img src="layers/images/layer-widget.png" alt="Layer Widget" width="75%">
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -733,16 +732,10 @@ Read about the high-level concept of Content Layers <a href="https://developer.e
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="management"><a class="link" href="#management">Management</a></h2>
-<div class="sectionbody">
-
-</div>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-30 15:02:21 UTC
+Last updated 2025-10-30 15:42:54 UTC
 </div>
 </div>
 </body>
