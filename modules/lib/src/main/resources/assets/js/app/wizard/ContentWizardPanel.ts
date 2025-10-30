@@ -2446,17 +2446,7 @@ export class ContentWizardPanel
     }
 
     private shouldOpenEditorByDefault(): Q.Promise<boolean> {
-        if (!this.contentType || ContentTypeName.IMAGE.equals(this.contentType.getContentTypeName())) {
-            return Q.resolve(false);
-        }
-        const isTemplate: boolean = this.getContentTypeName().isPageTemplate();
-        const isSite: boolean = this.getContentTypeName().isSite();
-
-        if (isTemplate || isSite) {
-            return Q.resolve(true);
-        }
-
-        return this.isRenderable();
+        return Q.resolve(this.contentType && !ContentTypeName.IMAGE.equals(this.contentType.getContentTypeName()));
     }
 
     private shouldAndCanOpenEditorByDefault(): Q.Promise<boolean> {
