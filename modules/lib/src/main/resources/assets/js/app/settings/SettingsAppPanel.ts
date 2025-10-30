@@ -32,7 +32,7 @@ export class SettingsAppPanel
     private deletedIds: string[] = [];
 
     constructor() {
-        // TODO: Enonic UI Hack
+        // TODO: Enonic UI
         // When possible, remove ContentAppBar dependency or migrate to AppBarElement
         super(ContentAppBar.getInstance());
     }
