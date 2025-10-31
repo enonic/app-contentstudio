@@ -1,6 +1,7 @@
 import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
 import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
 import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentAggregation} from './ContentAggregation';
 import {GetPrincipalsByKeysRequest} from '../../security/GetPrincipalsByKeysRequest';
@@ -20,17 +21,19 @@ export class AggregationsDisplayNamesResolver {
     private contentTypes: Map<string, string>;
     private readonly currentUserId?: string;
 
-    constructor(currentUserId?: string) {
-        this.currentUserId = currentUserId;
+    constructor() {
+        this.currentUserId = AuthContext.get().getUser().getKey().toString();
     }
 
-    updateAggregationsDisplayNames(aggregations: Aggregation[], userId: string): Q.Promise<void> {
+    updateAggregationsDisplayNames(aggregations: BucketAggregation[]): Q.Promise<void> {
         this.updateWorkflowAggregations(aggregations);
 
         const updatePromises: Q.Promise<void>[] = [];
         updatePromises.push(this.updateLanguageAggregations(aggregations));
         updatePromises.push(this.updateContentTypeAggregations(aggregations));
-
+        aggregations.filter((aggr) => this.isPrincipalAggregation(aggr.getName())).forEach((principalAggr: BucketAggregation) => {
+            updatePromises.push(this.updateUnknownPrincipals(principalAggr).then(() => this.updateKnownPrincipals(principalAggr)));
+        });
 
         return Q.all(updatePromises).thenResolve(null);
     }
@@ -141,5 +144,9 @@ export class AggregationsDisplayNamesResolver {
 
             return this.updateContentTypeAggregation(aggregation);
         });
+    }
+
+    private isPrincipalAggregation(name: string): boolean {
+        return name === ContentAggregation.OWNER.toString() || name === ContentAggregation.MODIFIED_BY.toString();
     }
 }
