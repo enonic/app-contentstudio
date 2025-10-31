@@ -93,7 +93,7 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
             await contentWizard.openVersionsHistoryPanel();
             // 4. Expand menu and revert the previous version:
             await wizardVersionsWidget.clickAndExpandVersion(1);
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             await studioUtils.saveScreenshot('rotated_image_reverted');
             // 5. Verify that 'Reset filters' gets not visible and Saved button is disabled:
             await imageEditor.waitForResetFilterNotDisplayed();

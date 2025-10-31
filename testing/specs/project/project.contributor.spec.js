@@ -136,7 +136,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await browseVersionsWidget.clickAndExpandVersionItemByHeader('Created');
             await studioUtils.saveScreenshot('revert_button_should_be_disabled1');
             // 5. Verify that Revert button in browse versions panel is disabled:
-            await browseVersionsWidget.waitForRevertButtonDisabled();
+            await browseVersionsWidget.waitForRestoreButtonDisabled();
         });
 
     // Verifies Compare Versions dialog - Revert button should be disabled for users with no modify permissions #1934
@@ -157,7 +157,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             // 4. Click on the first item in versions widget:
             await wizardVersionsWidget.clickAndExpandVersionItemByHeader('Created');
             // 5. Verify that 'Revert' button in wizard-versions panel is disabled:
-            await wizardVersionsWidget.waitForRevertButtonDisabled();
+            await wizardVersionsWidget.waitForRestoreButtonDisabled();
         });
 
     it("GIVEN user with 'Contributor' role is logged in WHEN existing folder(Ready to publish) has been selected THEN 'Publish' menu item should be disabled for users with 'Contributor' role",

@@ -147,8 +147,8 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await detailsPanel.openVersionHistory();
             await versionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED);
             // 5. Revert the 'Created' version:
-            await versionsWidget.clickOnRevertButton();
-            await versionsWidget.pause(2000);
+            await versionsWidget.clickOnRestoreButton();
+            await versionsWidget.pause(1000);
             await studioUtils.saveScreenshot('components_view_site_reverted');
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             await pageComponentViewDialog.waitForNotDisplayed();

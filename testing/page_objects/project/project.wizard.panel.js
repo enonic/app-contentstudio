@@ -136,7 +136,7 @@ class ProjectWizardPanel extends Page {
         try {
             return await this.waitForElementEnabled(this.saveButton, appConst.mediumTimeout);
         } catch (err) {
-            throw new Error("'Save' button is not enabled :" + err);
+            await this.handleError( 'Project Wizard Panel - Save button is not enabled','app_pr_wizard_save_btn', err);
         }
     }
 

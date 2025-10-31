@@ -85,8 +85,8 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await detailsPanel.openVersionHistory();
             await versionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             // 5. Revert the version without a controller:
-            await versionsWidget.clickOnRevertButton();
-            await versionsWidget.pause(2000);
+            await versionsWidget.clickOnRestoreButton();
+            await versionsWidget.pause(1000);
             // 6. Verify that PCV is not visible now:
             await studioUtils.saveScreenshot('pcv_hidden_after_reverting');
             await pageComponentViewDialog.waitForNotDisplayed();

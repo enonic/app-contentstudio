@@ -150,7 +150,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             //2. Revert the previous version:
             await versionsWidget.clickAndExpandVersion(1);
             //revert the version with 'Custom Width'
-            await versionsWidget.clickOnRevertButton();
+            await versionsWidget.clickOnRestoreButton();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot("image_range_version_reverted");
             //3. Open 'Insert Image Dialog'

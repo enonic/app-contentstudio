@@ -462,6 +462,23 @@ class Page {
         }]);
     }
 
+    async doPerformMoveToAction(element, offsetX, offsetY) {
+        await element.moveTo();
+        let xValue = await element.getLocation('x');
+        let yValue = await element.getLocation('y');
+        let x  = Math.floor(xValue);//parseInt(yValue) + offsetY;
+        let y = Math.floor(yValue);// + offsetX;
+        return await this.browser.performActions([{
+            type: 'pointer',
+            id: 'pointer1',
+            parameters: {
+                pointerType: 'mouse'
+            },
+            actions: [
+                {type: "pointerMove", origin: "pointer", "x": x, "y": y}]
+        }]);
+    }
+
     async isFocused(selctor) {
         let el = await this.findElement(selctor);
         return await el.isFocused();

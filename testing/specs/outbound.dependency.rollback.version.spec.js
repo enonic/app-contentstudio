@@ -82,7 +82,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
             await wizardVersionsWidget.waitForVersionsLoaded();
             await wizardVersionsWidget.clickAndExpandVersion(1);
             // 3. revert the version with 2 selected image:
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSpinnerNotVisible();
             // 4. Verify that 2 selected images are present in the selector:
@@ -121,7 +121,7 @@ function rollbackVersion() {
     }).then(() => {
         return wizardVersionsWidget.clickAndExpandVersion(1)
     }).then(() => {
-        return wizardVersionsWidget.clickOnRevertButton();
+        return wizardVersionsWidget.clickOnRestoreButton();
     });
 }
 

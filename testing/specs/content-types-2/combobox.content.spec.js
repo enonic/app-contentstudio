@@ -102,13 +102,13 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             await comboBoxForm.waitForOptionFilterInputEnabled();
             // 4. Verify that the content gets valid even before clicking on the 'Save' button
             let isInValid = await contentWizard.isContentInvalid();
-            assert.ok(isInValid === false, 'the content should be valid, because combobox input is not required');
+            assert.ok(isInValid === false, 'the content should be valid, because 2 options are selected');
             // 5. Click on 'Mark as Ready' button and save the content
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.waitForNotificationMessage();
         });
 
-    it("GIVEN existing ready for publishing content with 2 selected option(ComboBox 2:4)is opened WHEN one option has been removed THEN the content gets invalid",
+    it("GIVEN existing ready for publishing content with 2 selected option(ComboBox 2:4) is opened WHEN one option has been removed THEN the content gets invalid",
         async () => {
             let comboBoxForm = new ComboBoxForm();
             let contentWizard = new ContentWizard();
@@ -120,17 +120,17 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             assert.ok(result.includes(OPTION_A), `'option A' should be selected`);
             assert.ok(result.includes(OPTION_B), `'option B' should be selected`);
             await studioUtils.saveScreenshot('combobox_2_options');
-            // 2. Remove the selected option:
+            // 2. Remove one selected option:
             await comboBoxForm.clickOnRemoveSelectedOptionButton(1);
-            // 3. Verify that the content gets not valid even after removing a required selected option:
+            // 3. Verify that the content gets invalid even after removing a required selected option:
             let isInValid = await contentWizard.isContentInvalid();
             assert.ok(isInValid, 'the content should be invalid, because 2 options are required');
             // 4. Verify the message: 'Min 2 valid occurrence(s) required'
             let actualMessage = await comboBoxForm.getComboBoxValidationMessage();
-            assert.equal(actualMessage, `Min 2 valid occurrence(s) required`, "Expected validation message should appear");
+            assert.equal(actualMessage, `Min 2 valid occurrence(s) required`, 'Expected validation message should appear');
         });
 
-    it("GIVEN existing content with 2 selected options(ComboBox 2:4) is opened WHEN the previous version has been reverted THEN options should not be selected AND the content gets invalid",
+    it("GIVEN existing valid content with 2 selected options(ComboBox 2:4) is opened WHEN the version without selected options has been reverted THEN options should be removed AND the content gets invalid",
         async () => {
             let comboBoxForm = new ComboBoxForm();
             let versionPanel = new WizardVersionsWidget();
@@ -139,9 +139,9 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_2);
             await contentWizard.openVersionsHistoryPanel();
             // 2. Revert the previous version:
-            await versionPanel.clickAndExpandVersion(1);
-            await versionPanel.clickOnRevertButton();
-            await studioUtils.saveScreenshot('revert_combobox_invalid_version');
+            await versionPanel.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            await versionPanel.clickOnRestoreButton();
+            await studioUtils.saveScreenshot('restore_combobox_invalid_version');
             // 3. Verify that no options selected in the form:
             await comboBoxForm.waitForNoOptionsSelected();
             // 4. Verify that the content gets invalid
@@ -149,7 +149,20 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             assert.ok(isInValid, 'the content gets invalid, because combobox input is required');
             // 5. Verify the message: 'Min 2 valid occurrence(s) required'
             let actualMessage = await comboBoxForm.getComboBoxValidationMessage();
-            assert.equal(actualMessage, 'Min 2 valid occurrence(s) required', "Expected validation message should appear");
+            assert.equal(actualMessage, 'Min 2 valid occurrence(s) required', 'Expected validation message should appear');
+        });
+
+    // Make 'Marked as Ready' version non-restorable and non-interactable
+    it("GIVEN existing content with Marked as Ready version is opened WHEN 'Marked as Ready' version item has been clicked THEN the version should be non-restorable",
+        async () => {
+            let versionPanel = new WizardVersionsWidget();
+            let contentWizard = new ContentWizard();
+            // 1. open the existing content with Marked as Ready version
+            await studioUtils.openContentAndSwitchToTabByDisplayName(CONTENT_NAME_2,'<Unnamed Combobox2_4>');
+            // 2. Open Version History panel and click on 'Marked as Ready' version item:
+            await contentWizard.openVersionsHistoryPanel();
+            await versionPanel.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.MARKED_AS_READY, 1);
+            await versionPanel.waitForRestoreButtonNotDisplayed();
         });
 
     it("GIVEN the content is selected AND allow-child-content-type is 'base:folder' WHEN New Content dialog is opened THEN only one content type should be present",
