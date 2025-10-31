@@ -449,8 +449,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#juke_translation_on_language_change">Juke translation on language change</a></li>
 <li><a href="#layers_widget">Layers widget</a></li>
 <li><a href="#language_plugin_in_htmlarea">Language plugin in HtmlArea</a></li>
+<li><a href="#version_history_improvements">Version History improvements</a></li>
 <li><a href="#preview_mode_selector_in_page_editor">Preview mode selector in Page Editor</a></li>
 <li><a href="#notification_about_a_new_release">Notification about a new release</a></li>
+<li><a href="#other_improvements">Other improvements</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5_update_3">Content Studio 5 Update 3</a>
@@ -461,7 +463,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#edit_text_in_the_inspect_panel">Edit text in the Inspect panel</a></li>
 <li><a href="#support_for_webp_and_avif">Support for webp and avif</a></li>
 <li><a href="#accessibility_improvements">Accessibility improvements</a></li>
-<li><a href="#other_improvements">Other improvements</a></li>
+<li><a href="#other_improvements_2">Other improvements</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5_update_2">Content Studio 5 Update 2</a>
@@ -473,7 +475,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#decorative_images">Decorative images</a></li>
 <li><a href="#default_online_from_time">Default Online From time</a></li>
 <li><a href="#page_components_view">Page Components view</a></li>
-<li><a href="#other_improvements_2">Other improvements</a></li>
+<li><a href="#other_improvements_3">Other improvements</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5_update_1">Content Studio 5 Update 1</a>
@@ -484,7 +486,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#export_of_search_results">Export of search results</a></li>
 <li><a href="#new_findreplace_dialog_in_rich_text_editor">New Find/Replace dialog in Rich Text Editor</a></li>
 <li><a href="#locked_path_for_published_content">Locked path for published content</a></li>
-<li><a href="#other_improvements_3">Other improvements</a></li>
+<li><a href="#other_improvements_4">Other improvements</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5">Content Studio 5</a>
@@ -494,7 +496,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#page_components_view_2">Page Components View</a></li>
 <li><a href="#publishing_wizard_improvements">Publishing Wizard improvements</a></li>
 <li><a href="#call_links_in_the_insert_link_dialog">Call links in the Insert Link dialog</a></li>
-<li><a href="#other_improvements_4">Other improvements</a></li>
+<li><a href="#other_improvements_5">Other improvements</a></li>
 </ul>
 </li>
 </ul>
@@ -626,6 +628,15 @@ all text fields to the new language using Juke AI Translator.</p>
 </div>
 </div>
 <div class="sect2">
+<h3 id="version_history_improvements"><a class="link" href="#version_history_improvements">Version History improvements</a></h3>
+<div class="paragraph">
+<p>Selection of two versions for comparison in the Version History panel is now done via checkboxes next to each version entry, instead of clicking the "Compare" icon next to each version. This makes it more obvious which versions are going to be compared.</p>
+</div>
+<div class="paragraph">
+<p>Long lists of versions in the Version History panel have been optimized for a faster load.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="preview_mode_selector_in_page_editor"><a class="link" href="#preview_mode_selector_in_page_editor">Preview mode selector in Page Editor</a></h3>
 <div class="paragraph">
 <p>Preview mode selector added to the Preview panel in Content Studio 5.3 is now also available in the Page Editor. In a future version it will be possible to extend the predefined list of modes by plugging in your own preview engines with editing capabilities.</p>
@@ -658,6 +669,22 @@ Once the user clicks on the close icon to dismiss the banner, it will not be sho
 </td>
 </tr>
 </table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="other_improvements"><a class="link" href="#other_improvements">Other improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Websocket stability has been improved to avoid disconnections in case of temporary network issues.</p>
+</li>
+<li>
+<p>When the current user didn&#8217;t have READ permissions for a selected item in Content Selector, the placeholder was displayed saying that the item is missing. Now, a more descriptive message is shown saying that the user doesn&#8217;t have permissions to view the item, which helps distinguish this case from actual missing items.</p>
+</li>
+<li>
+<p>A lifetime of warning and error notifications has been increased to give users more time to read them. Also, a notification will now only be dismissed when the user clicks the close icon, not anywhere on the notification itself.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -862,7 +889,7 @@ In future versions it will be possible to add custom preview modes.
 </div>
 </div>
 <div class="sect2">
-<h3 id="other_improvements"><a class="link" href="#other_improvements">Other improvements</a></h3>
+<h3 id="other_improvements_2"><a class="link" href="#other_improvements_2">Other improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -995,7 +1022,7 @@ Content Studio 5.2 requires XP 7.14.1 or higher.
 </div>
 </div>
 <div class="sect2">
-<h3 id="other_improvements_2"><a class="link" href="#other_improvements_2">Other improvements</a></h3>
+<h3 id="other_improvements_3"><a class="link" href="#other_improvements_3">Other improvements</a></h3>
 <div class="sect3">
 <h4 id="performance"><a class="link" href="#performance">Performance</a></h4>
 <div class="paragraph">
@@ -1132,7 +1159,7 @@ This mode can be turned on in Content Studio&#8217;s <a href="config.ahtml#exclu
 </div>
 </div>
 <div class="sect2">
-<h3 id="other_improvements_3"><a class="link" href="#other_improvements_3">Other improvements</a></h3>
+<h3 id="other_improvements_4"><a class="link" href="#other_improvements_4">Other improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1223,7 +1250,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 </div>
 <div class="sect2">
-<h3 id="other_improvements_4"><a class="link" href="#other_improvements_4">Other improvements</a></h3>
+<h3 id="other_improvements_5"><a class="link" href="#other_improvements_5">Other improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1243,7 +1270,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-31 13:30:20 UTC
+Last updated 2025-10-31 16:05:42 UTC
 </div>
 </div>
 </body>
