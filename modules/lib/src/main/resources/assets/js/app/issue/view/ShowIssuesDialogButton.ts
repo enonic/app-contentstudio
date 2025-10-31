@@ -1,3 +1,4 @@
+// TODO: Enonic UI - This file should be deleted after ContentAppBar removal
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
