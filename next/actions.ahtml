@@ -1098,7 +1098,7 @@ when the content should be online. "Publish Now" button will then change its lab
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Only offline items will be scheduled. All other changes will be published immediately.
+Only offline items can be scheduled for publishing. If the item is already online, the new changes will be published immediately.
 </td>
 </tr>
 </table>
@@ -1203,7 +1203,7 @@ In-depth reference on the publish requests can be found <a href="workflow.ahtml#
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-30 16:10:52 UTC
+Last updated 2025-10-31 09:35:58 UTC
 </div>
 </div>
 </body>

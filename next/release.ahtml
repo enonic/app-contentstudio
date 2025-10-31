@@ -444,6 +444,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#content_studio_5_update_4">Content Studio 5 Update 4</a>
 <ul class="sectlevel2">
 <li><a href="#whats_new">What&#8217;s new</a></li>
+<li><a href="#gallery_mode_in_customselector">Gallery mode in CustomSelector</a></li>
 <li><a href="#schedule_publish_improvements">Schedule Publish improvements</a></li>
 <li><a href="#juke_translation_on_language_change">Juke translation on language change</a></li>
 <li><a href="#layers_widget">Layers widget</a></li>
@@ -532,6 +533,18 @@ Content Studio 5.4 requires XP 7.16.0 or higher.
 <div class="sect2">
 <h3 id="whats_new"><a class="link" href="#whats_new">What&#8217;s new</a></h3>
 
+</div>
+<div class="sect2">
+<h3 id="gallery_mode_in_customselector"><a class="link" href="#gallery_mode_in_customselector">Gallery mode in CustomSelector</a></h3>
+<div class="paragraph">
+<p><a href="https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/customselector" target="_blank" rel="noopener">CustomSelector</a> input type now supports gallery mode, similar to the appearance of ImageSelector&#8217;s dropdown.
+When enabled, the selector will display options in a gallery style (three big images in a row), making it more suitable for selecting images.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-customselector-gallery.png" alt="Custom Selector in gallery mode" width="75%">
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="schedule_publish_improvements"><a class="link" href="#schedule_publish_improvements">Schedule Publish improvements</a></h3>
@@ -1193,7 +1206,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-30 16:10:52 UTC
+Last updated 2025-10-31 09:35:58 UTC
 </div>
 </div>
 </body>
