@@ -34,8 +34,9 @@ describe('site.wizard.add.application.spec: Select an application in the wizard 
             // 6. Verify that 'Preview not available' message gets visible:
             let result = await liveFormPanel.waitForEditingNotAvailableMessageDisplayed();
             assert.equal(result, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, "'Preview not available' message should be displayed");
-            // 7. Verify that 'Page Settings' link gets visible:
-            await liveFormPanel.waitForPageSettingsLinkDisplayed();
+            // 7. Verify that 'Page Settings' menu item is available in the context menu:
+            await contentWizard.doOpenPageViewContextMenu(displayName);
+            await contentWizard.waitForPageSettingsMenuItemDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

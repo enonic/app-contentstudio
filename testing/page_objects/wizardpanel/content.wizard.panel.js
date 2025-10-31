@@ -603,7 +603,21 @@ class ContentWizardPanel extends Page {
         return await this.clickOnPageSettingsMenuItem();
     }
 
-    // Opens context menu with 'Customize Page' item
+    // Opens context menu with 'Page Settings' with contentName in its title
+    async doOpenPageViewContextMenu(contentName) {
+        try {
+            let frameContainer = `//div[contains(@id,'FrameContainer')]`;
+            await this.waitForElementDisplayed(frameContainer, appConst.mediumTimeout);
+            await this.clickOnElement(frameContainer);
+            let menuLocator = `//div[contains(@id,'ItemViewContextMenu') and descendant::h6[contains(@class,'main-name') and text()='${contentName}']]`;
+            await this.waitForElementDisplayed(menuLocator, appConst.mediumTimeout);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError('Content wizard, tried to open Page View Context Menu(Page Setting)', 'err_page_view_context_menu', err);
+        }
+    }
+
+    // Opens context menu with 'Page Settings' item
     async doOpenItemViewContextMenu() {
         try {
             let selector = `//div[contains(@id,'FrameContainer')]`;
@@ -623,6 +637,15 @@ class ContentWizardPanel extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
         return await this.pause(1000);
+    }
+
+    async waitForPageSettingsMenuItemDisplayed() {
+        try {
+            let locator = XPATH.itemViewContextMenu + `//dl//dt[text()='Page settings']`;
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Universal Editor - Page settings menu item is not displayed', 'err_page_settings_menu_item', err);
+        }
     }
 
     isPageControllerFilterInputClickable() {
