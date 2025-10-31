@@ -216,8 +216,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     // xp-apps#738 Live Editor is not updated after a page template was added or removed
     // https://github.com/enonic/xp-apps/issues/738
-    it.skip(
-        `GIVEN site is opened WHEN page-template has been deleted THEN site-wizard should be reset and controller-combobox should appear`,
+    it(`GIVEN site is opened WHEN page-template has been deleted THEN site-wizard should be reset and controller-combobox should appear`,
         async () => {
             let contentWizard = new ContentWizard();
             //1. Open the site:
@@ -227,7 +226,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.doDeleteContent(TEMPLATE.displayName);
             //3. Switch to site wizard again:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
-            await studioUtils.saveScreenshot(SITE.displayName + '_reset');
+            await studioUtils.saveScreenshot(SITE.displayName + '_template_deleted');
             //4. Controller selector should appear in the wizard(Options filter input should appear): TODO
             //await contentWizard.waitForControllerOptionFilterInputVisible();
         });
