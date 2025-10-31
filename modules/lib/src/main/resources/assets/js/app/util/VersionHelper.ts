@@ -145,7 +145,7 @@ export class VersionHelper {
     }
 
     private static notifyAboutNewerVersion(version: string) {
-        const message = new Message(MessageType.INFO, i18n('notify.newerVersion', version), false);
+        const message = Message.newInfo(i18n('notify.newerVersion', version), true, Message.longLifeTime);
         message.addAction(i18n('notify.newerVersion.link'), () => {
             window.open(VersionHelper.RELEASE_NOTES_URL, '_blank');
         });
