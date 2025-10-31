@@ -73,6 +73,15 @@ Preview mode selector added to the Preview panel in Content Studio 5.3 is now al
 
 image::cs54-preview-mode.png[Preview selector, 75%]
 
+=== Notification about a new release
+
+Content Studio will now notify users with Administrator and Content Manager roles about availability of a new feature release (not patch releases).
+A non-intrusive banner will be briefly shown at the bottom of the Content Studio window, with a link to the release notes page.
+
+image::cs54-version-update.png[Notification about new release, 75%]
+
+NOTE: Once the user clicks on the close icon to dismiss the banner, it will not be shown again until a new feature release is available.
+
 == Content Studio 5 Update 3
 
 IMPORTANT: Content Studio 5.3 requires XP 7.15.0 or higher.
