@@ -59,8 +59,6 @@ describe('version.items.after.publishing.spec tests for version items', function
     it(`GIVEN existing published folder is opened WHEN permissions have been updated THEN 'Permissions updated' item should appear in 'Versions Widget', the content remains Published`,
         async () => {
             let contentWizard = new ContentWizard();
-            let wizardContextPanel = new WizardContextPanel();
-            let wizardVersionsWidget = new WizardVersionsWidget();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let userAccessWidget = new UserAccessWidget();
             // 1. Select the folder:
@@ -76,8 +74,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             await editPermissionsSummaryStep.waitForLoaded();
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
             await editPermissionsSummaryStep.waitForDialogClosed();
-            // 5. Open Page Editor with Preview Widget, Verify that status remains  Published
-            await contentWizard.clickOnPageEditorToggler();
+            // 5. Verify that status remains  'Published' (Page editor is opened by default)
             let actualStatus = await contentWizard.getContentStatus();
             assert.equal(actualStatus, appConst.CONTENT_STATUS.PUBLISHED, `The folder should remain 'Published'`);
         });
@@ -133,10 +130,10 @@ describe('version.items.after.publishing.spec tests for version items', function
             assert.equal(publishedItems, 2, 'Two Published items should be displayed');
             // 6. Verify that one 'Marked as ready' item is present in the widget
             let markedAsReadyItems = await wizardVersionsWidget.countMarkedAsReadyItems();
-            assert.equal(markedAsReadyItems, 1, "One 'Marked as Ready' item should be present in the widget");
+            assert.equal(markedAsReadyItems, 1, `One 'Marked as Ready' item should be present in the widget`);
             // 7. Verify that one 'Permissions updated' item is present in the widget
             let permissionsUpdatedItems = await wizardVersionsWidget.countPermissionsUpdatedItems();
-            assert.equal(permissionsUpdatedItems, 1, "One 'Permissions updated' item should be present in the widget");
+            assert.equal(permissionsUpdatedItems, 1, `One 'Permissions updated' item should be present in the widget`);
 
         });
     beforeEach(() => studioUtils.navigateToContentStudioApp());
