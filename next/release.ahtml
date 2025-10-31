@@ -448,7 +448,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#schedule_publish_improvements">Schedule Publish improvements</a></li>
 <li><a href="#juke_translation_on_language_change">Juke translation on language change</a></li>
 <li><a href="#layers_widget">Layers widget</a></li>
+<li><a href="#language_plugin_in_htmlarea">Language plugin in HtmlArea</a></li>
 <li><a href="#preview_mode_selector_in_page_editor">Preview mode selector in Page Editor</a></li>
+<li><a href="#notification_about_a_new_release">Notification about a new release</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5_update_3">Content Studio 5 Update 3</a>
@@ -587,7 +589,7 @@ automatic translation when changing the language of existing content that doesn&
 <p>After changing the language of content that has text fields, Content Studio will now suggest translating
 all text fields to the new language using Juke AI Translator.</p>
 </div>
-<div class="imageblock text-center">
+<div class="imageblock">
 <div class="content">
 <img src="release/images/cs54-translate.png" alt="Translate content" width="50%">
 </div>
@@ -598,29 +600,64 @@ all text fields to the new language using Juke AI Translator.</p>
 <div class="paragraph">
 <p><a href="layers.ahtml#layers_widget">Layers Widget</a> has been improved to better visualize placement of the content in the project hierarchy. By default, only direct ancestors and descendants of the current layer are shown.</p>
 </div>
-<div class="imageblock text-center">
+<div class="imageblock">
 <div class="content">
 <img src="layers/images/layer-widget.png" alt="Layer widget" width="75%">
 </div>
 </div>
 <div class="paragraph">
-<p>To see all layers where the content exists, click "Show all" button at the bottom of the widget.</p>
+<p>To see all layers where the content exists, click "Show all" button at the bottom of the widget. This will open a modal dialog with the full overview of content placement in the project hierarchy.</p>
 </div>
-<div class="imageblock text-center">
+<div class="imageblock">
 <div class="content">
 <img src="layers/images/layer-modal-dialog.png" alt="Layer dialog" width="50%">
 </div>
 </div>
 </div>
 <div class="sect2">
+<h3 id="language_plugin_in_htmlarea"><a class="link" href="#language_plugin_in_htmlarea">Language plugin in HtmlArea</a></h3>
+<div class="paragraph">
+<p>A new Language plugin has been added to the <a href="https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/htmlarea" target="_blank" rel="noopener">HtmlArea</a> input type. This plugin allows setting the <code>lang</code> attribute on selected text inside the editor to correctly present content written in multiple languages to screen readers (<a href="https://www.w3.org/TR/UNDERSTANDING-WCAG20/meaning-other-lang-id.html" target="_blank" rel="noopener">WCAG specs</a>).</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-language-plugin.png" alt="Language plugin" width="50%">
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="preview_mode_selector_in_page_editor"><a class="link" href="#preview_mode_selector_in_page_editor">Preview mode selector in Page Editor</a></h3>
 <div class="paragraph">
-<p>Preview mode selector added to the Preview panel in Content Studio 5.3 is now also available in the Page Editor. In a future version it will be possible to extend the predefined list of modes by plugging in your own preview engines.</p>
+<p>Preview mode selector added to the Preview panel in Content Studio 5.3 is now also available in the Page Editor. In a future version it will be possible to extend the predefined list of modes by plugging in your own preview engines with editing capabilities.</p>
 </div>
-<div class="imageblock text-center">
+<div class="imageblock">
 <div class="content">
 <img src="release/images/cs54-preview-mode.png" alt="Preview selector" width="75%">
 </div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="notification_about_a_new_release"><a class="link" href="#notification_about_a_new_release">Notification about a new release</a></h3>
+<div class="paragraph">
+<p>Content Studio will now notify users with Administrator and Content Manager roles about availability of a new feature release (not patch releases).
+A non-intrusive banner will be briefly shown at the bottom of the Content Studio window, with a link to the release notes page.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-version-update.png" alt="Notification about new release" width="75%">
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Once the user clicks on the close icon to dismiss the banner, it will not be shown again until a new feature release is available.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -1206,7 +1243,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-31 09:35:58 UTC
+Last updated 2025-10-31 13:30:20 UTC
 </div>
 </div>
 </body>
