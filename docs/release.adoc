@@ -12,6 +12,13 @@ IMPORTANT: Content Studio 5.4 requires XP 7.16.0 or higher.
 
 === What's new
 
+=== Gallery mode in CustomSelector
+
+https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/customselector[CustomSelector^] input type now supports gallery mode, similar to the appearance of ImageSelector's dropdown.
+When enabled, the selector will display options in a gallery style (three big images in a row), making it more suitable for selecting images.
+
+image::cs54-customselector-gallery.png[Custom Selector in gallery mode, 75%]
+
 === Schedule Publish improvements
 
 :imagesdir: actions/images
