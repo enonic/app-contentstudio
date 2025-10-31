@@ -5,43 +5,94 @@ import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {ContentSummary} from '../content/ContentSummary';
 import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {PageNavigationMediator} from './PageNavigationMediator';
 import {PageNavigationEvent} from './PageNavigationEvent';
 import {PageNavigationEventType} from './PageNavigationEventType';
 import {PageNavigationEventData} from './PageNavigationEventData';
 import {ComponentPath} from '../page/region/ComponentPath';
+import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {PageViewContextMenuTitle} from '../../page-editor/PageViewContextMenuTitle';
+import {ItemViewContextMenuTitle} from '../../page-editor/ItemViewContextMenuTitle';
 
 export class WizardWidgetRenderingHandler
     extends WidgetRenderingHandler {
 
-    private placeholderView: DivEl;
     private hasControllersDeferred: Q.Deferred<boolean>;
     private hasPageDeferred: Q.Deferred<boolean>;
+    private contextMenu: ItemViewContextMenu;
+    private contextMenuTitle: ItemViewContextMenuTitle;
+    private shader: DivEl;
 
     constructor(renderer: WidgetRenderer) {
         super(renderer);
         this.mode = RenderingMode.EDIT;
+        this.contextMenu = this.initContextMenu();
+        this.shader = new DivEl('shader');
+        this.contextMenu.onShown((e) => this.shader.addClass('visible'));
+        this.contextMenu.onHidden((e) => this.shader.removeClass('visible'));
     }
 
     protected createEmptyView(): DivEl {
-        this.placeholderView = super.createMessageView(this.getDefaultMessage(), 'no-selection-message');
+        const placeholderView = super.createMessageView(this.getDefaultMessage(), 'no-selection-message');
 
-        const settingsLink = new Button(i18n('live.view.page.settings'));
-        settingsLink.addClass('transparent small page-settings-link');
-        settingsLink.onClicked((e) => {
+        const handler = this.clickHandler.bind(this)
+
+        placeholderView.onClicked(handler);
+        placeholderView.onContextMenu(handler);
+
+        return placeholderView;
+    }
+
+    protected createErrorView(): DivEl {
+        const errorView = super.createErrorView();
+
+        const handler = this.clickHandler.bind(this)
+
+        errorView.onClicked(handler);
+        errorView.onContextMenu(handler);
+
+        return errorView;
+    }
+
+    private clickHandler(event: MouseEvent): void {
+        event.stopPropagation();
+        event.preventDefault();
+        let isMenuVisible = this.contextMenu.isVisible();
+        if (isMenuVisible) {
+            this.contextMenu.hide();
+        } else {
+            this.contextMenu.showAt(event.pageX, event.pageY);
+        }
+    };
+
+    private initContextMenu(): ItemViewContextMenu {
+
+        const unlockAction = new Action(i18n('live.view.page.settings'));
+        unlockAction.onExecuted(() => {
             PageNavigationMediator.get().notify(
                 new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(ComponentPath.root())));
         });
 
-        this.placeholderView.appendChild(settingsLink);
+        this.contextMenuTitle = new PageViewContextMenuTitle('');
 
-        return this.placeholderView;
+        const contextMenu = new ItemViewContextMenu(this.contextMenuTitle, [unlockAction]);
+        contextMenu.onTouchEnd((event: TouchEvent) => {
+            event.stopPropagation();
+        });
+
+        return contextMenu;
+    }
+
+    layout() {
+        super.layout();
+        this.renderer.getChildrenContainer().appendChild(this.shader);
     }
 
     async render(summary: ContentSummary, widget): Promise<boolean> {
         this.hasControllersDeferred = Q.defer<boolean>();
         this.hasPageDeferred = Q.defer<boolean>();
+        this.contextMenuTitle.setMainName(summary.getDisplayName());
         return super.render(summary, widget);
     }
 
