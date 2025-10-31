@@ -6,8 +6,12 @@ import {ProjectSelectionDialog} from '../../../../app/dialog/ProjectSelectionDia
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {ShowIssuesDialogEvent} from '../../../../app/browse/ShowIssuesDialogEvent';
 import {useI18n} from '../../../../app/ui2/hooks/useI18n';
+import {$activeProjectName} from '../../store/projects.store';
+import {useStore} from '@nanostores/preact';
 
 const AppBar = (): ReactElement => {
+    useStore($activeProjectName);
+
     return (
         <header className="bg-surface-neutral h-15 px-5 py-2 flex items-center gap-2.5 border-b border-bdr-soft">
             <Button
@@ -19,7 +23,7 @@ const AppBar = (): ReactElement => {
                 }}
                 aria-label={useI18n('wcag.appbar.project.label')}
             >
-                Default Project
+                {$activeProjectName.get()}
             </Button>
 
             <Button
