@@ -49,5 +49,9 @@ async function loadIssuesStats(): Promise<void> {
 
 void loadIssuesStats();
 
-IssueServerEventsHandler.getInstance().onIssueCreated(loadIssuesStats);
-IssueServerEventsHandler.getInstance().onIssueUpdated(loadIssuesStats);
+IssueServerEventsHandler.getInstance().onIssueCreated(() => {
+    loadIssuesStats();
+});
+IssueServerEventsHandler.getInstance().onIssueUpdated(() => {
+    loadIssuesStats();
+});
