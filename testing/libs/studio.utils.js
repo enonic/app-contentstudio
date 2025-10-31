@@ -353,11 +353,8 @@ module.exports = {
         await contentWizardPanel.typeData(site);
         // 2. Type the data and save:
         if (site.data.controller) {
-           // let wizardContextWindow =  await contentWizardPanel.openContextWindow();
-            //await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
-            //await contentWizardPanel.switchToEmptyLiveEditFrame();
-            await liveFormPanel.clickOnPageSettingsLink();
-            //await liveFormPanel.switchToParentFrame();
+            let wizardContextWindow =  await contentWizardPanel.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(site.data.controller);
         }
         if (noControllers) {
