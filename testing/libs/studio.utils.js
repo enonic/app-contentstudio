@@ -405,7 +405,8 @@ module.exports = {
         await contentWizardPanel.typeData(template);
         // auto-saving of template should be after selecting a controller:
         let pageInspectionPanel = new PageInspectionPanel();
-        await liveFormPanel.clickOnPageSettingsLink();
+        let wizardContextWindow =  await contentWizardPanel.openContextWindow();
+        await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
         await pageInspectionPanel.selectPageTemplateOrController(template.data.controllerDisplayName);
         await contentWizardPanel.waitForNotificationMessage();
         await this.saveScreenshot(template.displayName + '_created');

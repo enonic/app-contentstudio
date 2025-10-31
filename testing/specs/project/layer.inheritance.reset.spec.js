@@ -133,7 +133,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             let actualStatus = await contentWizard.getContentWorkflowState();
             // 5. Verify that workflow status is 'work in progress' ( initial inherited state):
             assert.equal(actualStatus, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
-                "'Work in progress' status should be after the resetting");
+                `'Work in progress' status should be after the resetting`);
             // 6. Verify that 'Reset' button is not displayed in the wizard toolbar:
             await contentWizard.waitForResetButtonNotDisplayed();
         });
@@ -160,17 +160,19 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await contentWizard.waitForSaveButtonDisabled();
             // 6. Verify that 'Preview not available' message gets visible:
             let msg = await liveFormPanel.waitForEditingNotAvailableMessageDisplayed();
-            // 7. Verify that 'Page settings' button is displayed in the 'Live form' panel: - no controller is selected
-            await liveFormPanel.waitForPageSettingsLinkDisplayed();
-            // 8. Verify that 'Preview' button is disabled:
+            assert.equal(msg, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, "'Editing not available' message should be displayed");
+            // 7. Verify that 'Preview' button is disabled:
             await contentWizard.waitForPreviewButtonDisabled();
+
+            // Open Page Settings context menu with the site-name in its title:
+            await contentWizard.doOpenPageViewContextMenu(SITE_NAME);
+            await contentWizard.waitForPageSettingsMenuItemDisplayed();
+
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
-            // 9. Verify that controller in 'Page inspection' panel is set to 'Automatic':
+            // 8. Verify that controller in 'Page inspection' panel is set to 'Automatic':
             let controllerActual = await pageInspectionPanel.getSelectedPageController();
             assert.equal(controllerActual, AUTOMATIC_CONTROLLER, 'Automatic controller should be selected after the resetting');
-            // Preview not available should be displayed in the Live form panel
-            assert.equal(msg, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, "'Editing not available' message should be displayed");
-            await liveFormPanel.waitForPageSettingsLinkDisplayed();
+
         });
 
     it('Post conditions: the project should be deleted',
