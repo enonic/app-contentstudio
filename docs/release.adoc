@@ -45,7 +45,7 @@ automatic translation when changing the language of existing content that doesn'
 After changing the language of content that has text fields, Content Studio will now suggest translating
 all text fields to the new language using Juke AI Translator.
 
-image::cs54-translate.png[Translate content, 50%, align="center"]
+image::cs54-translate.png[Translate content, 50%]
 
 === Layers widget
 
@@ -53,19 +53,25 @@ image::cs54-translate.png[Translate content, 50%, align="center"]
 
 <<layers#layers_widget, Layers Widget>> has been improved to better visualize placement of the content in the project hierarchy. By default, only direct ancestors and descendants of the current layer are shown.
 
-image::layer-widget.png[Layer widget, 75%, align="center"]
+image::layer-widget.png[Layer widget, 75%]
 
-To see all layers where the content exists, click "Show all" button at the bottom of the widget.
+To see all layers where the content exists, click "Show all" button at the bottom of the widget. This will open a modal dialog with the full overview of content placement in the project hierarchy.
 
-image::layer-modal-dialog.png[Layer dialog, 50%, align="center"]
+image::layer-modal-dialog.png[Layer dialog, 50%]
+
+=== Language plugin in HtmlArea
 
 :imagesdir: release/images
 
+A new Language plugin has been added to the https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/htmlarea[HtmlArea^] input type. This plugin allows setting the `lang` attribute on selected text inside the editor to correctly present content written in multiple languages to screen readers (https://www.w3.org/TR/UNDERSTANDING-WCAG20/meaning-other-lang-id.html[WCAG specs^]).
+
+image::cs54-language-plugin.png[Language plugin, 50%]
+
 === Preview mode selector in Page Editor
 
-Preview mode selector added to the Preview panel in Content Studio 5.3 is now also available in the Page Editor. In a future version it will be possible to extend the predefined list of modes by plugging in your own preview engines.
+Preview mode selector added to the Preview panel in Content Studio 5.3 is now also available in the Page Editor. In a future version it will be possible to extend the predefined list of modes by plugging in your own preview engines with editing capabilities.
 
-image::cs54-preview-mode.png[Preview selector, 75%, align="center"]
+image::cs54-preview-mode.png[Preview selector, 75%]
 
 == Content Studio 5 Update 3
 
