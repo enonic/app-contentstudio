@@ -630,7 +630,12 @@ all text fields to the new language using Juke AI Translator.</p>
 <div class="sect2">
 <h3 id="version_history_improvements"><a class="link" href="#version_history_improvements">Version History improvements</a></h3>
 <div class="paragraph">
-<p>Selection of two versions for comparison in the Version History panel is now done via checkboxes next to each version entry, instead of clicking the "Compare" icon next to each version. This makes it more obvious which versions are going to be compared.</p>
+<p>Selection of two versions for comparison in the Version History panel is now done with checkboxes, instead of clicking the "Compare" icon next to each version. This makes it more obvious which versions are going to be compared.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="widgets/images/widgets-version-history-select.png" alt="Select versions for comparison" width="50%">
+</div>
 </div>
 <div class="paragraph">
 <p>Long lists of versions in the Version History panel have been optimized for a faster load.</p>
@@ -679,7 +684,7 @@ Once the user clicks on the close icon to dismiss the banner, it will not be sho
 <p>Websocket stability has been improved to avoid disconnections in case of temporary network issues.</p>
 </li>
 <li>
-<p>When the current user didn&#8217;t have READ permissions for a selected item in Content Selector, the placeholder was displayed saying that the item is missing. Now, a more descriptive message is shown saying that the user doesn&#8217;t have permissions to view the item, which helps distinguish this case from actual missing items.</p>
+<p>When the current user didn&#8217;t have READ permissions for a selected content in Content Selector, the placeholder was displayed saying that the item is missing. Now, a more descriptive message is shown saying that the user doesn&#8217;t have permissions to view the item, which helps distinguish the lack of permissions from actual missing items.</p>
 </li>
 <li>
 <p>A lifetime of warning and error notifications has been increased to give users more time to read them. Also, a notification will now only be dismissed when the user clicks the close icon, not anywhere on the notification itself.</p>
@@ -1270,7 +1275,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-31 16:05:42 UTC
+Last updated 2025-10-31 16:14:11 UTC
 </div>
 </div>
 </body>
