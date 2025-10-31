@@ -752,9 +752,13 @@ class ContentWizardPanel extends Page {
 
     // Gets content status from the Item Preview toolbar
     async getContentStatus() {
-        let locator = this.previewItemToolbar + XPATH.status;
-        let result = await this.getDisplayedElements(XPATH.container + XPATH.status);
-        return await result[0].getText();
+        try {
+            let locator = this.previewItemToolbar + XPATH.status;
+            let result = await this.getDisplayedElements(XPATH.container + XPATH.status);
+            return await result[0].getText();
+        } catch (err) {
+            await this.handleError(`Tried to get the content-status from the Item Wizard Preview toolbar`, 'err_get_content_status', err);
+        }
     }
 
     // Waits until content status in the Item Preview toolbar equals to expectedStatus
