@@ -178,29 +178,6 @@
             padding: 5px;
             display: none;
           }
-
-          button.compare {
-            position: absolute;
-            right: 0;
-            top: 0;
-            padding: 0;
-            order: 1;
-            margin-left: 5px;
-            z-index: 1;
-
-            &:before {
-              color: @admin-font-gray2;
-            }
-
-            &:hover:before {
-              color: @admin-font-gray3;
-            }
-
-            &:focus {
-              border: none;
-              outline: none;
-            }
-          }
         }
 
         &.sorted, &.moved, &.permissions, &.renamed {
@@ -236,7 +213,7 @@
 
   .action-buttons-wrapper {
     width: 100%;
-    padding: 12px 0;
+    padding: 15px 0 5px;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
@@ -245,6 +222,10 @@
     margin: 0 auto;
     background: @admin-white;
     z-index: 1;
+
+    .compare-button {
+      padding: 7px 19px;
+    }
 
     .reset-compare-button {
       padding: 5px 12px;
