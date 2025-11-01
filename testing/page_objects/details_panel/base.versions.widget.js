@@ -140,7 +140,13 @@ class BaseVersionsWidget extends Page {
             let locator = xpath.anyItemByHeader(versionHeader);
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             let items = await this.findElements(locator);
+            if (items.length === 0) {
+                throw new Error(`No version items found with header: ${versionHeader}`);
+            }
             //click on the item:
+            if (i >= items.length) {
+                throw new Error(`Index ${i} is out of bounds for version items with header: ${versionHeader}`);
+            }
             await items[i].click();
             return await this.pause(300);
         } catch (err) {
@@ -293,7 +299,8 @@ class BaseVersionsWidget extends Page {
             }
             return await buttonElements[0].$('input').isSelected();
         } catch (err) {
-            await this.handleError('Versions Widget, tried to check if Show changes checkbox is selected...', 'err_check_show_changes_selected', err);
+            await this.handleError('Versions Widget, tried to check if Show changes checkbox is selected...',
+                'err_check_show_changes_selected', err);
         }
     }
 

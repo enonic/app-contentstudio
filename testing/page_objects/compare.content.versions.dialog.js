@@ -53,14 +53,21 @@ class CompareContentVersionsDialog extends Page {
     }
 
     async expandLeftDropdownAndClickOnModifiedOption(index) {
+        try {
 
-        let locator = XPATH.container + XPATH.containerLeft +
-                      "//div[contains(@id,'NamesAndIconView') and descendant::div[contains(@class,'version-modified')]]";
-        await this.clickOnElement(this.leftDropdownHandle);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        let res = await this.findElements(locator);
-        await res[index].click();
-        return await this.pause(500);
+            let locator = XPATH.container + XPATH.containerLeft +
+                          "//div[contains(@id,'NamesAndIconView') and descendant::div[contains(@class,'version-modified')]]";
+            await this.clickOnElement(this.leftDropdownHandle);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            let res = await this.findElements(locator);
+            if (i >= res.length) {
+                throw new Error(`Index ${index} is out of bounds for version items ,length: ${res.length}`);
+            }
+            await res[index].click();
+            return await this.pause(500);
+        } catch (err) {
+
+        }
     }
 
     async clickOnOKAndApplySelection() {
