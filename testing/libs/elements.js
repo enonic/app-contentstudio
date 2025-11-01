@@ -85,6 +85,11 @@ module.exports = Object.freeze({
             return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
         }
     },
+    HELP_TEXT: {
+        TOGGLE: "//div[contains(@class,'help-text-toggle')]",
+        BUTTON: "//div[contains(@class,'help-text-button')]",
+        TEXT: "//div[contains(@class,'help-text visible')]/p",
+    },
     FORM_VIEW_PANEL: {
         INPUT_VIEW: "//div[contains(@id,'InputView')]",
         HTML_AREA_INPUT: "//div[contains(@id,'InputView') and descendant::div[contains(@id,'HtmlArea')]]",
