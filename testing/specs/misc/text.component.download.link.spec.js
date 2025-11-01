@@ -57,7 +57,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             let textComponentCke = new TextComponentCke();
             let insertLinkDialog = new InsertLinkDialog();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
-            // 1. Open existing site:
+            // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
@@ -67,7 +67,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             //Close the details panel
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
-            // 4. Open Insert Link dialog:
+            // 4. Open 'Insert Link' modal dialog:
             await textComponentCke.clickOnInsertLinkButton();
             // 5. Type a link-name and select a target:
             await insertLinkDialog.typeInLinkTextInput(LINK_TEXT);
@@ -87,7 +87,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             await studioUtils.saveScreenshot('download_link_inserted');
             // 10. Verify the text in CKE: 'media://download' should be present in the htmlarea
             let actualText = await textComponentCke.getTextFromEditor();
-            assert.ok(actualText.includes(EXPECTED_SRC), "Expected text should be in the text component");
+            assert.ok(actualText.includes(EXPECTED_SRC), 'Expected text should be in the text component');
             // 11. Save the changes:
             await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();
@@ -117,7 +117,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             await contentItemPreviewPanel.switchToTextFrame();
             // 2. Verify that new added link is present
             let result = await contentItemPreviewPanel.getTextFromTextComponent(0);
-            assert.equal(result, LINK_TEXT, "expected link should be present in the Preview Panel");
+            assert.equal(result, LINK_TEXT, 'expected link should be present in the Preview Panel');
         });
 
     it(`GIVEN site is selected WHEN 'Enonic rendering' is selected AND 'Preview' button has been pressed THEN download-link should be present in the page`,
@@ -140,37 +140,43 @@ describe('Text Component with CKE - insert download-link specification', functio
             let contentWizard = new ContentWizard();
             // 1. open the existing moved content:
             await studioUtils.openContentAndSwitchToTabByDisplayName(TEST_CONTENT_NAME, TEST_CONTENT_DISPLAY_NAME);
+            await contentWizard.openDetailsPanel();
             // 2. open Versions Widget:
+            await contentWizard.openDetailsPanel();
             await contentWizard.openVersionsHistoryPanel();
             // 3. Click on the latest 'Moved' version item:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
             await wizardVersionsWidget.pause(500);
             await studioUtils.saveScreenshot('moved_version_item');
-            // 4 'Active version' "Revert" buttons are not displayed in the 'Permission updated' item
-            await wizardVersionsWidget.waitForActiveVersionButtonNotDisplayed();
-            await wizardVersionsWidget.waitForRevertButtonNotDisplayed();
-            // 5. Verify that 'Compare with current version' button is displayed in Moved item:
-            let result = await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
-            assert.ok(result, "'Show changes' button should be present in Moved version item ");
+            // 5. "Restore" button should  not be displayed in the 'Permission updated' item
+            await wizardVersionsWidget.waitForRestoreButtonNotDisplayed();
+            // 6. Verify that 'Compare with current version' button is displayed in Moved item(if it item is expanded):
+            await wizardVersionsWidget.moveCursorToVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
+            await wizardVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
         });
 
-    it(`GIVEN Moved content has been opened WHEN 'Compare Content Versions Dialog' has been opened for the latest moved item THEN left revert menu buttons should be enabled`,
+    it(`GIVEN Edited and Moved items have been checked in the Versions Widget WHEN 'Compare Content Versions Dialog' has been opened THEN left revert menu buttons should be enabled`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             // 1. open the existing moved content:
             await studioUtils.openContentAndSwitchToTabByDisplayName(TEST_CONTENT_NAME, TEST_CONTENT_DISPLAY_NAME);
+            await contentWizard.openDetailsPanel();
             // 2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             // 3. Open Compare versions dialog in the latest 'Moved' version item:
-            await wizardVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
+            await wizardVersionsWidget.clickOnCompareVersionsButton();
             await compareContentVersionsDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot('moved_version_item_compare_versions');
-            // 4.Verify that left revert-menu is enabled in the dialog, because the previous version is Edited:
-            await compareContentVersionsDialog.waitForLeftRevertMenuButtonEnabled();
-            // 5. Verify that right revert menu is disabled, because Moved item is selected in the right selector:
-            await compareContentVersionsDialog.waitForRightRevertMenuButtonDisabled()
+            // 4.Verify that left restore-menu is enabled in the dialog, because the previous version is Edited:
+            await compareContentVersionsDialog.waitForLeftRestoreMenuButtonEnabled();
+            // 5. Verify that right restore menu is disabled, because Moved item is selected in the right selector:
+            await compareContentVersionsDialog.waitForRightRestoreMenuButtonDisabled()
         });
 
     it(`GIVEN existing child content has been selected WHEN Move button has been pressed THEN Confirmation dialog should be loaded`,
@@ -191,23 +197,28 @@ describe('Text Component with CKE - insert download-link specification', functio
             await moveContentDialog.waitForClosed();
         });
 
-    it(`GIVEN content with 2 moved version items is opened WHEN 'Compare Content Versions Dialog' has been opened for the latest moved item THEN left and right revert menu buttons should be disabled`,
+    it(`GIVEN content with 2 moved version items is opened WHEN 'Compare Content Versions Dialog' has been opened for the latest and previous moved items THEN left and right revert menu buttons should be disabled`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             // 1. open the existing moved content:
             await studioUtils.openContentAndSwitchToTabByDisplayName(TEST_CONTENT_NAME, TEST_CONTENT_DISPLAY_NAME);
+            await contentWizard.openDetailsPanel();
             // 2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
             // 3. Open Compare versions dialog in the latest 'Moved' version item:
-            await wizardVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 1);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 1);
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
+            await wizardVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
+            await wizardVersionsWidget.clickOnCompareVersionsButton();
             await compareContentVersionsDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot('moved_version_item_compare_versions_2');
             // 4.Verify that left revert-menu is enabled in the dialog, because the previous version is Moved:
-            await compareContentVersionsDialog.waitForLeftRevertMenuButtonDisabled();
+            await compareContentVersionsDialog.waitForLeftRestoreMenuButtonDisabled();
             // 5. Verify that right revert menu is disabled, because Moved item is selected in the right selector:
-            await compareContentVersionsDialog.waitForRightRevertMenuButtonDisabled()
+            await compareContentVersionsDialog.waitForRightRestoreMenuButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

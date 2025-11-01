@@ -122,7 +122,7 @@ describe("Shortcut's target specification", function () {
             // 3. Expand the previous version and click on 'Revert' button:
             await wizardVersionsWidget.clickAndExpandVersion(1);
             await studioUtils.saveScreenshot('shortcut_target_reverted');
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             // 4. Verify the target after reverting the previous version:
             await studioUtils.saveScreenshot('shortcut_target_reverted');
             let actualTarget = await shortcutForm.getSelectedTargetDisplayName();

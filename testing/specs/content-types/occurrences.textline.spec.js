@@ -84,7 +84,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 4. Revert the previous version:
             await wizardVersionsWidget.clickAndExpandVersion(1);
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('textline_0_1_reverted');
             let result2 = await textLine.getTexLineValues();

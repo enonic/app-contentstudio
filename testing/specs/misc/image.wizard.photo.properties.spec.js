@@ -43,7 +43,7 @@ describe("image.wizard.photo.properties.spec: Open an image and update photo pro
             // 4. Expand menu and restore the previous version
             await wizardVersionsWidget.clickAndExpandVersion(1);
             // click on 'Revert' button:
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             await studioUtils.saveScreenshot('photo_form_date_time_rollback');
             let result = await imagePhotoInfoFormPanel.getDateTimeValue();
             assert.equal(result, "", "Date Time input should be empty after rollback the version");

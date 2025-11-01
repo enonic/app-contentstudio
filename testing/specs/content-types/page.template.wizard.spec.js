@@ -100,7 +100,7 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             // 2. Open 'Versions widget' and revert the valid version(support is selected)
             await contentWizard.openVersionsHistoryPanel();
             await wizardVersionsWidget.clickAndExpandVersion(1);
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('template_reverted_support');
             // 3. Verify that expected support option gets visible:

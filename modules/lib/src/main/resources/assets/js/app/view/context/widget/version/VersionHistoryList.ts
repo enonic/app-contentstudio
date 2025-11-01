@@ -24,6 +24,8 @@ export class VersionHistoryList
 
     private loading: boolean = false;
 
+    private activeListItem: VersionHistoryListItem;
+
     private versionsConverter: BatchedContentVersionsConverter;
 
     private creatorDisplayName: string;
@@ -44,10 +46,22 @@ export class VersionHistoryList
         this.clearItems();
         this.versionsConverter = null;
         this.load();
+        this.activeListItem = null;
     }
 
     createItemView(version: VersionHistoryItem): VersionHistoryListItem {
-        return new VersionHistoryListItem(version, this.content);
+        return new VersionHistoryListItem(version, this.content).setActiveHandler(this.setActiveListItem.bind(this));
+    }
+
+    private setActiveListItem(item: VersionHistoryListItem): void {
+        this.activeListItem?.setActive(false);
+
+        if (item === this.activeListItem) {
+            this.activeListItem = null;
+        } else {
+            this.activeListItem = item;
+            this.activeListItem.setActive(true);
+        }
     }
 
     getItemId(item: VersionHistoryItem): string {
@@ -83,7 +97,6 @@ export class VersionHistoryList
             const versionHistoryItems = this.versionsConverter.append(result.getContentVersions(), this.loadedCount < this.totalCount);
 
             this.addItems(versionHistoryItems.slice(this.getItemCount(), versionHistoryItems.length));
-            this.addMissingCompareButtons();
         }).catch(DefaultErrorHandler.handle).finally(() => {
             this.loading = false;
 
@@ -131,16 +144,6 @@ export class VersionHistoryList
         }).catch((e) => {
             this.creatorDisplayName = creatorKeyAsString;
             DefaultErrorHandler.handle(e)
-        });
-    }
-
-    private addMissingCompareButtons(): void {
-        this.getItemViews().forEach((view: VersionHistoryListItem, index) => {
-            if (!view.hasCompareButton() && view.isComparableItem()) {
-                if (this.getItemViews().slice(index + 1).some((itemView: VersionHistoryListItem) => itemView.isComparableItem())) {
-                    view.addCompareButton();
-                }
-            }
         });
     }
 }

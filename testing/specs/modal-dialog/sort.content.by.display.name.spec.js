@@ -56,8 +56,8 @@ describe('sort.content.by.display.name.spec, tests for ascending/descending orde
             await contentBrowseDetailsPanel.openVersionHistory();
             // 4. Verify that 'Sorted' version item is present in Versions widget:
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
-            // 5. Active Version button should be displayed in the first sorted-item:
-            await browseVersionsWidget.waitForActiveVersionButtonDisplayed();
+            // 5. Compare Changes Checkbox should be displayed in the first sorted-item(if it was clicked):
+            await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.SORTED,0);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -127,17 +127,17 @@ describe('occurrences.tag.spec: tests for content with tag input', function () {
             assert.equal(actualRecording, 'Min 2 valid occurrence(s) required', "Expected validation recording gets visible");
         });
 
-    it("GIVEN existing Tag-content with added tags is opened WHEN the version without tags has been reverted THEN tag input gets empty",
+    it("GIVEN existing Tag-content with added tags is opened WHEN the previous version without tags has been reverted THEN tag input gets empty",
         async () => {
             let contentWizard = new ContentWizard();
             let versionsWidget = new VersionsWidget();
             let tagForm = new TagForm();
             // 1. open the existing tag 2:5 content:
             await studioUtils.selectAndOpenContentInWizard(TAGS_NAME_2);
-            // 2. Revert the previous version:
+            // 2. Revert the version without tags:
             await contentWizard.openVersionsHistoryPanel();
-            await versionsWidget.clickAndExpandVersion(1);
-            await versionsWidget.clickOnRevertButton();
+            await versionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED,0);
+            await versionsWidget.clickOnRestoreButton();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('req_tag_reverted');
             // 3. Verify that the content gets invalid even before clicking on the 'Save' button
@@ -157,15 +157,15 @@ describe('occurrences.tag.spec: tests for content with tag input', function () {
             // 1. open wizard for new tag 2:5 content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TAG_2_5);
             // 2. Remove the first tag:
-            await tagForm.doAddTag("tag1");
-            await tagForm.doAddTag("tag2");
-            await tagForm.doAddTag("tag3");
-            await tagForm.doAddTag("tag4");
-            await tagForm.doAddTag("tag5");
+            await tagForm.doAddTag('tag1');
+            await tagForm.doAddTag('tag2');
+            await tagForm.doAddTag('tag3');
+            await tagForm.doAddTag('tag4');
+            await tagForm.doAddTag('tag5');
             await studioUtils.saveScreenshot('tag_input_disabled');
             await tagForm.waitForTagInputNotDisplayed();
             let actualNumber = await tagForm.getTagsCount();
-            assert.equal(actualNumber, 5, "5 tags should be present in the input");
+            assert.equal(actualNumber, 5, '5 tags should be present in the input');
         });
 
     it("GIVEN new wizard for Tag-content 0:5 is opened WHEN the name input has been filled THEN the content should be valid",

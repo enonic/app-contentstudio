@@ -32,7 +32,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await studioUtils.openDialogAndPublishSelectedContent();
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
             let expectedMessage = appConst.itemPublishedNotificationMessage(FOLDER.displayName);
-            assert.equal(actualMessage, expectedMessage, "'Item is published' - message should appear");
+            assert.equal(actualMessage, expectedMessage, `'Item is published' - message should appear`);
             //2. Verify the default action gets 'Unpublish' in Publish menu:
             await contentBrowsePanel.waitForUnPublishButtonVisible();
             //3. Verify that 'publish menu' is available:
@@ -43,9 +43,9 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await browseVersionsWidget.waitForVersionsLoaded();
             //5. Verify that 'Published' list-item appears in the widget:
             let result = await browseVersionsWidget.countPublishedItems();
-            assert.equal(result, 1, "'Published' version item should appear in the widget")
+            assert.equal(result, 1, `'Published' version item should appear in the widget`)
             let status = await browseVersionsWidget.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "'Published' status should be in the top version item");
+            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, `'Published' status should be in the top version item`);
         });
 
     it(`GIVEN existing folder(Published) has been modified WHEN Version Panel has been opened THEN 'Modified' status should be in Versions Widget`,
@@ -68,30 +68,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();
             let status = await browseVersionsWidget.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, "'Modified' status should be in the top version item");
-        });
-
-    // Verifies issue https://github.com/enonic/app-contentstudio/issues/1552  'This version is active' button should be shown for any active version
-    it(`GIVEN existing folder(Published) is selected WHEN Version Panel has been opened THEN 'This version is active' button should be in the top version only`,
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
-            let browseVersionsWidget = new BrowseVersionsWidget();
-            // 1. Select the folder:
-            await studioUtils.findAndSelectItem(FOLDER.displayName);
-            // 2.Open version panel:
-            await contentBrowsePanel.openDetailsPanel();
-            await contentBrowseDetailsPanel.openVersionHistory();
-            await browseVersionsWidget.waitForVersionsLoaded();
-            // 3. Click on latest version-item:
-            await browseVersionsWidget.clickAndExpandVersion(0);
-            await studioUtils.saveScreenshot('verify_active_button_in_versions_1');
-            // 4. Verify 'Active version' label should be present in the top item:
-            await browseVersionsWidget.waitForActiveVersionButtonDisplayed();
-            await browseVersionsWidget.clickAndExpandVersion(2);
-            await studioUtils.saveScreenshot('verify_active_button_in_versions_2');
-            // 5. Verify 'Active version' button should not be present in the previous versions:
-            await browseVersionsWidget.waitForActiveVersionButtonNotDisplayed();
+            assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, `'Modified' status should be in the top version item`);
         });
 
     it(`GIVEN existing folder(Published) is opened WHEN language has been removed THEN 'Modified' status should be in Versions Widget`,
@@ -113,7 +90,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();
             let status = await browseVersionsWidget.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, "'Modified' status should be in the top version item");
+            assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, `'Modified' status should be in the top version item`);
         });
 
     it("GIVEN existing folder(Modified) is selected WHEN hot key to publish has been pressed AND the content hasbeen published THEN 'Published' status should be in Versions Widget",
@@ -136,7 +113,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();
             let status = await browseVersionsWidget.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "'Published' status should be in the top version item");
+            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, `'Published' status should be in the top version item`);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

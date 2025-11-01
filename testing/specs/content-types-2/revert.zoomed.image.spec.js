@@ -49,7 +49,7 @@ describe('revert.zoomed.image.spec: tests for reverting of zoomed image', functi
             await contentWizard.openVersionsHistoryPanel();
             // 4. Revert the previous version(image should be focused):
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             await studioUtils.saveScreenshot('version_reverted_not_zoomed');
             // 5. Verify that Save button is disabled:
             await contentWizard.waitForSaveButtonDisabled();
