@@ -233,7 +233,6 @@ export class ContentBrowsePanel
     }
 
     protected disableSelectionMode() {
-        this.filterPanel.resetConstraints();
         this.hideFilterPanel();
         super.disableSelectionMode();
         this.treeListBox.setFilterQuery(null);

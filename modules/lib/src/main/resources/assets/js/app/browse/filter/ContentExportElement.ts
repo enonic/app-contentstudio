@@ -65,7 +65,7 @@ export class ContentExportElement extends SpanEl {
         });
     }
 
-    protected handleExportClicked(): void {
+    handleExportClicked(): void {
         if (!this.exportConfirmationDialog) {
             this.exportConfirmationDialog = new ConfirmationDialog()
                 .setYesCallback(() => {
@@ -103,7 +103,7 @@ export class ContentExportElement extends SpanEl {
         }
 
         this.searchInputValues.aggregationSelections.filter((value) => value.getSelectedBuckets().length).forEach((selected) => {
-            params[selected.name] = this.aggregationSelectionValueToString(selected);
+            params[selected.getName()] = this.aggregationSelectionValueToString(selected);
         });
 
         return UriHelper.appendUrlParams(this.getReportServicePath(), params);
@@ -115,7 +115,7 @@ export class ContentExportElement extends SpanEl {
                 (bucket: DateRangeBucket) => ValueExpr.dateTime(bucket.getFrom()).getValue().getString()).join();
         }
 
-        return selected.selectedBuckets.map((bucket) => bucket.getKey()).join();
+        return selected.getSelectedBuckets().map((bucket) => bucket.getKey()).join();
     }
 
 

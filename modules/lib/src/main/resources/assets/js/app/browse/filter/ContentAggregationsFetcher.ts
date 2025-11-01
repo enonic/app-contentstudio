@@ -134,8 +134,7 @@ export class ContentAggregationsFetcher {
         const aggregationSelect: AggregationSelection[] = this.searchInputValues.aggregationSelections.filter(
             (aggrSelection: AggregationSelection) => aggrSelection.getName() !== aggregation.getName());
 
-        const emptyAggregationSelection: AggregationSelection = new AggregationSelection(aggregation.getName());
-        emptyAggregationSelection.setValues([]);
+        const emptyAggregationSelection: AggregationSelection = new AggregationSelection(aggregation.getName(), []);
         aggregationSelect.push(emptyAggregationSelection);
 
         return aggregationSelect;
