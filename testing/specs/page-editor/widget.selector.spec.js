@@ -8,7 +8,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const EmulatorWidget = require('../../page_objects/wizardpanel/details/emulator.widget');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const appConst = require('../../libs/app_const');
 
 describe('widget.selector.spec: tests for options in the widget selector', function () {

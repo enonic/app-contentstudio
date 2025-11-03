@@ -8,7 +8,7 @@ const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const appConst = require('../../libs/app_const');
 

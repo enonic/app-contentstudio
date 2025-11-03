@@ -6,15 +6,10 @@
   overflow: visible; // for the ghost-dragger to be visible when dragging outside context window
   z-index: initial;
 
-  &.no-inspection {
+  &.no-inspection,
+  &.no-insertion {
     .tab-bar {
-      cursor: initial;
-
-      .inspect-tab {
-        display: none;
-        pointer-events: none;
-        color: @form-button-font-disabled;
-      }
+      display: none;
     }
   }
 
@@ -32,7 +27,7 @@
     cursor: move;
   }
 
-  & > .deck-panel {
+  &:not(.no-insertion):not(.no-inspection) > .deck-panel {
     top: 44px;
   }
 
@@ -92,10 +87,24 @@
         }
       }
 
-      &.page-template-and-controller-form,
+      &.descriptor-based-dropdown-form,
       &.fragment-dropdown-form {
         fieldset + button {
-          margin: @form-field-spacing auto 0;
+          margin: 5px auto;
+        }
+      }
+
+      &.page-template-and-controller-form {
+        .template-button-bar {
+          justify-content: center;
+          column-gap: 10px;
+          row-gap: 10px;
+          flex-wrap: wrap;
+          display: flex;
+
+          .action-button:first-child {
+            margin: 5px 0;
+          }
         }
       }
 
@@ -112,6 +121,10 @@
       fieldset {
         display: table-cell; //fix for FF - width of a fieldset is never less than the intrinsic width of its content
         text-align: left;
+
+        > .input-view {
+          margin-bottom: 10px;
+        }
       }
     }
 

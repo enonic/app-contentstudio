@@ -12,7 +12,7 @@ const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspane
 const contentBuilder = require("../../libs/content.builder");
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('tests for Sorted versions item', function () {

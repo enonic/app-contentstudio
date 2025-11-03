@@ -1,7 +1,7 @@
 /**
  * Created on 04/07/2018.
  */
-const BaseDetailsPanel = require('../../details_panel/base.details.panel');
+const BaseDetailsPanel = require('../../details_panel/base.context.window.panel');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 

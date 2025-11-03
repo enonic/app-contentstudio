@@ -15,7 +15,7 @@ import {PageControllerOption} from './PageControllerOption';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ContentServerChangeItem} from '../../../../../event/ContentServerChangeItem';
-import {Descriptor} from '../../../../../page/Descriptor';
+import {Descriptor, DescriptorBuilder} from '../../../../../page/Descriptor';
 import {ComponentDescriptorsLoader} from '../region/ComponentDescriptorsLoader';
 import {PageComponentType} from '../../../../../page/region/PageComponentType';
 import {PageState} from '../../../PageState';
@@ -72,6 +72,8 @@ export class PageTemplateAndControllerSelector
                 this.optionFilterInput.show();
             }
         });
+
+        this.initPageModelListeners();
     }
 
     protected doShowDropdown(): void {
@@ -90,7 +92,7 @@ export class PageTemplateAndControllerSelector
         }
     }
 
-    setModel(model: LiveEditModel): void {
+    setModel(model: LiveEditModel): Q.Promise<number> {
         this.liveEditModel = model;
         const defaultModels = this.liveEditModel.getDefaultModels();
         if (defaultModels) {
@@ -101,8 +103,7 @@ export class PageTemplateAndControllerSelector
             this.autoOption = new PageTemplateOption();
         }
 
-        this.initPageModelListeners();
-        this.reload();
+        return this.reload();
     }
 
     getSelectedOption(): PageTemplateAndControllerOption {
@@ -119,7 +120,9 @@ export class PageTemplateAndControllerSelector
             }
         }, 300);
 
+        eventsHandler.onContentCreated(updatedHandlerDebounced);
         eventsHandler.onContentUpdated(updatedHandlerDebounced);
+        eventsHandler.onContentDeleted(updatedHandlerDebounced);
 
         eventsHandler.onContentDeleted((items: ContentServerChangeItem[]) => {
             // Remove template from the list, if the corresponding content was deleted
@@ -149,19 +152,17 @@ export class PageTemplateAndControllerSelector
 
             // Selection type changes:
             // controller -> template
-            if (!previousIsTemplate && selectedIsTemplate) {
-                const selectionHandler = () => this.doSelectTemplate(selectedOption as PageTemplateOption);
-                this.openConfirmationDialog(i18n('dialog.template.change'), selectionHandler);
+            if (previousOption && !previousIsTemplate && selectedIsTemplate) {
+                this.doSelectTemplate(selectedOption as PageTemplateOption);
                 // template -> template
             } else if (previousIsTemplate && selectedIsTemplate) {
-                this.doSelectTemplate(selectedOption as PageTemplateOption);
+                this.doSelectTemplate(selectedOption as PageTemplateOption, true);
                 // controller -> controller
-            } else if (!previousIsTemplate && !selectedIsTemplate) {
-                const selectionHandler = () => this.doSelectController(selectedOption as PageControllerOption);
-                this.openConfirmationDialog(i18n('dialog.controller.change'), selectionHandler);
+            } else if (previousOption && !previousIsTemplate && !selectedIsTemplate) {
+                this.doSelectController(selectedOption as PageControllerOption);
                 // template -> controller
             } else {
-                this.doSelectController(selectedOption as PageControllerOption);
+                this.doSelectController(selectedOption as PageControllerOption, true);
             }
         });
     }
@@ -176,18 +177,29 @@ export class PageTemplateAndControllerSelector
             .open();
     }
 
-    private doSelectTemplate(selectedOption: PageTemplateOption) {
+    private doSelectTemplate(selectedOption: PageTemplateOption, skipDialog: boolean = false) {
         const pageTemplate: PageTemplate = selectedOption.getData();
 
-        if (pageTemplate) {
-            PageEventsManager.get().notifyPageTemplateSetRequested(pageTemplate.getKey());
-        } else {
+        if (!pageTemplate) {
             PageEventsManager.get().notifyPageResetRequested();
+            return;
+        }
+
+        const yesCallback = () => PageEventsManager.get().notifyPageTemplateSetRequested(pageTemplate.getKey());
+        if (skipDialog) {
+            yesCallback();
+        } else {
+            this.openConfirmationDialog(i18n('dialog.template.change'), yesCallback);
         }
     }
 
-    private doSelectController(selectedOption: PageControllerOption) {
-        PageEventsManager.get().notifyPageControllerSetRequested(selectedOption.getData().getKey());
+    private doSelectController(selectedOption: PageControllerOption, skipDialog: boolean = false) {
+        const yesCallback = () => PageEventsManager.get().notifyPageControllerSetRequested(selectedOption.getData().getKey());
+        if (skipDialog) {
+            yesCallback();
+        } else {
+            this.openConfirmationDialog(i18n('dialog.controller.change'), yesCallback);
+        }
     }
 
     private static isDescendantTemplate(summary: ContentSummaryAndCompareStatus, liveEditModel: LiveEditModel): boolean {
@@ -195,18 +207,22 @@ export class PageTemplateAndControllerSelector
                summary.getPath().isDescendantOf(liveEditModel.getSiteModel().getSite().getPath());
     }
 
-    private reload() {
-        Q.all([
+    private reload(): Q.Promise<number> {
+        return Q.all([
             this.loadPageTemplates(),
             this.loadPageControllers()
-        ]).spread((templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]) => {
-            this.handleReloaded(templateOptions, controllerOptions);
-        }).catch(DefaultErrorHandler.handle);
+        ]).spread((templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]) =>
+            this.handleReloaded(templateOptions, controllerOptions)
+        ).catch((e) => {
+            DefaultErrorHandler.handle(e);
+            return 0;
+        });
     }
 
-    private handleReloaded(templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]): void {
+    private handleReloaded(templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]): number {
         this.initOptionsList(templateOptions, controllerOptions);
         this.selectInitialOption();
+        return templateOptions.length + controllerOptions.length;
     }
 
     private loadPageTemplates(): Q.Promise<PageTemplateOption[]> {
@@ -271,7 +287,22 @@ export class PageTemplateAndControllerSelector
 
         if (currentPageState?.hasController()) {
             if (currentPageState.getController().toString() !== this.selectedOption?.getKey()) {
-                this.selectOptionByValue(currentPageState.getController().toString());
+                const key = currentPageState.getController().toString();
+                const existingItem = this.getItemById(key);
+                if (!existingItem) {
+                    // The controller set in the page state is not in the list of available controllers.
+                    // This can happen if the controller was deleted or the app stopped or removed from the site
+                    const ctrKey = currentPageState.getController();
+                    const missingControllerOption = new PageControllerOption(
+                        new DescriptorBuilder().setKey(ctrKey)
+                            .setIconCls(PageComponentType.get().getIconCls())
+                            .setDisplayName(ctrKey.getName().toString())
+                            .build()
+                    );
+                    this.listBox.addItems(missingControllerOption);
+                    this.selectOptionByValue(key);
+                }
+                this.selectOptionByValue(key);
             }
         } else if (currentPageState?.hasTemplate()) {
             this.selectOptionByValue(currentPageState.getTemplate().toString());

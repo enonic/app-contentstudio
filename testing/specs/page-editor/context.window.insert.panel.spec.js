@@ -9,7 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const InsertablesPanel = require('../../page_objects/wizardpanel/liveform/insertables.panel');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const appConst = require('../../libs/app_const');
 

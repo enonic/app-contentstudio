@@ -92,9 +92,10 @@ public class MediaRenderingBean
     private static final ContentTypeNames IMAGE_CONTENT_TYPES =
         ContentTypeNames.from( ContentTypeName.imageMedia(), ContentTypeName.vectorMedia() );
 
-    public boolean canRender( final String contentId, final String repository, final String branch, final boolean archive )
+    public boolean canRender( final String contentId, final String repository, final String branch, final boolean archive,
+                              final boolean editMode )
     {
-        return runInAdminContext( repository, branch, archive, () -> canRenderInContext( contentId ) );
+        return runInAdminContext( repository, branch, archive, () -> canRenderInContext( contentId, editMode ) );
     }
 
     public boolean isImageContent( final String contentType )
@@ -158,9 +159,10 @@ public class MediaRenderingBean
             .build().callWith( func );
     }
 
-    private boolean canRenderInContext( final String contentId )
+    private boolean canRenderInContext( final String contentId, final boolean editMode )
     {
         final Content content = contentServiceSupplier.get().getById( ContentId.from( contentId ) );
+        // don't render image preview in edit mode, because image editor is part of the form
         if ( content == null )
         {
             return false;

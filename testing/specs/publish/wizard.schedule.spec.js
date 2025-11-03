@@ -9,7 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 
 describe('Wizard page - verify schedule form', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

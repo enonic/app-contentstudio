@@ -41,6 +41,8 @@ import {PageTemplate} from '../../content/PageTemplate';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
 import * as Q from 'q';
 import {ComponentTextUpdatedOrigin} from '../../page/region/ComponentTextUpdatedOrigin';
+import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class PageState {
 
@@ -217,8 +219,13 @@ export class PageStateEventHandler {
         });
 
         PageEventsManager.get().onPageResetRequested(() => {
-            PageState.setState(null);
-            this.pageEventsHolder.notifyPageReset();
+            new ConfirmationDialog()
+                .setQuestion(i18n('dialog.page.reset.confirmation'))
+                .setYesCallback(() => {
+                    PageState.setState(null);
+                    this.pageEventsHolder.notifyPageReset();
+                })
+                .open();
         });
 
         PageEventsManager.get().onComponentDescriptorSetRequested((path: ComponentPath, descriptorKey: DescriptorKey) => {
@@ -231,8 +238,9 @@ export class PageStateEventHandler {
 
             if (item instanceof DescriptorBasedComponent) {
                 if (descriptorKey) {
-                    new GetComponentDescriptorRequest(descriptorKey.toString(), item.getType()).sendAndParse().then((descriptor: Descriptor) => {
-                        item.setDescriptor(descriptor);
+                    new GetComponentDescriptorRequest(descriptorKey.toString(), item.getType()).sendAndParse().then(
+                        (descriptor: Descriptor) => {
+                            item.setDescriptor(descriptor);
                     }).catch(DefaultErrorHandler.handle);
                 } else {
                     item.setDescriptor(null);
@@ -305,7 +313,8 @@ export class PageStateEventHandler {
                     const detachedComponent = content.getPage()?.getFragment();
 
                     if (detachedComponent) {
-                        const resolvePromise = detachedComponent instanceof LayoutComponent ? PageHelper.fetchAndInjectLayoutRegions(detachedComponent) : Q.resolve();
+                        const resolvePromise = detachedComponent instanceof LayoutComponent ? PageHelper.fetchAndInjectLayoutRegions(
+                            detachedComponent) : Q.resolve();
 
                         return resolvePromise.then(() => {
                             const event = new ComponentDetachedEvent(detachedComponent, content.getDisplayName(), path.getPath() as number);

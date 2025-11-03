@@ -49,6 +49,7 @@ module.exports = Object.freeze({
         TEXT_INPUT: "//input[@type='text']",
         CHECKBOX_INPUT: "//input[@type='checkbox']",
         DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
+        checkBoxLabel: label => `//div[contains(@id,'Checkbox') and child::label[contains(.,'${label}')]]/label`,
     },
     DIV: {
         FRAGMENT_DROPDOWN_DIV: `//div[contains(@id,'FragmentDropdown')]`,
@@ -78,6 +79,11 @@ module.exports = Object.freeze({
         COLLAPSE_BUTTON_TOP: "//div[contains(@class,'top-button-row')]//a[contains(@class,'collapse-button') and (text()='Collapse' or text()='Collapse all')]",
         MORE_BUTTON: "//button[contains(@id,'MoreButton')]",
         ADD_BUTTON: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add']]",
+    },
+    HELP_TEXT: {
+        TOGGLE: "//div[contains(@class,'help-text-toggle')]",
+        BUTTON: "//div[contains(@class,'help-text-button')]",
+        TEXT: "//div[contains(@class,'help-text visible')]/p",
     },
     CONTENT_SELECTOR: {
         DIV: "//div[contains(@id,'ContentSelector')]",
@@ -171,6 +177,7 @@ module.exports = Object.freeze({
     actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
     actionButtonStrict: (label) => `//button[contains(@id,'ActionButton') and child::span[text()='${label}']]`,
     dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[contains(.,'${label}')]]`,
+    buttonWithSpan: label => `//button[contains(@id,'Button') and child::span[contains(.,'${label}')]]`,
     dialogButtonStrict: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
     togglerButton: (label) => `//button[contains(@id,'TogglerButton') and child::span[text()='${label}']]`,
     itemByDisplayName: displayName => {
@@ -197,6 +204,9 @@ module.exports = Object.freeze({
     EMPTY_OPTIONS_H5: "//h5[contains(@class,'empty-list-item') and text()='No matching items']",
     radioButtonByLabel: label => {
         return `//span[contains(@class,'radio-button') and descendant::span[text()='${label}']]//input`
+    },
+    radioButtonContainsLabel: label => {
+        return `//span[contains(@class,'radio-button') and descendant::span[contains(.,'${label}')]]//input`
     },
     tabMenuItem: menuName => `//li[contains(@id,'TabMenuItem') and child::a[text()='${menuName}']]`,
     TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",
@@ -225,9 +235,11 @@ module.exports = Object.freeze({
     VERSIONS_SHOW_CHANGES_BUTTON: `//button[contains(@id,'ActionButton') and @title='Show changes']`,
     LIVE_EDIT_FRAME: "//div[contains(@id,'FrameContainer')]//iframe[contains(@class,'text') or contains(@class,'application')]",
     APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
-    SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and child::span[text()='Settings']]",
-    MODE_CONTENT_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Content']",
 
+    WIDGET_SIDEBAR: {
+        SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and child::span[text()='Settings']]",
+        MODE_CONTENT_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Content']",
+    },
     PUBLISH_DIALOG: {
         EXCLUDE_BTN: "//button[child::span[contains(.,'Exclude')]]",
     },
@@ -286,6 +298,9 @@ module.exports = Object.freeze({
         EMULATOR_DROPDOWN: "//div[contains(@id,'EmulatorDropdown')]",
         DIV_DROPDOWN: "//div[contains(@id,'PreviewWidgetDropdown')]",
         PREVIEW_NOT_AVAILABLE_SPAN: "//div[@class='no-preview-message']//span[text()='Preview not available']",
-        NO_PREVIEW_MSG_SPAN: "//div[@class='no-preview-message']//span"
+        NO_PREVIEW_MSG_SPAN: "//div[@class='no-preview-message']//span",
+        NO_CONTROLLER_NO_PREVIEW_MSG_SPAN: "//div[@class='no-selection-message']//span",
+        EMPTY_LIVE_FRAME_DIV: "//div[contains(@class,'frame-container')]//iframe[@class='live-edit-frame']",
+        LIVE_EDIT_FRAME: "//div[contains(@id,'FrameContainer')]//iframe[contains(@class,'text') or contains(@class,'application')]",
     }
 });

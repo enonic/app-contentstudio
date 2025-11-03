@@ -11,6 +11,7 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
 import {PageState} from '../PageState';
 import {PageNavigationEventSource} from '../../PageNavigationEventData';
+import {PageEventsManager} from '../../PageEventsManager';
 
 export interface ContextWindowConfig {
 
@@ -50,6 +51,16 @@ export class ContextWindow
 
     private inspectTab: TabBarItem;
 
+    private isPageLocked: boolean = false;
+
+    private isPageRenderable: boolean = undefined;
+
+    private isPageReady: boolean = false;
+
+    private isInspecting: boolean = false;
+
+    public static debug = false;
+
     constructor(config: ContextWindowConfig) {
         super();
         this.liveFormPanel = config.liveFormPanel;
@@ -60,15 +71,100 @@ export class ContextWindow
     }
 
     protected initListeners(): void {
+        const eventManager = PageEventsManager.get();
+        eventManager.onPageLocked(() => {
+            this.isPageLocked = true;
+            if (ContextWindow.debug) {
+                console.info(`ContextWindow.onPageLocked: isPageLocked = ${this.isPageLocked}, isPageReady = ${this.isPageReady}`);
+            }
+            if (this.isPageReady) {
+                this.setInsertablesVisible(false);
+            }
+        });
+        eventManager.onPageUnlocked(() => {
+            this.isPageLocked = false;
+            if (ContextWindow.debug) {
+                console.info(`ContextWindow.onPageUnlocked: isPageLocked = ${this.isPageLocked}, isPageReady = ${this.isPageReady}`);
+            }
+            if (this.isPageReady) {
+                void this.updateInsertablesPanel();
+            }
+        });
+        eventManager.onRenderableChanged((isRenderable) => {
+            const wasRenderable = this.isPageRenderable;
+            this.isPageRenderable = isRenderable;
+            if (ContextWindow.debug) {
+                console.info(
+                    `ContextWindow.onRenderableChanged: isPageRenderable = ${this.isPageRenderable}, isPageReady = ${this.isPageReady}`);
+            }
+            if (this.isPageReady) {
+                // don't select insertables when renderable was set for the first time (undefined -> true/false)
+                this.updateInsertablesPanel(isRenderable && wasRenderable !== undefined);
+            }
+        })
+        eventManager.onLiveEditPageViewReady((event) => {
+            // NB: thrown 2 times for renderable page!
+            this.isPageReady = true;
+
+            if (ContextWindow.debug) {
+                console.info(`ContextWindow.onLiveEditPageViewReady: isPageReady = ${this.isPageReady}`);
+            }
+            // disable insert tab if there is no page for some reason (i.e. error occurred)
+            // or there is no controller or template set or no automatic template
+            this.updateInsertablesPanel(this.isPageRenderable && !this.isInspecting);
+        })
+        eventManager.onLiveEditPageInitializationError(() => {
+            if (ContextWindow.debug) {
+                console.info(`ContextWindow.onLiveEditPageInitializationError: isPageReady = ${this.isPageReady}`);
+            }
+            if (this.isPageReady) {
+                this.setInsertablesVisible(false);
+            }
+        })
+
         if (this.insertablesPanel) {
             this.liveFormPanel.onHidden((): void => {
-                this.setItemVisible(this.insertablesPanel, false);
+                if (ContextWindow.debug) {
+                    console.info(`ContextWindow: liveFormPanel.onHidden`);
+                }
+                this.setInsertablesVisible(false);
             });
 
             this.liveFormPanel.onShown((): void => {
-                this.setItemVisible(this.insertablesPanel, true);
+                if (ContextWindow.debug) {
+                    console.info(`ContextWindow: liveFormPanel.onShown`);
+                }
+                this.updateInsertablesPanel();
             });
         }
+    }
+
+    private setInsertablesVisible(visible: boolean, select = false): void {
+        this.insertablesPanel?.whenRendered(() => {
+            if (ContextWindow.debug) {
+                console.info(`ContextWindow.setInsertablesVisible: visible = ${visible}, select = ${select}`);
+            }
+            this.setItemVisible(this.insertablesPanel, visible);
+            if (select && visible) {
+                this.selectPanel(this.insertablesPanel);
+            }
+        });
+
+        this.toggleClass('no-insertion', !visible);
+    }
+
+    updateInsertablesPanel(selectInsertables?: boolean) {
+        let setVisible: boolean;
+        // check for renderable because it can have a controller/template but not be renderable (e.g. app is turned off )
+        if (this.insertablesPanel && !this.isPageLocked && this.isPageRenderable) {
+            const page = PageState.getState();
+            const hasControllerOrTemplate = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
+            const hasDefaultTemplate = this.liveFormPanel.getModel()?.getDefaultModels()?.hasDefaultPageTemplate() || false;
+            setVisible = hasControllerOrTemplate || hasDefaultTemplate;
+        } else {
+            setVisible = false;
+        }
+        return this.setInsertablesVisible(setVisible, selectInsertables);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -78,6 +174,8 @@ export class ContextWindow
 
             if (this.insertablesPanel) {
                 this.addItem(i18n('action.insert'), false, this.insertablesPanel);
+
+                this.setInsertablesVisible(this.insertablesPanel.isVisible());
             }
 
             this.addItem(i18n('action.inspect'), false, this.inspectionsPanel);
@@ -107,6 +205,8 @@ export class ContextWindow
 
             this.inspectionsPanel.showInspectionPanel(params.panel);
 
+            this.isInspecting = true;
+
             if (!params.keepPanelSelection) {
                 this.selectPanel(this.inspectionsPanel);
             }
@@ -116,12 +216,14 @@ export class ContextWindow
     public clearSelection(showInsertables?: boolean) {
         this.inspectionsPanel.clearInspection();
 
+        this.isInspecting = false;
+
         const isPageInspectionPanelSelectable = this.isPanelSelectable(this.inspectionsPanel.getPanelShown());
         this.toggleClass('no-inspection', !isPageInspectionPanelSelectable);
 
         if (this.inspectTab) {
             const selectDefault = !isPageInspectionPanelSelectable && this.inspectTab.isActive();
-            if (this.insertablesPanel && (showInsertables || selectDefault)) {
+            if (this.insertablesPanel && !this.isPageLocked && (showInsertables || selectDefault)) {
                 this.selectPanel(this.insertablesPanel);
             }
         }

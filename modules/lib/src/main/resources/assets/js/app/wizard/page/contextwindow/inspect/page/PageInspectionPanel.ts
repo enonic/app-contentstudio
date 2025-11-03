@@ -2,31 +2,29 @@ import * as Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
-import {SaveAsTemplateAction} from '../../../../action/SaveAsTemplateAction';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
-import {PageTemplateAndControllerSelector} from './PageTemplateAndControllerSelector';
 import {PageTemplateAndControllerForm} from './PageTemplateAndControllerForm';
 import {ContentFormContext} from '../../../../../ContentFormContext';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {FormContextBuilder} from '@enonic/lib-admin-ui/form/FormContext';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {Descriptor} from '../../../../../page/Descriptor';
 import {PageState} from '../../../PageState';
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 import {PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
+import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 
 export class PageInspectionPanel
     extends BaseInspectionPanel {
 
-    private pageTemplateAndControllerSelector: PageTemplateAndControllerSelector;
-
     private pageTemplateAndControllerForm: PageTemplateAndControllerForm;
+
+    private noControllerMessage: PEl;
 
     private configForm: FormView;
 
-    constructor(private saveAsTemplateAction: SaveAsTemplateAction) {
+    constructor() {
         super();
 
         this.initElements();
@@ -34,16 +32,12 @@ export class PageInspectionPanel
     }
 
     private initElements() {
-        this.pageTemplateAndControllerSelector = new PageTemplateAndControllerSelector();
-        this.pageTemplateAndControllerForm = new PageTemplateAndControllerForm(this.pageTemplateAndControllerSelector);
+        this.pageTemplateAndControllerForm = new PageTemplateAndControllerForm();
+        this.noControllerMessage = new PEl('no-controller-message');
+        this.noControllerMessage.setHtml(i18n('text.notemplatesorblocks'));
     }
 
     private initListeners() {
-        this.pageTemplateAndControllerForm.onShown(() => this.saveAsTemplateAction.updateVisibility());
-        this.pageTemplateAndControllerSelector.onSelectionChanged(() => {
-            this.saveAsTemplateAction.updateVisibility();
-        });
-
         PageState.getEvents().onPageUpdated(() => {
             if (PageState.getState().hasController()) {
                 this.refreshConfigForm();
@@ -52,15 +46,21 @@ export class PageInspectionPanel
     }
 
     getSelectedValue(): PageTemplateAndControllerOption {
-        return this.pageTemplateAndControllerSelector.getSelectedOption();
+        return this.pageTemplateAndControllerForm.getSelectedTemplateOption();
     }
 
     setModel(liveEditModel: LiveEditModel) {
         this.liveEditModel = liveEditModel;
 
-        this.pageTemplateAndControllerSelector.setModel(this.liveEditModel);
-        this.saveAsTemplateAction.updateVisibility();
-        this.refreshConfigForm();
+        this.pageTemplateAndControllerForm.setModel(liveEditModel).then((controllerCount) => {
+
+            const showForm = PageState.getState()?.hasController() || controllerCount > 0;
+
+            this.pageTemplateAndControllerForm.setVisible(showForm);
+            this.noControllerMessage.setVisible(!showForm);
+
+            this.refreshConfigForm();
+        });
     }
 
     getName(): string {
@@ -71,9 +71,7 @@ export class PageInspectionPanel
         return super.doRender().then((rendered) => {
             this.insertChild(this.pageTemplateAndControllerForm, 0);
 
-            const saveAsTemplateButton = new ActionButton(this.saveAsTemplateAction);
-            saveAsTemplateButton.addClass('blue large save-as-template');
-            this.pageTemplateAndControllerForm.appendChild(saveAsTemplateButton);
+            this.appendChild(this.noControllerMessage);
 
             return rendered;
         });
