@@ -1,7 +1,8 @@
 import {Body} from "@enonic/lib-admin-ui/dom/Body";
 import {LegacyElement} from "@enonic/lib-admin-ui/ui2/LegacyElement";
 import type {ReactElement} from "react";
-import {ConfirmationDialog} from "./ConfirmationDialog";
+import {useEffect, useRef} from "react";
+import {ConfirmationDialog, useConfirmationDialog} from "./ConfirmationDialog";
 import {Gate} from "./Gate";
 
 type DialogPresetConfirmProps = {
@@ -17,7 +18,7 @@ const DialogPresetConfirm = ({
   open = false,
   title,
   description,
-  defaultConfirmEnabled = true,
+  defaultConfirmEnabled,
   onConfirm,
   onCancel,
 }: DialogPresetConfirmProps): ReactElement => {
@@ -61,6 +62,58 @@ type DialogPresetGatedConfirm = {
     intent?: 'default' | 'danger';
 } & Omit<DialogPresetConfirmProps, 'defaultSubmitEnabled'>;
 
+type DialogPresetConfirmDeleteContentProps = {
+  gateInputRef: React.RefObject<HTMLInputElement>;
+  confirmButtonRef: React.RefObject<HTMLButtonElement>;
+} & Omit<DialogPresetGatedConfirm, 'open'>;
+
+// Internal component that renders inside ConfirmationDialog.Content to access ConfirmationDialogProvider context.
+// This allows useConfirmationDialog() to work properly and track the confirmEnabled state set by Gate.Input validation.
+const DialogPresetConfirmDeleteContent = ({
+  gateInputRef,
+  confirmButtonRef,
+  title,
+  description,
+  expected,
+  validate,
+  intent,
+  onConfirm,
+  onCancel,
+}: DialogPresetConfirmDeleteContentProps): ReactElement => {
+  const {confirmEnabled} = useConfirmationDialog();
+
+  // Shift focus to confirm button when Gate becomes valid
+  useEffect(() => {
+    if (confirmEnabled) {
+      confirmButtonRef.current?.focus();
+    }
+  }, [confirmEnabled, confirmButtonRef]);
+
+  return (
+    <>
+      <ConfirmationDialog.DefaultHeader title={title} />
+      {description && (
+        <ConfirmationDialog.Body>{description}</ConfirmationDialog.Body>
+      )}
+      <Gate>
+        <Gate.Hint value={expected} />
+        <Gate.Input
+          ref={gateInputRef}
+          inputMode='numeric'
+          expected={expected}
+          validate={validate}
+        />
+      </Gate>
+      <ConfirmationDialog.Footer
+        ref={confirmButtonRef}
+        intent={intent}
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+      />
+    </>
+  );
+};
+
 const DialogPresetConfirmDelete = ({
   open = false,
   title,
@@ -71,26 +124,37 @@ const DialogPresetConfirmDelete = ({
   onCancel,
   intent = 'danger',
 }: DialogPresetGatedConfirm): ReactElement => {
+  const gateInputRef = useRef<HTMLInputElement>(null);
+  const confirmButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Handle initial focus when dialog opens - prevent default and focus Gate input
+  const handleOpenAutoFocus = (event: Event): void => {
+    event.preventDefault();
+    gateInputRef.current?.focus();
+  };
+
   return (
-    <ConfirmationDialog.Root open={open} onOpenChange={(next) => { if (!next) onCancel?.(); }}>
+    <ConfirmationDialog.Root
+      open={open}
+      onOpenChange={(next) => { if (!next) onCancel?.(); }}
+    >
       <ConfirmationDialog.Portal>
         <ConfirmationDialog.Overlay/>
-        <ConfirmationDialog.Content defaultConfirmEnabled={false}>
-          <ConfirmationDialog.DefaultHeader title={title} />
-          {description && (
-            <ConfirmationDialog.Body>{description}</ConfirmationDialog.Body>
-          )}
-          <Gate.Root>
-            <Gate.Hint value={expected} />
-            <Gate.Input
-              min='0'
-              inputMode='numeric'
-              expected={expected}
-              validate={validate}
-              autoFocus
-            />
-          </Gate.Root>
-          <ConfirmationDialog.Footer intent={intent} onConfirm={onConfirm} onCancel={onCancel} />
+        <ConfirmationDialog.Content
+          defaultConfirmEnabled={false}
+          onOpenAutoFocus={handleOpenAutoFocus}
+        >
+          <DialogPresetConfirmDeleteContent
+            gateInputRef={gateInputRef}
+            confirmButtonRef={confirmButtonRef}
+            title={title}
+            description={description}
+            expected={expected}
+            validate={validate}
+            intent={intent}
+            onConfirm={onConfirm}
+            onCancel={onCancel}
+          />
         </ConfirmationDialog.Content>
       </ConfirmationDialog.Portal>
     </ConfirmationDialog.Root>
