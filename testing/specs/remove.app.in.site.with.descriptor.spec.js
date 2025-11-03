@@ -161,7 +161,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await studioUtils.saveScreenshot('page_inspect_after_reset_controller');
             // 8. Verify that 'No page templates or page blocks available' message gets visible in Page Inspect tab:
             let actualMessage = await pageInspectionPanel.getNoControllerMessageText();
-            assert.equal(actualMessage, NO_SELECTED_CONTROLLER_MSG, `'No page templates or page blocks available' message should be displayed`);
+            assert.equal(actualMessage, NO_SELECTED_CONTROLLER_MSG, `${NO_SELECTED_CONTROLLER_MSG} message should be displayed`);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
