@@ -4,18 +4,18 @@ import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {Tooltip} from '@enonic/ui';
 import {ProjectIcon} from '../../../../app/ui2/list/ProjectIcon';
-import {ProjectContext} from '../../../../app/project/ProjectContext';
 import {WidgetButton} from './WidgetButton';
 import {Pen} from 'lucide-react';
 import {useStore} from '@nanostores/preact';
 import {$sidebarWidgets, getWidgetKey, isMainWidget, setActiveWidget} from '../../store/sidebarWidgets.store';
 import {ReactElement, useCallback} from 'react';
 import {useI18n} from '../../../../app/ui2/hooks/useI18n';
+import {$activeProject} from '../../store/projects.store';
 
 export const Sidebar = (): ReactElement => {
+    const activeProject = useStore($activeProject);
     const {widgets, activeWidgetId} = useStore($sidebarWidgets);
     const name = Store.instance().get('application').getName();
-    const project = ProjectContext.get().getProject();
     const version = 'v' + CONFIG.getString('appVersion');
 
     const mainWidgets = widgets.slice(0, -1);
@@ -35,9 +35,9 @@ export const Sidebar = (): ReactElement => {
         >
             {/* Header */}
             <ProjectIcon
-                projectName={project.getName()}
-                language={project.getLanguage()}
-                hasIcon={!!project.getIcon()}
+                projectName={activeProject?.getName()}
+                language={activeProject?.getLanguage()}
+                hasIcon={!!activeProject?.getIcon()}
                 className="flex-shrink-0 my-1.75"
             />
             <h1 title={name} class="[writing-mode:vertical-lr] text-nowrap text-base font-semibold">

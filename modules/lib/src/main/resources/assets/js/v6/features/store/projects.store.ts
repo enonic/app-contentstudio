@@ -4,6 +4,7 @@ import {ProjectListRequest} from '../../../app/settings/resource/ProjectListRequ
 import {ProjectUpdatedEvent} from '../../../app/settings/event/ProjectUpdatedEvent';
 import {ProjectCreatedEvent} from '../../../app/settings/event/ProjectCreatedEvent';
 import {ProjectDeletedEvent} from '../../../app/settings/event/ProjectDeletedEvent';
+import {syncStore} from '../utils/stores';
 
 type ProjectsStore = {
     projects: Readonly<Project>[];
@@ -14,6 +15,8 @@ export const $projects = map<ProjectsStore>({
     projects: [],
     activeProjectId: undefined,
 });
+
+const activeProjectStoreSync = syncStore($projects, 'projects', {syncPath: 'activeProjectId'});
 
 export function setActiveProject(project: Readonly<Project> | undefined): void {
     const existsInStore = $projects.get().projects.some((p) => getProjectId(p) === getProjectId(project));
@@ -82,6 +85,12 @@ function updateActiveProject(): void {
         setActiveProject(projects[0]);
         return;
     }
+
+    const activeProjectIdFromLocalStorage = activeProjectStoreSync.get();
+
+    if (!activeProjectIdFromLocalStorage) return;
+
+    setActiveProject(projects.find((p) => getProjectKey(p) === activeProjectIdFromLocalStorage));
 }
 
 //
