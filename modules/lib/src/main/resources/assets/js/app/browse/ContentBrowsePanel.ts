@@ -243,10 +243,12 @@ export class ContentBrowsePanel
         return new ContextView();
     }
 
+    protected getFirstPanelSize(): number {
+        return 50;
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.appendChild(this.getFilterAndGridSplitPanel());
-
             this.createContentPublishMenuButton();
 
             this.addClass('content-browse-panel');
