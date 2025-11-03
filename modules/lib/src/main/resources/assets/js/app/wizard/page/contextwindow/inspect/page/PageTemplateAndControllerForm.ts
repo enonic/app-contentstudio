@@ -62,8 +62,10 @@ export class PageTemplateAndControllerForm
     }
 
     private updateButtonsVisibility() {
-        const isInherited = this.liveEditModel?.getContent().isInherited();
-        this.customizeAction.setVisible(!isInherited && this.isPageLocked && this.isPageRenderable);
+        let content = this.liveEditModel?.getContent();
+        const isInherited = content?.isInherited();
+        const isLocalized = !content?.isDataInherited();
+        this.customizeAction.setVisible((!isInherited || isLocalized) && this.isPageLocked && this.isPageRenderable);
 
         // https://github.com/enonic/lib-admin-ui/issues/4139
         this.customizeButton.setVisible(this.customizeAction.isVisible());
