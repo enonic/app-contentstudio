@@ -11,6 +11,7 @@ const ContentPublishDialog = require("../../page_objects/content.publish.dialog"
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('Tests for dependent items in Unpublish dialog (for scheduled content)', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -49,7 +50,8 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 6. 'Scheduled' status should be displayed in the 'Preview Item toolbar':
             let status = await contentItemPreviewPanel.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED, "'Scheduled' status should be displayed in the Preview Item toolbar");
+            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED,
+                "'Scheduled' status should be displayed in the Preview Item toolbar");
             // 7. 'Show Changes' button should be displayed in the 'Preview Item' toolbar:
             await contentItemPreviewPanel.waitForShowChangesButtonNotDisplayed();
         });
@@ -85,7 +87,11 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             // 1. Select and open the site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Update the site - select the 'main region' controller:
-            await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.MAIN_REGION);
+            let contextWindow = await contentWizard.openContextWindow();
+            // Select the Page in widget dropdown
+            await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(appConst.CONTROLLER_NAME.MAIN_REGION);
             // 3. Click on 'Publish...' menu item
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();

@@ -62,7 +62,7 @@ describe('changing.part.inside.fragment.spec - Tests for changing a part inside 
             await contentWizard.waitForNotificationMessage();
             // 10. Verify that the text is saved in Inspection Panel in fragment-wizard:
             let actualResult = await cityListPartInspectionPanel.getTextInZoomLevelInput();
-            assert.equal(actualResult, TEST_TEXT, "Expected text should be saved in the Inspect Panel in fragment wizard");
+            assert.equal(actualResult, TEST_TEXT, 'Expected text should be saved in the Inspect Panel in fragment wizard');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

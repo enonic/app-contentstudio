@@ -26,7 +26,7 @@ describe('sort.dialog.spec, tests for sort content dialog', function () {
             await sortContentDialog.waitForDialogVisible();
             // 2. Verify the dialog's title:
             let title = await sortContentDialog.getDialogTitle();
-            assert.equal(title, DIALOG_TITLE, "Expected title should be displayed");
+            assert.equal(title, DIALOG_TITLE, 'Expected title should be displayed in the modal dialog');
             // 3. Verify that 'Save' button is disabled:
             await sortContentDialog.waitForSaveButtonDisabled();
             // 4.Click on 'Cancel' button
@@ -34,7 +34,7 @@ describe('sort.dialog.spec, tests for sort content dialog', function () {
             await sortContentDialog.waitForDialogClosed();
         });
 
-    it("GIVEN 'Sort' dialog is opened WHEN dropdown handle button has been clicked THEN five menu items get visible",
+    it("GIVEN 'Sort' dialog is opened WHEN dropdown handle button has been clicked THEN five menu items get visible in the dropdown",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let sortContentDialog = new SortContentDialog();
@@ -45,10 +45,10 @@ describe('sort.dialog.spec, tests for sort content dialog', function () {
             await sortContentDialog.waitForDialogVisible();
             // 2. Click on Dropdown handle button:
             await sortContentDialog.clickOndropDownHandle();
-            await studioUtils.saveScreenshot("sort_dlg_menu_items");
+            await studioUtils.saveScreenshot('sort_dlg_menu_items');
             // 3. Verify the menu items in dropdown selector:
             let items = await sortContentDialog.getMenuItems();
-            assert.equal(items.length, 5, "Five options should be present in the selector");
+            assert.equal(items.length, 5, 'Five options should be present in the selector');
             // 4. Click on the dropdown handle and close the selector:
             await sortContentDialog.clickOndropDownHandle();
             // 5. Press 'ESC' key:
@@ -57,14 +57,14 @@ describe('sort.dialog.spec, tests for sort content dialog', function () {
             await sortContentDialog.waitForDialogClosed();
         });
 
-    it("WHEN two folders in Root have been selected THEN 'Sort' button should be disabled",
+    it("WHEN two folders in the root  directory have been selected THEN 'Sort' button should be disabled",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.waitForSpinnerNotVisible();
             // 1. Select 2 folders:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_WITH_IMAGES_NAME_2);
-            await studioUtils.saveScreenshot("sort_button_2_items");
+            await studioUtils.saveScreenshot('sort_button_2_items');
             // 2. Verify that 'Sort' button is disabled:
             await contentBrowsePanel.waitForSortButtonDisabled();
         });

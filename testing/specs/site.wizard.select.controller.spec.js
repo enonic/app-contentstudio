@@ -9,12 +9,14 @@ const contentBuilder = require("../libs/content.builder");
 const appConst = require('../libs/app_const');
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
+const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('site.wizard.select.controller.spec: Saves site-data and selects a controller', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.APP_CONTENT_TYPES_PAGE;
 
     it(`GIVEN wizard for new site is opened WHEN name typed and application have been selected (the site is saved automatically ) THEN controller selector should appear in no longer than 5 seconds`,
         async () => {
@@ -23,6 +25,8 @@ describe('site.wizard.select.controller.spec: Saves site-data and selects a cont
             let SITE = contentBuilder.buildSite(displayName, 'test site', [appConst.APP_CONTENT_TYPES]);
             // 1. Open new site-wizard:
             await studioUtils.doOpenSiteWizard();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             // 2. Type the name and select an application with controllers(site will be saved automatically)
             await contentWizard.typeData(SITE);
             // 3. Verify that the site is saved automatically after selecting an application with controllers
@@ -31,7 +35,8 @@ describe('site.wizard.select.controller.spec: Saves site-data and selects a cont
             // 3. Click on remove-icon and close the current notification message:
             await contentWizard.removeNotificationMessage();
             // 4. switch to 'LiveEdit' and select the controller
-            await contentWizard.selectPageDescriptor('Page');
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // The notification message should appear, because the site automatically saved after the selecting a page-controller.
             await studioUtils.saveScreenshot('site_page_descriptor_selected1');
             let result = await contentWizard.waitForNotificationMessage();
@@ -60,7 +65,10 @@ describe('site.wizard.select.controller.spec: Saves site-data and selects a cont
             let workflow = await contentWizard.getContentWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content gets 'Ready for publishing'");
             // 5. select the controller
-            await contentWizard.selectPageDescriptor('Page');
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            let pageInspectionPanel = new PageInspectionPanel();
+            await pageInspectionPanel.selectPageTemplateOrController('Page');
             // 6. Verify that status gets Work in progress after selecting a page descriptor:
             await studioUtils.saveScreenshot('site_page_descriptor_work_in_progress');
             workflow = await contentWizard.getContentWorkflowState();

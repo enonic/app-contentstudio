@@ -160,6 +160,8 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
             await studioUtils.saveScreenshot('project_editor_4');
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
             await editSettingsDialog.clickOnApplyButton();

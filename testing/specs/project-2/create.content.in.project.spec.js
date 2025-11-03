@@ -57,6 +57,8 @@ describe('create.content.in.project.spec - create new content in the selected co
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             // 2. Open new folder wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            await contentWizardPanel.openContextWindow();
+            await contentWizardPanel.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await studioUtils.saveScreenshot('project_default_language');
             // 3. Verify the language in the wizard:
@@ -80,6 +82,8 @@ describe('create.content.in.project.spec - create new content in the selected co
             await contentWizardPanel.waitAndClickOnSave();
             await contentWizardPanel.pause(1000);
             // 3. Open Edit Permissions Dialog:
+            await contentWizardPanel.openContextWindow();
+            await contentWizardPanel.openDetailsWidget();
             await userAccessWidget.clickOnEditPermissionsLink();
             await editPermissionsGeneralStep.waitForLoaded();
             // 4. Verify the list of principals:

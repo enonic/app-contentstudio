@@ -8,7 +8,7 @@ const contentBuilder = require("../../libs/content.builder");
 const XDataImageSelector = require('../../page_objects/wizardpanel/wizard-step-form/xdata.image.selector.wizard.step.form');
 const XDataContentSelector = require('../../page_objects/wizardpanel/wizard-step-form/xdata.content.selector');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const appConst = require('../../libs/app_const');
 
@@ -56,10 +56,10 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             let wizardContextPanel = new WizardContextPanel();
             // 1. Existing content with x-data(image) is opened:
             await studioUtils.selectContentAndOpenWizard(CONTENT_WITH_XDATA);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await contentWizard.pause(500);
             // 2. Dependencies widget is opened:
-            await wizardContextPanel.openDependencies();
+            await wizardContextPanel.openDependenciesWidget();
             await studioUtils.saveScreenshot('content_with_xdata_dependencies_widget');
             // 'Show outbound' button should be present in the widget, because the x-data contains an image:
             await wizardDependenciesWidget.waitForOutboundButtonVisible();

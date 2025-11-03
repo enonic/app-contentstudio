@@ -13,6 +13,7 @@ const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const appConst = require('../../libs/app_const');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('Text Component with CKE - insert email link  specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -107,7 +108,10 @@ describe('Text Component with CKE - insert email link  specification', function 
             // 1. Open new site-wizard, select an application and controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await siteFormPanel.addApplications([appConst.APP_CONTENT_TYPES]);
-            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
+            let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu('main');

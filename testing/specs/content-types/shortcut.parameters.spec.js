@@ -8,7 +8,7 @@ const appConst = require('../../libs/app_const');
 const contentBuilder = require("../../libs/content.builder");
 const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const ConfirmationMask = require('../../page_objects/confirmation.mask');
 
@@ -129,7 +129,7 @@ describe('Shortcut parameters specification', function () {
             let wizardContextPanel = new WizardContextPanel();
             // Open existing shortcut:
             await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // Expand the previous version:

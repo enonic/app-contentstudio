@@ -276,8 +276,7 @@ class BrowseFilterPanel extends Page {
             let endIndex = label.indexOf(')');
             return label.substring(startIndex + 1, endIndex);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_numb_in_aggregation');
-            throw new Error('Error, get the number in aggregation checkbox, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Tried to get the number in aggregation','err_numb_in_aggregation', err);
         }
     }
 
@@ -334,8 +333,7 @@ class BrowseFilterPanel extends Page {
             let filterableListBox = new FilterableListBox();
             await filterableListBox.clickOnFilteredByDisplayNameItemAndClickOnApply(ownerName, XPATH.ownerAggregationGroupView);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_filter_owner');
-            throw new Error("Error occurred during selecting an option in 'Owner Selector', screenshot: " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Owner Selector', 'err_filter_owner', err);
         }
     }
 
@@ -373,8 +371,7 @@ class BrowseFilterPanel extends Page {
             // 3. Click on 'OK' button and apply the selection:
             return await filterableListBox.clickOnApplySelectionButton();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_filter_modified_by');
-            throw new Error("Error occurred during selecting an option in 'Modified by Selector', screenshot: " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Modified By Selector', 'err_filter_modified_by', err);
         }
     }
 

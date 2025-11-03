@@ -12,9 +12,10 @@ const BrowseContentWidgetItemView = require('../page_objects/browsepanel/details
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const BrowseContextWindow = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const PublishContentDialog = require('../page_objects/content.publish.dialog');
-const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
+const ContentBrowseContextWindow = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const ContentWidgetView = require('../page_objects/browsepanel/detailspanel/content.widget.item.view');
-const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.panel');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
 const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 
 describe('Browse panel, properties widget, language spec', function () {
@@ -30,11 +31,11 @@ describe('Browse panel, properties widget, language spec', function () {
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName, null, appConst.LANGUAGES.EN);
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
-            // 1.Select existing folder(En)
+            // 1. Select the existing folder(En)
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await studioUtils.saveScreenshot('details_panel_language_en');
             let propertiesWidget = new PropertiesWidget();
-            // 2. Verify that expected language should be displayed in Details Panel
+            // 2. Verify that expected language should be displayed in Properties widget:
             let actualLanguage = await propertiesWidget.getLanguage();
             assert.equal(actualLanguage, 'en', 'expected language should be present in the widget');
             // 3. Application should be 'base':
@@ -57,7 +58,7 @@ describe('Browse panel, properties widget, language spec', function () {
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             // 2. Verify that expected workflow should be displayed in Details Widget
             let actualState = await contentWidget.getContentWorkflowState();
-            assert.equal(actualState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,)
+            assert.equal(actualState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
         });
 
     it(`WHEN existing folder has been published THEN 'First Published' date gets visible in Properties Widget`,
@@ -128,21 +129,20 @@ describe('Browse panel, properties widget, language spec', function () {
             let wizardContextWindow = new WizardContextPanel();
             let propertiesWidgetItem = new PropertiesWidgetItem();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            // 1. Click on the dropdown handler and expand the list and try to deselect the single selected item
+            // 1. Click on the dropdown handler, expand the list of options and try to deselect the single selected item
             await wizardContextWindow.clickOnWidgetSelectorDropdownOption(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
             // 2. Verify that 'Apply' button is not displayed and 'Edit Settings' button remains visible in the context window:
             await wizardContextWindow.waitForApplyButtonInWidgetSelectorNotDisplayed();
             await propertiesWidgetItem.waitForEditSettingsButtonDisplayed();
         });
 
-    it("GIVEN existing folder is selected WHEN test widget item has been selected in widget-selector THEN expected text gets visible in the widget-view",
+    it("GIVEN existing folder is selected WHEN custom widget item has been selected in widget-selector THEN expected text gets visible in the widget-view",
         async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let browseDetailsPanel = new ContentBrowseDetailsPanel();
+            let contentBrowseContextWindow = new ContentBrowseContextWindow();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            await contentBrowsePanel.openContextWindow();
-            // 1. Select the widget in the dropdown selector:
-            await browseDetailsPanel.selectItemInWidgetSelector(TEST_WIDGET_TITLE);
+            await contentBrowseContextWindow.waitForWidgetSelected(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
+            // 1. Select the custom widget in the dropdown selector:
+            await contentBrowseContextWindow.selectItemInWidgetSelector(TEST_WIDGET_TITLE);
             await studioUtils.saveScreenshot('test_widget_opened');
             // 2. Verify that expected text is displayed in the widget view:
             await studioUtils.waitForElementDisplayed(`//widget[text()='${TEST_WIDGET_TITLE}']`);
@@ -151,9 +151,11 @@ describe('Browse panel, properties widget, language spec', function () {
     it(`GIVEN existing folder with language is opened WHEN the language has been removed in 'Edit Settings Dialog' THEN language should not be displayed in the widget`,
         async () => {
             let propertiesWidget = new PropertiesWidget();
+            let contentWizard = new ContentWizard();
             // 1. Open the folder:
             await studioUtils.selectContentAndOpenWizard(TEST_FOLDER.displayName);
             // 2. Open 'Edit Settings' modal dialog:
+            await contentWizard.openContextWindow();
             let editDetailsDialog = await studioUtils.openEditSettingDialog();
             // 3. Remove the language:
             await editDetailsDialog.clickOnRemoveLanguage();

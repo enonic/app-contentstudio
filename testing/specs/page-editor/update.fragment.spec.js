@@ -11,6 +11,7 @@ const TextComponentCke = require('../../page_objects/components/text.component')
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('Test for updating text in fragment', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -35,7 +36,10 @@ describe('Test for updating text in fragment', function () {
             await contentWizard.typeDisplayName(SITE_NAME);
             await siteFormPanel.filterOptionsAndSelectApplication(appConst.TEST_APPS_NAME.SIMPLE_SITE_APP);
             await contentWizard.pause(2000);
-            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
+            let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component

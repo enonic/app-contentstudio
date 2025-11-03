@@ -74,19 +74,22 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(700);
+            // 5. Switch to the new wizard that has been opened and open Page Widget:
             await studioUtils.doSwitchToNewWizard();
-            // 5. Verify that Part Inspection Panel for 'City List' part is loaded:
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            // 6. Verify that Part Inspection Panel for 'City List' part is loaded:
             let partInspectionPanel = new CityListPartInspectionPanel();
             await partInspectionPanel.waitForLoaded();
             await studioUtils.saveScreenshot('fragment_inspect_issue_7676_0');
-            // 6. Type a text in the config in 'City List' Part Inspect Panel
+            // 7. Type a text in the config in 'City List' Part Inspect Panel
             await partInspectionPanel.typeTextInZoomLevelInput(TEST_TEXT);
             await studioUtils.saveScreenshot('fragment_inspect_issue_7676_1');
-            // 7. Verify that Save button gets enabled:
+            // 8. Verify that Save button gets enabled:
             await contentWizard.waitForSaveButtonEnabled();
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('fragment_inspect_issue_7676_3');
-            // 8. Verify the saved text:
+            // 9. Verify the saved text:
             let result = await partInspectionPanel.getTextInZoomLevelInput();
             assert.equal(result, TEST_TEXT, 'Expected text should be displayed in the input in Fragment(Part) Inspection Panel')
         });

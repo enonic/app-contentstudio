@@ -8,7 +8,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const ScheduleWidgetItem = require('../../page_objects/browsepanel/detailspanel/schedule.widget.itemview');
 const EditScheduleDialog = require('../../page_objects/details_panel/edit.schedule.dialog');
 
@@ -54,8 +54,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             // 1. Publish the folder:
             await contentWizard.doPublish();
             await contentWizard.pause(1000);
-            // 2. Open Page Editor with Preview Widget, Verify that status gets  Modified
-            await contentWizard.clickOnPageEditorToggler();
+            // 2. 'Page Editor' is opened by default, Verify that status gets  Published
             await studioUtils.saveScreenshot('check_default_action_unpublish');
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED);
@@ -70,13 +69,13 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             let  editScheduleDialog = new EditScheduleDialog();
             // 1. Open the published folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Open 'Edit Schedule' dialog
             await scheduleWidgetItem.clickOnEditScheduleButton();
             // 3. Verify that actual dateTime is correct in Online From input
             let fromActual = await editScheduleDialog.getOnlineFrom();
             let expectedDate = new Date().toISOString().substring(0, 10);
-            assert.ok(fromActual.includes(expectedDate), "Expected date time should be displayed");
+            assert.ok(fromActual.includes(expectedDate), 'Expected date time should be displayed');
             // 4. Verify that 'Online to' input is empty
             let to = await editScheduleDialog.getOnlineTo();
             assert.equal(to, '', "'Online to' should be empty");
@@ -106,14 +105,12 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             // 2. Update the display name:
             await contentWizard.typeDisplayName(NEW_DISPLAY_NAME);
             await contentWizard.waitAndClickOnSave();
-            // 4. Open Page Editor with Preview Widget, Verify that status gets  Modified
-            await contentWizard.clickOnPageEditorToggler();
-            // 3. Verify that status is Modified:
+            // 3. Verify that status is 'Modified':
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.MODIFIED);
             // 4. Verify that 'Mark as ready' button gets visible:
             await contentWizard.waitForMarkAsReadyButtonVisible();
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 5. Open Edit Schedule modal dialog:
             let scheduleWidgetItem = new ScheduleWidgetItem();
             let editScheduleDialog = new EditScheduleDialog();
@@ -155,8 +152,6 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             // 4. Click on Unpublish button in the dialog:
             await contentUnpublishDialog.clickOnUnpublishButton();
             await contentUnpublishDialog.waitForDialogClosed();
-            // Open Preview Item toolbar:
-            await contentWizard.clickOnPageEditorToggler();
             // 5. Status should be Unpublished and 'Mark as Ready' button should be visible
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.UNPUBLISHED);
             await contentWizard.waitForMarkAsReadyButtonVisible();

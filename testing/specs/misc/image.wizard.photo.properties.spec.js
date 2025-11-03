@@ -7,7 +7,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
 const ImagePhotoInfoFormPanel = require('../../page_objects/wizardpanel/image.photoinfo.form.panel');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const appConst = require('../../libs/app_const');
 
@@ -36,7 +36,7 @@ describe("image.wizard.photo.properties.spec: Open an image and update photo pro
             await imageFormPanel.pause(1000);
             await contentWizard.waitAndClickOnSave();
             // 3. open Versions widget in wizard-details panel
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await wizardContextPanel.openVersionHistory();
             let wizardVersionsWidget = new WizardVersionsWidget();
             await wizardVersionsWidget.waitForVersionsLoaded();

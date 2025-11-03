@@ -9,12 +9,25 @@ const ImageEditor = require('../../page_objects/wizardpanel/image.editor');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
 const appConst = require('../../libs/app_const');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe("image.content.flip.rotate.spec: Open an image and flip and rotate it", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
+
+    it(`GIVEN existing image is opened WHEN 'Show Page Editor' toggle has been clicked THEN Wizard Preview Toolbar gets displayed`,
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentWizard = new ContentWizard();
+            await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.NORD);
+            // 1. Verify that 'Wizard Preview Toolbar' is not displayed by default
+            await contentItemPreviewPanel.waitForPreviewToolbarNotDisplayed();
+            await contentWizard.clickOnPageEditorToggler();
+            await studioUtils.saveScreenshot('image_page_editor_show_page_toggle_pressed');
+            await contentItemPreviewPanel.waitForPreviewButtonDisplayed();
+        });
 
     it(`GIVEN existing image is opened WHEN 'Rotate' button has been pressed AND 'Reset Filter' has been pressed THEN Save button has expected state`,
         async () => {

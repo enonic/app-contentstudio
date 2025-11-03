@@ -20,8 +20,7 @@ class WidgetSelectorDropdown extends BaseDropdown {
         try {
             await this.clickOnFilteredByDisplayNameItem(widgetDisplayName, parentElement);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('WidgetSelectorDropdown - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError('WidgetSelectorDropdown - tried to select select the option:','err_widget_dropdown', err);
         }
     }
 

@@ -58,6 +58,9 @@ describe('Text Component with CKE - insert link and table specification', functi
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            // Details widget should be selected by default! :
+            let contextWindow = await contentWizard.openContextWindow();
+            await contextWindow.waitForWidgetSelected(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
             // 2. Click on minimize-toggle  expand Live Edit and show Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text component and type an invalid URL:
@@ -115,7 +118,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             // 2. Switch to the new browser-tab and verify the link:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             await studioUtils.clickOnElement('a=test');
-            await contentItemPreviewPanel.pause(2000);
+            await contentItemPreviewPanel.pause(1000);
             let title = await studioUtils.getTitle();
             await studioUtils.saveScreenshot('site_preview_button_clicked');
             assert.equal(title, 'Google', 'expected title should be loaded');

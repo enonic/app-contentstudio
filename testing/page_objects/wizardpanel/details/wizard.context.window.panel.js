@@ -10,7 +10,7 @@ const xpath = {
     widgetItem: `//div[contains(@id,'ContentWidgetItemView')]`
 };
 
-class WizardContextPanel extends BaseContextWindowPanel {
+class WizardContextWindowPanel extends BaseContextWindowPanel {
 
     get container() {
         return xpath.container;
@@ -42,7 +42,7 @@ class WizardContextPanel extends BaseContextWindowPanel {
         }
     }
 
-    isDetailsPanelLoaded() {
+    isOpened() {
         return this.getBrowser().waitUntil(() => {
             return this.findElement(xpath.container).then(el => {
                 return this.getBrowser().getElementCSSValue(el.elementId, 'width');
@@ -68,20 +68,20 @@ class WizardContextPanel extends BaseContextWindowPanel {
         }
     }
 
-    async openDependencies() {
+    async openDependenciesWidget() {
         try {
-            await super.openDependencies();
-            await this.pause(1000);
+            await super.openDependenciesWidget();
+            await this.pause(700);
         } catch (err) {
             //Workaround for issue with the empty selector:
             await this.saveScreenshotUniqueName('err_dependencies');
             await this.refresh();
-            await this.pause(4000);
-            await super.openDependencies();
+            await this.pause(3000);
+            await super.openDependenciesWidget();
         }
     }
 }
 
-module.exports = WizardContextPanel;
+module.exports = WizardContextWindowPanel;
 
 

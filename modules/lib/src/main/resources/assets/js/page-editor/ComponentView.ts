@@ -203,7 +203,7 @@ export class ComponentView
         let isFragmentComponent = this.getType().equals(FragmentItemType.get());
 
         if (!isFragmentComponent && this.getLiveEditParams().isFragmentAllowed) {
-            actions.push(new Action(i18n('live.view.saveAs.fragment')).onExecuted(() => {
+            actions.push(new Action(i18n('action.component.create.fragment')).onExecuted(() => {
                 this.deselect();
 
                 new CreateFragmentEvent(this.getPath()).fire();

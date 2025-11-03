@@ -92,8 +92,7 @@ class TextComponent extends Page {
             await this.getBrowser().switchToParentFrame();
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_text_component_insert_text');
-            throw new Error(`Error during typing text in CKE editor, screenshot: ${screenshot}` + err);
+            await this.handleError('Tried to set the text in Text Component', 'err_text_component_insert_text', err);
         }
     }
 
@@ -106,8 +105,7 @@ class TextComponent extends Page {
             await this.getBrowser().switchToParentFrame();
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_text_component_insert_text');
-            throw new Error(`Error during typing text in CKE editor, screenshot:${screenshot}` + err);
+            await this.handleError('Tried to insert the text in Text Component', 'err_text_component_insert_text', err);
         }
     }
 
@@ -131,8 +129,7 @@ class TextComponent extends Page {
             await this.getBrowser().switchToParentFrame();
             return result;
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_text_component_focus');
-            throw new Error(`Text component, Editor is not focused, screenshot: ${screenshot} ` + err);
+            await this.handleError('Text component, Editor was not focused', 'err_text_component_focus', err )
         }
     }
 

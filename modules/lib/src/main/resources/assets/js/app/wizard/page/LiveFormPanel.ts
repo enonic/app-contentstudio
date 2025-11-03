@@ -113,8 +113,6 @@ export class LiveFormPanel
 
     private content: Content;
 
-    private contentType: ContentType;
-
     private liveEditModel?: LiveEditModel;
 
     private pageLoading: boolean = false;
@@ -161,19 +159,15 @@ export class LiveFormPanel
     private hideLoadMaskHandler: () => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
     private contentPermissionsUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
-    private reloadNeededHandler: () => void;
 
     constructor(config: LiveFormPanelConfig) {
         super('live-form-panel widget-preview-panel');
 
         this.contentWizardPanel = config.contentWizardPanel;
-        this.contentType = config.contentType;
         this.liveEditPageProxy = config.liveEditPage;
         this.content = config.liveEditModel.getContent();
 
-        this.widgetRenderingHandler = new WizardWidgetRenderingHandler(this, this.content, this.contentType);
-
-        this.reloadNeededHandler = () => this.widgetRenderingHandler.refreshPlaceholder();
+        this.widgetRenderingHandler = new WizardWidgetRenderingHandler(this);
 
         PageNavigationMediator.get().addPageNavigationHandler(this);
 
@@ -469,7 +463,7 @@ export class LiveFormPanel
     }
 
     private initPagePanels(): void {
-        const pageInspectionPanel = new PageInspectionPanel(SaveAsTemplateAction.get());
+        const pageInspectionPanel = new PageInspectionPanel();
 
         this.availableInspectPanels.set('page', pageInspectionPanel);
         this.availableInspectPanels.set(LayoutComponentType.get(), new LayoutInspectionPanel());
@@ -550,9 +544,6 @@ export class LiveFormPanel
 
     setModel(liveEditModel: LiveEditModel) {
 
-        this.liveEditModel?.getSiteModel()?.unApplicationAdded(this.reloadNeededHandler);
-        this.liveEditModel?.getSiteModel()?.unApplicationRemoved(this.reloadNeededHandler);
-
         this.liveEditModel = liveEditModel;
         this.content = liveEditModel.getContent();
 
@@ -570,9 +561,10 @@ export class LiveFormPanel
         this.availableInspectPanels.forEach((panel) => panel.setModel(liveEditModel));
 
         this.handleContentUpdatedEvent();
+    }
 
-        this.liveEditModel?.getSiteModel()?.onApplicationAdded(this.reloadNeededHandler);
-        this.liveEditModel?.getSiteModel()?.onApplicationRemoved(this.reloadNeededHandler);
+    public getModel(): LiveEditModel {
+        return this.liveEditModel;
     }
 
     private handleContentUpdatedEvent() {
@@ -671,15 +663,6 @@ export class LiveFormPanel
         });
 
         eventsManager.onLiveEditPageViewReady(() => {
-            if (this.insertablesPanel) {
-                // disable insert tab if there is no page for some reason (i.e. error occurred)
-                // or there is no controller or template set or no automatic template
-                const page = PageState.getState();
-                const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
-                const hasDefaultTemplate = this.liveEditModel?.getDefaultModels()?.hasDefaultPageTemplate();
-                this.contextWindow.setItemVisible(this.insertablesPanel, isPageRenderable || hasDefaultTemplate);
-            }
-
             if (this.content.getPage()?.isFragment()) { // preselection selector's value to make it not empty
                 const component = PageState.getState().getFragment();
                 const inspectionPanel = this.availableInspectPanels.get(component.getType());
@@ -710,10 +693,6 @@ export class LiveFormPanel
         eventsManager.onLiveEditPageInitializationError((event: LiveEditPageInitializationErrorEvent) => {
             showError(event.getMessage(), false);
             this.contentWizardPanel.showForm();
-
-            if (this.insertablesPanel) {
-                this.contextWindow.setItemVisible(this.insertablesPanel, false);
-            }
         });
 
         eventsManager.onLiveEditPageDialogCreate((event: CreateHtmlAreaDialogEvent) => {
@@ -765,15 +744,12 @@ export class LiveFormPanel
     }
 
     private inspectPage(params: InspectPageParams): void {
-        const unlocked = !this.liveEditPageProxy?.isLocked();
-        const canShowWidget = unlocked && params.showWidget;
-        const canShowPanel = unlocked && params.showPanel;
         const pagePanel = this.availableInspectPanels.get('page') as PageInspectionPanel;
         this.contextWindow?.showInspectionPanel(
             getInspectParameters({
                 panel: pagePanel,
-                showWidget: canShowWidget,
-                showPanel: canShowPanel,
+                showWidget: params.showWidget,
+                showPanel: params.showPanel,
                 source: params.source,
                 keepPanelSelection: params.keepPanelSelection
             })
@@ -895,7 +871,6 @@ export class LiveFormPanel
 
     setEnabled(enabled: boolean): void {
         this.modifyPermissions = enabled;
-        this.widgetRenderingHandler.setEnabled(enabled);
 
         this.insertablesPanel?.setModifyPermissions(enabled);
         this.liveEditPageProxy?.setModifyPermissions(enabled);
@@ -922,8 +897,6 @@ export class LiveFormPanel
         this.availableInspectPanels.forEach(
             (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.unbindSiteModelListeners());
         this.liveEditModel = null;
-
-        this.widgetRenderingHandler.reset();
 
         this.removeContentEventListeners();
     }

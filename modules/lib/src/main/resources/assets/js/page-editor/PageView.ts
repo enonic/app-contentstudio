@@ -20,7 +20,6 @@ import {ItemViewSelectedEventConfig, SelectComponentEvent} from './event/outgoin
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {TextItemType} from './text/TextItemType';
 import {TextComponentView} from './text/TextComponentView';
-import {DeselectComponentEvent} from './event/outgoing/navigation/DeselectComponentEvent';
 import {PageLockedEvent} from './event/outgoing/manipulation/PageLockedEvent';
 import {PageUnlockedEvent} from './event/outgoing/manipulation/PageUnlockedEvent';
 import {Highlighter} from './Highlighter';
@@ -44,7 +43,6 @@ import {SaveAsTemplateEvent} from './SaveAsTemplateEvent';
 import {LiveEditParams} from './LiveEditParams';
 import {PageResetEvent} from './event/outgoing/manipulation/PageResetEvent';
 import {ComponentInspectedEvent} from './ComponentInspectedEvent';
-import {CustomizePageEvent} from './event/outgoing/manipulation/CustomizePageEvent';
 
 export class PageViewBuilder {
 
@@ -193,7 +191,7 @@ export class PageView
         }
 
         if (!this.liveEditParams.isPageTemplate) {
-            actions.push(new Action(i18n('live.view.saveAs.template')).onExecuted(() => {
+            actions.push(new Action(i18n('action.saveAsTemplate')).onExecuted(() => {
                 new SaveAsTemplateEvent().fire();
             }));
         }
@@ -354,10 +352,10 @@ export class PageView
     }
 
     getLockedMenuActions(): Action[] {
-        const unlockAction = new Action(i18n('live.view.page.customize'));
+        const unlockAction = new Action(i18n('live.view.page.settings'));
 
         unlockAction.onExecuted(() => {
-            new CustomizePageEvent().fire();
+            new ComponentInspectedEvent(ComponentPath.root()).fire()
         });
 
         return [unlockAction];
@@ -366,15 +364,11 @@ export class PageView
     selectLocked(position: ClickPosition) {
         this.setLockVisible(true);
         this.lockedContextMenu.showAt(position.x, position.y);
-
-        new SelectComponentEvent({itemView: this, position}).fire();
     }
 
     deselectLocked() {
         this.setLockVisible(false);
         this.lockedContextMenu.hide();
-
-        new DeselectComponentEvent(this.getPath()).fire();
     }
 
     handleShaderClick(event: MouseEvent) {

@@ -21,8 +21,8 @@ importers:
         specifier: ^3.2.6
         version: 3.2.6
       enonic-admin-artifacts:
-        specifier: ^2.3.2
-        version: 2.3.2
+        specifier: ^2.4.0
+        version: 2.4.0
       flag-icons:
         specifier: ^7.5.0
         version: 7.5.0

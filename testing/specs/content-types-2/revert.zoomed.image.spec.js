@@ -42,7 +42,7 @@ describe('revert.zoomed.image.spec: tests for reverting of zoomed image', functi
             // 1. Open the zoomed image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.SENG);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Verify that 'Reset filters' button is visible:
             await imageEditor.waitForResetFiltersDisplayed();
             // 3. Open Versions Panel

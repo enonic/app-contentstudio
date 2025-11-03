@@ -15,14 +15,16 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
     }
     const FOLDER_DISPLAY_NAME = appConst.generateRandomName('folder');
 
-    it(`WHEN folder-wizard is opened THEN the owner should be "Super User" and a language should not be selected`,
+    it(`WHEN folder-wizard is opened THEN the owner should be 'Super User' and a language should not be selected`,
         async () => {
             // 1. Open new wizard for folder:
+            let contentWizard = new ContentWizard();
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            await contentWizard.openContextWindow();
             // 2. Open 'Edit Settings' modal dialog:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             let actualOwner = await editSettingsDialog.getSelectedOwner();
-            // 3. Verify that owner is "Super User" and a language is not selected
+            // 3. Verify that owner is 'Super User' and a language is not selected
             assert.equal(actualOwner, appConst.systemUsersDisplayName.SUPER_USER, 'Expected owner should be present');
             // 4. Language filter input should be displayed:
             await editSettingsDialog.waitForLanguageOptionsFilterDisplayed();
@@ -34,7 +36,7 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             let propertiesWidget = new PropertiesWidget();
             // 1. Open new folder wizard
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await contentWizard.typeDisplayName(FOLDER_DISPLAY_NAME);
             // 2. Open 'Edit Settings' modal dialog and select the language:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
@@ -65,7 +67,7 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.DEUTSCH_DE);
             await editSettingsDialog.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
-            await studioUtils.saveScreenshot('language_updated_poperties_widget');
+            await studioUtils.saveScreenshot('language_updated_properties_widget');
             // 3. Verify that expected language should be displayed in Browse Details Panel
             let actualLanguage = await propertiesWidget.getLanguage();
             assert.equal(actualLanguage, 'de', 'expected language should be present in the widget');
@@ -74,9 +76,11 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
     it(`WHEN existing folder is opened WHEN the selected language has been removed THEN the language should not be displayed in the properties widget`,
         async () => {
             let propertiesWidget = new PropertiesWidget();
+            let contentWizard = new ContentWizard();
             // 1. existing folder is opened:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_DISPLAY_NAME);
             // 2. Open 'Edit Settings' modal dialog and select the language:
+            await contentWizard.openContextWindow();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             // 3. Remove the selected language:
             await editSettingsDialog.clickOnRemoveLanguage();
@@ -92,7 +96,7 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             // 1. Open wizard for new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             // 2. Verify the owner property in the widget
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await propertiesWidget.waitForOwnerDisplayed();
             // 3. default owner has been removed
             let editSettingsDialog = await studioUtils.openEditSettingDialog();

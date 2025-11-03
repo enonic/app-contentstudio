@@ -9,6 +9,7 @@ const PageTemplateWidget = require('../../page_objects/browsepanel/detailspanel/
 const contentBuilder = require('../../libs/content.builder');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const PageTemplateForm = require('../../page_objects/wizardpanel/page.template.form.panel');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('page.template.widget.spec: Tests for page template widget in Details Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -58,7 +59,11 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
             await contentWizard.typeDisplayName(TEMPLATE_NAME);
             // 4.Select 'Site' in support selector:
             await pageTemplateForm.filterOptionsAndSelectSupport(appConst.TEMPLATE_SUPPORT.SITE);
-            await contentWizard.selectPageDescriptor(COUNTRY_LIST_CONTROLLER);
+            let pageInspectionPanel = new PageInspectionPanel();
+            // Open 'Page' widget:
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageInspectionPanel.selectPageTemplateOrController(COUNTRY_LIST_CONTROLLER);
             await contentWizard.waitForSaveButtonDisabled();
 
             await studioUtils.doCloseCurrentBrowserTab();
@@ -68,9 +73,9 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
             await studioUtils.findAndSelectItem(SITE.displayName);
             await studioUtils.saveScreenshot('template_widget_site_with_template');
             // 6. Verify that the template's name is displayed in the link
-            let templateName = await pageTemplateWidget.getControllerLink();
-            assert.equal(templateName, TEMPLATE_NAME, "Expected template name should be displayed in the template widget");
-            // 7. Verify that Automatic controller type is displayed:
+            let actualName = await pageTemplateWidget.getControllerLink();
+            assert.equal(actualName, TEMPLATE_NAME, "Expected template name should be displayed in the template widget");
+            // 7. Verify that 'Automatic' controller type is displayed:
             let type = await pageTemplateWidget.getControllerType();
             assert.equal(type, 'Automatic', "Automatic template should be present in the widget");
         });

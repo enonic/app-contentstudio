@@ -8,7 +8,7 @@ const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const appConst = require('../../libs/app_const');
 
@@ -59,8 +59,8 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             let wizardContextPanel = new WizardContextPanel();
             // 1. Select the content and open dependencies widget:
             await studioUtils.selectContentAndOpenWizard(CONTENT_NAME);
-            await contentWizard.openDetailsPanel();
-            await wizardContextPanel.openDependencies();
+            await contentWizard.openContextWindow();
+            await wizardContextPanel.openDependenciesWidget();
             await studioUtils.saveScreenshot('htmlarea_with_image');
             // 2. Verify that 'Show outbound' button gets visible in the widget, because an image was inserted in htmlarea
             await wizardDependenciesWidget.waitForOutboundButtonVisible();
@@ -78,8 +78,8 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             let wizardDependenciesWidget = new WizardDependenciesWidget();
             // 1. Open the content:
             await studioUtils.selectContentAndOpenWizard(CONTENT_NAME);
-            await contentWizard.openDetailsPanel();
-            await wizardContextPanel.openDependencies();
+            await contentWizard.openContextWindow();
+            await wizardContextPanel.openDependenciesWidget();
             // 2. Clear the html area:
             await htmlAreaForm.clearHtmlArea(0);
             // 3. Save the changes!

@@ -21,7 +21,7 @@
 
   .filter-container {
     .option-filter-input {
-      height: 36px;
+      height: 40px;
       text-align: left;
     }
 
@@ -38,6 +38,21 @@
 
       .names-and-icon-view {
         max-width: calc(~'100% - ' 45px);
+      }
+    }
+  }
+
+  .filter-container,
+  .item-view-wrapper {
+    > .names-and-icon-viewer {
+      .names-and-icon-view {
+        &.small .@{_COMMON_PREFIX}wrapper {
+          &::before {
+            font-size: 12px;
+            left: 18px;
+            background-color: transparent;
+          }
+        }
       }
     }
   }

@@ -11,6 +11,7 @@ const LayoutConfigInspectPanel = require('../../page_objects/wizardpanel/livefor
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
 const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
 const NotificationDialog = require('../../page_objects/notification.dialog');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('layout.config.inspect.panel.spec: tests for layout with config', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -38,9 +39,12 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(500);
             // 2. Verify that the site should be saved automatically after selecting a controller
-            await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.MAIN_REGION);
+            let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageInspectionPanel.selectPageTemplateOrController(appConst.CONTROLLER_NAME.MAIN_REGION);
             await contentWizard.waitForSaveButtonDisabled();
-            // 3. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            // 3. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_REGION);
             // 4. Insert the layout:
@@ -67,6 +71,7 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
     it("GIVEN layer component has been inserted WHEN selected option has been reset and Apply button pressed in 'Inspect Panel' THEN new changes should be applied in Inspect Panel",
         async () => {
             let contentWizard = new ContentWizard();
+            let pageInspectionPanel = new PageInspectionPanel();
             let pageComponentView = new PageComponentView();
             let layoutConfigInspectPanel = new LayoutConfigInspectPanel();
             let layoutInspectionPanel = new LayoutInspectionPanel();
@@ -78,7 +83,9 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(500);
             // 2. Verify that the site should be saved automatically after selecting a controller
-            await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.APP_CONTENT_TYPES_PAGE);
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageInspectionPanel.selectPageTemplateOrController(appConst.CONTROLLER_NAME.APP_CONTENT_TYPES_PAGE);
             await contentWizard.waitForSaveButtonDisabled();
             // 3. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
@@ -115,7 +122,7 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             let layoutInspectionPanel = new LayoutInspectionPanel();
             // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Click on the 'Centered' item in PCV:
             await pageComponentView.clickOnComponent('Centered');

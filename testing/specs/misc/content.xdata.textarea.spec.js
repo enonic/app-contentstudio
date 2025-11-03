@@ -8,7 +8,7 @@ const contentBuilder = require("../../libs/content.builder");
 const XDataHtmlArea = require('../../page_objects/wizardpanel/wizard-step-form/xdata.htmlarea.wizard.step.form');
 const XDataTextArea = require('../../page_objects/wizardpanel/wizard-step-form/xdata.textarea.wizard.step.form');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const appConst = require('../../libs/app_const');
 
@@ -102,7 +102,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let versionsWidget = new WizardVersionsWidget();
             // 1. Open existing site, then open details panel:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Open versions widget
             await wizardContextPanel.openVersionHistory();
             await versionsWidget.waitForVersionsLoaded();
@@ -224,7 +224,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let wizardContextPanel = new WizardContextPanel();
             await studioUtils.selectContentAndOpenWizard(DOUBLE_0_0_CONTENT);
             // 1. Open details panel:
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             // 2. Open versions widget:
             await wizardContextPanel.openVersionHistory();
             await versionsWidget.clickAndExpandVersion(1);

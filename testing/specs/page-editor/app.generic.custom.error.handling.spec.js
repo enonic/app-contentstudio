@@ -9,6 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('Custom error handling - specification. Verify that application error page is loaded when error occurred', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -32,7 +33,10 @@ describe('Custom error handling - specification. Verify that application error p
             await contentWizard.typeData(SITE);
             await contentWizard.pause(1000);
             // 2. Select a controller with error:
-            await contentWizard.selectPageDescriptor(CONTROLLER_WITH_ERROR, false);
+            let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_WITH_ERROR);
             await contentWizard.pause(500);
             await studioUtils.saveScreenshot('site_controller_with_errors');
             // 3. Verify that 'Preview' button is disabled in the Preview wizard-toolbar:
@@ -42,7 +46,7 @@ describe('Custom error handling - specification. Verify that application error p
             await contentWizard.waitForMinimizeLiveEditTogglerDisplayed()
             // 5. Verify that 'Failed to render content preview' message appears in the wizard page:
             let messages = await contentWizard.getNoPreviewMessage();
-            assert.ok(messages.includes(ERROR_MESSAGE_LIVE_EDIT), "Expected message should be displayed in the LivView");
+            assert.ok(messages.includes(ERROR_MESSAGE_LIVE_EDIT), 'Expected message should be displayed in the LivView');
             assert.ok(messages.includes('Please check logs for errors'), "Expected message should be displayed in the LivView");
             await studioUtils.doCloseCurrentBrowserTab();
             await studioUtils.doSwitchToContentBrowsePanel();

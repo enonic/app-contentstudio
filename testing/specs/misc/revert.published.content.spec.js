@@ -25,6 +25,8 @@ describe('Revert published content spec', function () {
             await studioUtils.doAddFolder(FOLDER);
             // 2. reopen the folder and select a language
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             // 3. Open 'Edit Settings' modal dialog:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
@@ -33,7 +35,7 @@ describe('Revert published content spec', function () {
             // 4. Publish the folder
             await contentWizard.clickOnMarkAsReadyButton();
             await studioUtils.doPublish();
-            await contentWizard.clickOnPageEditorToggler();
+            //'Page Editor' with Preview Widget shoule be opened by default
             // "Published status should be in Wizard"
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHED);
         });
@@ -44,6 +46,7 @@ describe('Revert published content spec', function () {
             let wizardVersionsWidget = new WizardVersionsWidget();
             // 1. Open the folder and revert the previous version:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentWizard.openContextWindow();
             await contentWizard.openVersionsHistoryPanel();
             // 2. Revert the latest 'Edited' version:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
@@ -52,8 +55,7 @@ describe('Revert published content spec', function () {
             let actualMessage = await contentWizard.waitForNotificationMessage();
             assert.ok(actualMessage.includes(appConst.NOTIFICATION_MESSAGES.CONTENT_REVERTED),
                 'Expected notification message should appear');
-            // 4. Open Page Editor with Preview Widget, Verify that status gets Modified
-            await contentWizard.clickOnPageEditorToggler();
+            // 4. 'Page Editor' with Preview Widget shoule be opened by default, Verify that status is Modified
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, `'Modified' status should be in Wizard`);
         });

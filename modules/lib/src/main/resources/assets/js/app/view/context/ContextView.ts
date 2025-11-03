@@ -15,8 +15,6 @@ import {InspectEvent} from '../../event/InspectEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
 import {ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
-import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
-import {ShowLiveEditEvent} from '../../wizard/ShowLiveEditEvent';
 import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
 import {AttachmentsWidgetItemView} from './widget/details/AttachmentsWidgetItemView';
@@ -30,9 +28,15 @@ import {VersionHistoryView} from './widget/version/VersionHistoryView';
 import {WidgetItemView} from './WidgetItemView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {InternalWidgetType, WidgetView} from './WidgetView';
+import {PageEventsManager} from '../../wizard/PageEventsManager';
+import {PageNavigationMediator} from '../../wizard/PageNavigationMediator';
+import {PageNavigationEvent} from '../../wizard/PageNavigationEvent';
+import {PageNavigationEventType} from '../../wizard/PageNavigationEventType';
+import {PageNavigationHandler} from '../../wizard/PageNavigationHandler';
 
 export class ContextView
-    extends DivEl {
+    extends DivEl
+    implements PageNavigationHandler {
 
     protected widgetViews: WidgetView[] = [];
     protected contextContainer: DivEl;
@@ -54,13 +58,15 @@ export class ContextView
     protected contextWindow?: ContextWindow;
     protected alreadyFetchedCustomWidgets: boolean;
 
-    protected isPageRenderable: boolean;
     private sizeChangedListeners: (() => void)[] = [];
 
     private widgetsUpdateList: Record<string, (key: string, type: ApplicationEventType) => void> = {};
 
-    public static debug: boolean = false;
     private editorMode: boolean;
+
+    private isPageRenderable: boolean = undefined;
+
+    public static debug: boolean = false;
 
     constructor(editorMode: boolean = false) {
         super('context-panel-view');
@@ -92,12 +98,15 @@ export class ContextView
         ApplicationEvent.on(handleApplicationEvents);
         this.onRemoved(() => ApplicationEvent.un(handleApplicationEvents));
 
-        const createPageEditorVisibilityChangedHandler = (visible: boolean) => () => {
-            this.updateSelectedWidget();
-        };
+        PageEventsManager.get().onRenderableChanged((renderable: boolean) => {
+            const wasRenderable: boolean = this.isPageRenderable;
+            this.isPageRenderable = renderable;
 
-        ShowLiveEditEvent.on(createPageEditorVisibilityChangedHandler(true));
-        ShowContentFormEvent.on(createPageEditorVisibilityChangedHandler(false));
+            if (wasRenderable !== undefined && renderable !== wasRenderable) {
+                // only switch the widget when the page becomes renderable
+                this.updateSelectedWidget();
+            }
+        });
 
         const contentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
@@ -135,6 +144,25 @@ export class ContextView
                 this.activeWidget.updateWidgetItemViews().catch(DefaultErrorHandler.handle);
             }
         });
+
+        PageNavigationMediator.get().addPageNavigationHandler(this);
+    }
+
+    handle(event: PageNavigationEvent): void {
+        if (event.getType() === PageNavigationEventType.DESELECT) {
+            this.deactivatePageEditorWidget();
+            return;
+        }
+
+        if (event.getType() === PageNavigationEventType.SELECT) {
+            this.activatePageEditorWidget();
+            return;
+        }
+
+        if (event.getType() === PageNavigationEventType.INSPECT) {
+            this.activatePageEditorWidget();
+            return;
+        }
     }
 
     private initDivForNoSelection() {
@@ -337,7 +365,6 @@ export class ContextView
         this.versionsWidgetView = this.createVersionsWidgetView();
         if (this.editorMode) {
             this.pageEditorWidgetView = this.createPageEditorWidgetView();
-            this.addWidget(this.pageEditorWidgetView);
         }
         this.addWidgets(this.getInitialWidgets());
 
@@ -346,7 +373,12 @@ export class ContextView
     }
 
     protected getInitialWidgets(): WidgetView[] {
-        return [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
+        const result = [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
+        if (this.pageEditorWidgetView) {
+            // add page editor widget as second item
+            result.splice(1, 0, this.pageEditorWidgetView);
+        }
+        return result;
     }
 
     private createPageEditorWidgetView(): WidgetView {
@@ -502,10 +534,6 @@ export class ContextView
         }
     }
 
-    setIsPageRenderable(value: boolean): void {
-        this.isPageRenderable = value;
-    }
-
     updateSelectedWidget() {
         const shouldActivatePageWidget = this.editorMode &&
                                          (this.isPageRenderable && !this.item?.getType()?.isShortcut()
@@ -518,13 +546,9 @@ export class ContextView
     }
 
     private activatePageEditorWidget(): void {
-        const isVersionsWidgetActive: boolean = this.isActiveWidgetByType(this.versionsWidgetView);
-
         this.defaultWidgetView = this.pageEditorWidgetView;
 
-        if (!isVersionsWidgetActive) {
-            this.activateDefaultWidget();
-        }
+        this.activateDefaultWidget();
     }
 
     private deactivatePageEditorWidget(): void {

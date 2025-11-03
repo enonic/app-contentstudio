@@ -4,7 +4,8 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const WidgetSelectorDropdown = require('../components/selectors/widget.selector.dropdown')
+const WidgetSelectorDropdown = require('../components/selectors/widget.selector.dropdown');
+const PageWidgetContextWindowPanel = require('../wizardpanel/liveform/page.widget.context.window');
 
 const xpath = {
     scheduleWidgetItem: "//div[contains(@id,'OnlinePropertiesWidgetItemView')]",
@@ -81,18 +82,36 @@ class BaseContextWindowPanel extends Page {
     async filterAndOpenVersionHistory() {
         try {
             let widgetSelectorDropdown = new WidgetSelectorDropdown();
+            // Expand the dropdown
             await widgetSelectorDropdown.clickOnDropdownHandle();
+            // Insert the text in the options filter input:
             await widgetSelectorDropdown.selectFilteredWidgetItem(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_open_versions');
-            throw new Error(`Error occurred in widget selector dropdown, Version History, screenshot ${screenshot}: ` + err);
+            await this.handleError(`Widget selector dropdown - Tried to open Versions Widget `, 'err_open_versions', err);
         }
     }
 
     async selectItemInWidgetSelector(itemName) {
-        let widgetSelectorDropdown = new WidgetSelectorDropdown();
-        await this.clickOnWidgetSelectorDropdownHandle();
-        await widgetSelectorDropdown.clickOnOptionByDisplayName(itemName);
+        try {
+            let widgetSelectorDropdown = new WidgetSelectorDropdown();
+            await this.clickOnWidgetSelectorDropdownHandle();
+            await widgetSelectorDropdown.clickOnOptionByDisplayName(itemName);
+            await this.pause(300);
+        } catch (err) {
+            await this.handleError(`Widget selector dropdown - tried to open ${itemName} : `, 'err_open_widget', err);
+        }
+    }
+
+    async openPageWidget() {
+        try {
+            let widgetSelectorDropdown = new WidgetSelectorDropdown();
+            await this.clickOnWidgetSelectorDropdownHandle();
+            await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await this.pause(300);
+            return new PageWidgetContextWindowPanel();
+        } catch (err) {
+            await this.handleError(`Tried to open Page Widget. `, 'err_open_page_widget', err);
+        }
     }
 
     getWidgetSelectorDropdownOptions() {
@@ -101,7 +120,7 @@ class BaseContextWindowPanel extends Page {
     }
 
     //clicks on dropdown handle and select the 'Dependencies' menu item
-    async openDependencies() {
+    async openDependenciesWidget() {
         let widgetSelectorDropdown = new WidgetSelectorDropdown();
         await this.clickOnWidgetSelectorDropdownHandle();
         await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.DEPENDENCIES);
@@ -120,8 +139,11 @@ class BaseContextWindowPanel extends Page {
     async openDetailsWidget() {
         try {
             let widgetSelectorDropdown = new WidgetSelectorDropdown();
-            await this.clickOnWidgetSelectorDropdownHandle();
-            await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
+            let option = await this.getSelectedOptionInWidgetSelectorDropdown();
+            if (option !== 'Details') {
+                await this.clickOnWidgetSelectorDropdownHandle();
+                await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
+            }
         } catch (err) {
             await this.handleError('Tried to open Details widget', 'err_open_details_widget', err);
         }
@@ -140,6 +162,11 @@ class BaseContextWindowPanel extends Page {
             return false;
         }
         return parsed;
+    }
+
+    async waitForWidgetSelected(optionName) {
+        let selector = this.widgetSelectorDropdown + lib.itemByDisplayName(optionName);
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 }
 

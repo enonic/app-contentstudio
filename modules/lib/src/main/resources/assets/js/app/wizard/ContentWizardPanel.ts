@@ -9,7 +9,6 @@ import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationCon
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyTreeComparator} from '@enonic/lib-admin-ui/data/PropertyTreeComparator';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -580,9 +579,15 @@ export class ContentWizardPanel
                 this.wizardHeader.setDisplayName(currentItem.getDisplayName());
                 this.wizardHeader.setName(currentItem.getName().toString());
 
-                if (!this.siteModel && currentItem.isSite()) {
-                    this.initSiteModel(currentItem as Site);
+                const site = currentItem.isSite() ? currentItem as Site : this.site;
+                if (site) {
+                    if (this.siteModel) {
+                        this.updateSiteModel(site);
+                    } else {
+                        this.initSiteModel(site);
+                    }
                 }
+
                 this.initFormContext();
                 this.liveEditModel = this.initLiveEditModel(currentItem);
 
@@ -734,7 +739,7 @@ export class ContentWizardPanel
         });
 
         liveFormPanel.onRenderableChanged((renderable: boolean) => {
-            this.contextView.setIsPageRenderable(renderable);
+            PageEventsManager.get().notifyRenderableChanged(renderable);
         });
 
         this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
@@ -944,7 +949,7 @@ export class ContentWizardPanel
         }
     }
 
-    saveChanges(): Q.Promise<Content> {
+    saveChanges(clearInspection: boolean = false): Q.Promise<Content> {
 
         // save happens right after data loaded with new content
         // so layout is not done yet and livePanel is not present yet
@@ -973,9 +978,11 @@ export class ContentWizardPanel
                     // because content path is used to load the page
                     this.updateLiveEditModel(currentContent);
 
+                    this.contextView?.setItem(this.getContent());
+
                     if (this.reloadPageEditorOnSave && this.livePanel) {
 
-                        this.livePanel.loadPage(false).then(() => {
+                        this.livePanel.loadPage(clearInspection).then(() => {
 
                             this.refreshLivePanel(currentContent).then(() => {
                                 resolve(currentContent);
@@ -985,7 +992,6 @@ export class ContentWizardPanel
                     } else {
                         resolve(currentContent);
                     }
-
 
                 } else {
                     resolve(currentContent);
@@ -1195,7 +1201,7 @@ export class ContentWizardPanel
         PageState.getEvents().onPageReset(() => {
             this.removePageComponentsView();
             this.setMarkedAsReady(false);
-            this.saveChanges().catch(DefaultErrorHandler.handle);
+            this.saveChanges(true).catch(DefaultErrorHandler.handle);
         });
 
         // to be changed: make default models static and remove that call by directly using DefaultModels in PageState
@@ -1235,6 +1241,9 @@ export class ContentWizardPanel
             }
 
             if (event instanceof PageControllerUpdatedEvent) {
+                if (this.liveEditPage?.isLocked()) {
+                    this.unLockPage();
+                }
                 this.pageComponentsView.setLocked(false);
                 this.pageComponentsView.reload();
 
@@ -1671,6 +1680,11 @@ export class ContentWizardPanel
                 const isAutoUpdated: boolean = this.defaultModels.getDefaultPageTemplate()?.getId() === template.getId() ||
                                                defaultModels.getDefaultPageTemplate()?.getId() === template.getId();
                 this.defaultModels = defaultModels;
+
+                if (this.liveEditModel) {
+                    // defaultModels is part of liveEditModel so need to update it
+                    this.updateLiveEditModel(this.getPersistedItem());
+                }
 
                 if (isAutoUpdated) {
                     this.debouncedEditorReload(false, true, true);
@@ -2432,17 +2446,7 @@ export class ContentWizardPanel
     }
 
     private shouldOpenEditorByDefault(): Q.Promise<boolean> {
-        if (!this.contentType) {
-            return Q.resolve(false);
-        }
-        const isTemplate: boolean = this.getContentTypeName().isPageTemplate();
-        const isSite: boolean = this.getContentTypeName().isSite();
-
-        if (isTemplate || isSite) {
-            return Q.resolve(true);
-        }
-
-        return this.isRenderable();
+        return Q.resolve(this.contentType && !ContentTypeName.IMAGE.equals(this.contentType.getContentTypeName()));
     }
 
     private shouldAndCanOpenEditorByDefault(): Q.Promise<boolean> {
@@ -2458,9 +2462,7 @@ export class ContentWizardPanel
             console.debug('ContentWizardPanel.updateButtonsState');
         }
 
-        return this.wizardActions.refreshActions().then(() => {
-            this.contextView.updateSelectedWidget();
-        });
+        return this.wizardActions.refreshActions();
     }
 
     private updatePublishStatusOnDataChange() {

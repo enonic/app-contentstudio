@@ -77,7 +77,7 @@
       margin-left: -64px;
       margin-top: -64px;
       font-size: 6em;
-      color: #eee;
+      color: @admin-bg-light-gray;
       z-index: 1;
     }
 
@@ -92,11 +92,26 @@
     flex-direction: column;
 
     span {
-      .watermark-text(21px, true);
+      .watermark-text(21px, true, @admin-font-gray1);
       // overrides for watermark-text
       position: static;
       white-space: normal;
       display: block;
+    }
+
+    .page-settings-link {
+      margin-top: 10px;
+
+      span {
+        font-size: 14px;
+        color: @admin-shadow-gray;
+
+        &:hover:not(:disabled),
+        &:focus:not(:disabled) {
+          color: @admin-dark-gray;
+        }
+      }
+
     }
   }
 

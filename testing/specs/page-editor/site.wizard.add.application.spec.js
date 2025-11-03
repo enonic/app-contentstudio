@@ -1,12 +1,14 @@
 /**
  * Created on 07.11.2019.
  */
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const SiteForm = require('../../page_objects/wizardpanel/site.form.panel');
 const appConst = require('../../libs/app_const');
+const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 
 describe('site.wizard.add.application.spec: Select an application in the wizard and check the controller-selector', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -19,6 +21,7 @@ describe('site.wizard.add.application.spec: Select an application in the wizard 
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
             let contentWizard = new ContentWizard();
+            let liveFormPanel = new LiveFormPanel();
             let siteForm = new SiteForm();
             // 1. Open new site-wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
@@ -28,8 +31,12 @@ describe('site.wizard.add.application.spec: Select an application in the wizard 
             let message = await contentWizard.waitForNotificationMessage();
             // 3. Add the application:
             await siteForm.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
-            // 4. Controller-selector should appear in the Page Editor:
-            await contentWizard.waitForControllerOptionFilterInputVisible();
+            // 6. Verify that 'Preview not available' message gets visible:
+            let result = await liveFormPanel.waitForEditingNotAvailableMessageDisplayed();
+            assert.equal(result, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, "'Preview not available' message should be displayed");
+            // 7. Verify that 'Page Settings' menu item is available in the context menu:
+            await contentWizard.doOpenPageViewContextMenu(displayName);
+            await contentWizard.waitForPageSettingsMenuItemDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

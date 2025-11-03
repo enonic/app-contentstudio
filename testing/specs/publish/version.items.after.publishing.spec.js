@@ -7,7 +7,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const PublishContentDialog = require('../../page_objects/content.publish.dialog');
 const CompareWithPublishedVersionDialog = require('../../page_objects/compare.with.published.version.dialog');
@@ -40,7 +40,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             let contentWizard = new ContentWizard();
             // 1. Open an existing folder
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openDetailsWidget();
             // 2. Open Version widget:
             await wizardContextPanel.openVersionHistory();
             // 3. Open Publish wizard and insert a publish-message:
@@ -59,13 +59,11 @@ describe('version.items.after.publishing.spec tests for version items', function
     it(`GIVEN existing published folder is opened WHEN permissions have been updated THEN 'Permissions updated' item should appear in 'Versions Widget', the content remains Published`,
         async () => {
             let contentWizard = new ContentWizard();
-            let wizardContextPanel = new WizardContextPanel();
-            let wizardVersionsWidget = new WizardVersionsWidget();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let userAccessWidget = new UserAccessWidget();
             // 1. Select the folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openDetailsWidget();
             // 2. Update permissions:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             // 3. Add 'Audit Log' principal:
@@ -76,8 +74,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             await editPermissionsSummaryStep.waitForLoaded();
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
             await editPermissionsSummaryStep.waitForDialogClosed();
-            // 5. Open Page Editor with Preview Widget, Verify that status remains  Published
-            await contentWizard.clickOnPageEditorToggler();
+            // 5. Verify that status remains  'Published' (Page editor is opened by default)
             let actualStatus = await contentWizard.getContentStatus();
             assert.equal(actualStatus, appConst.CONTENT_STATUS.PUBLISHED, `The folder should remain 'Published'`);
         });
@@ -133,10 +130,10 @@ describe('version.items.after.publishing.spec tests for version items', function
             assert.equal(publishedItems, 2, 'Two Published items should be displayed');
             // 6. Verify that one 'Marked as ready' item is present in the widget
             let markedAsReadyItems = await wizardVersionsWidget.countMarkedAsReadyItems();
-            assert.equal(markedAsReadyItems, 1, "One 'Marked as Ready' item should be present in the widget");
+            assert.equal(markedAsReadyItems, 1, `One 'Marked as Ready' item should be present in the widget`);
             // 7. Verify that one 'Permissions updated' item is present in the widget
             let permissionsUpdatedItems = await wizardVersionsWidget.countPermissionsUpdatedItems();
-            assert.equal(permissionsUpdatedItems, 1, "One 'Permissions updated' item should be present in the widget");
+            assert.equal(permissionsUpdatedItems, 1, `One 'Permissions updated' item should be present in the widget`);
 
         });
     beforeEach(() => studioUtils.navigateToContentStudioApp());

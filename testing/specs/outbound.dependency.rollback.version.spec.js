@@ -7,7 +7,7 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
-const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const ImageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
 const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
@@ -106,8 +106,8 @@ function openWizardDependencyWidget() {
     let contentWizard = new ContentWizard();
     let wizardDependenciesWidget = new WizardDependenciesWidget();
     let wizardContextPanel = new WizardContextPanel();
-    return contentWizard.openDetailsPanel().then(() => {
-        return wizardContextPanel.openDependencies();
+    return contentWizard.openContextWindow().then(() => {
+        return wizardContextPanel.openDependenciesWidget();
     }).then(() => {
         return wizardDependenciesWidget.waitForWidgetLoaded();
     })

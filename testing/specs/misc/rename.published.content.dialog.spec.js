@@ -7,7 +7,7 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('rename.published.content.dialog.spec - tests for Rename published content modal dialog', function () {
@@ -99,7 +99,6 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             assert.equal(actualPath, NEW_NAME, 'Path in wizard page should be updated');
             // 3. Verify that 'Click to rename the content' tooltip is present in wizard header after updating the path:
             await contentWizard.waitForModifyPathSpanDisplayed();
-            await contentWizard.clickOnPageEditorToggler();
             await studioUtils.saveScreenshot('click_to_rename_the_content_tooltip');
             // 4. Verify that content's status gets 'Moved'
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.MOVED);
@@ -114,8 +113,7 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             await studioUtils.openContentAndSwitchToTabByDisplayName(NEW_NAME, TEST_FOLDER.displayName);
             // 2. Do unpublish the folder:
             await studioUtils.doUnPublishInWizard();
-            // Open the Page Editor with Preview Widget:
-            await contentWizard.clickOnPageEditorToggler();
+            // 'Page Editor' is opened by default:
             await studioUtils.saveScreenshot('unpublished_content_modify_path_icon');
             //3. Verify that span with 'Click to rename the content' is not displayed for the unpublished content:
             await contentWizard.waitForModifyPathSpanNotDisplayed();

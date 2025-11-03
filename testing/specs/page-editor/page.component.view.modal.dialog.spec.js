@@ -10,8 +10,9 @@ const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wiz
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SiteForm = require('../../page_objects/wizardpanel/site.form.panel');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -26,6 +27,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
     it(`GIVEN Live Edit frame is maximized WHEN controller has been selected THEN  Page Component View modal dialog should appear`,
         async () => {
             let contentWizardPanel = new ContentWizardPanel();
+            let pageInspectionPanel = new PageInspectionPanel();
             let siteForm = new SiteForm();
             let pageComponentView = new PageComponentView();
             // 1. Open new site-wizard
@@ -35,7 +37,9 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 2. Expand the Live Edit frame
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             // 3. Select a page descriptor:
-            await contentWizardPanel.selectPageDescriptor(CONTROLLER_NAME);
+            let wizardContextWindow = await contentWizardPanel.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 4. Verify that the modal dialog is loaded:
             await pageComponentView.waitForLoaded();
             let result = await pageComponentView.getPageComponentsDisplayName();
@@ -79,8 +83,8 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 2. Verify that the wizard step is loaded:
             await pageComponentsWizardStepForm.waitForLoaded();
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 3. Open details panel:
-            await contentWizard.openDetailsPanel();
+            // 3. Open Context panel:
+            await contentWizard.openContextWindow();
             // 4. Open versions widget:
             await detailsPanel.openVersionHistory();
             await versionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);

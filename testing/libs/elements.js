@@ -287,6 +287,9 @@ module.exports = Object.freeze({
         EMULATOR_DROPDOWN: "//div[contains(@id,'EmulatorDropdown')]",
         DIV_DROPDOWN: "//div[contains(@id,'PreviewWidgetDropdown')]",
         PREVIEW_NOT_AVAILABLE_SPAN: "//div[@class='no-preview-message']//span[text()='Preview not available']",
-        NO_PREVIEW_MSG_SPAN: "//div[@class='no-preview-message']//span"
+        NO_PREVIEW_MSG_SPAN: "//div[@class='no-preview-message']//span",
+        NO_CONTROLLER_NO_PREVIEW_MSG_SPAN: "//div[@class='no-selection-message']//span",
+        EMPTY_LIVE_FRAME_DIV: "//div[contains(@class,'frame-container')]//iframe[@class='live-edit-frame']",
+        LIVE_EDIT_FRAME: "//div[contains(@id,'FrameContainer')]//iframe[contains(@class,'text') or contains(@class,'application')]",
     }
 });

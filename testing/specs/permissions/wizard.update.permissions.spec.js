@@ -10,6 +10,7 @@ const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.
 const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 
 describe('wizard.update.permissions.spec: update permissions and check the state of Save button on toolbar', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -34,7 +35,8 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             // 2. Fill in the name input:
             await contentWizard.typeDisplayName(folderName);
             // 3. Don't save the folder but open 'Edit Permissions' dialog:
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             // 4. Update and apply changes in the dialog:
             await editPermissionsGeneralStep.removeAclEntry(appConst.SYSTEM_ROLES_NAME.ADMINISTRATOR);
@@ -56,9 +58,11 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let userAccessWidget = new UserAccessWidget();
             let contentWizard = new ContentWizard();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open new folder-wizard,
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
+            await wizardContextPanel.openDetailsWidget();
             // 2. Open 'Edit Permissions' dialog:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             // 3. 'Copy from project' button should be disabled:
@@ -79,9 +83,11 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
             let userAccessWidget = new UserAccessWidget();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open new folder-wizard, and open Edit Permissions dialog
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
+            await wizardContextPanel.openDetailsWidget();
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             // 2. Click on Next button
             await editPermissionsGeneralStep.clickOnNextButton();
@@ -95,12 +101,14 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             let contentWizard = new ContentWizard();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let userAccessWidget = new UserAccessWidget();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open new folder-wizard, fill in the name input and save it:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(DISPLAY_NAME);
             // 2. Save the folder:
             await contentWizard.waitAndClickOnSave();
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
+            await wizardContextPanel.openDetailsWidget();
             // 3. Open 'Edit Permissions' dialog:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             // 4.  Restricted radio has been clicked:
