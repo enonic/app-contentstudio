@@ -69,13 +69,13 @@ export type ConfirmationDialogFooterProps = {
     className?: string;
 } & ComponentPropsWithoutRef<'footer'>;
 
-const ConfirmationDialogFooter = ({
+const ConfirmationDialogFooter = forwardRef<HTMLButtonElement, ConfirmationDialogFooterProps>(({
     onCancel,
     onConfirm,
     intent = 'default',
     className,
     ...props
-}: ConfirmationDialogFooterProps): ReactElement => {
+}, ref): ReactElement => {
     const {confirmEnabled} = useConfirmationDialog();
 
     const cancel = useI18n('action.cancel');
@@ -87,11 +87,16 @@ const ConfirmationDialogFooter = ({
                 <Button label={cancel} variant='outline' onClick={onCancel}/>
             </Dialog.Close>
             <Dialog.Close asChild>
-                <Button className={cn(intent === 'danger' && 'bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50')} label={confirm} variant='solid' onClick={onConfirm} disabled={!confirmEnabled}/>
+                <Button ref={ref}
+                        onClick={onConfirm}
+                        disabled={!confirmEnabled}
+                        label={confirm} variant='solid'
+                        className={cn(intent === 'danger' && 'bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50')}
+                        />
             </Dialog.Close>
         </Dialog.Footer>
     );
-};
+});
 ConfirmationDialogFooter.displayName = 'ConfirmationDialog.Footer';
 
 export const ConfirmationDialog = {

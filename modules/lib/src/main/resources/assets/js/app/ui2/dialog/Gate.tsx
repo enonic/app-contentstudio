@@ -1,6 +1,6 @@
 import {Input, InputProps, cn} from '@enonic/ui';
 import type {ComponentPropsWithoutRef, ReactElement} from 'react';
-import {useEffect, useRef, useState} from 'react';
+import {forwardRef, useEffect, useRef, useState} from 'react';
 import {useI18n} from '../hooks/useI18n';
 import {useConfirmationDialog} from './ConfirmationDialog';
 
@@ -39,14 +39,13 @@ GateHint.displayName = 'Gate.Hint';
 
 const defaultNormalize = (value: string): string => value.trim();
 
-export const GateInput = ({
+export const GateInput = forwardRef<HTMLInputElement, GateInputProps>(({
     validate,
     normalize = defaultNormalize,
     expected,
     className,
-    autoFocus,
     ...props
-}: GateInputProps): ReactElement => {
+}, ref): ReactElement => {
     const {setConfirmEnabled} = useConfirmationDialog();
     const [value, setValue] = useState<string>('');
     const [showError, setShowError] = useState<boolean>(false);
@@ -94,6 +93,8 @@ export const GateInput = ({
 
     return (
         <Input
+            ref={ref}
+            className={cn('w-3/5 max-w-sm', className)}
             value={value}
             onChange={(e) => {
                 setShowError(false);
@@ -101,18 +102,15 @@ export const GateInput = ({
             }}
             readOnly={valid}
             inputMode='numeric'
-            autoFocus={autoFocus}
             error={errorMessage}
-            className={cn('w-1/2', className)}
             {...props}
         />
     );
-};
+});
 GateInput.displayName = 'Gate.Input';
 
-export const Gate = {
+export const Gate = Object.assign(GateRoot, {
     Root: GateRoot,
     Hint: GateHint,
     Input: GateInput,
-};
-
+});
