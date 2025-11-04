@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import com.enonic.xp.app.contentstudio.json.form.FormJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.schema.formfragment.CmsFormFragmentResolver;
 import com.enonic.xp.schema.content.ContentType;
 
 @SuppressWarnings("UnusedDeclaration")
@@ -19,7 +19,7 @@ public class ContentTypeJson
     public ContentTypeJson( final Builder builder )
     {
         super( builder.contentType, builder.contentTypeIconUrlResolver, builder.localeMessageResolver, builder.request );
-        this.form = new FormJson( builder.contentType.getForm(), builder.localeMessageResolver, builder.inlineMixinResolver );
+        this.form = new FormJson( builder.contentType.getForm(), builder.localeMessageResolver, builder.cmsFormFragmentResolver );
     }
 
     public FormJson getForm()
@@ -40,7 +40,7 @@ public class ContentTypeJson
 
         private LocaleMessageResolver localeMessageResolver;
 
-        private InlineMixinResolver inlineMixinResolver;
+        private CmsFormFragmentResolver cmsFormFragmentResolver;
 
         private HttpServletRequest request;
 
@@ -67,9 +67,9 @@ public class ContentTypeJson
             return this;
         }
 
-        public Builder setInlineMixinResolver( final InlineMixinResolver inlineMixinResolver )
+        public Builder setCmsFormFragmentResolver( final CmsFormFragmentResolver cmsFormFragmentResolver )
         {
-            this.inlineMixinResolver = inlineMixinResolver;
+            this.cmsFormFragmentResolver = cmsFormFragmentResolver;
             return this;
         }
 
@@ -84,7 +84,7 @@ public class ContentTypeJson
             Preconditions.checkNotNull( contentType );
             Preconditions.checkNotNull( localeMessageResolver );
             Preconditions.checkNotNull( contentTypeIconUrlResolver );
-            Preconditions.checkNotNull( inlineMixinResolver );
+            Preconditions.checkNotNull( cmsFormFragmentResolver );
             Preconditions.checkNotNull( request );
         }
 

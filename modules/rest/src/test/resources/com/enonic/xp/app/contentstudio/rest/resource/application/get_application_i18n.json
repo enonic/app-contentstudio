@@ -5,11 +5,10 @@
         "Input": {
           "config": {},
           "helpText": "translated.site.helpText",
-          "immutable": false,
-          "indexed": false,
+
           "inputType": "TextLine",
           "label": "translated.site.label",
-          "maximizeUIInputWidth": true,
+
           "name": "some-name",
           "occurrences": {
             "maximum": 1,
@@ -30,11 +29,10 @@
         "Input": {
           "config": {},
           "helpText": "translated.helpText",
-          "immutable": false,
-          "indexed": false,
+
           "inputType": "TextLine",
           "label": "translated.label",
-          "maximizeUIInputWidth": true,
+
           "name": "some-name",
           "occurrences": {
             "maximum": 1,

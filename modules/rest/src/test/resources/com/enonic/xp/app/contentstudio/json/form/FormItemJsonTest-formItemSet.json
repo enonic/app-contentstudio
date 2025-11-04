@@ -7,11 +7,10 @@
       {
         "Input": {
           "config": {},
-          "immutable": false,
-          "indexed": false,
+
           "inputType": "TextLine",
           "label": "myTextLine",
-          "maximizeUIInputWidth": true,
+
           "name": "myTextLine",
           "occurrences": {
             "maximum": 1,
@@ -22,11 +21,10 @@
       {
         "Input": {
           "config": {},
-          "immutable": false,
-          "indexed": false,
+
           "inputType": "Date",
           "label": "myDate",
-          "maximizeUIInputWidth": true,
+
           "name": "myDate",
           "occurrences": {
             "maximum": 1,

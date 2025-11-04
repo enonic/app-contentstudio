@@ -13,11 +13,10 @@
       {
         "Input": {
           "config": {},
-          "immutable": false,
-          "indexed": false,
+
           "inputType": "TextLine",
           "label": "My text line",
-          "maximizeUIInputWidth": true,
+
           "name": "myTextLine",
           "occurrences": {
             "maximum": 1,

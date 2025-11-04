@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 import com.enonic.xp.app.contentstudio.json.form.FormJson;
 import com.enonic.xp.app.contentstudio.rest.resource.macro.MacroIconUrlResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.schema.formfragment.CmsFormFragmentResolver;
 import com.enonic.xp.macro.MacroDescriptor;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -44,7 +44,7 @@ public class MacroDescriptorJson
         this.displayNameI18nKey = builder.macroDescriptor.getDisplayNameI18nKey();
         this.descriptionI18nKey = builder.macroDescriptor.getDescriptionI18nKey();
         this.description = builder.macroDescriptor.getDescription();
-        this.form = new FormJson( builder.macroDescriptor.getForm(), builder.localeMessageResolver, builder.inlineMixinResolver );
+        this.form = new FormJson( builder.macroDescriptor.getForm(), builder.localeMessageResolver, builder.cmsFormFragmentResolver );
         this.iconUrl = builder.macroIconUrlResolver.resolve( builder.macroDescriptor );
     }
 
@@ -105,7 +105,7 @@ public class MacroDescriptorJson
 
         private LocaleMessageResolver localeMessageResolver;
 
-        private InlineMixinResolver inlineMixinResolver;
+        private CmsFormFragmentResolver cmsFormFragmentResolver;
 
         public Builder setMacroDescriptor( final MacroDescriptor macroDescriptor )
         {
@@ -125,9 +125,9 @@ public class MacroDescriptorJson
             return this;
         }
 
-        public Builder setInlineMixinResolver( final InlineMixinResolver inlineMixinResolver )
+        public Builder setCmsFormFragmentResolver( final CmsFormFragmentResolver cmsFormFragmentResolver )
         {
-            this.inlineMixinResolver = inlineMixinResolver;
+            this.cmsFormFragmentResolver = cmsFormFragmentResolver;
             return this;
         }
 

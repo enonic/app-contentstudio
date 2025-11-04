@@ -5,7 +5,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.schema.formfragment.CmsFormFragmentResolver;
 import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.LayoutDescriptors;
 
@@ -21,7 +21,7 @@ public class LayoutDescriptorsJson
     }
 
     public LayoutDescriptorsJson( final LayoutDescriptors descriptors, final LocaleMessageResolver localeMessageResolver,
-                                  final InlineMixinResolver inlineMixinResolver )
+                                  final CmsFormFragmentResolver inlineMixinResolver )
     {
         ImmutableList.Builder<LayoutDescriptorJson> builder = new ImmutableList.Builder<>();
         if ( descriptors != null )

@@ -20,8 +20,8 @@ import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.content.ExtraData;
 import com.enonic.xp.content.Media;
+import com.enonic.xp.content.Mixin;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.exception.ThrottlingException;
@@ -39,7 +39,7 @@ import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.GetContentTypeParams;
-import com.enonic.xp.schema.xdata.XDataName;
+import com.enonic.xp.schema.mixin.MixinName;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
 import com.enonic.xp.security.PrincipalKey;
@@ -276,7 +276,7 @@ public class MediaRenderingBean
 
     private int getOriginalWidth( final Media media )
     {
-        ExtraData imageData = media.getAllExtraData().getMetadata( XDataName.from( "media:imageInfo" ) );
+        Mixin imageData = media.getMixins().getByName( MixinName.from( "media:imageInfo" ) );
         if ( imageData != null )
         {
             return imageData.getData().getProperty( "imageWidth" ).getValue().asLong().intValue();

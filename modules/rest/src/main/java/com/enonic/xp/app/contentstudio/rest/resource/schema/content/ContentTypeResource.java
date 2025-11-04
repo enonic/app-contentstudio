@@ -26,17 +26,17 @@ import com.enonic.xp.app.contentstudio.json.schema.content.ContentTypeSummaryJso
 import com.enonic.xp.app.contentstudio.json.schema.content.ContentTypeSummaryListJson;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.SchemaImageHelper;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.schema.formfragment.CmsFormFragmentResolver;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.jaxrs.JaxRsComponent;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
 import com.enonic.xp.schema.content.GetContentTypeParams;
-import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.security.RoleKeys;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -54,7 +54,7 @@ public final class ContentTypeResource
 
     private LocaleService localeService;
 
-    private MixinService mixinService;
+    private CmsFormFragmentService cmsFormFragmentService;
 
     @GET
     public ContentTypeJson get( @QueryParam("name") final String nameAsString, @Context HttpServletRequest request )
@@ -77,7 +77,7 @@ public final class ContentTypeResource
             create().
             setContentType( contentType ).
             setContentTypeIconUrlResolver( contentTypeIconUrlResolver ).
-            setInlineMixinResolver( new InlineMixinResolver( this.mixinService ) ).
+            setCmsFormFragmentResolver( new CmsFormFragmentResolver( this.cmsFormFragmentService ) ).
             setLocaleMessageResolver( localeMessageResolver ).
             setRequest( request ).
             build();
@@ -172,8 +172,8 @@ public final class ContentTypeResource
     }
 
     @Reference
-    public void setMixinService( final MixinService mixinService )
+    public void setCmsFormFragmentService( final CmsFormFragmentService cmsFormFragmentService )
     {
-        this.mixinService = mixinService;
+        this.cmsFormFragmentService = cmsFormFragmentService;
     }
 }

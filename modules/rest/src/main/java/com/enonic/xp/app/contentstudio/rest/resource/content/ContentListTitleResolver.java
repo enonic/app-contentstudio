@@ -8,6 +8,7 @@ import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.GetContentTypeParams;
+import com.enonic.xp.util.GenericValue;
 
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.Objects.requireNonNullElse;
@@ -27,7 +28,7 @@ public class ContentListTitleResolver
 
         final String listTitleExpression = Optional.ofNullable( contentType )
             .map( ContentType::getSchemaConfig )
-            .map( sc -> sc.getValue( "listTitleExpression" ) )
+            .map( sc -> sc.optional( "listTitleExpression" ).map( GenericValue::asString ).orElse( "" ) )
             .orElse( "" );
 
         if ( nullToEmpty( listTitleExpression ).isBlank() )

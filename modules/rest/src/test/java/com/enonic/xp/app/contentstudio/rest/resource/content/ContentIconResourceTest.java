@@ -20,9 +20,9 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.content.ExtraData;
-import com.enonic.xp.content.ExtraDatas;
 import com.enonic.xp.content.Media;
+import com.enonic.xp.content.Mixin;
+import com.enonic.xp.content.Mixins;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.image.ImageService;
 import com.enonic.xp.image.ReadImageParams;
@@ -30,7 +30,7 @@ import com.enonic.xp.jaxrs.impl.MockRestResponse;
 import com.enonic.xp.media.MediaInfo;
 import com.enonic.xp.media.MediaInfoService;
 import com.enonic.xp.schema.content.ContentTypeName;
-import com.enonic.xp.schema.xdata.XDataName;
+import com.enonic.xp.schema.mixin.MixinName;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.web.HttpStatus;
 
@@ -230,11 +230,11 @@ public class ContentIconResourceTest
         mediaData.setLong( IMAGE_INFO_IMAGE_WIDTH, 300L );
         mediaData.setLong( MEDIA_INFO_BYTE_SIZE, 100000L );
 
-        final ExtraData mediaExtraData = new ExtraData( MediaInfo.IMAGE_INFO_METADATA_NAME, mediaData );
+        final Mixin mediaExtraData = new Mixin( MediaInfo.IMAGE_INFO_METADATA_NAME, mediaData );
 
         return result.attachments(Attachments.from(attachment)).
                 data(data).
-                extraDatas(ExtraDatas.create().add(mediaExtraData).build());
+                mixins( Mixins.create().add( mediaExtraData).build());
     }
 
     private Content createContent( final String id, final ContentTypeName contentType,
@@ -260,7 +260,7 @@ public class ContentIconResourceTest
             modifiedTime( Instant.now() ).
             modifier( PrincipalKey.from( "user:system:admin" ) ).
             type( contentType ).
-            extraDatas( ExtraDatas.create().add( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).build() ).
+            mixins( Mixins.create().add( new Mixin( MixinName.from( "myApplication:myField" ), metadata ) ).build() ).
             publishInfo( ContentPublishInfo.create().
                 from( Instant.parse( "2016-11-02T10:36:00Z" ) ).
                 to( Instant.parse( "2016-11-22T10:36:00Z" ) ).

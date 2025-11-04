@@ -8,11 +8,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.data.PropertyTree;
-import com.enonic.xp.inputtype.InputTypeConfig;
-import com.enonic.xp.inputtype.InputTypeProperty;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
+import com.enonic.xp.util.GenericValue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,11 +28,7 @@ class ContentListTitleResolverTest
     {
         final ContentType contentType = ContentType.create()
             .name( "contentType" )
-            .schemaConfig( InputTypeConfig.create()
-                               .property(
-                                   InputTypeProperty.create( "listTitleExpression", "${data.val1} ${missing} ${data.val1} ${displayName}" )
-                                       .build() )
-                               .build() )
+            .schemaConfig( GenericValue.object().put( "listTitleExpression", "${data.val1} ${missing} ${data.val1} ${displayName}" ).build() )
             .superType( ContentTypeName.unstructured() )
             .build();
 

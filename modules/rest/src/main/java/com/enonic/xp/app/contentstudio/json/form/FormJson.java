@@ -7,7 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.schema.formfragment.CmsFormFragmentResolver;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.form.FormItem;
 
@@ -18,7 +18,7 @@ public class FormJson
 
     private final List<FormItemJson> items;
 
-    public FormJson( final Form form, final LocaleMessageResolver localeMessageResolver, final InlineMixinResolver inlineMixinResolver )
+    public FormJson( final Form form, final LocaleMessageResolver localeMessageResolver, final CmsFormFragmentResolver inlineMixinResolver )
     {
         this.form = inlineMixinResolver.inlineForm( form );
 

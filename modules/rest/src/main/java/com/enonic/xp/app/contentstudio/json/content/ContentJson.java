@@ -13,7 +13,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsRe
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.AccessControlEntriesJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.AccessControlEntryJson;
 import com.enonic.xp.content.Content;
-import com.enonic.xp.content.ExtraData;
+import com.enonic.xp.content.Mixin;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTreeJson;
 import com.enonic.xp.security.Principals;
@@ -26,7 +26,7 @@ public final class ContentJson
 
     private final List<AttachmentJson> attachments;
 
-    private final List<ExtraDataJson> extraData;
+    private final List<MixinJson> mixins;
 
     private final List<ValidationErrorJson> validationErrors;
 
@@ -43,10 +43,10 @@ public final class ContentJson
         this.data = PropertyTreeJson.toJson( content.getData() );
         this.attachments = AttachmentListJson.toJson( content.getAttachments() );
 
-        this.extraData = new ArrayList<>();
-        for ( ExtraData item : content.getAllExtraData() )
+        this.mixins = new ArrayList<>();
+        for ( Mixin item : content.getMixins() )
         {
-            this.extraData.add( new ExtraDataJson( item ) );
+            this.mixins.add( new MixinJson( item ) );
         }
 
         this.pageJson = content.getPage() != null ? new PageJson( content.getPage(), componentDisplayNameResolver ) : null;
@@ -66,9 +66,9 @@ public final class ContentJson
         return attachments;
     }
 
-    public List<ExtraDataJson> getMeta()
+    public List<MixinJson> getMeta()
     {
-        return this.extraData;
+        return this.mixins;
     }
 
     public List<AccessControlEntryJson> getPermissions()

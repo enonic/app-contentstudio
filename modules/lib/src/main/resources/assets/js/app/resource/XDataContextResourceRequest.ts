@@ -8,7 +8,7 @@ export abstract class XDataContextResourceRequest<PARSED_TYPE>
 
     protected constructor() {
         super();
-        this.addRequestPathElements('schema', 'xdata');
+        this.addRequestPathElements('schema', 'mixins');
         this.setContentRootPath(ContentPath.CONTENT_ROOT);
     }
 

@@ -23,10 +23,10 @@ import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.content.ExtraData;
-import com.enonic.xp.content.ExtraDatas;
 import com.enonic.xp.content.FindContentIdsByParentResult;
-import com.enonic.xp.core.impl.schema.content.BuiltinContentTypesAccessor;
+import com.enonic.xp.content.Mixin;
+import com.enonic.xp.content.Mixins;
+import com.enonic.xp.core.impl.content.schema.BuiltinContentTypesAccessor;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.page.CreatePageTemplateParams;
@@ -41,7 +41,7 @@ import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.GetContentTypeParams;
-import com.enonic.xp.schema.xdata.XDataName;
+import com.enonic.xp.schema.mixin.MixinName;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.SecurityService;
 import com.enonic.xp.site.Site;
@@ -245,7 +245,7 @@ public class PageTemplateResourceTest
             controller( ResourceKey.from( "myapplication:/some/path" ) ).
             build();
         final SiteDescriptor siteDescriptor =
-            SiteDescriptor.create().mappingDescriptors( ControllerMappingDescriptors.from( mapingDescriptor ) ).build();
+            SiteDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) ).mappingDescriptors( ControllerMappingDescriptors.from( mapingDescriptor ) ).build();
         when( siteService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
 
         String response = request().path( "content/page/template/isRenderable" ).
@@ -334,7 +334,7 @@ public class PageTemplateResourceTest
             modifiedTime( Instant.parse( this.currentTime ) ).
             modifier( PrincipalKey.from( "user:system:admin" ) ).
             type( ContentTypeName.from( contentTypeName ) ).
-            extraDatas( ExtraDatas.create().add( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).build() ).
+            mixins( Mixins.create().add( new Mixin( MixinName.from( "myApplication:myField" ), metadata ) ).build() ).
             publishInfo( ContentPublishInfo.create().
                 from( Instant.parse( "2016-11-02T10:36:00Z" ) ).
                 to( Instant.parse( "2016-11-22T10:36:00Z" ) ).

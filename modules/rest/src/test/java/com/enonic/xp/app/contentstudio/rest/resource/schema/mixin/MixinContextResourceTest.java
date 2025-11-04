@@ -1,4 +1,4 @@
-package com.enonic.xp.app.contentstudio.rest.resource.schema.xdata;
+package com.enonic.xp.app.contentstudio.rest.resource.schema.mixin;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -27,26 +27,26 @@ import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.project.Project;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.ProjectService;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
+import com.enonic.xp.schema.mixin.MixinDescriptor;
+import com.enonic.xp.schema.mixin.MixinDescriptors;
+import com.enonic.xp.schema.mixin.MixinName;
+import com.enonic.xp.schema.mixin.MixinNames;
 import com.enonic.xp.schema.mixin.MixinService;
-import com.enonic.xp.schema.xdata.XData;
-import com.enonic.xp.schema.xdata.XDataName;
-import com.enonic.xp.schema.xdata.XDataNames;
-import com.enonic.xp.schema.xdata.XDataService;
-import com.enonic.xp.schema.xdata.XDatas;
+import com.enonic.xp.site.CmsDescriptor;
+import com.enonic.xp.site.CmsService;
+import com.enonic.xp.site.MixinMapping;
+import com.enonic.xp.site.MixinMappingService;
+import com.enonic.xp.site.MixinMappings;
+import com.enonic.xp.site.MixinOption;
+import com.enonic.xp.site.MixinOptions;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigService;
 import com.enonic.xp.site.SiteConfigs;
 import com.enonic.xp.site.SiteConfigsDataSerializer;
-import com.enonic.xp.site.SiteDescriptor;
-import com.enonic.xp.site.SiteService;
-import com.enonic.xp.site.XDataMapping;
-import com.enonic.xp.site.XDataMappingService;
-import com.enonic.xp.site.XDataMappings;
-import com.enonic.xp.site.XDataOption;
-import com.enonic.xp.site.XDataOptions;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -54,47 +54,44 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class XDataContextResourceTest
+public class MixinContextResourceTest
     extends AdminResourceTestSupport
 {
     private MixinService mixinService;
 
-    private XDataService xDataService;
-
-    private LocaleService localeService;
-
     private ContentService contentService;
 
-    private SiteService siteService;
+    private CmsService cmsService;
 
     private ProjectService projectService;
 
-    private XDataMappingService xDataMappingService;
+    private MixinMappingService mixinMappingService;
 
     private SiteConfigService siteConfigService;
 
     @Override
-    protected XDataContextResource getResourceInstance()
+    protected MixinContextResource getResourceInstance()
     {
+        CmsFormFragmentService cmsFormFragmentService = mock( CmsFormFragmentService.class );
+        LocaleService localeService = mock( LocaleService.class );
+
         mixinService = mock( MixinService.class );
-        xDataService = mock( XDataService.class );
-        localeService = mock( LocaleService.class );
         contentService = mock( ContentService.class );
-        siteService = mock( SiteService.class );
+        cmsService = mock( CmsService.class );
         projectService = mock( ProjectService.class );
-        xDataMappingService = mock( XDataMappingService.class );
+        mixinMappingService = mock( MixinMappingService.class );
         siteConfigService = mock( SiteConfigService.class );
 
-        final XDataContextResource resource = new XDataContextResource();
-        resource.setMixinService( mixinService );
+        final MixinContextResource resource = new MixinContextResource();
+        resource.setCmsFormFragmentService( cmsFormFragmentService );
         resource.setLocaleService( localeService );
         resource.setContentService( contentService );
-        resource.setXDataMappingService( xDataMappingService );
+        resource.setMixinMappingService( mixinMappingService );
         resource.setSiteConfigService( siteConfigService );
 
         resource.activate();
 
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( cmsFormFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
         when( mockRequest.getServerName() ).thenReturn( "localhost" );
@@ -107,114 +104,115 @@ public class XDataContextResourceTest
     }
 
     @Test
-    public void getContentXDataMultipleConfig()
+    public void getContentMixinMultipleConfig()
         throws Exception
     {
-        final XData xData = generateXData1();
+        final MixinDescriptor descriptor = generateMixinDescriptor();
         final ContentType contentType = createContentType();
         final Content content = mockContent( contentType.getName() );
         final Site site = createSite( contentType.getName().getApplicationKey() );
 
-        final SiteDescriptor siteDescriptor = SiteDescriptor.create()
-            .xDataMappings( XDataMappings.from(
-                XDataMapping.create().xDataName( xData.getName() ).allowContentTypes( "app:testContentType" ).optional( true ).build(),
-                XDataMapping.create().xDataName( xData.getName() ).allowContentTypes( "app:testContentType" ).optional( false ).build() ) )
+        final CmsDescriptor cmsDescriptor = CmsDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) )
+            .mixinMappings( MixinMappings.from(
+                MixinMapping.create().mixinName( descriptor.getName() ).allowContentTypes( "app:testContentType" ).optional( true ).build(),
+                MixinMapping.create().mixinName( descriptor.getName() ).allowContentTypes( "app:testContentType" ).optional( false ).build() ) )
             .build();
 
-        when( siteService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( siteDescriptor );
+        when( cmsService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( cmsDescriptor );
 
         when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
         when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
 
-        when( xDataService.getByNames( XDataNames.from( xData.getName() ) ) ).thenReturn( XDatas.from( xData ) );
-        when( xDataService.getByNames( XDataNames.empty() ) ).thenReturn( XDatas.empty() );
-        when( xDataService.getByName( xData.getName() ) ).thenReturn( xData );
+        when( mixinService.getByNames( MixinNames.from( descriptor.getName() ) ) ).thenReturn( MixinDescriptors.from( descriptor ) );
+        when( mixinService.getByNames( MixinNames.empty() ) ).thenReturn( MixinDescriptors.empty() );
+        when( mixinService.getByName( descriptor.getName() ) ).thenReturn( descriptor );
 
         when( siteConfigService.getSiteConfigs( any() ) ).thenReturn( SiteConfigs.from(
             SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build() ) );
 
-        when( xDataMappingService.getXDataMappingOptions( eq( contentType.getName() ), any() ) ).thenReturn(
-            XDataOptions.create().add( new XDataOption( xData, true ) ).build() );
+        when( mixinMappingService.getMixinMappingOptions( eq( contentType.getName() ), any() ) ).thenReturn(
+            MixinOptions.create().add( new MixinOption( descriptor, true ) ).build() );
 
 
         String result =
-            request().path( "cms/default/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
+            request().path( "cms/default/content/schema/mixins/getContentMixins" ).queryParam( "contentId", "contentId" ).get().getAsString();
 
-        assertJson( "get_content_x_data_duplicated_config.json", result );
+        assertJson( "get_content_mixins_duplicated_config.json", result );
     }
 
     @Test
-    public void getContentXDataFromNearestSite()
+    public void getContentMixinFromNearestSite()
         throws Exception
     {
-        final XData xData1 = generateXData1();
-        final XData xData2 = generateXData2();
+        final MixinDescriptor descriptor1 = generateMixinDescriptor();
+        final MixinDescriptor descriptor2 = generateMixinDescriptor2();
         final ContentType contentType = createContentType();
         final Content content = mockContent( contentType.getName() );
         final Site site = createSite( contentType.getName().getApplicationKey() );
 
-        final SiteDescriptor siteDescriptor = SiteDescriptor.create()
-            .xDataMappings( XDataMappings.from(
-                XDataMapping.create().xDataName( xData1.getName() ).allowContentTypes( "app:testContentType|^app:*" ).build(),
-                XDataMapping.create().xDataName( xData2.getName() ).allowContentTypes( "app:testContentType|^app:*" ).build() ) )
+        final CmsDescriptor cmsDescriptor = CmsDescriptor.create()
+            .applicationKey( ApplicationKey.from( "myapplication" ) )
+            .mixinMappings( MixinMappings.from(
+                MixinMapping.create().mixinName( descriptor1.getName() ).allowContentTypes( "app:testContentType|^app:*" ).build(),
+                MixinMapping.create().mixinName( descriptor2.getName() ).allowContentTypes( "app:testContentType|^app:*" ).build() ) )
             .build();
 
-        when( siteService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( siteDescriptor );
+        when( cmsService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( cmsDescriptor );
         when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
         when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
-        when( xDataService.getByName( xData1.getName() ) ).thenReturn( xData1 );
-        when( xDataService.getByName( xData2.getName() ) ).thenReturn( xData2 );
+        when( mixinService.getByName( descriptor1.getName() ) ).thenReturn( descriptor1 );
+        when( mixinService.getByName( descriptor2.getName() ) ).thenReturn( descriptor2 );
 
         when( siteConfigService.getSiteConfigs( any() ) ).thenReturn( SiteConfigs.from(
             SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build() ) );
 
-        when( xDataMappingService.getXDataMappingOptions( eq( contentType.getName() ), any() ) ).thenReturn(
-            XDataOptions.create().add( new XDataOption( xData1, false ) ).add( new XDataOption( xData2, false ) ).build() );
+        when( mixinMappingService.getMixinMappingOptions( eq( contentType.getName() ), any() ) ).thenReturn(
+            MixinOptions.create().add( new MixinOption( descriptor1, false ) ).add( new MixinOption( descriptor2, false ) ).build() );
 
         String result =
-            request().path( "cms/default/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
+            request().path( "cms/default/content/schema/mixins/getContentMixins" ).queryParam( "contentId", "contentId" ).get().getAsString();
 
-        assertJson( "get_content_x_data.json", result );
+        assertJson( "get_content_mixins.json", result );
     }
 
     @Test
-    public void getContentXDataNoSiteDescriptorNoProjectDescriptor()
+    public void getContentMixinNoCmsDescriptorNoProjectDescriptor()
         throws Exception
     {
-        final XData xData1 = generateXData1();
+        final MixinDescriptor descriptor = generateMixinDescriptor();
         final ContentType contentType = createContentType();
         final Content content = mockContent( contentType.getName() );
         final Site site = createSite( contentType.getName().getApplicationKey() );
 
-        when( siteService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( null );
+        when( cmsService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( null );
         when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
         when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
-        when( xDataService.getByName( xData1.getName() ) ).thenReturn( xData1 );
+        when( mixinService.getByName( descriptor.getName() ) ).thenReturn( descriptor );
 
         when( siteConfigService.getSiteConfigs( any() ) ).thenReturn( SiteConfigs.from(
             SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build() ) );
 
-        when( xDataMappingService.getXDataMappingOptions( eq( contentType.getName() ), any() ) ).thenReturn( XDataOptions.empty() );
+        when( mixinMappingService.getMixinMappingOptions( eq( contentType.getName() ), any() ) ).thenReturn( MixinOptions.empty() );
 
         String result =
-            request().path( "cms/default/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
+            request().path( "cms/default/content/schema/mixins/getContentMixins" ).queryParam( "contentId", "contentId" ).get().getAsString();
 
-        assertJson( "get_content_x_data_no_site_descriptor.json", result );
+        assertJson( "get_content_mixins_no_site_descriptor.json", result );
     }
 
     @Test
-    public void getProjectXData()
+    public void getProjectMixin()
         throws Exception
     {
-        final XData xdata1 = generateXData1();
-        final XData xdata2 = generateXData2();
+        final MixinDescriptor descriptor1 = generateMixinDescriptor();
+        final MixinDescriptor descriptor2 = generateMixinDescriptor2();
 
         final ContentType contentType = createContentType();
         final Content content = mockContent( contentType.getName() );
 
-        final SiteDescriptor siteDescriptor = SiteDescriptor.create()
-            .xDataMappings( XDataMappings.from(
-                XDataMapping.create().xDataName( xdata2.getName() ).allowContentTypes( "app:testContentType|^app:*" ).build() ) )
+        final CmsDescriptor cmsDescriptor = CmsDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) )
+            .mixinMappings( MixinMappings.from(
+                MixinMapping.create().mixinName( descriptor2.getName() ).allowContentTypes( "app:testContentType|^app:*" ).build() ) )
             .build();
 
         final Project project = Project.create()
@@ -225,47 +223,47 @@ public class XDataContextResourceTest
 
         when( projectService.get( isA( ProjectName.class ) ) ).thenReturn( project );
 
-        when( siteService.getDescriptor( ApplicationKey.from( "myapplication" ) ) ).thenReturn( siteDescriptor );
+        when( cmsService.getDescriptor( ApplicationKey.from( "myapplication" ) ) ).thenReturn( cmsDescriptor );
 
         when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
 
-        when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
-        when( xDataService.getByNames( XDataNames.from( xdata2.getName() ) ) ).thenReturn( XDatas.from( xdata2 ) );
-        when( xDataService.getByName( xdata2.getName() ) ).thenReturn( xdata2 );
+        when( mixinService.getByNames( MixinNames.from( descriptor1.getName() ) ) ).thenReturn( MixinDescriptors.from( descriptor1 ) );
+        when( mixinService.getByNames( MixinNames.from( descriptor2.getName() ) ) ).thenReturn( MixinDescriptors.from( descriptor2 ) );
+        when( mixinService.getByName( descriptor2.getName() ) ).thenReturn( descriptor2 );
 
-        when( xDataService.getByApplication( any() ) ).thenReturn( XDatas.from( xdata2 ) );
+        when( mixinService.getByApplication( any() ) ).thenReturn( MixinDescriptors.from( descriptor2 ) );
 
         when( siteConfigService.getSiteConfigs( eq( ContentPath.ROOT ) ) ).thenReturn( SiteConfigs.from(
             SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build() ) );
 
-        when( xDataMappingService.getXDataMappingOptions( eq( contentType.getName() ), any() ) ).thenReturn(
-            XDataOptions.create().add( new XDataOption( xdata2, false ) ).build() );
+        when( mixinMappingService.getMixinMappingOptions( eq( contentType.getName() ), any() ) ).thenReturn(
+            MixinOptions.create().add( new MixinOption( descriptor2, false ) ).build() );
 
         String result = ContextBuilder.create()
             .repositoryId( project.getName().getRepoId() )
             .build()
-            .callWith( () -> request().path( "cms/myproject1/content/schema/xdata/getContentXData" )
+            .callWith( () -> request().path( "cms/myproject1/content/schema/mixins/getContentMixins" )
                 .queryParam( "contentId", "contentId" )
                 .get()
                 .getAsString() );
 
-        assertJson( "get_project_x_data.json", result );
+        assertJson( "get_project_mixins.json", result );
     }
 
     @Test
-    public void getApplicationXDataForContentType()
+    public void getApplicationMixinForContentType()
         throws Exception
     {
-        final XDataName myXdataQualifiedName1 = XDataName.from( "myapplication:input_text_1" );
+        final MixinName myMixinQualifiedName1 = MixinName.from( "myapplication:input_text_1" );
         final String myMixinInputName1 = "input_text_1";
-        final XDataName myXdataQualifiedName2 = XDataName.from( "myapplication:text_area_2" );
+        final MixinName myMixinQualifiedName2 = MixinName.from( "myapplication:text_area_2" );
         final String myMixinInputName2 = "text_area_2";
         final ContentTypeName contentTypeName = ContentTypeName.from( "app:testContentType" );
 
-        final XData xdata1 = XData.create().
+        final MixinDescriptor descriptor1 = MixinDescriptor.create().
             createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).
             toInstant( ZoneOffset.UTC ) ).
-            name( myXdataQualifiedName1 ).
+            name( myMixinQualifiedName1 ).
             addFormItem( Input.create().
             name( myMixinInputName1 ).
             inputType( InputTypeName.TEXT_LINE ).
@@ -276,10 +274,10 @@ public class XDataContextResourceTest
             build() ).
             build();
 
-        final XData xdata2 = XData.create().
+        final MixinDescriptor descriptor2 = MixinDescriptor.create().
             createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).
             toInstant( ZoneOffset.UTC ) ).
-            name( myXdataQualifiedName2 ).
+            name( myMixinQualifiedName2 ).
             addFormItem( Input.create().
             name( myMixinInputName2 ).
             inputType( InputTypeName.TEXT_AREA ).
@@ -290,10 +288,10 @@ public class XDataContextResourceTest
             build() ).
             build();
 
-        final XData xdata3 = XData.create().
+        final MixinDescriptor descriptor3 = MixinDescriptor.create().
             createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).
             toInstant( ZoneOffset.UTC ) ).
-            name( XDataName.from( "myapplication:text_area_3" ) ).
+            name( MixinName.from( "myapplication:text_area_3" ) ).
             addFormItem( Input.create().
             name( "input_name_3" ).
             inputType( InputTypeName.TEXT_AREA ).
@@ -304,48 +302,49 @@ public class XDataContextResourceTest
             build() ).
             build();
 
-        final SiteDescriptor siteDescriptor = SiteDescriptor.create().
-            xDataMappings( XDataMappings.from( XDataMapping.create().
+        final CmsDescriptor cmsDescriptor = CmsDescriptor.create().
+            applicationKey( ApplicationKey.from( "myapplication" ) ).
+            mixinMappings( MixinMappings.from( MixinMapping.create().
             allowContentTypes( contentTypeName.toString() ).
-            xDataName( xdata1.getName() ).build(), XDataMapping.create().
-            xDataName( xdata3.getName() ).
+            mixinName( descriptor1.getName() ).build(), MixinMapping.create().
+            mixinName( descriptor3.getName() ).
             allowContentTypes( "app:anotherContentType" ).
             build() ) ).
             build();
 
-        when( siteService.getDescriptor( contentTypeName.getApplicationKey() ) ).thenReturn( siteDescriptor );
+        when( cmsService.getDescriptor( contentTypeName.getApplicationKey() ) ).thenReturn( cmsDescriptor );
 
-        when( xDataService.getByNames( XDataNames.from( xdata2.getName().toString(), xdata3.getName().toString() ) ) )
-            .thenReturn( XDatas.from( xdata2 ) );
+        when( mixinService.getByNames( MixinNames.from( descriptor2.getName(), descriptor3.getName() ) ) )
+            .thenReturn( MixinDescriptors.from( descriptor2 ) );
 
-        when( xDataService.getByName( xdata1.getName() ) ).thenReturn( xdata1 );
-        when( xDataService.getByName( xdata2.getName() ) ).thenReturn( xdata2 );
-        when( xDataService.getByName( xdata3.getName() ) ).thenReturn( xdata3 );
+        when( mixinService.getByName( descriptor1.getName() ) ).thenReturn( descriptor1 );
+        when( mixinService.getByName( descriptor2.getName() ) ).thenReturn( descriptor2 );
+        when( mixinService.getByName( descriptor3.getName() ) ).thenReturn( descriptor3 );
 
-        when( xDataService.getByApplication( any() ) ).thenReturn( XDatas.from( xdata2 ) );
+        when( mixinService.getByApplication( any() ) ).thenReturn( MixinDescriptors.from( descriptor2 ) );
 
         when( siteConfigService.getSiteConfigs( any() ) ).thenReturn( SiteConfigs.from(
             SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build() ) );
 
-        when( xDataMappingService.getXDataMappingOptions( eq( contentTypeName ), any() ) ).thenReturn(
-            XDataOptions.create().add( new XDataOption( xdata1, false ) ).build() );
+        when( mixinMappingService.getMixinMappingOptions( eq( contentTypeName ), any() ) ).thenReturn(
+            MixinOptions.create().add( new MixinOption( descriptor1, false ) ).build() );
 
-        String result = request().path( "cms/default/content/schema/xdata/getApplicationXDataForContentType" )
+        String result = request().path( "cms/default/content/schema/mixins/getApplicationMixinsForContentType" )
             .queryParam( "contentTypeName", contentTypeName.toString() )
             .queryParam( "applicationKey", contentTypeName.getApplicationKey().toString() )
             .
             get().
             getAsString();
 
-        assertJson( "get_content_x_data_for_content_type.json", result );
+        assertJson( "get_content_mixins_for_content_type.json", result );
 
     }
 
-    private XData generateXData1()
+    private MixinDescriptor generateMixinDescriptor()
     {
-        return XData.create()
+        return MixinDescriptor.create()
             .createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).toInstant( ZoneOffset.UTC ) )
-            .name( XDataName.from( "myapplication:input_text_1" ) )
+            .name( MixinName.from( "myapplication:input_text_1" ) )
             .addFormItem( Input.create()
                               .name( "input_text_1" )
                               .inputType( InputTypeName.TEXT_LINE )
@@ -357,11 +356,11 @@ public class XDataContextResourceTest
             .build();
     }
 
-    private XData generateXData2()
+    private MixinDescriptor generateMixinDescriptor2()
     {
-        return XData.create()
+        return MixinDescriptor.create()
             .createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).toInstant( ZoneOffset.UTC ) )
-            .name( XDataName.from( "myapplication:text_area_2" ) )
+            .name( MixinName.from( "myapplication:text_area_2" ) )
             .addFormItem( Input.create()
                               .name( "text_area_2" )
                               .inputType( InputTypeName.TEXT_AREA )

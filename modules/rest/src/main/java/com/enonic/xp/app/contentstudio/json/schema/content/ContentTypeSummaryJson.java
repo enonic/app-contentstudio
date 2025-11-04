@@ -3,8 +3,6 @@ package com.enonic.xp.app.contentstudio.json.schema.content;
 import java.time.Instant;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-
 import jakarta.servlet.http.HttpServletRequest;
 
 import com.enonic.xp.app.contentstudio.json.ChangeTraceableJson;
@@ -12,7 +10,7 @@ import com.enonic.xp.app.contentstudio.json.ItemJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.schema.content.ContentType;
-import com.enonic.xp.schema.xdata.XDataName;
+import com.enonic.xp.util.GenericValue;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
@@ -65,14 +63,16 @@ public class ContentTypeSummaryJson
 
     public String getDisplayNameLabel()
     {
-        if ( !nullToEmpty( contentType.getDisplayNameLabelI18nKey() ).isBlank() )
+        final GenericValue displayNamePlaceholder = contentType.getSchemaConfig().optional( "displayNamePlaceholder" ).orElse( null );
+
+        if ( displayNamePlaceholder == null )
         {
-            return localeMessageResolver.localizeMessage( contentType.getDisplayNameLabelI18nKey(), contentType.getDisplayNameLabel() );
+            return null;
         }
-        else
-        {
-            return contentType.getDisplayNameLabel();
-        }
+
+        final String i18n = displayNamePlaceholder.optional( "i18n" ).map( GenericValue::asString ).orElse( null );
+        final String text = displayNamePlaceholder.optional( "text" ).map( GenericValue::asString ).orElse( null );
+        return !nullToEmpty( i18n ).isBlank() ? localeMessageResolver.localizeMessage( i18n, text ) : text;
     }
 
     @Override
@@ -94,7 +94,7 @@ public class ContentTypeSummaryJson
 
     public String getDisplayNameExpression()
     {
-        return contentType.getDisplayNameExpression();
+        return contentType.getSchemaConfig().optional( "displayNameExpression" ).map( GenericValue::asString ).orElse( null );
     }
 
     public String getSuperType()
