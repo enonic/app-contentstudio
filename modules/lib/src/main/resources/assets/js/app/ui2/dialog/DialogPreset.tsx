@@ -27,8 +27,8 @@ const DialogPresetConfirm = ({
           <ConfirmationDialog.Portal>
               <ConfirmationDialog.Overlay/>
               <ConfirmationDialog.Content defaultConfirmEnabled={defaultConfirmEnabled}>
-                  <ConfirmationDialog.DefaultHeader title={title} withClose />
-                  <ConfirmationDialog.Body>{description}</ConfirmationDialog.Body>
+                  <ConfirmationDialog.DefaultHeader title={title} />
+                  <ConfirmationDialog.Body className="mb-7">{description}</ConfirmationDialog.Body>
                   <ConfirmationDialog.Footer onConfirm={onConfirm} onCancel={onCancel}/>
               </ConfirmationDialog.Content>
           </ConfirmationDialog.Portal>
@@ -48,11 +48,13 @@ export class DialogPresetConfirmElement
     }
 
     open(): void {
-        Body.get().appendChild(this);
+      Body.get().appendChild(this);
+      this.setProps({open: true});
     }
 
     close(): void {
-        this.setProps({open: false});
+      this.setProps({open: false});
+      Body.get().removeChild(this);
     }
 }
 
@@ -95,7 +97,7 @@ const DialogPresetConfirmDeleteContent = ({
       {description && (
         <ConfirmationDialog.Body>{description}</ConfirmationDialog.Body>
       )}
-      <Gate>
+      <Gate className="mt-7 mb-9.5">
         <Gate.Hint value={expected} />
         <Gate.Input
           ref={gateInputRef}
@@ -170,9 +172,11 @@ export class DialogPresetConfirmDeletePreset
 
   open(): void {
     Body.get().appendChild(this);
+    this.setProps({open: true});
   }
 
   close(): void {
     this.setProps({open: false});
+    Body.get().removeChild(this);
   }
 }
