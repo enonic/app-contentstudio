@@ -1,7 +1,11 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentId} from './content/ContentId';
 import {ContentVersion} from './ContentVersion';
 import {GetActiveContentVersionsRequest} from './resource/GetActiveContentVersionsRequest';
+import {RevertVersionRequest} from './resource/RevertVersionRequest';
 import {VersionContext} from './view/context/widget/version/VersionContext';
 import * as Q from 'q';
 
@@ -31,5 +35,24 @@ export class ContentVersionHelper {
                 VersionContext.setActiveVersion(contentId.toString(), activeVersion.getId());
             }
         }).catch(DefaultErrorHandler.handle);
+    }
+
+    public static revert(contentId: ContentId, versionId: string, versionDate: Date) {
+        const contentIdAsString: string = contentId.toString();
+
+        new RevertVersionRequest(versionId, contentId)
+            .sendAndParse()
+            .then((newVersionId: string) => {
+                if (newVersionId === VersionContext.getActiveVersion(contentIdAsString)) {
+                    NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
+                    return;
+                }
+
+                const dateTime = `${DateHelper.formatDateTime(versionDate)}`;
+                NotifyManager.get().showSuccess(i18n('notify.version.changed', dateTime));
+
+                VersionContext.setActiveVersion(contentIdAsString, newVersionId);
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 }

@@ -2,10 +2,6 @@ import {VersionHistoryItem} from './VersionHistoryItem';
 
 export class VersionHistoryHelper {
 
-    static isInteractableItem(version: VersionHistoryItem): boolean {
-        return VersionHistoryHelper.isRevertableItem(version);
-    }
-
     static isRevertableItem(version: VersionHistoryItem): boolean {
         return VersionHistoryHelper.isComparableItem(version) &&
                !version.isMoved() &&
@@ -17,6 +13,7 @@ export class VersionHistoryHelper {
         return !version.isPublishAction() &&
                !version.isRestored() &&
                !version.isArchived() &&
-               !version.isReadonly();
+               !version.isReadonly() &&
+               !version.isMarkedAsReady();
     }
 }

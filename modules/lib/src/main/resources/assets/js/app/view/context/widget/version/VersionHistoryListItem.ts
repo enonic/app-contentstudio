@@ -1,21 +1,18 @@
-import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
-import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {VersionHistoryItemViewer} from './VersionHistoryItemViewer';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
-import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
-import * as $ from 'jquery';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
+import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
-import {VersionHistoryItem, VersionItemStatus} from './VersionHistoryItem';
+import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {ContentVersionHelper} from '../../../../ContentVersionHelper';
 import {VersionContext} from './VersionContext';
-import * as Q from 'q';
+import Q from 'q';
 import {VersionHistoryHelper} from './VersionHistoryHelper';
+import {VersionHistoryItem} from './VersionHistoryItem';
+import {VersionHistoryItemViewer} from './VersionHistoryItemViewer';
 
 export class VersionHistoryListItem
     extends LiEl {
@@ -24,8 +21,11 @@ export class VersionHistoryListItem
     private readonly content: ContentSummaryAndCompareStatus;
     private readonly versionViewer: VersionHistoryItemViewer;
     private tooltip: Tooltip;
-    private actionButton: ActionButton;
-    private compareButton: ActionButton;
+    private actionButton?: ActionButton;
+    private compareCheckbox: Checkbox;
+    private activeHandler?: (item: VersionHistoryListItem) => void;
+
+    private selectionChangedListeners: ((isSelected: boolean) => void)[] = [];
 
     constructor(version: VersionHistoryItem, content: ContentSummaryAndCompareStatus) {
         super('version-list-item');
@@ -34,31 +34,78 @@ export class VersionHistoryListItem
         this.content = content;
 
         this.versionViewer = this.createVersionViewer();
-    }
-
-    public isComparableItem(): boolean {
-        return VersionHistoryHelper.isComparableItem(this.version); //&& this.version.getStatus() !== VersionItemStatus.CREATED;
-    }
-
-    addCompareButton(): void {
-        if (!this.hasCompareButton()) {
-            this.compareButton = this.createCompareButton();
-            this.versionViewer.appendToNamesAndIconViewWrapper(this.compareButton)
+        if (this.isComparableItem()) {
+            this.versionViewer.setTitle(i18n('tooltip.header.expand'));
         }
     }
 
-    hasCompareButton(): boolean {
-        return !!this.compareButton;
+    public isComparableItem(): boolean {
+        return VersionHistoryHelper.isComparableItem(this.version);
+    }
+
+    setActiveHandler(handler: (item: VersionHistoryListItem) => void): this {
+        this.activeHandler = handler;
+        return this;
+    }
+
+    setActive(active: boolean): void {
+        this.toggleTooltip(active);
+        this.toggleClass('expanded', active);
+        this.actionButton?.setVisible(active);
+        if (this.isComparableItem()) {
+            this.versionViewer.setTitle(active ? i18n('tooltip.header.collapse') : i18n('tooltip.header.expand'));
+        }
+    }
+
+    getVersion(): VersionHistoryItem {
+        return this.version;
+    }
+
+    onSelectionChanged(listener: (isSelected: boolean) => void): void {
+        this.selectionChangedListeners.push(listener);
+    }
+
+    isSelected(): boolean {
+        return this.compareCheckbox?.isChecked();
+    }
+
+    setSelected(isSelected: boolean, silent?: boolean): void {
+        this.compareCheckbox?.setChecked(isSelected, silent);
     }
 
     private createVersionViewer(): VersionHistoryItemViewer {
         const versionViewer: VersionHistoryItemViewer = new VersionHistoryItemViewer();
 
-        if (this.isInteractableItem()) {
-            this.addOnClickHandler(versionViewer);
-        }
-
         versionViewer.setObject(this.version);
+
+        if (this.isComparableItem()) {
+            versionViewer.addClass('interactable');
+
+            versionViewer.onClicked(() => {
+                this.activeHandler?.(this);
+            });
+
+            this.compareCheckbox = this.createCompareCheckbox();
+            versionViewer.appendToNamesAndIconViewWrapper(this.compareCheckbox);
+
+            this.compareCheckbox.onClicked((event) => {
+                event.stopPropagation(); // Prevent the click from propagating to the version viewer
+            });
+
+            this.compareCheckbox.onValueChanged(() => {
+                const isChecked = this.compareCheckbox.isChecked();
+                versionViewer.toggleClass('selected', isChecked);
+                this.selectionChangedListeners.forEach(listener => listener(isChecked));
+            });
+
+            this.actionButton = this.createActionButton();
+
+            if (this.actionButton) {
+                this.actionButton.addClass('version-action-button');
+                versionViewer.appendChild(this.actionButton);
+                this.actionButton.whenRendered(() => this.actionButton.setVisible(false));
+            }
+        }
 
         if (this.version.getMessage()) {
             const messageBlock: DivEl = new DivEl('publish-message');
@@ -66,14 +113,15 @@ export class VersionHistoryListItem
             versionViewer.appendChild(messageBlock);
         }
 
-        versionViewer.toggleClass('interactable', this.isInteractableItem());
-        versionViewer.toggleClass('active', this.isActive());
+        versionViewer.toggleClass('active-version', this.isActiveVersion());
 
         return versionViewer;
     }
 
-    private isInteractableItem(): boolean {
-        return VersionHistoryHelper.isInteractableItem(this.version);
+    private createActionButton(): ActionButton | undefined {
+        return !this.isActiveVersion() && VersionHistoryHelper.isRevertableItem(this.version)
+               ? this.createRevertButton()
+               : undefined;
     }
 
     private createTooltip() {
@@ -105,10 +153,6 @@ export class VersionHistoryListItem
         return tooltip;
     }
 
-    private createActiveVersionButton(): ActionButton {
-        return new ActionButton(new Action(i18n('text.activeVersion')));
-    }
-
     private createRevertButton(): ActionButton {
         const revertAction = new Action(i18n('field.version.revert'));
 
@@ -117,86 +161,24 @@ export class VersionHistoryListItem
         } else {
             revertAction.setTitle(i18n('field.version.makeCurrent'));
             revertAction.onExecuted(() => {
-                this.revert(this.version.getId(), this.version.getDateTime());
+                ContentVersionHelper.revert(this.content.getContentId(), this.version.getId(), this.version.getDateTime());
             });
         }
 
         return new ActionButton(revertAction);
     }
 
-    private createCompareButton(): ActionButton {
-        const compareButton: ActionButton = new ActionButton(new Action());
-
-        compareButton
-            .setTitle(i18n('text.versions.showChanges'))
-            .addClass('compare icon-compare icon-medium transparent');
-
-        compareButton.getAction().onExecuted(this.openCompareDialog.bind(this));
-
-        return compareButton;
-    }
-
-    private openCompareDialog() {
-        CompareContentVersionsDialog.get()
-            .setContent(this.content)
-            .setReadOnly(this.content.isReadOnly())
-            .setRightVersion(this.version)
-            .resetLeftVersion()
-            .setRevertVersionCallback(this.revert.bind(this))
-            .open();
-    }
-
-    private revert(versionId: string, versionDate: Date) {
-        const contentIdAsString: string = this.content.getContentId().toString();
-
-        new RevertVersionRequest(versionId, contentIdAsString)
-            .sendAndParse()
-            .then((newVersionId: string) => {
-                if (newVersionId === VersionContext.getActiveVersion(contentIdAsString)) {
-                    NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
-                    return;
-                }
-
-                const dateTime = `${DateHelper.formatDateTime(versionDate)}`;
-                NotifyManager.get().showSuccess(i18n('notify.version.changed', dateTime));
-
-                VersionContext.setActiveVersion(contentIdAsString, newVersionId);
-            })
-            .catch(DefaultErrorHandler.handle);
-    }
-
-    private toggleTooltip() {
+    private toggleTooltip(active: boolean) {
         if (!this.tooltip) {
             return;
         }
 
-        const isActive = this.hasClass('expanded');
-        this.tooltip.setActive(isActive);
-        if (isActive) {
+        this.tooltip.setActive(active);
+        if (active) {
             this.tooltip.show();
         } else {
             this.tooltip.hide();
         }
-    }
-
-    private addOnClickHandler(viewer: VersionHistoryItemViewer) {
-        viewer.onClicked(() => {
-            this.collapseAllExpandedSiblings();
-            this.toggleTooltip();
-            this.toggleClass('expanded');
-
-            if (this.hasClass('expanded') && !this.actionButton) {
-                this.actionButton = this.isActive() ? this.createActiveVersionButton() : this.createRevertButton();
-                this.actionButton.addClass('version-action-button');
-                viewer.appendChild(this.actionButton);
-            }
-        });
-    }
-
-    private collapseAllExpandedSiblings() {
-        $(this.getHTMLElement())
-            .siblings('.expanded')
-            .removeClass('expanded');
     }
 
     private createVersionDateBlock(date: Date): DivEl {
@@ -206,7 +188,7 @@ export class VersionHistoryListItem
         return dateDiv;
     }
 
-    private isActive(): boolean {
+    private isActiveVersion(): boolean {
         return VersionContext.isActiveVersion(this.version.getContentIdAsString(), this.version.getId());
     }
 
@@ -222,5 +204,12 @@ export class VersionHistoryListItem
 
             return rendered;
         });
+    }
+
+    private createCompareCheckbox(): Checkbox {
+        return Checkbox.create()
+            .setName('compare-version-checkbox')
+            .setTooltip(i18n('widget.versionhistory.select'))
+            .build();
     }
 }
