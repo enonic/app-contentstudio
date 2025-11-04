@@ -4,11 +4,8 @@
       {
         "Input": {
           "config": {},
-          "immutable": false,
-          "indexed": false,
           "inputType": "TextLine",
           "label": "myTextLine",
-          "maximizeUIInputWidth": true,
           "name": "myTextLine",
           "occurrences": {
             "maximum": 1,
@@ -18,18 +15,9 @@
       },
       {
         "Input": {
-          "config": {
-            "timezone": [
-              {
-                "value": "true"
-              }
-            ]
-          },
-          "immutable": false,
-          "indexed": false,
-          "inputType": "Date",
+          "config": { },
+          "inputType": "Instant",
           "label": "myDate",
-          "maximizeUIInputWidth": true,
           "name": "myDate",
           "occurrences": {
             "maximum": 1,
@@ -39,23 +27,9 @@
       },
       {
         "Input": {
-          "config": {
-            "option": [
-              {
-                "@value": "value1",
-                "value": "label1"
-              },
-              {
-                "@value": "value2",
-                "value": "label2"
-              }
-            ]
-          },
-          "immutable": false,
-          "indexed": false,
+          "config": { },
           "inputType": "CheckBox",
           "label": "myOptions",
-          "maximizeUIInputWidth": true,
           "name": "myOptions",
           "occurrences": {
             "maximum": 1,

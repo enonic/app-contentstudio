@@ -1,20 +1,35 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
-import com.enonic.xp.app.ApplicationWildcardMatcher;
-import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentSelectorQueryJson;
-import com.enonic.xp.content.*;
-import com.enonic.xp.data.PropertyTree;
-import com.enonic.xp.icon.Icon;
-import com.enonic.xp.schema.content.*;
-import com.enonic.xp.schema.xdata.XDataName;
-import com.enonic.xp.security.PrincipalKey;
-import com.enonic.xp.site.Site;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.time.Instant;
-import java.util.*;
+import com.enonic.xp.app.ApplicationWildcardMatcher;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentSelectorQueryJson;
+import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.content.ContentQuery;
+import com.enonic.xp.content.ContentService;
+import com.enonic.xp.content.Mixin;
+import com.enonic.xp.content.Mixins;
+import com.enonic.xp.data.PropertyTree;
+import com.enonic.xp.icon.Icon;
+import com.enonic.xp.schema.content.ContentType;
+import com.enonic.xp.schema.content.ContentTypeName;
+import com.enonic.xp.schema.content.ContentTypeNames;
+import com.enonic.xp.schema.content.ContentTypeService;
+import com.enonic.xp.schema.content.ContentTypes;
+import com.enonic.xp.schema.mixin.MixinName;
+import com.enonic.xp.security.PrincipalKey;
+import com.enonic.xp.site.Site;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -265,7 +280,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
             .modifiedTime( Instant.parse( this.currentTime ) )
             .modifier( PrincipalKey.from( "user:system:admin" ) )
             .type( contentTypeName )
-            .extraDatas( ExtraDatas.create().add( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).build() )
+            .mixins( Mixins.create().add( new Mixin( MixinName.from( "myApplication:myField" ), metadata ) ).build() )
             .build();
 
         final Content parent2 = Content.create()
@@ -281,7 +296,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
             .modifiedTime( Instant.parse( this.currentTime ) )
             .modifier( PrincipalKey.from( "user:system:admin" ) )
             .type( contentTypeName )
-            .extraDatas( ExtraDatas.create().add( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).build() )
+            .mixins( Mixins.create().add( new Mixin( MixinName.from( "myApplication:myField" ), metadata ) ).build() )
             .build();
 
         return Content.create()
@@ -297,7 +312,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
             .modifiedTime( Instant.parse( this.currentTime ) )
             .modifier( PrincipalKey.from( "user:system:admin" ) )
             .type( contentTypeName )
-            .extraDatas( ExtraDatas.create().add( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).build() )
+            .mixins( Mixins.create().add( new Mixin( MixinName.from( "myApplication:myField" ), metadata ) ).build() )
             .build();
     }
 

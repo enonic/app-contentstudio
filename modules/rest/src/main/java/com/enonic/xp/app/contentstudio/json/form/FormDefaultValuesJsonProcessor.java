@@ -2,13 +2,10 @@ package com.enonic.xp.app.contentstudio.json.form;
 
 import java.util.Iterator;
 
-import com.enonic.xp.data.Value;
 import com.enonic.xp.form.FieldSet;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.form.FormItem;
 import com.enonic.xp.form.FormOptionSetOption;
-import com.enonic.xp.form.Input;
-import com.enonic.xp.inputtype.InputTypes;
 
 import static com.enonic.xp.form.FormItemType.FORM_ITEM_SET;
 import static com.enonic.xp.form.FormItemType.FORM_OPTION_SET;
@@ -34,24 +31,24 @@ final class FormDefaultValuesJsonProcessor
 
             if ( formItem.getType() == INPUT )
             {
-                final Input input = formItem.toInput();
-                final InputJson inputJson = (InputJson) formItemJson;
-                if ( input.getDefaultValue() != null )
-                {
-                    try
-                    {
-                        final Value defaultValue = InputTypes.BUILTIN.resolve( input.getInputType() ).
-                            createDefaultValue( input );
-                        if ( defaultValue != null )
-                        {
-                            inputJson.setDefaultValue( defaultValue );
-                        }
-                    }
-                    catch ( IllegalArgumentException ex )
-                    {
-                        // DO NOTHING
-                    }
-                }
+//                final Input input = formItem.toInput(); // TODO DEFAULT VALUE
+//                final InputJson inputJson = (InputJson) formItemJson;
+//                if ( input.getDefaultValue() != null )
+//                {
+//                    try
+//                    {
+//                        final Value defaultValue = InputTypes.BUILTIN.resolve( input.getInputType() ).
+//                            createDefaultValue( input );
+//                        if ( defaultValue != null )
+//                        {
+//                            inputJson.setDefaultValue( defaultValue );
+//                        }
+//                    }
+//                    catch ( IllegalArgumentException ex )
+//                    {
+//                        // DO NOTHING
+//                    }
+//                }
             }
             else if ( formItem.getType() == FORM_ITEM_SET )
             {

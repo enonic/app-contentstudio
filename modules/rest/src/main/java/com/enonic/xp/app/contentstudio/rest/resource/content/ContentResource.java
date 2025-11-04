@@ -1598,7 +1598,7 @@ public final class ContentResource
         final UpdateContentParams updateParams = new UpdateContentParams().contentId( versionedContent.getId() ).editor( edit -> {
             edit.data = versionedContent.getData();
             edit.displayName = versionedContent.getDisplayName();
-            edit.extraDatas = versionedContent.getAllExtraData();
+            edit.mixins = versionedContent.getMixins();
             edit.page = versionedContent.getPage() != null ? new EditablePage(versionedContent.getPage()) : null;
             edit.language = versionedContent.getLanguage();
             edit.owner = versionedContent.getOwner();

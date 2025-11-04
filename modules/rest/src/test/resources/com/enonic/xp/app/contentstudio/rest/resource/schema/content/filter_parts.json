@@ -7,11 +7,9 @@
           {
             "Input": {
               "config": {},
-              "immutable": false,
-              "indexed": false,
               "inputType": "Double",
               "label": "columns",
-              "maximizeUIInputWidth": true,
+
               "name": "columns",
               "occurrences": {
                 "maximum": 1,

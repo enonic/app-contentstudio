@@ -10,11 +10,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.enonic.xp.app.contentstudio.json.content.ContentWorkflowInfoJson;
-import com.enonic.xp.app.contentstudio.json.content.ExtraDataJson;
+import com.enonic.xp.app.contentstudio.json.content.MixinJson;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentName;
 import com.enonic.xp.content.ContentPublishInfo;
-import com.enonic.xp.content.ExtraDatas;
+import com.enonic.xp.content.Mixins;
 import com.enonic.xp.content.RenameContentParams;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.data.PropertyArrayJson;
@@ -39,7 +39,7 @@ public final class UpdateContentJson
     @JsonCreator
     UpdateContentJson( @JsonProperty("contentId") final String contentId, @JsonProperty("contentName") final String contentName,
                        @JsonProperty("data") final List<PropertyArrayJson> propertyArrayJsonList,
-                       @JsonProperty("meta") final List<ExtraDataJson> extraDataJsonList,
+                       @JsonProperty("meta") final List<MixinJson> mixinsJson,
                        @JsonProperty("displayName") final String displayName, @JsonProperty("requireValid") final String requireValid,
                        @JsonProperty("owner") final String owner, @JsonProperty("language") final String language,
                        @JsonProperty("publishFrom") final String publishFrom, @JsonProperty("publishTo") final String publishTo,
@@ -50,14 +50,14 @@ public final class UpdateContentJson
         this.publishToInstant = isNullOrEmpty( publishTo ) ? null : Instant.parse( publishTo );
 
         final PropertyTree contentData = PropertyTreeJson.fromJson( propertyArrayJsonList );
-        final ExtraDatas extraDatas = parseExtradata( extraDataJsonList );
+        final Mixins mixins = parseMixins( mixinsJson );
 
         this.updateContentParams = new UpdateContentParams().
             requireValid( Boolean.parseBoolean( requireValid ) ).
             contentId( ContentId.from( contentId ) ).
             editor( edit -> {
                 edit.data = contentData;
-                edit.extraDatas = extraDatas;
+                edit.mixins = mixins;
                 edit.displayName = displayName;
                 edit.owner = isNullOrEmpty( owner ) ? null : PrincipalKey.from( owner );
                 edit.language = isNullOrEmpty( language ) ? null : Locale.forLanguageTag( language );
@@ -107,13 +107,13 @@ public final class UpdateContentJson
         return publishToInstant;
     }
 
-    private ExtraDatas parseExtradata( final List<ExtraDataJson> extraDataJsonList )
+    private Mixins parseMixins( final List<MixinJson> mixinsJson )
     {
-        final ExtraDatas.Builder extradatasBuilder = ExtraDatas.create();
-        for ( ExtraDataJson extraDataJson : extraDataJsonList )
+        final Mixins.Builder builder = Mixins.create();
+        for ( MixinJson extraDataJson : mixinsJson )
         {
-            extradatasBuilder.add( extraDataJson.getExtraData() );
+            builder.add( extraDataJson.getMixin() );
         }
-        return extradatasBuilder.build();
+        return builder.build();
     }
 }

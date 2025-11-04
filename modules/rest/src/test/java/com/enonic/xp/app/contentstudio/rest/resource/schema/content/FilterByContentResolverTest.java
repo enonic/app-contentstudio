@@ -22,13 +22,11 @@ import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
-import com.enonic.xp.core.impl.schema.content.BuiltinContentTypesAccessor;
+import com.enonic.xp.core.impl.content.schema.BuiltinContentTypesAccessor;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.icon.Icon;
-import com.enonic.xp.inputtype.InputTypeConfig;
-import com.enonic.xp.inputtype.InputTypeProperty;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.page.PageDescriptorService;
 import com.enonic.xp.page.PageDescriptors;
@@ -51,6 +49,7 @@ import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
 import com.enonic.xp.site.SiteConfigsDataSerializer;
+import com.enonic.xp.util.GenericValue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -262,7 +261,7 @@ class FilterByContentResolverTest
 
         final ContentType disabledContent = ContentType.create()
             .superType( ContentTypeName.structured() )
-            .schemaConfig( InputTypeConfig.create().property( InputTypeProperty.create( "allowNewContent", "false" ).build() ).build() )
+            .schemaConfig( GenericValue.object().put( "allowNewContent", GenericValue.booleanValue( false ) ).build() )
             .allowChildContent( true )
             .displayName( "My type" )
             .name( "application:test-type-disabled" )
@@ -377,9 +376,7 @@ class FilterByContentResolverTest
 
         final LayoutDescriptor disallowedLayout = LayoutDescriptor.create()
             .displayName( "Disallowed layout" )
-            .schemaConfig( InputTypeConfig.create()
-                               .property( InputTypeProperty.create( "allowOnContentType", "some.different.app:*" ).build() )
-                               .build() )
+            .schemaConfig( GenericValue.object().put( "allowOnContentType", "some.different.app:*" ).build() )
             .config( Form.create().build() )
             .regions( RegionDescriptors.create().build() )
             .key( DescriptorKey.from( "module:disallowed-layout" ) )
@@ -394,9 +391,7 @@ class FilterByContentResolverTest
 
         final LayoutDescriptor allowedLayout = LayoutDescriptor.create()
             .displayName( "Allowed" )
-            .schemaConfig( InputTypeConfig.create()
-                               .property( InputTypeProperty.create( "allowOnContentType", "application:test-type" ).build() )
-                               .build() )
+            .schemaConfig( GenericValue.object().put( "allowOnContentType", "application:test-type" ).build() )
             .config( Form.create().build() )
             .regions( RegionDescriptors.create().build() )
             .key( DescriptorKey.from( "module:allowed-layout" ) )
@@ -419,9 +414,7 @@ class FilterByContentResolverTest
 
         final PartDescriptor disallowedPart = PartDescriptor.create()
             .displayName( "Disallowed" )
-            .schemaConfig( InputTypeConfig.create()
-                               .property( InputTypeProperty.create( "allowOnContentType", "some.different.app:*" ).build() )
-                               .build() )
+            .schemaConfig( GenericValue.object().put( "allowOnContentType", "some.different.app:*" ).build() )
             .config( Form.create().build() )
             .key( DescriptorKey.from( "module:disallowed" ) )
             .build();
@@ -434,9 +427,7 @@ class FilterByContentResolverTest
 
         final PartDescriptor allowedLayout = PartDescriptor.create()
             .displayName( "Allowed" )
-            .schemaConfig( InputTypeConfig.create()
-                               .property( InputTypeProperty.create( "allowOnContentType", "application:test-type" ).build() )
-                               .build() )
+            .schemaConfig( GenericValue.object().put( "allowOnContentType", "application:test-type" ).build() )
             .config( Form.create().build() )
             .key( DescriptorKey.from( "module:allowed" ) )
             .build();
@@ -458,9 +449,7 @@ class FilterByContentResolverTest
 
         final PageDescriptor disallowedPage = PageDescriptor.create()
             .displayName( "Disallowed" )
-            .schemaConfig( InputTypeConfig.create()
-                               .property( InputTypeProperty.create( "allowOnContentType", "some.different.app:*" ).build() )
-                               .build() )
+            .schemaConfig( GenericValue.object().put( "allowOnContentType", "some.different.app:*" ).build() )
             .config( Form.create().build() )
             .regions( RegionDescriptors.create().build() )
             .key( DescriptorKey.from( "module:disallowed" ) )
@@ -475,9 +464,7 @@ class FilterByContentResolverTest
 
         final PageDescriptor allowedPage = PageDescriptor.create()
             .displayName( "Allowed" )
-            .schemaConfig( InputTypeConfig.create()
-                               .property( InputTypeProperty.create( "allowOnContentType", "application:test-type" ).build() )
-                               .build() )
+            .schemaConfig( GenericValue.object().put( "allowOnContentType", "application:test-type" ).build() )
             .config( Form.create().build() )
             .regions( RegionDescriptors.create().build() )
             .key( DescriptorKey.from( "module:allowed" ) )

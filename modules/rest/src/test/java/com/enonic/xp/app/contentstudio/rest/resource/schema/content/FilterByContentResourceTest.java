@@ -6,31 +6,31 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.core.MediaType;
-
 import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.MediaType;
 
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.app.contentstudio.rest.resource.content.JsonObjectsFactory;
 import com.enonic.xp.content.ContentId;
+import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.inputtype.InputTypeName;
-import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.PartDescriptor;
 import com.enonic.xp.region.RegionDescriptors;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
-import com.enonic.xp.schema.mixin.MixinService;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
@@ -49,14 +49,14 @@ class FilterByContentResourceTest
     protected Object getResourceInstance()
     {
         LocaleService localeService = mock( LocaleService.class );
-        MixinService mixinService = mock( MixinService.class );
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        CmsFormFragmentService cmsFormFragmentService = mock( CmsFormFragmentService.class );
+        when( cmsFormFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         ContentTypeService contentTypeService = mock( ContentTypeService.class );
         filterByContentResolver = mock( FilterByContentResolver.class );
         final JsonObjectsFactory jsonObjectsFactory = new JsonObjectsFactory();
         jsonObjectsFactory.setLocaleService( localeService );
-        jsonObjectsFactory.setMixinService( mixinService );
+        jsonObjectsFactory.setCmsFormFragmentService( cmsFormFragmentService );
         jsonObjectsFactory.setContentTypeService( contentTypeService );
         final FilterByContentResource resource = new FilterByContentResource();
         resource.setJsonObjectsFactory( jsonObjectsFactory );

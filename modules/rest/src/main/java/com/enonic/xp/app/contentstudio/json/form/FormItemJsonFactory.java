@@ -1,11 +1,11 @@
 package com.enonic.xp.app.contentstudio.json.form;
 
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
+import com.enonic.xp.form.FieldSet;
+import com.enonic.xp.form.FormFragment;
 import com.enonic.xp.form.FormItem;
 import com.enonic.xp.form.FormItemSet;
-import com.enonic.xp.form.FieldSet;
 import com.enonic.xp.form.FormOptionSet;
-import com.enonic.xp.form.InlineMixin;
 import com.enonic.xp.form.Input;
 
 public class FormItemJsonFactory
@@ -24,9 +24,9 @@ public class FormItemJsonFactory
         {
             return new InputJson( (Input) formItem, localeMessageResolver );
         }
-        else if ( formItem instanceof InlineMixin )
+        else if ( formItem instanceof FormFragment )
         {
-            return new InlineMixinJson( (InlineMixin) formItem );
+            return new FormFragmentJson( (FormFragment) formItem );
         }
         else if ( formItem instanceof FormOptionSet )
         {

@@ -15,8 +15,6 @@ import jakarta.ws.rs.core.MediaType;
 
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
-import com.enonic.xp.app.contentstudio.rest.resource.content.task.ApplyPermissionsRunnableTask;
-import com.enonic.xp.app.contentstudio.rest.resource.content.task.ProjectsSyncTask;
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentEditor;
@@ -25,7 +23,7 @@ import com.enonic.xp.content.ContentName;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.EditableContent;
-import com.enonic.xp.content.ExtraDatas;
+import com.enonic.xp.content.Mixins;
 import com.enonic.xp.content.SyncContentService;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.data.PropertyTree;
@@ -319,7 +317,7 @@ public class ProjectResourceTest
                 AccessControlEntry.create().principal( RoleKeys.EVERYONE ).allow( Permission.READ ).build() ).build() ).
             language( Locale.ENGLISH ).
             data( new PropertyTree() ).
-            extraDatas( ExtraDatas.empty() ).
+            mixins( Mixins.empty() ).
             build();
 
         when( contentService.getByPath( ContentPath.ROOT ) ).thenReturn( contentRoot );
@@ -662,7 +660,7 @@ public class ProjectResourceTest
             permissions( AccessControlList.empty() ).
             language( Locale.ENGLISH ).
             data( new PropertyTree() ).
-            extraDatas( ExtraDatas.empty() ).
+            mixins( Mixins.empty() ).
             build();
 
         when( contentService.getByPath( ContentPath.ROOT ) ).thenReturn( contentRoot );

@@ -7,28 +7,28 @@ import com.google.common.base.Preconditions;
 import com.enonic.xp.app.contentstudio.json.ItemJson;
 import com.enonic.xp.app.contentstudio.json.form.FormJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
-import com.enonic.xp.schema.xdata.XData;
+import com.enonic.xp.app.contentstudio.rest.resource.schema.formfragment.CmsFormFragmentResolver;
+import com.enonic.xp.schema.mixin.MixinDescriptor;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
-public class XDataJson
+public class MixinJson
     implements ItemJson
 {
-    private final XData xData;
+    private final MixinDescriptor mixin;
 
     private final Boolean isOptional;
 
     private final LocaleMessageResolver localeMessageResolver;
 
-    private final InlineMixinResolver inlineMixinResolver;
+    private final CmsFormFragmentResolver inlineMixinResolver;
 
-    public XDataJson( final Builder builder )
+    public MixinJson( final Builder builder )
     {
         Preconditions.checkNotNull( builder.localeMessageResolver );
         Preconditions.checkNotNull( builder.inlineMixinResolver );
 
-        this.xData = builder.xData;
+        this.mixin = builder.mixin;
         this.isOptional = builder.isOptional;
         this.localeMessageResolver = builder.localeMessageResolver;
         this.inlineMixinResolver = builder.inlineMixinResolver;
@@ -41,56 +41,56 @@ public class XDataJson
 
     public String getName()
     {
-        return xData.getName() != null ? xData.getName().toString() : null;
+        return mixin.getName() != null ? mixin.getName().toString() : null;
     }
 
     public String getDisplayName()
     {
-        if ( !nullToEmpty( xData.getDisplayNameI18nKey() ).isBlank() )
+        if ( !nullToEmpty( mixin.getDisplayNameI18nKey() ).isBlank() )
         {
-            return localeMessageResolver.localizeMessage( xData.getDisplayNameI18nKey(), xData.getDisplayName() );
+            return localeMessageResolver.localizeMessage( mixin.getDisplayNameI18nKey(), mixin.getDisplayName() );
         }
         else
         {
-            return xData.getDisplayName();
+            return mixin.getDisplayName();
         }
     }
 
     public String getDescription()
     {
-        if ( !nullToEmpty( xData.getDescriptionI18nKey() ).isBlank() )
+        if ( !nullToEmpty( mixin.getDescriptionI18nKey() ).isBlank() )
         {
-            return localeMessageResolver.localizeMessage( xData.getDescriptionI18nKey(), xData.getDescription() );
+            return localeMessageResolver.localizeMessage( mixin.getDescriptionI18nKey(), mixin.getDescription() );
         }
         else
         {
-            return xData.getDescription();
+            return mixin.getDescription();
         }
     }
 
     public Instant getCreatedTime()
     {
-        return xData.getCreatedTime();
+        return mixin.getCreatedTime();
     }
 
     public Instant getModifiedTime()
     {
-        return xData.getModifiedTime();
+        return mixin.getModifiedTime();
     }
 
     public FormJson getForm()
     {
-        return new FormJson( xData.getForm(), this.localeMessageResolver, this.inlineMixinResolver );
+        return new FormJson( mixin.getForm(), this.localeMessageResolver, this.inlineMixinResolver );
     }
 
     public String getCreator()
     {
-        return xData.getCreator() != null ? xData.getCreator().toString() : null;
+        return mixin.getCreator() != null ? mixin.getCreator().toString() : null;
     }
 
     public String getModifier()
     {
-        return xData.getModifier() != null ? xData.getModifier().toString() : null;
+        return mixin.getModifier() != null ? mixin.getModifier().toString() : null;
     }
 
     public Boolean getIsOptional()
@@ -112,21 +112,21 @@ public class XDataJson
 
     public static final class Builder
     {
-        private XData xData;
+        private MixinDescriptor mixin;
 
         private Boolean isOptional = false;
 
         private LocaleMessageResolver localeMessageResolver;
 
-        private InlineMixinResolver inlineMixinResolver;
+        private CmsFormFragmentResolver inlineMixinResolver;
 
         private Builder()
         {
         }
 
-        public Builder setXData( final XData xData )
+        public Builder setMixin( final MixinDescriptor mixin )
         {
-            this.xData = xData;
+            this.mixin = mixin;
             return this;
         }
 
@@ -142,7 +142,7 @@ public class XDataJson
             return this;
         }
 
-        public Builder setInlineMixinResolver( final InlineMixinResolver inlineMixinResolver )
+        public Builder setInlineMixinResolver( final CmsFormFragmentResolver inlineMixinResolver )
         {
             this.inlineMixinResolver = inlineMixinResolver;
             return this;
@@ -154,10 +154,10 @@ public class XDataJson
             Preconditions.checkNotNull( inlineMixinResolver );
         }
 
-        public XDataJson build()
+        public MixinJson build()
         {
             validate();
-            return new XDataJson( this );
+            return new MixinJson( this );
         }
     }
 
