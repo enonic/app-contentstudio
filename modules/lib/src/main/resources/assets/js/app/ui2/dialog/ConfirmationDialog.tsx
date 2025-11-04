@@ -49,7 +49,7 @@ const ConfirmationDialogContent = forwardRef<HTMLDivElement, ConfirmationDialogC
     ({defaultConfirmEnabled = true, className, children, ...props}, ref): ReactElement => {
         return (
             <Dialog.Content ref={ref}
-                            className={cn('text-main gap-3 min-w-170 max-w-fit', className)} {...props}>
+                            className={cn('max-w-180 w-fit sm:min-w-152 text-main gap-2.5', className)} {...props}>
                 <ConfirmationDialogProvider defaultConfirmEnabled={defaultConfirmEnabled}>{children}</ConfirmationDialogProvider>
             </Dialog.Content>
         );

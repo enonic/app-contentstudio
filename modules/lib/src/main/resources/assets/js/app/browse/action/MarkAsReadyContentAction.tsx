@@ -37,7 +37,7 @@ export class MarkAsReadyContentAction
         } else {
             const dialog = new DialogPresetConfirmElement({
                 open: true,
-                title: i18n('dialog.confirm.title'),
+                title: i18n('dialog.markAsReady.title'),
                 description: i18n('dialog.markAsReady.question'),
                 onConfirm: () => {
                     dialog.close();

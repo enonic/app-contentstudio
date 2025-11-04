@@ -70,7 +70,7 @@ export const Sidebar = (): ReactElement => {
                         />
                     )}
                     <Tooltip value={version} side="right">
-                        <p class="text-cs text-surface-primary-selected text-center overflow-hidden text-nowrap max-w-[40px]">
+                        <p class="text-sm text-surface-primary-selected text-center overflow-hidden text-nowrap max-w-[40px]">
                             {version}
                         </p>
                     </Tooltip>
