@@ -1,3 +1,5 @@
+import {SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Router} from '../../Router';
@@ -5,20 +7,18 @@ import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentQuery} from '../../content/ContentQuery';
 import {AggregationGroupView} from '@enonic/lib-admin-ui/aggregation/AggregationGroupView';
-import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
 import {BrowseFilterPanel} from '@enonic/lib-admin-ui/app/browse/filter/BrowseFilterPanel';
 import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
-import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
 import {BucketAggregationView} from '@enonic/lib-admin-ui/aggregation/BucketAggregationView';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ProjectContext} from '../../project/ProjectContext';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentId} from '../../content/ContentId';
+import {ContentBrowseFilterComponent} from '../../ui2/filter/ContentBrowseFilterComponent';
 import {DependenciesSection} from './DependenciesSection';
 import {ContentAggregation} from './ContentAggregation';
 import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
 import {ContentAggregationsFetcher} from './ContentAggregationsFetcher';
-import {FilterableAggregationGroupView} from './FilterableAggregationGroupView';
 import {AggregationsQueryResult} from './AggregationsQueryResult';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
@@ -41,15 +41,32 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
     private elementsContainer: Element;
     private exportElement?: ContentExportElement;
     private targetBranch: Branch = Branch.DRAFT;
+    private filterComponent: ContentBrowseFilterComponent;
 
     constructor() {
         super();
 
-        this.addClass(cn('content-browse-filter-panel bg-surface-primary text-main'));
+        this.addClass(cn('content-browse-filter-panel bg-surface-neutral text-main'));
         this.aggregationsFetcher = this.createAggregationFetcher();
+        this.displayNamesResolver = new AggregationsDisplayNamesResolver();
+        this.dependenciesSection = new DependenciesSection();
+        this.initElementsAndListeners();
+
+        this.filterComponent = new ContentBrowseFilterComponent({
+            bucketAggregations: [],
+            onChange: () => {
+                this.search();
+            },
+            onSelectionChange: () => {
+                this.search();
+            },
+            filterableAggregations: this.getFilterableAggregations(),
+            exportOptions: this.getExportOptions(),
+        });
+
+        this.appendChild(this.filterComponent);
 
         this.getAndUpdateAggregations();
-        this.initElementsAndListeners();
     }
 
     protected createAggregationFetcher(): ContentAggregationsFetcher {
@@ -127,55 +144,35 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         });
     }
 
-    protected createHitsCountContainer(): DivEl {
-        const hitsCounterAndClearButtonWrapper = super.createHitsCountContainer();
-        if (this.exportElement) {
-            hitsCounterAndClearButtonWrapper.appendChild(this.exportElement);
-        }
+    protected getFilterableAggregations(): { name: string; idsToKeepOnTop?: string[] }[] {
+        const currentUserKey = AuthContext.get().getUser().getKey().toString();
 
-        return hitsCounterAndClearButtonWrapper;
+        return [
+            {
+                name: ContentAggregation.OWNER.toString(),
+                idsToKeepOnTop: [currentUserKey]
+            },
+            {
+                name: ContentAggregation.MODIFIED_BY.toString(),
+                idsToKeepOnTop: [currentUserKey]
+            },
+        ];
     }
 
-    protected getAggregationEnum(): Record<string, string> {
-        return ContentAggregation;
-    }
+    getExportOptions(): { label?: string; action: () => void } {
+        this.exportElement = new ContentExportElement().setEnabled(false).setTitle(i18n('action.export')) as ContentExportElement;
 
-    protected getGroupViews(): AggregationGroupView[] {
-        this.aggregations = new Map<string, AggregationGroupView>();
-
-        const aggregationEnum = this.getAggregationEnum();
-        for (let aggrEnum in aggregationEnum) {
-            const name: string = aggregationEnum[aggrEnum];
-            this.aggregations.set(name, this.createGroupView(name));
-        }
-
-        return Array.from(this.aggregations.values());
-    }
-
-    protected isPrincipalAggregation(name: string): boolean {
-        return name === ContentAggregation.OWNER.toString() || name === ContentAggregation.MODIFIED_BY.toString();
-    }
-
-    protected createGroupView(name: string): AggregationGroupView {
-        if (this.isPrincipalAggregation(name)) {
-            const currentUserKey = this.getCurrentUserKeyAsString();
-            if (!this.displayNamesResolver) {
-                this.displayNamesResolver = new AggregationsDisplayNamesResolver(currentUserKey);
+        return {
+            label: i18n('action.export'),
+            action: () => {
+                this.exportElement.handleExportClicked();
             }
-            const aggregationGroupView = new FilterableAggregationGroupView(name, i18n(`field.${name}`));
-            aggregationGroupView.setIdsToKeepOnToTop([currentUserKey]);
-            aggregationGroupView.setResolver(this.displayNamesResolver);
-
-            return aggregationGroupView;
-        }
-
-        return new AggregationGroupView(name, i18n(`field.${name}`));
+        };
     }
 
-    protected appendExtraSections() {
-        super.appendExtraSections();
-        this.dependenciesSection = new DependenciesSection();
-        this.appendChild(this.dependenciesSection);
+    protected isFilterableAggregation(aggregation: BucketAggregation): boolean {
+        return aggregation.getName() === ContentAggregation.OWNER.toString() || aggregation.getName() ===
+               ContentAggregation.MODIFIED_BY.toString();
     }
 
     protected isExportAllowed(): boolean {
@@ -185,7 +182,6 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
 
     private removeDependencyItem() {
         this.dependenciesSection.reset();
-        this.resetConstraints();
         this.search();
         Router.get().back();
     }
@@ -197,7 +193,6 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
             this.selectBucketByTypeOnLoad(type);
         }
 
-        this.setConstraintItems(this.dependenciesSection, [item.getId()]);
         this.dependenciesSection.setDependencyItem(item);
     }
 
@@ -220,7 +215,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
     }
 
     private selectContentTypeBucket(key: string): void {
-        (this.aggregations.get(ContentAggregation.CONTENT_TYPE).getAggregationViews()[0] as BucketAggregationView)?.selectBucketViewByKey(key);
+        this.filterComponent.selectBucketViewByKey(ContentAggregation.CONTENT_TYPE, key);
     }
 
     searchItemById(id: ContentId): void {
@@ -250,6 +245,39 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         });
     }
 
+    updateAggregations(aggregations: BucketAggregation[]): void {
+        this.filterComponent.updateAggregations(aggregations);
+    }
+
+    getSearchInputValues(): SearchInputValues {
+        const searchInputValues: SearchInputValues = new SearchInputValues();
+
+        searchInputValues.setAggregationSelections(this.filterComponent.getSelectedBuckets());
+        searchInputValues.setTextSearchFieldValue(this.filterComponent.getValue());
+
+        return searchInputValues;
+    }
+
+    hasFilterSet(): boolean {
+        return this.filterComponent.hasSelectedBuckets() || this.hasSearchStringSet();
+    }
+
+    hasSearchStringSet(): boolean {
+        return !StringHelper.isBlank(this.filterComponent.getValue());
+    }
+
+    resetControls() {
+        this.filterComponent.reset();
+    }
+
+    deselectAll() {
+        this.filterComponent.deselectAll();
+    }
+
+    updateHitsCounter(hits: number) {
+        this.filterComponent.updateHitsCounter(hits);
+    }
+
     protected doSearch(): Q.Promise<void> {
         if (!this.isFilteredOrConstrained()) {
             return this.resetFacets();
@@ -276,7 +304,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
             this.updateHitsCounter(aggregationsQueryResult.getMetadata().getTotalHits());
             this.updateExportState(aggregationsQueryResult);
 
-            return this.processAggregations(aggregationsQueryResult.getAggregations()).then(() => {
+            return this.processAggregations(aggregationsQueryResult.getAggregations() as BucketAggregation[]).then(() => {
                 return aggregationsQueryResult;
             });
         });
@@ -293,16 +321,20 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         this.exportElement.setEnabled(aggregationsQueryResult.getMetadata().getTotalHits() > 0);
     }
 
-    private processAggregations(aggregations: Aggregation[]): Q.Promise<void> {
-        this.toggleAggregationsVisibility(aggregations);
+    private processAggregations(aggregations: BucketAggregation[]): Q.Promise<void> {
+        this.sortAggregations(aggregations);
 
-        return this.displayNamesResolver.updateAggregationsDisplayNames(aggregations, this.getCurrentUserKeyAsString()).then(() => {
+        return this.displayNamesResolver.updateAggregationsDisplayNames(aggregations).then(() => {
             this.updateAggregations(aggregations);
         });
     }
 
-    private getCurrentUserKeyAsString(): string {
-        return AuthContext.get().getUser().getKey().toString();
+    private sortAggregations(aggregations: BucketAggregation[]): void {
+        const order = Object.values(ContentAggregation).filter(value => typeof value === 'string') as string[];
+
+        aggregations.sort(
+            (a, b) => order.indexOf(a.getName()) - order.indexOf(b.getName())
+        );
     }
 
     private getAggregations(): Q.Promise<AggregationsQueryResult> {
@@ -334,14 +366,6 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
 
         return null;
     }
-
-    private toggleAggregationsVisibility(aggregations: Aggregation[]) {
-        aggregations.forEach((aggregation: BucketAggregation) => {
-            const isAggregationNotEmpty: boolean = aggregation.getBuckets().some((bucket: Bucket) => bucket.docCount > 0);
-            this.aggregations.get(aggregation.getName()).setVisible(isAggregationNotEmpty);
-        });
-    }
-
 
     // doing a trick to avoid changing lib-admin-ui, adding all children except export button to a wrapper
     appendChild(child: Element, lazyRender?: boolean): Element {
