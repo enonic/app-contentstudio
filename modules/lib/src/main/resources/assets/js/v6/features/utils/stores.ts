@@ -1,93 +1,249 @@
-import {AllPaths, BaseDeepMap, DeepMapStore, getPath, MapStore, ReadableAtom, subscribeKeys} from 'nanostores';
+import {BaseDeepMap, DeepMapStore, MapStore, StoreValue, WritableAtom} from 'nanostores';
+import {createThrottle} from './functions';
 import {normalize} from './text';
 
-type AllowedStores<T extends BaseDeepMap> = MapStore<T> | DeepMapStore<T> | ReadableAtom<T>;
-type SomeStore<T extends BaseDeepMap> = AllowedStores<T>;
+type StorageType = 'local' | 'session';
+
+type WritableStore = WritableAtom | MapStore | DeepMapStore<BaseDeepMap>;
+
+type SyncOptions<S extends WritableStore, V extends StoreValue<S> = StoreValue<S>> = {
+    encode?: (data: V) => string;
+    decode?: (raw: string) => V;
+    throttleMs?: number;
+    storageType?: StorageType;
+    loadInitial?: boolean;
+    syncTabs?: boolean;
+};
 
 /**
- * Synchronizes a Nanostores store with localStorage for automatic persistence.
+ * Synchronizes a Nanostores store with browser storage (localStorage or sessionStorage).
  *
- * This utility sets up a synchronization between the store and localStorage.
- * Whenever the specified store changes, its value (or a specific key via `options.syncPath`)
- * is serialized and stored in localStorage.
- * Optionally, you can control encoding, decoding, or throttle
- * the writes to localStorage. Removal or clearing is also handled.
+ * This utility sets up bidirectional synchronization between the store and browser storage:
+ * - Writes store changes to storage with optimized throttling (leading + trailing edge)
+ * - Optionally loads initial value from storage into the store
+ * - Optionally syncs changes from other tabs/windows (localStorage only)
+ * - Automatically flushes pending writes on page unload/visibility change
  *
- * @param store      Nanostores store instance (MapStore, DeepMapStore, or ReadableAtom).
- * @param storeName  Logical name for the localStorage key (will benormalized).
+ * **Important:** The store is the single source of truth. Use `store.get()` and `store.set()`
+ * for all data operations. The returned cleanup function only handles synchronization cleanup.
+ *
+ * **Write Strategy (No Updates Lost):**
+ * - First change: written immediately (users see instant persistence)
+ * - Rapid changes: batched during throttle period (performance)
+ * - Final value: ALWAYS written after changes settle (data integrity)
+ * - Page close: pending writes flushed automatically (reliability)
+ *
+ * **Features:**
+ * - Storage quota exceeded handling with specific error messages
+ * - Cross-tab synchronization via Storage API events
+ * - Custom serialization/deserialization via encode/decode
+ * - Partial store syncing via custom encode/decode functions
+ * - Automatic cleanup on unsync
+ * - Storage availability detection (handles incognito mode)
+ * - Full store value syncing (atom: entire value, map: entire object)
+ *
+ * **Usage Recommendations:**
+ * - Use `localStorage` for user preferences that should persist across sessions
+ * - Use `sessionStorage` for temporary UI state that should clear on tab close
+ * - Set `loadInitial: true` when you want to restore saved values on page load
+ * - Set `syncTabs: true` for multi-tab consistency (e.g., theme, language)
+ * - Use custom encode/decode for partial syncing or data transformation
+ * - Use lower `throttleMs` (50-100ms) for critical data, higher (200-500ms) for less critical
+ * - Call the returned cleanup function when component unmounts to prevent memory leaks
+ * - Pass `true` to cleanup function to also clear the storage entry
+ *
+ * @example
+ * // Example 1: Atom store - sync entire value
+ * import { atom } from 'nanostores';
+ * const counter = atom(0);
+ * const unsync = syncStore(counter, 'count', {
+ *     loadInitial: true  // Restores saved count
+ * });
+ * counter.set(5); // Syncs automatically
+ * unsync(); // Cleanup when done
+ *
+ * @example
+ * // Example 2: Map store - sync entire map
+ * import { map } from 'nanostores';
+ * const settings = map({ theme: 'light', lang: 'en' });
+ * const unsync = syncStore(settings, 'settings', {
+ *     loadInitial: true,
+ *     syncTabs: true
+ * });
+ * settings.set({ theme: 'dark', lang: 'en' }); // Full map syncs
+ * unsync(true); // Cleanup and clear storage
+ *
+ * @example
+ * // Example 3: Partial sync with custom encode/decode
+ * const settings = map({ theme: 'light', lang: 'en', tempData: {} });
+ * const unsync = syncStore(settings, 'settings', {
+ *     encode: (data) => JSON.stringify({
+ *         theme: data.theme,
+ *         lang: data.lang
+ *     }), // Only persist theme & lang
+ *     decode: (raw) => {
+ *         const partial = JSON.parse(raw);
+ *         const current = settings.get();
+ *         return { ...current, ...partial }; // Merge with current
+ *     },
+ *     loadInitial: true
+ * });
+ * unsync(); // Cleanup when done
+ *
+ * @param store      Writable Nanostores store (atom or map).
+ * @param storeName  Logical name for the storage key (will be normalized).
  * @param options
- *   - syncPath:    Path string/key to a specific store value (e.g. 'activeProjectId').
- *   - encode:      Custom function to serialize outgoing state (default: JSON.stringify).
- *   - decode:      Custom function to parse stored state (default: JSON.parse).
- *   - throttleMs:  Throttle/delay storage writes in ms (default: 100).
+ *   - encode:         Custom function to serialize store value (default: JSON.stringify).
+ *   - decode:         Custom function to parse stored value (default: JSON.parse).
+ *   - throttleMs:     Write throttle delay in ms (default: 100).
+ *   - storageType:    'local' or 'session' (default: 'local').
+ *   - loadInitial:    Load value from storage into store on initialization (default: false).
+ *   - syncTabs:       Sync changes from other tabs (localStorage only, default: false).
  *
- * @returns
- *   - get():     Reads and parses the value from localStorage, if present.
- *   - unsync():  Unsubscribe from the store.
+ * @returns Cleanup function. Call with no argument to cleanup. Call with `true` to also clear storage.
  */
-export function syncStore<T extends BaseDeepMap, P extends AllPaths<T> | undefined = undefined>(
-    store: SomeStore<T>,
+export function syncStore<S extends WritableStore, V extends StoreValue<S> = StoreValue<S>>(
+    store: S,
     storeName: string,
-    options?: Partial<{
-        syncPath?: P;
-        encode: (data: P extends undefined ? T : T[P]) => string;
-        decode: (raw: string) => P extends undefined ? T : T[P];
-        throttleMs: number;
-    }>
-): {
-    get: () => (P extends undefined ? T : T[P]) | undefined;
-    unsync: () => void;
-} {
+    options: SyncOptions<S, V> = {}
+): (clearStorage?: boolean) => void {
     const {
-        syncPath,
         throttleMs = 100,
-        encode = (data: T) => JSON.stringify(data),
-        decode = (raw: string) => JSON.parse(raw),
-    } = options ?? {};
+        encode = (data: V): string => JSON.stringify(data),
+        decode = (raw: string): V => JSON.parse(raw) as V,
+        storageType = 'local',
+        loadInitial = false,
+        syncTabs = false,
+    } = options;
 
-    const lsKey = getLocalStorageKey(storeName, syncPath?.toString());
+    // Validate storage availability
+    const storage = getStorage(storageType);
+    if (!storage) {
+        console.warn(`${storageType}Storage is not available. Store sync will not work.`);
+        return createNoopSync();
+    }
 
-    const throttledWrite = createThrottle((value) => {
+    // Validate store name
+    const normalizedKey = normalize(storeName);
+    if (!normalizedKey) {
+        console.error(`Invalid store name: "${storeName}". Store sync will not work.`);
+        return createNoopSync();
+    }
+
+    const storageKey = getStorageKey(normalizedKey);
+
+    // Get and set helper functions
+    const getFromStorage = (): V | undefined => {
         try {
-            const valueToStore = syncPath ? getPath(value, syncPath) : value;
-
-            if (valueToStore !== undefined) {
-                localStorage.setItem(lsKey, encode(valueToStore));
-                return;
-            }
-
-            localStorage.removeItem(lsKey);
+            const raw = storage.getItem(storageKey);
+            if (!raw) return undefined;
+            return decode(raw);
         } catch (error: unknown) {
-            console.error(`Error syncing store with local storage ${lsKey}`, error);
+            console.error(`Error getting value from ${storageType}Storage ${storageKey}`, error);
+            return undefined;
+        }
+    };
+
+    const writeToStorage = (value: V): void => {
+        try {
+            storage.setItem(storageKey, encode(value));
+        } catch (error: unknown) {
+            if (isQuotaExceededError(error)) {
+                console.error(`${storageType}Storage quota exceeded for ${storageKey}`, error);
+            } else {
+                console.error(`Error writing to ${storageType}Storage ${storageKey}`, error);
+            }
+        }
+    };
+
+    const removeFromStorage = (): void => {
+        try {
+            storage.removeItem(storageKey);
+        } catch (error: unknown) {
+            console.error(`Error removing from ${storageType}Storage ${storageKey}`, error);
+        }
+    };
+
+    // Throttled write handler for store changes
+    const throttledWrite = createThrottle((value: V): void => {
+        try {
+            if (value !== undefined) {
+                writeToStorage(value);
+            } else {
+                removeFromStorage();
+            }
+        } catch (error: unknown) {
+            console.error(`Error syncing store with ${storageType}Storage ${storageKey}`, error);
         }
     }, throttleMs);
 
-    const unsubscribe =
-        !isReadableAtomStore<T>(store) && syncPath
-            ? // @ts-expect-error - syncPath is a valid path for the store
-              subscribeKeys(store, [syncPath], throttledWrite)
-            : store.subscribe(throttledWrite);
+    // Subscribe to store changes
+    const unsubscribe = store.subscribe(throttledWrite);
 
-    return {
-        get: () => {
+    // Load initial value from storage into store
+    if (loadInitial) {
+        const initialValue = getFromStorage();
+        if (initialValue !== undefined && 'set' in store) {
             try {
-                const raw = localStorage.getItem(lsKey);
-                if (!raw) return undefined;
-                return decode(raw);
+                store.set(initialValue);
             } catch (error: unknown) {
-                console.error(`Error getting value from local storage ${lsKey}`, error);
-                return undefined;
+                console.error(`Error loading initial value from ${storageType}Storage`, error);
             }
-        },
+        }
+    }
 
-        unsync: () => {
-            try {
-                throttledWrite.cancel();
-                unsubscribe();
-            } catch (error: unknown) {
-                console.error(`Error unsynching from store ${storeName}`, error);
+    // Cross-tab synchronization (localStorage only)
+    let storageListener: ((e: StorageEvent) => void) | null = null;
+    if (syncTabs && storageType === 'local') {
+        storageListener = (e: StorageEvent) => {
+            if (e.key === storageKey && e.newValue !== null && 'set' in store) {
+                try {
+                    const newValue = decode(e.newValue);
+                    store.set(newValue);
+                } catch (error: unknown) {
+                    console.error(`Error syncing from other tab for ${storageKey}`, error);
+                }
             }
-        },
+        };
+        window.addEventListener('storage', storageListener);
+    }
+
+    // Flush on page visibility change (tab close, navigation, etc.)
+    // This ensures pending writes are not lost when user leaves the page
+    const visibilityListener = (): void => {
+        if (document.visibilityState === 'hidden') {
+            throttledWrite.flush();
+        }
+    };
+    document.addEventListener('visibilitychange', visibilityListener);
+
+    // Flush on beforeunload as final safety net
+    const beforeUnloadListener = () => {
+        throttledWrite.flush();
+    };
+    window.addEventListener('beforeunload', beforeUnloadListener);
+
+    return (clearStorage?: boolean) => {
+        try {
+            // Flush any pending writes to ensure final state is saved
+            throttledWrite.flush();
+            unsubscribe();
+
+            // Clean up all event listeners
+            if (storageListener) {
+                window.removeEventListener('storage', storageListener);
+                storageListener = null;
+            }
+            document.removeEventListener('visibilitychange', visibilityListener);
+            window.removeEventListener('beforeunload', beforeUnloadListener);
+
+            // Optionally clear storage
+            if (clearStorage) {
+                removeFromStorage();
+            }
+        } catch (error: unknown) {
+            console.error(`Error unsyncing from store ${storeName}`, error);
+        }
     };
 }
 
@@ -95,40 +251,61 @@ export function syncStore<T extends BaseDeepMap, P extends AllPaths<T> | undefin
 // * Utilities
 //
 
-function getLocalStorageKey(storeName: string, syncPath?: string): string {
-    return 'enonic-cs:' + normalize(storeName + (syncPath ? ':' + syncPath : ''));
+/**
+ * Create a key for the current application's storage.
+ * The key is prefixed with 'enonic:cs:' to avoid conflicts with other applications.
+ */
+function getStorageKey(normalizedKey: string): string {
+    return 'enonic:cs:' + normalizedKey;
 }
 
-function isReadableAtomStore<T extends BaseDeepMap>(store: AllowedStores<T>): store is ReadableAtom<T> {
-    return !('setKey' in store);
+// Cache storage availability to avoid repeated tests
+const storageCache = new Map<StorageType, Storage | null>();
+
+/**
+ * Gets storage instance with availability check and caching.
+ * Tests are performed only once per storage type to optimize performance.
+ * Storage can be unavailable in:
+ * - Private/incognito browsing mode
+ * - Browser settings that disable storage
+ * - Server-side rendering contexts
+ * - Storage quota is completely full
+ */
+function getStorage(type: StorageType): Storage | null {
+    if (storageCache.has(type)) {
+        return storageCache.get(type) ?? null;
+    }
+
+    let storage: Storage | null = null;
+
+    try {
+        const storageImpl = type === 'local' ? window.localStorage : window.sessionStorage;
+        // Test if storage is actually available (can fail in incognito mode)
+        const testKey = '__storage_test__';
+        storageImpl.setItem(testKey, 'test');
+        storageImpl.removeItem(testKey);
+        storage = storageImpl;
+    } catch {
+        storage = null;
+    }
+
+    storageCache.set(type, storage);
+    return storage;
 }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createThrottle<T extends(...args: any[]) => void>(fn: T, delay: number): T & {cancel:() => void} {
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    let lastArgs: Parameters<T> | null = null;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const throttled = function (this: any, ...args: Parameters<T>) {
-        lastArgs = args;
+function isQuotaExceededError(error: unknown): boolean {
+    if (!(error instanceof DOMException)) {
+        return false;
+    }
 
-        if (timeoutId === null) {
-            timeoutId = setTimeout(() => {
-                if (lastArgs) {
-                    fn.apply(this, lastArgs);
-                }
-                timeoutId = null;
-                lastArgs = null;
-            }, delay);
-        }
-    } as T & {cancel: () => void};
+    return (
+        error.name === 'QuotaExceededError' ||
+        error.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+    );
+}
 
-    throttled.cancel = () => {
-        if (timeoutId !== null) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-            lastArgs = null;
-        }
+function createNoopSync(): (clearStorage?: boolean) => void {
+    return () => {
+        // No-op cleanup function
     };
-
-    return throttled;
 }
