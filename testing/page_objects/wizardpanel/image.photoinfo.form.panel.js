@@ -4,7 +4,7 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const xpath = {
-    container: "//div[contains(@id,'XDataWizardStepForm') and preceding-sibling::div[child::span[text()='Photo']]]",
+    container: "//div[contains(@id,'MixinsWizardStepForm') and preceding-sibling::div[child::span[text()='Photo']]]",
     lensInput: `//input[contains(@name,'lens')]`,
     dateTimeInput: "//div[contains(@id,'DateTimePicker')]//input[contains(@id,'TextInput')]",
     makeInput: "//input[contains(@name,'make')]",

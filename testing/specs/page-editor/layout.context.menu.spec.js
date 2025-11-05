@@ -20,7 +20,7 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
     }
     let SITE;
     const MAIN_REGION = 'main';
-    const TEXT_AREA_X_DATA_NAME = 'Text Area x-data';
+    const TEXT_AREA_MIXINS_NAME = 'Text Area mixins';
 
     // Verifies Layout dropdown should appear in Live Edit after resetting the layout-component #6713
     // https://github.com/enonic/app-contentstudio/issues/6713
@@ -124,9 +124,9 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             await liveFormPanel.waitForLayoutComboBoxOptionFilterDisplayed();
         });
 
-    // Verify X-data is not shown for fragments #7284
+    // Verify mixins is not shown for fragments #7284
     // https://github.com/enonic/app-contentstudio/issues/7284
-    it("WHEN fragment-layout has been opened THEN expected x-data should be displayed",
+    it("WHEN fragment-layout has been opened THEN expected mixins should be displayed",
         async () => {
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -142,11 +142,11 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             // 4. Switch to the next browser tab:
             await studioUtils.doSwitchToNewWizard();
             await contentWizard.waitForOpened();
-            // 5. Verify that x-data toggler is displayed in the wizard:
-            await contentWizard.waitForXdataTogglerVisible(TEXT_AREA_X_DATA_NAME);
-            // 6. Verify the title of x-data :
-            let result = await contentWizard.getXdataTitles();
-            assert.ok(result.includes(TEXT_AREA_X_DATA_NAME), 'Text Area x-data should be present');
+            // 5. Verify that mixins toggler is displayed in the wizard:
+            await contentWizard.waitForMixinsTogglerVisible(TEXT_AREA_MIXINS_NAME);
+            // 6. Verify the title of mixins :
+            let result = await contentWizard.getMixinsTitles();
+            assert.ok(result.includes(TEXT_AREA_MIXINS_NAME), 'Text Area mixins should be present');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

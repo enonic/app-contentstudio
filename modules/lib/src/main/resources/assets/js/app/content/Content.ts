@@ -4,7 +4,7 @@ import {Attachments, AttachmentsBuilder} from '../attachment/Attachments';
 import {ContentJson} from './ContentJson';
 import {ExtraData} from './ExtraData';
 import {ExtraDataJson} from '../resource/json/ExtraDataJson';
-import {XDataName} from './XDataName';
+import {MixinName} from './MixinName';
 import {Page, PageBuilder} from '../page/Page';
 import {AccessControlList} from '../access/AccessControlList';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
@@ -53,7 +53,7 @@ export class Content
         return this.attachments;
     }
 
-    getExtraDataByName(name: XDataName): ExtraData {
+    getExtraDataByName(name: MixinName): ExtraData {
         return this.extraData.filter((item: ExtraData) => item.getName().equals(name))[0];
     }
 

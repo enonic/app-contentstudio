@@ -5,11 +5,11 @@ const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
 const XPATH = {
-    container: `//div[contains(@id,'XDataWizardStepForm')]`,
+    container: `//div[contains(@id,'MixinsWizardStepForm')]`,
     textArea: `//div[contains(@id,'InputOccurrenceView')]//textarea`,
 };
 
-class XDataTextArea extends Page {
+class MixinsTextArea extends Page {
 
     get textAreaInput() {
         return XPATH.container + XPATH.textArea;
@@ -48,9 +48,9 @@ class XDataTextArea extends Page {
             return await this.getText(this.validationRecord);
         } catch (err) {
             let screenshot = await this.saveScreenshot('err_textarea_validation_record');
-            throw new Error(`XDATA textarea, validation message, screenshot:${screenshot} ` + err);
+            throw new Error(`Mixins textarea, validation message, screenshot:${screenshot} ` + err);
         }
     }
 }
 
-module.exports = XDataTextArea;
+module.exports = MixinsTextArea;

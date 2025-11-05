@@ -17,7 +17,7 @@ describe('publish.wizard.invalid.parent.spec - test for dependent required items
     }
 
     const SITE_NAME = appConst.generateRandomName('site');
-    const X_DATA_NAME = 'Html Area x-data';
+    const MIXINS_NAME = 'Html Area mixins';
 
     it("Precondition: new invalid site should be added",
         async () => {
@@ -26,7 +26,7 @@ describe('publish.wizard.invalid.parent.spec - test for dependent required items
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(SITE_NAME);
             await siteFormPanel.filterOptionsAndSelectApplication(appConst.TEST_APPS_NAME.APP_CONTENT_TYPES);
-            await contentWizard.clickOnXdataTogglerByName(X_DATA_NAME);
+            await contentWizard.clickOnMixinsTogglerByName(MIXINS_NAME);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.doCloseWizardAndSwitchToGrid();

@@ -3,7 +3,7 @@ import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel
 import {PanelStripHeader} from '@enonic/lib-admin-ui/ui/panel/PanelStripHeader';
 import {ContentPanelStripHeader} from './ContentPanelStripHeader';
 import {TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
-import {XDataWizardStepForm} from './XDataWizardStepForm';
+import {MixinWizardStepForm} from './MixinWizardStepForm';
 import {WizardStepForm} from '@enonic/lib-admin-ui/app/wizard/WizardStepForm';
 
 export class ContentWizardStepsPanel
@@ -15,7 +15,7 @@ export class ContentWizardStepsPanel
 
         if (isPanelOptional) {
             panelStripHeader.onEnableChanged((state) => {
-                (wizardStepForm as XDataWizardStepForm).setExpandState(state);
+                (wizardStepForm as MixinWizardStepForm).setExpandState(state);
             });
         }
 
@@ -47,6 +47,6 @@ export class ContentWizardStepsPanel
     }
 
     private isXDataStepFormOptional(wizardStepForm: WizardStepForm): boolean {
-        return wizardStepForm instanceof XDataWizardStepForm && wizardStepForm.isOptional();
+        return wizardStepForm instanceof MixinWizardStepForm && wizardStepForm.isOptional();
     }
 }

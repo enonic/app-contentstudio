@@ -6,7 +6,7 @@ const lib = require('../../../libs/elements');
 
 const XPATH = {
     metadataWizardTabBarItem: `//li[contains(@id,'TabBarItem')]/a[text()='SEO Metadata']`,
-    metadataStepForm: `//div[contains(@id,'XDataWizardStepForm')]`,
+    metadataStepForm: `//div[contains(@id,'MixinsWizardStepForm')]`,
     metadataTitleInputView: `//div[contains(@id,'InputView') and descendant::div[text()='Override "Title"']]`,
     metadataDescriptionInputView: `//div[contains(@id,'InputView') and descendant::div[text()='Override "Description"']]`,
 };

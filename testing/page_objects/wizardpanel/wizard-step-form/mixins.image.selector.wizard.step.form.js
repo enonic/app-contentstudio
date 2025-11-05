@@ -7,10 +7,10 @@ const appConst = require('../../../libs/app_const');
 const ImageSelectorDropdown = require('../../components/selectors/image.selector.dropdown');
 
 const XPATH = {
-    container: `//div[contains(@id,'XDataWizardStepForm')]`,
+    container: `//div[contains(@id,'MixinsWizardStepForm')]`,
 };
 
-class XDataImageSelector extends Page {
+class MixinsImageSelector extends Page {
 
     get imageOptionsFilterInput() {
         return XPATH.container + "//div[contains(@id,'ImageSelectorDropdown')]" + lib.OPTION_FILTER_INPUT;
@@ -33,9 +33,9 @@ class XDataImageSelector extends Page {
 
     waitForImageOptionsFilterInputVisible() {
         return this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.shortTimeout).catch(err => {
-            throw new Error("x-data with Image Selector - image options filter input is not visible! " + err);
+            throw new Error("Mixins with Image Selector - image options filter input is not visible! " + err);
         });
     }
 }
 
-module.exports = XDataImageSelector;
+module.exports = MixinsImageSelector;

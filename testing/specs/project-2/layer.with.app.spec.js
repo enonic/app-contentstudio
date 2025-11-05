@@ -10,7 +10,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../../libs/app_const');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
-const XDataImageSelector = require('../../page_objects/wizardpanel/wizard-step-form/xdata.image.selector.wizard.step.form');
+const MixinsImageSelector = require('../../page_objects/wizardpanel/wizard-step-form/mixins.image.selector.wizard.step.form');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentSelectorForm = require('../../page_objects/wizardpanel/content.selector.form');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
@@ -102,27 +102,27 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             assert.ok(contentTypeItems.length > 50, "All types from the application are present in the modal dialog");
         });
 
-    // Verifies: X-data is not returned for a content-type outside of site #5117
-    it("WHEN wizard for new content in root with x-data THEN x-data should be present in the wizard page",
+    // Verifies: mixins is not returned for a content-type outside of site #5117
+    it("WHEN wizard for new content in root with mixins THEN mixins should be present in the wizard page",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
-            let xDataImageSelector = new XDataImageSelector();
+            let mixinsImageSelector = new MixinsImageSelector();
             // 1. Select the layer's context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
             // 2. Click on 'New' button
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
-            // 3. Select the item with x-data:
-            let contentWizard = await studioUtils.clickOnItemInNewContentDialog(appConst.contentTypes.DOUBLE_1_1_X_DATA);
-            // 4. Click on x-data toggler:
-            await contentWizard.clickOnXdataTogglerByName('X-data (image selector)');
-            // 5. Select an image in x-data
-            await xDataImageSelector.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME);
+            // 3. Select the item with mixins:
+            let contentWizard = await studioUtils.clickOnItemInNewContentDialog(appConst.contentTypes.DOUBLE_1_1_MIXINS);
+            // 4. Click on mixins toggler:
+            await contentWizard.clickOnMixinsTogglerByName('mixins (image selector)');
+            // 5. Select an image in mixins
+            await mixinsImageSelector.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME);
             await contentWizard.waitAndClickOnSave();
-            await studioUtils.saveScreenshot('xdata_image_selector_saved_2');
+            await studioUtils.saveScreenshot('mixins_image_selector_saved_2');
             // 6. Verify that the image appears in the form:
-            await xDataImageSelector.waitForImageSelected();
+            await mixinsImageSelector.waitForImageSelected();
         });
 
     it('Post conditions: the layer should be deleted',

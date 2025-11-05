@@ -5,15 +5,15 @@ export class ContentTabBarItem
     extends TabBarItem {
 
     private readonly iconCls: string;
-    private readonly xData: boolean;
+    private readonly mixins: boolean;
 
     constructor(builder: ContentTabBarItemBuilder) {
         super(builder);
 
         this.iconCls = builder.iconCls;
-        this.xData = builder.xData;
+        this.mixins = builder.mixins;
 
-        this.toggleClass('x-data', builder.xData);
+        this.toggleClass('mixins', builder.mixins);
         this.toggleClass('step-icon ' + this.iconCls, !!builder.iconCls);
     }
 
@@ -27,7 +27,7 @@ export class ContentTabBarItem
     }
 
     getFullLabel(): string {
-        if (!this.xData) {
+        if (!this.mixins) {
             return super.getFullLabel();
         }
         return this.getHTMLElement().innerText.replace(this.getLabel(), '+ ' + this.getLabel());
@@ -39,7 +39,7 @@ export class ContentTabBarItemBuilder
 
     iconCls: string;
 
-    xData: boolean;
+    mixins: boolean;
 
     constructor() {
         super();
@@ -53,8 +53,8 @@ export class ContentTabBarItemBuilder
         return this;
     }
 
-    setIsXData(value: boolean): ContentTabBarItemBuilder {
-        this.xData = value;
+    setIsMixins(value: boolean): ContentTabBarItemBuilder {
+        this.mixins = value;
 
         return this;
     }

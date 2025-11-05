@@ -43,7 +43,7 @@ const XPATH = {
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
-    xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
+    mixinsToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='mixins-toggler']`,
     stepNavigatorToolbar: `//ul[contains(@id,'WizardStepNavigator')]`,
     wizardStepNavigatorAndToolbar: "//div[contains(@id,'WizardStepNavigatorAndToolbar')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
@@ -57,7 +57,7 @@ const XPATH = {
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[contains(@id,'ContentTabBarItem') and @title='${name}']`,
-    xDataTogglerByName:
+    mixinsTogglerByName:
         name => `//div[contains(@id,'WizardStepsPanel')]//div[contains(@id,'ContentPanelStripHeader') and child::span[contains(.,'${name}')]]//button[contains(@class,'toggler-button')]`,
     publishMenuItemByName(name) {
         return `//div[contains(@id,'ContentWizardToolbar')]//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
@@ -251,12 +251,12 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async waitForXdataTogglerVisible(name) {
+    async waitForMixinsTogglerVisible(name) {
         try {
-            return await this.waitForElementDisplayed(XPATH.xDataTogglerByName(name), appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(XPATH.mixinsTogglerByName(name), appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_x_data_toggle');
-            throw new Error(`x-data toggle is not visible on the wizard page, screenshot:${screenshot} ` + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_mixins_toggle');
+            throw new Error(`Mixins toggle is not visible on the wizard page, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -303,24 +303,24 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async clickOnXdataTogglerByName(name) {
+    async clickOnMixinsTogglerByName(name) {
         try {
-            await this.waitForElementDisplayed(XPATH.xDataTogglerByName(name), appConst.mediumTimeout);
-            await this.clickOnElement(XPATH.xDataTogglerByName(name));
+            await this.waitForElementDisplayed(XPATH.mixinsTogglerByName(name), appConst.mediumTimeout);
+            await this.clickOnElement(XPATH.mixinsTogglerByName(name));
             return await this.pause(400);
         } catch (err) {
-            await this.handleError(`Tried to click on X-data toggle`, 'err_x_data_toggle_click', err);
+            await this.handleError(`Tried to click on Mixins toggle`, 'err_mixins_toggle_click', err);
         }
     }
 
-    // Gets titles of all x-data forms
-    async getXdataTitles() {
+    // Gets titles of all mixins forms
+    async getMixinsTitles() {
         try {
             let selector = `//div[contains(@id,'ContentPanelStripHeader')]/span`;
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getTextInElements(selector);
         } catch (err) {
-            await this.handleError(`Error when trying to get titles of x-data forms`, 'err_x_data_titles', err);
+            await this.handleError(`Error when trying to get titles of mixins forms`, 'err_mixins_titles', err);
         }
     }
 

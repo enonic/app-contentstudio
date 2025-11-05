@@ -6,7 +6,7 @@ const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
-    container: "//div[contains(@id,'XDataWizardStepForm') and preceding-sibling::div[child::span[text()='Location']]]",
+    container: "//div[contains(@id,'MixinsWizardStepForm') and preceding-sibling::div[child::span[text()='Location']]]",
     altitudeInput: "//input[contains(@name,'altitude')]",
     directionInput: "//input[contains(@name,'direction')]",
     geoPointInput: "//input[contains(@title,'latitude,longitude')]",

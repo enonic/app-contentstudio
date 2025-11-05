@@ -1,4 +1,4 @@
-package com.enonic.xp.app.contentstudio.json.schema.xdata;
+package com.enonic.xp.app.contentstudio.json.schema.mixin;
 
 import java.time.Instant;
 
