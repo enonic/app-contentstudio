@@ -1,7 +1,7 @@
 import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
 import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
 import {Button, Checkbox, CheckboxChecked, useControlledState} from '@enonic/ui';
-import {ReactElement, useCallback, useMemo, useState} from 'react';
+import {ReactElement, useCallback, useMemo} from 'react';
 import {useI18n} from '../hooks/useI18n';
 import {toSafeKey} from '../util/filter';
 
@@ -16,14 +16,14 @@ export type BucketAggregationProps = {
 }
 
 export const BucketAggregationComponent = ({
-                                        aggregation,
-                                        selection,
-                                        onSelectionChange,
-                                        showAll,
-                                        showMoreLabel = 'Show more',
-                                        showLessLabel = 'Show less',
-                                        maxVisibleBuckets = 5,
-                                    }: BucketAggregationProps): ReactElement => {
+                                               aggregation,
+                                               selection,
+                                               onSelectionChange,
+                                               showAll,
+                                               showMoreLabel = 'Show more',
+                                               showLessLabel = 'Show less',
+                                               maxVisibleBuckets = 5,
+                                           }: BucketAggregationProps): ReactElement => {
     const [showAllState, setShowAllState] = useControlledState(showAll, false);
     const handleShowMoreLessClick = () => {
         setShowAllState(!showAllState);
