@@ -22,7 +22,7 @@ export const ProjectIcon = ({
 }: ProjectIconProps): ReactElement => {
     const url = hasIcon ? resolveProjectIconUrl(projectName) : null;
     if (url) {
-        return <img src={url} alt={projectName} draggable={false} className="size-8 rounded-full bg-center object-contain"/>;
+        return <img src={url} alt={projectName} draggable={false} className="size-8 rounded-full bg-center object-cover"/>;
     }
 
     if (!language) {

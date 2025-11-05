@@ -25,12 +25,12 @@ export function ProjectItem({
         <ListItem className={cn('cursor-pointer', className)} {...rest}>
             <ListItem.Content className="grid grid-cols-[auto_1fr] gap-2.5 items-center">
                 <div className='flex items-center justify-center flex-shrink-0 group-data-[tone=inverse]:text-alt'>
-                    <ProjectIcon className="row-span-2 size-8" projectName={projectName} language={language} hasIcon={hasIcon} />
+                    <ProjectIcon className="row-span-2 size-8 group-data-[tone=inverse]:!text-alt" projectName={projectName} language={language} hasIcon={hasIcon} />
                 </div>
                 <div className='min-w-0 text-left'>
                     <h1 className='text-base truncate font-semibold group-data-[tone=inverse]:text-alt'>
                         {label}
-                        {language ? <span className="text-sm text-subtle">{` (${language})`}</span> : null}
+                        {language ? <span className="text-sm text-subtle group-data-[tone=inverse]:text-alt">{` (${language})`}</span> : null}
                     </h1>
                     <p className='truncate text-sm text-subtle group-data-[tone=inverse]:text-alt'>{projectName}</p>
                 </div>
