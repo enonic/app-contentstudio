@@ -9,18 +9,26 @@ import {ShowIssuesDialogEvent} from '../../../../app/browse/ShowIssuesDialogEven
 import {useI18n} from '../../../../app/ui2/hooks/useI18n';
 import {$activeProjectName} from '../../store/projects.store';
 import {$issuesStats} from '../../store/issuesStats.store';
+import {IssueStatsJson} from '../../../../app/issue/json/IssueStatsJson';
+
+function createIssuesLabelKeys(stats: Readonly<IssueStatsJson> | undefined): [`field.${string}`, ...string[]] {
+    if (stats?.openAssignedToMe > 0) {
+        return ['field.assignedToMeCount', String(stats.openAssignedToMe)];
+    }
+
+    if (stats?.open > 0) {
+        return ['field.openIssuesCount', String(stats.open)];
+    }
+
+    return ['field.noOpenIssues'];
+}
 
 const AppBar = (): ReactElement => {
     const activeProjectName = useStore($activeProjectName);
 
     const {stats} = useStore($issuesStats);
 
-    const issuesStatsLabel =
-        stats?.openAssignedToMe > 0
-            ? useI18n('field.assignedToMeCount', String(stats.openAssignedToMe))
-            : stats?.open > 0
-              ? useI18n('field.openIssuesCount', String(stats.open))
-              : useI18n('field.noOpenIssues');
+    const issuesStatsLabel = useI18n(...createIssuesLabelKeys(stats));
 
     return (
         <header className="bg-surface-neutral h-15 px-5 py-2 flex items-center gap-2.5 border-b border-bdr-soft">
