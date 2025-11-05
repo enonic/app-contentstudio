@@ -16,13 +16,13 @@ export const $projects = map<ProjectsStore>({
 });
 
 export function setActiveProject(project: Readonly<Project> | undefined): void {
-    const isProjectInStore = $projects.get().projects.some((p) => getProjectKey(p) === getProjectKey(project));
-    if (!isProjectInStore) throw new Error('Project not found in store');
-    $projects.setKey('activeProjectId', getProjectKey(project));
+    const existsInStore = $projects.get().projects.some((p) => getProjectId(p) === getProjectId(project));
+    if (!existsInStore) return;
+    $projects.setKey('activeProjectId', getProjectId(project));
 }
 
 export const $activeProject = computed($projects, (store) => {
-    return store.projects.find((p) => getProjectKey(p) === store.activeProjectId);
+    return store.projects.find((p) => getProjectId(p) === store.activeProjectId);
 });
 
 export const $activeProjectName = computed($activeProject, (activeProject) => {
@@ -38,7 +38,7 @@ export const $isInitialized = computed($projects, (store) => {
 //
 // * Utilities
 //
-export function getProjectKey(project: Readonly<Project> | undefined): string | undefined {
+export function getProjectId(project: Readonly<Project> | undefined): string | undefined {
     return project?.getName();
 }
 
@@ -98,7 +98,7 @@ ProjectCreatedEvent.on(() => {
 });
 ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
     const {projects} = $projects.get();
-    const updatedProjects = projects.filter((p) => getProjectKey(p) !== event.getProjectName());
+    const updatedProjects = projects.filter((p) => getProjectId(p) !== event.getProjectName());
     $projects.setKey('projects', updatedProjects);
     updateActiveProject();
 });
