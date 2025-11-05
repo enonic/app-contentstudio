@@ -5,7 +5,7 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import {ProjectSelectionDialog} from '../dialog/ProjectSelectionDialog';
+import {ProjectSelectionDialog} from '../ui2/dialog/ProjectSelectionDialog';
 import {ShowIssuesDialogButton} from '../issue/view/ShowIssuesDialogButton';
 import {ProjectContext} from '../project/ProjectContext';
 import {Project} from '../settings/data/project/Project';

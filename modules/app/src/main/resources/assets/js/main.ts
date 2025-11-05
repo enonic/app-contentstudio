@@ -39,7 +39,7 @@ import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
 import {ContentEventsListener} from 'lib-contentstudio/app/ContentEventsListener';
 import {ContentEventsProcessor} from 'lib-contentstudio/app/ContentEventsProcessor';
 import {NewContentEvent} from 'lib-contentstudio/app/create/NewContentEvent';
-import {ProjectSelectionDialog} from 'lib-contentstudio/app/dialog/ProjectSelectionDialog';
+import {ProjectSelectionDialog} from 'lib-contentstudio/app/ui2/dialog/ProjectSelectionDialog';
 import {AggregatedServerEventsListener} from 'lib-contentstudio/app/event/AggregatedServerEventsListener';
 import {ContentServerEventsHandler} from 'lib-contentstudio/app/event/ContentServerEventsHandler';
 import {ContentUpdatedEvent} from 'lib-contentstudio/app/event/ContentUpdatedEvent';
