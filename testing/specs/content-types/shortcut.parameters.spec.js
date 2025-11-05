@@ -8,7 +8,7 @@ const appConst = require('../../libs/app_const');
 const contentBuilder = require("../../libs/content.builder");
 const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const ConfirmationMask = require('../../page_objects/confirmation.mask');
 
@@ -31,7 +31,7 @@ describe('Shortcut parameters specification', function () {
             assert.ok(isDisplayed, "'Add Parameters' button should be visible");
             // 2. Verify that the help text in Parameters form is not visible by default:
             await shortcutForm.waitForHelpTextInParametersFormNotDisplayed();
-            // 3. Click on show/hide Help Texts toggler:
+            // 3. Click on show/hide Help Texts toggler in the WizardStepNavigatorAndToolbar:
             await contentWizard.clickOnHelpTextsToggler();
             // 4. Verify that expected help text gets visible in the shortcut form:
             let actualHelpText = await shortcutForm.getHelpTextsInParametersForm();
@@ -126,17 +126,17 @@ describe('Shortcut parameters specification', function () {
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // Open existing shortcut:
             await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
             await contentWizard.openDetailsPanel();
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // Expand the previous version:
             await wizardVersionsWidget.clickAndExpandVersion(1);
             await studioUtils.saveScreenshot('shortcut_version_selected');
             // Click on 'Revert' button:
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             await studioUtils.saveScreenshot('shortcut_parameter_version_reverted_1');
             //TODO remove the row, when https://github.com/enonic/app-contentstudio/issues/4940 will be fixed ( the issue in backlog)
             await shortcutForm.clickOnParametersForm(0);

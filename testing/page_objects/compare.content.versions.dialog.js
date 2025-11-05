@@ -10,8 +10,8 @@ const XPATH = {
     containerLeft: `//div[contains(@class,'container left')]`,
     containerRight: `//div[contains(@class,'container right')]`,
     containerBottom: `//div[@class='container bottom']`,
-    revertMenuButton: "//button[contains(@id,'Button') and descendant::li[contains(@id,'MenuItem') and text()='Revert']]",
-    revertMenuItem: "//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and text()='Revert']",
+    restoreMenuButton: "//button[contains(@id,'Button') and descendant::li[contains(@id,'MenuItem') and text()='Restore']]",
+    restoreMenuItem: "//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and text()='Restore']",
     showEntireContentCheckboxDiv: "//div[contains(@id,'Checkbox') and descendant::span[text()='Show the entire content']]",
     listItemNameAndIconView: "//div[contains(@id,'NamesAndIconView') and not(descendant::h6[contains(.,'version')])]",
     contentPanel: "//div[contains(@id,'ModalDialogContentPanel')]",
@@ -19,16 +19,16 @@ const XPATH = {
 
 class CompareContentVersionsDialog extends Page {
 
-    get leftRevertMenuButton() {
-        return XPATH.container + XPATH.containerLeft + XPATH.revertMenuButton;
+    get leftRestoreMenuButton() {
+        return XPATH.container + XPATH.containerLeft + XPATH.restoreMenuButton;
     }
 
     get leftDropdownHandle() {
         return XPATH.container + XPATH.containerLeft + lib.DROP_DOWN_HANDLE;
     }
 
-    get rightRevertMenuButton() {
-        return XPATH.container + XPATH.containerRight + XPATH.revertMenuButton;
+    get rightRestoreMenuButton() {
+        return XPATH.container + XPATH.containerRight + XPATH.restoreMenuButton;
     }
 
     get rightDropdownHandle() {
@@ -68,55 +68,56 @@ class CompareContentVersionsDialog extends Page {
         await compareDropdown.clickOnApplySelectionButton(XPATH.container);
     }
 
-    async clickOnLeftRevertMenuButton() {
-        await this.waitForLeftRevertButtonDisplayed();
-        await this.clickOnElement(this.leftRevertMenuButton);
+    async clickOnLeftRestoreMenuButton() {
+        await this.waitForLeftRestoreButtonDisplayed();
+        await this.clickOnElement(this.leftRestoreMenuButton);
         return await this.pause(300);
     }
 
-    async waitForLeftRevertMenuItemDisplayed() {
+    async waitForLeftRestoreMenuItemDisplayed() {
         try {
-            let selector = XPATH.container + XPATH.containerLeft + XPATH.revertMenuItem;
+            let selector = XPATH.container + XPATH.containerLeft + XPATH.restoreMenuItem;
             return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_left_revert_menu_item');
-            throw new Error("Compare content versions dialog, menu item is not displayed, screenshot:" + screenshot + ' ' + err);
+            await this.handleError('Compare content versions dialog, left menu item', 'err_left_restore_menu_item', err);
         }
     }
 
-    async waitForLeftRevertButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.mediumTimeout);
+    async waitForLeftRestoreButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.leftRestoreMenuButton, appConst.mediumTimeout);
     }
 
-    async waitForRightRevertMenuButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.rightRevertMenuButton, appConst.mediumTimeout);
+    async waitForRightRestoreMenuButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.rightRestoreMenuButton, appConst.mediumTimeout);
     }
 
-    async waitForRightRevertMenuButtonDisabled() {
-        return await this.waitForElementDisabled(this.rightRevertMenuButton, appConst.mediumTimeout);
+    async waitForRightRestoreMenuButtonDisabled() {
+        return await this.waitForElementDisabled(this.rightRestoreMenuButton, appConst.mediumTimeout);
     }
 
-    async waitForRightRevertMenuButtonEnabled() {
-        return await this.waitForElementEnabled(this.rightRevertMenuButton, appConst.mediumTimeout);
+    async waitForRightRestoreMenuButtonEnabled() {
+        return await this.waitForElementEnabled(this.rightRestoreMenuButton, appConst.mediumTimeout);
     }
 
-    async waitForLeftRevertMenuButtonEnabled() {
-        return await this.waitForElementEnabled(this.leftRevertMenuButton, appConst.mediumTimeout);
+    async waitForLeftRestoreMenuButtonEnabled() {
+        return await this.waitForElementEnabled(this.leftRestoreMenuButton, appConst.mediumTimeout);
     }
 
-    async waitForLeftRevertMenuButtonDisabled() {
-        return await this.waitForElementDisabled(this.leftRevertMenuButton, appConst.mediumTimeout);
+    async waitForLeftRestoreMenuButtonDisabled() {
+        return await this.waitForElementDisabled(this.leftRestoreMenuButton, appConst.mediumTimeout);
     }
 
     async clickOnRightRevertButton() {
-        await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.mediumTimeout);
-        return await this.clickOnElement(this.leftRevertMenuButton);
+        await this.waitForElementDisplayed(this.leftRestoreMenuButton, appConst.mediumTimeout);
+        return await this.clickOnElement(this.leftRestoreMenuButton);
     }
 
-    waitForDialogOpened() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
-            throw new Error("CompareContentVersions Dialog is not loaded " + err);
-        })
+    async waitForDialogOpened() {
+        try {
+            await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout)
+        } catch (err) {
+            await this.handleError('CompareContentVersions Dialog', 'err_compare_content_versions_dialog_loaded', err);
+        }
     }
 
     waitForDialogClosed() {

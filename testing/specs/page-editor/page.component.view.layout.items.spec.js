@@ -12,7 +12,7 @@ const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form
 const appConst = require('../../libs/app_const');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const LiveContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
 const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
@@ -24,7 +24,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const LAYOUT_NAME = '3-col';
 
     it(`Preconditions: new site should be created`,
@@ -133,7 +133,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
         async () => {
             let contentWizard = new ContentWizardPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
-            let detailsPanel = new WizardDetailsPanel();
+            let detailsPanel = new WizardContextPanel();
             let versionsWidget = new WizardVersionsWidget();
             let pageComponentViewDialog = new PageComponentView();
             // 1. Open new site-wizard
@@ -147,8 +147,8 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await detailsPanel.openVersionHistory();
             await versionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED);
             // 5. Revert the 'Created' version:
-            await versionsWidget.clickOnRevertButton();
-            await versionsWidget.pause(2000);
+            await versionsWidget.clickOnRestoreButton();
+            await versionsWidget.pause(1000);
             await studioUtils.saveScreenshot('components_view_site_reverted');
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             await pageComponentViewDialog.waitForNotDisplayed();

@@ -10,7 +10,7 @@ const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wiz
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SiteForm = require('../../page_objects/wizardpanel/site.form.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
@@ -20,7 +20,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
         webDriverHelper.setupBrowser();
     }
     const DISPLAY_NAME = contentBuilder.generateRandomName('site');
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
 
     // Verify issue - Page Component View modal dialog does not appear after selecting a controller #6466
     it(`GIVEN Live Edit frame is maximized WHEN controller has been selected THEN  Page Component View modal dialog should appear`,
@@ -71,7 +71,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
         async () => {
             let contentWizard = new ContentWizardPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
-            let detailsPanel = new WizardDetailsPanel();
+            let detailsPanel = new WizardContextPanel();
             let versionsWidget = new WizardVersionsWidget();
             let pageComponentViewDialog = new PageComponentView();
             // 1. Open new site-wizard
@@ -85,8 +85,8 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await detailsPanel.openVersionHistory();
             await versionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             // 5. Revert the version without a controller:
-            await versionsWidget.clickOnRevertButton();
-            await versionsWidget.pause(2000);
+            await versionsWidget.clickOnRestoreButton();
+            await versionsWidget.pause(1000);
             // 6. Verify that PCV is not visible now:
             await studioUtils.saveScreenshot('pcv_hidden_after_reverting');
             await pageComponentViewDialog.waitForNotDisplayed();

@@ -10,7 +10,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 
 describe('page.inspection.panel.spec: tests for page-inspection panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

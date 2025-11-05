@@ -16,7 +16,7 @@ const CreateIssueDialog = require('../page_objects/issue/create.issue.dialog');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const InsertLinkDialog = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
-const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
+const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
@@ -32,7 +32,7 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 const DateTimeRange = require('../page_objects/components/datetime.range');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
-const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.context.panel');
 const fs = require('fs');
 const path = require('path');
 const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
@@ -207,7 +207,7 @@ module.exports = {
         if (!result) {
             await browsePanel.clickOnDetailsPanelToggleButton();
         }
-        await browseDetailsPanel.waitForDetailsPanelLoaded();
+        await browseDetailsPanel.waitForLoaded();
         await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
         return await browsePanel.pause(1000);
     },
@@ -877,7 +877,7 @@ module.exports = {
         let browsePanel = new BrowsePanel();
         let browseDependenciesWidget = new BrowseDependenciesWidget();
         let browseDetailsPanel = new BrowseDetailsPanel();
-        await browsePanel.openDetailsPanel();
+        await browsePanel.openContextWindow();
         await browseDetailsPanel.openDependencies();
         return await browseDependenciesWidget.waitForWidgetLoaded();
     },

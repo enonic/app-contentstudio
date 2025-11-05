@@ -10,7 +10,7 @@ const xpath = {
     scheduleWidgetItem: "//div[contains(@id,'OnlinePropertiesWidgetItemView')]",
 };
 
-class BaseDetailsPanel extends Page {
+class BaseContextWindowPanel extends Page {
 
     async waitForScheduleWidgetItemNotDisplayed() {
         return this.waitForElementNotDisplayed(xpath.scheduleWidgetItem, appConst.mediumTimeout);
@@ -119,4 +119,4 @@ class BaseDetailsPanel extends Page {
     }
 }
 
-module.exports = BaseDetailsPanel;
+module.exports = BaseContextWindowPanel;

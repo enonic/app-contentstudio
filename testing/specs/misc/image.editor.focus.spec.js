@@ -118,7 +118,7 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             await contentWizard.openVersionsHistoryPanel();
             // 3. Revert the focused version:
             await wizardVersionsWidget.clickAndExpandVersion(1);
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             // 4. Verify that 'Reset filters' button gets visible:
             await imageEditor.waitForResetFiltersDisplayed();
             await imageEditor.waitForFocusCircleDisplayed();

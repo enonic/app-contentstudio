@@ -7,9 +7,9 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
+const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 
 describe('rename.content.spec - tests for Renamed version item', function () {
@@ -52,19 +52,18 @@ describe('rename.content.spec - tests for Renamed version item', function () {
         async () => {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
-            //1. Open a renamed content:
+            // 1. Open a renamed content:
             await studioUtils.findAndSelectItem(NEW_NAME);
-            //2. open Versions Panel
+            // 2. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            //3. Click on 'Renamed' version item:
+            // 3. Click on 'Renamed' version item:
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.RENAMED, 0);
             await studioUtils.saveScreenshot("renamed_version_browse_widget_clicked");
-            //4. Verify that Revert button should not be present in the latest Renamed item:
-            await browseVersionsWidget.waitForRevertButtonNotDisplayed();
-            //5. Verify that 'Active version' button should not be present in the latest Renamed item:
-            await browseVersionsWidget.waitForActiveVersionButtonNotDisplayed();
-            //6. 'Show changes' icon should be present in the Renamed item
-            await browseVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.RENAMED, 0);
+            // 4. Verify that Restore button should not be present in the latest Renamed item:
+            await browseVersionsWidget.waitForRestoreButtonNotDisplayed();
+            // 6. 'Compare Versions' checkbox should be displayed in the 'Renamed' item
+            let isDisplayed = await browseVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.RENAMED, 0);
+            assert.ok(isDisplayed, 'Compare Versions checkbox should be displayed in the Renamed item');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

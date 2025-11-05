@@ -7,7 +7,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
 const CreateRequestPublishDialog = require('../issue/create.request.publish.dialog');
-const BrowseDetailsPanel = require('../browsepanel/detailspanel/browse.details.panel');
+const BrowseContextWindowPanel = require('./detailspanel/browse.context.window.panel');
 const BaseBrowsePanel = require('../base.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const ContentUnpublishDialog = require('../content.unpublish.dialog');
@@ -810,16 +810,16 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async openDetailsPanel() {
-        let browseDetailsPanel = new BrowseDetailsPanel();
-        let result = await browseDetailsPanel.isPanelVisible();
+    async openContextWindow() {
+        let browseContextWindow = new BrowseContextWindowPanel();
+        let result = await browseContextWindow.isPanelVisible();
         if (!result) {
             await this.clickOnDetailsPanelToggleButton();
         }
-        await browseDetailsPanel.waitForDetailsPanelLoaded();
-        await browseDetailsPanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
+        await browseContextWindow.waitForLoaded();
+        await browseContextWindow.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
         await this.pause(500);
-        return browseDetailsPanel;
+        return browseContextWindow;
     }
 
     getSelectedProjectDisplayName() {

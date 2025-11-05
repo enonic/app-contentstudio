@@ -8,7 +8,7 @@ const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
-const DetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const DetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const appConst = require('../../libs/app_const');
 
@@ -150,7 +150,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             //2. Revert the previous version:
             await versionsWidget.clickAndExpandVersion(1);
             //revert the version with 'Custom Width'
-            await versionsWidget.clickOnRevertButton();
+            await versionsWidget.clickOnRestoreButton();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot("image_range_version_reverted");
             //3. Open 'Insert Image Dialog'

@@ -42,7 +42,7 @@ describe('wizard.owner.spec - update and revert owner in wizard`', function () {
             // 3. Open versions widget and revert the previous version:
             await contentWizard.openVersionsHistoryPanel();
             await wizardVersionsWidget.clickAndExpandVersion(1);
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             // 4. Select 'Details' in the dropdown selector:
             await contentWizard.openDetailsWidget();
             await studioUtils.saveScreenshot('owner_after_reverting_version');

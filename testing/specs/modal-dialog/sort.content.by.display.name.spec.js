@@ -7,7 +7,7 @@ const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
 const studioUtils = require('../../libs/studio.utils.js');
-const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
+const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 
 describe('sort.content.by.display.name.spec, tests for ascending/descending order', function () {
@@ -29,7 +29,7 @@ describe('sort.content.by.display.name.spec, tests for ascending/descending orde
             await sortContentDialog.clickOnMenuButton();
             // 3. 'Display name-ascending' menu item has been clicked:
             await sortContentDialog.doSort(appConst.SORT_DIALOG.MENU_ITEM.DISPLAY_NAME, appConst.SORT_DIALOG.ASCENDING);
-            await studioUtils.saveScreenshot("display_name_ascending");
+            await studioUtils.saveScreenshot('display_name_ascending');
             let result = await sortContentDialog.getContentNamesInTreeGrid();
             assert.ok(result[0] === 'book', "Ascending Order should be in the dialog's grid");
 
@@ -56,8 +56,8 @@ describe('sort.content.by.display.name.spec, tests for ascending/descending orde
             await contentBrowseDetailsPanel.openVersionHistory();
             // 4. Verify that 'Sorted' version item is present in Versions widget:
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
-            // 5. Active Version button should be displayed in the first sorted-item:
-            await browseVersionsWidget.waitForActiveVersionButtonDisplayed();
+            // 5. Compare Changes Checkbox should be displayed in the first sorted-item(if it was clicked):
+            await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.SORTED,0);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -7,7 +7,7 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
-const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.panel');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const ImageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
 const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
@@ -73,16 +73,16 @@ describe('Check Outbound dependencies after rollback a version of content with i
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
             // 1. Open existing image content(no selected images):
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             // 2. Open Version widget
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
-            await wizardVersionsWidget.clickAndExpandVersion(1);
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED,1);
             // 3. revert the version with 2 selected image:
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSpinnerNotVisible();
             // 4. Verify that 2 selected images are present in the selector:
@@ -105,23 +105,23 @@ describe('Check Outbound dependencies after rollback a version of content with i
 function openWizardDependencyWidget() {
     let contentWizard = new ContentWizard();
     let wizardDependenciesWidget = new WizardDependenciesWidget();
-    let wizardDetailsPanel = new WizardDetailsPanel();
+    let wizardContextPanel = new WizardContextPanel();
     return contentWizard.openDetailsPanel().then(() => {
-        return wizardDetailsPanel.openDependencies();
+        return wizardContextPanel.openDependencies();
     }).then(() => {
         return wizardDependenciesWidget.waitForWidgetLoaded();
     })
 }
 
 function rollbackVersion() {
-    let wizardDetailsPanel = new WizardDetailsPanel();
+    let wizardContextPanel = new WizardContextPanel();
     let wizardVersionsWidget = new WizardVersionsWidget();
-    return wizardDetailsPanel.openVersionHistory().then(() => {
+    return wizardContextPanel.openVersionHistory().then(() => {
         return wizardVersionsWidget.waitForVersionsLoaded();
     }).then(() => {
         return wizardVersionsWidget.clickAndExpandVersion(1)
     }).then(() => {
-        return wizardVersionsWidget.clickOnRevertButton();
+        return wizardVersionsWidget.clickOnRestoreButton();
     });
 }
 

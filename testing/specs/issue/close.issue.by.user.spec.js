@@ -11,7 +11,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
-const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
+const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 
 describe('close.issue.by.user.spec: create a issue for user and close it', function () {

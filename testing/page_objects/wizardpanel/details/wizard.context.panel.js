@@ -1,7 +1,7 @@
 /**
  * Created on 30/07/2018.
  */
-const BaseDetailsPanel = require('../../details_panel/base.details.panel');
+const BaseDetailsPanel = require('../../details_panel/base.context.window.panel');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
@@ -10,7 +10,7 @@ const xpath = {
     widgetItem: `//div[contains(@id,'ContentWidgetItemView')]`
 };
 
-class WizardDetailsPanel extends BaseDetailsPanel {
+class WizardContextPanel extends BaseDetailsPanel {
 
     get widgetSelectorDropdown() {
         return xpath.container + lib.DROPDOWN_SELECTOR.WIDGET_FILTER_DROPDOWN;
@@ -82,6 +82,6 @@ function getPanelWidth(width) {
     return width.substring(0, width.indexOf('px'));
 }
 
-module.exports = WizardDetailsPanel;
+module.exports = WizardContextPanel;
 
 
