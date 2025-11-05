@@ -2,23 +2,23 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {XDataName} from './XDataName';
+import {MixinName} from './MixinName';
 import {ExtraDataJson} from '../resource/json/ExtraDataJson';
 
 export class ExtraData
     implements Cloneable, Equitable {
 
-    private name: XDataName;
+    private name: MixinName;
 
     private data: PropertyTree;
 
-    constructor(name: XDataName, data: PropertyTree) {
+    constructor(name: MixinName, data: PropertyTree) {
         this.name = name;
         this.data = data;
     }
 
     static fromJson(metadataJson: ExtraDataJson): ExtraData {
-        return new ExtraData(new XDataName(metadataJson.name), PropertyTree.fromJson(metadataJson.data));
+        return new ExtraData(new MixinName(metadataJson.name), PropertyTree.fromJson(metadataJson.data));
     }
 
     getData(): PropertyTree {
@@ -54,7 +54,7 @@ export class ExtraData
         };
     }
 
-    getName(): XDataName {
+    getName(): MixinName {
         return this.name;
     }
 

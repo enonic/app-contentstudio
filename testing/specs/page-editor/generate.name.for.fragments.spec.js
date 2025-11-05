@@ -85,9 +85,9 @@ describe('Generate name for fragments specification', function () {
             assert.equal(result.length, 1, 'One item should be displayed in the Page Component wizard step');
             assert.ok(result.includes('Text'), 'Text component item should be present in PCV wizard step form');
 
-            await studioUtils.saveScreenshot('x_data_fragment');
-            // 8. Verify that x-data toggle is displayed in the fragment-wizard:
-            await contentWizard.clickOnXdataTogglerByName(appConst.X_DATA_NAME.TEXT_AREA_X_DATA_NAME);
+            await studioUtils.saveScreenshot('mixins_fragment');
+            // 8. Verify that mixins toggle is displayed in the fragment-wizard:
+            await contentWizard.clickOnMixinsTogglerByName(appConst.MIXINS_NAME.TEXT_AREA_MIXINS_NAME);
             // 9. Verify that red icon appears in the wizard, because the fragment gets invalid now, even before a saving:
             await contentWizard.waitUntilInvalidIconAppears();
         });

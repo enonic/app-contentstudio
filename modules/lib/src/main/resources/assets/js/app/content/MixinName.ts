@@ -4,17 +4,17 @@ import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationBasedName} from '@enonic/lib-admin-ui/application/ApplicationBasedName';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 
-export class XDataName
+export class MixinName
     extends ApplicationBasedName {
 
     constructor(name: string) {
-        assertNotNull(name, 'XData name can\'t be null');
+        assertNotNull(name, 'Mixin name can\'t be null');
         let parts = name.split(ApplicationBasedName.SEPARATOR);
         super(ApplicationKey.fromString(parts[0]), parts[1]);
     }
 
     equals(o: Equitable): boolean {
-        if (!ObjectHelper.iFrameSafeInstanceOf(o, XDataName)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, MixinName)) {
             return false;
         }
 

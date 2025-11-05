@@ -1,7 +1,7 @@
 import Q from 'q';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
-import {XDataName} from '../content/XDataName';
-import {XData} from '../content/XData';
+import {MixinName} from '../content/MixinName';
+import {MixinDescriptor} from '../content/MixinDescriptor';
 import {Form} from '@enonic/lib-admin-ui/form/Form';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
@@ -9,12 +9,12 @@ import {ContentFormContext} from '../ContentFormContext';
 import {ExtraData} from '../content/ExtraData';
 import {ContentPanelStripHeader} from './ContentPanelStripHeader';
 
-export class XDataWizardStepForm
+export class MixinWizardStepForm
     extends ContentWizardStepForm {
 
     declare protected outerHeader: ContentPanelStripHeader;
 
-    private readonly xData: XData;
+    private readonly mixin: MixinDescriptor;
 
     private enabled: boolean = false;
 
@@ -22,27 +22,27 @@ export class XDataWizardStepForm
 
     private enableChangedListeners: ((value: boolean) => void)[] = [];
 
-    private static REGISTRY = new Map<string, XDataWizardStepForm>();
+    private static REGISTRY = new Map<string, MixinWizardStepForm>();
 
-    constructor(xData: XData) {
+    constructor(mixin: MixinDescriptor) {
         super();
-        this.addClass('x-data-wizard-step-form');
+        this.addClass('mixins-wizard-step-form');
 
-        this.xData = xData;
+        this.mixin = mixin;
 
-        XDataWizardStepForm.REGISTRY.set(this.xData.getName(), this);
+        MixinWizardStepForm.REGISTRY.set(this.mixin.getName(), this);
     }
 
-    getXData(): XData {
-        return this.xData;
+    getMixin(): MixinDescriptor {
+        return this.mixin;
     }
 
-    getXDataName(): XDataName {
-        return this.xData.getXDataName();
+    getMixinName(): MixinName {
+        return this.mixin.getMixinName();
     }
 
-    getXDataNameAsString(): string {
-        return this.xData.getXDataName().toString();
+    getMixinNameAsString(): string {
+        return this.mixin.getMixinName().toString();
     }
 
     setExpandState(value: boolean) {
@@ -58,7 +58,7 @@ export class XDataWizardStepForm
     }
 
     isOptional(): boolean {
-        return this.xData.isOptional();
+        return this.mixin.isOptional();
     }
 
     resetData() {
@@ -185,13 +185,13 @@ export class XDataWizardStepForm
     }
 
     private isSaved(): boolean {
-        const persistedXData: ExtraData =
-            (this.formContext as ContentFormContext).getPersistedContent().getExtraDataByName(this.getXDataName());
+        const persistedMixin: ExtraData =
+            (this.formContext as ContentFormContext).getPersistedContent().getExtraDataByName(this.getMixinName());
 
-        return persistedXData?.getData()?.getRoot()?.getPropertyArrays().length > 0;
+        return persistedMixin?.getData()?.getRoot()?.getPropertyArrays().length > 0;
     }
 
-    static getXDataWizardStepForm(name: string): XDataWizardStepForm | undefined {
-        return XDataWizardStepForm.REGISTRY.get(name);
+    static getMixinsWizardStepForm(name: string): MixinWizardStepForm | undefined {
+        return MixinWizardStepForm.REGISTRY.get(name);
     }
 }

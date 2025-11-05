@@ -18,8 +18,8 @@ import jakarta.ws.rs.core.MediaType;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
-import com.enonic.xp.app.contentstudio.json.schema.xdata.MixinJson;
-import com.enonic.xp.app.contentstudio.json.schema.xdata.MixinsJson;
+import com.enonic.xp.app.contentstudio.json.schema.mixin.MixinJson;
+import com.enonic.xp.app.contentstudio.json.schema.mixin.MixinsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.formfragment.CmsFormFragmentResolver;
 import com.enonic.xp.content.Content;
@@ -97,9 +97,9 @@ public final class MixinContextResource
 
     @GET
     @Path("getApplicationMixinsForContentType")
-    public MixinsJson getApplicationXDataForContentType( @QueryParam("contentTypeName") final String contentTypeName,
-                                                         @QueryParam("applicationKey") final String key,
-                                                         @Context HttpServletRequest request )
+    public MixinsJson getApplicationMixinsForContentType( @QueryParam("contentTypeName") final String contentTypeName,
+                                                          @QueryParam("applicationKey") final String key,
+                                                          @Context HttpServletRequest request )
     {
         final MixinsJson result = new MixinsJson();
 

@@ -6,7 +6,7 @@ const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
-    container: "//div[contains(@id,'XDataWizardStepForm') and preceding-sibling::div[child::span[text()='Properties']]]",
+    container: "//div[contains(@id,'MixinsWizardStepForm') and preceding-sibling::div[child::span[text()='Properties']]]",
     sizePixelsInput: "//input[contains(@name,'pixelSize')]",
     heightInput: "//input[contains(@name,'imageHeight')]",
     widthInput: "//input[contains(@name,'imageWidth')]",

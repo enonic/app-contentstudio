@@ -95,7 +95,7 @@ Before this release, email notifications for <<issues#,issues>> created in Conte
 
 Layout and behaviour of optional X-Data sections in the Content Form have been changed. `+` icon is now right-aligned and transforms to `x` icon whenever the X-Data is active.
 
-image::cs52-x-data.png[x-data in the Content Editor form, 75%]
+image::cs52-mixins.png[x-data in the Content Editor form, 75%]
 
 == Content Studio 5 Update 1
 

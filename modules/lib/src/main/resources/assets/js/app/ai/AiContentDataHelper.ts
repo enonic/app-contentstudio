@@ -1,4 +1,4 @@
-import {XDataWizardStepForm} from '../wizard/XDataWizardStepForm';
+import {MixinWizardStepForm} from '../wizard/MixinWizardStepForm';
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
@@ -91,12 +91,12 @@ export class AiContentDataHelper {
         return path.indexOf(AiContentDataHelper.TOPIC) > -1;
     }
 
-    private getXData(path: string): { xDataStepForm: XDataWizardStepForm, xDataPath: PropertyPath } | undefined {
+    private getXData(path: string): { xDataStepForm: MixinWizardStepForm, xDataPath: PropertyPath } | undefined {
         const pathParts = path.split('/');
         const appName = pathParts[1];
         const xDataName = pathParts[2];
         const key = `${appName.replace(/[/-]/g, '.')}:${xDataName}`;
-        const xDataStepForm = XDataWizardStepForm.getXDataWizardStepForm(key);
+        const xDataStepForm = MixinWizardStepForm.getMixinsWizardStepForm(key);
 
         return xDataStepForm ? {xDataStepForm, xDataPath: PropertyPath.fromString(`.${pathParts.slice(3).join('.')}`)} : undefined;
     }

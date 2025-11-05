@@ -1,13 +1,13 @@
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {XDataContextResourceRequest} from './XDataContextResourceRequest';
-import {XDataListJson} from './json/XDataListJson';
-import {XData} from '../content/XData';
-import {XDataJson} from './json/XDataJson';
+import {MixinsContextResourceRequest} from './MixinsContextResourceRequest';
+import {MixinDescriptorsJson} from './json/MixinDescriptorsJson';
+import {MixinDescriptor} from '../content/MixinDescriptor';
+import {MixinDescriptorJson} from './json/MixinDescriptorJson';
 
-export class GetApplicationXDataRequest
-    extends XDataContextResourceRequest<XData[]> {
+export class GetApplicationMixinsRequest
+    extends MixinsContextResourceRequest<MixinDescriptor[]> {
 
     private contentTypeName: ContentTypeName;
 
@@ -17,7 +17,7 @@ export class GetApplicationXDataRequest
         super();
         this.contentTypeName = contentTypeName;
         this.applicationKey = applicationKey;
-        this.addRequestPathElements('getApplicationXDataForContentType');
+        this.addRequestPathElements('getApplicationMixinsForContentType');
     }
 
     getParams(): object {
@@ -27,9 +27,9 @@ export class GetApplicationXDataRequest
         };
     }
 
-    protected parseResponse(response: JsonResponse<XDataListJson>): XData[] {
-        return response.getResult().xdatas.map((xDataJson: XDataJson) => {
-            return this.fromJsonToXData(xDataJson);
+    protected parseResponse(response: JsonResponse<MixinDescriptorsJson>): MixinDescriptor[] {
+        return response.getResult().mixins.map((xDataJson: MixinDescriptorJson) => {
+            return this.fromJsonToMixins(xDataJson);
         });
     }
 }

@@ -7,10 +7,10 @@ const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
 
 const XPATH = {
-    container: "//div[contains(@id,'XDataWizardStepForm')]",
+    container: "//div[contains(@id,'MixinsWizardStepForm')]",
 };
 
-class XDataHtmlArea extends OccurrencesFormView {
+class MixinsHtmlArea extends OccurrencesFormView {
 
     typeTextInHtmlArea(text) {
         let htmlArea = new HtmlArea();
@@ -40,23 +40,23 @@ class XDataHtmlArea extends OccurrencesFormView {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Form Validation recording should not be displayed"});
     }
 
-    async waitForXdataRedBorderDisplayed() {
+    async waitForMixinsRedBorderDisplayed() {
         let locator = XPATH.container + "//div[contains(@id,'FormView')]";
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(locator, "class");
             return result.includes("display-validation-errors");
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Red border should be displayed in X-data Form!"});
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Red border should be displayed in Mixins Form!"});
     }
 
-    async waitForXdataRedBorderNotDisplayed() {
+    async waitForMixinsRedBorderNotDisplayed() {
         let locator = XPATH.container + "//div[contains(@id,'FormView')]";
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(locator, "class");
             return !result.includes("display-validation-errors");
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Red border should not be displayed in X-data Form!"});
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Red border should not be displayed in Mixins Form!"});
     }
 
-    async waitForHelpTextToggleNotDisplayedInsideXdata() {
+    async waitForHelpTextToggleNotDisplayedInsideMixins() {
         return await this.waitForElementNotDisplayed(XPATH.container + lib.HELP_TEXT.TOGGLE);
     }
 
@@ -72,4 +72,4 @@ class XDataHtmlArea extends OccurrencesFormView {
     }
 }
 
-module.exports = XDataHtmlArea;
+module.exports = MixinsHtmlArea;

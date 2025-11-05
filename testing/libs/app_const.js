@@ -362,7 +362,7 @@ module.exports = Object.freeze({
         DOUBLE_DEFAULT_2_4: 'double2_4_def',
         DOUBLE_0_1: 'double0_1',
         DOUBLE_0_0: 'double0_0',
-        DOUBLE_1_1_X_DATA: "double1_1",
+        DOUBLE_1_1_MIXINS: "double1_1",
         DOUBLE_2_4: 'double2_4',
         LONG_MIN_MAX: 'long_max',
         TEXTAREA_MAX_LENGTH: 'textarea_conf',
@@ -566,10 +566,10 @@ module.exports = Object.freeze({
         CAN_NOT_RENDER_WITH_SITE_ENGINE: 'Can not render with site engine',
         PREVIEW_NOT_AVAILABLE_ADD_APP: 'Please add an application to your site to enable rendering of this item'
     },
-    X_DATA_NAME: {
-        TEXT_AREA_X_DATA_NAME: 'Text Area x-data',
-        HTML_AREA_X_DATA_NAME: 'Html Area x-data',
-        IMAGE_X_DATA_NAME: 'X-data (image selector)'
+    MIXINS_NAME: {
+        TEXT_AREA_MIXINS_NAME: 'Text Area mixins',
+        HTML_AREA_MIXINS_NAME: 'Html Area mixins',
+        IMAGE_MIXINS_NAME: 'Mixins (image selector)'
     },
     PERMISSIONS_DIALOG: {
         APPLY_TO: {

@@ -151,7 +151,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let wizardDependenciesWidget = new WizardDependenciesWidget();
             let wizardContextPanel = new WizardContextPanel();
             let contentFilterPanel = new ContentFilterPanel();
-            // 1. Existing content with x-data(image) is opened:
+            // 1. Existing content with mixins(image) is opened:
             await studioUtils.selectContentAndOpenWizard(SITE_1_NAME);
             await contentWizard.openContextWindow();
             // 2. Dependencies widget is opened:
