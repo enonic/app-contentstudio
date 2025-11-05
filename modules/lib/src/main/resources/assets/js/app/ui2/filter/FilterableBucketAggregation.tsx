@@ -7,22 +7,18 @@ import {toSafeKey} from '../util/filter';
 
 export type FilterableBucketAggregationProps = {
     aggregation: BucketAggregation;
-    value?: string;
-    onChange?: (value: string) => void;
     selection?: Bucket[];
     onSelectionChange?: (selection: Bucket[]) => void;
     idsToKeepOnTop?: string[];
 }
 
 export const FilterableBucketAggregation = ({
-                                                  aggregation,
-                                                  selection,
-                                                  value,
-                                                  onChange,
-                                                  onSelectionChange,
-                                                  idsToKeepOnTop,
-                                              }: FilterableBucketAggregationProps): ReactElement => {
-    const [inputValue, setInputValue] = useControlledState(value, '', onChange);
+                                                aggregation,
+                                                selection,
+                                                onSelectionChange,
+                                                idsToKeepOnTop,
+                                            }: FilterableBucketAggregationProps): ReactElement => {
+    const [inputValue, setInputValue] = useState('');
 
     const [selectionState, setSelectionState] = useControlledState(selection, [], onSelectionChange);
     const isSelected = (bucket: Bucket) => selectionState.some(b => b.getKey() === bucket.getKey());
@@ -30,7 +26,6 @@ export const FilterableBucketAggregation = ({
     const toLabel = useCallback((bucket: Bucket) => {
         return `${bucket.getDisplayName() ?? bucket.getKey()} (${bucket.getDocCount()})`;
     }, []);
-
 
     const buckets = useMemo(
         () => aggregation.getBuckets().filter(b => b.getDocCount() > 0),
@@ -66,27 +61,27 @@ export const FilterableBucketAggregation = ({
     const topBuckets = useMemo(() => {
         const result = new Map<string, Bucket>();
         bucketsToShowOnTop.forEach(b => result.set(b.getKey(), b));
-        selection.forEach(b => {
+        selectionState.forEach(b => {
             if (!result.has(b.getKey())) {
                 result.set(b.getKey(), b);
             }
         });
 
         return Array.from(result.values());
-    }, [bucketsToShowOnTop, selection]);
+    }, [bucketsToShowOnTop, selectionState]);
 
     const toggleTopBucket = useCallback(
         (bucket: Bucket) => {
             const isBucketSelected = isSelected(bucket);
             let newSelection: Bucket[];
             if (isBucketSelected) {
-                newSelection = selection.filter(b => b.getKey() !== bucket.getKey());
+                newSelection = selectionState.filter(b => b.getKey() !== bucket.getKey());
             } else {
-                newSelection = [...selection, bucket];
+                newSelection = [...selectionState, bucket];
             }
-            onSelectionChange(newSelection);
+            setSelectionState(newSelection);
         },
-        [selection, onSelectionChange]
+        [selectionState, setSelectionState]
     );
 
     const displayName = useMemo(() => useI18n(`field.${aggregation.getName()}`), [aggregation]);

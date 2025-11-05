@@ -1,33 +1,42 @@
-import {SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Router} from '../../Router';
-import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ContentQuery} from '../../content/ContentQuery';
 import {AggregationGroupView} from '@enonic/lib-admin-ui/aggregation/AggregationGroupView';
-import {BrowseFilterPanel} from '@enonic/lib-admin-ui/app/browse/filter/BrowseFilterPanel';
+import {AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
+import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
 import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
-import {BucketAggregationView} from '@enonic/lib-admin-ui/aggregation/BucketAggregationView';
-import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
-import {ProjectContext} from '../../project/ProjectContext';
-import {ContentSummary} from '../../content/ContentSummary';
-import {ContentId} from '../../content/ContentId';
-import {ContentBrowseFilterComponent} from '../../ui2/filter/ContentBrowseFilterComponent';
-import {DependenciesSection} from './DependenciesSection';
-import {ContentAggregation} from './ContentAggregation';
-import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
-import {ContentAggregationsFetcher} from './ContentAggregationsFetcher';
-import {AggregationsQueryResult} from './AggregationsQueryResult';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ContentExportElement} from './ContentExportElement';
-import {ContentDependency} from './ContentDependency';
+import {BrowseFilterPanel} from '@enonic/lib-admin-ui/app/browse/filter/BrowseFilterPanel';
 import {TextSearchField} from '@enonic/lib-admin-ui/app/browse/filter/TextSearchField';
-import {Branch} from '../../versioning/Branch';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {cn} from '@enonic/ui';
+import Q from 'q';
+import {
+    $contentFilterState,
+    deselectAllFilterBuckets,
+    getFilterSelection,
+    getFilterValue,
+    hasFilterSet,
+    hasFilterValueSet,
+    resetContentFilter, setContentFilterSelection
+} from '../../../v6/features/store/contentFilter.store';
+import {ContentId} from '../../content/ContentId';
+import {ContentQuery} from '../../content/ContentQuery';
+import {ContentSummary} from '../../content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
+import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
+import {ProjectContext} from '../../project/ProjectContext';
+import {Router} from '../../Router';
+import {ContentBrowseFilterComponent} from '../../ui2/filter/ContentBrowseFilterComponent';
+import {Branch} from '../../versioning/Branch';
+import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
+import {AggregationsQueryResult} from './AggregationsQueryResult';
+import {ContentAggregation} from './ContentAggregation';
+import {ContentAggregationsFetcher} from './ContentAggregationsFetcher';
+import {ContentDependency} from './ContentDependency';
+import {ContentExportElement} from './ContentExportElement';
+import {DependenciesSection} from './DependenciesSection'
 
 export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus>
     extends BrowseFilterPanel<T> {
@@ -50,22 +59,16 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         this.aggregationsFetcher = this.createAggregationFetcher();
         this.displayNamesResolver = new AggregationsDisplayNamesResolver();
         this.dependenciesSection = new DependenciesSection();
-        this.initElementsAndListeners();
 
         this.filterComponent = new ContentBrowseFilterComponent({
             bucketAggregations: [],
-            onChange: () => {
-                this.search();
-            },
-            onSelectionChange: () => {
-                this.search();
-            },
             filterableAggregations: this.getFilterableAggregations(),
             exportOptions: this.getExportOptions(),
         });
 
         this.appendChild(this.filterComponent);
 
+        this.handleEvents();
         this.getAndUpdateAggregations();
     }
 
@@ -89,17 +92,13 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         });
     }
 
-    protected initElementsAndListeners() {
-        if (this.isExportAllowed()) {
-            this.exportElement = new ContentExportElement().setEnabled(false).setTitle(i18n('action.export')) as ContentExportElement;
-        }
-
-        this.handleEvents();
-    }
-
     protected handleEvents() {
         this.onRendered(() => {
             super.appendChild(this.elementsContainer);
+        });
+
+        $contentFilterState.listen(() => {
+            this.search();
         });
 
         this.handleEventsForDependenciesSection();
@@ -175,11 +174,6 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
                ContentAggregation.MODIFIED_BY.toString();
     }
 
-    protected isExportAllowed(): boolean {
-        // add more checks here if needed
-        return true;
-    }
-
     private removeDependencyItem() {
         this.dependenciesSection.reset();
         this.search();
@@ -215,7 +209,9 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
     }
 
     private selectContentTypeBucket(key: string): void {
-        this.filterComponent.selectBucketViewByKey(ContentAggregation.CONTENT_TYPE, key);
+        const aggregationSelection = new AggregationSelection(ContentAggregation.CONTENT_TYPE);
+        aggregationSelection.setValues([new Bucket(key, 0)]);
+        setContentFilterSelection([aggregationSelection]);
     }
 
     searchItemById(id: ContentId): void {
@@ -252,26 +248,26 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
     getSearchInputValues(): SearchInputValues {
         const searchInputValues: SearchInputValues = new SearchInputValues();
 
-        searchInputValues.setAggregationSelections(this.filterComponent.getSelectedBuckets());
-        searchInputValues.setTextSearchFieldValue(this.filterComponent.getValue());
+        searchInputValues.setAggregationSelections(getFilterSelection());
+        searchInputValues.setTextSearchFieldValue(getFilterValue());
 
         return searchInputValues;
     }
 
     hasFilterSet(): boolean {
-        return this.filterComponent.hasSelectedBuckets() || this.hasSearchStringSet();
+        return hasFilterSet();
     }
 
     hasSearchStringSet(): boolean {
-        return !StringHelper.isBlank(this.filterComponent.getValue());
+        return hasFilterValueSet();
     }
 
     resetControls() {
-        this.filterComponent.reset();
+        resetContentFilter();
     }
 
     deselectAll() {
-        this.filterComponent.deselectAll();
+        deselectAllFilterBuckets();
     }
 
     updateHitsCounter(hits: number) {
