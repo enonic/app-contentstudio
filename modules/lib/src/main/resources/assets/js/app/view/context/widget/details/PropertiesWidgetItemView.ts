@@ -69,7 +69,7 @@ export abstract class PropertiesWidgetItemView
 
         return super.layout().then(() => {
             if (this.item != null) {
-                return this.fetchExtraData().then(() => {
+                return this.fetchMixins().then(() => {
                     return this.layoutProperties().then(() => {
                         this.layoutEditLink();
                     })
@@ -78,7 +78,7 @@ export abstract class PropertiesWidgetItemView
         });
     }
 
-    protected fetchExtraData(): Q.Promise<void> {
+    protected fetchMixins(): Q.Promise<void> {
         return Q();
     }
 

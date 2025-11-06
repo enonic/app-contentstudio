@@ -10,7 +10,7 @@ export class ContentWizardStepsPanel
     extends WizardStepsPanel {
 
     protected createHeader(header: string, wizardStepForm: WizardStepForm): PanelStripHeader {
-        const isPanelOptional = this.isXDataStepFormOptional(wizardStepForm);
+        const isPanelOptional = this.isMixinStepFormOptional(wizardStepForm);
         const panelStripHeader = new ContentPanelStripHeader({text: header, optional: isPanelOptional});
 
         if (isPanelOptional) {
@@ -23,7 +23,7 @@ export class ContentWizardStepsPanel
     }
 
     insertNavigablePanel(item: TabBarItem, wizardStepForm: WizardStepForm, header: string, index: number, select?: boolean): number {
-        if (this.isXDataStepFormOptional(wizardStepForm)) {
+        if (this.isMixinStepFormOptional(wizardStepForm)) {
             wizardStepForm.onHidden(() => {
                 item.hide();
             });
@@ -46,7 +46,7 @@ export class ContentWizardStepsPanel
         });
     }
 
-    private isXDataStepFormOptional(wizardStepForm: WizardStepForm): boolean {
+    private isMixinStepFormOptional(wizardStepForm: WizardStepForm): boolean {
         return wizardStepForm instanceof MixinWizardStepForm && wizardStepForm.isOptional();
     }
 }

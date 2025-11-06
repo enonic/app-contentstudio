@@ -30,7 +30,7 @@ public final class CreateContentJson
                        @JsonProperty("name") final String name, @JsonProperty("displayName") final String displayName,
                        @JsonProperty("parent") final String parent, @JsonProperty("contentType") final String contentType,
                        @JsonProperty("data") final List<PropertyArrayJson> dataJsonList,
-                       @JsonProperty("meta") final List<MixinJson> extraDataJsonList,
+                       @JsonProperty("meta") final List<MixinJson> mixinJsons,
                        @JsonProperty("workflow") final ContentWorkflowInfoJson workflowInfoJson )
     {
 
@@ -45,9 +45,9 @@ public final class CreateContentJson
         paramsBuilder.contentData( contentData );
 
         final Mixins.Builder mixinsBuilder = Mixins.create();
-        for ( MixinJson extraDataJson : extraDataJsonList )
+        for ( MixinJson mixinJson : mixinJsons )
         {
-            mixinsBuilder.add( extraDataJson.getMixin() );
+            mixinsBuilder.add( mixinJson.getMixin() );
         }
         paramsBuilder.mixins( mixinsBuilder.build() );
         paramsBuilder.inheritPermissions( true );

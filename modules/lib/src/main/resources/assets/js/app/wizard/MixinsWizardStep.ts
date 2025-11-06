@@ -13,7 +13,7 @@ export class MixinsWizardStep
         return this.stepForm as MixinWizardStepForm;
     }
 
-    getXDataName(): MixinName {
+    getMixinName(): MixinName {
         return (this.stepForm as MixinWizardStepForm).getMixinName();
     }
 }

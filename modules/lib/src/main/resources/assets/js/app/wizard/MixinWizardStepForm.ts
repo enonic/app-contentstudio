@@ -6,7 +6,7 @@ import {Form} from '@enonic/lib-admin-ui/form/Form';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentFormContext} from '../ContentFormContext';
-import {ExtraData} from '../content/ExtraData';
+import {Mixin} from '../content/Mixin';
 import {ContentPanelStripHeader} from './ContentPanelStripHeader';
 
 export class MixinWizardStepForm
@@ -185,8 +185,8 @@ export class MixinWizardStepForm
     }
 
     private isSaved(): boolean {
-        const persistedMixin: ExtraData =
-            (this.formContext as ContentFormContext).getPersistedContent().getExtraDataByName(this.getMixinName());
+        const persistedMixin: Mixin =
+            (this.formContext as ContentFormContext).getPersistedContent().getMixinByName(this.getMixinName());
 
         return persistedMixin?.getData()?.getRoot()?.getPropertyArrays().length > 0;
     }

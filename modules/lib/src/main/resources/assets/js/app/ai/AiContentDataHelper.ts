@@ -17,7 +17,7 @@ export class AiContentDataHelper {
 
     public static DATA_PREFIX = '__data__';
 
-    public static XDATA_PREFIX = '__xdata__';
+    public static MIXIN_PREFIX = '__mixin__';
 
     public static PAGE_PREFIX = '__page__';
 
@@ -49,8 +49,8 @@ export class AiContentDataHelper {
                 this.contentHeader?.setName('', true); // resetting name to trigger name generation after updating displayName
             }
             this.contentHeader?.setDisplayName(text);
-        } else if (this.isXDataPath(path)) {
-            this.handleXDataEvent(path, text);
+        } else if (this.isMixinPath(path)) {
+            this.handleMixinEvent(path, text);
         } else if (this.isPagePath(path)) {
             this.handlePageEvent(path, text);
         } else if (this.isDataPath(path)) {
@@ -64,15 +64,15 @@ export class AiContentDataHelper {
     }
 
     transformPathOnDemand(path: string): string {
-        if (this.isXDataPath(path)) {
-            return this.transformXDataPath(path);
+        if (this.isMixinPath(path)) {
+            return this.transformMixinPath(path);
         }
 
         return path;
     }
 
-    private isXDataPath(path: string): boolean {
-        return path.startsWith(AiContentDataHelper.XDATA_PREFIX);
+    private isMixinPath(path: string): boolean {
+        return path.startsWith(AiContentDataHelper.MIXIN_PREFIX);
     }
 
     private isPagePath(path: string): boolean {
@@ -91,19 +91,19 @@ export class AiContentDataHelper {
         return path.indexOf(AiContentDataHelper.TOPIC) > -1;
     }
 
-    private getXData(path: string): { xDataStepForm: MixinWizardStepForm, xDataPath: PropertyPath } | undefined {
+    private getMixin(path: string): { mixinStepForm: MixinWizardStepForm, mixinPath: PropertyPath } | undefined {
         const pathParts = path.split('/');
         const appName = pathParts[1];
-        const xDataName = pathParts[2];
-        const key = `${appName.replace(/[/-]/g, '.')}:${xDataName}`;
-        const xDataStepForm = MixinWizardStepForm.getMixinsWizardStepForm(key);
+        const mixinName = pathParts[2];
+        const key = `${appName.replace(/[/-]/g, '.')}:${mixinName}`;
+        const mixinStepForm = MixinWizardStepForm.getMixinsWizardStepForm(key);
 
-        return xDataStepForm ? {xDataStepForm, xDataPath: PropertyPath.fromString(`.${pathParts.slice(3).join('.')}`)} : undefined;
+        return mixinStepForm ? {mixinStepForm: mixinStepForm, mixinPath: PropertyPath.fromString(`.${pathParts.slice(3).join('.')}`)} : undefined;
     }
 
-    private handleXDataEvent(path: string, text: string): void {
-        const xData = this.getXData(path);
-        const prop = xData?.xDataStepForm.getData().getRoot().getPropertyByPath(xData.xDataPath);
+    private handleMixinEvent(path: string, text: string): void {
+        const mixin = this.getMixin(path);
+        const prop = mixin?.mixinStepForm.getData().getRoot().getPropertyByPath(mixin.mixinPath);
         this.updateProperty(prop, text);
     }
 
@@ -159,11 +159,11 @@ export class AiContentDataHelper {
         }
     }
 
-    private transformXDataPath(path: string): string { // take path parts and make a right xdata group name
+    private transformMixinPath(path: string): string { // take path parts and make a right mixins group name
         const pathParts = path.split('/');
         const appName = pathParts[1];
-        const xDataName = pathParts[2];
-        const key = `${appName.replace(/[/-]/g, '.')}:${xDataName}`;
+        const mixinName = pathParts[2];
+        const key = `${appName.replace(/[/-]/g, '.')}:${mixinName}`;
 
         return `__${key}__/${pathParts.slice(3).join('/')}`;
     }

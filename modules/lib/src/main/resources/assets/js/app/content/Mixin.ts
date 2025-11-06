@@ -3,9 +3,9 @@ import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {MixinName} from './MixinName';
-import {ExtraDataJson} from '../resource/json/ExtraDataJson';
+import {MixinJson} from '../resource/json/MixinJson';
 
-export class ExtraData
+export class Mixin
     implements Cloneable, Equitable {
 
     private name: MixinName;
@@ -17,24 +17,24 @@ export class ExtraData
         this.data = data;
     }
 
-    static fromJson(metadataJson: ExtraDataJson): ExtraData {
-        return new ExtraData(new MixinName(metadataJson.name), PropertyTree.fromJson(metadataJson.data));
+    static fromJson(metadataJson: MixinJson): Mixin {
+        return new Mixin(new MixinName(metadataJson.name), PropertyTree.fromJson(metadataJson.data));
     }
 
     getData(): PropertyTree {
         return this.data;
     }
 
-    clone(): ExtraData {
-        return new ExtraData(this.name, this.data.copy());
+    clone(): Mixin {
+        return new Mixin(this.name, this.data.copy());
     }
 
     equals(o: Equitable): boolean {
-        if (!ObjectHelper.iFrameSafeInstanceOf(o, ExtraData)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, Mixin)) {
             return false;
         }
 
-        let other = o as ExtraData;
+        let other = o as Mixin;
 
         if (!ObjectHelper.equals(this.name, other.name)) {
             return false;
@@ -47,7 +47,7 @@ export class ExtraData
         return true;
     }
 
-    toJson(): ExtraDataJson {
+    toJson(): MixinJson {
         return {
             name: this.name.toString(),
             data: this.data.toJson()

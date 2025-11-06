@@ -80,7 +80,7 @@ export class ContentHelper {
             .setContentType(type)
             .setDisplayName('')     // new content is created on wizard open so display name is always empty
             .setData(new PropertyTree())
-            .setExtraData([])
+            .setMixins([])
             .setWorkflow(Workflow.create().setState(WorkflowState.IN_PROGRESS).build());
     }
 
