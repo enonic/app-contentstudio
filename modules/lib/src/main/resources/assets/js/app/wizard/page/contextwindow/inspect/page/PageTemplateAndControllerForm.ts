@@ -33,7 +33,7 @@ export class PageTemplateAndControllerForm
         const wrapper = new PageDropdownWrapper(this.pageTemplateAndControllerSelector);
         this.fieldSet.add(new FormItemBuilder(wrapper).setLabel(i18n('field.page.template')).build());
 
-        const unlockAction = new Action(i18n('live.view.page.customize'));
+        const unlockAction = new Action(i18n('action.page.customize'));
         unlockAction.onExecuted(() => {
             new ConfirmationDialog()
                 .setQuestion(i18n('dialog.page.customize.confirmation'))

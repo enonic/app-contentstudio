@@ -207,7 +207,7 @@ module.exports = Object.freeze({
         DETAILS: 'Details'
     },
     PAGE_WIDGET: {
-        NO_SELECTED_CONTROLLER_MSG: 'No page templates or page blocks available'
+        NO_SELECTED_CONTROLLER_MSG: 'No page templates or components available'
     },
     CONTEXT_WINDOW_TABS: {
         INSPECT: 'Inspect',
@@ -306,7 +306,7 @@ module.exports = Object.freeze({
         INSERT: 'Insert',
         SAVE_AS_FRAGMENT: 'Save as Fragment',
         SAVE_AS_TEMPLATE: 'Save as Template',
-        CUSTOMIZE: 'Customize',
+        CUSTOMIZE: 'Detach from Fragment',
         INSPECT: 'Inspect',
         REMOVE: 'Remove',
         DUPLICATE: 'Duplicate',
