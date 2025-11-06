@@ -15,6 +15,10 @@ type SyncOptions<S extends WritableStore, V extends StoreValue<S> = StoreValue<S
     syncTabs?: boolean;
 };
 
+type SyncMapOptions<M extends Record<string, unknown>> = {
+    keys?: (keyof M)[];
+} & Omit<SyncOptions<MapStore<M>, M>, 'encode' | 'decode'>;
+
 /**
  * Synchronizes a Nanostores store with browser storage (localStorage or sessionStorage).
  *
@@ -134,9 +138,11 @@ export function syncStore<S extends WritableStore, V extends StoreValue<S> = Sto
 
     // Get and set helper functions
     const getFromStorage = (): V | undefined => {
+
         try {
             const raw = storage.getItem(storageKey);
             if (!raw) return undefined;
+            console.log(`getFromStorage <${storageKey}>: ${raw}`);
             return decode(raw);
         } catch (error: unknown) {
             console.error(`Error getting value from ${storageType}Storage ${storageKey}`, error);
@@ -147,6 +153,7 @@ export function syncStore<S extends WritableStore, V extends StoreValue<S> = Sto
     const writeToStorage = (value: V): void => {
         try {
             storage.setItem(storageKey, encode(value));
+            console.log(`writeToStorage <${storageKey}>: ${encode(value)}`);
         } catch (error: unknown) {
             if (isQuotaExceededError(error)) {
                 console.error(`${storageType}Storage quota exceeded for ${storageKey}`, error);
@@ -159,15 +166,17 @@ export function syncStore<S extends WritableStore, V extends StoreValue<S> = Sto
     const removeFromStorage = (): void => {
         try {
             storage.removeItem(storageKey);
+            console.log(`removeFromStorage <${storageKey}>`);
         } catch (error: unknown) {
             console.error(`Error removing from ${storageType}Storage ${storageKey}`, error);
         }
     };
 
     // Throttled write handler for store changes
-    const throttledWrite = createThrottle((value: V): void => {
+    const throttledWrite = createThrottle((value: V, oldValue: V | undefined): void => {
         try {
             if (value !== undefined) {
+                console.log(`throttledWrite <${storageKey}>: ${encode(value)}`);
                 writeToStorage(value);
             } else {
                 removeFromStorage();
@@ -177,10 +186,6 @@ export function syncStore<S extends WritableStore, V extends StoreValue<S> = Sto
         }
     }, throttleMs);
 
-    // Subscribe to store changes
-    const unsubscribe = store.subscribe(throttledWrite);
-
-    // Load initial value from storage into store
     if (loadInitial) {
         const initialValue = getFromStorage();
         if (initialValue !== undefined && 'set' in store) {
@@ -191,6 +196,8 @@ export function syncStore<S extends WritableStore, V extends StoreValue<S> = Sto
             }
         }
     }
+
+    const unsubscribe = store.listen(throttledWrite);
 
     // Cross-tab synchronization (localStorage only)
     let storageListener: ((e: StorageEvent) => void) | null = null;
@@ -245,6 +252,97 @@ export function syncStore<S extends WritableStore, V extends StoreValue<S> = Sto
             console.error(`Error unsyncing from store ${storeName}`, error);
         }
     };
+}
+
+/**
+ * Convenience wrapper for syncing MapStore with optional partial key syncing.
+ *
+ * This function simplifies the common pattern of syncing only specific keys from a map store.
+ * It automatically generates encode/decode functions based on the keys you want to sync.
+ *
+ * **Key Features:**
+ * - Sync entire map when `keys` is undefined or empty array
+ * - Sync only specific keys when `keys` array has values
+ * - Automatic merging: partial data is merged with current store values on decode
+ * - All standard `syncStore` features: throttling, cross-tab sync, page unload protection
+ *
+ * **When to Use:**
+ * - You have a map store with multiple properties
+ * - You only want to persist some properties (e.g., user preferences, not temporary UI state)
+ * - You want automatic merge behavior when loading from storage
+ *
+ * @example
+ * // Example 1: Sync entire map (no keys specified)
+ * import { map } from 'nanostores';
+ * const settings = map({ theme: 'light', lang: 'en', tempData: {} });
+ * const unsync = syncMapStore(settings, 'settings', {
+ *     loadInitial: true
+ * });
+ * // All keys synced: theme, lang, tempData
+ *
+ * @example
+ * // Example 2: Sync only specific keys
+ * const settings = map({ theme: 'light', lang: 'en', tempData: {} });
+ * const unsync = syncMapStore(settings, 'user-prefs', {
+ *     keys: ['theme', 'lang'],  // Only persist theme and lang
+ *     loadInitial: true,
+ *     syncTabs: true
+ * });
+ * settings.setKey('theme', 'dark');     // Syncs to storage
+ * settings.setKey('tempData', {...});   // NOT synced (not in keys)
+ *
+ * @example
+ * // Example 3: Empty array means sync all keys
+ * const unsync = syncMapStore(settings, 'settings', {
+ *     keys: [],  // Same as not specifying keys
+ *     loadInitial: true
+ * });
+ *
+ * @param store      MapStore to synchronize
+ * @param storeName  Logical name for the storage key (will be normalized)
+ * @param options
+ *   - keys:           Array of keys to sync. Undefined or [] = sync all keys
+ *   - throttleMs:     Write throttle delay in ms (default: 100)
+ *   - storageType:    'local' or 'session' (default: 'local')
+ *   - loadInitial:    Load value from storage into store on initialization (default: false)
+ *   - syncTabs:       Sync changes from other tabs (localStorage only, default: false)
+ *
+ * @returns Cleanup function. Call with no argument to cleanup. Call with `true` to also clear storage.
+ */
+export function syncMapStore<M extends Record<string, unknown>>(
+    store: MapStore<M>,
+    storeName: string,
+    options: SyncMapOptions<M> = {}
+): (clearStorage?: boolean) => void {
+    const {keys, ...syncOptions} = options;
+
+    const isPartialSync = keys !== undefined && keys.length > 0;
+
+    const encode = isPartialSync
+        ? (data: M): string => {
+              const partial: Partial<M> = {};
+              for (const key of keys) {
+                  if (key in data) {
+                      partial[key] = data[key];
+                  }
+              }
+              return JSON.stringify(partial);
+          }
+        : (data: M): string => JSON.stringify(data);
+
+    const decode = isPartialSync
+        ? (raw: string): M => {
+              const partial = JSON.parse(raw) as Partial<M>;
+              const current = store.get();
+              return {...current, ...partial};
+          }
+        : (raw: string): M => JSON.parse(raw) as M;
+
+    return syncStore(store, storeName, {
+        ...syncOptions,
+        encode,
+        decode,
+    });
 }
 
 //

@@ -4,7 +4,8 @@ import {ProjectListRequest} from '../../../app/settings/resource/ProjectListRequ
 import {ProjectUpdatedEvent} from '../../../app/settings/event/ProjectUpdatedEvent';
 import {ProjectCreatedEvent} from '../../../app/settings/event/ProjectCreatedEvent';
 import {ProjectDeletedEvent} from '../../../app/settings/event/ProjectDeletedEvent';
-import {syncStore} from '../utils/stores';
+import {syncMapStore} from '../utils/stores';
+import {$config} from './config.store';
 
 type ProjectsStore = {
     projects: Readonly<Project>[];
@@ -16,7 +17,11 @@ export const $projects = map<ProjectsStore>({
     activeProjectId: undefined,
 });
 
-const activeProjectStoreSync = syncStore($projects, 'projects', {syncPath: 'activeProjectId'});
+syncMapStore($projects, 'projects', {
+    keys: ['activeProjectId'],
+    loadInitial: true,
+    syncTabs: true,
+});
 
 export function setActiveProject(project: Readonly<Project> | undefined): void {
     const existsInStore = $projects.get().projects.some((p) => getProjectId(p) === getProjectId(project));
@@ -77,34 +82,48 @@ async function loadProjects(): Promise<void> {
 }
 
 function updateActiveProject(): void {
-    if ($activeProject.get()) return;
+    if ($activeProject.get()) {
+        return;
+    }
 
-    const {projects} = $projects.get();
+    const {projects, activeProjectId} = $projects.get();
 
     if (projects.length === 1) {
         setActiveProject(projects[0]);
         return;
     }
 
-    const activeProjectIdFromLocalStorage = activeProjectStoreSync.get();
+    const activeProject = projects.find((p) => getProjectId(p) === activeProjectId);
+    if (activeProject) {
+        setActiveProject(activeProject);
+    }
+}
 
-    if (!activeProjectIdFromLocalStorage) return;
-
-    setActiveProject(projects.find((p) => getProjectKey(p) === activeProjectIdFromLocalStorage));
+function getProjectIdFromUrl(): string | undefined {
+    const viewPath = window.location.href.split($config.get().appId)[1];
+    const normalizedPath = viewPath?.replace(/\/[^\/]+/, '') || '/';
+    return normalizedPath.split('/')[1];
 }
 
 //
 // * Initialization
 //
 
+const projectIdFromUrl = getProjectIdFromUrl();
+if (projectIdFromUrl) {
+    $projects.setKey('activeProjectId', projectIdFromUrl);
+}
+
 void loadProjects();
 
 ProjectUpdatedEvent.on(() => {
     loadProjects();
 });
+
 ProjectCreatedEvent.on(() => {
     loadProjects();
 });
+
 ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
     const {projects} = $projects.get();
     const updatedProjects = projects.filter((p) => getProjectId(p) !== event.getProjectName());
