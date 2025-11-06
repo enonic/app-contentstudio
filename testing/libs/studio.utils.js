@@ -16,7 +16,7 @@ const CreateIssueDialog = require('../page_objects/issue/create.issue.dialog');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const InsertLinkDialog = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
-const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
+const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
@@ -32,7 +32,7 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 const DateTimeRange = require('../page_objects/components/datetime.range');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
-const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
+const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.context.panel');
 const fs = require('fs');
 const path = require('path');
 const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
@@ -41,7 +41,6 @@ const EditSettingDialog = require('../page_objects/details_panel/edit.settings.d
 const EditScheduleDialog = require('../page_objects/details_panel/edit.schedule.dialog');
 const InsertLinkDialogContentPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
 const InsertLinkDialogUrlPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
-const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 module.exports = {
 
@@ -208,7 +207,7 @@ module.exports = {
         if (!result) {
             await browsePanel.clickOnDetailsPanelToggleButton();
         }
-        await browseDetailsPanel.waitForDetailsPanelLoaded();
+        await browseDetailsPanel.waitForLoaded();
         await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
         return await browsePanel.pause(1000);
     },
@@ -343,15 +342,13 @@ module.exports = {
     },
     async doAddSite(site, noControllers) {
         let contentWizardPanel = new ContentWizardPanel();
-        let pageInspectionPanel = new PageInspectionPanel();
         // 1. Open new site-wizard:
         await this.openContentWizard(appConst.contentTypes.SITE);
         await contentWizardPanel.typeData(site);
         // 2. Type the data and save:
         if (site.data.controller) {
-            let wizardContextWindow =  await contentWizardPanel.openContextWindow();
-            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
-            await pageInspectionPanel.selectPageTemplateOrController(site.data.controller);
+            //await contentWizardPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
+            await contentWizardPanel.selectPageDescriptor(site.data.controller);
         }
         if (noControllers) {
             await contentWizardPanel.waitAndClickOnSave();
@@ -359,6 +356,7 @@ module.exports = {
         await this.doCloseCurrentBrowserTab();
         await this.doSwitchToContentBrowsePanel();
         return await this.getBrowser().pause(1000);
+
     },
     async doAddReadySite(site) {
         let contentWizardPanel = new ContentWizardPanel();
@@ -394,15 +392,10 @@ module.exports = {
 
     async doAddPageTemplate(siteName, template) {
         let contentWizardPanel = new ContentWizardPanel();
-        let liveFormPanel = new LiveFormPanel();
         await this.doOpenPageTemplateWizard(siteName);
         await contentWizardPanel.typeData(template);
-        // auto-saving of template should be after selecting a controller:
-        let pageInspectionPanel = new PageInspectionPanel();
-        let wizardContextWindow =  await contentWizardPanel.openContextWindow();
-        await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
-        await pageInspectionPanel.selectPageTemplateOrController(template.data.controllerDisplayName);
-        await contentWizardPanel.waitForNotificationMessage();
+        // auto saving should be here:
+        await contentWizardPanel.selectPageDescriptor(template.data.controllerDisplayName);
         await this.saveScreenshot(template.displayName + '_created');
         await this.doCloseCurrentBrowserTab();
         await this.doSwitchToContentBrowsePanel();
@@ -884,7 +877,7 @@ module.exports = {
         let browsePanel = new BrowsePanel();
         let browseDependenciesWidget = new BrowseDependenciesWidget();
         let browseDetailsPanel = new BrowseDetailsPanel();
-        await browsePanel.openDetailsPanel();
+        await browsePanel.openContextWindow();
         await browseDetailsPanel.openDependencies();
         return await browseDependenciesWidget.waitForWidgetLoaded();
     },

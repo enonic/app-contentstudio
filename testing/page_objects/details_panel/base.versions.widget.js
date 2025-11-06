@@ -11,18 +11,23 @@ const xpath = {
     versionItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
     itemByDisplayName: displayName => `${lib.itemByDisplayName(displayName)}`,
     anyItemByHeader: header => `//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'${header}')]]`,
+    compareVersionsDiv: ".//div[@name='compare-version-checkbox']",
     showChangesButtonLocator: ".//button[@title='Show changes']",
     publishMessageDiv: "//div[contains(@class, 'publish-message')]",
 };
 
 class BaseVersionsWidget extends Page {
 
+    get compareVersionsButton() {
+        return this.versionsWidget + lib.actionButton('Compare versions');
+    }
+
     get compareWithCurrentVersionButton() {
         return this.versionsWidget + lib.VERSIONS_SHOW_CHANGES_BUTTON;
     }
 
-    get revertButton() {
-        return this.versionsWidget + xpath.versionItemExpanded + "//button[child::span[text()='Revert']]";
+    get restoreButton() {
+        return this.versionsWidget + xpath.versionItemExpanded + "//button[child::span[text()='Restore']]";
     }
 
     //Count version items that contain 'Revert' button
@@ -35,8 +40,7 @@ class BaseVersionsWidget extends Page {
         try {
             await this.waitForElementDisplayed(this.permissionsUpdatedItems, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_perm_updated');
-            throw new Error("'Permissions updated' items are not displayed in the widget, screenshot: " + screenshot + " " + err);
+            await this.handleError(`'Permissions updated' items are not displayed in the widget`, 'err_perm_updated', err);
         }
     }
 
@@ -46,8 +50,7 @@ class BaseVersionsWidget extends Page {
             let items = await this.findElements(this.permissionsUpdatedItems);
             return items.length;
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_perm_updated');
-            throw new Error("Error when counting 'Permissions updated' items, screenshot: " + screenshot + " " + err);
+            await this.handleError(`Error when counting 'Permissions updated' items`, 'err_perm_updated', err);
         }
     }
 
@@ -61,8 +64,7 @@ class BaseVersionsWidget extends Page {
         try {
             await this.waitForElementDisplayed(this.publishedItems, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_published_item');
-            throw new Error("'Published' items are not displayed in the widget, screenshot: " + screenshot + " " + err);
+            await this.handleError(`'Published' items are not displayed in the widget`, 'err_published_item', err);
         }
     }
 
@@ -76,8 +78,7 @@ class BaseVersionsWidget extends Page {
         try {
             await this.waitForElementDisplayed(this.unpublishedItems, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_unpublished_item');
-            throw new Error("'Unpublished' items are not displayed in the widget, screenshot: " + screenshot + " " + err);
+            await this.handleError(`'Unpublished' items are not displayed in the widget`, 'err_unpublished_item', err);
         }
     }
 
@@ -117,7 +118,7 @@ class BaseVersionsWidget extends Page {
         return items.length;
     }
 
-    //click on a version and expand the content-version-item
+    // click on a version and expand the content-version-item
     async clickAndExpandVersion(index) {
         try {
             await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
@@ -127,8 +128,7 @@ class BaseVersionsWidget extends Page {
             await this.getBrowser().elementClick(items[index].elementId);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_expand_version');
-            throw new Error(`Error occurred in Version Widget -  screenshot: ${screenshot} ` + err);
+            await this.handleError(`Version Widget - error during expanding version item at index: ${index}`, 'err_expand_version', err);
         }
     }
 
@@ -142,11 +142,13 @@ class BaseVersionsWidget extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             let items = await this.findElements(locator);
             //click on the item:
+            if (i >= items.length) {
+                throw new Error(`Index ${i} is out of bounds for version items with header: ${versionHeader}`);
+            }
             await items[i].click();
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_expand_version');
-            throw new Error(`Error occurred in Version Widget -  screenshot: ${screenshot} ` + err);
+            await this.handleError(`Version Widget - error during clicking on the version : ${versionHeader}`, 'err_expand_version', err);
         }
     }
 
@@ -162,70 +164,66 @@ class BaseVersionsWidget extends Page {
         try {
             let i = index === undefined ? 0 : index;
             await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
-            //get clickable items:
+            // get clickable items:
             let locator = this.versionItemByDisplayName(versionHeader);
             let items = await this.findElements(locator);
-            //click on the item:
+            // click on the item:
             await items[i].click();
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_expand_version');
-            throw new Error(`Error occurred in Version Widget -  screenshot: ${screenshot} ` + err);
+            await this.handleError(`Version Widget - Version iten has been clicked : ${versionHeader}`, 'err_expand_version', err);
         }
     }
 
-    //waits for Version Widget is loaded, Exception will be thrown after the timeout exceeded
-    waitForVersionsLoaded() {
-        return this.waitForElementDisplayed(this.versionsWidget, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot("err_load_versions_widget");
-            throw new Error('Version Widget was not loaded in ' + appConst.mediumTimeout + " " + err);
-        });
+    // waits for Version Widget is loaded, Exception will be thrown after the timeout exceeded
+    async waitForVersionsLoaded() {
+        try {
+            await this.waitForElementDisplayed(this.versionsWidget, appConst.mediumTimeout)
+        } catch (err) {
+            await this.handleError('Version Widget was not loaded', 'err_load_versions_widget', err);
+        }
     }
 
-    //waits for Version Widget is loaded, returns false after the timeout exceeded
+    // waits for Version Widget is loaded, returns false after the timeout exceeded
     isWidgetLoaded() {
         return this.waitForElementDisplayed(this.versionsWidget, appConst.mediumTimeout).catch(err => {
             return false;
         });
     }
 
-    async waitForRevertButtonNotDisplayed() {
+    async waitForRestoreButtonNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(this.revertButton, appConst.mediumTimeout);
+            return await this.waitForElementNotDisplayed(this.restoreButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_revert_button');
-            throw new Error(`Revert button should not be displayed! screenshot: ${screenshot} ` + err);
+            await this.handleError('Restore button should not be displayed', 'err_restore_button', err);
         }
     }
 
-    async waitForRevertButtonDisplayed() {
+    async waitForRestoreButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.revertButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.restoreButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_revert_button');
-            throw new Error(`Revert button should be displayed! screenshot: ${screenshot} ` + err);
+            await this.handleError('Restore button should be displayed', 'err_restore_button', err);
         }
     }
 
-    async clickOnRevertButton() {
+    async clickOnRestoreButton() {
         try {
-            await this.waitForElementDisplayed(this.revertButton, appConst.mediumTimeout);
-            await this.clickOnElement(this.revertButton);
+            await this.waitForElementDisplayed(this.restoreButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.restoreButton);
             return await this.pause(2000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_revert_button');
-            throw new Error("Version Widget - error when clicking on 'Revert' button, screenshot: " + screenshot + " " + err);
+            await this.handleError(`Version Widget - clicked on 'Restore' button`, 'err_restore_button', err);
         }
     }
 
-    async waitForRevertButtonDisabled() {
+    async waitForRestoreButtonDisabled() {
         try {
-            let res = await this.getDisplayedElements(this.revertButton);
+            let res = await this.getDisplayedElements(this.restoreButton);
             await res[0].waitForEnabled({timeout: 2000, reverse: true});
             return await this.pause(appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_revert_button');
-            throw new Error(`Version Widget -  'Revert' button is not disabled, screenshot: ${screenshot} ` + err);
+            await this.handleError('Version Widget - Restore button should be disabled', 'err_restore_button', err);
         }
     }
 
@@ -233,8 +231,7 @@ class BaseVersionsWidget extends Page {
         try {
             return await this.waitForElementDisplayed(this.movedItems, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_moved_item');
-            throw new Error("'Moved' items are not displayed in the widget, screenshot: " + screenshot + " " + err);
+            await this.handleError('Versions Widget, Moved item should be displayed', 'err_moved_item', err);
         }
     }
 
@@ -242,8 +239,7 @@ class BaseVersionsWidget extends Page {
         try {
             return await this.waitForElementDisplayed(this.renamedItems, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_renamed_item');
-            throw new Error("'Renamed' items are not displayed in the widget, screenshot: " + screenshot + " " + err);
+            await this.handleError('Versions Widget, Renamed item should be displayed', 'err_renamed_item', err);
         }
     }
 
@@ -253,29 +249,56 @@ class BaseVersionsWidget extends Page {
         return await this.getText(locator);
     }
 
-    async clickOnOnShowChangesButton(index) {
-        try {
-            //wait for the list of versions is loaded:
-            await this.waitForElementDisplayed(this.versionsWidget + xpath.versionsList, appConst.mediumTimeout);
-            let buttons = await this.findElements(this.compareWithCurrentVersionButton);
-            await buttons[index].click();
-            return await this.pause(400);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_show_changes');
-            throw new Error(`Version Widget - error when clicking on Show changes button, screenshot: ${screenshot} ` + err);
-        }
-    }
-
-    async clickOnShowChangesButtonByHeader(itemHeader, index) {
+    async moveCursorToVersionItemByHeader(itemHeader, index) {
         try {
             let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
             let versionItems = await this.findElements(itemLocator);
-            let buttonElements = await versionItems[index].$$(xpath.showChangesButtonLocator);
+            await this.doPerformMoveToAction(versionItems[index]);
+            return await this.pause(200);
+        } catch (err) {
+            await this.handleError(`Version Widget - moving cursor to version item: ${itemHeader}`, 'err_move_cursor_to_version', err);
+        }
+    }
+
+    async waitForCompareChangesCheckboxDisplayed(itemHeader, index) {
+        try {
+            let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+            let versionItems = await this.findElements(itemLocator);
+            let compareVersionsDivElements = await versionItems[index].$$(xpath.compareVersionsDiv);
+            await compareVersionsDivElements[0].waitForDisplayed({timeout: appConst.shortTimeout});
+        } catch (err) {
+            await this.handleError(`Version Widget - compare changes checkbox should be displayed: ${itemHeader}`,
+                'err_compare_ch_checkbox', err);
+        }
+    }
+
+    async clickOnCompareChangesCheckboxByHeader(itemHeader, index) {
+        try {
+            let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+            let versionItems = await this.findElements(itemLocator);
+            let buttonElements = await versionItems[index].$$(xpath.compareVersionsDiv);
+            if (buttonElements.length === 0) {
+                throw new Error(`No 'compare changes' checkbox found for itemHeader: ${itemHeader} at index: ${index}`);
+            }
             await buttonElements[0].click();
             return await this.pause(200);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_compare');
-            throw new Error(`Version Widget - error when clicking on Show changes button, screenshot: ${screenshot} ` + err);
+            await this.handleError('Versions Widget, tried to click on Show changes button...', 'err_click_on_show_changes', err);
+        }
+    }
+
+    async isCompareChangesCheckboxSelectedByHeader(itemHeader, index) {
+        try {
+            let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+            let versionItems = await this.findElements(itemLocator);
+            let buttonElements = await versionItems[index].$$(xpath.compareVersionsDiv);
+            if (buttonElements.length === 0) {
+                throw new Error(`No 'compare changes' checkbox found for itemHeader: ${itemHeader} at index: ${index}`);
+            }
+            return await buttonElements[0].$('input').isSelected();
+        } catch (err) {
+            await this.handleError('Versions Widget, tried to check if Show changes checkbox is selected...',
+                'err_check_show_changes_selected', err);
         }
     }
 
@@ -287,8 +310,7 @@ class BaseVersionsWidget extends Page {
             let elements = await versionItems[index].$$(locator);
             return await elements[0].getText();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_expand_version');
-            throw new Error(`Error when expand the version, screenshot: ${screenshot} ` + err);
+            await this.handleError('Versions Widget, tried to get user name...', 'err_version_username', err);
         }
     }
 
@@ -297,23 +319,31 @@ class BaseVersionsWidget extends Page {
         return this.versionsWidget + xpath.versionItem + xpath.itemByDisplayName(displayName);
     }
 
-    async waitForActiveVersionButtonDisplayed() {
+    // Checkbox for Edited, Created, Moved, Renamed version items:
+    async isCompareVersionCheckboxDisplayed(itemHeader, index) {
+        let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+        let elements = await this.findElements(itemLocator);
+        let buttonElements = await elements[index].$$(xpath.compareVersionsDiv);
+        let result = await buttonElements[0].isDisplayed();
+        return result;
+    }
+
+    async clickOnCompareVersionsButton() {
         try {
-            let locator = xpath.versionItemExpanded + "//button[child::span[text()='Active version']]";
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.compareVersionsButton, appConst.mediumTimeout);
+            return await this.clickOnElement(this.compareVersionsButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName("active_version_button");
-            throw new Error(`Version Widget -  'Active version' button is not displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError('Version Widget - Compare versions button', 'err_compare_versions_button', err);
         }
     }
 
-    async waitForActiveVersionButtonNotDisplayed() {
+    async clickOnCancelSelectionOfVersionItemButton() {
         try {
-            let locator = xpath.versionItemExpanded + "//button[child::span[text()='Active version']]";
-            await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+            let locator = this.versionsWidget + `//button[contains(@class,'reset-compare-button')]`;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.clickOnElement(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('active_version_button');
-            throw new Error(`Version Widget -  'Active version' button should not be displayed, screenshot:  ${screenshot} ` + err);
+            await this.handleError('Version Widget - Reset Compare versions button', 'err_cancel_selection_versions_button', err);
         }
     }
 
@@ -322,6 +352,25 @@ class BaseVersionsWidget extends Page {
         let elements = await this.findElements(itemLocator);
         let buttonElements = await elements[index].$$(xpath.showChangesButtonLocator);
         return buttonElements.length > 0;
+    }
+
+    async clickOnShowChangesButtonByHeader(itemHeader, index) {
+        try {
+            let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+            let versionItems = await this.findElements(itemLocator);
+            if (index >= versionItems.length) {
+                throw new Error(`Index ${index} is out of bounds for version items with header: ${itemHeader}`);
+            }
+            let buttonElements = await versionItems[index].$$(xpath.showChangesButtonLocator);
+            if (index >= buttonElements.length) {
+                throw new Error(`Index ${index} is out of bounds for 'Show changes' button in version items with header: ${itemHeader}`);
+            }
+            await buttonElements[0].click();
+            return await this.pause(200);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_compare');
+            throw new Error(`Version Widget - error when clicking on Show changes button, screenshot: ${screenshot} ` + err);
+        }
     }
 }
 

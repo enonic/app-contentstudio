@@ -10,9 +10,9 @@ const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/prope
 const StatusWidget = require('../page_objects/browsepanel/detailspanel/status.widget.itemview');
 const WidgetItemView = require('../page_objects/browsepanel/detailspanel/content.widget.item.view');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
+const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const PublishContentDialog = require('../page_objects/content.publish.dialog');
-const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
+const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 
 describe('Browse panel, properties widget, language spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -116,7 +116,7 @@ describe('Browse panel, properties widget, language spec', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             let browseDetailsPanel = new ContentBrowseDetailsPanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            await contentBrowsePanel.openDetailsPanel();
+            await contentBrowsePanel.openContextWindow();
             // 1. Select the widget in the dropdown selector:
             await browseDetailsPanel.selectItemInWidgetSelector(TEST_WIDGET_TITLE);
             await studioUtils.saveScreenshot('test_widget_opened');

@@ -7,7 +7,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ImageSelectorForm = require('../../page_objects/wizardpanel/imageselector.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
@@ -52,8 +52,8 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
             // 6. Verify that the selected image is displayed in the dependent items block:
             let dependantItems = await contentPublishDialog.getDisplayNameInDependentItems();
-            let isPresent = await dependantItems.some(item => item.includes(appConst.TEST_IMAGES.TELK));
-            assert.ok(isPresent, "Publish Wizard - The selected image should be displayed in Dependent Items block");
+            let isPresent = await dependantItems.some(item=>item.includes(appConst.TEST_IMAGES.TELK));
+            assert.ok(isPresent, 'Publish Wizard - The selected image should be displayed in Dependent Items block');
         });
 
     it("GIVEN wizard for new Image Selector(0:1) has been opened WHEN name has been typed THEN options filter input should be displayed AND uploader button should be enabled AND the content gets valid",
@@ -68,11 +68,11 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await imageSelectorForm.waitForOptionsFilterInputDisplayed();
             // 4. Verify that the content is valid
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid === false, "This content should be valid, because the image selector is not required input");
+            assert.ok(isInvalid === false, 'This content should be valid, because the image selector is not required input');
             // 5. Click on Mark as ready button:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.waitForNotificationMessage();
-            await studioUtils.saveScreenshot("test_workflow_icon");
+            await studioUtils.saveScreenshot('test_workflow_icon');
             // 6. Verify that 'Save' button gets disabled:
             await contentWizard.waitForSaveButtonDisabled();
             // 7. Verify the workflow state:
@@ -88,7 +88,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             // 2. select an image:
             await imageSelectorForm.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME1);
-            await studioUtils.saveScreenshot('issue_image_selector');
+            await studioUtils.saveScreenshot("image_selector_0_1");
             // 3. Verify the expected selected option:
             let names = await imageSelectorForm.getSelectedImages();
             assert.equal(names[0], IMAGE_DISPLAY_NAME1);
@@ -113,7 +113,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await imageSelectorForm.clickOnSelectedImage(IMAGE_DISPLAY_NAME1);
             // 3. Click on 'Remove' button:
             await imageSelectorForm.clickOnRemoveButton();
-            await studioUtils.saveScreenshot("test_workflow_icon_3");
+            await studioUtils.saveScreenshot('test_workflow_icon_3');
             // 4. Verify that default action is 'Mark as Ready':
             await contentWizard.waitForMarkAsReadyButtonVisible();
             // 5. Verify that the content remains valid:
@@ -130,20 +130,20 @@ describe('image.selector0_1.spec tests for not required image selector', functio
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();
-            let wizardDetailsPanel = new WizardDetailsPanel();
-            let versionsWidget = new VersionsWidget();
+            let wizardContextPanel = new WizardContextPanel();
+            let wizardVersionsWidget = new VersionsWidget();
             // 1. Open existing image content(no selected images):
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             await contentWizard.pause(1000);
             // 2. Open Version widget
-            await wizardDetailsPanel.openVersionHistory();
-            await versionsWidget.waitForVersionsLoaded();
-            await versionsWidget.clickAndExpandVersion(1);
+            await wizardContextPanel.openVersionHistory();
+            await wizardVersionsWidget.waitForVersionsLoaded();
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED,1);
             // 3. revert the version with single selected image:
-            await versionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             // 4. Verify the selected image:
             let result = await imageSelectorForm.getSelectedImages();
-            assert.equal(result.length, 1, "One image should be present in the selected options");
+            assert.equal(result.length, 1, 'One image should be present in the selected options');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

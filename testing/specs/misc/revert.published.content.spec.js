@@ -38,16 +38,16 @@ describe('Revert published content spec', function () {
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHED);
         });
 
-    it(`GIVEN published folder is selected WHEN the previous version has been reverted THEN 'Modified' status should be displayed`,
+    it(`GIVEN published folder is selected WHEN the previous 'Edited' version has been restored THEN 'Modified' status should be displayed`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
             // 1. Open the folder and revert the previous version:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentWizard.openVersionsHistoryPanel();
-            // 2. Revert the previous version:
-            await wizardVersionsWidget.clickAndExpandVersion(1);
-            await wizardVersionsWidget.clickOnRevertButton();
+            // 2. Revert the latest 'Edited' version:
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            await wizardVersionsWidget.clickOnRestoreButton();
             // 3. Verify the message:
             let actualMessage = await contentWizard.waitForNotificationMessage();
             assert.ok(actualMessage.includes(appConst.NOTIFICATION_MESSAGES.CONTENT_REVERTED),
@@ -55,7 +55,7 @@ describe('Revert published content spec', function () {
             // 4. Open Page Editor with Preview Widget, Verify that status gets Modified
             await contentWizard.clickOnPageEditorToggler();
             let status = await contentWizard.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, "'Modified' status should be in Wizard");
+            assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, `'Modified' status should be in Wizard`);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

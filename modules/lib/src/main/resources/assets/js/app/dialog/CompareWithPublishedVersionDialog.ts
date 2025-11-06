@@ -2,7 +2,7 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
+import {Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Delta, DiffPatcher, formatters, HtmlFormatter} from 'jsondiffpatch';
@@ -19,7 +19,6 @@ import {GetActiveContentVersionsRequest} from '../resource/GetActiveContentVersi
 import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
 import {GetContentVersionsResult} from '../resource/GetContentVersionsResult';
-import {ContentVersionsLoader} from '../view/context/widget/version/ContentVersionsLoader';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
 
 export class CompareWithPublishedVersionDialog
@@ -35,6 +34,8 @@ export class CompareWithPublishedVersionDialog
 
     private content: ContentSummaryAndCompareStatus;
 
+    private showFullContentCheckbox: Checkbox;
+
     private comparisonContainer: DivEl;
 
     private contentCache: Record<string, ContentJson>;
@@ -45,8 +46,6 @@ export class CompareWithPublishedVersionDialog
 
     private isLoading: boolean;
 
-    private readonly versionsLoader: ContentVersionsLoader;
-
     protected constructor() {
         super({
             class: 'compare-content-versions-dialog grey-header',
@@ -54,7 +53,6 @@ export class CompareWithPublishedVersionDialog
             alwaysFullscreen: true
         } as ModalDialogConfig);
 
-        this.versionsLoader = new ContentVersionsLoader();
         this.diffPatcher = new DiffPatcher();
         this.htmlFormatter = formatters.html;
     }
@@ -116,11 +114,11 @@ export class CompareWithPublishedVersionDialog
             this.appendChildToContentPanel(this.comparisonContainer);
 
             const bottomContainer = new DivEl('container bottom');
-            const changesCheckbox = new CheckboxBuilder().setLabelText(i18n('field.content.showEntire')).build();
-            changesCheckbox.onValueChanged(event => {
+            this.showFullContentCheckbox = new CheckboxBuilder().setLabelText(i18n('field.content.showEntire')).build();
+            this.showFullContentCheckbox.onValueChanged(event => {
                 this.htmlFormatter.showUnchanged(event.getNewValue() === 'true', null, 0);
             });
-            bottomContainer.appendChild(changesCheckbox);
+            bottomContainer.appendChild(this.showFullContentCheckbox);
             this.appendChildToFooter(bottomContainer);
 
             return rendered;
@@ -143,6 +141,7 @@ export class CompareWithPublishedVersionDialog
     open() {
         super.open();
         this.contentCache = {};
+        this.showFullContentCheckbox?.setChecked(false, true);
         this.htmlFormatter.showUnchanged(false, null, 0);
 
         this.loadVersionHistory();

@@ -50,7 +50,7 @@
 
       &:first-child {
         .version-date {
-          margin-top: 10px;
+          margin-top: 8px;
         }
       }
 
@@ -81,7 +81,7 @@
             cursor: pointer;
           }
 
-          &.active {
+          &.active-version {
             .version-action-button {
               cursor: pointer;
               background-color: @admin-white;
@@ -97,7 +97,7 @@
             background-color: @admin-bg-light-gray;
             border-color: @admin-bg-light-gray;
 
-            &.active {
+            &.active-version {
               .version-action-button {
                 background-color: @admin-bg-light-gray;
 
@@ -110,7 +110,7 @@
 
           .version-action-button {
             margin: 10px auto;
-            display: none;
+            order: 1;
           }
         }
 
@@ -129,7 +129,6 @@
           display: flex;
           width: 100%;
           position: relative;
-          padding-right: 25px;
           box-sizing: border-box;
 
           .names-and-icon-view {
@@ -174,27 +173,10 @@
             }
           }
 
-          button.compare {
-            position: absolute;
-            right: 0;
-            top: 0;
-            padding: 0;
+          .checkbox {
             order: 1;
-            margin-left: 5px;
-            z-index: 1;
-
-            &:before {
-              color: @admin-font-gray2;
-            }
-
-            &:hover:before {
-              color: @admin-font-gray3;
-            }
-
-            &:focus {
-              border: none;
-              outline: none;
-            }
+            padding: 5px;
+            display: none;
           }
         }
 
@@ -209,6 +191,12 @@
             }
           }
         }
+
+        &.selected {
+          .checkbox {
+            display: block;
+          }
+        }
       }
 
       &.expanded {
@@ -218,8 +206,50 @@
           &:hover {
             border-color: @admin-black;
           }
+        }
+      }
+    }
+  }
 
-          .version-action-button {
+  .action-buttons-wrapper {
+    width: 100%;
+    padding: 15px 0 5px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    margin: 0 auto;
+    background: @admin-white;
+    z-index: 1;
+
+    .compare-button {
+      padding: 7px 19px;
+    }
+
+    .reset-compare-button {
+      padding: 5px 12px;
+      border-left: 1px solid @admin-white;
+    }
+  }
+
+  &:not(.selection-limit-reached):not(single-version-selected) {
+    .version-list {
+      .version-list-item.expanded {
+        .version-viewer {
+          .checkbox {
+            display: block;
+          }
+        }
+      }
+    }
+  }
+
+  &.single-version-selected {
+    .version-list {
+      .version-list-item {
+        .version-viewer {
+          .checkbox {
             display: block;
           }
         }

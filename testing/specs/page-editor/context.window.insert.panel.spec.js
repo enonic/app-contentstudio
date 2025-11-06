@@ -9,7 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const InsertablesPanel = require('../../page_objects/wizardpanel/liveform/insertables.panel');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const appConst = require('../../libs/app_const');
 
@@ -19,7 +19,7 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
 
     it(`GIVEN wizard for new site is opened WHEN 2 applications haven checked in the app-dropdown AND 'Apply' button has been pressed THEN the site should be automatically saved`,
         async () => {
@@ -112,23 +112,23 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
         async () => {
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.openDetailsPanel();
             // 2. Open Versions widget:
-            await wizardDetailsPanel.openVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
-            // 3. Expand the version item and click on Revert:
+            // 3. Expand the version item and click on Restore:
             await wizardVersionsWidget.clickAndExpandVersion(1);
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             // 4. Verify  the notification message:
             let actualMessage = await contentWizard.waitForNotificationMessage();
             assert.ok(actualMessage.includes(appConst.NOTIFICATION_MESSAGES.CONTENT_REVERTED),
                 'Expected notification message should appear');
             // 5. Verify that widget is displayed :
             let isDisplayed = await wizardVersionsWidget.isWidgetLoaded();
-            assert.ok(isDisplayed, "'Versions widget' remains visible in 'Details Panel' after reverting versions");
+            assert.ok(isDisplayed, "'Versions widget' remains visible in 'Details Panel' after restoring versions");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

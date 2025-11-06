@@ -9,7 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
+const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
@@ -58,16 +58,17 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             let numberItems = await wizardVersionsWidget.countPermissionsUpdatedItems();
             assert.equal(numberItems, 1, "One 'Permissions updated'  item should be present in the widget");
 
-            //8. Verify 'Show changes' in all version items:
-            let isDisplayed = await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
-            assert.ok(isDisplayed === false, "'Show changes' button should not be displayed for the first item (Created)");
+            // 8. Verify 'Compare Version' checkbox in each version item:
+            // The checkbox should be visible only for expanded version item:
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            let isDisplayed = await wizardVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            assert.ok(isDisplayed, "'Compare Version' checkbox should not be displayed for the first item (Created)");
 
             isDisplayed =
-                await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 0);
-            assert.ok(isDisplayed, "'Show changes' button should be displayed in the first Permissions updated-item");
-
-            isDisplayed = await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
-            assert.ok(isDisplayed, "'Show changes' button should be displayed in Edit-item");
+                await wizardVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 0);
+            assert.ok(isDisplayed === false, "'Compare Version' checkbox should be displayed in the first Permissions updated-item");
+            isDisplayed = await wizardVersionsWidget.isCompareVersionCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            assert.ok(isDisplayed === false, "'Compare Version' checkbox should be displayed in the top Edit-item");
         });
 
     it(`WHEN 'Permissions updated' item has been clicked THEN 'Revert' button should not be visible in the item`,
@@ -81,22 +82,21 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             // 3. Click on 'Permissions updated' item:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 0);
             await wizardVersionsWidget.pause(500);
-            // 4 'Active version' "Revert" buttons are not displayed in the 'Permission updated' item
-            await wizardVersionsWidget.waitForActiveVersionButtonNotDisplayed();
-            await wizardVersionsWidget.waitForRevertButtonNotDisplayed();
+            // 4 'Restore'  button should not be displayed in the 'Permission updated' item
+            await wizardVersionsWidget.waitForRestoreButtonNotDisplayed();
             // 5. Click on the first Edited item:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             await studioUtils.saveScreenshot('versions_widget_edited_item_expanded');
             // 6. Verify that Edited-item is expanded and Revert button gets visible:
-            await wizardVersionsWidget.waitForRevertButtonDisplayed();
+            await wizardVersionsWidget.waitForRestoreButtonDisplayed();
             // 7. Click on the expanded Edited item and collapse this one:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             await studioUtils.saveScreenshot('versions_widget_edited_item_collapsed');
-            // 8. Verify that Revert button is not visible now:
-            await wizardVersionsWidget.waitForRevertButtonNotDisplayed();
+            // 8. Verify that Restore button gets not visible now:
+            await wizardVersionsWidget.waitForRestoreButtonNotDisplayed();
         });
 
-    it(`GIVEN existing folder with updated permissions WHEN the previous version has been reverted THEN acl entries should be updated`,
+    it(`GIVEN existing folder with updated permissions WHEN the previous version has been reverted THEN acl entries should not be updated`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
@@ -107,7 +107,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             //2. open Versions Widget and revert the previous version:
             await contentWizard.openVersionsHistoryPanel();
             await wizardVersionsWidget.clickOnVersionItemByHeader('Edited', 0);
-            await wizardVersionsWidget.clickOnRevertButton();
+            await wizardVersionsWidget.clickOnRestoreButton();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.openDetailsWidget();
             // 3. Open 'Edit Permissions' dialog
@@ -152,7 +152,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             assert.equal(numberItems, 2, "Two 'Permissions updated'  items should be present in the widget");
         });
 
-    it(`GIVEN existing folder with updated permissions is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN options with 'Permissions updated' icon should be present in the list`,
+    it(`GIVEN existing folder with 2 'updated permissions' is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN 2 'Permissions updated' items (icon) should be present in the expanded dropdown list`,
         async () => {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
@@ -161,17 +161,28 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             // 2. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            // 3. Click on 'Show changes' button  in the previous edit-item:
-            await browseVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+            // 3. Click on the 'Edited' version item:
+            await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            // 4. Verify that 'Compare changes' checkbox gets visible in the item:
+            await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            // 5. Click on 'Compare changes' button in the 'Edited' item:
+            await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            // 6. Click on the 'Permissions Updated' version item:
+            await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 1);
+            // 7. Verify that 'Compare changes' checkbox gets visible in the item:
+            await browseVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 1);
+            // 8. Click on 'Compare changes' button in the 'Permissions Updated' item:
+            await browseVersionsWidget.clickOnCompareChangesCheckboxByHeader(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 1);
+            // 9. Click on 'Compare Versions' button in the Versions Widget:
+            await browseVersionsWidget.clickOnCompareVersionsButton();
             await compareContentVersionsDialog.waitForDialogOpened();
-            // 4. Click on the left dropdown handle:
+            // 10. Click on the left dropdown handle:
             await compareContentVersionsDialog.clickOnLeftDropdownHandle();
             await studioUtils.saveScreenshot('compare_versions_dlg_changed_options');
-            // 5. Verify that options with 'Changed' icon should be present in the dropdown list:
+            // 11. Verify that 2 options with 'Permissions updated' icon should be present in the dropdown list:
             let result = await compareContentVersionsDialog.getPermissionsUpdatedOptionsInDropdownList();
-            assert.equal(result.length, 2, '2 Permissions updated items should be present in the selector options');
+            assert.equal(result.length, 3, '3 Permissions updated items should be present in the selector options');
         });
-
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
