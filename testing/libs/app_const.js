@@ -561,7 +561,7 @@ module.exports = Object.freeze({
         CAN_NOT_RENDER_NON_MEDIA: 'Can not render non-media content',
         PREVIEW_NOT_AVAILABLE: 'Preview not available',
         CAN_NOT_RENDER_WITH_SITE_ENGINE: 'Can not render with site engine',
-        PREVIEW_NOT_AVAILABLE_ADD_APP: 'Please add an application to your site to enable rendering of this item'
+        PREVIEW_NOT_AVAILABLE_ADD_APP: 'Please add an application to your site to enable preview'
     },
     X_DATA_NAME: {
         TEXT_AREA_X_DATA_NAME: 'Text Area x-data',
