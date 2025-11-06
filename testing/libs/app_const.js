@@ -207,6 +207,9 @@ module.exports = Object.freeze({
         PAGE: 'Page',
         DETAILS: 'Details'
     },
+    PAGE_WIDGET: {
+        NO_SELECTED_CONTROLLER_MSG: 'No page templates or components available'
+    },
     CONTEXT_WINDOW_TABS: {
         INSPECT: 'Inspect',
         INSERT: 'INSERT'

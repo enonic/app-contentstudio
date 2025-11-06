@@ -503,7 +503,7 @@ export class PageComponentsView
     }
 
     private getLockedPageActions(): Action[] {
-        const unlockAction = new Action(i18n('live.view.page.settings'));
+        const unlockAction = new Action(i18n('action.page.settings'));
 
         unlockAction.onExecuted(() => {
             PageNavigationMediator.get().notify(
