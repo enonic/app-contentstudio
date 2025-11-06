@@ -306,7 +306,7 @@ module.exports = Object.freeze({
         INSERT: 'Insert',
         SAVE_AS_FRAGMENT: 'Save as Fragment',
         SAVE_AS_TEMPLATE: 'Save as Template',
-        CUSTOMIZE: 'Customize',
+        CUSTOMIZE: 'Detach from Fragment',
         INSPECT: 'Inspect',
         REMOVE: 'Remove',
         DUPLICATE: 'Duplicate',

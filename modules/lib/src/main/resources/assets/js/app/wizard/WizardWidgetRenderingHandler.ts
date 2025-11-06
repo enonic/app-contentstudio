@@ -67,8 +67,7 @@ export class WizardWidgetRenderingHandler
     };
 
     private initContextMenu(): ItemViewContextMenu {
-
-        const unlockAction = new Action(i18n('live.view.page.settings'));
+        const unlockAction = new Action(i18n('action.page.settings'));
         unlockAction.onExecuted(() => {
             PageNavigationMediator.get().notify(
                 new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(ComponentPath.root())));
