@@ -1,6 +1,6 @@
 import {PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
 
-export interface ExtraDataJson {
+export interface MixinJson {
 
     name: string;
 

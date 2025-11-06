@@ -98,7 +98,7 @@ export class UpdatePersistedContentRoutine
 
         return this.isWorkflowChanged() ||
                !ContentDiffHelper.dataEquals(persisted.getContentData(), viewed.getContentData()) ||
-               !ContentDiffHelper.extraDataEquals(persisted.getAllExtraData(), viewed.getAllExtraData()) ||
+               !ContentDiffHelper.mixinsEquals(persisted.getMixins(), viewed.getMixins()) ||
                !ObjectHelper.equals(persisted.getOwner(), viewed.getOwner()) ||
                persisted.getLanguage() !== viewed.getLanguage() ||
                !ObjectHelper.dateEquals(persisted.getPublishFromTime(), viewed.getPublishFromTime()) ||

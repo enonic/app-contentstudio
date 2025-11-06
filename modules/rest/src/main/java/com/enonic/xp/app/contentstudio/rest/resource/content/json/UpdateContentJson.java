@@ -110,9 +110,9 @@ public final class UpdateContentJson
     private Mixins parseMixins( final List<MixinJson> mixinsJson )
     {
         final Mixins.Builder builder = Mixins.create();
-        for ( MixinJson extraDataJson : mixinsJson )
+        for ( MixinJson mixinJson : mixinsJson )
         {
-            builder.add( extraDataJson.getMixin() );
+            builder.add( mixinJson.getMixin() );
         }
         return builder.build();
     }

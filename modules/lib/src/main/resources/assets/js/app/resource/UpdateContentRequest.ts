@@ -1,7 +1,7 @@
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
-import {ExtraData} from '../content/ExtraData';
+import {Mixin} from '../content/Mixin';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
@@ -18,7 +18,7 @@ export class UpdateContentRequest
 
     private data: PropertyTree;
 
-    private meta: ExtraData[];
+    private meta: Mixin[];
 
     private displayName: string;
 
@@ -57,8 +57,8 @@ export class UpdateContentRequest
         return this;
     }
 
-    setExtraData(extraData: ExtraData[]): UpdateContentRequest {
-        this.meta = extraData;
+    setMixins(mixins: Mixin[]): UpdateContentRequest {
+        this.meta = mixins;
         return this;
     }
 
@@ -103,7 +103,7 @@ export class UpdateContentRequest
             .setContentName(content.getName())
             .setDisplayName(content.getDisplayName())
             .setData(content.getContentData())
-            .setExtraData(content.getAllExtraData())
+            .setMixins(content.getMixins())
             .setOwner(content.getOwner())
             .setLanguage(content.getLanguage())
             .setPublishFrom(content.getPublishFromTime())
@@ -119,7 +119,7 @@ export class UpdateContentRequest
             requireValid: this.requireValid,
             contentName: !!contentName ? contentName.trim() : '',
             data: this.data.toJson(),
-            meta: (this.meta || []).map((extraData: ExtraData) => extraData.toJson()),
+            meta: (this.meta || []).map((mixin: Mixin) => mixin.toJson()),
             displayName: !!this.displayName ? this.displayName.trim() : '',
             language: this.language,
             owner: this.owner ? this.owner.toString() : undefined,

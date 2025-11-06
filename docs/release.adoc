@@ -91,11 +91,11 @@ Soft-hyphen character `\&shy;` added to Rich Text Editor's "Special chars" dialo
 
 Before this release, email notifications for <<issues#,issues>> created in Content Studio used the current user's email address in the sender field. A new https://developer.enonic.com/docs/xp/stable/deployment/config#mail[config property^] is implemented in XP 7.14.1 which can be used to configure default email sender for emails sent by XP. If properly configured, the sender field in the email notifications sent for issues in Content Studio will be set to the configured email address.
 
-==== eXtra Data
+==== Mixins
 
-Layout and behaviour of optional X-Data sections in the Content Form have been changed. `+` icon is now right-aligned and transforms to `x` icon whenever the X-Data is active.
+Layout and behaviour of optional mixins sections in the Content Form have been changed. `+` icon is now right-aligned and transforms to `x` icon whenever the mixin is active.
 
-image::cs52-mixins.png[x-data in the Content Editor form, 75%]
+image::cs52-mixins.png[mixins in the Content Editor form, 75%]
 
 == Content Studio 5 Update 1
 

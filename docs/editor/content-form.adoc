@@ -29,7 +29,7 @@ image::editor-rename-path.png[Rename content dialog, 548w]
 == Form
 
 Underneath the header is the toolbar with clickable navigation steps that correspond to different sections of the content form. The first one is always
-the content type name followed by optional *X-data* steps (if any). Clicking on an item in the toolbar will scroll the content
+the content type name followed by optional *Mixins* steps (if any). Clicking on an item in the toolbar will scroll the content
 form down to the corresponding section.
 
 Clicking the "<" icon in the menu toolbar will collapse the Content Form and automatically undock the Page Components tree.

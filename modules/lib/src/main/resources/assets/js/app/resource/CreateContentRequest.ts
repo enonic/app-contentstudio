@@ -1,8 +1,8 @@
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
-import {ExtraData} from '../content/ExtraData';
-import {ExtraDataJson} from './json/ExtraDataJson';
+import {Mixin} from '../content/Mixin';
+import {MixinJson} from './json/MixinJson';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
@@ -27,7 +27,7 @@ export class CreateContentRequest
 
     private data: PropertyTree;
 
-    private meta: ExtraData[] = [];
+    private meta: Mixin[] = [];
 
     private displayName: string;
 
@@ -71,8 +71,8 @@ export class CreateContentRequest
         return this;
     }
 
-    setExtraData(extraData: ExtraData[]): CreateContentRequest {
-        this.meta = extraData;
+    setMixins(mixin: Mixin[]): CreateContentRequest {
+        this.meta = mixin;
         return this;
     }
 
@@ -94,14 +94,14 @@ export class CreateContentRequest
             parent: this.parent.toString(),
             contentType: this.contentType.toString(),
             data: this.data.toJson(),
-            meta: this.extraDataToJson(),
+            meta: this.mixinsToJson(),
             displayName: this.displayName,
             workflow: this.workflow.toJson()
         };
     }
 
-    private extraDataToJson(): ExtraDataJson[] {
-        return this.meta ? this.meta.map((extraData: ExtraData) => extraData.toJson()) : null;
+    private mixinsToJson(): MixinJson[] {
+        return this.meta ? this.meta.map((mixin: Mixin) => mixin.toJson()) : null;
     }
 
     protected parseResponse(response: JsonResponse<ContentJson>): Content {

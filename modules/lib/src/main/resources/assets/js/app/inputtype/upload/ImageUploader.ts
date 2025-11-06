@@ -375,9 +375,9 @@ export class ImageUploader
     }
 
     private getMetaProperty(content: Content, propertyName: string): Property {
-        const extraDatas = content.getAllExtraData();
-        for (const extraData of extraDatas) {
-            const metaProperty = extraData.getData().getProperty(propertyName);
+        const mixins = content.getMixins();
+        for (const mixin of mixins) {
+            const metaProperty = mixin.getData().getProperty(propertyName);
             if (metaProperty) {
                 return metaProperty;
             }

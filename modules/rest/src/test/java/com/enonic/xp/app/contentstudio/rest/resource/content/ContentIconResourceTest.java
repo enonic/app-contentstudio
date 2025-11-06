@@ -230,11 +230,11 @@ public class ContentIconResourceTest
         mediaData.setLong( IMAGE_INFO_IMAGE_WIDTH, 300L );
         mediaData.setLong( MEDIA_INFO_BYTE_SIZE, 100000L );
 
-        final Mixin mediaExtraData = new Mixin( MediaInfo.IMAGE_INFO_METADATA_NAME, mediaData );
+        final Mixin mediaMixin = new Mixin( MediaInfo.IMAGE_INFO_METADATA_NAME, mediaData );
 
         return result.attachments(Attachments.from(attachment)).
                 data(data).
-                mixins( Mixins.create().add( mediaExtraData).build());
+                mixins( Mixins.create().add( mediaMixin).build());
     }
 
     private Content createContent( final String id, final ContentTypeName contentType,

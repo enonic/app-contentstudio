@@ -9,12 +9,12 @@ export class ContentWizardStep
 
     constructor(label: string, stepForm: WizardStepForm, iconCls?: string) {
 
-        const isOptionalXdata = ObjectHelper.iFrameSafeInstanceOf(stepForm, MixinWizardStepForm) &&
+        const isOptionalMixin = ObjectHelper.iFrameSafeInstanceOf(stepForm, MixinWizardStepForm) &&
                                 (stepForm as MixinWizardStepForm).isOptional();
 
         const tabBarItem = (new ContentTabBarItemBuilder().setLabel(label) as ContentTabBarItemBuilder)
                             .setIconCls(iconCls)
-            .setIsMixins(isOptionalXdata)
+            .setIsMixins(isOptionalMixin)
                             .build();
 
         super(tabBarItem, stepForm);

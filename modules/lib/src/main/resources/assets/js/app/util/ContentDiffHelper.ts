@@ -1,7 +1,7 @@
 import {ContentDiff} from '../content/ContentDiff';
 import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
-import {ExtraData} from '../content/ExtraData';
-import {ExtraDataByMixinNameComparator} from '../content/ExtraDataByMixinNameComparator';
+import {Mixin} from '../content/Mixin';
+import {MixinByMixinNameComparator} from '../content/MixinByMixinNameComparator';
 import {ContentSummaryHelper} from '../content/ContentSummaryHelper';
 import {Content} from '../content/Content';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
@@ -15,8 +15,8 @@ export class ContentDiffHelper {
             diff.data = true;
         }
 
-        if (!ContentDiffHelper.extraDataEquals(item.getAllExtraData(), other.getAllExtraData(), ignoreEmptyDataValues)) {
-            diff.extraData = true;
+        if (!ContentDiffHelper.mixinsEquals(item.getMixins(), other.getMixins(), ignoreEmptyDataValues)) {
+            diff.mixins = true;
         }
 
         if (!ObjectHelper.equals(item.getPage(), other.getPage())) {
@@ -38,20 +38,20 @@ export class ContentDiffHelper {
         return PropertyTreeHelper.propertyTreesEqual(data, other, ignoreEmptyValues);
     }
 
-    public static extraDataEquals(extraData: ExtraData[], other: ExtraData[], ignoreEmptyValues: boolean = false): boolean {
+    public static mixinsEquals(mixins: Mixin[], other: Mixin[], ignoreEmptyValues: boolean = false): boolean {
         if (ignoreEmptyValues) {
             const isOtherArrayEmpty: boolean = !other || other.length === 0 || other.every(ed => !ed.getData() || ed.getData().isEmpty());
             const isThisArrayEmpty: boolean =
-                !extraData || extraData.length === 0 || extraData.every(ed => !ed.getData() || ed.getData().isEmpty());
+                !mixins || mixins.length === 0 || mixins.every(ed => !ed.getData() || ed.getData().isEmpty());
 
             if (isThisArrayEmpty && isOtherArrayEmpty) {
                 return true;
             }
         }
 
-        const comparator = new ExtraDataByMixinNameComparator();
+        const comparator = new MixinByMixinNameComparator();
 
-        const arrayA = extraData.sort(comparator.compare);
+        const arrayA = mixins.sort(comparator.compare);
         const arrayB = other.sort(comparator.compare);
 
         if (arrayA.length !== arrayB.length) {

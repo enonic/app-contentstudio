@@ -23,8 +23,8 @@ export class GetContentMixinsRequest
     }
 
     protected parseResponse(response: JsonResponse<MixinDescriptorsJson>): MixinDescriptor[] {
-        return response.getResult().mixins.map((xDataJson: MixinDescriptorJson) => {
-            return this.fromJsonToMixins(xDataJson);
+        return response.getResult().mixins.map((mixinDescriptorJson: MixinDescriptorJson) => {
+            return this.fromJsonToMixins(mixinDescriptorJson);
         });
     }
 }
