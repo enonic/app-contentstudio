@@ -352,7 +352,7 @@ export class PageView
     }
 
     getLockedMenuActions(): Action[] {
-        const unlockAction = new Action(i18n('live.view.page.settings'));
+        const unlockAction = new Action(i18n('action.page.settings'));
 
         unlockAction.onExecuted(() => {
             new ComponentInspectedEvent(ComponentPath.root()).fire()
