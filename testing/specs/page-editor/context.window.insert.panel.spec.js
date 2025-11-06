@@ -9,11 +9,12 @@ const contentBuilder = require("../../libs/content.builder");
 const InsertablesPanel = require('../../page_objects/wizardpanel/liveform/insertables.panel');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextWindowPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const appConst = require('../../libs/app_const');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
-describe('context.window.insert.panel: tests for insertables panel and wizard toolbar', function () {
+describe('context.window.insert.panel: tests for Insert tab in Page widget', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -61,22 +62,28 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             // 3. Verify that 'Page Component' wizard step form is not visible, because page controller is not selected:
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             // 4. Select a page descriptor:
-            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
+            let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 5.  Verify that 'Page Component' wizard step form gets visible in the wizard panel:
             await pageComponentsWizardStepForm.waitForLoaded();
             // 6. Verify that 'Page' wizard step is displayed in  Wizard Step Toolbar:
             await contentWizard.waitForWizardStepDisplayed('Page');
         });
 
-    it("WHEN existing site is opened THEN 'Insertables' panel should be loaded AND all expected components should be present",
+    it("WHEN existing site is opened THEN 'Insert tab' panel should be loaded AND all expected components should be present",
         async () => {
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            let insertablesPanel = new InsertablesPanel();
-            // 1. Verify that Insertables Panel is loaded automatically:
-            await insertablesPanel.waitForOpened();
+            let contentWizard = new ContentWizard();
+            let contextWindow = await contentWizard.openContextWindow();
+            await contextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            let insertTabPanel = new InsertablesPanel();
+            // 1. Verify that 'Insert' tab Panel is loaded automatically:
+            await insertTabPanel.waitForOpened();
             // 2. Verify items in the panel:
-            let items = await insertablesPanel.getItems();
-            await studioUtils.saveScreenshot('insertables_options');
+            let items = await insertTabPanel.getItems();
+            await studioUtils.saveScreenshot('insert_tab_options');
             assert.equal(items.length, 4, 'Four items should be present in the panel');
             assert.ok(items.includes('Part'), "'Part' item should be displayed");
             assert.ok(items.includes('Layout'), "'Layout' item should be displayed");
@@ -92,7 +99,7 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             // 1. Click on 'Hide Page Editor' button
             await contentWizard.clickOnPageEditorToggler();
             await studioUtils.saveScreenshot('live_edit_hidden');
-            // 2. Verify that minimize toggler gets not visible in Wizard Step Toolbar:
+            // 2. Verify that minimize toggle gets not visible in Wizard Step Toolbar:
             await contentWizard.waitForMinimizeLiveEditTogglerNotDisplayed();
             // 3. Live Edit should not be visible now:
             await contentWizard.waitForLiveEditNotVisible();
@@ -108,25 +115,35 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
 
     // verifies https://github.com/enonic/app-contentstudio/issues/335
     // Site Wizard Context panel - versions widget closes after rollback a version
-    it(`GIVEN existing site is opened AND Versions widget is opened WHEN rollback a version THEN Versions widget should not be closed`,
+    it(`GIVEN existing site is opened AND Versions widget is opened WHEN the version without the controller has been reverted THEN Versions widget should not be closed`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let wizardContextPanel = new WizardContextPanel();
+            let wizardContextWindow = new WizardContextWindowPanel();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
+            await pageComponentsWizardStepForm.waitForLoaded();
             // 2. Open Versions widget:
-            await wizardContextPanel.openVersionHistory();
+            await wizardContextWindow.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 3. Expand the version item and click on Restore:
-            await wizardVersionsWidget.clickAndExpandVersion(1);
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             await wizardVersionsWidget.clickOnRestoreButton();
             // 4. Verify  the notification message:
             let actualMessage = await contentWizard.waitForNotificationMessage();
             assert.ok(actualMessage.includes(appConst.NOTIFICATION_MESSAGES.CONTENT_REVERTED),
                 'Expected notification message should appear');
-            // 5. Verify that widget is displayed :
+
+            await pageComponentsWizardStepForm.waitForNotDisplayed();
+            // 5. 'Preview' button should be disabled in Wizard ContentItemPreviewToolbar
+            await contentWizard.waitForPreviewButtonDisabled();
+            // 6. Verify that Preview not available message is displayed in Live Edit:
+            let messages = await contentWizard.getNoPreviewMessageNoController();
+            assert.ok(messages.includes(appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE),
+                "'Preview not available' message should be displayed in Content Item Preview panel");
+            // 5. Verify that Versions widget is loaded :
             let isDisplayed = await wizardVersionsWidget.isWidgetLoaded();
             assert.ok(isDisplayed, "'Versions widget' remains visible in 'Details Panel' after restoring versions");
         });

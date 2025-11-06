@@ -12,9 +12,9 @@ const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form
 const appConst = require('../../libs/app_const');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const LiveContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
+const PageWidgetContextPanel = require('../../page_objects/wizardpanel/liveform/page.widget.context.window');
 const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
@@ -75,7 +75,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             let contentWizard = new ContentWizardPanel();
             let pageComponentView = new PageComponentView();
             let layoutInspectionPanel = new LayoutInspectionPanel();
-            let liveContextWindow = new LiveContextWindow();
+            let pageWidgetPanel = new PageWidgetContextPanel();
             // 1. Open the existing site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.clickOnMinimizeLiveEditToggler();
@@ -86,12 +86,12 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await pageComponentView.clickOnComponentByDisplayName('left');
             await studioUtils.saveScreenshot('context_win_region_tab');
             // 4. Verify that 'Region' tab bar item is loaded:
-            await liveContextWindow.waitForTabBarItemDisplayed('Inspect');
+            await pageWidgetPanel.waitForTabBarItemDisplayed('Inspect');
             // 5. Click on the 'layout-component' in PCV:
             await pageComponentView.clickOnComponentByDisplayName(LAYOUT_NAME);
             await studioUtils.saveScreenshot('context_win_layout_tab');
             // 6. Verify that 'Layout' tab bar item is loaded in the Context Window:
-            await liveContextWindow.waitForTabBarItemDisplayed('Inspect');
+            await pageWidgetPanel.waitForTabBarItemDisplayed('Inspect');
             await layoutInspectionPanel.waitForOpened();
             let actualSelectedOption = await layoutInspectionPanel.getSelectedOption();
             assert.equal(actualSelectedOption, LAYOUT_NAME, "expected layout-display name should be present in the selected option view");
@@ -102,7 +102,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             let contentWizard = new ContentWizardPanel();
             let pageComponentView = new PageComponentView();
             let layoutInspectionPanel = new LayoutInspectionPanel();
-            let liveContextWindow = new LiveContextWindow();
+            let pageWidgetPanel = new PageWidgetContextPanel();
             let pageInspectionPanel = new PageInspectionPanel();
             // 1. Open the existing site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
@@ -115,14 +115,14 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await studioUtils.saveScreenshot('context_win_main_region_tab');
             await pageInspectionPanel.waitForOpened();
             // 4. Verify that 'Inspect' tab bar item is loaded in the Context Window:
-            await liveContextWindow.waitForTabBarItemDisplayed('Inspect');
+            await pageWidgetPanel.waitForTabBarItemDisplayed('Inspect');
             let actualController = await pageInspectionPanel.getSelectedPageController();
             assert.equal(actualController, 'main region', "Expected controller should be present in the selected option view");
             // 5. Click on the 'layout-component' in PCV:
             await pageComponentView.clickOnComponentByDisplayName(LAYOUT_NAME);
             await studioUtils.saveScreenshot('context_win_layout_tab');
             // 6. Verify that 'Layout' tab bar item is loaded in the Context Window:
-            await liveContextWindow.waitForTabBarItemDisplayed('Inspect');
+            await pageWidgetPanel.waitForTabBarItemDisplayed('Inspect');
             await layoutInspectionPanel.waitForOpened();
             let actualSelectedOption = await layoutInspectionPanel.getSelectedOption();
             assert.equal(actualSelectedOption, LAYOUT_NAME, "expected layout-display name should be present in the selected option view");
@@ -141,8 +141,8 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             // 2. Verify that the wizard step is loaded:
             await pageComponentsWizardStepForm.waitForLoaded();
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 3. Open details panel:
-            await contentWizard.openDetailsPanel();
+            // 3. Open Context Window panel:
+            await contentWizard.openContextWindow();
             // 4. Open versions widget:
             await detailsPanel.openVersionHistory();
             await versionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED);
@@ -154,11 +154,10 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await pageComponentViewDialog.waitForNotDisplayed();
             // 6. Verify the note in  Live Form panel
             let message = await contentWizard.getNoPreviewMessage();
-            // 'Please add an application to your site to enable rendering of this item'
-            assert.equal(message, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE_ADD_APP, 'expected message should be displayed');
+            // ''Preview not available' message is displayed in the Live Form panel
+            assert.equal(message, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, 'expected message should be displayed');
             await contentWizard.waitForSaveButtonDisabled();
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

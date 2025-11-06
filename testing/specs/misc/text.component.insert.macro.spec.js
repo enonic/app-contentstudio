@@ -18,7 +18,7 @@ describe('Text Component - insert embed iframe and preview the site', function (
     }
 
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME =  appConst.CONTROLLER_NAME.MAIN_REGION;
     const ENONIC_IFRAME = "<iframe src='http://www.enonic.com'> enonic</iframe>";
 
     it(`Precondition: new site should be added`,
@@ -36,31 +36,29 @@ describe('Text Component - insert embed iframe and preview the site', function (
             let insertMacroModalDialog = new InsertMacroDialog();
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text component and type the not valid URL:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            // 4. Close the details panel
-            await contentWizard.clickOnDetailsPanelToggleButton();
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
             await textComponentCke.switchToLiveEditFrame();
-            // 5. Open Insert Macro modal dialog:
+            // 4. Open Insert Macro modal dialog:
             await textComponentCke.clickOnInsertMacroButton();
             await insertMacroModalDialog.waitForDialogLoaded();
-            // 6. Select the 'Embed IFrame' option:
-            await insertMacroModalDialog.selectOption("Embed IFrame");
-            // 7. Insert iframe in the Configuration Text Area:
+            // 5. Select the 'Embed IFrame' option:
+            await insertMacroModalDialog.selectOption('Embed IFrame');
+            // 6. Insert iframe in the Configuration Text Area:
             await insertMacroModalDialog.typeTextInConfigurationTextArea(ENONIC_IFRAME);
-            // 8. Click on 'Insert' button and close the modal dialog:
+            // 7. Click on 'Insert' button and close the modal dialog:
             await insertMacroModalDialog.clickOnInsertButton();
             await studioUtils.saveScreenshot('embed_iframe_text_component');
             await contentWizard.waitAndClickOnSave();
-            // 9. Click on 'Preview' button:
+            // 8. Click on 'Preview' button:
             await contentWizard.clickOnPreviewButton();
             await contentWizard.pause(3000);
-            // 10. Switch to the next browser tab:
+            // 9. Switch to the next browser tab:
             await studioUtils.doSwitchToNextTab();
-            // 11. Verify that iframe is present in the page:
+            // 10. Verify that iframe is present in the page:
             let isDisplayed = await studioUtils.isElementDisplayed(`//iframe[@src='http://www.enonic.com']`);
             await studioUtils.saveScreenshot('embed_iframe_text_component_preview');
             assert.ok(isDisplayed, 'expected iframe should be loaded in the new browser tab');

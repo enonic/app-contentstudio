@@ -33,7 +33,7 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
             let xDataHtmlArea = new XDataHtmlArea();
             let contentWizard = new ContentWizard();
             // 1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_0_1);
             await contentWizard.typeDisplayName(contentName);
             await studioUtils.saveScreenshot('x-data_check');
             // 2. Do enable the first form

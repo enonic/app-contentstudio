@@ -31,6 +31,8 @@ describe('wizard.owner.spec - update and revert owner in wizard`', function () {
             let propertiesWidget = new PropertiesWidget();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await contentWizard.openContextWindow();
+            await contentWizard.openDetailsWidget();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             // 2. Change the owner to 'Anonymous User':
             await editSettingsDialog.clickOnRemoveOwner(appConst.systemUsersDisplayName.SUPER_USER);

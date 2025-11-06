@@ -23,7 +23,7 @@ describe('Move Fragment specification', function () {
     }
 
     let SITE, FOLDER;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const FRAGMENT_TEXT_DESCRIPTION = 'text';
     const TEST_TEXT_FRAGMENT = appConst.generateRandomName('text');
 

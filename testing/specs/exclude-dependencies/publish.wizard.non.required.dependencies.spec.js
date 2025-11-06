@@ -45,17 +45,15 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             let textComponentCke = new TextComponentCke();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text-component in PCV modal dialog:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            // 4. Close the details panel
-            await contentWizard.clickOnDetailsPanelToggleButton();
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
             await textComponentCke.switchToLiveEditFrame();
-            // 5. Open Insert Link dialog
+            // 4. Open Insert Link dialog
             await textComponentCke.clickOnInsertLinkButton();
-            // 6. Insert the content-link(link to a folder in the root directory):
+            // 5. Insert the content-link(link to a folder in the root directory):
             await studioUtils.insertContentLinkInCke(CONTENT_LINK_TITLE, TEST_FOLDER.displayName, true);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -83,7 +81,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             // 6. Verify that the all dependency item are hidden:
             let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 0, 'dependencies list should be empty');
-            // 7. Click on 'Include child items' toggler:
+            // 7. Click on 'Include child items' toggle:
             await contentPublishDialog.clickOnIncludeChildrenToogler();
             // 8. Verify that expected dependency item gets visible in the dialog:
             await contentPublishDialog.waitForDependenciesListDisplayed();

@@ -21,7 +21,7 @@ describe('Text Component with CKE - insert link and table specification', functi
 
     let SITE;
     const INVALID_URL_SPEC = 'http://test$$.com';
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const EXPECTED_URL = '<a href="http://google.com">test</a>';
 
     it(`Precondition: new site should be added`,
@@ -37,13 +37,11 @@ describe('Text Component with CKE - insert link and table specification', functi
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Insert a text-component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            // Close the details panel
-            await contentWizard.clickOnDetailsPanelToggleButton();
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
             await textComponentCke.switchToLiveEditFrame();
             // 2. Click on 'Insert Table' menu-button:
             await textComponentCke.clickOnInsertTableButton();
@@ -60,15 +58,16 @@ describe('Text Component with CKE - insert link and table specification', functi
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            // Details widget should be selected by default! :
+            let contextWindow = await contentWizard.openContextWindow();
+            await contextWindow.waitForWidgetSelected(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
+            // 2. Click on minimize-toggle  expand Live Edit and show Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text component and type an invalid URL:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            // 4. Close the details panel
-            await contentWizard.clickOnDetailsPanelToggleButton();
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
             await textComponentCke.switchToLiveEditFrame();
-            // 5. Open Insert link modal dialog
+            // 4. Open Insert link modal dialog
             await textComponentCke.clickOnInsertLinkButton();
             // 6. go to url-tab
             await insertLinkDialog.clickOnBarItem('URL')
@@ -77,34 +76,32 @@ describe('Text Component with CKE - insert link and table specification', functi
             await insertLinkDialogUrlPanel.typeUrl(INVALID_URL_SPEC);
             // 8. Click on 'Insert" in the modal dialog:
             await insertLinkDialog.clickOnInsertButton();
-            await studioUtils.saveScreenshot('not_valid_url');
+            await studioUtils.saveScreenshot('invalid_url');
             // 9. Verify that Validation message gets visible:
             await insertLinkDialogUrlPanel.waitForValidationMessage();
             let message = await insertLinkDialogUrlPanel.getValidationMessage();
-            assert.equal(message, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, "Invalid value entered - should be visible" );
+            assert.equal(message, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Invalid value entered - should be visible' );
         });
 
-    it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'url-link' has been inserted THEN expected URL should appear in CKE`,
+    it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'url-link' has been inserted THEN expected URL should appear in LiveEdit`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            // 2. Click on minimize-toggle  expand Live Edit and show Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
-            // 4. Close the details panel
-            await contentWizard.clickOnDetailsPanelToggleButton();
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
             await textComponentCke.switchToLiveEditFrame();
-            // 5. Open Insert Link dialog and add the link:
+            // 4. Open Insert Link dialog and add the link:
             await textComponentCke.clickOnInsertLinkButton();
             await studioUtils.insertUrlLinkInCke('test', 'http://google.com');
             await textComponentCke.switchToLiveEditFrame();
             await studioUtils.saveScreenshot('url_link_inserted');
-            // 6. Get and check the text in CKE:
+            // 5. Get and check the text in HtmlArea in LiveEdit:
             let result = await textComponentCke.getTextFromEditor();
             assert.ok(result.includes(EXPECTED_URL), 'expected URL should appear in CKE');
             await textComponentCke.switchToParentFrame();
@@ -121,7 +118,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             // 2. Switch to the new browser-tab and verify the link:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             await studioUtils.clickOnElement('a=test');
-            await contentItemPreviewPanel.pause(2000);
+            await contentItemPreviewPanel.pause(1000);
             let title = await studioUtils.getTitle();
             await studioUtils.saveScreenshot('site_preview_button_clicked');
             assert.equal(title, 'Google', 'expected title should be loaded');
@@ -139,10 +136,10 @@ describe('Text Component with CKE - insert link and table specification', functi
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(SITE.displayName);
-            await contentItemPreviewPanel.clickOnElementInFrame("a=test");
+            await contentItemPreviewPanel.clickOnElementInFrame('a=test');
             await studioUtils.saveScreenshot('enonic_not_loaded_in_preview_panel');
             // The Link gets not visible:
-            let result = await contentItemPreviewPanel.waitForElementNotDisplayedInFrame("a=test");
+            let result = await contentItemPreviewPanel.waitForElementNotDisplayedInFrame('a=test');
             assert.ok(result, 'The link should not be visible');
             await contentItemPreviewPanel.pause(2000);
             await studioUtils.saveScreenshot("link_clicked_in_preview_panel");

@@ -59,7 +59,6 @@ describe('add.new.in.selector.spec ui-tests for adding a new content directly fr
             await shortcutForm.waitForAddNewContentButtonDisplayed();
         });
 
-
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {

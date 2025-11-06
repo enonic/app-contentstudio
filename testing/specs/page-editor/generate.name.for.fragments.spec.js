@@ -13,12 +13,13 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const BrowseDependenciesWidget = require('../../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const FragmentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/fragment.inspection.panel');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 
 describe('Generate name for fragments specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -45,9 +46,16 @@ describe('Generate name for fragments specification', function () {
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
             let insertImageDialog = new InsertImageDialog();
+            let siteFormPanel = new SiteFormPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            //await siteFormPanel.openSiteConfiguratorDialog(appConst.TEST_APPS_NAME.SIMPLE_SITE_APP);
+            //let siteConfiguratorDialog = new SiteConfiguratorReqInputDialog();
+            //await studioUtils.saveScreenshot('site_configurator_invalid');
+            // Fill in the required input in the site-configurator! The site should be valid!:
+            //await siteConfiguratorDialog.typeInTextInTrackingIdInput('test');
+            //await siteConfiguratorDialog.clickOnApplyButton();
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Insert new text-component
@@ -74,7 +82,7 @@ describe('Generate name for fragments specification', function () {
             // 7. Only one item should be present in Page Component wizard step
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.equal(result.length, 1, 'One item should be displayed in the Page Component wizard step');
-            assert.ok(result.includes('Text'), 'City list part should be present in the dialog');
+            assert.ok(result.includes('Text'), 'Text component item should be present in PCV wizard step form');
 
             await studioUtils.saveScreenshot('x_data_fragment');
             // 8. Verify that x-data toggle is displayed in the fragment-wizard:
@@ -122,8 +130,8 @@ describe('Generate name for fragments specification', function () {
             await contentBrowsePanel.pause(1000);
             // 2. Expand the site:
             await contentBrowsePanel.clickOnExpanderIcon(SITE.displayName);
-            await studioUtils.saveScreenshot('issue_text_component_inbound_section');
-            // 3. 'Content Grid' displays names of the fragments in the site(not a path):
+            await studioUtils.saveScreenshot('grid_displays_name_8255');
+            // 3. Content Grid displays names of the fragments in the site:
             let result = await contentBrowsePanel.getContentNamesInGrid()
             assert.ok(result.includes(FRAGMENT_GENERATED_NAME), 'expected fragment name should be displayed in the grid');
         });
@@ -132,7 +140,7 @@ describe('Generate name for fragments specification', function () {
         async () => {
             let pageComponentView = new PageComponentView();
             let contentWizard = new ContentWizard();
-            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardContextPanel = new WizardContextPanel();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
             // 1. Open the site with a fragment(text component)
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
@@ -145,7 +153,7 @@ describe('Generate name for fragments specification', function () {
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             //TODO check this behavior:
-            await wizardDetailsPanel.openDependencies();
+            await wizardContextPanel.openDependenciesWidget();
             // 5. Verify that there are no fragments in Page Component View:
             let result = await pageComponentView.getFragmentsDisplayName();
             assert.equal(result.length, 0, 'Fragment should not be present in Page Component View');
@@ -188,7 +196,7 @@ describe('Generate name for fragments specification', function () {
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             // 4. Save the empty layout-component as fragment:
-            await pageComponentView.openMenu("Layout");
+            await pageComponentView.openMenu('Layout');
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.pause(1000);
             await studioUtils.doSwitchToNewWizard();
@@ -232,7 +240,8 @@ describe('Generate name for fragments specification', function () {
             let contentPublishDialog = new ContentPublishDialog();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await studioUtils.saveScreenshot('issue_valid_site');
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component
             await pageComponentView.openMenu('main');
@@ -243,6 +252,7 @@ describe('Generate name for fragments specification', function () {
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
+            await studioUtils.saveScreenshot('issue_valid_site_2');
             // 5. Click on Mark as ready button and save all:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.waitForNotificationMessage();

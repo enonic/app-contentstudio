@@ -29,7 +29,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -93,7 +93,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.typeTextInCkeEditor(TEXT_LEFT_REGION);
             await contentWizard.switchToMainFrame();
-            await contentWizard.hotKeySave();
+            await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('issue_notification_msg_3');
             //await contentWizard.waitForNotificationMessage();
         });
@@ -142,7 +142,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             assert.ok(result.includes('Main'), 'main item should be displayed in the modal dialog');
             assert.ok(result.includes('text1'), 'text component should be displayed in the modal dialog');
             assert.ok(result.includes('text2'), 'the second text component should be displayed in the modal dialog');
-            assert.equal(result.length, 4, "4 items should be displayed in PCV after deleting the layout item")
+            assert.equal(result.length, 4, "4 items should be displayed in PCV after deleting the layout item");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

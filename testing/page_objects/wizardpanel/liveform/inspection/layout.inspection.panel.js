@@ -1,18 +1,18 @@
 /**
  * Created on 19.02.2020.
  */
-
-const Page = require('../../../page');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const ComponentDescriptorsDropdown = require('../../../components/selectors/component.descriptors.dropdown');
+const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
+
 const xpath = {
     container: `//div[contains(@id,'LayoutInspectionPanel')]`,
     layoutDropdown: `//div[contains(@id,'ComponentDescriptorsDropdown')]`,
 };
 
 //Context Window, Inspect tab for Layout Component
-class LayoutInspectionPanel extends Page {
+class LayoutInspectionPanel extends BaseComponentInspectionPanel {
 
     get layoutDropdown() {
         return xpath.container + xpath.layoutDropdown;
@@ -28,8 +28,7 @@ class LayoutInspectionPanel extends Page {
             await componentDescriptorsDropdown.selectFilteredComponent(displayName, xpath.container);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_layout_inspect_panel');
-            throw new Error('Layout Inspect Panel, Error during selecting a layout in the dropdown , screenshot:' + screenshot + ' ' + err);
+            await this.handleError('Layout Inspection Panel', 'err_layout_inspect_panel_dropdown', err);
         }
     }
 
@@ -37,8 +36,7 @@ class LayoutInspectionPanel extends Page {
         try {
             return await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_load_layout_inspect_panel');
-            throw new Error('Live Edit, Layout Inspection Panel is not loaded, screenshot' + screenshot + ' ' + err);
+            await this.handleError('Layout Inspection Panel was not loaded', 'err_load_layout_inspect_panel', err);
         }
     }
 
@@ -52,6 +50,11 @@ class LayoutInspectionPanel extends Page {
         let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
         await componentDescriptorsDropdown.clickOnOptionByDisplayName(optionDisplayName, xpath.container);
         return await this.pause(1000);
+    }
+
+    async waitForApplyButtonInComponentsDescriptorNotDisplayed() {
+        let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
+        await componentDescriptorsDropdown.waitForApplySelectionButtonNotDisplayed(xpath.container);
     }
 
     async getSelectedOption() {

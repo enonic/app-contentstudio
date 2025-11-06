@@ -7,7 +7,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const PublishContentDialog = require('../../page_objects/content.publish.dialog');
 const CompareWithPublishedVersionDialog = require('../../page_objects/compare.with.published.version.dialog');
@@ -51,7 +51,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             await contentPublishDialog.waitForNotificationMessage();
             // 5. Verify the text in the Published version item:
             let actualResult = await wizardVersionsWidget.getPublishMessagesFromPublishedItems();
-            assert.ok(actualResult[0] === PUBLISH_MSG, 'Expected publish mesage should be displayed in Published version item');
+            assert.ok(actualResult[0] === PUBLISH_MSG, 'Expected publish message should be displayed in Published version item');
         });
 
     it(`GIVEN existing published folder is opened WHEN permissions have been updated THEN 'Permissions updated' item should appear in Versions Widget, the content gets Modified`,
@@ -71,8 +71,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             await wizardDetailsPanel.openVersionHistory();
             // 3. Verify that 'Permissions updated' item appears in the widget
             await wizardVersionsWidget.waitForPermissionsUpdatedItemDisplayed();
-            // 4. Open Page Editor with Preview Widget, Verify that status gets  Modified
-            await contentWizard.clickOnPageEditorToggler();
+            // 4. Page Editor with Preview Widget, Verify that status gets  Modified
             let actualStatus = await contentWizard.getContentStatus();
             assert.equal(actualStatus, appConst.CONTENT_STATUS.MODIFIED, "the folder gets 'Modified'");
             // 5. Verify that the total number of items is 4
@@ -105,7 +104,6 @@ describe('version.items.after.publishing.spec tests for version items', function
             let compareWithPublishedVersionDialog = new CompareWithPublishedVersionDialog();
             // 1. Open the modified folder(permissions updated):
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
-            await contentWizard.clickOnPageEditorToggler();
             // 2. Open 'Compare With Published Version' modal dialog
             await contentWizard.clickOnShowChangesToolbarButton();
             await compareWithPublishedVersionDialog.waitForDialogOpened();

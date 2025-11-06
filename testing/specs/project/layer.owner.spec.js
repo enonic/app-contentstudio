@@ -258,7 +258,6 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             let pageComponentView = new PageComponentView();
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
-            let htmlAreaForm = new HtmlAreaForm();
             let sourceCodeDialog = new SourceCodeDialog();
             // 2. Click on Localise , Open the site:
             await studioUtils.findAndSelectItem(SITE.displayName);

@@ -6,7 +6,7 @@ const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
-const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const ImageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
@@ -89,12 +89,12 @@ describe('Content with image-selector, select images and verify that Outbound de
                 await contentWizard.typeDisplayName(CONTENT_NAME2);
                 // 2. Click on dropdown handle, expand the options and click on 5 checkboxes:
                 await imageSelectorForm.clickOnDropDownHandleAndSelectImages(5);
-                await studioUtils.saveScreenshot("image_selector_exceed");
+                await studioUtils.saveScreenshot('image_selector_exceed');
                 // 3. Click on Save button and close the wizard:
                 await studioUtils.saveAndCloseWizard();
                 // 4. Reopen the content again:
                 await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME2, false);
-                await studioUtils.saveScreenshot("image_selector_reopened");
+                await studioUtils.saveScreenshot('image_selector_reopened');
                 // Details Panel should be automatically opened:
                 // Verify that the content is valid:
                 let isInvalid = await wizardDetailsPanel.isContentInvalid();
@@ -115,8 +115,8 @@ function openWizardDependencyWidget() {
     let contentWizard = new ContentWizard();
     let wizardDetailsPanel = new WizardDetailsPanel();
     let wizardDependenciesWidget = new WizardDependenciesWidget();
-    return contentWizard.openDetailsPanel().then(() => {
-        return wizardDetailsPanel.openDependencies();
+    return contentWizard.openContextWindow().then(() => {
+        return wizardDetailsPanel.openDependenciesWidget();
     }).then(() => {
         return wizardDependenciesWidget.waitForWidgetLoaded();
     })

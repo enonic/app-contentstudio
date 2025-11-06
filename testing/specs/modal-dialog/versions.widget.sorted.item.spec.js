@@ -12,7 +12,7 @@ const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspane
 const contentBuilder = require("../../libs/content.builder");
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('tests for Sorted versions item', function () {
@@ -114,7 +114,7 @@ describe('tests for Sorted versions item', function () {
             assert.equal(numberOfSortedItems, 2, "Two sorted items should be present in the versions widget");
             // 6. Verify that user-name should not be displayed in Sorted version item
             let byUser = await browseVersionsWidget.getUserNameInItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 1);
-            assert.equal(byUser, '', "user-name should not be displayed in Sorted version item");
+            assert.equal(byUser, '', 'user-name should not be displayed in Sorted version item');
         });
 
     it(`GIVEN 'Edited' and 'Sorted' items are selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN expected options with 'sorted' icon should be present in the list`,
@@ -168,13 +168,13 @@ describe('tests for Sorted versions item', function () {
             await wizardVersionsWidget.waitForPublishedItemDisplayed();
             await studioUtils.saveScreenshot('sorted_versions_after_publishing');
             let publishedItems = await wizardVersionsWidget.countPublishedItems();
-            assert.equal(publishedItems, 1, 'One Published items should be displayed');
+            assert.equal(publishedItems, 1, 'One Published items should be displayed in the Versions Widget');
             // 4. Verify that Sorted version items remain visible:
             let sortedItems = await wizardVersionsWidget.countSortedItems();
             assert.equal(sortedItems, 2, '2 Sorted items remain visible');
         });
 
-    it(`GIVEN existing folder is selected WHEN sorted-version item has been clicked THEN 'Restore' button should be displayed`,
+    it(`GIVEN existing folder is selected WHEN sorted-version item has been clicked THEN 'Restore' button should not be displayed`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
@@ -185,11 +185,11 @@ describe('tests for Sorted versions item', function () {
             await contentBrowseDetailsPanel.openVersionHistory();
             // 3. Click on 'Sorted' version item :
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 1);
-            // 4. Verify that Restore button should  be displayed in the Sorted item:
+            // 4. Verify that Restore button should be displayed in the Sorted item:
             await browseVersionsWidget.waitForRestoreButtonDisplayed();
         });
 
-    it(`GIVEN existing sorted folder is selected WHEN not sorted version has been restored THEN 'Sort' icon gets not visible`,
+    it(`GIVEN existing sorted folder is selected WHEN edited-version has been reverted THEN 'Sort' icon gets not visible`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
@@ -204,7 +204,7 @@ describe('tests for Sorted versions item', function () {
             await browseVersionsWidget.clickOnRestoreButton();
             await browseVersionsWidget.waitForNotificationMessage();
             await studioUtils.saveScreenshot('not_sorted_version_reverted');
-            // 5. Verify that sort-icon gets not visible after reverting the not sorted version:
+            // 5. Verify that sort-icon gets not visible after reverting the version:
             await contentBrowsePanel.waitForSortIconNotDisplayed(PARENT_FOLDER.displayName);
         });
 

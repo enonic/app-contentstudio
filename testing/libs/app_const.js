@@ -112,6 +112,7 @@ module.exports = Object.freeze({
         APP_WITH_CONFIG_OPTION_SET: 'Simple Test Selenium App',
         APP_WITH_METADATA_MIXIN: 'Third Selenium App',
         FIRST_SELENIUM_APP: 'First Selenium App',
+        TEST_APP_WITH_METADATA_MIXIN: 'Test Selenium App',
         MY_FIRST_APP: 'My First App',
     },
 
@@ -217,6 +218,8 @@ module.exports = Object.freeze({
     CONTROLLER_NAME: {
         DEFAULT: 'default',
         MAIN_REGION: 'main region',
+        APP_CONTENT_TYPES_PAGE: 'Page',
+        CONTROLLER_NO_REGIONS: 'no regions',
     },
     LAYOUT_NAME: {
         COL_3: '3-col',
@@ -306,7 +309,7 @@ module.exports = Object.freeze({
         INSERT: 'Insert',
         SAVE_AS_FRAGMENT: 'Save as Fragment',
         SAVE_AS_TEMPLATE: 'Save as Template',
-        DETACH_FROM_FRAGMENT: 'Detach from fragment',
+        DETACH_FROM_FRAGMENT: 'Detach from Fragment',
         INSPECT: 'Inspect',
         REMOVE: 'Remove',
         DUPLICATE: 'Duplicate',
@@ -479,7 +482,8 @@ module.exports = Object.freeze({
         MARKED_FOR_DELETION: 'Marked for deletion',
         MOVED: 'Moved',
         MOVED_MODIFIED: 'Moved, Modified',
-        PUBLISHING_SCHEDULED: 'Scheduled'
+        PUBLISHING_SCHEDULED: 'Scheduled',
+        SCHEDULED_MODIFIED: 'Scheduled, Modified',
     },
     PUBLISH_MENU: {
         REQUEST_PUBLISH: 'Request Publishing...',
@@ -549,6 +553,9 @@ module.exports = Object.freeze({
         PATH: '_path',
         CREATOR: 'creator',
         MODIFIER: 'modifier',
+    },
+    INSPECT_PANEL_TEMPLATE_CONTROLLER: {
+        AUTOMATIC: 'Automatic',
     },
     PREVIEW_PANEL_MESSAGE: {
         CAN_NOT_RENDER_NON_MEDIA: 'Can not render non-media content',

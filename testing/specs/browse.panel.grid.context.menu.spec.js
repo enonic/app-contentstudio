@@ -126,7 +126,6 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
     it(`WHEN do right click on an existing image THEN 'New', 'Sort' menu items should be disabled in the context menu`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select an image:
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.RENAULT);
             // 2. Do the right click on the image:

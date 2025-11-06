@@ -9,7 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const appConst = require('../../libs/app_const');
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
-const PartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/part.inspection.panel');
+const CityListPartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/city.list.part.inspection.panel');
 
 describe('null.layout.spec - test for layout-controller that returns null ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -19,14 +19,15 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
     }
 
     let SITE;
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const LAYOUT_NULL = 'Layout Null';
     const TEST_TEXT = 'test1';
+    const PART_WITH_CONFIG = appConst.PART_NAME.MY_FIRST_APP_CITY_LIST;
 
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.FIRST_SELENIUM_APP], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES, appConst.TEST_APPS_NAME.MY_FIRST_APP], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -58,35 +59,38 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-
             let liveFormPanel = new LiveFormPanel();
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 3. Insert a part with config:
+            // 3. Insert 'City List' part with the config:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Part']);
-            await liveFormPanel.selectPartByDisplayName('Cities List');
+            await liveFormPanel.selectPartByDisplayName(PART_WITH_CONFIG);
             await contentWizard.switchToMainFrame();
-            await pageComponentView.openMenu('Cities List');
             // 4. Click on 'Save as Fragment' menu item. (Save the part as fragment)
+            await pageComponentView.openMenu(PART_WITH_CONFIG);
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(700);
+            // 5. Switch to the new wizard that has been opened and open Page Widget:
             await studioUtils.doSwitchToNewWizard();
-            let partInspectionPanel = new PartInspectionPanel();
-            await partInspectionPanel.waitForOpened();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            // 6. Verify that Part Inspection Panel for 'City List' part is loaded:
+            let partInspectionPanel = new CityListPartInspectionPanel();
+            await partInspectionPanel.waitForLoaded();
             await studioUtils.saveScreenshot('fragment_inspect_issue_7676_0');
-            // 5. Type a text in the config in Inspect Panel
-            await partInspectionPanel.typeTexInTextInputConfig(TEST_TEXT);
+            // 7. Type a text in the config in 'City List' Part Inspect Panel
+            await partInspectionPanel.typeTextInZoomLevelInput(TEST_TEXT);
             await studioUtils.saveScreenshot('fragment_inspect_issue_7676_1');
-            // 6. Verify that Save button gets enabled:
+            // 8. Verify that Save button gets enabled:
             await contentWizard.waitForSaveButtonEnabled();
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('fragment_inspect_issue_7676_3');
-            // 7. Verify the saved text:
-            let result = await partInspectionPanel.getTextFomTextInputConfig();
+            // 9. Verify the saved text:
+            let result = await partInspectionPanel.getTextInZoomLevelInput();
             assert.equal(result, TEST_TEXT, 'Expected text should be displayed in the input in Fragment(Part) Inspection Panel')
         });
 

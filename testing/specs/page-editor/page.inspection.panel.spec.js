@@ -9,8 +9,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
-const ContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const PageWidgetPanel = require('../../page_objects/wizardpanel/liveform/page.widget.context.window');
 
 describe('page.inspection.panel.spec: tests for page-inspection panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -18,13 +17,13 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const CONTROLLER_NAME = 'main region';
-    const EXPECTED_QUESTION = 'Switching to a page template will discard all the custom changes made to the page. Are you sure?';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
+    const EXPECTED_QUESTION = 'This will discard all the page modifications. Are you sure?';
 
     it("GIVEN new site with controller is created WHEN 'Inspect' link has been clicked THEN Inspection tab should be opened",
         async () => {
             let contentWizard = new ContentWizard();
-            let contextWindow = new ContextWindow();
+            let pageWidgetPanel = new PageWidgetPanel();
             let pageInspectionPanel = new PageInspectionPanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test site', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES], CONTROLLER_NAME);
@@ -33,47 +32,51 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             await contentWizard.typeData(SITE);
             // 2. Verify that the site should be automatically saved after selecting an application:
             await contentWizard.waitForNotificationMessage();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             // 3. Verify that the site should be saved automatically after selecting a controller
-            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             await contentWizard.waitForSaveButtonDisabled();
             // 4. Click on the Inspect tab in Inspect Panel
-            await contextWindow.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
-            await pageInspectionPanel.waitForSaveAsTemplateButtonDisplayed();
+            await pageWidgetPanel.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             // 5. Click on dropdown handle and expand options:
             let actualController = await pageInspectionPanel.getSelectedPageController();
-            assert.equal(actualController, CONTROLLER_NAME, "Expected page controller should be selected");
+            assert.equal(actualController, CONTROLLER_NAME, 'Expected page controller should be selected');
         });
 
     it("GIVEN 'Page Inspection' tab is opened WHEN another ('Automatic') option has been selected THEN 'Confirmation Dialog' with the question should appear",
         async () => {
-            let contextWindow = new ContextWindow();
+            let pageWidgetPanel = new PageWidgetPanel();
             let pageInspectionPanel = new PageInspectionPanel();
             let confirmationDialog = new ConfirmationDialog();
+            let contentWizard = new ContentWizard();
             // 1. Open existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             // 2. Click on 'Inspect' tab in Inspection panel:
-            await contextWindow.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
+            await pageWidgetPanel.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             // 3. Select another controller(Automatic) and click on OK:
             await pageInspectionPanel.selectPageTemplateOrController('Automatic');
             // 4. Confirmation dialog should appear:
             await confirmationDialog.waitForDialogOpened();
-            // 5. Verify the question:
+            // 5. Verify the question: 'Switching to a page template will discard all the custom changes made to the page. Are you sure?'
             let question = await confirmationDialog.getQuestion();
             assert.equal(question, EXPECTED_QUESTION, 'Expected question should be displayed in the dialog');
         });
 
-    // verifies :XP-3993 Inspection Panel should be closed, when 'Page Controller' was removed (Automatic)
-    it("GIVEN 'Page Inspection' tab is opened WHEN 'Automatic' option has been selected THEN 'Context window' should be closed AND Details panel should be loaded",
+    it("GIVEN 'Page Inspection' tab is opened WHEN 'Automatic' option has been selected in Page widget THEN 'Context window' should be closed AND Details panel should be loaded",
         async () => {
-            let contextWindow = new ContextWindow();
+            let pageWidgetPanel = new PageWidgetPanel();
             let contentWizard = new ContentWizard();
             let pageInspectionPanel = new PageInspectionPanel();
-            let wizardDetailsPanel = new WizardDetailsPanel();
             let confirmationDialog = new ConfirmationDialog();
             // 1. Open existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             // 2. Click on 'Inspect' tab in Inspection panel:
-            await contextWindow.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
+            await pageWidgetPanel.clickOnTabBarItem(appConst.CONTEXT_WINDOW_TABS.INSPECT);
             // 3. Select new controller(Automatic)
             await pageInspectionPanel.selectPageTemplateOrController('Automatic');
             // 4. Click on 'Yes' button
@@ -84,12 +87,10 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             await contentWizard.waitForNotificationMessage();
             // Verify - 'Save' button remains enabled after switching templates #6484
             await contentWizard.waitForSaveButtonDisabled();
-            // 6. Details Panel should be loaded
-            // TODO #8203 add test for new functionality:
-            //await pageInspectionPanel.waitForNotDisplayed();
-            //await wizardDetailsPanel.waitForDetailsPanelLoaded();
-            // 7. Controller selector should be loaded in Live Edit:
-            await contentWizard.waitForControllerOptionFilterInputVisible();
+            await wizardContextWindow.getSelectedOptionInWidgetSelectorDropdown();
+            // 6. Verify that 'Details' widget loads after selecting 'Automatic'(no default template) controller:
+            let selectedOption = await wizardContextWindow.getSelectedOptionInWidgetSelectorDropdown();
+            assert.equal(selectedOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, `'Details' widget should be in the widget selector`);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

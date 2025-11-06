@@ -7,7 +7,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const TextLine = require('../../page_objects/wizardpanel/textline.form.panel');
-const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const appConst = require('../../libs/app_const');
 
@@ -79,7 +79,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             let result1 = await textLine.getTexLineValues();
             assert.equal(result1[0], TEXT, 'Expected text should be saved');
             // 3. Open Versions Panel
-            await contentWizard.openDetailsPanel();
+            await contentWizard.openContextWindow();
             await wizardContextPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             // 4. Revert the previous version:

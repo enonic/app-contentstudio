@@ -21,7 +21,7 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
-    const CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const SITE_NAME = contentBuilder.generateRandomName('site');
     let SITE;
     let USER;
@@ -168,10 +168,13 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
 
     it('Post conditions: the layer should be deleted',
         async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog('su', 'password');
             await studioUtils.openSettingsPanel();
             // 1. Select and delete the layer:
-            await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME)
+            await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
+            await settingsBrowsePanel.pause(1000);
+            await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
         });
 
     afterEach(async () => {

@@ -18,11 +18,13 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
     }
 
     let SITE;
+    const SITE_WITH_METADATA = 'Third Selenium App';
+
     it(`GIVEN site with application-metadata is saved WHEN required input for metadata is empty THEN red icon should be displayed in the grid near the content`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site-meta');
-            SITE = contentBuilder.buildSite(displayName, 'test for metadata', [appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
+            SITE = contentBuilder.buildSite(displayName, 'test for metadata', [SITE_WITH_METADATA]);
             //1. New site is added:
             await studioUtils.doAddSite(SITE);
             //2. Type the name in the filter-panel:
@@ -71,12 +73,12 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('site-meta');
-            let testSite = contentBuilder.buildSite(displayName, 'test for metadata', [appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
+            let testSite = contentBuilder.buildSite(displayName, 'test for metadata', [SITE_WITH_METADATA]);
             // 1. New site-wizard is opened:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(testSite.displayName);
             // 2. Application with controllers has been selected:
-            await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
+            await siteFormPanel.addApplications([SITE_WITH_METADATA]);
             // the site automatically saved:
             // 3. Description has been typed:
             await metadataStepForm.typeDescription('test description');

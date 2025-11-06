@@ -43,10 +43,10 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
             await attachmentsForm.clickOnRemoveItemIcon(0);
             // 3. Verify that the content is automatically saved
             let message = await contentWizard.waitForNotificationMessage();
-            assert.equal(message, NOTIFICATION_MESSAGE, "Expected notification message should appear");
+            assert.equal(message, NOTIFICATION_MESSAGE, 'Expected notification message should appear');
             // 4. Verify that Validation Recording for attachments gets visible now:
             let actualRecording = await attachmentsForm.getFormValidationRecording();
-            assert.equal(actualRecording, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "Validation recording should be displayed");
+            assert.equal(actualRecording, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, 'Validation recording should be displayed');
             // 5. Verify that the content is invalid
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid, 'Content should be invalid');

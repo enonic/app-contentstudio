@@ -36,8 +36,9 @@ describe("tests for 'Show Outbound' button in shortcut wizard", function () {
             await contentWizard.typeDisplayName(SHORTCUT_NAME);
             await shortcutForm.filterOptionsAndSelectTarget(FOLDER_NAME);
             await contentWizard.waitAndClickOnSave();
-            // 2. Open Dependencies widget:
-            await contentWizard.openDependenciesWidget();
+            let contextWindow = await contentWizard.openContextWindow();
+            // 2. Open 'Dependencies' widget:
+            await contextWindow.openDependenciesWidget();
             // 3. Verify that 'No incoming dependencies' is displayed:
             await wizardDependenciesWidget.waitForNoIncomingDependenciesMessage();
             // 4. Click on 'Show Outbound' button:

@@ -88,7 +88,7 @@ describe('content.item.preview.spec - Select a content file and check expected i
             await studioUtils.saveScreenshot('unable_to_render');
             let message = await contentItemPreviewPanel.getNoPreviewMessage();
             // 'Please add an application to your site to enable rendering of this item'
-            assert.equal(message, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE_ADD_APP, 'expected message should be displayed');
+            assert.equal(message, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, 'expected message should be displayed');
             // 3. Preview button should be disabled for a folder
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
         });
@@ -133,7 +133,7 @@ describe('content.item.preview.spec - Select a content file and check expected i
             await contentItemPreviewPanel.waitForPreviewButtonDisabled();
             let message = await contentItemPreviewPanel.getNoPreviewMessage();
             // 3. Verify - 'Please add an application to your site to enable rendering of this item'
-            assert.equal(message, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE_ADD_APP, 'expected message should be displayed');
+            assert.equal(message, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, 'expected message should be displayed');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

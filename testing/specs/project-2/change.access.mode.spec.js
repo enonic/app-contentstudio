@@ -26,7 +26,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             // 1. Navigate to Settings Panel:
             await studioUtils.openSettingsPanel();
             // 2. Save new project (mode access is Private):
-            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, "test description", null, null, "Private");
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, 'test description', null, null, 'Private');
         });
 
     it("Precondition: new folder should be added in existing project(Private mode access)",
@@ -48,8 +48,8 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            // 2. Click on Public radio and confirm the changes:
-            await projectWizard.clickOnAccessModeRadio("Public");
+            // 2. Click on 'Public' radio and confirm the changes:
+            await projectWizard.clickOnAccessModeRadio('Public');
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
@@ -57,10 +57,10 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             await projectWizard.waitAndClickOnSave();
             let actualMessages = await projectWizard.waitForNotificationMessages();
             // 4. Verify that 2  notification messages appear: 'Project is modified' and 'Permissions are applied'
-            await studioUtils.saveScreenshot("project_access_mode_updated");
+            await studioUtils.saveScreenshot('project_access_mode_updated');
             assert.equal(actualMessages[1], appConst.projectModifiedMessage(PROJECT_DISPLAY_NAME));
-            assert.ok(actualMessages[0].includes("Permissions"), "Permissions are applied - the second expected notification message");
-            assert.ok(actualMessages[0].includes("are applied"), "Permissions are applied - the second expected notification message");
+            assert.ok(actualMessages[0].includes('Permissions'), 'Permissions are applied - the second expected notification message');
+            assert.ok(actualMessages[0].includes('are applied'), 'Permissions are applied - the second expected notification message');
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/1889
@@ -75,7 +75,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
             // 2. Verify that 'Public' radio is selected:
-            let isSelected = await projectWizard.isAccessModeRadioSelected("Public");
+            let isSelected = await projectWizard.isAccessModeRadioSelected('Public');
             assert.ok(isSelected, "'Public' radio button should be selected");
             isSelected = await projectWizard.isAccessModeRadioSelected("Private");
             assert.ok(isSelected === false, "'Private' radio button should not be selected");
@@ -83,7 +83,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             assert.ok(isSelected === false, "'Custom' radio button should not be selected");
         });
 
-    it(`GIVEN existing project context is selected WHEN existing folder has been clicked THEN 'Everyone can read this item' header should be displayed in Access Widget`,
+    it(`GIVEN existing project's context is selected WHEN existing folder has been clicked THEN 'Everyone can read this item' header should be displayed in Access Widget`,
         async () => {
             let userAccessWidget = new UserAccessWidget();
             // 1. Select the project in 'Select Context' dialog

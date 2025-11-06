@@ -11,6 +11,7 @@ const TextComponentCke = require('../../page_objects/components/text.component')
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('Test for updating text in fragment', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -19,7 +20,7 @@ describe('Test for updating text in fragment', function () {
     }
 
     const SITE_NAME = appConst.generateRandomName('site');
-    let CONTROLLER_NAME = 'main region';
+    let CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const GENERATED_TEXT_2 = appConst.generateRandomName('second');
     const GENERATED_TEXT_1 = appConst.generateRandomName('first');
 
@@ -35,8 +36,11 @@ describe('Test for updating text in fragment', function () {
             await contentWizard.typeDisplayName(SITE_NAME);
             await siteFormPanel.filterOptionsAndSelectApplication(appConst.TEST_APPS_NAME.SIMPLE_SITE_APP);
             await contentWizard.pause(2000);
-            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            let pageInspectionPanel = new PageInspectionPanel();
+            let wizardContextWindow = await contentWizard.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component
             await pageComponentView.openMenu('main');
@@ -48,7 +52,7 @@ describe('Test for updating text in fragment', function () {
             await contentWizard.pause(700);
             // 5. Switch to Fragment wizard:
             await studioUtils.doSwitchToNewWizard();
-            // 6. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 6. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(GENERATED_TEXT_1);
             // 7. Update the text in the fragment
@@ -70,8 +74,7 @@ describe('Test for updating text in fragment', function () {
         async () => {
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open the existing text fragment:
-            let fragmentDisplayName = GENERATED_TEXT_1;
-            await studioUtils.selectByDisplayNameAndOpenContent(fragmentDisplayName);
+            await studioUtils.selectByDisplayNameAndOpenContent(GENERATED_TEXT_1);
             // 2. Expand the context menu in the Wizard Step form:
             await pageComponentsWizardStepForm.openMenu(GENERATED_TEXT_2);
             await studioUtils.saveScreenshot('fragment_txt_context_menu');
@@ -92,8 +95,7 @@ describe('Test for updating text in fragment', function () {
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
             // 1. Open the existing text fragment:
-            let fragmentDisplayName = GENERATED_TEXT_1;
-            await studioUtils.selectByDisplayNameAndOpenContent(fragmentDisplayName);
+            await studioUtils.selectByDisplayNameAndOpenContent(GENERATED_TEXT_1);
             await contentWizard.switchToLiveEditFrame();
             // 2. Verify that expected text is present in the Live Edit:
             let actualText1 = await liveFormPanel.getTextInTextComponent();

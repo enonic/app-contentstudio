@@ -16,7 +16,7 @@ const CreateIssueDialog = require('../page_objects/issue/create.issue.dialog');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const InsertLinkDialog = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
-const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
+const BrowseContextWindowPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
@@ -32,7 +32,7 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 const DateTimeRange = require('../page_objects/components/datetime.range');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
-const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.context.panel');
+const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
 const fs = require('fs');
 const path = require('path');
 const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
@@ -41,6 +41,8 @@ const EditSettingDialog = require('../page_objects/details_panel/edit.settings.d
 const EditScheduleDialog = require('../page_objects/details_panel/edit.schedule.dialog');
 const InsertLinkDialogContentPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
 const InsertLinkDialogUrlPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
+const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const LiveFormPanel = require('../page_objects/wizardpanel/liveform/live.form.panel');
 
 module.exports = {
 
@@ -143,8 +145,8 @@ module.exports = {
                 await insertLinkDialogContentPanel.clickOnShowContentFromEntireProjectCheckbox();
             }
             await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(contentDisplayName);
-        // After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
-        await insertLinkDialogContentPanel.clickOnOptionByDisplayName(contentDisplayName);
+            // After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(contentDisplayName);
             await this.saveScreenshot('content_link_dialog');
             await insertLinkDialog.clickOnInsertButton();
             return await insertLinkDialog.pause(700);
@@ -155,7 +157,7 @@ module.exports = {
     },
     async doCloseCurrentBrowserTab() {
         let title = await this.getBrowser().getTitle();
-        if (title != 'Enonic XP Home') {
+        if (title !== 'Enonic XP Home') {
             //return await this.getBrowser().closeWindow();
             return await this.getBrowser().execute('window.close();')
         }
@@ -202,12 +204,12 @@ module.exports = {
     },
     async openBrowseDetailsPanel() {
         let browsePanel = new BrowsePanel();
-        let browseDetailsPanel = new BrowseDetailsPanel();
-        let result = await browseDetailsPanel.isPanelVisible();
+        let browseContextWindow = new BrowseContextWindowPanel();
+        let result = await browseContextWindow.isPanelVisible();
         if (!result) {
             await browsePanel.clickOnDetailsPanelToggleButton();
         }
-        await browseDetailsPanel.waitForLoaded();
+        await browseContextWindow.waitForLoaded();
         await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
         return await browsePanel.pause(1000);
     },
@@ -289,11 +291,12 @@ module.exports = {
     },
     async doAddPublishedShortcut(shortcut) {
         let contentWizardPanel = new ContentWizardPanel();
-        //Open new shortcut-wizard:
+        // Open new shortcut-wizard:
         await this.openContentWizard(appConst.contentTypes.SHORTCUT);
         await contentWizardPanel.typeData(shortcut);
         await contentWizardPanel.clickOnMarkAsReadyButton();
         let contentPublishDialog = new ContentPublishDialog();
+        await contentPublishDialog.waitForDialogOpened();
         await contentPublishDialog.clickOnPublishNowButton();
         await contentPublishDialog.waitForDialogClosed();
         await contentWizardPanel.waitForNotificationMessage();
@@ -313,6 +316,7 @@ module.exports = {
         await contentWizardPanel.typeData(folder);
         await contentWizardPanel.clickOnMarkAsReadyButton();
         let contentPublishDialog = new ContentPublishDialog();
+        await contentPublishDialog.waitForDialogOpened();
         await contentPublishDialog.clickOnPublishNowButton();
         await contentPublishDialog.waitForDialogClosed();
         await contentWizardPanel.waitForNotificationMessage();
@@ -342,13 +346,16 @@ module.exports = {
     },
     async doAddSite(site, noControllers) {
         let contentWizardPanel = new ContentWizardPanel();
+        let pageInspectionPanel = new PageInspectionPanel();
+        let liveFormPanel = new LiveFormPanel();
         // 1. Open new site-wizard:
         await this.openContentWizard(appConst.contentTypes.SITE);
         await contentWizardPanel.typeData(site);
         // 2. Type the data and save:
         if (site.data.controller) {
-            //await contentWizardPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
-            await contentWizardPanel.selectPageDescriptor(site.data.controller);
+            let wizardContextWindow =  await contentWizardPanel.openContextWindow();
+            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            await pageInspectionPanel.selectPageTemplateOrController(site.data.controller);
         }
         if (noControllers) {
             await contentWizardPanel.waitAndClickOnSave();
@@ -364,6 +371,7 @@ module.exports = {
         await contentWizardPanel.typeData(site);
 
         if (site.data.controller) {
+            // TODO 8607
             await contentWizardPanel.selectPageDescriptor(site.data.controller);
         } else {
             await contentWizardPanel.clickOnMarkAsReadyButton();
@@ -392,10 +400,15 @@ module.exports = {
 
     async doAddPageTemplate(siteName, template) {
         let contentWizardPanel = new ContentWizardPanel();
+        let liveFormPanel = new LiveFormPanel();
         await this.doOpenPageTemplateWizard(siteName);
         await contentWizardPanel.typeData(template);
-        // auto saving should be here:
-        await contentWizardPanel.selectPageDescriptor(template.data.controllerDisplayName);
+        // auto-saving of template should be after selecting a controller:
+        let pageInspectionPanel = new PageInspectionPanel();
+        let wizardContextWindow =  await contentWizardPanel.openContextWindow();
+        await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+        await pageInspectionPanel.selectPageTemplateOrController(template.data.controllerDisplayName);
+        await contentWizardPanel.waitForNotificationMessage();
         await this.saveScreenshot(template.displayName + '_created');
         await this.doCloseCurrentBrowserTab();
         await this.doSwitchToContentBrowsePanel();
@@ -478,7 +491,7 @@ module.exports = {
             return await browsePanel.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_item');
-            throw new Error("Select a item, error screenshot:" + screenshot + ' ' + err);
+            throw new Error(`Select the item in grid, screenshot:${screenshot} ` + err);
         }
     },
     async saveScreenshotUniqueName(namePart) {
@@ -497,7 +510,7 @@ module.exports = {
             return await browsePanel.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_item');
-            throw new Error("Select a item, error screenshot:" + screenshot + ' ' + err);
+            throw new Error(`Select the item in grid, screenshot:${screenshot} ` + err);
         }
     },
 
@@ -664,7 +677,7 @@ module.exports = {
         if (result) {
             await launcherPanel.clickOnContentStudioLink();
         } else {
-            console.log("Login Page is opened, type a password and name...");
+            console.log('Login Page is opened, type a password and name...');
             return await this.doLoginAndClickOnContentStudio(userName, password);
         }
     },
@@ -876,9 +889,9 @@ module.exports = {
     async openDependencyWidgetInBrowsePanel() {
         let browsePanel = new BrowsePanel();
         let browseDependenciesWidget = new BrowseDependenciesWidget();
-        let browseDetailsPanel = new BrowseDetailsPanel();
+        let browseContextWindow = new BrowseContextWindowPanel();
         await browsePanel.openContextWindow();
-        await browseDetailsPanel.openDependencies();
+        await browseContextWindow.openDependenciesWidget();
         return await browseDependenciesWidget.waitForWidgetLoaded();
     },
     isStringEmpty(str) {
@@ -921,18 +934,18 @@ module.exports = {
         try {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             await this.openContentStudioMenu();
-            await this.waitForElementDisplayed(lib.SETTINGS_BUTTON, appConst.mediumTimeout);
-            await this.clickOnElement(lib.SETTINGS_BUTTON);
+            await this.waitForElementDisplayed(lib.WIDGET_SIDEBAR.SETTINGS_BUTTON, appConst.mediumTimeout);
+            await this.clickOnElement(lib.WIDGET_SIDEBAR.SETTINGS_BUTTON);
             await this.getBrowser().pause(300);
             await settingsBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
             return settingsBrowsePanel;
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_open_settings'));
+            await this.saveScreenshotUniqueName('err_open_settings');
             throw new Error('Settings Panel was not opened: ' + err);
         }
     },
     async switchToContentMode() {
-        await this.clickOnElement(lib.MODE_CONTENT_BUTTON);
+        await this.clickOnElement(lib.WIDGET_SIDEBAR.MODE_CONTENT_BUTTON);
         await this.getBrowser().pause(200);
         return new ContentBrowsePanel();
     },
@@ -1004,6 +1017,7 @@ module.exports = {
         await this.clickOnSystemOpenUserWizard();
         // 2. Type the data:
         await userWizard.typeData(userData);
+        await userWizard.clickOnRolesAndGroupsLink()
         await this.saveScreenshot(appConst.generateRandomName('user'));
         // 3. Save the data and close the wizard:
         return await this.saveAndCloseUserWizard(userData.displayName);
@@ -1117,9 +1131,9 @@ module.exports = {
     async openWizardDependencyWidget() {
         let contentWizard = new ContentWizardPanel();
         let wizardDependenciesWidget = new WizardDependenciesWidget();
-        let wizardDetailsPanel = new WizardDetailsPanel();
-        await contentWizard.openDetailsPanel();
-        await wizardDetailsPanel.openDependencies();
+        let wizardContextWindow = new WizardContextPanel();
+        await contentWizard.openContextWindow();
+        await wizardContextWindow.openDependenciesWidget();
         await wizardDependenciesWidget.waitForWidgetLoaded();
         return wizardDependenciesWidget;
     },
@@ -1176,8 +1190,11 @@ module.exports = {
         let appBrowsePanel = new AppBrowsePanel();
         console.log('testUtils:switching to Applications app...');
         await this.getBrowser().switchWindow(appConst.BROWSER_XP_TITLES.APPLICATIONS_TITLE);
-        console.log("switched to Applications app...");
+        console.log('switched to Applications app...');
         await appBrowsePanel.waitForSpinnerNotVisible();
         return await appBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
     },
+    async saveScreen(name){
+        await this.getBrowser().saveScreen();
+    }
 };

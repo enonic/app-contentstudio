@@ -7,7 +7,6 @@ const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const ContentSelectorForm = require('../../page_objects/wizardpanel/content.selector.form');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 
