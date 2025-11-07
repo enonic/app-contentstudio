@@ -30,7 +30,12 @@ export const $activeProject = computed($projects, (store) => {
 export const $activeProjectName = computed($activeProject, (activeProject) => {
     if (!activeProject) return '';
 
-    return `${activeProject.getDisplayName()} (${activeProject.getLanguage()})`;
+    const projectDisplayName = activeProject.getDisplayName();
+    const projectLanguage = activeProject.getLanguage();
+
+    if (!projectLanguage) return projectDisplayName;
+
+    return `${projectDisplayName} (${projectLanguage})`;
 });
 
 export const $isInitialized = computed($projects, (store) => {
