@@ -55,7 +55,6 @@ import {GetContentTypeByNameRequest} from 'lib-contentstudio/app/resource/GetCon
 import {Router} from 'lib-contentstudio/app/Router';
 import {Project} from 'lib-contentstudio/app/settings/data/project/Project';
 import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/ProjectHelper';
-import {ProjectNotAvailableDialog} from 'lib-contentstudio/app/settings/dialog/project/create/ProjectNotAvailableDialog';
 import {ProjectDeletedEvent} from 'lib-contentstudio/app/settings/event/ProjectDeletedEvent';
 import {SettingsServerEventsListener} from 'lib-contentstudio/app/settings/event/SettingsServerEventsListener';
 import {ProjectListRequest} from 'lib-contentstudio/app/settings/resource/ProjectListRequest';
@@ -296,15 +295,6 @@ const getFirstAvailableProject = (projects: Project[]): Project => {
     return projects.find((p: Project) => ProjectHelper.isAvailable(p));
 };
 
-const handleNoProjectsAvailable = () => {
-    if (AuthHelper.isContentAdmin()) {
-        new ProjectNotAvailableDialog().open();
-    } else {
-        ProjectSelectionDialog.get().setUpdateOnOpen(true);
-        ProjectSelectionDialog.get().open();
-    }
-};
-
 let connectionDetector: ConnectionDetector;
 
 async function startApplication() {
@@ -314,8 +304,6 @@ async function startApplication() {
 
     startServerEventListeners(application);
     initApplicationEventListener();
-
-    ProjectContext.get().onNoProjectsAvailable(() => handleNoProjectsAvailable());
 
     initProjectContext(application)
         .then(() => {
@@ -567,8 +555,6 @@ async function startContentBrowser() {
 
 function initProjectContext(application: Application): Q.Promise<void> {
     return new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
-        ProjectSelectionDialog.get().setProjects(projects);
-
         const projectName: string = application.getPath().getElement(0) || localStorage.getItem(ProjectContext.LOCAL_STORAGE_KEY);
 
         if (projectName) {
@@ -590,8 +576,6 @@ function initProjectContext(application: Application): Q.Promise<void> {
             ProjectContext.get().setNotAvailable();
             return;
         }
-
-        ProjectSelectionDialog.get().open();
     });
 }
 
