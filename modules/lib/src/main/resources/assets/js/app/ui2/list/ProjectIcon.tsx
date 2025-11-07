@@ -1,5 +1,6 @@
+import {Layers} from 'lucide-react';
 import type {ReactElement, ReactNode} from 'react';
-import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
+import {DefaultProjectIcon} from '../icons/DefaultProjectIcon';
 import {resolveProjectIconUrl} from '../util/url';
 import {Flag} from '../../locale/Flag';
 import {cn} from '@enonic/ui';
@@ -22,43 +23,45 @@ export const ProjectIcon = ({
 }: ProjectIconProps): ReactElement => {
     const url = hasIcon ? resolveProjectIconUrl(projectName) : null;
     if (url) {
-        return <img src={url} alt={projectName} draggable={false} className="size-8 rounded-full bg-center object-cover"/>;
+        return <img src={url} alt={projectName} draggable={false} className="ml-2.5 size-8 rounded-full bg-center object-cover"/>;
     }
 
     if (!language) {
+        if (isLayer) {
+            return (
+                <Layers
+                    className={cn(
+                        'ml-2.5 size-8 flex items-center justify-center',
+                        className
+                    )}
+                />
+            );
+        }
         return (
-            <span
-                className={cn(
-                    'flex items-center justify-center size-8 rounded-full text-4xl',
-                    isLayer ? ProjectIconUrlResolver.getDefaultLayerIcon() : ProjectIconUrlResolver.getDefaultProjectIcon(),
-                    className
-                )}
-                aria-hidden="true"
+            <DefaultProjectIcon
+                className={cn('ml-2.5 size-8 flex items-center justify-center', className)}
             />
         );
     }
 
     const lang = language.toLowerCase();
-    const countryClass = new Flag(lang).getCountryClass();
-    const code = countryClass.startsWith('fi-') ? countryClass.slice(3) : countryClass;
-
-    if (!code || code === 'none' || code === 'unknown') {
-        return (
-            <div
-            className={cn('flex items-center justify-center size-8 rounded-full border-1 border-bdr-subtle', className)} aria-hidden="true">
-                {lang.slice(0, 2)}
-            </div>
-        );
-    }
+    const flag = new Flag(lang);
+    const countryClass = flag.getCountryClass();
+    const flagElement = flag.getEl().getHTMLElement();
+    const dataCode = flagElement.getAttribute('data-code') ?? lang.slice(0, 2);
+    const initials = lang.slice(0, 2);
 
     return (
-        <div
-            className={cn('size-8 rounded-full flag bg-center', countryClass, className)}
-            data-code={code}
-            aria-hidden="true"
-        />
+        <div className={cn('ml-2.5 relative size-8', className)} aria-hidden="true">
+            <div className="absolute inset-0 flex items-center justify-center rounded-full border-1 border-bdr-subtle text-xs font-semibold lowercase text-subtle">
+                {initials}
+            </div>
+            <div
+                className={cn('absolute inset-0 rounded-full flag bg-center', countryClass)}
+                data-code={dataCode}
+            />
+        </div>
     );
-
 };
 
 ProjectIcon.displayName = 'ProjectIcon';

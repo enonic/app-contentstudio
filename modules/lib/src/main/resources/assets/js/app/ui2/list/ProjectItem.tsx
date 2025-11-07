@@ -11,6 +11,7 @@ export type ProjectItemProps = {
     language?: string;
     hasIcon?: boolean;
     href?: string;
+    isLayer?: boolean;
 } & Omit<ListItemProps, 'children'>;
 
 export function ProjectItem({
@@ -18,6 +19,7 @@ export function ProjectItem({
     projectName,
     language,
     hasIcon,
+    isLayer,
     className,
     ...rest
 }: ProjectItemProps): ReactElement {
@@ -25,7 +27,7 @@ export function ProjectItem({
         <ListItem className={cn('cursor-pointer', className)} {...rest}>
             <ListItem.Content className="grid grid-cols-[auto_1fr] gap-2.5 items-center">
                 <div className='flex items-center justify-center flex-shrink-0 group-data-[tone=inverse]:text-alt'>
-                    <ProjectIcon className="row-span-2 size-8 group-data-[tone=inverse]:!text-alt" projectName={projectName} language={language} hasIcon={hasIcon} />
+                    <ProjectIcon className="row-span-2 size-8 group-data-[tone=inverse]:text-alt" projectName={projectName} language={language} hasIcon={hasIcon} isLayer={isLayer} />
                 </div>
                 <div className='min-w-0 text-left'>
                     <h1 className='text-base truncate font-semibold group-data-[tone=inverse]:text-alt'>
@@ -50,6 +52,7 @@ export class ProjectItemElement
                 projectName: project.getName(),
                 language: project.getLanguage(),
                 hasIcon: !!project.getIcon(),
+                isLayer: project.hasParents(),
             },
             ProjectItem,
         );
