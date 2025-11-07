@@ -17,17 +17,11 @@ export const $projects = map<ProjectsStore>({
     activeProjectId: undefined,
 });
 
-syncMapStore($projects, 'projects', {
+syncMapStore($projects, 'activeProjectId', {
     keys: ['activeProjectId'],
     loadInitial: true,
     syncTabs: true,
 });
-
-export function setActiveProject(project: Readonly<Project> | undefined): void {
-    const existsInStore = $projects.get().projects.some((p) => getProjectId(p) === getProjectId(project));
-    if (!existsInStore) return;
-    $projects.setKey('activeProjectId', getProjectId(project));
-}
 
 export const $activeProject = computed($projects, (store) => {
     return store.projects.find((p) => getProjectId(p) === store.activeProjectId);
@@ -42,6 +36,12 @@ export const $activeProjectName = computed($activeProject, (activeProject) => {
 export const $isInitialized = computed($projects, (store) => {
     return store.activeProjectId === undefined || store.projects.length > 0;
 });
+
+export function setActiveProject(project: Readonly<Project> | undefined): void {
+    const existsInStore = $projects.get().projects.some((p) => getProjectId(p) === getProjectId(project));
+    if (!existsInStore) return;
+    $projects.setKey('activeProjectId', getProjectId(project));
+}
 
 //
 // * Utilities
@@ -86,16 +86,16 @@ function updateActiveProject(): void {
         return;
     }
 
-    const {projects, activeProjectId} = $projects.get();
+    const {projects} = $projects.get();
 
     if (projects.length === 1) {
         setActiveProject(projects[0]);
         return;
     }
 
-    const activeProject = projects.find((p) => getProjectId(p) === activeProjectId);
-    if (activeProject) {
-        setActiveProject(activeProject);
+    const projectFromUrl = projects.find((p) => getProjectId(p) === getProjectIdFromUrl());
+    if (projectFromUrl) {
+        setActiveProject(projectFromUrl);
     }
 }
 
@@ -108,7 +108,6 @@ function getProjectIdFromUrl(): string | undefined {
 //
 // * Initialization
 //
-
 const projectIdFromUrl = getProjectIdFromUrl();
 if (projectIdFromUrl) {
     $projects.setKey('activeProjectId', projectIdFromUrl);
