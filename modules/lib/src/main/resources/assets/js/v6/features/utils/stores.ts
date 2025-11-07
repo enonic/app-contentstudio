@@ -1,10 +1,10 @@
-import {BaseDeepMap, DeepMapStore, MapStore, StoreValue, WritableAtom} from 'nanostores';
+import {MapStore, StoreValue, WritableAtom} from 'nanostores';
 import {createThrottle} from './functions';
 import {normalize} from './text';
 
 type StorageType = 'local' | 'session';
 
-type WritableStore = WritableAtom | MapStore | DeepMapStore<BaseDeepMap>;
+type WritableStore = WritableAtom | MapStore;
 
 type SyncOptions<S extends WritableStore, V extends StoreValue<S> = StoreValue<S>> = {
     encode?: (data: V) => string;
@@ -14,6 +14,8 @@ type SyncOptions<S extends WritableStore, V extends StoreValue<S> = StoreValue<S
     loadInitial?: boolean;
     syncTabs?: boolean;
 };
+
+type SyncAtomOptions = Omit<SyncOptions<WritableAtom, unknown>, 'encode' | 'decode'>;
 
 type SyncMapOptions<M extends Record<string, unknown>> = {
     keys?: (keyof M)[];
@@ -106,7 +108,7 @@ type SyncMapOptions<M extends Record<string, unknown>> = {
  *
  * @returns Cleanup function. Call with no argument to cleanup. Call with `true` to also clear storage.
  */
-export function syncStore<S extends WritableStore, V extends StoreValue<S> = StoreValue<S>>(
+function syncStore<S extends WritableStore, V extends StoreValue<S> = StoreValue<S>>(
     store: S,
     storeName: string,
     options: SyncOptions<S, V> = {}
@@ -138,11 +140,9 @@ export function syncStore<S extends WritableStore, V extends StoreValue<S> = Sto
 
     // Get and set helper functions
     const getFromStorage = (): V | undefined => {
-
         try {
             const raw = storage.getItem(storageKey);
             if (!raw) return undefined;
-            console.log(`getFromStorage <${storageKey}>: ${raw}`);
             return decode(raw);
         } catch (error: unknown) {
             console.error(`Error getting value from ${storageType}Storage ${storageKey}`, error);
@@ -153,7 +153,6 @@ export function syncStore<S extends WritableStore, V extends StoreValue<S> = Sto
     const writeToStorage = (value: V): void => {
         try {
             storage.setItem(storageKey, encode(value));
-            console.log(`writeToStorage <${storageKey}>: ${encode(value)}`);
         } catch (error: unknown) {
             if (isQuotaExceededError(error)) {
                 console.error(`${storageType}Storage quota exceeded for ${storageKey}`, error);
@@ -166,7 +165,6 @@ export function syncStore<S extends WritableStore, V extends StoreValue<S> = Sto
     const removeFromStorage = (): void => {
         try {
             storage.removeItem(storageKey);
-            console.log(`removeFromStorage <${storageKey}>`);
         } catch (error: unknown) {
             console.error(`Error removing from ${storageType}Storage ${storageKey}`, error);
         }
@@ -176,7 +174,6 @@ export function syncStore<S extends WritableStore, V extends StoreValue<S> = Sto
     const throttledWrite = createThrottle((value: V, oldValue: V | undefined): void => {
         try {
             if (value !== undefined) {
-                console.log(`throttledWrite <${storageKey}>: ${encode(value)}`);
                 writeToStorage(value);
             } else {
                 removeFromStorage();
@@ -255,7 +252,48 @@ export function syncStore<S extends WritableStore, V extends StoreValue<S> = Sto
 }
 
 /**
- * Convenience wrapper for syncing MapStore with optional partial key syncing.
+ * Convenience wrapper for syncing Nanostores atom (WritableAtom) to browser storage.
+ *
+ * **Key Features:**
+ * - Sync the entire atom value (deep equality, full overwrite)
+ *
+ * **When to Use:**
+ * - You have a simple atom (single value) you want persisted across browser reloads/sessions
+ *
+ * @example
+ * import { atom } from 'nanostores';
+ * const counter = atom(0);
+ * const unsync = syncAtomStore(counter, 'counter', {
+ *     loadInitial: true,
+ *     syncTabs: true
+ * });
+ * counter.set(2); // Persists to localStorage
+ * unsync(); // Cleanup listeners and sync
+ *
+ * @param store      AtomStore to synchronize
+ * @param storeName  Logical name for the storage key (will be normalized)
+ * @param options
+ *   - throttleMs:     Write throttle delay in ms (default: 100)
+ *   - storageType:    'local' or 'session' (default: 'local')
+ *   - loadInitial:    Load value from storage into store on initialization (default: false)
+ *   - syncTabs:       Sync changes from other tabs (localStorage only, default: false)
+ *
+ * @returns Cleanup function. Call with no argument to cleanup. Call with `true` to also clear storage.
+ */
+export function syncAtomStore(
+    store: WritableStore,
+    storeName: string,
+    options: SyncAtomOptions = {}
+): (clearStorage?: boolean) => void {
+    return syncStore(store, storeName, {
+        ...options,
+        encode: (data: unknown): string => JSON.stringify(data),
+        decode: (raw: string): unknown => JSON.parse(raw) as unknown,
+    });
+}
+
+/**
+ * Convenience wrapper for syncing Nanostores (MapStore) with optional partial key syncing.
  *
  * This function simplifies the common pattern of syncing only specific keys from a map store.
  * It automatically generates encode/decode functions based on the keys you want to sync.
@@ -396,10 +434,7 @@ function isQuotaExceededError(error: unknown): boolean {
         return false;
     }
 
-    return (
-        error.name === 'QuotaExceededError' ||
-        error.name === 'NS_ERROR_DOM_QUOTA_REACHED'
-    );
+    return error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED';
 }
 
 function createNoopSync(): (clearStorage?: boolean) => void {
