@@ -6,6 +6,8 @@ import {ProjectCreatedEvent} from '../../../app/settings/event/ProjectCreatedEve
 import {ProjectDeletedEvent} from '../../../app/settings/event/ProjectDeletedEvent';
 import {syncMapStore} from '../utils/stores';
 import {$config} from './config.store';
+import {setProjectSelectionDialogOpen} from './dialogs.store';
+import {ProjectContext} from '../../../app/project/ProjectContext';
 
 /*
 TODO: Enonic UI - Feature
@@ -121,6 +123,8 @@ function updateActiveProject(): void {
     if (projectFromUrl) {
         setActiveProject(projectFromUrl);
     }
+
+    setProjectSelectionDialogOpen(true);
 }
 
 /**
@@ -155,3 +159,14 @@ ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
     $projects.setKey('projects', updatedProjects);
     updateActiveProject();
 });
+
+
+//
+// * Legacy
+//
+// TODO: Enonic UI - Deprecated - Remove this once the ProjectContext is removed
+$activeProject.subscribe((project) => {
+    if (!project) return;
+    ProjectContext.get().setProject(project as Project);
+});
+

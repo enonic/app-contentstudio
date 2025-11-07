@@ -4,10 +4,10 @@ import {Button, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ArrowLeftRight, BellDotIcon, BellIcon, LayoutGrid} from 'lucide-react';
 import {ReactElement} from 'react';
-import {ProjectSelectionDialog} from '../../../../app/dialog/ProjectSelectionDialog';
 import {ShowIssuesDialogEvent} from '../../../../app/browse/ShowIssuesDialogEvent';
 import {useI18n} from '../../../../app/ui2/hooks/useI18n';
 import {$activeProjectName} from '../../store/projects.store';
+import {setProjectSelectionDialogOpen} from '../../store/dialogs.store';
 import {$issuesStats} from '../../store/issuesStats.store';
 import {IssueStatsJson} from '../../../../app/issue/json/IssueStatsJson';
 
@@ -25,9 +25,7 @@ function createIssuesLabelKeys(stats: Readonly<IssueStatsJson> | undefined): [`f
 
 const AppBar = (): ReactElement => {
     const activeProjectName = useStore($activeProjectName);
-
     const {stats} = useStore($issuesStats);
-
     const issuesStatsLabel = useI18n(...createIssuesLabelKeys(stats));
 
     return (
@@ -36,9 +34,7 @@ const AppBar = (): ReactElement => {
                 className="mr-auto"
                 size="sm"
                 endIcon={ArrowLeftRight}
-                onClick={() => {
-                    ProjectSelectionDialog.get().open();
-                }}
+                onClick={() => setProjectSelectionDialogOpen(true)}
                 aria-label={useI18n('wcag.appbar.project.label')}
                 label={activeProjectName}
             />
