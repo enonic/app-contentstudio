@@ -15,7 +15,7 @@ type SyncOptions<S extends WritableStore, V extends StoreValue<S> = StoreValue<S
     syncTabs?: boolean;
 };
 
-type SyncAtomOptions = Omit<SyncOptions<WritableAtom, unknown>, 'encode' | 'decode'>;
+type SyncAtomOptions<V = unknown> = Omit<SyncOptions<WritableAtom, V>, 'encode' | 'decode'>;
 
 type SyncMapOptions<M extends Record<string, unknown>> = {
     keys?: (keyof M)[];
@@ -280,16 +280,12 @@ function syncStore<S extends WritableStore, V extends StoreValue<S> = StoreValue
  *
  * @returns Cleanup function. Call with no argument to cleanup. Call with `true` to also clear storage.
  */
-export function syncAtomStore(
-    store: WritableStore,
+export function syncAtomStore<V = unknown>(
+    store: WritableAtom<V>,
     storeName: string,
-    options: SyncAtomOptions = {}
+    options: SyncAtomOptions<V> = {}
 ): (clearStorage?: boolean) => void {
-    return syncStore(store, storeName, {
-        ...options,
-        encode: (data: unknown): string => JSON.stringify(data),
-        decode: (raw: string): unknown => JSON.parse(raw) as unknown,
-    });
+    return syncStore(store, storeName, options);
 }
 
 /**

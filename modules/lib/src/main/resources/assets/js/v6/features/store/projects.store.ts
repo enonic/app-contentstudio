@@ -7,6 +7,19 @@ import {ProjectDeletedEvent} from '../../../app/settings/event/ProjectDeletedEve
 import {syncMapStore} from '../utils/stores';
 import {$config} from './config.store';
 
+/*
+TODO: Enonic UI - Feature
+- Store projects as JSON objects in the sync store.
+- Load projects from the sync store on startup if other tabs are active.
+
+? Reasoning:
+- Projects are updated via server events over WebSocket.
+- Once loaded, they will stay up to date.
+- Loading existing projects from the store is faster and more efficient.
+*/
+
+
+const SYNC_NAME = 'projects';
 type ProjectsStore = {
     projects: Readonly<Project>[];
     activeProjectId: string | undefined;
@@ -17,7 +30,7 @@ export const $projects = map<ProjectsStore>({
     activeProjectId: undefined,
 });
 
-syncMapStore($projects, 'activeProjectId', {
+syncMapStore($projects, SYNC_NAME, {
     keys: ['activeProjectId'],
     loadInitial: true,
     syncTabs: true,
@@ -51,8 +64,14 @@ export function setActiveProject(project: Readonly<Project> | undefined): void {
 //
 // * Utilities
 //
-export function getProjectId(project: Readonly<Project> | undefined): string | undefined {
+function getProjectId(project: Readonly<Project> | undefined): string | undefined {
     return project?.getName();
+}
+
+function getProjectIdFromUrl(): string | undefined {
+    const viewPath = window.location.href.split($config.get().appId)[1];
+    const normalizedPath = viewPath?.replace(/\/[^\/]+/, '') || '/';
+    return normalizedPath.split('/')[1];
 }
 
 //
@@ -104,19 +123,21 @@ function updateActiveProject(): void {
     }
 }
 
-function getProjectIdFromUrl(): string | undefined {
-    const viewPath = window.location.href.split($config.get().appId)[1];
-    const normalizedPath = viewPath?.replace(/\/[^\/]+/, '') || '/';
-    return normalizedPath.split('/')[1];
+/**
+ * Initialize the active project from the URL without checks.
+ * It is used during startup and project would not be available in the store yet.
+ */
+function initializeActiveProjectFromUrl(): void {
+    const projectIdFromUrl = getProjectIdFromUrl();
+    if (projectIdFromUrl) {
+        $projects.setKey('activeProjectId', projectIdFromUrl);
+    }
 }
 
 //
 // * Initialization
 //
-const projectIdFromUrl = getProjectIdFromUrl();
-if (projectIdFromUrl) {
-    $projects.setKey('activeProjectId', projectIdFromUrl);
-}
+initializeActiveProjectFromUrl();
 
 void loadProjects();
 
