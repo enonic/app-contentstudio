@@ -21,6 +21,69 @@ type ProjectSelectionDialogProps = {
     onClose: () => void;
 };
 
+type FlatProject = {project: Project; level: number};
+
+function flattenProjects(projects: Project[]): FlatProject[] {
+    if (projects.length === 0) {
+        return [];
+    }
+
+    const sortedProjects = [...projects].sort(ProjectHelper.sortProjects);
+    const projectByName = new Map(sortedProjects.map((project) => [project.getName(), project]));
+    const levelByName = new Map<string, number>();
+    const parentNameByProject = new Map<string, string | undefined>();
+
+    const resolveParentName = (project: Project): string | undefined => {
+        const name = project.getName();
+        if (parentNameByProject.has(name)) {
+            return parentNameByProject.get(name);
+        }
+
+        const parents = project.getParents() ?? [];
+        const parentName = parents.find((candidate) => project.hasMainParentByName(candidate) && projectByName.has(candidate));
+        parentNameByProject.set(name, parentName);
+        return parentName;
+    };
+
+    const calcLevel = (project: Project): number => {
+        const name = project.getName();
+        const cached = levelByName.get(name);
+        if (cached !== undefined) {
+            return cached;
+        }
+
+        const parentName = resolveParentName(project);
+        const parent = parentName ? projectByName.get(parentName) : undefined;
+        const level = parent ? calcLevel(parent) + 1 : 0;
+        levelByName.set(name, level);
+        return level;
+    };
+
+    const childrenByName = new Map<string, Project[]>();
+    sortedProjects.forEach((project) => {
+        const parentName = resolveParentName(project);
+        if (!parentName) {
+            return;
+        }
+        const siblings = childrenByName.get(parentName);
+        if (siblings) {
+            siblings.push(project);
+        } else {
+            childrenByName.set(parentName, [project]);
+        }
+    });
+
+    const ordered: FlatProject[] = [];
+    const visit = (project: Project): void => {
+        ordered.push({project, level: calcLevel(project)});
+        (childrenByName.get(project.getName()) ?? []).forEach(visit);
+    };
+
+    sortedProjects.filter((project) => calcLevel(project) === 0).forEach(visit);
+
+    return ordered;
+}
+
 function ProjectSelectionDialogUI({
                                       open = false,
                                       projects,
@@ -33,7 +96,8 @@ function ProjectSelectionDialogUI({
 
     const listRef = useRef<HTMLDivElement>(null);
 
-    const sortedProjects = useMemo(() => [...projects].sort(ProjectHelper.sortProjects), [projects]);
+    const flatProjects = useMemo(() => flattenProjects(projects), [projects]);
+    const projectByName = useMemo(() => new Map(flatProjects.map(({project}) => [project.getName(), project])), [flatProjects]);
 
     return (
         <ConfirmationDialog.Root open={open} onOpenChange={(next) => {
@@ -52,7 +116,7 @@ function ProjectSelectionDialogUI({
                 >
                     <ConfirmationDialog.DefaultHeader title={title} withClose/>
 
-                    {sortedProjects.length === 0 ? (
+                    {flatProjects.length === 0 ? (
                         <ConfirmationDialog.Body>
                             <p className='text-subtle'>{noProjectsText}</p>
                         </ConfirmationDialog.Body>
@@ -64,18 +128,19 @@ function ProjectSelectionDialogUI({
                                  defaultActive={currentProjectName}
                                  onSelectionChange={(sel) => {
                                      const name = sel[0] ?? currentProjectName;
-                                     const proj = sortedProjects.find((p) => p.getName() === name);
-                                     if (proj && ProjectHelper.isAvailable(proj)) {
-                                         onSelect(proj);
+                                     const project = name ? projectByName.get(name) : undefined;
+                                     if (project && ProjectHelper.isAvailable(project)) {
+                                         onSelect(project);
                                      }
                                  }}
                              >
-                                 <Listbox.Content ref={listRef} className='gap-2.5 max-h-full' aria-label={title}>
-                                     {sortedProjects.map((project) => (
+                                 <Listbox.Content ref={listRef} className='gap-2.5 max-h-full max-w-full' aria-label={title}>
+                                     {flatProjects.map(({project, level}) => (
                                          <Listbox.Item
                                              key={project.getName()}
                                              value={project.getName()}
-                                             className='group'
+                                             className="group max-w-full"
+                                             style={{paddingInlineStart: level * 20}}
                                              data-tone={project.getName() === currentProjectName ? 'inverse' : undefined}
                                          >
                                              <ProjectItem
@@ -84,6 +149,7 @@ function ProjectSelectionDialogUI({
                                                  projectName={project.getName()}
                                                  language={project.getLanguage()}
                                                  hasIcon={!!project.getIcon()}
+                                                 isLayer={project.hasParents()}
                                              />
                                          </Listbox.Item>
                                      ))}
