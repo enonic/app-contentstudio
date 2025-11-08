@@ -1,10 +1,11 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 import {ComponentType} from '../../../../app/page/region/ComponentType';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
+//TODO: Will probably fail because receiver extects AddComponentViewEvent, but will get an Object
 export class AddComponentViewEvent
-    extends Event {
+    extends IframeEvent {
 
     private readonly path: ComponentPath;
 
@@ -24,10 +25,10 @@ export class AddComponentViewEvent
     }
 
     static on(handler: (event: AddComponentViewEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: AddComponentViewEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

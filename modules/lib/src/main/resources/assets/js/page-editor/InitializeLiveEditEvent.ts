@@ -1,4 +1,3 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ProjectContext} from '../app/project/ProjectContext';
 import {CONFIG, ConfigObject} from '@enonic/lib-admin-ui/util/Config';
@@ -8,9 +7,10 @@ import {PageJson} from '../app/page/PageJson';
 import {PageState} from '../app/wizard/page/PageState';
 import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 export class InitializeLiveEditEvent
-    extends Event {
+    extends IframeEvent {
 
     private readonly projectJson: ProjectJson;
 
@@ -58,11 +58,15 @@ export class InitializeLiveEditEvent
         return this.principals;
     }
 
+    toMessage(): string {
+        return 'Dummy message by InitializeLiveEditEvent';
+    }
+
     static on(handler: (event: InitializeLiveEditEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: InitializeLiveEditEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

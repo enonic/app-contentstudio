@@ -1,14 +1,14 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 export class BeforeContentSavedEvent
-    extends Event {
+    extends IframeEvent {
 
     static on(handler: (event: BeforeContentSavedEvent) => void) {
-        Event.bind(ClassHelper.getFullName(this), handler);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: BeforeContentSavedEvent) => void) {
-        Event.unbind(ClassHelper.getFullName(this), handler);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler);
     }
 }

@@ -1,8 +1,9 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
+//TODO: will probably fail, because receiver expects SetComponentStateEvent, but will get an Object
 export class SetComponentStateEvent
-    extends Event {
+    extends IframeEvent {
 
     private readonly path: string;
 
@@ -23,10 +24,10 @@ export class SetComponentStateEvent
     }
 
     static on(handler: (event: SetComponentStateEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: SetComponentStateEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

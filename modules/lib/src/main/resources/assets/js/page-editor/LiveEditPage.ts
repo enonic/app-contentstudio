@@ -122,7 +122,7 @@ export class LiveEditPage {
 
     private updateTextComponentViewListener: (event: UpdateTextComponentViewEvent) => void;
 
-    private static debug: boolean = false;
+    private static debug: boolean = true;
 
     constructor() {
         this.skipConfirmationListener = (event: SkipLiveEditReloadConfirmationEvent) => {
@@ -139,7 +139,7 @@ export class LiveEditPage {
     private init(event: InitializeLiveEditEvent): void {
         let startTime = Date.now();
         if (LiveEditPage.debug) {
-            console.debug('LiveEditPage: starting live edit initialization');
+            console.debug('LiveEditPage: starting live edit initialization', event);
         }
 
         CONFIG.setConfig(event.getConfig());
@@ -213,7 +213,8 @@ export class LiveEditPage {
 
         SkipLiveEditReloadConfirmationEvent.un(this.skipConfirmationListener, win);
 
-        InitializeLiveEditEvent.un(this.initializeListener, win);
+        // TODO: Refactor InitializeLiveEditEvent to IframeEvent
+        // InitializeLiveEditEvent.un(this.initializeListener, win);
 
         this.unregisterGlobalListeners();
     }
@@ -438,7 +439,8 @@ export class LiveEditPage {
             }
         };
 
-        CreateOrDestroyDraggableEvent.on(this.createOrDestroyDraggableListener);
+        // TODO refactor CreateOrDestroyDraggableEvent to IframeEvent: has jQuery dependency !!!
+        // CreateOrDestroyDraggableEvent.on(this.createOrDestroyDraggableListener);
 
         this.resetComponentViewRequestListener = (event: ResetComponentViewEvent): void => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
@@ -455,7 +457,8 @@ export class LiveEditPage {
             PageState.setState(event.getPageJson() ? new PageBuilder().fromJson(event.getPageJson()).build() : null);
         };
 
-        PageStateEvent.on(this.pageStateListener);
+        // TODO: Refactor PageStateEvent to IframeEvent
+        // PageStateEvent.on(this.pageStateListener);
 
         this.updateTextComponentViewListener = (event: UpdateTextComponentViewEvent): void => {
             if (event.getOrigin() === 'live') {
@@ -515,11 +518,11 @@ export class LiveEditPage {
 
         SetModifyAllowedEvent.un(this.setModifyAllowedListener);
 
-        CreateOrDestroyDraggableEvent.un(this.createOrDestroyDraggableListener);
+        // CreateOrDestroyDraggableEvent.un(this.createOrDestroyDraggableListener);
 
         ResetComponentViewEvent.un(this.resetComponentViewRequestListener);
 
-        PageStateEvent.un(this.pageStateListener);
+        // PageStateEvent.un(this.pageStateListener);
 
         UpdateTextComponentViewEvent.un(this.updateTextComponentViewListener);
     }
