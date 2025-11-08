@@ -10,6 +10,7 @@ import {ItemViewPlaceholder} from 'lib-contentstudio/page-editor/ItemViewPlaceho
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {KEY_BINDINGS_KEY} from '@enonic/lib-admin-ui/ui/KeyBindings';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 Store.instance().set('$', $);
 /*
@@ -17,8 +18,8 @@ Store.instance().set('$', $);
  */
 StyleHelper.setCurrentPrefix(ItemViewPlaceholder.PAGE_EDITOR_PREFIX);
 
-// Initialize the event bus for communication with the parent window
-IframeEventBus.get(parent);
+// Initialize the live edit iframe event bus on the parent window
+IframeEventBus.init(parent);
 
 const liveEditPage = new LiveEditPage();
 
@@ -33,9 +34,7 @@ const init = () => {
         // The '*' is a wildcard, but for security, it's better to specify the parent's origin.
         // e.g., 'https://parent-domain.com'
 
-        parent.postMessage({eventName: 'editor-iframe-loaded'}, '*');
-
-        console.info('Notified parent', parent);
+        IframeEventBus.get().fireEvent(new IframeEvent('editor-iframe-loaded'))
     };
 
     // Notify parent frame if any modifier except shift is pressed

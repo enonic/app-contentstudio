@@ -1,8 +1,9 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 export class SaveAsTemplateEvent
-    extends Event {
+    extends IframeEvent {
 
     constructor() {
         super();

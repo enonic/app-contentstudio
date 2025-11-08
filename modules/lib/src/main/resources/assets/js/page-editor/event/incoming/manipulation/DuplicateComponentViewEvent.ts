@@ -1,9 +1,10 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentPath} from '../../../../app/page/region/ComponentPath';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
+// TODO: will probably fail, because receiver expects DuplicateComponentViewEvent, but will get an Object
 export class DuplicateComponentViewEvent
-    extends Event {
+    extends IframeEvent {
 
     private readonly path: ComponentPath;
 
@@ -17,10 +18,10 @@ export class DuplicateComponentViewEvent
     }
 
     static on(handler: (event: DuplicateComponentViewEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: DuplicateComponentViewEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }
