@@ -17,7 +17,6 @@ import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEdit
 import {InitializeLiveEditEvent} from '../../../page-editor/InitializeLiveEditEvent';
 import {SkipLiveEditReloadConfirmationEvent} from '../../../page-editor/SkipLiveEditReloadConfirmationEvent';
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import {EditContentEvent} from '../../event/EditContentEvent';
 import {MinimizeWizardPanelEvent} from '@enonic/lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {DragMask} from '@enonic/lib-admin-ui/ui/mask/DragMask';
@@ -30,7 +29,6 @@ import {PageEventsManager} from '../PageEventsManager';
 import {LiveEditPageDialogCreatedEvent} from '../../../page-editor/LiveEditPageDialogCreatedEvent';
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {SaveAsTemplateEvent} from '../../../page-editor/SaveAsTemplateEvent';
-import {FragmentLoadErrorEvent} from '../../../page-editor/FragmentLoadErrorEvent';
 import {PageNavigationHandler} from '../PageNavigationHandler';
 import {PageNavigationEvent} from '../PageNavigationEvent';
 import {PageNavigationMediator} from '../PageNavigationMediator';
@@ -52,7 +50,6 @@ import {AddComponentViewEvent} from '../../../page-editor/event/incoming/manipul
 import {RemoveComponentRequest} from '../../../page-editor/event/outgoing/manipulation/RemoveComponentRequest';
 import {ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
 import {RemoveComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/RemoveComponentViewEvent';
-import {LoadComponentFailedEvent} from '../../../page-editor/event/outgoing/manipulation/LoadComponentFailedEvent';
 import {LoadComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/LoadComponentViewEvent';
 import {DuplicateComponentEvent} from '../../../page-editor/event/outgoing/manipulation/DuplicateComponentEvent';
 import {SetFragmentComponentEvent} from '../../../page-editor/event/outgoing/manipulation/SetFragmentComponentEvent';
@@ -119,6 +116,9 @@ export class LiveEditPageProxy
 
         this.setModel(model);
 
+        // Initialize the live edit iframe event bus on the main window
+        IframeEventBus.init(window);
+
         this.initElements();
         this.initListeners();
     }
@@ -141,8 +141,6 @@ export class LiveEditPageProxy
         IframeEventBus.get().onEvent('editor-iframe-loaded', (data) => {
             this.handleIFrameLoadedEvent();
         });
-
-        console.info('Parent listener added to', window);
 
         return liveEditIFrame;
     }
@@ -206,7 +204,7 @@ export class LiveEditPageProxy
         }
 
         //TODO: can't do that to iframes from other domains
-        this.livejq(this.liveEditWindow.document).scrollTop(scrollTop);
+        // this.livejq(this.liveEditWindow.document).scrollTop(scrollTop);
         clearTimeout(timer);
     }
 
@@ -215,19 +213,19 @@ export class LiveEditPageProxy
 
         let scrollTop: number | undefined;
 
-        if (this.livejq && this.isFrameLoaded) {
-            // Store vertical scroll position inside the iFrame
-            // to be able to scroll to it after reload
-            //TODO: can't do that to iframes from other domains
-            scrollTop = this.livejq(this.liveEditWindow).scrollTop();
-        }
+        /*        if (this.livejq && this.isFrameLoaded) {
+                    // Store vertical scroll position inside the iFrame
+                    // to be able to scroll to it after reload
+                    //TODO: can't do that to iframes from other domains
+                    // scrollTop = this.livejq(this.liveEditWindow).scrollTop();
+                }*/
 
         // load the page
         return widgetRenderingHelper.render(this.liveEditModel.getContent(), viewWidget).then((loaded) => {
 
             if (this.isFrameLoaded && scrollTop) {
                 //TODO: can't do that to iframes from other domains
-                this.livejq(this.liveEditWindow.document).ready(() => this.scrollIFrameToSavedPosition(scrollTop));
+                // this.livejq(this.liveEditWindow.document).ready(() => this.scrollIFrameToSavedPosition(scrollTop));
             }
 
             return loaded;
@@ -278,6 +276,9 @@ export class LiveEditPageProxy
             const liveEditGlobal: GlobalLibAdmin = liveEditWindow[GLOBAL];
             const liveEditStore: Store = liveEditGlobal ? liveEditGlobal.store : null;
             const livejq = (liveEditStore && liveEditStore.has('$')) ? liveEditStore.get('$') : liveEditWindow['$'];
+
+            console.info('LiveEditPageProxy.handleIFrameLoadedEvent: livejq', livejq);
+
             if (livejq) {
 
                 this.livejq = livejq as JQueryStatic;
@@ -289,7 +290,10 @@ export class LiveEditPageProxy
                 }
 
                 if (this.isLiveEditAllowed()) {
+
                     new InitializeLiveEditEvent(this.createLiveEditParams()).fire();
+
+                    console.info('LiveEditPageProxy.handleIFrameLoadedEvent: initialize live edit event fired!');
                 } else {
                     PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
                 }
@@ -509,9 +513,10 @@ export class LiveEditPageProxy
             eventsManager.notifyShowWarning(event);
         });
 
-        EditContentEvent.on((event: EditContentEvent) => {
-            eventsManager.notifyEditContent(event);
-        });
+        // TODO: Uses EventBus! Refactor to use IframeEvent like other events
+        /*        EditContentEvent.on((event: EditContentEvent) => {
+                    eventsManager.notifyEditContent(event);
+                });*/
 
         ComponentLoadedEvent.on((event: ComponentLoadedEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getPath().toString());
@@ -542,9 +547,10 @@ export class LiveEditPageProxy
             eventsManager.notifyPageSaveAsTemplate();
         });
 
-        FragmentLoadErrorEvent.on((event: FragmentLoadErrorEvent) => {
-            eventsManager.notifyFragmentLoadError(event.getFragmentComponentView().getPath());
-        });
+        // TODO: Uses EventBus! Refactor to use IframeEvent like other events
+        /*        FragmentLoadErrorEvent.on((event: FragmentLoadErrorEvent) => {
+                    eventsManager.notifyFragmentLoadError(event.getFragmentComponentView().getPath());
+                });*/
 
         CreateFragmentEvent.on((event: CreateFragmentEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
@@ -580,11 +586,12 @@ export class LiveEditPageProxy
             PageEventsManager.get().notifyComponentRemoveRequested(path);
         });
 
-        LoadComponentFailedEvent.on((event: LoadComponentFailedEvent) => {
-            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+        // TODO: Uses EventBus! Refactor to use IframeEvent like other events
+        /*        LoadComponentFailedEvent.on((event: LoadComponentFailedEvent) => {
+                    const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
 
-            PageEventsManager.get().notifyComponentLoadFailed(path, event.getError());
-        });
+                    PageEventsManager.get().notifyComponentLoadFailed(path, event.getError());
+                });*/
 
         DuplicateComponentEvent.on((event: DuplicateComponentEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
@@ -645,6 +652,9 @@ export class LiveEditPageProxy
     }
 
     private listenToMainFrameEvents() {
+
+        // TODO: refactor to use IframeEvent like other events
+
         PageEventsManager.get().onDialogCreated((modalDialog: ModalDialog, config: HtmlAreaDialogConfig) => {
             if (this.isFrameLoaded) {
                 new LiveEditPageDialogCreatedEvent(modalDialog, config).fire();
