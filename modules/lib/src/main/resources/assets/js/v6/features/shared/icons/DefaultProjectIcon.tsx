@@ -3,7 +3,7 @@ import type {ComponentPropsWithoutRef, ReactElement} from 'react';
 export const DefaultProjectIcon = (props: ComponentPropsWithoutRef<'svg'>): ReactElement => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
-        fill="none"
+        fill="currentColor"
         viewBox="-1 -1 36 36"
         strokeWidth="1"
         stroke="currentColor"

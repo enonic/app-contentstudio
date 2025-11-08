@@ -1,5 +1,5 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Button, Dialog, Listbox} from '@enonic/ui';
+import {Button, cn, Dialog, Listbox} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import type {ReactElement} from 'react';
 import {useMemo, useRef} from 'react';
@@ -38,7 +38,10 @@ export const ProjectSelectionDialog = (): ReactElement => {
             <Dialog.Portal>
                 <ConfirmationDialog.Overlay />
                 <ConfirmationDialog.Content
-                    className="max-w-9/10 w-220 h-fit max-h-200"
+                    className={cn(
+                        'w-full h-full max-w-full max-h-full sm:w-auto sm:h-fit gap-7.5',
+                        'md:max-w-180 md:max-h-[85vh] lg:max-w-220',
+                    )}
                     onOpenAutoFocus={(e) => {
                         e.preventDefault();
                         listRef.current?.focus();
@@ -48,7 +51,7 @@ export const ProjectSelectionDialog = (): ReactElement => {
 
                     {!hasProjects ? (
                         <ConfirmationDialog.Body className="flex flex-col gap-4">
-                            <p className="text-subtle">{isAdmin ? noProjectsText : noProjectsAvailableText}</p>
+                            <p className="text-subtle">{isAdmin ? noProjectsAvailableText : noProjectsText}</p>
                             {isAdmin && (
                                 <Dialog.Close asChild>
                                     <Button
@@ -80,17 +83,17 @@ export const ProjectSelectionDialog = (): ReactElement => {
                                     }
                                 }}
                             >
-                                <Listbox.Content ref={listRef} className="gap-2.5 max-h-full max-w-full" aria-label={title}>
+                                <Listbox.Content ref={listRef} className="gap-2.5 max-h-full max-w-full pb-10 items-stretch" aria-label={title}>
                                     {flatProjects.map(({project, level}) => (
                                         <Listbox.Item
                                             key={project.getName()}
                                             value={project.getName()}
-                                            className="group max-w-full"
+                                            className="group flex self-stretch w-full min-w-full"
                                             style={{paddingInlineStart: level * 20}}
                                             data-tone={project.getName() === activeProjectId ? 'inverse' : undefined}
                                         >
                                             <ProjectItem
-                                                className="w-full px-0 py-0"
+                                                className="w-full px-0 py-1.25"
                                                 label={project.getDisplayName() || project.getName()}
                                                 projectName={project.getName()}
                                                 language={project.getLanguage()}
