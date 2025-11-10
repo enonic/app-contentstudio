@@ -51,7 +51,8 @@ public class ControllerMappingsResolverTest
             controller( ResourceKey.from( "myapplication:/some/path" ) ).
             build();
         final SiteDescriptor siteDescriptor =
-            SiteDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) ).mappingDescriptors( ControllerMappingDescriptors.from( mapingDescriptor ) ).build();
+            SiteDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) ).mappingDescriptors(
+                ControllerMappingDescriptors.from( mapingDescriptor ) ).build();
 
         Mockito.when( siteService.getDescriptor( Mockito.isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
 
@@ -73,7 +74,9 @@ public class ControllerMappingsResolverTest
             SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build();
         final Site site = createSite( SiteConfigs.from( siteConfig ) );
 
-        final SiteDescriptor siteDescriptor = SiteDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) ).mappingDescriptors( ControllerMappingDescriptors.empty() ).build();
+        final SiteDescriptor siteDescriptor =
+            SiteDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) ).mappingDescriptors(
+                ControllerMappingDescriptors.empty() ).build();
 
         Mockito.when( siteService.getDescriptor( Mockito.isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
 
@@ -100,7 +103,8 @@ public class ControllerMappingsResolverTest
             controller( ResourceKey.from( "myapplication:/some/path" ) ).
             build();
         final SiteDescriptor siteDescriptor =
-            SiteDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) ).mappingDescriptors( ControllerMappingDescriptors.from( mapingDescriptor ) ).build();
+            SiteDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) ).mappingDescriptors(
+                ControllerMappingDescriptors.from( mapingDescriptor ) ).build();
 
         Mockito.when( siteService.getDescriptor( Mockito.isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
 

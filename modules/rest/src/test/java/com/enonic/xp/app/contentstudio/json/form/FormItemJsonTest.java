@@ -88,9 +88,15 @@ public class FormItemJsonTest
         when( messageBundle.localize( "translate.option" ) ).thenReturn( "translatedOptionValue" );
         when( localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
 
-        final GenericValue config = GenericValue.object().put( "option", GenericValue.list().add(
-            GenericValue.object().put( "value", "notTranslatedValue" ).put( "label", GenericValue.object().put( "i18n",
-                                                                                                                "translate.option" ).build() ).build() ).build() ).build();
+        final GenericValue config = GenericValue.object().
+            put( "option", GenericValue.list().
+                add( GenericValue.object().
+                        put( "value", "notTranslatedValue" ).
+                        put( "label", GenericValue.object().put( "i18n", "translate.option" ).build() ).
+                     build() ).
+                    build()
+            ).build();
+
         InputJson inputJson = new InputJson( Input.create().
             name( "myTextLine" ).
             label( "My TextLine" ).
@@ -126,12 +132,12 @@ public class FormItemJsonTest
     public void serialization_of_FieldSet()
         throws IOException
     {
-        FieldSetJson fieldSetJson = new FieldSetJson( FieldSet.create().
-            label( "My field set" ).
-            addFormItem( Input.create().name( "myTextLine" ).label( "myTextLine" ).inputType( InputTypeName.TEXT_LINE ).build() ).addFormItem(
+        FieldSetJson fieldSetJson = new FieldSetJson( FieldSet.create().label( "My field set" ).addFormItem(
+            Input.create().name( "myTextLine" ).label( "myTextLine" ).inputType( InputTypeName.TEXT_LINE ).build() ).addFormItem(
             Input.create().name( "myDate" ).label( "myDate" ).inputType( InputTypeName.INSTANT ).build() ).addFormItem(
-            Input.create().name( "myOptions" ).label( "myOptions" ).inputType( InputTypeName.CHECK_BOX ).build() ).
-            build(), new LocaleMessageResolver(  localeService, ApplicationKey.BASE, Collections.emptyEnumeration()  ) );
+            Input.create().name( "myOptions" ).label( "myOptions" ).inputType( InputTypeName.CHECK_BOX ).build() ).build(),
+                                                      new LocaleMessageResolver( localeService, ApplicationKey.BASE,
+                                                                                 Collections.emptyEnumeration() ) );
 
         JsonNode json = jsonTestHelper.objectToJson( fieldSetJson );
         this.jsonTestHelper.assertJsonEquals( jsonTestHelper.loadTestJson( "fieldSet.json" ), json );

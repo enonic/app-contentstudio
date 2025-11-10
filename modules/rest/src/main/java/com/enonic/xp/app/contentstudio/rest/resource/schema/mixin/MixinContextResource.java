@@ -113,15 +113,12 @@ public final class MixinContextResource
 
     private List<MixinJson> createMixinsJson( final MixinOptions mixinOptions, @Context HttpServletRequest request )
     {
-        return mixinOptions
-            .stream()
-            .map( mixinOption -> MixinJson.create().setMixin( mixinOption.mixinDescriptor() )
-                .setLocaleMessageResolver(
-                    new LocaleMessageResolver( localeService, mixinOption.mixinDescriptor().getName().getApplicationKey(), request.getLocales() ) )
-                .setInlineMixinResolver( new CmsFormFragmentResolver( cmsFormFragmentService ) ).setOptional( mixinOption.optional() )
-                .build() )
-            .distinct()
-            .collect( toList() );
+        return mixinOptions.stream().map(
+            mixinOption -> MixinJson.create().setMixin( mixinOption.mixinDescriptor() ).setLocaleMessageResolver(
+                new LocaleMessageResolver( localeService, mixinOption.mixinDescriptor().getName().getApplicationKey(),
+                                           request.getLocales() ) ).setInlineMixinResolver(
+                new CmsFormFragmentResolver( cmsFormFragmentService ) ).setOptional( mixinOption.optional() ).build() ).distinct().collect(
+            toList() );
     }
 
     @Reference

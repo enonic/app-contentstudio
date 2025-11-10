@@ -245,7 +245,8 @@ public class PageTemplateResourceTest
             controller( ResourceKey.from( "myapplication:/some/path" ) ).
             build();
         final SiteDescriptor siteDescriptor =
-            SiteDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) ).mappingDescriptors( ControllerMappingDescriptors.from( mapingDescriptor ) ).build();
+            SiteDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) ).mappingDescriptors(
+                ControllerMappingDescriptors.from( mapingDescriptor ) ).build();
         when( siteService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
 
         String response = request().path( "content/page/template/isRenderable" ).
