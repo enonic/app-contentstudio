@@ -1,0 +1,30 @@
+package com.enonic.app.contentstudio.json.aggregation;
+
+import java.time.Instant;
+
+import com.enonic.xp.aggregation.DateRangeBucket;
+
+public class DateRangeBucketJson
+    extends BucketJson
+{
+    private final Instant from;
+
+    private final Instant to;
+
+    public DateRangeBucketJson( final DateRangeBucket dateRangeBucket )
+    {
+        super( dateRangeBucket );
+        this.from = dateRangeBucket.getFrom();
+        this.to = dateRangeBucket.getTo();
+    }
+
+    public Instant getFrom()
+    {
+        return from;
+    }
+
+    public Instant getTo()
+    {
+        return to;
+    }
+}

@@ -34,7 +34,7 @@ exports.get = function (req) {
 };
 
 var getStyles = function (contentId, project, locales) {
-    var bean = __.newBean('com.enonic.xp.app.contentstudio.style.StyleHandler');
+    var bean = __.newBean('com.enonic.app.contentstudio.style.StyleHandler');
     bean.contentId = __.nullOrValue(contentId);
     bean.project = __.nullOrValue(project);
     bean.locales = __.nullOrValue(locales);
