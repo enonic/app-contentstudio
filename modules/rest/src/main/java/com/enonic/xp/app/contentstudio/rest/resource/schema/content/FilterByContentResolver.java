@@ -159,7 +159,8 @@ public class FilterByContentResolver
                 .map( this.contentTypeService::getByApplication )
                 .flatMap( ContentTypes::stream )
                 .filter( Predicate.not( ContentType::isAbstract ) )
-                .filter( type -> type.getSchemaConfig().optional( "allowNewContent").map( GenericValue::asBoolean ).orElse( Boolean.TRUE ) ) )
+                .filter(
+                    type -> type.getSchemaConfig().optional( "allowNewContent" ).map( GenericValue::asBoolean ).orElse( Boolean.TRUE ) ) )
             .orElseGet( Stream::of );
     }
 
