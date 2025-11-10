@@ -112,11 +112,12 @@ public class MixinContextResourceTest
         final Content content = mockContent( contentType.getName() );
         final Site site = createSite( contentType.getName().getApplicationKey() );
 
-        final CmsDescriptor cmsDescriptor = CmsDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) )
-            .mixinMappings( MixinMappings.from(
-                MixinMapping.create().mixinName( descriptor.getName() ).allowContentTypes( "app:testContentType" ).optional( true ).build(),
-                MixinMapping.create().mixinName( descriptor.getName() ).allowContentTypes( "app:testContentType" ).optional( false ).build() ) )
-            .build();
+        final MixinMappings mixinMappings = MixinMappings.from(
+            MixinMapping.create().mixinName( descriptor.getName() ).allowContentTypes( "app:testContentType" ).optional( true ).build(),
+            MixinMapping.create().mixinName( descriptor.getName() ).allowContentTypes( "app:testContentType" ).optional( false ).build() );
+
+        final CmsDescriptor cmsDescriptor =
+            CmsDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) ).mixinMappings( mixinMappings ).build();
 
         when( cmsService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( cmsDescriptor );
 
@@ -133,9 +134,8 @@ public class MixinContextResourceTest
         when( mixinMappingService.getMixinMappingOptions( eq( contentType.getName() ), any() ) ).thenReturn(
             MixinOptions.create().add( new MixinOption( descriptor, true ) ).build() );
 
-
-        String result =
-            request().path( "cms/default/content/schema/mixins/getContentMixins" ).queryParam( "contentId", "contentId" ).get().getAsString();
+        String result = request().path( "cms/default/content/schema/mixins/getContentMixins" ).
+            queryParam( "contentId", "contentId" ).get().getAsString();
 
         assertJson( "get_content_mixins_duplicated_config.json", result );
     }

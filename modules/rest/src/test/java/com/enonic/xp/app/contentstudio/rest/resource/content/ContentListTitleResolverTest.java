@@ -26,9 +26,8 @@ class ContentListTitleResolverTest
     @Test
     void resolve()
     {
-        final ContentType contentType = ContentType.create()
-            .name( "contentType" )
-            .schemaConfig( GenericValue.object().put( "listTitleExpression", "${data.val1} ${missing} ${data.val1} ${displayName}" ).build() )
+        final ContentType contentType = ContentType.create().name( "contentType" ).schemaConfig(
+                GenericValue.object().put( "listTitleExpression", "${data.val1} ${missing} ${data.val1} ${displayName}" ).build() )
             .superType( ContentTypeName.unstructured() )
             .build();
 
