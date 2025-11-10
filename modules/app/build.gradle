@@ -46,15 +46,25 @@ dependencies {
     include "com.enonic.xp:lib-project:${xpVersion}"
     include "com.enonic.xp:lib-schema:${xpVersion}"
     include "com.enonic.xp:lib-websocket:${xpVersion}"
+    include libs.jackson.jr.objects
     include libs.commons.text
     include libs.lib.mustache
     include libs.lib.http.client
     include libs.lib.text.encoding
 
     include project( ':lib-contentstudio' )
-    include project( ':rest' )
     devResources project( path: ':lib-contentstudio', configuration: 'devResources' )
     devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
+
+    testImplementation(platform("org.junit:junit-bom:6.0.0"))
+    testImplementation(platform("org.mockito:mockito-bom:5.20.0"))
+    testImplementation "com.enonic.xp:testing:${xpVersion}"
+    testImplementation "com.enonic.xp:admin-api:${xpVersion}"
+    testImplementation( testFixtures( "com.enonic.xp:jaxrs-impl:${xpVersion}" ) )
+    testImplementation( testFixtures( "com.enonic.xp:core-api:${xpVersion}" ) )
+    testImplementation( testFixtures( "com.enonic.xp:core-app:${xpVersion}" ) )
+    testImplementation( testFixtures( "com.enonic.xp:core-schema:${xpVersion}" ) )
+    testImplementation( testFixtures( "com.enonic.xp:web-api:${xpVersion}" ) )
 }
 
 // Use task configuration avoidance
@@ -126,6 +136,7 @@ tasks.named('jar').configure {
 tasks.register( 'yolo' ) {
     description = 'Build without running install, check, or test tasks'
 
+    dependsOn tasks.named( 'build' )
     dependsOn tasks.named( 'deploy' )
     dependsOn tasks.named( 'checkTypes' )
     dependsOn project(':lib-contentstudio').tasks.named('yolo')

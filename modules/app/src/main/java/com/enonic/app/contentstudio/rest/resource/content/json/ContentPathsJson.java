@@ -1,0 +1,22 @@
+package com.enonic.app.contentstudio.rest.resource.content.json;
+
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import com.enonic.xp.content.ContentPaths;
+
+public class ContentPathsJson
+{
+    private final ContentPaths contentPaths;
+
+    public ContentPathsJson( @JsonProperty("contentPaths") final List<String> contentPaths )
+    {
+        this.contentPaths = ContentPaths.from( contentPaths );
+    }
+
+    public ContentPaths getContentPaths()
+    {
+        return contentPaths;
+    }
+}

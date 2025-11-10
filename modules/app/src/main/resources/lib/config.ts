@@ -122,7 +122,7 @@ function parseTime(value: string): Optional<string> {
 }
 
 export function getMarketApi() {
-    const marketConfigBean = __.newBean('com.enonic.xp.app.main.GetMarketConfigBean') as GetMarketConfigBean;
+    const marketConfigBean = __.newBean('com.enonic.app.main.GetMarketConfigBean') as GetMarketConfigBean;
     return __.toNativeObject(marketConfigBean.getMarketApi());
 }
 
