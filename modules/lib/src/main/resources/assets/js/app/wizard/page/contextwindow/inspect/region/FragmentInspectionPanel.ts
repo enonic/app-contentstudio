@@ -56,7 +56,7 @@ export class FragmentInspectionPanel
         PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
             if (event instanceof ComponentFragmentUpdatedEvent && event.getPath().equals(this.component?.getPath())) {
                 if (event.getFragmentId()) {
-                    const item = PageState.getState().getComponentByPath(event.getPath());
+                    PageState.getState().getComponentByPath(event.getPath());
                 } else {
                     this.fragmentSelector.setSelectedFragment(null);
                 }
@@ -64,9 +64,9 @@ export class FragmentInspectionPanel
         });
 
         this.editFragmentButton.onClicked(() => {
-                const fragment: ContentSummary = this.fragmentSelector.getSelectedFragment();
-                const fragmentContent: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromContentSummary(fragment);
-                new EditContentEvent([fragmentContent]).fire();
+            const fragment: ContentSummary = this.fragmentSelector.getSelectedFragment();
+            const fragmentContent: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromContentSummary(fragment);
+            new EditContentEvent([fragmentContent]).fire();
         });
 
         this.handleContentUpdatedEvent();
@@ -191,6 +191,7 @@ export class FragmentInspectionPanel
             if (selectionChange.selected?.length > 0) {
                 const selectedFragment = selectionChange.selected[0];
                 this.fragmentSelector.updateSelectedFragment(selectedFragment);
+                this.editFragmentButton.setEnabled(!!selectedFragment);
 
                 if (this.isInsideLayout()) {
                     new GetContentByIdRequest(selectedFragment.getContentId()).sendAndParse().done((content: Content) => {
