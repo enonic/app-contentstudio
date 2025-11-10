@@ -110,11 +110,14 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizardPanel.pause(2000);
             await contentWizardPanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
-            // 5. Click on DropdownHandle in Fragment Inspection Panel:
+            // 5. Verify 'Edit Fragment' button is enabled
+            // https://github.com/enonic/app-contentstudio/issues/9349
+            await fragmentInspectionPanel.waitForEditFragmentButtonEnabled();
+            // 6. Click on DropdownHandle in Fragment Inspection Panel:
             await fragmentInspectionPanel.clickOnFragmentDropdownHandle();
             await studioUtils.saveScreenshot('fragment_inspect_panel_options');
             let actualOptions = await fragmentInspectionPanel.getFragmentDropdownOptions();
-            // 6. Verify that options in the dropdown list are refreshed:
+            // 7. Verify that options in the dropdown list are refreshed:
             assert.equal(actualOptions.length, 2, 'Two options should be present in the dropdown list');
             assert.ok(actualOptions.includes(LAYOUT_2_COL), 'The first layout should be present in the dropdown options');
             assert.ok(actualOptions.includes(LAYOUT_3_COL), 'The first layout should be present in the dropdown options');
