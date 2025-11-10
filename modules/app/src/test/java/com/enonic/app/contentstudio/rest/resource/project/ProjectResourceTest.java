@@ -15,8 +15,6 @@ import jakarta.ws.rs.core.MediaType;
 
 import com.enonic.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.app.contentstudio.rest.resource.AdminResourceTestSupport;
-import com.enonic.app.contentstudio.rest.resource.content.task.ApplyPermissionsRunnableTask;
-import com.enonic.app.contentstudio.rest.resource.content.task.ProjectsSyncTask;
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentEditor;
