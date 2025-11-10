@@ -1,0 +1,32 @@
+{
+  "xdatas": [
+    {
+      "createdTime": "2013-01-01T12:00:00Z",
+      "deletable": false,
+      "displayName": "input_text_1",
+      "editable": false,
+      "form": {
+        "formItems": [
+          {
+            "Input": {
+              "config": {},
+              "helpText": "Help text line 1",
+              "immutable": false,
+              "indexed": false,
+              "inputType": "TextLine",
+              "label": "Line Text 1",
+              "maximizeUIInputWidth": true,
+              "name": "input_text_1",
+              "occurrences": {
+                "maximum": 1,
+                "minimum": 1
+              }
+            }
+          }
+        ]
+      },
+      "isOptional": true,
+      "name": "myapplication:input_text_1"
+    }
+  ]
+}
