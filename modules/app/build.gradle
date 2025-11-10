@@ -27,7 +27,6 @@ configurations {
 }
 
 dependencies {
-    implementation libs.jackson.jr.objects
     implementation "com.enonic.xp:core-api:${xpVersion}"
     implementation "com.enonic.xp:admin-api:${xpVersion}"
     implementation "com.enonic.xp:portal-api:${xpVersion}"
@@ -47,6 +46,7 @@ dependencies {
     include "com.enonic.xp:lib-project:${xpVersion}"
     include "com.enonic.xp:lib-schema:${xpVersion}"
     include "com.enonic.xp:lib-websocket:${xpVersion}"
+    include libs.jackson.jr.objects
     include libs.commons.text
     include libs.lib.mustache
     include libs.lib.http.client
