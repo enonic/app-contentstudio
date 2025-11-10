@@ -56,7 +56,7 @@ dependencies {
     devResources project( path: ':lib-contentstudio', configuration: 'devResources' )
     devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 
-    testImplementation(platform("org.junit:junit-bom:6.0.0"))
+    testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation(platform("org.mockito:mockito-bom:5.20.0"))
     testImplementation "com.enonic.xp:testing:${xpVersion}"
     testImplementation "com.enonic.xp:admin-api:${xpVersion}"
