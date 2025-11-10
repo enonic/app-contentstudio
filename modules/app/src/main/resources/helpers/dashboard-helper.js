@@ -1,5 +1,5 @@
 const projectLib = require('/lib/xp/project');
-const issueFetcher = __.newBean('com.enonic.xp.app.contentstudio.widget.issues.IssueFetcher');
+const issueFetcher = __.newBean('com.enonic.app.contentstudio.widget.issues.IssueFetcher');
 const contextLib = require('/lib/xp/context');
 
 const getIssuesInRepo = (repositoryId, count, principalKey) => {

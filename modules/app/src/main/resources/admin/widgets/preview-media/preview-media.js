@@ -2,7 +2,7 @@
 
 const widgetLib = require('/lib/export/widget');
 
-const bean = __.newBean('com.enonic.xp.app.contentstudio.widget.MediaRenderingBean');
+const bean = __.newBean('com.enonic.app.contentstudio.widget.MediaRenderingBean');
 
 exports.get = function (req) {
 
