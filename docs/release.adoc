@@ -12,10 +12,38 @@ IMPORTANT: Content Studio 5.4 requires XP 7.16.0 or higher.
 
 === What's new
 
+=== Improved workflow for page customization
+
+Several improvements have been made to make page customization more accessible, yet robust:
+
+* The preview panel is by default always expanded in the Editor view.
+
+* "Components" widget has been renamed to "Page" and is now always present in the Context panel when editing a page.
+
+* Page controller or template can now be selected/changed only in the Inspect panel.
+
+* When a content preview is not available or a page template is used, a click on the Preview panel will open a context menu with "Page Settings" shortcut. Click "Page Settings" to select a page controller/template or customize the page in the Inspect panel.
+
+[cols="a,a", frame=none, grid=none]
+|===
+| image::cs54-no-preview.png[No preview, 75%]
+| image::cs54-customize.png[Customise page, 75%]
+|===
+
+* Detaching a content from a template now requires a confirmation to avoid accidental customization.
+
+* "Save as Template" function is no longer available in the Inspect panel and can be executed only from the Page context menu.
+
+=== Preview mode selector in the Editor view
+
+Preview mode selector added to the Preview panel in Content Studio v5.3 is now also available in the Page Editor. In a future version it will be possible to extend the predefined list of modes by plugging in your own preview engines with editing capabilities.
+
+image::cs54-preview-mode.png[Preview selector, 75%]
+
 === Gallery mode in CustomSelector
 
 https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/customselector[CustomSelector^] input type now supports gallery mode, similar to the appearance of ImageSelector's dropdown.
-When enabled, the selector will display options in a gallery style (three big images in a row), making it more suitable for selecting images.
+When enabled, the selector will display the dropdown in a gallery layout (three big images in a row), making it more suitable for selecting images.
 
 image::cs54-customselector-gallery.png[Custom Selector in gallery mode, 75%]
 
@@ -30,7 +58,7 @@ Two major improvements have been made to the Schedule Publish functionality in t
 image::publishing-wizard-schedule.png[Optionally schedule publish from and to, 75%]
 
 [start=2]
-2. If content has already been scheduled for publishing, then modified and needs to be republished, caption on the publish button will change from "Publish Now" to "Update Scheduled".
+1. If content has already been scheduled for publishing, then modified and needs to be republished, caption on the publish button will change from "Publish Now" to "Update Scheduled".
 
 :imagesdir: release/images
 
@@ -40,10 +68,12 @@ image::cs54-update-scheduled.png[Update scheduled publishing, 75%]
 
 In the previous release we introduced integration with Juke AI Translator to provide AI-powered translation
 when localizing content in a layer. In this release we have extended this functionality to also provide
-automatic translation when changing the language of existing content that doesn't belong to a layer.
+automatic translation when changing the language of existing content in a regular project, not a layer.
 
 After changing the language of content that has text fields, Content Studio will now suggest translating
-all text fields to the new language using Juke AI Translator.
+all text fields to the new language using Juke AI Translator (assuming it's installed).
+
+NOTE: Translation will only be suggested when changing language in the content edit view.
 
 image::cs54-translate.png[Translate content, 50%]
 
@@ -59,14 +89,6 @@ To see all layers where the content exists, click "Show all" button at the botto
 
 image::layer-modal-dialog.png[Layer dialog, 50%]
 
-=== Language plugin in HtmlArea
-
-:imagesdir: release/images
-
-A new Language plugin has been added to the https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/htmlarea[HtmlArea^] input type. This plugin allows setting the `lang` attribute on selected text inside the editor to correctly present content written in multiple languages to screen readers (https://www.w3.org/TR/UNDERSTANDING-WCAG20/meaning-other-lang-id.html[WCAG specs^]).
-
-image::cs54-language-plugin.png[Language plugin, 50%]
-
 === Version History improvements
 
 :imagesdir: widgets/images
@@ -77,13 +99,19 @@ image::widgets-version-history-select.png[Select versions for comparison, 50%]
 
 Long lists of versions in the Version History panel have been optimized for a faster load.
 
-=== Preview mode selector in Page Editor
-
 :imagesdir: release/images
 
-Preview mode selector added to the Preview panel in Content Studio 5.3 is now also available in the Page Editor. In a future version it will be possible to extend the predefined list of modes by plugging in your own preview engines with editing capabilities.
+=== Archive comment
 
-image::cs54-preview-mode.png[Preview selector, 75%]
+When archiving content, it's now possible to provide an optional comment in the Archive dialog explaining the reason for archiving. The comment will be visible in the Version History panel.
+
+image::cs54-archive-comment.png[Language plugin, 50%]
+
+=== Language plugin in HtmlArea
+
+A new Language plugin has been added to the https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/htmlarea[HtmlArea^] input type. This plugin allows setting the `lang` attribute on selected text inside the editor to correctly present content written in multiple languages to screen readers (https://www.w3.org/TR/UNDERSTANDING-WCAG20/meaning-other-lang-id.html[WCAG specs^]).
+
+image::cs54-language-plugin.png[Language plugin, 50%]
 
 === Notification about a new release
 
@@ -96,7 +124,7 @@ NOTE: Once the user clicks on the close icon to dismiss the banner, it will not 
 
 === Other improvements
 
-* Websocket stability has been improved to avoid disconnections in case of temporary network issues.
+* Websocket stability has been improved.
 
 * A lifetime of warning and error notifications has been increased to give users more time to read them. Also, a notification will now only be dismissed when the user clicks the close icon, not anywhere on the notification itself.
 

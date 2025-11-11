@@ -2,19 +2,18 @@
 :toc: right
 :imagesdir: images
 
-This panel appears on the left side of the page after content is created or while being edited. It is here the form appears in which content
-data is entered. The structure and fields in the form are determined by the *content type* which is defined in the application code.
-The content editor panel can be collapsed to give the page editor more room by clicking the arrow icon on the top right of the panel.
+This form appears on the left side of the page after a content is created or while being edited. The structure and fields in the form are determined by the <<../content-types#, content type>> the content is using.
+The content form can be collapsed - to give the page editor (on the right) more screen estate - by clicking the image:editor-collapse-form-icon.png[title=Collapse icon, width=24px] icon in the form toolbar.
 
 image::editor-form.png[Editor form, 75%]
 
 == Header
 
-The top of the content form has the content type icon, the Display Name, and the content path name.
-The default icon can be replaced with a thumbnail image by clicking on it and uploading an image file.
+The form header contains the content type icon, the Display Name field, and the content path name.
+The default content type icon can be replaced with a more content-specific thumbnail by clicking on it and uploading an image file.
 When the Display Name is being changed, the path name will change accordingly, to a URL-friendly version.
 It is also possible for the Display Name to be generated dynamically using values from other form
-fields by using a https://developer.enonic.com/docs/xp/stable/cms/content-types#display_name_expressions[Display Name expression].
+fields by using a <<../content-types#display_name_expression, Display Name expression>>.
 
 NOTE: Value of the Path field must be unique and will be validated against existing content every time the field is changed.
 
@@ -28,27 +27,25 @@ image::editor-rename-path.png[Rename content dialog, 548w]
 
 == Form
 
-Underneath the header is the toolbar with clickable navigation steps that correspond to different sections of the content form. The first one is always
+Under the header is the toolbar with clickable navigation steps that correspond to different sections of the content form. The first one is always
 the content type name followed by optional *X-data* steps (if any). Clicking on an item in the toolbar will scroll the content
 form down to the corresponding section.
 
-Clicking the "<" icon in the menu toolbar will collapse the Content Form and automatically undock the Page Components tree.
-
-NOTE: If you collapse the tree, your browser will remember this selection and won't reopen it the next time you collapse the form.
+Clicking the image:editor-collapse-form-icon.png[title=Collapse icon, width=24px] icon in the menu toolbar will collapse the Content Form and give room to the Visual Editor panel.
 
 == Page Components tree
 
-When content has a controller the toolbar menu will have a step called "Page". This form step contains a hierarchical tree representation
-of all the components and regions on the page, including the page itself. This tree makes it very easy to manage content structure without having to use the Page Editor.
+When the content is using a controller, the toolbar menu will contain a step called "Page". This form step contains a hierarchical tree structure
+of all the components and regions on the page, including the page itself. This tree makes it very easy to manage content structure without having to use the Visual Editor.
 
-Selecting a component in the tree will highlight the component in the Page Editor and display its configuration in the <<../widgets#insert-tab,Components>> widget.
-The triple dot icon on the right of each component will open a context menu. This menu is the same as the one that would open for the same component
-in the <<page-editor#editing-page,Page Editor>>.
+Selecting a component in the tree will highlight the component in the Page Editor and display its configuration in the <<../widgets#page, Page>> widget.
+The image:editor-pcv-context-menu-icon.png[title=Component context menu icon, width=24px] icon on the right of each component will open a context menu - same as the one that would open for the same component
+in the <<page-editor#editing-page,Visual Editor>>.
 
 Components can be rearranged directly in the tree with drag’n’drop function.
 
-In the image below, a part called *Latest comments* is selected in the Page Components view and highlighted with a blue border/mask in the Page Editor. The selected part's configuration form is displayed in the Components widget on the right.
+In the image below, a part called *Latest comments* is selected in the Page Components view and highlighted with a blue border/mask in the Page Editor. The selected part's configuration form is displayed in the Page widget on the right.
 
 image::page-editor-components-docked.png[Page Components, 75%]
 
-NOTE: For fragments and page templates the Page Components tree will be inside the first form step.
+NOTE: For fragments and page templates the Page Components tree will be displayed on top of the form, inside the first step.
