@@ -262,6 +262,12 @@ export class ContextView
         }
     }
 
+    setActiveWidgetByType(widgetType: InternalWidgetType) {
+        const widgetView = this.widgetViews.find((widget) => widget.getType() === widgetType);
+        if (!widgetView) return;
+        this.setActiveWidget(widgetView);
+    }
+
     getActiveWidget(): WidgetView {
         return this.activeWidget;
     }

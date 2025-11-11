@@ -14,9 +14,9 @@ import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {EmulatedEvent} from '../event/EmulatedEvent';
-import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
-import {EmulatorContext} from './context/widget/emulator/EmulatorContext';
+import {EmulatedDeviceEvent} from '../../v6/features/utils/events/registry';
+import {EmulatorDevice} from './context/widget/emulator/EmulatorDevice';
+import {$autoModeWidgets, WIDGET_AUTO_DESCRIPTOR} from '../../v6/features/store/liveViewWidgets.store';
 
 export enum PREVIEW_TYPE {
     WIDGET,
@@ -135,25 +135,25 @@ export class WidgetRenderingHandler {
         this.renderer.removeClass('widget-preview empty-preview message-preview');
 
         switch (previewType) {
-        case PREVIEW_TYPE.WIDGET: {
-            this.renderer.addClass('widget-preview');
-            break;
-        }
-        case PREVIEW_TYPE.FAILED: {
-            this.renderer.addClass('message-preview');
+            case PREVIEW_TYPE.WIDGET: {
+                this.renderer.addClass('widget-preview');
+                break;
+            }
+            case PREVIEW_TYPE.FAILED: {
+                this.renderer.addClass('message-preview');
             this.showPreviewMessages(messages || [i18n('field.preview.failed'), i18n('field.preview.failed.description')]);
-            break;
-        }
-        case PREVIEW_TYPE.MISSING: {
-            this.renderer.addClass('message-preview');
+                break;
+            }
+            case PREVIEW_TYPE.MISSING: {
+                this.renderer.addClass('message-preview');
             this.showPreviewMessages(messages || [i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
-            break;
-        }
-        case PREVIEW_TYPE.EMPTY:
-        default: {
-            this.renderer.addClass('empty-preview');
-            break;
-        }
+                break;
+            }
+            case PREVIEW_TYPE.EMPTY:
+            default: {
+                this.renderer.addClass('empty-preview');
+                break;
+            }
         }
 
         this.previewType = previewType;
@@ -191,13 +191,13 @@ export class WidgetRenderingHandler {
             const messages: string[] = (data?.messages as string[])?.length ? data.messages : undefined;
 
             switch (statusCode) {
-            case StatusCode.NOT_FOUND:
-            case StatusCode.I_AM_A_TEAPOT:
-                this.setPreviewType(PREVIEW_TYPE.MISSING, messages || [this.getDefaultMessage()]);
-                break;
-            default:
-                this.setPreviewType(PREVIEW_TYPE.FAILED, messages);
-                break;
+                case StatusCode.NOT_FOUND:
+                case StatusCode.I_AM_A_TEAPOT:
+                    this.setPreviewType(PREVIEW_TYPE.MISSING, messages || [this.getDefaultMessage()]);
+                    break;
+                default:
+                    this.setPreviewType(PREVIEW_TYPE.FAILED, messages);
+                    break;
             }
             this.hideMask();
             return;
@@ -227,8 +227,8 @@ export class WidgetRenderingHandler {
         if (!selectedWidget || !summary) {
             return new RenderResult();
         }
-        const isAuto = selectedWidget.getWidgetDescriptorKey().getName() === PreviewWidgetDropdown.WIDGET_AUTO_DESCRIPTOR;
-        const items = isAuto ? this.renderer.getWidgetSelector().getAutoModeWidgets() : [selectedWidget];
+        const isAuto = selectedWidget.getWidgetDescriptorKey().getName() === WIDGET_AUTO_DESCRIPTOR;
+        const items = isAuto ? $autoModeWidgets.get() : [selectedWidget];
         let response: Response;
         let widget: Widget;
         let isOk: boolean;
@@ -293,10 +293,10 @@ export class WidgetRenderingHandler {
         void this.render(this.summary, event.getWidget());
     }
 
-    protected handleEmulatorEvent(event: EmulatedEvent) {
+    protected handleEmulatorEvent(device: EmulatorDevice) {
         if (this.messageView) {
-            this.messageView.getEl().setWidth(event.getWidthWithUnits());
-            this.messageView.getEl().setHeight(event.getHeightWithUnits());
+            this.messageView.getEl().setWidth(device.getWidthWithUnits());
+            this.messageView.getEl().setHeight(device.getHeightWithUnits());
         }
 
         // Keep no selection message intact,
@@ -305,10 +305,12 @@ export class WidgetRenderingHandler {
             this.renderer.getIFrameEl().getHTMLElement(),
             this.messageView.getHTMLElement()
         ];
-        const isFullscreen = event.isFullscreen();
+
+        const isFullscreen = device.equals(EmulatorDevice.getFullscreen())|| !device.isValid();
+
         subjects.forEach(s => {
-            s.style.width = !isFullscreen ? event.getWidthWithUnits() : '';
-            s.style.height = !isFullscreen ? event.getHeightWithUnits() : '';
+            s.style.width = !isFullscreen ? device.getWidthWithUnits() : '';
+            s.style.height = !isFullscreen ? device.getHeightWithUnits() : '';
         });
 
         this.renderer.getEl().toggleClass('emulated', !isFullscreen);
@@ -316,8 +318,7 @@ export class WidgetRenderingHandler {
 
     protected bindListeners() {
         ViewWidgetEvent.on(this.handleWidgetEvent.bind(this));
-
-        EmulatorContext.get().onDeviceChanged(this.handleEmulatorEvent.bind(this));
+        EmulatedDeviceEvent.listen(this.handleEmulatorEvent.bind(this));
 
         const iframe = this.renderer.getIFrameEl();
         iframe.onLoaded((event: UIEvent) => {
@@ -330,16 +331,16 @@ export class WidgetRenderingHandler {
             const frameWindow = iframe.getHTMLElement()['contentWindow'];
 
             switch (iframe.getClass()) {
-            case 'image':
-                this.applyImageStyles(frameWindow);
-                break;
-            case 'text':
-                try {
-                    frameWindow.addEventListener('click', (event) => this.frameClickHandler(frameWindow, event));
+                case 'image':
+                    this.applyImageStyles(frameWindow);
+                    break;
+                case 'text':
+                    try {
+                        frameWindow.addEventListener('click', (event) => this.frameClickHandler(frameWindow, event));
                 } catch (error) { /* error */ }
-                break;
-            default:
-                break;
+                    break;
+                default:
+                    break;
             }
         });
     }
@@ -409,8 +410,6 @@ export interface WidgetRenderer
     getChildrenContainer(): DivEl;
 
     getPreviewAction(): Action;
-
-    getWidgetSelector(): PreviewWidgetDropdown;
 
     getMask(): Mask;
 }
