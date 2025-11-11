@@ -10,7 +10,9 @@ import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {AriaHasPopup, AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
-
+/**
+ * @deprecated Replaced by the PreviewToolbarEmulatorSelector
+ */
 export class EmulatorDropdown
     extends FilterableListBoxWrapper<EmulatorDevice> {
 

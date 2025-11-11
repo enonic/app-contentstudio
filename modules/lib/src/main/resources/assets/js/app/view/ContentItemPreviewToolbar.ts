@@ -13,7 +13,9 @@ import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {EmulatorDropdown} from './toolbar/EmulatorDropdown';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
-
+/**
+ * @deprecated Replaced by the PreviewToolbarElement
+ */
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {
 

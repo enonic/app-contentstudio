@@ -11,7 +11,9 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AriaHasPopup, AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
 import {ViewWidgetEvent} from '../../event/ViewWidgetEvent';
 
-
+/**
+ * @deprecated Replaced by the PreviewToolbarWidgetSelector
+ */
 export class PreviewWidgetDropdown
     extends FilterableListBoxWrapper<PreviewWidgetOption> {
 
@@ -77,12 +79,6 @@ export class PreviewWidgetDropdown
 
     getSelectedWidget(): Widget {
         return this.selectedOption?.getObject();
-    }
-
-    getAutoModeWidgets(): Widget[] {
-        return this.getList().getItems()
-            .filter((item) => item.getWidgetDescriptorKey().getName() !== PreviewWidgetDropdown.WIDGET_AUTO_DESCRIPTOR
-                              && item.getConfig().getProperty('auto') === 'true');
     }
 
     protected handleUserToggleAction(item: PreviewWidgetOption): void {

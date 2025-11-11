@@ -1,7 +1,9 @@
 import {EmulatedEvent} from '../../../../event/EmulatedEvent';
 
+/**
+ * @deprecated Replaced by EmulatedDeviceEvent
+ */
 export class EmulatorContext {
-
     private static INSTANCE: EmulatorContext;
 
     private deviceChangedListeners: ((event: EmulatedEvent) => void)[];
@@ -26,6 +28,5 @@ export class EmulatorContext {
         this.deviceChangedListeners.forEach((listener: (event: EmulatedEvent) => void) => {
             listener(event);
         });
-
     }
 }
