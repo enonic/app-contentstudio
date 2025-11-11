@@ -2,7 +2,7 @@
 :toc: right
 :imagesdir: widgets/images
 
-Widgets are applications that expand functionality of Content Studio.
+Widgets are applications that expand the functionality of Content Studio.
 
 They can be found inside the Context Panel which can be assessed via the burger icon in the top right corner of Content Browse or Content Editor pages:
 
@@ -111,23 +111,23 @@ Insert tab allows to drag and drop components onto the page. There are five type
 
 image::widgets-components-insert.png[,207]
 
-==== Page tab
+==== Inspect tab
 
-This tab enables configuration of the component selected on the page. The tab caption will change to reflect the type of the currently selected component.
-If nothing is selected, the tab caption will be `Page`.
+This tab enables configuration of the component selected on the page.
+If nothing is selected, the panel will display the configuration of the page itself (top-level component).
 
-For the **Page**, it is possible to select different controller or template or save the current controller as a template.
+For the **Page**, it is possible to select a different controller or template.
 
 image::widgets-components-page.png[,207]
 
-The **Part** component tab, for example, will allow you to replace the currently selected part or configure it (like selecting the `Posts folder` in the example below)
+Here's an example of the Inspect panel displaying configuration of a **Part** component:
 
 image::widgets-components-part.png[,207]
 
 
 == Custom widgets
 
-Enonic XP allows you to easily build your own widgets and expand functionality of Content Studio. You can also install widgets from the Enonic Market.
+Enonic XP allows you to easily build your own widgets and expand the functionality of Content Studio. You can also install widgets from the Enonic Market.
 
 Implementation of admin widgets is described https://developer.enonic.com/docs/xp/stable/admin/widgets#implementation[here].
 

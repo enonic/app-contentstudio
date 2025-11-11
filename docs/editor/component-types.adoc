@@ -2,21 +2,21 @@
 :toc: right
 :imagesdir: images
 
-Enonic XP has five types of components that can be added to regions on a page. These component types are listed under the <<../widgets#insert-tab,Insert tab>> of the components widget in the <<page-editor#,Page Editor>>. This section covers each type of component in detail.
+Enonic XP has five types of components that can be added to regions on a page. These component types are listed under the <<../widgets#insert_tab,Insert tab>> of the components widget in the <<page-editor#,Page Editor>>. This section covers each type of component in detail.
 
 == Part component
 
-Part components are reusable, configurable components that can be placed into any region of a page. This allows content editors to build and customize pages without writing any code. There are no built-in part components. Each one is custom made in the application code. Parts are typically created to render custom content, lists of content, forms, etc.
+Part components are reusable, configurable components that can be placed into any region of a page. This allows content editors to build and customize pages without writing any code. There are no built-in part components, each one is implemented in the application code. Parts are typically created to render custom content, lists of content, forms, etc.
 
-The first step in adding a part component to a page is to edit the page content and open the <<../widgets#insert_tab,Insert tab>> of the Components widget. Drag the part component placeholder (puzzle piece) to the desired location on the page. The part placeholder will now appear as a blue box with a dropdown selector. The same part dropdown selector will appear in the components widget. Use one of the selectors to find the desired part component.
+The first step in adding a part component to a page is to edit the page content and open the <<../widgets#insert_tab,Insert tab>> of the Page widget. Click, hold and drag the (image:context-panel-part-icon.png[title=Part icon, width=24px]) icon to the desired location on the page. The part placeholder will now appear as a blue box with a dropdown selector. The same dropdown selector will appear in the Inspect panel of the Page widget. Use any of these two dropdowns to select the desired part component.
 
-image::component-types-part-edit.png[]
+image::component-types-part-edit.png[Part placeholder, 75%]
 
-Once a part component is selected, the placeholder will be replaced with the actual part and the <<../widgets#insert_tab,Insert tab>> will show the part’s configuration options in a form.
+Once a part component is selected, the placeholder will be replaced with the actual rendered part, and the <<../widgets#inspect_tab,Inspect tab>> will show the part's config form (if it's defined in the part schema).
 
-Some parts won’t have any configuration. Parts with configuration options are independently configured. This means that the same part component can be added to multiple pages, or even multiple times on the same page, and each instance can have different configuration values.
+Configurable parts are configured in the context of the current content. This means that the same part component can be added to multiple pages, or even multiple times on the same page, and each instance may have different configuration values.
 
-image::component-types-part-insert.png[]
+image::component-types-part-insert.png[Part component, 75%]
 
 TIP: It's possible to limit a part to be used only on specific content type(s).
 
@@ -67,15 +67,13 @@ to explicitly add their types to allowed content types:
 
 Layout components are reusable, configurable components (similar to Part components) that can be placed into any region defined in a page component. Layouts themselves define regions where other components can be placed with the <<page-editor#,Page Editor>>. The primary purpose of a layout is to enable other components to be placed side-by-side. As of version 6.15, a layout cannot be placed inside another layout. There are no built-in layouts. Each one is custom made in the application code. Layouts are typically created for two or three columns and have configuration options for column widths.
 
-In the <<page-editor#,Page Editor>>, drag a Layout component placeholder from the components widget to the desired region on the page. The layout placeholder will now appear as a blue box with a dropdown selector. The same dropdown selector will appear in <<../widgets#insert-tab,Insert tab>> of the components widget. Use one of the selectors to find the desired layout component.
+In the <<page-editor#,Page Editor>>, drag a Layout component placeholder from the components widget to the desired region on the page. The layout placeholder will now appear as a blue box with a dropdown selector. The same dropdown selector will appear in <<../widgets#insert_tab,Insert tab>> of the components widget. Use one of the selectors to find the desired layout component.
 
-image::component-types-layout-insert.png[]
+image::component-types-layout-insert.png[Layout placeholder, 75%]
 
-Once a layout is selected, the actual layout rendering will replace the placeholder and its configuration options will appear in the components widget. Some layout components may not have any configuration options.
+Once a layout is selected, the actual layout will replace the placeholder and its configuration options will appear in the Inspect panel of the Page widget. Just as with parts, config of layout components is optional and has to be defined in a layout schema inside an application.
 
-image::component-types-layout-edit.png[]
-
-NOTE: While editing a page, it may be difficult to select a layout to access its configuration. In this case, the <<page-editor#components-view,Components View>> can help to select the layout. Alternatively, a part within the layout can be selected and then that part’s parent can be selected from the right-click context menu. Continue selecting the parent component until the layout is the selected component.
+image::component-types-layout-edit.png[Layout component, 75%]
 
 TIP: Just as with parts, you can limit a layout to be used only on specific content type(s).
 
@@ -90,22 +88,24 @@ TIP: Just as with parts, you can limit a layout to be used only on specific cont
 </layout>
 ----
 
-This layout will only be allowed on a site, but not for example on a page template or any of custom content types.
+This layout will only be allowed on a site but not, for example, on a page template or any of custom content types.
 
 == Text component
 
-The Text component allows content editors to place and format text into any region on a page without writing any code. Images, videos, and links can also be added inside text components. Macros allow YouTube videos, embedded code, and no-format text to be added as well. The formatting and macro options are the same as those for the HtmlArea inputs that can be found in content types and other configuration forms in the Content Studio. The only difference is that the formatting toolbar is at the top of the page for text components.
+The Text component allows content editors to place text blocks into any region on a page without writing any code. Images, videos, and links can also be added inside text components. Macros allow YouTube videos, embedded code, and no-format text to be added as well. The formatting and macro options are the same as those for the HtmlArea inputs that can be found in content types and other configuration forms in the Content Studio. The only difference is that the formatting toolbar is at the top of the page for text components.
 
-In the <<page-editor#,Page Editor>>, drag a Text component from the <<../widgets#insert-tab,Insert tab>> of the components widget to the desired region on the page. A cursor will appear inside the text component and editing can begin. If another component is selected, the text component will need to be double-clicked to resume editing.
+In the <<page-editor#,Page Editor>>, drag a Text component from the <<../widgets#insert_tab,Insert tab>> of the components widget to the desired region on the page. A cursor will appear inside the text component and editing can begin. If another component is selected, the text component will need to be double-clicked to resume editing.
+
+Alternatively, edit the text component directly in the Inspect panel of the Page widget.
 
 TIP: Documentation on Rich Text Editor used by Text component can be found <<rich-text-editor#,here>>
 
-image::component-types-text-insert.png[]
+image::component-types-text-insert.png[Text component, 75%]
 
 
 == Fragment component
 
-Fragments are created as content from an instance of another component. What makes a fragment special is that it uses the same configuration on every page where it’s added. When a fragment content is altered, the change is instantly visible on every page that uses it. All of the other components are independently configured.
+Fragments are reusable components stored as content items. What makes a fragment special is that it uses the same configuration on every page where it’s added. When a fragment content is altered, the change is instantly visible on every page that uses it. All the other components are independently configured.
 
 === Creating fragments
 
@@ -113,6 +113,8 @@ Fragments can be created from any component on a page. When a fragment is create
 
 === Using fragments
 
-Once a fragment content has been created, it can be added to pages with the page editor. Drag a fragment placeholder from the <<../widgets#insert-tab,Insert tab>> of the components widget to the desired location on the page. Use the dropdown selector in the placeholder to find the desired fragment content. Once selected, the fragment will appear.
+Once a fragment content has been created, it can be added to pages with the page editor. Drag a fragment placeholder from the <<../widgets#insert_tab,Insert tab>> of the components widget to the desired location on the page. Use the dropdown selector in the placeholder to find the desired fragment content. Once selected, the fragment will appear.
 
-image::component-types-fragment-insert.png[]
+image::component-types-fragment-insert.png[Fragment placeholder, 75%]
+
+TIP: Click "Edit Fragment" in the "Inspect" panel of a selected fragment to open the fragment content in a new editor tab for editing.
