@@ -26,7 +26,7 @@ export class ContentBrowseToolbar
                 const toDark = theme === 'light';
                 theme = toDark ? 'dark' : 'light';
                 const label = toDark ? '☾' : '☼';
-                document.body.classList.toggle('dark', toDark);
+                document.documentElement.classList.toggle('dark', toDark);
                 themeSwitcher.setProps({label});
             }
         });
