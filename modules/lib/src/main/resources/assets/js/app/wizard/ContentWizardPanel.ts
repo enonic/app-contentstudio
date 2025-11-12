@@ -9,7 +9,6 @@ import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationCon
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyTreeComparator} from '@enonic/lib-admin-ui/data/PropertyTreeComparator';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -144,7 +143,7 @@ import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {ContentItemPreviewToolbar} from '../view/ContentItemPreviewToolbar';
+import {PreviewToolbarElement} from '../../v6/features/layout/AppShell/previewToolbar/PreviewToolbar';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -628,7 +627,7 @@ export class ContentWizardPanel
         return super.getMainToolbar() as ContentWizardToolbar;
     }
 
-    private getWidgetToolbar(): ContentItemPreviewToolbar {
+    private getWidgetToolbar(): PreviewToolbarElement {
         return this.getLivePanel().getFrameContainer().getToolbar();
     }
 
@@ -1244,7 +1243,7 @@ export class ContentWizardPanel
             }
         });
 
-        InspectEvent.on((event: InspectEvent) => {
+        InspectEvent.on((event: InspectEvent) => {            
             this.isRenderable().then((renderable: boolean) => {
 
                 const minimizeWizard = event.isShowPanel() &&
