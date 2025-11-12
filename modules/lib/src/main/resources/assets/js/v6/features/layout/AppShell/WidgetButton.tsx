@@ -9,22 +9,12 @@ type Props = {
     active?: boolean;
 } & ComponentPropsWithoutRef<'button'>;
 
-export const WidgetButton = ({
-    label,
-    icon,
-    iconUrl,
-    active,
-    onClick,
-}: Props): React.ReactElement => {
+export const WidgetButton = ({label, icon, iconUrl, active, onClick}: Props): React.ReactElement => {
     if (iconUrl) {
         return (
             <Tooltip value={label} side="right">
                 <Button
-                    className={cn(
-                        'size-11.5 p-1',
-                        active &&
-                            'bg-surface-primary-selected hover:bg-surface-primary-selected-hover'
-                    )}
+                    className={cn('size-11.5 p-1', active && 'bg-surface-selected hover:bg-surface-selected-hover')}
                     aria-label={label}
                     onClick={onClick}
                 >
@@ -43,8 +33,7 @@ export const WidgetButton = ({
             <IconButton
                 className={cn(
                     'size-11.5',
-                    active &&
-                        'bg-surface-primary-selected hover:bg-surface-primary-selected-hover text-white'
+                    active && 'bg-surface-selected hover:bg-surface-selected-hover text-white hover:text-white'
                 )}
                 icon={icon || CircleQuestionMark}
                 iconSize={24}
