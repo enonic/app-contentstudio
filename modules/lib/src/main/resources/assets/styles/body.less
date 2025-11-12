@@ -39,3 +39,9 @@ body {
     }
   }
 }
+
+// Prevent load mask of the preview panel to overflow through the AI dialog shader
+.ai-translator-container {
+  position: absolute;
+  z-index: @z-index-shader;
+}
