@@ -203,7 +203,9 @@ export class MacroModalDialog
         const data: PropertySet = new PropertySet();
 
         this.selectedMacro?.attributes.forEach(item => {
-            data.addString(item[0], DOMPurify.sanitize(item[1]));
+            const attr = item[0];
+            const attrValue = MacroModalDialog.brToNl(this.sanitize(item[1]));
+            data.addString(attr, attrValue);
         });
 
 
@@ -281,7 +283,7 @@ export class MacroModalDialog
         if (this.isSystemMacro()) {
             this.selectedMacro.macroStart.$.innerText = newElemText;
         } else {
-            this.selectedMacro.macroStart.$.innerHTML = newElemText;
+            this.selectedMacro.macroStart.$.innerHTML = MacroModalDialog.nlToBr(newElemText);
         }
     }
 
@@ -291,7 +293,7 @@ export class MacroModalDialog
         if (this.isSystemMacro()) {
             this.getEditor().insertText(sanitizedData);
         } else {
-            this.getEditor().insertHtml(sanitizedData);
+            this.getEditor().insertHtml(MacroModalDialog.nlToBr(sanitizedData));
         }
     }
 
@@ -321,5 +323,13 @@ export class MacroModalDialog
         super.close();
 
         this.getEditor().focusManager.unlock();
+    }
+
+    private static brToNl(value: string): string {
+        return value.replace(/<br>/g, '\n');
+    }
+
+    private static nlToBr(value: string): string {
+        return value.replace(/\n/g, '<br>');
     }
 }
