@@ -2,16 +2,16 @@ import {AggregationSelection} from '@enonic/lib-admin-ui/aggregation/Aggregation
 import {map} from 'nanostores';
 
 type ContentFilterStore = {
-    value: string | undefined;
+    value: string;
     selection: AggregationSelection[];
 };
 
 export const $contentFilterState = map<ContentFilterStore>({
-    value: undefined,
+    value: '',
     selection: [],
 });
 
-export function setContentFilterValue(value: string | undefined): void {
+export function setContentFilterValue(value: string): void {
     $contentFilterState.setKey('value', value);
 }
 
@@ -19,9 +19,9 @@ export function setContentFilterSelection(selection: AggregationSelection[]): vo
     $contentFilterState.setKey('selection', selection);
 }
 
-// LEGACY functions for backward compatibility
+// TODO: Enonic UI - Remove legacy functions
 
-export function getFilterValue(): string | undefined {
+export function getFilterValue(): string {
     return $contentFilterState.get().value;
 }
 
@@ -44,7 +44,7 @@ export function hasFilterSelectionSet(): boolean {
 
 export function resetContentFilter(): void {
     $contentFilterState.set({
-        value: undefined,
+        value: '',
         selection: [],
     });
 }

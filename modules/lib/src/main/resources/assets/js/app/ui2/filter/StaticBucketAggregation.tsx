@@ -3,9 +3,9 @@ import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregat
 import {Button, Checkbox, CheckboxChecked, useControlledState} from '@enonic/ui';
 import {ReactElement, useCallback, useMemo} from 'react';
 import {useI18n} from '../hooks/useI18n';
-import {toSafeKey} from '../util/filter';
+import {toKey} from '../../../v6/features/utils/text';
 
-export type BucketAggregationProps = {
+export type StaticBucketAggregationProps = {
     aggregation: BucketAggregation;
     selection?: Bucket[];
     onSelectionChange?: (selection: Bucket[]) => void;
@@ -15,15 +15,15 @@ export type BucketAggregationProps = {
     maxVisibleBuckets?: number;
 }
 
-export const BucketAggregationComponent = ({
-                                               aggregation,
-                                               selection,
-                                               onSelectionChange,
-                                               showAll,
-                                               showMoreLabel = 'Show more',
-                                               showLessLabel = 'Show less',
-                                               maxVisibleBuckets = 5,
-                                           }: BucketAggregationProps): ReactElement => {
+export const StaticBucketAggregation = ({
+    aggregation,
+    selection,
+    onSelectionChange,
+    showAll,
+    showMoreLabel = 'Show more',
+    showLessLabel = 'Show less',
+    maxVisibleBuckets = 5,
+}: StaticBucketAggregationProps): ReactElement => {
     const [showAllState, setShowAllState] = useControlledState(showAll, false);
     const handleShowMoreLessClick = () => {
         setShowAllState(!showAllState);
@@ -45,17 +45,15 @@ export const BucketAggregationComponent = ({
     const displayName = useMemo(() => useI18n(`field.${aggregation.getName()}`), [aggregation]);
 
     return (
-        <div className=''>
-            <div className={'font-semibold'}>{displayName}</div>
-            <div className={'pt-2 pb-2 flex flex-col gap-2'}>
+        <div className='flex flex-col'>
+            <h4 className='font-semibold'>{displayName}</h4>
+            <div className='flex flex-col gap-2.5 px-2.5 py-2'>
                 {visibleBuckets.map(bucket => {
                     const label = `${bucket.getDisplayName() ?? bucket.getKey()} (${bucket.getDocCount()})`;
-                    const safeKey = `${aggregation.getName()}-${toSafeKey(bucket.getKey())}`;
+                    const key = toKey(aggregation.getName(), bucket.getKey());
                     return (
                         <Checkbox
-                            id={safeKey}
-                            key={safeKey}
-                            className={'px-2.5'}
+                            key={key}
                             checked={isSelected(bucket)}
                             defaultChecked={false}
                             label={label}
@@ -64,17 +62,16 @@ export const BucketAggregationComponent = ({
 
                     );
                 })}
-                {hasHiddenBuckets && (
-                    <div className='flex justify-end'>
-                        <Button className='show-more'
-                                size='sm'
-                                variant={'outline'}
-                                label={showAllState ? showLessLabel : showMoreLabel}
-                                onClick={handleShowMoreLessClick}
-                        />
-                    </div>
-                )}
             </div>
+            {hasHiddenBuckets && (
+                <div className='flex justify-end'>
+                    <Button size='sm'
+                            variant={'outline'}
+                            label={showAllState ? showLessLabel : showMoreLabel}
+                            onClick={handleShowMoreLessClick}
+                    />
+                </div>
+                )}
         </div>
     );
 };

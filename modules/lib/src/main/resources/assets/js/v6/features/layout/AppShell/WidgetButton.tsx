@@ -23,7 +23,7 @@ export const WidgetButton = ({
                     className={cn(
                         'size-11.5 p-1',
                         active &&
-                            'bg-surface-primary-selected hover:bg-surface-primary-selected-hover'
+                            'bg-surface-selected hover:bg-surface-selected-hover'
                     )}
                     aria-label={label}
                     onClick={onClick}
@@ -41,14 +41,11 @@ export const WidgetButton = ({
     return (
         <Tooltip value={label} side="right">
             <IconButton
-                className={cn(
-                    'size-11.5',
-                    active &&
-                        'bg-surface-primary-selected hover:bg-surface-primary-selected-hover text-white'
-                )}
+                className='size-11.5'
                 icon={icon || CircleQuestionMark}
                 iconSize={24}
                 aria-label={label}
+                data-active={active}
                 onClick={onClick}
             />
         </Tooltip>
