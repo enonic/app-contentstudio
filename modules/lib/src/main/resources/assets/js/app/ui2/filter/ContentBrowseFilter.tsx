@@ -2,15 +2,16 @@ import {AggregationSelection} from '@enonic/lib-admin-ui/aggregation/Aggregation
 import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
 import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
-import {Button, SearchInput} from '@enonic/ui';
+import {Button, SearchField} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Download} from 'lucide-react';
 import {useMemo} from 'react';
 import {$contentFilterState, setContentFilterSelection, setContentFilterValue} from '../../../v6/features/store/contentFilter.store';
-import {BucketAggregationComponent} from './BucketAggregation';
+import {StaticBucketAggregation} from './StaticBucketAggregation';
 import {FilterableBucketAggregation} from './FilterableBucketAggregation';
+import {useI18n} from '../hooks/useI18n';
 
-export interface ContentBrowseFilterPanelComponentProps {
+export type ContentBrowseFilterProps = {
     hits?: number;
     bucketAggregations: BucketAggregation[];
     filterableAggregations?: {
@@ -21,14 +22,19 @@ export interface ContentBrowseFilterPanelComponentProps {
         label?: string;
         action: () => void;
     }
-}
+};
 
-const ContentBrowseFilterPanelComponent = ({
-                                               hits = 0,
-                                               bucketAggregations,
-                                               filterableAggregations,
-                                               exportOptions,
-                                           }: ContentBrowseFilterPanelComponentProps): React.ReactElement => {
+export const ContentBrowseFilter = ({
+    hits = 0,
+    bucketAggregations,
+    filterableAggregations,
+    exportOptions,
+}: ContentBrowseFilterProps): React.ReactElement => {
+    const searchPlaceholder = useI18n('field.search.placeholder');
+
+    const exportAction = exportOptions?.action;
+    const exportLabel = exportOptions?.label || useI18n('action.export');
+
     const nonEmptyAggregations = useMemo(
         () => bucketAggregations.filter(ba => ba.getBuckets().some(b => b.getDocCount() > 0)),
         [bucketAggregations]
@@ -50,35 +56,42 @@ const ContentBrowseFilterPanelComponent = ({
 
     return (
         <div className='bg-surface-neutral'>
-            <SearchInput id={`bfc-input-${new Date().getDate()}`} className={'h-11.5'} showSearchIcon={false} value={value}
-                         onChange={setContentFilterValue} placeholder='Type to search...'/>
-            <div className='flex mt-2 mb-8 items-center'>
+            <SearchField.Root className='h-11.5' id='SearchInput' placeholder={searchPlaceholder} value={value} onChange={setContentFilterValue}>
+                <SearchField.Icon />
+                <SearchField.Input />
+                <SearchField.Clear />
+            </SearchField.Root>
+
+            <div className='flex mt-2 mb-7.5 items-center'>
                 <div className='grow'>
-                    <span className='text-lg pl-4.5 pr-4.5'>{hits} hits</span>
+                    <span className='text-lg pl-4.5 pr-4.5'>{useI18n('field.search.results', hits)}</span>
                 </div>
                 {
-                    exportOptions && hits > 0 &&
-                    <Button onClick={exportOptions.action} size={'sm'} label={exportOptions.label || 'Export'} variant='outline'
-                            endIcon={Download}/>
+                    exportAction && hits > 0 &&
+                    <Button size='sm' label={exportLabel} variant='outline' endIcon={Download} onClick={exportAction} />
                 }
             </div>
-            <div className={'flex flex-col gap-7.5'}>
+            <div className='flex flex-col gap-7.5'>
                 {nonEmptyAggregations.map((ba) => {
                     const safeKey = ba.getName();
                     const filterableOptions = filterableAggregations?.find(fa => fa.name === ba.getName());
+                    const selection = getBucketSelection(ba);
+                    const onSelectionChange = (bucketSel: Bucket[]) => onBucketSelectionChange(ba.getName(), bucketSel);
 
                     return (
                         filterableOptions ?
                         <FilterableBucketAggregation
                             key={safeKey}
-                            selection={getBucketSelection(ba)}
+                            selection={selection}
                             idsToKeepOnTop={filterableOptions.idsToKeepOnTop}
-                            onSelectionChange={(bucketSel) => onBucketSelectionChange(ba.getName(), bucketSel)}
+                            onSelectionChange={onSelectionChange}
                             aggregation={ba}/> :
-                        <BucketAggregationComponent key={safeKey}
-                                                    selection={getBucketSelection(ba)}
-                                                    onSelectionChange={(bucketSel) => onBucketSelectionChange(ba.getName(), bucketSel)}
-                                                    aggregation={ba}/>
+                        <StaticBucketAggregation
+                            key={safeKey}
+                            selection={selection}
+                            onSelectionChange={onSelectionChange}
+                            aggregation={ba}
+                        />
                     );
                 })}
             </div>
@@ -86,12 +99,11 @@ const ContentBrowseFilterPanelComponent = ({
     );
 }
 
-export class ContentBrowseFilterComponent
-    extends LegacyElement<typeof ContentBrowseFilterPanelComponent, ContentBrowseFilterPanelComponentProps> {
+export class ContentBrowseFilterElement
+    extends LegacyElement<typeof ContentBrowseFilter, ContentBrowseFilterProps> {
 
-
-    constructor(props: ContentBrowseFilterPanelComponentProps) {
-        super(props, ContentBrowseFilterPanelComponent);
+    constructor(props: ContentBrowseFilterProps) {
+        super(props, ContentBrowseFilter);
     }
 
     updateAggregations(aggregations: BucketAggregation[]): void {
