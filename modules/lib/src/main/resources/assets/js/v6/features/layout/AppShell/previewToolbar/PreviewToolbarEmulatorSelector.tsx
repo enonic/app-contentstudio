@@ -20,7 +20,7 @@ const getDeviceIcon = (device: EmulatorDevice, className?: string) => {
 
     return (
         <Icon
-            size={24}
+            size={className?.includes('@sm:hidden') ? 14 : 24}
             className={cn('stroke-black group-data-[state=checked]:stroke-white dark:stroke-white', className)}
         />
     );

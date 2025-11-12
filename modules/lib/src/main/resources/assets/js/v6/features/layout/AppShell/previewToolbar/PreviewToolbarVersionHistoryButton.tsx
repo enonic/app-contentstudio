@@ -20,7 +20,13 @@ export function PreviewToolbarVersionHistoryButton(): ReactElement {
 
     return (
         <Tooltip value={tooltipLabel} side="bottom">
-            <Button startIcon={History} size="sm" onClick={handleShowVersionHistory} aria-label={tooltipLabel}>
+            <Button
+                size="sm"
+                className="flex-shrink-0"
+                aria-label={tooltipLabel}
+                startIcon={History}
+                onClick={handleShowVersionHistory}
+            >
                 <span className="hidden @sm:inline">{label}</span>
             </Button>
         </Tooltip>

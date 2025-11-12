@@ -1,4 +1,4 @@
-import {ReactElement, useCallback, useState} from 'react';
+import {ReactElement, useCallback, useEffect, useState} from 'react';
 import {$activeWidget, $liveviewWidgets, setActiveWidget} from '../../../store/liveviewWidgets.store';
 import {useStore} from '@nanostores/preact';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
@@ -16,10 +16,16 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
     const [isOpen, setIsOpen] = useState(false);
     const [radioControlKey, setRadioControlKey] = useState(getWidgetKey(activeWidget));
 
+    // First trigger is needed in order to make ContentWizardPanel add 'rendered' class, allowing ContentActionCycleButton to be displayed
+    useEffect(() => {
+        if (!activeWidget) return;
+        new ViewWidgetEvent(activeWidget).fire();
+    }, []);
+
     const handleWidgetClick = useCallback((widget: Widget) => {
-        new ViewWidgetEvent(widget).fire();
-        setActiveWidget(widget);
         setIsOpen(false);
+        setActiveWidget(widget);
+        new ViewWidgetEvent(widget).fire();
     }, []);
 
     if (!activeWidget) return <></>;
@@ -29,7 +35,7 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
             <Menu.Trigger asChild>
                 <Button endIcon={isOpen ? ChevronUp : ChevronDown} size="sm">
                     <img
-                        className="size-6.5 @sm:hidden dark:invert-100"
+                        className="size-3.5 @sm:hidden @dark:invert-100"
                         src={activeWidget.getFullIconUrl()}
                         alt={activeWidget.getDisplayName()}
                     />
