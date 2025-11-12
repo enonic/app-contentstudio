@@ -54,7 +54,9 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
                                 </Menu.ItemIndicator>
                                 <p className="ml-2">
                                     <span className="font-semibold block">{widget.getDisplayName()}</span>
-                                    <span className="text-xs">{widget.getDescription()}</span>
+                                    <span className="text-xs text-subtle group-data-[state=checked]:text-alt">
+                                        {widget.getDescription()}
+                                    </span>
                                 </p>
                             </Menu.RadioItem>
                         ))}
