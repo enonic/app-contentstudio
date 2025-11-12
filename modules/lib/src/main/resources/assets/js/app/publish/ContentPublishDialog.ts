@@ -74,12 +74,10 @@ export class ContentPublishDialog
 
         super.initElements();
 
-        const options = {
-            dialog: this,
+        this.publishSubTitle = new ContentDialogSubTitle({
             placeholderText: i18n('dialog.publish.messagePlaceholder'),
             hintText: i18n('dialog.publish.messageHint')
-        };
-        this.publishSubTitle = new ContentDialogSubTitle(options);
+        });
 
         this.addAction(this.scheduleAction);
 
