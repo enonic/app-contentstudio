@@ -15,7 +15,6 @@ export const PreviewToolbarOpenExternalButton = ({action}: {action: Action}): Re
                 icon={SquareArrowOutUpRight}
                 onClick={() => action?.execute()}
                 aria-label={tooltipValue}
-                disabled={!action.isEnabled()}
             />
         </Tooltip>
     );

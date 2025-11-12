@@ -38,7 +38,7 @@ export const Sidebar = (): ReactElement => {
                 projectName={activeProject?.getName()}
                 language={activeProject?.getLanguage()}
                 hasIcon={!!activeProject?.getIcon()}
-                className="flex-shrink-0 my-1.75"
+                className="flex-shrink-0 my-1.75 ml-0"
             />
             <h1 title={name} class="[writing-mode:vertical-lr] text-nowrap text-base font-semibold">
                 {name}
