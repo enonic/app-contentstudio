@@ -49,6 +49,8 @@ export class ContentDeleteDialog
 
     private messageSubTitle: ContentDialogSubTitle;
 
+    private archiveMessage: string;
+
     constructor() {
         super({
             title: i18n('dialog.archive'),
@@ -77,12 +79,10 @@ export class ContentDeleteDialog
         });
         this.actionButton = this.menuButton.getActionButton();
 
-        const options = {
-            dialog: this,
+        this.messageSubTitle = new ContentDialogSubTitle({
             placeholderText: i18n('dialog.archive.message.placeholder'),
             hintText: i18n('dialog.archive.message.hint')
-        };
-        this.messageSubTitle = new ContentDialogSubTitle(options);
+        });
     }
 
     getButtonRow(): ContentDeleteDialogButtonRow {
@@ -140,6 +140,7 @@ export class ContentDeleteDialog
     }
 
     private archive(): void {
+        this.archiveMessage = this.messageSubTitle.getValue();
         this.executeAction(ActionType.ARCHIVE);
     }
 
@@ -261,7 +262,7 @@ export class ContentDeleteDialog
             archiveContentRequest.addContentId(item.getContentId());
         });
 
-        archiveContentRequest.setArchiveMessage(this.messageSubTitle.getValue());
+        archiveContentRequest.setArchiveMessage(this.archiveMessage);
 
         return archiveContentRequest;
     }
