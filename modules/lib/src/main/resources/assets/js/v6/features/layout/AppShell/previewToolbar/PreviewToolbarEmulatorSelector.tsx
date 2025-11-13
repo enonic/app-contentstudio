@@ -2,8 +2,7 @@ import {useCallback, type ReactElement, useState} from 'react';
 import {Button, cn, Menu} from '@enonic/ui';
 import {ChevronDown, ChevronUp} from 'lucide-react';
 import {EmulatorDevice} from '../../../../../app/view/context/widget/emulator/EmulatorDevice';
-import {EmulatedEvent} from '../../../../../app/event/EmulatedEvent';
-import {EmulatorContext} from '../../../../../app/view/context/widget/emulator/EmulatorContext';
+import {EmulatedDeviceEvent} from '../../../utils/events/registry';
 
 const EMULATORS = [
     EmulatorDevice.getFullscreen(),
@@ -39,7 +38,7 @@ export const PreviewToolbarEmulatorSelector = (): ReactElement => {
     const handleDeviceSelect = useCallback((device: EmulatorDevice) => {
         setSelectedDevice(device);
         setIsOpen(false);
-        EmulatorContext.get().notifyDeviceChanged(new EmulatedEvent(device, true));
+        EmulatedDeviceEvent.dispatch(device);
     }, []);
 
     return (
