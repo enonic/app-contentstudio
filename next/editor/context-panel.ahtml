@@ -474,7 +474,7 @@ The panel contains a widget dropdown that consists of a few built-in widgets sho
 <p>This tab has a list of Component types that can be added to the page in a two-step process. The first step is to drag and drop a component placeholder to a region in the visual editor panel. The second step is to select the specific component from a dropdown selector in the placeholder.</p>
 </div>
 <div class="paragraph">
-<p>For example, to add a part to the page, simply click (and hold) the Part icon (<span class="image"><img src="images/context-panel-part-icon.png" alt="context panel part icon" width="24px" title="Context panel icon"></span>) and drag it to a region in the page editor. A red circle appears when the component is dragged over an area where it cannot be dropped. A green checkbox appears when dragged over valid locations and a blue box shows where the component will land.</p>
+<p>For example, to add a part to the page, simply click (and hold) the Part icon (<span class="image"><img src="images/context-panel-part-icon.png" alt="context panel part icon" width="24px" title="Part icon"></span>) and drag it to a region in the page editor. A red circle appears when the component is dragged over an area where it cannot be dropped. A green checkbox appears when dragged over valid locations and a blue box shows where the component will land.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -496,7 +496,7 @@ The panel contains a widget dropdown that consists of a few built-in widgets sho
 <p>This is where a selected component can be configured, as long as its configuration form is defined in the application schema.</p>
 </div>
 <div class="paragraph">
-<p>If component is changed in the dropdown, the content will be saved automatically. But to apply changes made in the configuration form, the "Apply" button at the bottom of the panel must be clicked.</p>
+<p>If a component is changed in the dropdown, the content will be saved automatically. But to apply changes made in the configuration form, the "Apply" button at the bottom of the panel must be clicked.</p>
 </div>
 <div class="paragraph">
 <p>Some components won’t have any configuration settings. The page will not update as configuration values change until the content is saved or when changes are applied with the button at the bottom of the panel.</p>
@@ -524,7 +524,7 @@ The panel contains a widget dropdown that consists of a few built-in widgets sho
 <h2 id="version_history"><a class="link" href="#version_history">Version History</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This widget lists all versions of the selected content, highlighting the published version, if there is one, and makes it possible to restore old versions.</p>
+<p>This widget displays all changes of the selected content and makes it possible to compare different versions and roll back the changes.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -549,7 +549,7 @@ The panel contains a widget dropdown that consists of a few built-in widgets sho
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-11-13 15:17:33 UTC
+Last updated 2025-11-13 17:21:56 UTC
 </div>
 </div>
 </body>
