@@ -13,7 +13,6 @@ export class VersionHistoryHelper {
         return !version.isPublishAction() &&
                !version.isRestored() &&
                !version.isArchived() &&
-               !version.isReadonly() &&
-               !version.isMarkedAsReady();
+               !version.isReadonly();
     }
 }

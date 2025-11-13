@@ -162,7 +162,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             // 2. Open Version History panel and click on 'Marked as Ready' version item:
             await contentWizard.openVersionsHistoryPanel();
             await versionPanel.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.MARKED_AS_READY, 0);
-            await versionPanel.waitForRestoreButtonNotDisplayed();
+            await versionPanel.waitForRestoreButtonDisplayed();
         });
 
     it("GIVEN the content is selected AND allow-child-content-type is 'base:folder' WHEN New Content dialog is opened THEN only one content type should be present",
