@@ -9,7 +9,7 @@ import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {ContentPublishPromptEvent} from '../ContentPublishPromptEvent';
 import {ContentId} from '../../content/ContentId';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {DialogPresetConfirmElement} from '../../ui2/dialog/DialogPreset';
+import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
 
 export class MarkAsReadyContentAction
     extends ContentTreeGridAction {

@@ -1,6 +1,6 @@
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {Project} from '../../settings/data/project/Project';
-import {ProjectItemElement} from '../../ui2/list/ProjectItem';
+import {ProjectItemElement} from '../../../v6/features/shared/items/ProjectItem';
 import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
 import {UrlHelper} from '../../util/UrlHelper';
 

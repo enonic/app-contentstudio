@@ -13,7 +13,7 @@ import {ContentDialogSubTitle} from '../dialog/ContentDialogSubTitle';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {PublishContentRequest} from '../resource/PublishContentRequest';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
-import {PublishItemsListElement} from '../ui2/list/PublishItemsList';
+import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
 import {PublishDialogItemList} from './PublishDialogItemList';
 
 /**

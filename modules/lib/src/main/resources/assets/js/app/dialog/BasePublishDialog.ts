@@ -20,8 +20,8 @@ import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenR
 import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {SelectionStatusBarElement} from '../ui2/dialog/SelectionStatusBar';
-import {PublishItemsListElement} from '../ui2/list/PublishItemsList';
+import {SelectionStatusBarElement} from '../../v6/features/shared/dialogs/SelectionStatusBar';
+import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {

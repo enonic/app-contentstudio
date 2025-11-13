@@ -28,7 +28,7 @@ import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {ProjectContext} from '../../project/ProjectContext';
 import {Router} from '../../Router';
-import {ContentBrowseFilterElement} from '../../ui2/filter/ContentBrowseFilter';
+import {BrowseFilterElement} from '../../../v6/features/views/browse/layout/BrowseFilter';
 import {Branch} from '../../versioning/Branch';
 import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
 import {AggregationsQueryResult} from './AggregationsQueryResult';
@@ -50,7 +50,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
     private elementsContainer: Element;
     private exportElement?: ContentExportElement;
     private targetBranch: Branch = Branch.DRAFT;
-    private filterComponent: ContentBrowseFilterElement;
+    private filterComponent: BrowseFilterElement;
 
     constructor() {
         super();
@@ -60,7 +60,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         this.displayNamesResolver = new AggregationsDisplayNamesResolver();
         this.dependenciesSection = new DependenciesSection();
 
-        this.filterComponent = new ContentBrowseFilterElement({
+        this.filterComponent = new BrowseFilterElement({
             bucketAggregations: [],
             filterableAggregations: this.getFilterableAggregations(),
             exportOptions: this.getExportOptions(),

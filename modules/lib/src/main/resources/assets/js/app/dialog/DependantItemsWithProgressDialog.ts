@@ -2,7 +2,7 @@ import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {DependantItemsDialog, DependantItemsDialogConfig} from './DependantItemsDialog';
 import {TaskProgressManager, WithTaskProgress} from './TaskProgressManager';
-import {ContentItem} from '../ui2/list/ContentItem';
+import {ContentItem} from '../../v6/features/shared/items/ContentItem';
 import {StatusCheckableItem} from './StatusCheckableItem';
 
 export interface DependantItemsWithProgressDialogConfig

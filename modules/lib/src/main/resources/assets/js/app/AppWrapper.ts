@@ -11,21 +11,18 @@ import {Router} from './Router';
 import {UrlAction} from './UrlAction';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {cn} from '@enonic/ui';
-import {SidebarElement} from '../v6/features/layout/AppShell/Sidebar';
+import {BrowseSidebarElement} from '../v6/features/views/browse/layout/BrowseSidebar';
 import {$activeWidget, isDefaultWidget} from '../v6/features/store/sidebarWidgets.store';
-import {AppBarElement} from '../v6/features/layout/AppShell/AppBar';
-import {AppShellElement} from '../v6/features/layout/AppShell/AppShell';
+import {BrowseAppBarElement} from '../v6/features/views/browse/layout/BrowseAppBar';
 
 export class AppWrapper extends DivEl {
-    private sidebar: SidebarElement;
+    private sidebar: BrowseSidebarElement;
 
     private widgetElements: Map<string, WidgetElement> = new Map<string, WidgetElement>();
 
     private activeWidgets: string[] = [];
 
-    private appBar: AppBarElement;
-
-    private appShell: AppShellElement;
+    private appBar: BrowseAppBarElement;
 
     private widgetsBlock: DivEl;
 
@@ -37,9 +34,8 @@ export class AppWrapper extends DivEl {
     }
 
     private initElements() {
-        this.sidebar = new SidebarElement();
-        this.appBar = AppBarElement.getInstance();
-        this.appShell = AppShellElement.getInstance();
+        this.sidebar = new BrowseSidebarElement();
+        this.appBar = BrowseAppBarElement.getInstance();
         this.widgetsBlock = new DivEl('widgets-block');
     }
 
@@ -141,9 +137,6 @@ export class AppWrapper extends DivEl {
             const headerAndWidgetsBlock: DivEl = new DivEl('header-widgets-block');
             headerAndWidgetsBlock.appendChildren(this.appBar, this.widgetsBlock);
             this.appendChildren(this.sidebar, headerAndWidgetsBlock);
-
-            // Render AppShell with global dialogs at body level
-            Body.get().appendChild(this.appShell);
 
             ResponsiveManager.onAvailableSizeChanged(this.appBar);
 

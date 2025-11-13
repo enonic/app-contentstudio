@@ -12,7 +12,7 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
 import {DialogWithRefsDependantList} from '../remove/DialogWithRefsDependantList';
 import {DialogWithRefsItemList, DialogWithRefsItemListConfig} from '../remove/DialogWithRefsItemList';
-import {ContentItem} from '../ui2/list/ContentItem';
+import {ContentItem} from '../../v6/features/shared/items/ContentItem';
 import {ArchiveSelectableItem} from './ArchiveSelectableItem';
 
 export abstract class DependantItemsWithReferencesDialog

@@ -5,7 +5,7 @@ import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {StatusCheckableItem} from './StatusCheckableItem';
-import {ContentItem} from '../ui2/list/ContentItem';
+import {ContentItem} from '../../v6/features/shared/items/ContentItem';
 import {cn} from '@enonic/ui';
 
 export enum SelectionType {
