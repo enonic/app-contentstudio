@@ -71,7 +71,7 @@ function sortWidgets(widgets: Widget[]): Widget[] {
     return widgets.sort((a, b) => {
         const orderA = a.getConfig().getProperty('order');
         const orderB = b.getConfig().getProperty('order');
-        return (parseInt(orderA) ?? 999) - (parseInt(orderB) ?? 999);
+        return (parseInt(orderA) ?? Number.MAX_SAFE_INTEGER) - (parseInt(orderB) ?? Number.MAX_SAFE_INTEGER);
     });
 }
 
