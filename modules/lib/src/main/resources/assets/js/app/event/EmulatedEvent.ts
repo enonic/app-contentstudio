@@ -1,7 +1,9 @@
 import {EmulatorDevice} from '../view/context/widget/emulator/EmulatorDevice';
 
+/**
+ * @deprecated Replaced by EmulatedDeviceEvent
+ */
 export class EmulatedEvent {
-
     private readonly device: EmulatorDevice;
 
     private readonly emulator: boolean;

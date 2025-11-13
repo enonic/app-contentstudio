@@ -14,9 +14,9 @@ import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {EmulatedEvent} from '../event/EmulatedEvent';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
-import {EmulatorContext} from './context/widget/emulator/EmulatorContext';
+import {EmulatedDeviceEvent} from '../../v6/features/utils/events/registry';
+import {EmulatorDevice} from './context/widget/emulator/EmulatorDevice';
 
 export enum PREVIEW_TYPE {
     WIDGET,
@@ -293,10 +293,10 @@ export class WidgetRenderingHandler {
         void this.render(this.summary, event.getWidget());
     }
 
-    protected handleEmulatorEvent(event: EmulatedEvent) {
+    protected handleEmulatorEvent(device: EmulatorDevice) {
         if (this.messageView) {
-            this.messageView.getEl().setWidth(event.getWidthWithUnits());
-            this.messageView.getEl().setHeight(event.getHeightWithUnits());
+            this.messageView.getEl().setWidth(device.getWidthWithUnits());
+            this.messageView.getEl().setHeight(device.getHeightWithUnits());
         }
 
         // Keep no selection message intact,
@@ -305,10 +305,12 @@ export class WidgetRenderingHandler {
             this.renderer.getIFrameEl().getHTMLElement(),
             this.messageView.getHTMLElement()
         ];
-        const isFullscreen = event.isFullscreen();
+
+        const isFullscreen = device.equals(EmulatorDevice.getFullscreen())|| !device.isValid();
+
         subjects.forEach(s => {
-            s.style.width = !isFullscreen ? event.getWidthWithUnits() : '';
-            s.style.height = !isFullscreen ? event.getHeightWithUnits() : '';
+            s.style.width = !isFullscreen ? device.getWidthWithUnits() : '';
+            s.style.height = !isFullscreen ? device.getHeightWithUnits() : '';
         });
 
         this.renderer.getEl().toggleClass('emulated', !isFullscreen);
@@ -316,8 +318,7 @@ export class WidgetRenderingHandler {
 
     protected bindListeners() {
         ViewWidgetEvent.on(this.handleWidgetEvent.bind(this));
-
-        EmulatorContext.get().onDeviceChanged(this.handleEmulatorEvent.bind(this));
+        EmulatedDeviceEvent.listen(this.handleEmulatorEvent.bind(this));
 
         const iframe = this.renderer.getIFrameEl();
         iframe.onLoaded((event: UIEvent) => {

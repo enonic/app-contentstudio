@@ -4,7 +4,7 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {LucideIcon, Monitor, Smartphone, Tablet, TvMinimal} from 'lucide-react';
 
-export enum DeviceType {
+enum DeviceType {
     MONITOR,
     TABLET,
     MOBILE,
